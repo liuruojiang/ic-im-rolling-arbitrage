@@ -1,0 +1,14 @@
+{
+  "status": "completed",
+  "completed_at": "2026-08-20T15:13:00+08:00",
+  "source_workspace": "D:\\动量策略\\新策略研究",
+  "scope": "obsolete IC/IM unit-test files not retained by the migrated mainline dependency set",
+  "deleted_file_count": 53,
+  "deleted_orphan_pyc_count": 85,
+  "remaining_file_count": 0,
+  "deletion_list": "migration/obsolete_tests_to_delete.txt",
+  "backup_directory": "D:\\动量策略\\新策略研究\\.codex_backups\\20260820_151313",
+  "backup_manifest": "migration/source_cleanup_backup_manifest.json",
+  "recoverable": true,
+  "formal_specs_outputs_and_historical_reports_deleted": false
+}

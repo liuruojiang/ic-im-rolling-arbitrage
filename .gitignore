@@ -1,0 +1,36 @@
+# Python/runtime caches
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.hypothesis/
+.coverage
+htmlcov/
+
+# Local environments and secrets
+.env
+.env.*
+!.env.example
+.venv/
+venv/
+env/
+ENV/
+
+# Local research data and generated artifacts
+data/
+outputs/
+quant_param_scan_runs/
+.codex_backups/
+
+# OS/editor noise
+.DS_Store
+Thumbs.db
+*.tmp
+*.temp
+*.log
+*.bak
+*.bak_*
+*_backup*
+*_old.py
+*_copy.py
