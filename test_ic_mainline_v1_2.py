@@ -153,6 +153,43 @@ def test_rejects_same_day_momentum_execution() -> None:
         v12.compose_target_schedule(momentum, put, grid)
 
 
+def test_rejects_nonzero_first_momentum_execution() -> None:
+    momentum, put, grid = _synthetic_inputs()
+    momentum.loc[0, "momentum_execution_weight"] = 0.5
+    with pytest.raises(ValueError, match="First momentum execution"):
+        v12.compose_target_schedule(momentum, put, grid)
+
+
+def test_rejects_put_eval_date_not_strictly_before_execution() -> None:
+    momentum, put, grid = _synthetic_inputs()
+    put.loc[1, "eval_date"] = put.loc[1, "execution_date"] + pd.Timedelta(days=30)
+    with pytest.raises(ValueError, match="strictly earlier"):
+        v12.compose_target_schedule(momentum, put, grid)
+
+
+@pytest.mark.parametrize("bad_price", [np.nan, np.inf, 0.0, -1.0])
+def test_momentum_close_fails_closed_on_invalid_prices(bad_price: float) -> None:
+    close = pd.Series(
+        np.linspace(1000.0, 1100.0, 180),
+        index=pd.bdate_range("2023-01-02", periods=180),
+    )
+    close.iloc[-2] = bad_price
+    with pytest.raises(ValueError, match="NaN, infinite, or nonpositive"):
+        v12.build_momentum_schedule(close)
+
+
+def test_momentum_close_rejects_intraday_and_wrong_timezone_dates() -> None:
+    close = pd.Series(
+        [1000.0, 1001.0],
+        index=pd.to_datetime(["2024-01-02 00:00", "2024-01-02 15:00"]),
+    )
+    with pytest.raises(ValueError, match="date-only|duplicate calendar"):
+        v12.build_momentum_schedule(close)
+    utc = pd.Series([1000.0, 1001.0], index=pd.date_range("2024-01-02", periods=2, tz="UTC"))
+    with pytest.raises(ValueError, match="timezone must be Asia/Shanghai"):
+        v12.build_momentum_schedule(utc)
+
+
 def test_local_real_artifact_audit_passes() -> None:
     schedule, audit = v12.load_authoritative_local_state()
     assert audit["start"] == "2015-04-16"
@@ -191,4 +228,3 @@ def test_frozen_spec_hash_matches_sidecar() -> None:
     sidecar = v12.SPEC_PATH.with_suffix(v12.SPEC_PATH.suffix + ".sha256")
     expected_hash = sidecar.read_text(encoding="utf-8").split()[0]
     assert hashlib.sha256(v12.SPEC_PATH.read_bytes()).hexdigest() == expected_hash
-

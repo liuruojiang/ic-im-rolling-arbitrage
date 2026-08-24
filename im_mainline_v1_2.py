@@ -10,6 +10,8 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
+import tempfile
 from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any
@@ -40,6 +42,14 @@ MOMENTUM_AUDIT_PATH = (
     / "im_roll50_momentum50_fullcycle_put_v4"
     / "daily_nav.csv.gz"
 )
+FIXED_COMPONENTS_PATH = (
+    ROOT
+    / "quant_param_scan_runs"
+    / "20260823_im_grid160_put_carry_scan_v23"
+    / "daily_outputs"
+    / "daily_candidates.csv.gz"
+)
+REAL_IM_START = pd.Timestamp("2022-07-22")
 SPEC_PATH = ROOT / "docs" / "im_mainline_v1_2_spec.md"
 
 
@@ -59,6 +69,121 @@ class MomentumPolicy:
 
 
 MOMENTUM_POLICY = MomentumPolicy()
+
+
+def normalize_daily_dates(values: Any, label: str) -> pd.DatetimeIndex:
+    """Return timezone-naive Shanghai trading dates after strict validation."""
+
+    try:
+        dates = pd.DatetimeIndex(pd.to_datetime(values, errors="raise"))
+    except (TypeError, ValueError) as exc:
+        raise ValueError(f"{label} contains invalid dates") from exc
+    if dates.hasnans:
+        raise ValueError(f"{label} contains missing dates")
+    if dates.tz is not None:
+        timezone = str(dates.tz)
+        if timezone not in {"Asia/Shanghai", "PRC"}:
+            raise ValueError(f"{label} timezone must be Asia/Shanghai, got {timezone}")
+        dates = dates.tz_convert("Asia/Shanghai").tz_localize(None)
+    if not dates.equals(dates.normalize()):
+        raise ValueError(f"{label} must contain date-only midnight timestamps")
+    if dates.normalize().duplicated().any():
+        raise ValueError(f"{label} contains duplicate calendar dates")
+    return dates
+
+
+def validate_close_series(close: pd.Series, label: str = "close") -> pd.Series:
+    """Fail closed on unusable prices and canonicalize the daily date index."""
+
+    if close.empty:
+        raise ValueError(f"{label} is empty")
+    result = pd.to_numeric(close.copy(), errors="coerce").astype(float)
+    dates = normalize_daily_dates(result.index, f"{label} index")
+    values = result.to_numpy(dtype=float)
+    if not np.isfinite(values).all() or (values <= 0.0).any():
+        raise ValueError(f"{label} contains NaN, infinite, or nonpositive prices")
+    result.index = dates
+    if not result.index.is_monotonic_increasing:
+        result = result.sort_index()
+    return result
+
+
+def normalize_optional_daily_dates(values: Any, label: str) -> pd.Series:
+    """Parse optional date-only values while preserving missing inactive expiries."""
+
+    try:
+        parsed = pd.to_datetime(values, errors="raise")
+    except (TypeError, ValueError) as exc:
+        raise ValueError(f"{label} contains invalid dates") from exc
+    result = pd.Series(parsed, index=getattr(values, "index", None))
+    present = result.notna()
+    if present.any():
+        dates = pd.DatetimeIndex(result.loc[present])
+        if dates.tz is not None:
+            timezone = str(dates.tz)
+            if timezone not in {"Asia/Shanghai", "PRC"}:
+                raise ValueError(
+                    f"{label} timezone must be Asia/Shanghai, got {timezone}"
+                )
+            converted = dates.tz_convert("Asia/Shanghai").tz_localize(None)
+            result.loc[present] = converted
+            dates = converted
+        if not dates.equals(dates.normalize()):
+            raise ValueError(f"{label} must contain date-only midnight timestamps")
+    return pd.to_datetime(result)
+
+
+def _atomic_write_text(path: Path, content: str) -> None:
+    """Write a new text artifact atomically; existing files are immutable."""
+
+    path = Path(path)
+    if path.exists():
+        raise FileExistsError(f"Refusing to overwrite existing output: {path}")
+    path.parent.mkdir(parents=True, exist_ok=True)
+    handle, temporary_name = tempfile.mkstemp(prefix=f".{path.name}.", suffix=".tmp", dir=path.parent)
+    temporary = Path(temporary_name)
+    try:
+        with os.fdopen(handle, "w", encoding="utf-8", newline="") as stream:
+            stream.write(content)
+            stream.flush()
+            os.fsync(stream.fileno())
+        temporary.rename(path)
+    except Exception:
+        temporary.unlink(missing_ok=True)
+        raise
+
+
+def _atomic_write_csv(frame: pd.DataFrame, path: Path) -> None:
+    """Write a new CSV (optionally gzip) through a sibling temporary file."""
+
+    path = Path(path)
+    if path.exists():
+        raise FileExistsError(f"Refusing to overwrite existing output: {path}")
+    path.parent.mkdir(parents=True, exist_ok=True)
+    handle, temporary_name = tempfile.mkstemp(prefix=f".{path.name}.", suffix=".tmp", dir=path.parent)
+    os.close(handle)
+    temporary = Path(temporary_name)
+    try:
+        frame.to_csv(
+            temporary,
+            index=False,
+            compression="gzip" if path.name.endswith(".gz") else None,
+        )
+        temporary.rename(path)
+    except Exception:
+        temporary.unlink(missing_ok=True)
+        raise
+
+
+def ensure_new_output_paths(*paths: Path | None) -> None:
+    """Preflight a multi-artifact write so no partial output is created."""
+
+    selected = [Path(path).resolve() for path in paths if path is not None]
+    if len(set(selected)) != len(selected):
+        raise ValueError("Output paths must be distinct")
+    existing = [path for path in selected if path.exists()]
+    if existing:
+        raise FileExistsError(f"Refusing to overwrite existing outputs: {existing}")
 
 
 def _sha256(path: Path) -> str | None:
@@ -117,13 +242,7 @@ def momentum_signal_target(score: pd.Series, abs20: pd.Series) -> pd.Series:
 def build_momentum_schedule(close: pd.Series) -> pd.DataFrame:
     """Build close signal and next-session execution weights from price closes."""
 
-    close = pd.to_numeric(close, errors="coerce").astype(float)
-    if close.empty:
-        raise ValueError("close is empty")
-    if close.index.has_duplicates:
-        raise ValueError("close index contains duplicate dates")
-    if not close.index.is_monotonic_increasing:
-        close = close.sort_index()
+    close = validate_close_series(close)
 
     score = calc_bias_momentum(close)
     abs20 = (close / close.shift(MOMENTUM_POLICY.absolute_momentum_days) - 1.0).rename(
@@ -152,7 +271,7 @@ def _validate_momentum_schedule(frame: pd.DataFrame) -> pd.DataFrame:
     if missing:
         raise ValueError(f"Missing momentum columns: {missing}")
     result = frame.copy()
-    result["date"] = pd.to_datetime(result["date"])
+    result["date"] = normalize_daily_dates(result["date"], "Momentum schedule dates")
     result = result.sort_values("date").reset_index(drop=True)
     if result.empty:
         raise ValueError("Momentum schedule is empty")
@@ -180,13 +299,14 @@ def _validate_momentum_schedule(frame: pd.DataFrame) -> pd.DataFrame:
 def compose_from_parent_schedule(
     parent_schedule: pd.DataFrame,
     momentum_schedule: pd.DataFrame,
+    actual_call_state: pd.DataFrame | None = None,
 ) -> pd.DataFrame:
     """Apply v1.2 capital sleeves without changing any parent v1.1 decisions."""
 
     base = parent_schedule.copy()
     if "date" not in base.columns:
         raise ValueError("Parent schedule is missing date")
-    base["date"] = pd.to_datetime(base["date"])
+    base["date"] = normalize_daily_dates(base["date"], "Parent schedule dates")
     base = base.sort_values("date").reset_index(drop=True)
     if base.empty or base["date"].duplicated().any():
         raise ValueError("Parent schedule dates are empty or duplicated")
@@ -235,12 +355,57 @@ def compose_from_parent_schedule(
     merged["put_covered_im_units"] = CORE_CAPITAL_SHARE
 
     merged["core_call_covered_im_units"] = CORE_CAPITAL_SHARE
-    merged["core_call_target_contracts_normalized"] = (
+    merged["core_call_coverage_capacity_contracts_normalized"] = (
         CORE_CAPITAL_SHARE * CALL_CONTRACTS_PER_FULL_IM
     )
+    merged["core_call_actual_target_contracts_normalized"] = np.nan
+    merged["core_call_target_contracts_normalized"] = np.nan
+    merged["actual_call_state_available"] = False
     merged["momentum_call_target_contracts_normalized"] = 0.0
     merged["grid_call_qty"] = 0
     merged["call_covered_im_units"] = CORE_CAPITAL_SHARE
+    if actual_call_state is not None:
+        call = actual_call_state.copy()
+        required_call = {
+            "date",
+            "call_active",
+            "call_contract",
+            "call_expiry",
+            "threat_roll_count",
+            "threat_entry_blocked",
+        }
+        missing_call = sorted(required_call.difference(call.columns))
+        if missing_call:
+            raise ValueError(f"Missing actual Call columns: {missing_call}")
+        call["date"] = normalize_daily_dates(call["date"], "Actual Call state dates")
+        call = call.sort_values("date").reset_index(drop=True)
+        call["call_active"] = call["call_active"].astype(bool)
+        merged = merged.merge(
+            call[
+                [
+                    "date",
+                    "call_active",
+                    "call_contract",
+                    "call_expiry",
+                    "threat_roll_count",
+                    "threat_entry_blocked",
+                ]
+            ],
+            on="date",
+            how="left",
+            validate="one_to_one",
+        )
+        if merged[
+            ["call_active", "call_contract", "threat_roll_count", "threat_entry_blocked"]
+        ].isna().any().any():
+            raise ValueError("Actual Call state does not cover all parent dates")
+        actual_target = (
+            merged["call_active"].astype(float)
+            * merged["core_call_coverage_capacity_contracts_normalized"]
+        )
+        merged["core_call_actual_target_contracts_normalized"] = actual_target
+        merged["core_call_target_contracts_normalized"] = actual_target
+        merged["actual_call_state_available"] = True
     merged["margin_buffer_fraction"] = parent.PER_IM_MARGIN_BUFFER * merged[
         "total_im_units"
     ]
@@ -270,7 +435,7 @@ def load_authoritative_local_state() -> tuple[pd.DataFrame, dict[str, Any]]:
     missing = sorted(required.difference(source.columns))
     if missing:
         raise ValueError(f"Momentum audit artifact is missing columns: {missing}")
-    source["date"] = pd.to_datetime(source["date"])
+    source["date"] = normalize_daily_dates(source["date"], "Momentum audit dates")
     source = source.loc[
         source["date"].between(parent_schedule["date"].min(), parent_schedule["date"].max())
     ].copy()
@@ -286,7 +451,80 @@ def load_authoritative_local_state() -> tuple[pd.DataFrame, dict[str, Any]]:
             "momentum_execution_weight": source["momentum_weight"].astype(float),
         }
     )
-    schedule = compose_from_parent_schedule(parent_schedule, momentum)
+    if not FIXED_COMPONENTS_PATH.is_file():
+        raise FileNotFoundError(f"Missing fixed component artifact: {FIXED_COMPONENTS_PATH}")
+    components = pd.read_csv(FIXED_COMPONENTS_PATH, low_memory=False)
+    chosen = components[components["variant"].eq("current_4tier_mom3")].copy()
+    chosen["date"] = pd.to_datetime(chosen["date"], errors="raise")
+    model = chosen[
+        chosen["scenario"].eq("model_avg_basis") & chosen["date"].lt(REAL_IM_START)
+    ].copy()
+    real = chosen[
+        chosen["scenario"].eq("real_actual_basis") & chosen["date"].ge(REAL_IM_START)
+    ].copy()
+    call = pd.concat([model, real], ignore_index=True).sort_values("date").reset_index(drop=True)
+    call["date"] = normalize_daily_dates(call["date"], "Fixed component dates")
+    if call.empty or call["date"].duplicated().any():
+        raise RuntimeError("Actual Call component dates are empty or duplicated")
+    call_contract = call["call_contract"].fillna("").astype(str).str.strip()
+    call_expiry = normalize_optional_daily_dates(
+        call["call_expiry"], "Fixed component Call expiries"
+    )
+    threat_roll_count_numeric = pd.to_numeric(
+        call["threat_roll_count"], errors="coerce"
+    )
+    if (
+        threat_roll_count_numeric.isna().any()
+        or not np.isfinite(threat_roll_count_numeric.to_numpy(dtype=float)).all()
+        or not threat_roll_count_numeric.eq(threat_roll_count_numeric.round()).all()
+        or not threat_roll_count_numeric.between(0, 5).all()
+    ):
+        raise RuntimeError("Call threat_roll_count must be an integer from 0 through 5")
+    threat_roll_count = threat_roll_count_numeric.astype(int)
+    blocked_raw = call["threat_entry_blocked"]
+    if blocked_raw.isna().any() or not blocked_raw.isin([True, False, 0, 1]).all():
+        raise RuntimeError("Call threat_entry_blocked must be a nonmissing boolean")
+    threat_entry_blocked = blocked_raw.astype(bool)
+    call_margin_active = pd.to_numeric(
+        call["call_margin_fraction"], errors="coerce"
+    ).fillna(0.0).abs().gt(1e-12)
+    if not call_contract.ne("").equals(call_margin_active):
+        raise RuntimeError("Actual Call contract and margin activity disagree")
+    call_active = call_contract.ne("")
+    if not call_expiry.notna().equals(call_active):
+        raise RuntimeError("Actual Call expiry and contract activity disagree")
+    blocked_inconsistency = threat_entry_blocked & (
+        call_active | call_expiry.notna() | threat_roll_count.ne(0)
+    )
+    if blocked_inconsistency.any():
+        raise RuntimeError(
+            "Blocked Call entries must be flat with no expiry and zero threat roll count"
+        )
+    prior_roll_count = threat_roll_count.shift()
+    threat_roll = threat_roll_count.gt(prior_roll_count)
+    roll_increment_failures = threat_roll & threat_roll_count.sub(prior_roll_count).ne(1)
+    expiry_order_failures = threat_roll & (
+        call_expiry.isna()
+        | call_expiry.shift().isna()
+        | call_expiry.le(call_expiry.shift())
+    )
+    if roll_increment_failures.any():
+        raise RuntimeError("Call threat roll count must increment exactly once per rescue")
+    if expiry_order_failures.any():
+        raise RuntimeError(
+            "Call threat rescue expiry must be strictly later than the prior expiry"
+        )
+    actual_call = pd.DataFrame(
+        {
+            "date": call["date"],
+            "call_active": call_active,
+            "call_contract": call_contract,
+            "call_expiry": call_expiry,
+            "threat_roll_count": threat_roll_count,
+            "threat_entry_blocked": threat_entry_blocked,
+        }
+    )
+    schedule = compose_from_parent_schedule(parent_schedule, momentum, actual_call)
 
     core_formula_error = float(np.max(np.abs(schedule["core_im_units"] - CORE_CAPITAL_SHARE)))
     momentum_formula_error = float(
@@ -318,6 +556,12 @@ def load_authoritative_local_state() -> tuple[pd.DataFrame, dict[str, Any]]:
             )
         )
     )
+    actual_call_target = schedule["core_call_actual_target_contracts_normalized"].astype(float)
+    expected_call_target = (
+        schedule["call_active"].astype(float)
+        * schedule["core_call_coverage_capacity_contracts_normalized"].astype(float)
+    )
+    call_actual_formula_error = float((actual_call_target - expected_call_target).abs().max())
 
     latest = schedule.iloc[-1]
     audit = {
@@ -332,6 +576,23 @@ def load_authoritative_local_state() -> tuple[pd.DataFrame, dict[str, Any]]:
         "total_units_formula_max_abs_error": total_formula_error,
         "grid_parent_parity_max_abs_error": grid_parent_error,
         "put_core_only_formula_max_abs_error": put_formula_error,
+        "call_actual_target_formula_max_abs_error": call_actual_formula_error,
+        "call_actual_active_rows": int(schedule["call_active"].sum()),
+        "call_actual_flat_rows": int((~schedule["call_active"]).sum()),
+        "call_threat_roll_events": int(threat_roll.sum()),
+        "call_threat_roll_count_increment_failures": int(
+            roll_increment_failures.sum()
+        ),
+        "call_threat_roll_expiry_order_failures": int(expiry_order_failures.sum()),
+        "call_max_threat_roll_count": int(threat_roll_count.max()),
+        "call_threat_entry_blocked_rows": int(threat_entry_blocked.sum()),
+        "call_threat_entry_blocked_inconsistency_rows": int(
+            blocked_inconsistency.sum()
+        ),
+        "call_coverage_capacity_contracts_normalized": float(
+            schedule["core_call_coverage_capacity_contracts_normalized"].iloc[0]
+        ),
+        "call_rescue_expiry_rule": parent.CALL_POLICY.rescue_expiry_rule,
         "momentum_put_nonzero_rows": int(schedule["momentum_put_qty_normalized"].ne(0).sum()),
         "momentum_call_nonzero_rows": int(
             schedule["momentum_call_target_contracts_normalized"].ne(0).sum()
@@ -360,6 +621,18 @@ def load_authoritative_local_state() -> tuple[pd.DataFrame, dict[str, Any]]:
             "core_call_target_contracts_normalized": float(
                 latest["core_call_target_contracts_normalized"]
             ),
+            "core_call_coverage_capacity_contracts_normalized": float(
+                latest["core_call_coverage_capacity_contracts_normalized"]
+            ),
+            "call_active": bool(latest["call_active"]),
+            "call_contract": str(latest["call_contract"]),
+            "call_expiry": (
+                latest["call_expiry"].date().isoformat()
+                if pd.notna(latest["call_expiry"])
+                else None
+            ),
+            "threat_roll_count": int(latest["threat_roll_count"]),
+            "threat_entry_blocked": bool(latest["threat_entry_blocked"]),
         },
         "parent_v1_1_audit": parent_audit,
     }
@@ -392,11 +665,13 @@ def rule_manifest() -> dict[str, Any]:
             "parent": "im_mainline_v1_1.py",
             "momentum_implementation": str(A_SHARE_V13_BOT),
             "momentum_audit": str(MOMENTUM_AUDIT_PATH),
+            "fixed_call_components": str(FIXED_COMPONENTS_PATH),
             "research_record": "2026-08-23_滚IC滚IM叠加动量完整研究记录.md",
             "spec": str(SPEC_PATH),
             "source_sha256": {
                 "parent": _sha256(ROOT / "im_mainline_v1_1.py"),
                 "a_share_v1_3": _sha256(A_SHARE_V13_BOT),
+                "fixed_call_components": _sha256(FIXED_COMPONENTS_PATH),
                 "spec": _sha256(SPEC_PATH),
             },
         },
@@ -424,21 +699,20 @@ def main() -> None:
     args = parser.parse_args()
     if (args.output_csv or args.output_json) and not args.audit_local:
         parser.error("--output-csv/--output-json require --audit-local")
+    ensure_new_output_paths(args.output_csv, args.output_json)
 
     payload: dict[str, Any] = {"rules": rule_manifest()}
     if args.audit_local:
         schedule, audit = load_authoritative_local_state()
         payload["local_audit"] = audit
         if args.output_csv:
-            args.output_csv.parent.mkdir(parents=True, exist_ok=True)
-            schedule.to_csv(args.output_csv, index=False)
+            _atomic_write_csv(schedule, args.output_csv)
             payload["schedule_output"] = str(args.output_csv.resolve())
         if args.output_json:
-            args.output_json.parent.mkdir(parents=True, exist_ok=True)
             payload["audit_output"] = str(args.output_json.resolve())
-            args.output_json.write_text(
+            _atomic_write_text(
+                args.output_json,
                 json.dumps(payload, ensure_ascii=False, indent=2, default=str) + "\n",
-                encoding="utf-8",
             )
     print(json.dumps(payload, ensure_ascii=False, indent=2, default=str))
 

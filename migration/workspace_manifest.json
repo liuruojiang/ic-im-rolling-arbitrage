@@ -1,9 +1,9 @@
 {
   "version": "ic_im_mainline_workspace_manifest_v1",
-  "generated_at": "2026-08-23T17:56:04+08:00",
+  "generated_at": "2026-08-24T11:18:33+08:00",
   "root": "D:\\动量策略\\IC和IM滚动套利",
-  "file_count": 2814,
-  "total_bytes": 752992857,
+  "file_count": 2822,
+  "total_bytes": 755195456,
   "files": {
     ".gitattributes": {
       "bytes": 8,
@@ -29,13 +29,21 @@
       "bytes": 219218,
       "sha256": "df372ac6e74e9bf7b1432af8138c7da81385fc8c26c5456f9e06e9091718d7f6"
     },
+    "assets/poe_ic_im_v1_2_avatar.png": {
+      "bytes": 1762367,
+      "sha256": "9f76eb70bb1178d47c4ba1db6a5bf7671a548c669044f7fab4f1111597017a02"
+    },
     "audit_option_expiry_semantics_v1.py": {
       "bytes": 28248,
       "sha256": "43a235c6a280ad7e5ac668bbb74359e533adcf4a20727d4d208e4035bd30e2c6"
     },
+    "build_ic_im_mainline_v1_2_fixed_performance.py": {
+      "bytes": 26457,
+      "sha256": "2cfd8631658fefba30aeb076659781b7c807dc17368e8d68014ff60877e7a3a3"
+    },
     "build_workspace_manifest.py": {
-      "bytes": 1728,
-      "sha256": "d81a6ba4c21fa02f5243e3c7360b47cf4626bb3ddd8d63e20aebf0479553c493"
+      "bytes": 1853,
+      "sha256": "31530b6118c468fecfb782e6aed9c6dd859232cd3595ccd9fb281f01f56b5ec7"
     },
     "data/ic_510500_call_overwrite_delta_tenor_v1/data_manifest.json": {
       "bytes": 1856,
@@ -2330,8 +2338,8 @@
       "sha256": "11b0f036fbe9c04d072b9dca5bac5e0d5bbc6afff61b8d9a9783bc5367e8a0c5"
     },
     "docs/poe_ic_im_mainline_v1_2_design.md": {
-      "bytes": 3227,
-      "sha256": "1b5e708d978def90ae86ad27c77bc87feb5d6c1c5d144d2d889105a6e72dd9bf"
+      "bytes": 12878,
+      "sha256": "bb57732a74026fb89723f892d327e076112351e0e2cdbb3312c63f5cb22e9ae6"
     },
     "docs/poe_ic_im_mainlines_v2_design.md": {
       "bytes": 6242,
@@ -2438,8 +2446,8 @@
       "sha256": "5b34965ef99e076a3cb42e10db74c8f4b9fe13da13b4157d0f5b7229c9d1ce5c"
     },
     "ic_im_mainline_v1_2.py": {
-      "bytes": 3921,
-      "sha256": "5d243536fee288b301b09e850c4b739205260c7f72e47fff3815c139f9183b66"
+      "bytes": 4000,
+      "sha256": "ae2ccba29779841ea100dfb719cb92552795053567f6faeae9fff00ec4b47dd2"
     },
     "ic_im_put_expiry_side_scan_v2.py": {
       "bytes": 21340,
@@ -2450,8 +2458,8 @@
       "sha256": "151b201bc9258a864cb725aec666133d3e4fcf2f0876ee98062103ce62cd1c1d"
     },
     "ic_mainline_v1_2.py": {
-      "bytes": 19970,
-      "sha256": "e3a9b38dc40c042bd5769e609e4a2f7b4121043f24f1b3ffd44863e0bb2fac32"
+      "bytes": 20817,
+      "sha256": "8f16a0db3186a961abc0df5481a8fff5df08a8405775c0d7e983a16703c8cec8"
     },
     "ic_monthly_discount_roll_v1.py": {
       "bytes": 32877,
@@ -2558,8 +2566,8 @@
       "sha256": "e9ee72e50f2193531e8dd296b19e252985d9d08673de177b85456d7e32bcaeba"
     },
     "im_mainline_v1_2.py": {
-      "bytes": 17296,
-      "sha256": "0a8aebf1f7b0ce56ef20283cfedba2dad5eb9039db0750d28a487effd7dab2b7"
+      "bytes": 29558,
+      "sha256": "815e8e65fa77a4b376abccb0da69d6cc67aa20bdf585200ea29014a584e7fdc7"
     },
     "im_mo_2015_valuation_reconstruction_v13.py": {
       "bytes": 21489,
@@ -5828,6 +5836,30 @@
     "outputs/ic_im_mainline_v1_2/record.md": {
       "bytes": 1178,
       "sha256": "ce49a198d9dd16dbf8fc4dff4fcf91889844d09ba11862350d7d090bd51d9596"
+    },
+    "outputs/ic_im_mainline_v1_2_fixed_performance_v1/ic_daily.csv.gz": {
+      "bytes": 100044,
+      "sha256": "1f8069dddadb8c568ac78882311f06cd121f2509062a7e1b84946b35796c7c1c"
+    },
+    "outputs/ic_im_mainline_v1_2_fixed_performance_v1/im_daily.csv.gz": {
+      "bytes": 109985,
+      "sha256": "6ac2149bf27cded9f274f9d7b5bc100cb4a8aa03ea8a7d6665f30eddb324c254"
+    },
+    "outputs/ic_im_mainline_v1_2_fixed_performance_v1/metrics_by_window.csv": {
+      "bytes": 1390,
+      "sha256": "bb8f9088c38e803b47a2179320f2c097b2c6bb6117c21bd25dcce73acd458ed4"
+    },
+    "outputs/ic_im_mainline_v1_2_fixed_performance_v1/record.md": {
+      "bytes": 896,
+      "sha256": "a7714de157c66d86e0a25cc893f74b7c04711f76bcbcd022894139e1435d9539"
+    },
+    "outputs/ic_im_mainline_v1_2_fixed_performance_v1/run_manifest.json": {
+      "bytes": 1186,
+      "sha256": "110637db54a83351c5806f9dbc23e90e1ab35f6bfc23c2271f296b475e02ed97"
+    },
+    "outputs/ic_im_mainline_v1_2_fixed_performance_v1/validation.json": {
+      "bytes": 987,
+      "sha256": "1af7617b37c52547e70e109d67ca46010fd7c45ad1def062e0c83630bbe73061"
     },
     "outputs/ic_im_system_mainlines_v1/command_log.txt": {
       "bytes": 44,
@@ -9522,8 +9554,8 @@
       "sha256": "02f845625b02c288af2cdd5494518c69454537c20ab4954cd9c9b91bd4d350a5"
     },
     "poe_ic_im_mainline_v1_2_bot.py": {
-      "bytes": 148767,
-      "sha256": "65056c90f957e2ad29164eb17e50f3c1cffbaa16354ae17bbadeb729e762849a"
+      "bytes": 281986,
+      "sha256": "320be898a2f7ec8fb2389097b454a6dc26cfba89dbdae6b6ddaa8c257eee3071"
     },
     "poe_ic_im_mainlines_v2_bot.py": {
       "bytes": 117200,
@@ -10962,8 +10994,8 @@
       "sha256": "c780b647ca98f7ae0528a4bb41df8a4cb55ddc1b36b4f9a1fe926db292981ed1"
     },
     "README.md": {
-      "bytes": 3602,
-      "sha256": "45f307cd9ab09f5274e646a61026a1c19206d5f2cacb500f0e22f9f972d791a2"
+      "bytes": 4329,
+      "sha256": "44e3cd79327b230766236cdd217f678b919853e41589ab2cfa3e98ffde1074d2"
     },
     "requirements.txt": {
       "bytes": 36,
@@ -11054,16 +11086,16 @@
       "sha256": "f56e6f0a5fbc7d34a828238bfbafb35677e898948df86468be20bfc73da0fb7e"
     },
     "test_ic_im_mainline_v1_2.py": {
-      "bytes": 1596,
-      "sha256": "9cae4973e8af5d792ed6a3220a0f8f18f021c74f11da945a992091da6bf3703d"
+      "bytes": 5271,
+      "sha256": "325f16c3a36b91e86398fd806ab7082d18c81b826b977cafe9531d5eb5adb14c"
     },
     "test_ic_im_put_max_protection_scan_v1.py": {
       "bytes": 3500,
       "sha256": "ab88437c4805903cec7d8da85be395e0bd4871c1d800cf9c15f25d19f894145b"
     },
     "test_ic_mainline_v1_2.py": {
-      "bytes": 7551,
-      "sha256": "73bb59bf0d6b0fe9d33a21c89f9ec0e82aed51c31b109ce49f6c9e6781e31def"
+      "bytes": 9125,
+      "sha256": "20d391cf41431919b6f5aa86dd4bd5d56fe6494dc4312354113dd471a6f58334"
     },
     "test_ic_monthly_discount_roll_v1.py": {
       "bytes": 1950,
@@ -11142,8 +11174,8 @@
       "sha256": "098b742e8cbc97dbf6cd9c0b5069b756c5f2a2e35014b6669cac987671ced000"
     },
     "test_im_mainline_v1_2.py": {
-      "bytes": 6616,
-      "sha256": "0ffde03ed061ca47ced3063d15e70fe1215a0b761be5de4b66cc7cee08d71c32"
+      "bytes": 9454,
+      "sha256": "cdeb093837f4880948f8a6b02dedeb0e21750a9ec9e5f60a4a920ab675da0877"
     },
     "test_im_mo_2015_valuation_reconstruction_v13.py": {
       "bytes": 1526,
@@ -11250,8 +11282,8 @@
       "sha256": "bc162b066d399e9194f10ebd6fc6d3e365b187556055b43a34479522b19d1ca1"
     },
     "test_poe_ic_im_mainline_v1_2_bot.py": {
-      "bytes": 10655,
-      "sha256": "bfe15feee823b4d5f753f62f43bf23ea47d6f0f0681f0733980e405b953ff8db"
+      "bytes": 44945,
+      "sha256": "61cf3dc82e07afd808cb19db8954597091eb349e73c0125b8d036aae93bb024c"
     },
     "test_poe_ic_im_mainlines_v2_bot.py": {
       "bytes": 46070,

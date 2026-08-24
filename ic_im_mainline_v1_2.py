@@ -61,8 +61,12 @@ def load_authoritative_local_state() -> tuple[dict[str, pd.DataFrame], dict[str,
     ic_schedule, ic_audit = ic.load_authoritative_local_state()
     im_schedule, im_audit = im.load_authoritative_local_state()
 
-    ic_dates = pd.to_datetime(ic_schedule["date"]).reset_index(drop=True)
-    im_dates = pd.to_datetime(im_schedule["date"]).reset_index(drop=True)
+    ic_dates = pd.Series(
+        im.normalize_daily_dates(ic_schedule["date"], "IC target dates")
+    ).reset_index(drop=True)
+    im_dates = pd.Series(
+        im.normalize_daily_dates(im_schedule["date"], "IM target dates")
+    ).reset_index(drop=True)
     date_parity = bool(ic_dates.equals(im_dates))
     if not date_parity:
         raise RuntimeError("IC and IM v1.2 target dates are not identical")
@@ -96,21 +100,20 @@ def main() -> None:
     args = parser.parse_args()
     if args.output_json and not args.audit_local:
         parser.error("--output-json requires --audit-local")
+    im.ensure_new_output_paths(args.output_json)
 
     payload: dict[str, Any] = {"rules": rule_manifest()}
     if args.audit_local:
         _schedules, audit = load_authoritative_local_state()
         payload["local_audit"] = audit
         if args.output_json:
-            args.output_json.parent.mkdir(parents=True, exist_ok=True)
             payload["audit_output"] = str(args.output_json.resolve())
-            args.output_json.write_text(
+            im._atomic_write_text(
+                args.output_json,
                 json.dumps(payload, ensure_ascii=False, indent=2, default=str) + "\n",
-                encoding="utf-8",
             )
     print(json.dumps(payload, ensure_ascii=False, indent=2, default=str))
 
 
 if __name__ == "__main__":
     main()
-

@@ -108,13 +108,7 @@ def momentum_signal_target(score: pd.Series, abs20: pd.Series) -> pd.Series:
 
 
 def build_momentum_schedule(close: pd.Series) -> pd.DataFrame:
-    close = pd.to_numeric(close, errors="coerce").astype(float)
-    if close.empty:
-        raise ValueError("close is empty")
-    if close.index.has_duplicates:
-        raise ValueError("close index contains duplicate dates")
-    if not close.index.is_monotonic_increasing:
-        close = close.sort_index()
+    close = shared.validate_close_series(close)
     score = calc_bias_momentum(close)
     abs20 = (close / close.shift(MOMENTUM_POLICY.absolute_momentum_days) - 1.0).rename(
         "abs20"
@@ -152,7 +146,7 @@ def compose_target_schedule(
     if missing:
         raise ValueError(f"Missing momentum columns: {missing}")
     mom = momentum.copy()
-    mom["date"] = pd.to_datetime(mom["date"])
+    mom["date"] = shared.normalize_daily_dates(mom["date"], "Momentum dates")
     mom = mom.sort_values("date").reset_index(drop=True)
     if mom.empty or mom["date"].duplicated().any():
         raise ValueError("Momentum dates are empty or duplicated")
@@ -167,6 +161,8 @@ def compose_target_schedule(
             raise ValueError(f"{column} contains values outside 0/0.5/1")
     expected_execution = mom["momentum_signal_target"].shift(1).to_numpy(dtype=float)
     actual_execution = mom["momentum_execution_weight"].to_numpy(dtype=float)
+    if not np.isclose(actual_execution[0], 0.0, atol=1e-12, rtol=0.0):
+        raise ValueError("First momentum execution weight must be zero")
     if len(mom) > 1 and not np.allclose(
         actual_execution[1:], expected_execution[1:], atol=1e-12, rtol=0.0
     ):
@@ -189,8 +185,14 @@ def compose_target_schedule(
     if missing:
         raise ValueError(f"Missing Put schedule columns: {missing}")
     put = put_schedule.copy()
-    put["date"] = pd.to_datetime(put["execution_date"])
-    put["put_eval_date"] = pd.to_datetime(put["eval_date"])
+    put["date"] = shared.normalize_daily_dates(
+        put["execution_date"], "Put execution dates"
+    )
+    put["put_eval_date"] = shared.normalize_daily_dates(
+        put["eval_date"], "Put evaluation dates"
+    )
+    if not put["put_eval_date"].lt(put["date"]).all():
+        raise ValueError("Every Put eval_date must be strictly earlier than execution_date")
     put = put.sort_values("date").reset_index(drop=True)
     if put.empty or put["date"].duplicated().any():
         raise ValueError("Put schedule dates are empty or duplicated")
@@ -207,7 +209,9 @@ def compose_target_schedule(
     if missing:
         raise ValueError(f"Missing grid columns: {missing}")
     grid_frame = grid.copy()
-    grid_frame["date"] = pd.to_datetime(grid_frame["date"])
+    grid_frame["date"] = shared.normalize_daily_dates(
+        grid_frame["date"], "Grid dates"
+    )
     grid_frame = grid_frame.sort_values("date").reset_index(drop=True)
     if grid_frame.empty or grid_frame["date"].duplicated().any():
         raise ValueError("Grid dates are empty or duplicated")
@@ -286,7 +290,9 @@ def compose_target_schedule(
 
     if executed_put is not None:
         executed = executed_put.copy()
-        executed["date"] = pd.to_datetime(executed["date"])
+        executed["date"] = shared.normalize_daily_dates(
+            executed["date"], "Executed Put dates"
+        )
         executed = executed.sort_values("date")
         columns = {
             "put_momentum_valuation_only_put_contract": "executed_put_contract",
@@ -323,6 +329,10 @@ def load_authoritative_local_state() -> tuple[pd.DataFrame, dict[str, Any]]:
             "momentum_weight": "momentum_execution_weight",
         }
     )
+    source_initial_momentum_weight = float(momentum["momentum_execution_weight"].iloc[0])
+    momentum["momentum_execution_weight"] = (
+        momentum["momentum_signal_target"].shift(1, fill_value=0.0).astype(float)
+    )
 
     raw_schedule = pd.read_csv(STAGE2_SCHEDULE, compression="gzip", low_memory=False)
     put = raw_schedule[
@@ -354,8 +364,8 @@ def load_authoritative_local_state() -> tuple[pd.DataFrame, dict[str, Any]]:
     source_weight_error = float(
         np.max(
             np.abs(
-                schedule["momentum_execution_weight"]
-                - schedule["momentum_weight"]
+                schedule["momentum_execution_weight"].iloc[1:]
+                - schedule["momentum_weight"].iloc[1:]
             )
         )
     )
@@ -386,19 +396,24 @@ def load_authoritative_local_state() -> tuple[pd.DataFrame, dict[str, Any]]:
     momentum_put_error = float(
         np.max(
             np.abs(
-                schedule["momentum_put_target_delta"]
-                - schedule["momentum_valuation_target_delta"]
+                schedule["momentum_put_target_delta"].iloc[1:]
+                - schedule["momentum_valuation_target_delta"].iloc[1:]
             )
         )
     )
     total_put_error = float(
-        np.max(np.abs(schedule["total_put_target_delta"] - schedule["target_delta"]))
+        np.max(
+            np.abs(
+                schedule["total_put_target_delta"].iloc[1:]
+                - schedule["target_delta"].iloc[1:]
+            )
+        )
     )
     executed_put_error = float(
         np.max(
             np.abs(
-                schedule["total_put_target_delta"]
-                - schedule["executed_put_target_delta"]
+                schedule["total_put_target_delta"].iloc[1:]
+                - schedule["executed_put_target_delta"].iloc[1:]
             )
         )
     )
@@ -414,6 +429,11 @@ def load_authoritative_local_state() -> tuple[pd.DataFrame, dict[str, Any]]:
         "source_signal_rule_max_abs_error": signal_error,
         "momentum_t_plus_1_max_abs_error": lag_error,
         "put_source_momentum_weight_max_abs_error": source_weight_error,
+        "initial_source_momentum_weight_reset_to_zero": source_initial_momentum_weight,
+        "initial_momentum_execution_weight": float(
+            schedule["momentum_execution_weight"].iloc[0]
+        ),
+        "initial_put_source_parity_excluded_due_to_strict_zero_reset": True,
         "core_units_formula_max_abs_error": core_units_error,
         "momentum_units_formula_max_abs_error": momentum_units_error,
         "total_units_formula_max_abs_error": total_units_error,
@@ -503,25 +523,23 @@ def main() -> None:
     args = parser.parse_args()
     if (args.output_csv or args.output_json) and not args.audit_local:
         parser.error("--output-csv/--output-json require --audit-local")
+    shared.ensure_new_output_paths(args.output_csv, args.output_json)
 
     payload: dict[str, Any] = {"rules": rule_manifest()}
     if args.audit_local:
         schedule, audit = load_authoritative_local_state()
         payload["local_audit"] = audit
         if args.output_csv:
-            args.output_csv.parent.mkdir(parents=True, exist_ok=True)
-            schedule.to_csv(args.output_csv, index=False)
+            shared._atomic_write_csv(schedule, args.output_csv)
             payload["schedule_output"] = str(args.output_csv.resolve())
         if args.output_json:
-            args.output_json.parent.mkdir(parents=True, exist_ok=True)
             payload["audit_output"] = str(args.output_json.resolve())
-            args.output_json.write_text(
+            shared._atomic_write_text(
+                args.output_json,
                 json.dumps(payload, ensure_ascii=False, indent=2, default=str) + "\n",
-                encoding="utf-8",
             )
     print(json.dumps(payload, ensure_ascii=False, indent=2, default=str))
 
 
 if __name__ == "__main__":
     main()
-

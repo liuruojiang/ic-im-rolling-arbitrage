@@ -53,7 +53,9 @@ def main() -> None:
             for path in files
         },
     }
-    OUTPUT.write_text(json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8")
+    # Keep the frozen workspace manifest byte-stable across Windows/POSIX.
+    with OUTPUT.open("w", encoding="utf-8", newline="\n") as stream:
+        stream.write(json.dumps(manifest, ensure_ascii=False, indent=2))
     print(json.dumps({key: value for key, value in manifest.items() if key != "files"}, ensure_ascii=False, indent=2))
 
 

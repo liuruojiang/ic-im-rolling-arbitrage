@@ -117,7 +117,10 @@ def test_v12_schedule_splits_capital_and_keeps_options_off_momentum_and_grid() -
     assert schedule["core_put_execution_qty_normalized"].tolist() == [0.0, 1.5, 1.5, 2.0]
     assert schedule["momentum_put_qty_normalized"].eq(0.0).all()
     assert schedule["grid_put_qty"].eq(0).all()
-    assert schedule["core_call_target_contracts_normalized"].eq(1.0).all()
+    assert schedule["core_call_coverage_capacity_contracts_normalized"].eq(1.0).all()
+    assert schedule["core_call_actual_target_contracts_normalized"].isna().all()
+    assert schedule["core_call_target_contracts_normalized"].isna().all()
+    assert ~schedule["actual_call_state_available"].any()
     assert schedule["momentum_call_target_contracts_normalized"].eq(0.0).all()
     assert schedule["grid_call_qty"].eq(0).all()
     assert schedule["put_covered_im_units"].eq(0.5).all()
@@ -148,6 +151,29 @@ def test_rejects_same_day_momentum_execution() -> None:
         v12.compose_from_parent_schedule(parent_schedule, momentum)
 
 
+@pytest.mark.parametrize("bad_price", [np.nan, np.inf, 0.0, -1.0])
+def test_momentum_close_fails_closed_on_invalid_prices(bad_price: float) -> None:
+    close = pd.Series(
+        np.linspace(1000.0, 1100.0, 180),
+        index=pd.bdate_range("2023-01-02", periods=180),
+    )
+    close.iloc[-2] = bad_price
+    with pytest.raises(ValueError, match="NaN, infinite, or nonpositive"):
+        v12.build_momentum_schedule(close)
+
+
+def test_momentum_close_accepts_shanghai_daily_timezone_and_rejects_utc() -> None:
+    shanghai = pd.Series(
+        [1000.0, 1001.0],
+        index=pd.date_range("2024-01-02", periods=2, tz="Asia/Shanghai"),
+    )
+    result = v12.build_momentum_schedule(shanghai)
+    assert result["date"].dt.tz is None
+    utc = pd.Series([1000.0, 1001.0], index=pd.date_range("2024-01-02", periods=2, tz="UTC"))
+    with pytest.raises(ValueError, match="timezone must be Asia/Shanghai"):
+        v12.build_momentum_schedule(utc)
+
+
 def test_local_real_artifact_audit_passes() -> None:
     schedule, audit = v12.load_authoritative_local_state()
     assert audit["start"] == "2015-04-16"
@@ -161,11 +187,39 @@ def test_local_real_artifact_audit_passes() -> None:
         "total_units_formula_max_abs_error",
         "grid_parent_parity_max_abs_error",
         "put_core_only_formula_max_abs_error",
+        "call_actual_target_formula_max_abs_error",
     ):
         assert audit[key] <= 1e-12
     assert audit["momentum_put_nonzero_rows"] == 0
     assert audit["momentum_call_nonzero_rows"] == 0
     assert audit["normalized_four_put_without_parent_tier4_rows"] == 0
+    assert audit["call_actual_active_rows"] == 1652
+    assert audit["call_actual_flat_rows"] == 1104
+    assert audit["call_threat_roll_events"] == 36
+    assert audit["call_threat_roll_count_increment_failures"] == 0
+    assert audit["call_threat_roll_expiry_order_failures"] == 0
+    assert audit["call_max_threat_roll_count"] == 5
+    assert audit["call_threat_entry_blocked_rows"] == 58
+    assert audit["call_threat_entry_blocked_inconsistency_rows"] == 0
+    assert audit["call_coverage_capacity_contracts_normalized"] == 1.0
+    assert audit["call_rescue_expiry_rule"] == "rescue_next_listed"
+    assert schedule["core_call_coverage_capacity_contracts_normalized"].eq(1.0).all()
+    assert schedule["core_call_target_contracts_normalized"].notna().all()
+    assert int(schedule["core_call_target_contracts_normalized"].eq(1.0).sum()) == 1652
+    assert int(schedule["core_call_target_contracts_normalized"].eq(0.0).sum()) == 1104
+
+    roll_count = schedule["threat_roll_count"].astype(int)
+    threat_roll = roll_count.gt(roll_count.shift())
+    assert roll_count.between(0, 5).all()
+    assert roll_count.loc[threat_roll].sub(roll_count.shift().loc[threat_roll]).eq(1).all()
+    assert schedule.loc[threat_roll, "call_expiry"].gt(
+        schedule["call_expiry"].shift().loc[threat_roll]
+    ).all()
+    blocked = schedule["threat_entry_blocked"].astype(bool)
+    assert (~schedule.loc[blocked, "call_active"]).all()
+    assert schedule.loc[blocked, "call_contract"].eq("").all()
+    assert schedule.loc[blocked, "call_expiry"].isna().all()
+    assert schedule.loc[blocked, "threat_roll_count"].eq(0).all()
 
 
 def test_frozen_spec_hash_matches_sidecar() -> None:
@@ -173,4 +227,3 @@ def test_frozen_spec_hash_matches_sidecar() -> None:
     expected_hash = expected.read_text(encoding="utf-8").split()[0]
     actual_hash = hashlib.sha256(v12.SPEC_PATH.read_bytes()).hexdigest()
     assert actual_hash == expected_hash
-
