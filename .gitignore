@@ -12,6 +12,7 @@ htmlcov/
 .env
 .env.*
 !.env.example
+!.env.schema
 .venv/
 venv/
 env/
@@ -20,6 +21,7 @@ ENV/
 # Local research data and generated artifacts
 data/
 outputs/
+runtime/
 quant_param_scan_runs/
 .codex_backups/
 

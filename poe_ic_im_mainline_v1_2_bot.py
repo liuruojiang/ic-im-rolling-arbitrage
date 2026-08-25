@@ -129,7 +129,27 @@ def _install_poe_native_compat(poe_module: Any) -> Any:
 poe = _install_poe_native_compat(poe)
 
 BEIJING = ZoneInfo("Asia/Shanghai")
-BUILD_ID = "v1.2-20260824-r14"
+_RUNTIME_CLOCK: contextvars.ContextVar[datetime | None] = contextvars.ContextVar(
+    "ic_im_v1_2_runtime_clock", default=None
+)
+
+
+def _now_beijing() -> datetime:
+    return _RUNTIME_CLOCK.get() or datetime.now(BEIJING)
+
+
+@contextmanager
+def runtime_clock(clock: datetime):
+    if clock.tzinfo is None:
+        raise ValueError("运行时覆盖时钟必须带时区")
+    token = _RUNTIME_CLOCK.set(clock.astimezone(BEIJING))
+    try:
+        yield
+    finally:
+        _RUNTIME_CLOCK.reset(token)
+
+
+BUILD_ID = "v1.2-20260825-r16"
 DATA_CUTOFF = date(2026, 8, 14)
 CASH_DAILY = 1.03 ** (1.0 / 252.0) - 1.0
 SIGNAL_NETWORK_BUDGET_SECONDS = 90.0
@@ -316,9 +336,12 @@ LIVE_CONTINUATION_ANCHOR = {
         "post_put_security_id": "10012099",
         "post_put_qty": 14.0,
         "post_put_full_qty": 20.0,
-        "last_verified_day": date(2026, 8, 21),
+        "last_verified_day": date(2026, 8, 24),
         "verified_momentum_weight": 1.0,
+        # The 2026-08-24 close signal executes at the 2026-08-25 open.
+        "verified_next_momentum_weight": 0.5,
         "verified_grid_units": 0.0,
+        "verified_next_grid_units": 0.0,
         "verified_put_qty_normalized": 14.0,
         "verified_core_put_delta": 0.25,
         "verified_momentum_put_delta": 0.0,
@@ -346,14 +369,42 @@ LIVE_CONTINUATION_ANCHOR = {
         "post_core_contract": "IM2609",
         "post_put_contract": "MO2612-P-7200",
         "post_put_equivalent_units": 0.75,
-        "last_verified_day": date(2026, 8, 21),
+        "last_verified_day": date(2026, 8, 24),
         "verified_momentum_weight": 1.0,
+        "verified_next_momentum_weight": 1.0,
         "verified_grid_units": 0.0,
+        "verified_next_grid_units": 0.0,
         "verified_put_qty_normalized": 1.5,
         "verified_parent_puts": 3,
         "verified_call_contracts_normalized": 0.0,
+        "verified_call_contract": None,
+        "verified_call_expiry": None,
+        "verified_call_strike": None,
     },
 }
+
+# A persistent server deployment can replace the bootstrap anchors above with
+# the latest hash-verified ledger snapshot before every query.  The callback is
+# deliberately optional so the original single-file Poe/CLI surface remains
+# usable (but without cross-process persistence).
+_SIGNAL_OBSERVER: Any = None
+
+
+def install_runtime_anchors(anchors: dict[str, dict[str, Any]]) -> None:
+    """Install validated runtime anchors without replacing the frozen bootstrap."""
+    if set(anchors) != {"IC", "IM"}:
+        raise ValueError("运行时账本必须同时包含IC和IM")
+    for product in ("IC", "IM"):
+        anchor = dict(anchors[product])
+        if not isinstance(anchor.get("last_verified_day"), date):
+            raise ValueError(f"{product}运行时账本缺少合法last_verified_day")
+        LIVE_CONTINUATION_ANCHOR[product] = anchor
+
+
+def install_signal_observer(observer: Any = None) -> None:
+    """Register a server-side observer used to append confirmed close states."""
+    global _SIGNAL_OBSERVER
+    _SIGNAL_OBSERVER = observer
 
 _CFFEX_MONTH_CACHE: dict[str, bytes] = {}
 _NETWORK_DEADLINE: contextvars.ContextVar[float | None] = contextvars.ContextVar(
@@ -371,7 +422,7 @@ class QueryIntent:
 
 
 def beijing_today() -> date:
-    return datetime.now(BEIJING).date()
+    return _now_beijing().date()
 
 
 def normalize_query(text: str) -> str:
@@ -1433,7 +1484,7 @@ def _validated_price_history(
 
 
 def live_proxy(product: str, clock: datetime | None = None) -> dict[str, Any]:
-    clock = clock or datetime.now(BEIJING)
+    clock = clock or _now_beijing()
     live_quote = fetch_live_price_quote(product)
     live_price = float(live_quote["price"])
     if not math.isfinite(live_price) or live_price <= 0:
@@ -2098,7 +2149,7 @@ def fetch_cffex_quotes(
 
     if product not in {"IC", "IM", "MO"}:
         raise ValueError(f"不支持的中金所品种: {product}")
-    now = clock or datetime.now(BEIJING)
+    now = clock or _now_beijing()
     successes: list[pd.DataFrame] = []
     failures: list[str] = []
 
@@ -2636,6 +2687,98 @@ def _ic_put_quantity_breakdown(
     }
 
 
+def _size_existing_ic_put(
+    contract: str,
+    quote: pd.Series,
+    today: date,
+    etf_price: float,
+    future_price: float,
+    current_total_qty: int,
+    current_core_delta: float,
+    current_momentum_delta: float,
+    target_core_delta: float,
+    target_momentum_delta: float,
+) -> dict[str, Any]:
+    """Resize an already-audited IC Put without silently reselecting its contract."""
+    match = re.fullmatch(r"510500P(\d{2})(\d{2})M(\d{5})", contract)
+    if not match:
+        raise RuntimeError(f"无法解析IC Put月份或行权价: {contract}")
+    expiry = _fourth_wednesday(2000 + int(match.group(1)), int(match.group(2)))
+    strike = float(match.group(3)) / 1000.0
+    market_price = float(quote.get("last", np.nan))
+    years = max((expiry - today).days, 1) / 365.0
+    iv = _implied_volatility(
+        "P",
+        market_price,
+        etf_price,
+        strike,
+        float(FROZEN["IC"]["gov10y"]),
+        float(FROZEN["IC"]["dividend"]),
+        years,
+    )
+    if iv is None:
+        raise RuntimeError(f"IC既有Put {contract} 无法由有效价格反解IV，禁止自动改张")
+    absolute_delta = abs(
+        _bs_price_delta(
+            "P",
+            etf_price,
+            strike,
+            float(FROZEN["IC"]["gov10y"]),
+            float(FROZEN["IC"]["dividend"]),
+            iv,
+            years,
+        )[1]
+    )
+    if absolute_delta <= 1e-8:
+        raise RuntimeError(f"IC既有Put {contract} 的绝对Delta无效，禁止自动改张")
+    full_equivalent = max(1, round(future_price * 200.0 / (etf_price * 10_000.0)))
+    current_breakdown = _ic_put_quantity_breakdown(
+        full_equivalent,
+        absolute_delta,
+        current_core_delta,
+        current_momentum_delta,
+        current_total_qty,
+    )
+    target_total_delta = target_core_delta + target_momentum_delta
+    target_total_qty = (
+        max(1, round(full_equivalent * target_total_delta / absolute_delta))
+        if target_total_delta > 0
+        else 0
+    )
+    target_breakdown = _ic_put_quantity_breakdown(
+        full_equivalent,
+        absolute_delta,
+        target_core_delta,
+        target_momentum_delta,
+        target_total_qty,
+    )
+    return {
+        "put_sizing_future_price": future_price,
+        "put_sizing_future_multiplier": 200,
+        "put_sizing_future_notional": future_price * 200.0,
+        "put_sizing_etf_price": etf_price,
+        "put_sizing_option_multiplier": 10_000,
+        "put_sizing_etf_option_notional": etf_price * 10_000.0,
+        "put_sizing_full_equivalent_contracts": full_equivalent,
+        "put_sizing_target_delta": target_total_delta,
+        "put_sizing_option_abs_delta": absolute_delta,
+        "put_sizing_raw_qty": full_equivalent * target_total_delta / absolute_delta,
+        "put_sizing_rounded_qty": target_total_qty,
+        "put_current_total_qty": int(current_breakdown["total"]),
+        "put_current_core_qty": int(current_breakdown["core"]),
+        "put_current_momentum_qty": int(current_breakdown["momentum"]),
+        "put_current_grid_qty": 0,
+        "put_target_total_qty": int(target_breakdown["total"]),
+        "put_target_core_qty": int(target_breakdown["core"]),
+        "put_target_momentum_qty": int(target_breakdown["momentum"]),
+        "put_target_grid_qty": 0,
+        "put_sizing_iv": iv,
+        "put_sizing_expiry": expiry,
+        "put_sizing_strike": strike,
+        "put_sizing_signal_date": today,
+    }
+
+
 def select_ic_put_for_reset(
     today: date,
     etf_price: float,
@@ -2985,7 +3128,7 @@ def _require_intraday_bridge_source_day(
         )
 
 
-def _first_unverified_intraday_bridge_allowed(
+def _next_unverified_session_bridge_allowed(
     product: str,
     market_date: date,
     clock: datetime,
@@ -2993,11 +3136,20 @@ def _first_unverified_intraday_bridge_allowed(
 ) -> bool:
     verified_day = LIVE_CONTINUATION_ANCHOR[product]["last_verified_day"]
     next_day = _roll_forward_exchange_day(verified_day + timedelta(days=1))
+    phase = _market_phase(clock)
+    if mode == "intraday":
+        allowed_phases = {"集合竞价", "盘中", "午间休市", "收盘后"}
+    else:
+        allowed_phases = {"收盘后"}
+    expected_completed_day = _latest_completed_exchange_day(clock)
+    same_session = market_date == clock.date() and phase in allowed_phases
+    completed_session_replay = (
+        market_date < clock.date() and expected_completed_day == market_date
+    )
     return (
-        mode == "intraday"
-        and market_date == clock.date() == next_day
-        and _latest_completed_exchange_day(clock) == verified_day
-        and _market_phase(clock) in {"集合竞价", "盘中", "午间休市"}
+        market_date == next_day
+        and (same_session or completed_session_replay)
+        and expected_completed_day in {verified_day, market_date}
     )
 
 
@@ -3019,7 +3171,7 @@ def _validate_signal_market_date(
         )
     verified_day = LIVE_CONTINUATION_ANCHOR[product]["last_verified_day"]
     if market_date > verified_day:
-        if _first_unverified_intraday_bridge_allowed(
+        if _next_unverified_session_bridge_allowed(
             product, market_date, clock, mode
         ):
             return True
@@ -3030,15 +3182,22 @@ def _validate_signal_market_date(
     return False
 
 
-def _apply_first_unverified_intraday_anchor(
+def _apply_next_unverified_session_anchor(
     product: str,
     live: dict[str, Any],
 ) -> dict[str, Any]:
     anchor = LIVE_CONTINUATION_ANCHOR[product]
     result = dict(live)
-    result["momentum_current_weight"] = float(anchor["verified_momentum_weight"])
+    # Momentum and grid close signals execute at the next session open.  During
+    # the first unverified session the current position is therefore the
+    # audited close target, not the position that existed before that close.
+    result["momentum_current_weight"] = float(
+        anchor.get("verified_next_momentum_weight", anchor["verified_momentum_weight"])
+    )
     result["momentum_current_source_date"] = anchor["last_verified_day"]
-    result["grid_current_units"] = float(anchor["verified_grid_units"])
+    result["grid_current_units"] = float(
+        anchor.get("verified_next_grid_units", anchor["verified_grid_units"])
+    )
     result["state_anchor_day"] = anchor["last_verified_day"]
     if product == "IC":
         result["v12_current_core_put_delta"] = float(
@@ -3069,7 +3228,7 @@ def build_live_trade_signal(
 ) -> dict[str, Any]:
     if mode not in {"intraday", "close"}:
         raise ValueError(f"非法信号模式: {mode}")
-    clock = now or datetime.now(BEIJING)
+    clock = now or _now_beijing()
     _require_official_exchange_calendar(clock.date(), f"{product}信号")
     today = clock.date()
     live = live_proxy(product, clock)
@@ -3078,16 +3237,16 @@ def build_live_trade_signal(
         market_date = market_date.date()
     if not isinstance(market_date, date):
         market_date = date.fromisoformat(str(market_date))
-    first_unverified_intraday = _validate_signal_market_date(
+    bridge_from_anchor = _validate_signal_market_date(
         product, market_date, clock, mode
     )
-    if first_unverified_intraday:
-        live = _apply_first_unverified_intraday_anchor(product, live)
+    if bridge_from_anchor:
+        live = _apply_next_unverified_session_anchor(product, live)
     future_quotes = fetch_cffex_quotes(product, clock)
     future_quote_source = str(future_quotes.attrs.get("source", "未知"))
     future_quote_date = future_quotes.attrs.get("source_date")
     _require_intraday_bridge_source_day(
-        f"{product}期货", future_quote_date, market_date, first_unverified_intraday
+        f"{product}期货", future_quote_date, market_date, bridge_from_anchor
     )
     # Contract state is determined by the market/as-of day.  Using the wall
     # clock here would let a weekend query skip an unpriced strict next month
@@ -3121,14 +3280,17 @@ def build_live_trade_signal(
     target_core = str(active_future["instrument"])
     frozen_core_expiry = _third_friday(*_contract_month(frozen_core))
     scheduled_roll_completed = market_date >= frozen_core_expiry
-    if first_unverified_intraday:
+    if bridge_from_anchor:
         current_core = str(LIVE_CONTINUATION_ANCHOR[product]["post_core_contract"])
-        if target_core != current_core:
+        if roll_signal_due:
+            core_action = "ROLL"
+        elif target_core != current_core:
             raise RuntimeError(
-                f"{product} 首个未核验交易日活跃合约 {target_core} 与已核验锚点"
+                f"{product} 下一未核验交易日活跃合约 {target_core} 与已核验锚点"
                 f" {current_core} 不一致，暂停实时桥接"
             )
-        core_action = "HOLD"
+        else:
+            core_action = "HOLD"
     else:
         current_core = target_core if scheduled_roll_completed else frozen_core
         core_action = "HOLD" if current_core == target_core else "ROLL"
@@ -3151,11 +3313,11 @@ def build_live_trade_signal(
         "估值与MOM120为当前价格代理",
         f"{product}期货源：{future_quote_source}，as-of {future_quote_date}",
     ]
-    if first_unverified_intraday:
+    if bridge_from_anchor:
         data_notes.append(
-            f"首个未核验交易日盘中桥接：当前腿固定取"
+            f"账本下一交易日桥接：当前腿固定取"
             f"{LIVE_CONTINUATION_ANCHOR[product]['last_verified_day']}已核验收盘锚点；"
-            f"{market_date}盘中值只形成下一交易日预估目标"
+            f"{market_date}行情只形成下一交易日目标"
         )
     data_notes.extend(future_quotes.attrs.get("source_audit", []))
     if future_quotes.attrs.get("source_failures"):
@@ -3207,7 +3369,7 @@ def build_live_trade_signal(
     if product == "IC":
         put_contract = str(
             LIVE_CONTINUATION_ANCHOR["IC"]["post_put_contract"]
-            if first_unverified_intraday
+            if bridge_from_anchor
             else FROZEN["IC"]["put_contract"]
         )
         match = re.search(r"P(\d{4})", put_contract)
@@ -3218,10 +3380,10 @@ def build_live_trade_signal(
         chain_day = _validate_market_stamp("上交所510500期权链", sse_stamp["date"], clock)
         etf_day = _validate_market_stamp("上交所510500ETF", etf["date"], clock)
         _require_intraday_bridge_source_day(
-            "上交所510500期权链", chain_day, market_date, first_unverified_intraday
+            "上交所510500期权链", chain_day, market_date, bridge_from_anchor
         )
         _require_intraday_bridge_source_day(
-            "上交所510500ETF", etf_day, market_date, first_unverified_intraday
+            "上交所510500ETF", etf_day, market_date, bridge_from_anchor
         )
         if chain_day != etf_day:
             raise RuntimeError(
@@ -3249,43 +3411,75 @@ def build_live_trade_signal(
         )
         _require_existing_leg_quote("IC Put", put_contract, put_quote, put_action)
         put_market = _format_market(put_contract, put_quote)
+        put_target_contract_value: str | None = put_contract
         ic_sizing: dict[str, Any] = {}
-        if first_unverified_intraday:
-            if not (
+        if bridge_from_anchor and core_action == "HOLD":
+            anchored_total = int(LIVE_CONTINUATION_ANCHOR["IC"]["post_put_qty"])
+            protection_changed = not (
                 math.isclose(target_delta, prior_delta, abs_tol=1e-12)
-                and math.isclose(
-                    target_core_delta, current_core_delta, abs_tol=1e-12
-                )
+                and math.isclose(target_core_delta, current_core_delta, abs_tol=1e-12)
                 and math.isclose(
                     target_momentum_delta, current_momentum_delta, abs_tol=1e-12
                 )
-            ):
-                raise RuntimeError(
-                    "IC桥接日Put保护档或分袖归属发生变化；缺少月度选约账本参数，"
-                    "禁止用盘中Delta重新配张"
+            )
+            if protection_changed:
+                if put_quote is None:
+                    raise RuntimeError(
+                        f"IC既有Put {put_contract} 无有效行情，禁止账本续接"
+                    )
+                ic_sizing = _size_existing_ic_put(
+                    put_contract,
+                    put_quote,
+                    market_date,
+                    float(etf["last"]),
+                    float(active_future["lastprice"]),
+                    anchored_total,
+                    current_core_delta,
+                    current_momentum_delta,
+                    target_core_delta,
+                    target_momentum_delta,
                 )
-            anchored_total = int(LIVE_CONTINUATION_ANCHOR["IC"]["post_put_qty"])
-            anchored_core = anchored_total
-            anchored_momentum = 0
-            ic_sizing = {
-                "put_current_total_qty": anchored_total,
-                "put_current_core_qty": anchored_core,
-                "put_current_momentum_qty": anchored_momentum,
-                "put_current_grid_qty": 0,
-                "put_target_total_qty": anchored_total,
-                "put_target_core_qty": anchored_core,
-                "put_target_momentum_qty": anchored_momentum,
-                "put_target_grid_qty": 0,
-                "put_selection_note": (
-                    f"{LIVE_CONTINUATION_ANCHOR['IC']['last_verified_day']}月换重置已完成；"
-                    "桥接日保护档未变，沿用审计锚点合约与张数，不重新按盘中Delta选约"
-                ),
-            }
+                ic_sizing["put_selection_note"] = (
+                    f"{LIVE_CONTINUATION_ANCHOR['IC']['last_verified_day']}已核验账本续接；"
+                    "保护档变化，沿用既有合约并按当日有效价格重算IV/Delta后调整张数"
+                )
+            else:
+                core_share = (
+                    current_core_delta / prior_delta if prior_delta > 0 else 0.0
+                )
+                anchored_core = int(round(anchored_total * core_share))
+                anchored_momentum = anchored_total - anchored_core
+                ic_sizing = {
+                    "put_current_total_qty": anchored_total,
+                    "put_current_core_qty": anchored_core,
+                    "put_current_momentum_qty": anchored_momentum,
+                    "put_current_grid_qty": 0,
+                    "put_target_total_qty": anchored_total,
+                    "put_target_core_qty": anchored_core,
+                    "put_target_momentum_qty": anchored_momentum,
+                    "put_target_grid_qty": 0,
+                    "put_selection_note": (
+                        f"{LIVE_CONTINUATION_ANCHOR['IC']['last_verified_day']}已核验账本续接；"
+                        "保护档未变，沿用既有合约与张数"
+                    ),
+                }
+            anchored_core = int(ic_sizing["put_current_core_qty"])
+            anchored_momentum = int(ic_sizing["put_current_momentum_qty"])
+            target_total = int(ic_sizing["put_target_total_qty"])
+            target_core_qty = int(ic_sizing["put_target_core_qty"])
+            target_momentum = int(ic_sizing["put_target_momentum_qty"])
             put_current = (
                 f"共{anchored_total}张（裸滚核心袖{anchored_core}张 + "
                 f"动量指引袖{anchored_momentum}张 + 网格0张） {put_contract}"
             )
-            put_target = put_current
+            put_target = (
+                "无需Put，绝对Delta 0%"
+                if target_total == 0
+                else (
+                    f"共{target_total}张（裸滚核心袖{target_core_qty}张 + "
+                    f"动量指引袖{target_momentum}张 + 网格0张） {put_contract}"
+                )
+            )
         elif core_action == "ROLL" or scheduled_roll_completed:
             reset_day = (
                 frozen_core_expiry
@@ -3297,6 +3491,9 @@ def build_live_trade_signal(
                 float(etf["last"]),
                 float(active_future["lastprice"]),
                 target_delta,
+            )
+            put_target_contract_value = (
+                str(reset["contract"]) if reset["contract"] else None
             )
             if reset["stamp"] is not None:
                 _validate_chain_stamp_matches(
@@ -3407,6 +3604,11 @@ def build_live_trade_signal(
                 "call_current": "无",
                 "call_target": "无（IC 1.2明确禁止Call）",
                 "call_action": "HOLD",
+                "put_current_contract": put_contract,
+                "put_target_contract": put_target_contract_value,
+                "call_current_contract": None,
+                "call_target_contract": None,
+                "call_target_qty_normalized": 0.0,
                 "core_put_target_delta": live["v12_core_put_delta"],
                 "momentum_put_target_delta": live["v12_momentum_put_delta"],
                 "total_put_target_delta": live["v12_put_target_delta"],
@@ -3433,7 +3635,7 @@ def build_live_trade_signal(
         mo_quote_source = str(mo_quotes.attrs.get("source", "未知"))
         mo_quote_date = mo_quotes.attrs.get("source_date")
         _require_intraday_bridge_source_day(
-            "MO期权链", mo_quote_date, market_date, first_unverified_intraday
+            "MO期权链", mo_quote_date, market_date, bridge_from_anchor
         )
         data_notes.append(f"MO期权链源：{mo_quote_source}，as-of {mo_quote_date}")
         data_notes.extend(mo_quotes.attrs.get("source_audit", []))
@@ -3445,7 +3647,7 @@ def build_live_trade_signal(
         option_rows_to_verify: dict[str, float] = {}
         put_contract = str(
             LIVE_CONTINUATION_ANCHOR["IM"]["post_put_contract"]
-            if first_unverified_intraday
+            if bridge_from_anchor
             else FROZEN["IM"]["put_contract"]
         )
         put_quote = _quote_row(mo_quotes, put_contract)
@@ -3464,10 +3666,10 @@ def build_live_trade_signal(
         )
         put_market = _format_market(put_contract, put_quote)
         im_contract_selection: dict[str, Any] = {}
-        if first_unverified_intraday:
+        if bridge_from_anchor and core_action == "HOLD":
             im_contract_selection["put_selection_note"] = (
-                f"{LIVE_CONTINUATION_ANCHOR['IM']['last_verified_day']}月换重置已完成；"
-                "桥接日只允许按保护档调整既有审计锚点合约张数，不重新选月份或行权价"
+                f"{LIVE_CONTINUATION_ANCHOR['IM']['last_verified_day']}已核验账本续接；"
+                "非月换日沿用既有合约，只按保护档调整张数"
             )
         elif (core_action == "ROLL" or scheduled_roll_completed) and put_target > 0:
             reset_day = (
@@ -3496,15 +3698,54 @@ def build_live_trade_signal(
                 ).date(),
                 "put_sizing_target_strike": 0.95 * float(live["price"]),
             }
-        call_contract = str(FROZEN["IM"]["call_contract"])
-        call_quote = _quote_row(mo_quotes, call_contract)
-        call_expiry = date.fromisoformat(str(FROZEN["IM"]["call_expiry"]))
-        call_otm = float(FROZEN["IM"]["call_strike"]) / float(live["price"]) - 1.0
-        call_market = _format_market(call_contract, call_quote)
-        call_finished = today > call_expiry or (
-            today == call_expiry and clock.time() >= time(15, 0)
+        if bridge_from_anchor:
+            call_contract_value = LIVE_CONTINUATION_ANCHOR["IM"].get(
+                "verified_call_contract"
+            )
+            call_expiry_value = LIVE_CONTINUATION_ANCHOR["IM"].get(
+                "verified_call_expiry"
+            )
+            call_strike_value = LIVE_CONTINUATION_ANCHOR["IM"].get(
+                "verified_call_strike"
+            )
+        else:
+            call_contract_value = FROZEN["IM"]["call_contract"]
+            call_expiry_value = FROZEN["IM"]["call_expiry"]
+            call_strike_value = FROZEN["IM"]["call_strike"]
+        call_contract = (
+            str(call_contract_value) if call_contract_value not in (None, "") else None
         )
-        threat_roll_count = int(FROZEN["IM"]["threat_roll_count"])
+        call_quote = _quote_row(mo_quotes, call_contract) if call_contract else None
+        call_expiry = (
+            date.fromisoformat(str(call_expiry_value)) if call_expiry_value else None
+        )
+        call_otm = (
+            float(call_strike_value) / float(live["price"]) - 1.0
+            if call_strike_value is not None
+            else np.nan
+        )
+        call_market = (
+            _format_market(call_contract, call_quote)
+            if call_contract
+            else "无（已核验Call仓位为0）"
+        )
+        call_finished = call_contract is None or (
+            call_expiry is not None
+            and (
+                today > call_expiry
+                or (today == call_expiry and clock.time() >= time(15, 0))
+            )
+        )
+        threat_roll_count = int(
+            LIVE_CONTINUATION_ANCHOR["IM"].get("verified_threat_roll_count", 0)
+            if bridge_from_anchor
+            else FROZEN["IM"]["threat_roll_count"]
+        )
+        call_target_contract: str | None = None
+        call_target_expiry: date | None = None
+        call_target_strike: float | None = None
+        call_target_qty_normalized = 0.0
+        call_target_threat_roll_count = threat_roll_count
         if not call_finished:
             if call_otm <= 0.05 + 1e-12:
                 if threat_roll_count >= 5:
@@ -3516,7 +3757,7 @@ def build_live_trade_signal(
                         today,
                         float(live["price"]),
                         call_expiry,
-                        float(FROZEN["IM"]["call_strike"]),
+                        float(call_strike_value),
                     )
                     if rescue is None:
                         call_action = "CLOSE_CALL"
@@ -3526,6 +3767,11 @@ def build_live_trade_signal(
                     else:
                         call_action = "RESCUE_NEXT_LISTED"
                         rescue_row = rescue["row"]
+                        call_target_contract = str(rescue_row["instrument"])
+                        call_target_expiry = rescue["expiry"]
+                        call_target_strike = float(rescue_row["strike"])
+                        call_target_qty_normalized = -1.0
+                        call_target_threat_roll_count = threat_roll_count + 1
                         call_target = (
                             f"买回旧Call并空2张 {rescue_row['instrument']}（rescue_next_listed，"
                             f"Delta {rescue['delta']:.3f}，IV {rescue['iv']:.2%}，救援豁免IV26%）"
@@ -3538,6 +3784,12 @@ def build_live_trade_signal(
                         )
             else:
                 call_action = "HOLD"
+                call_target_contract = call_contract
+                call_target_expiry = call_expiry
+                call_target_strike = (
+                    float(call_strike_value) if call_strike_value is not None else None
+                )
+                call_target_qty_normalized = -1.0
                 call_target = f"空2张 {call_contract}"
         else:
             selected_call = select_im_call_d10(
@@ -3552,6 +3804,11 @@ def build_live_trade_signal(
             elif float(selected_call["iv"]) >= 0.26:
                 call_action = "OPEN_CALL"
                 selected_row = selected_call["row"]
+                call_target_contract = str(selected_row["instrument"])
+                call_target_expiry = selected_call["expiry"]
+                call_target_strike = float(selected_row["strike"])
+                call_target_qty_normalized = -1.0
+                call_target_threat_roll_count = 0
                 call_target = (
                     f"空2张 {selected_row['instrument']}（Delta {selected_call['delta']:.3f}，"
                     f"IV {selected_call['iv']:.2%}）"
@@ -3572,7 +3829,8 @@ def build_live_trade_signal(
                 option_rows_to_verify[str(selected_row["instrument"])] = float(
                     selected_row["lastprice"]
                 )
-        _require_existing_leg_quote("IM Call", call_contract, call_quote, call_action)
+        if call_contract:
+            _require_existing_leg_quote("IM Call", call_contract, call_quote, call_action)
         im_put_action = (
             "HOLD"
             if math.isclose(put_target_normalized, prior_put_normalized)
@@ -3593,30 +3851,47 @@ def build_live_trade_signal(
                     f"{verification['source_date']}，最新{verification['lastprice']:g}"
                 )
         call_current_text = (
-            "0张（旧Call已到期，等待新D10信号）"
-            if call_finished
-            else f"规范化空1张 {call_contract}（只覆盖0.5倍核心袖）"
+            "规范化0张（已核验空仓，等待新D10/IV26信号）"
+            if call_contract is None
+            else (
+                "0张（旧Call已到期，等待新D10信号）"
+                if call_finished
+                else f"规范化空1张 {call_contract}（只覆盖0.5倍核心袖）"
+            )
         )
         call_target = call_target.replace("空2张", "规范化空1张")
         signal.update(
             {
                 "put_current": (
                     f"0.5倍核心袖规范化多 {prior_put_normalized:g}张 "
-                    f"{put_contract if first_unverified_intraday else (put_target_contract if scheduled_roll_completed else put_contract)}"
+                    f"{put_contract if bridge_from_anchor else (put_target_contract if scheduled_roll_completed else put_contract)}"
                     f"（父规则每1倍 {prior_put}张）"
                 ),
                 "put_target": put_target_text,
                 "put_action": im_put_action,
                 "put_market": put_market,
+                "put_current_contract": put_contract,
+                "put_target_contract": (
+                    put_target_contract if put_target > 0 else None
+                ),
                 "call_current": call_current_text,
                 "call_target": call_target,
                 "call_action": call_action,
                 "call_market": call_market,
+                "call_current_contract": call_contract,
+                "call_target_contract": call_target_contract,
+                "call_target_expiry": call_target_expiry,
+                "call_target_strike": call_target_strike,
+                "call_target_qty_normalized": call_target_qty_normalized,
+                "call_target_threat_roll_count": call_target_threat_roll_count,
                 "call_otm": call_otm,
                 "call_expiry": call_expiry,
+                "call_has_position": call_contract is not None and not call_finished,
                 "threat_roll_count": threat_roll_count,
                 "core_put_target_qty_normalized": put_target_normalized,
                 "core_put_current_qty_normalized": prior_put_normalized,
+                "v12_parent_puts_per_full_core": put_target,
+                "v12_current_parent_puts_per_full_core": prior_put,
                 "momentum_put_target_qty_normalized": 0.0,
                 "momentum_put_current_qty_normalized": 0.0,
                 "absolute_valuation_tier": live["absolute_valuation_tier"],
@@ -3729,7 +4004,7 @@ class ICIMMainlinesBot:
             title = "实时信号（联网刷新）" if mode == "intraday" else "信号（收盘确认）"
             msg.write(
                 f"## IC / IM 1.2 {title}｜构建 {BUILD_ID}"
-                f"（{datetime.now(BEIJING):%Y-%m-%d %H:%M:%S} 北京时间）\n\n"
+                f"（{_now_beijing():%Y-%m-%d %H:%M:%S} 北京时间）\n\n"
             )
             msg.write(
                 "本次重新联网取数。**当前仓位**是研究规则从已审计账本续接出的策略仓位，"
@@ -3740,6 +4015,8 @@ class ICIMMainlinesBot:
                 try:
                     with _network_budget(per_product_budget):
                         live = build_live_trade_signal(product, mode=mode)
+                    if _SIGNAL_OBSERVER is not None:
+                        _SIGNAL_OBSERVER(product, dict(live))
                 except Exception as exc:  # noqa: BLE001 - isolate each live product.
                     msg.write(
                         f"### {PRODUCT_NAMES[product]}\n\n⚠️ 完整信号失败：{exc}\n\n"
@@ -3928,10 +4205,16 @@ class ICIMMainlinesBot:
                     )
                 msg.write(f"- Put 行情：{live['put_market']}\n")
                 if product == "IM":
-                    msg.write(
-                        f"- Call 行情：{live['call_market']}；旧Call虚值度 **{live['call_otm']:.2%}**，"
-                        f"5%救援阈值当前{'已触发' if live['call_otm'] <= 0.05 else '未触发'}\n"
-                    )
+                    if live.get("call_has_position"):
+                        msg.write(
+                            f"- Call 行情：{live['call_market']}；旧Call虚值度 **{live['call_otm']:.2%}**，"
+                            f"5%救援阈值当前{'已触发' if live['call_otm'] <= 0.05 else '未触发'}\n"
+                        )
+                    else:
+                        msg.write(
+                            f"- Call 行情：{live['call_market']}；当前无旧Call，"
+                            "只评估新D10/IV26候选\n"
+                        )
                 if live["next_core"] and live["core_target"] != live["next_core"]:
                     msg.write(
                         f"- 月度节点：`{live['core_target']}` 规则到期日 {live['roll_date']}；"

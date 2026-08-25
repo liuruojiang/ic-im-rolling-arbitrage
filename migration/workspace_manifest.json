@@ -1,25 +1,33 @@
 {
   "version": "ic_im_mainline_workspace_manifest_v1",
-  "generated_at": "2026-08-24T11:18:33+08:00",
+  "generated_at": "2026-08-25T12:16:43+08:00",
   "root": "D:\\动量策略\\IC和IM滚动套利",
-  "file_count": 2822,
-  "total_bytes": 755195456,
+  "file_count": 2832,
+  "total_bytes": 755249091,
   "files": {
+    ".dockerignore": {
+      "bytes": 72,
+      "sha256": "ced94cc28026e6ffbc5533ef09805986b2267eeab46ad76bc6e852778eea0797"
+    },
+    ".env.schema": {
+      "bytes": 382,
+      "sha256": "4d7c19544b4ad564a467eb842f6ceb1d90603af44391dfe636b4e3e171e828dd"
+    },
     ".gitattributes": {
       "bytes": 8,
       "sha256": "705fd4d6451a31d36b3df7de96f83f30ac976c9b4a6d1e51671d8e2f33e2d0da"
     },
     ".gitignore": {
-      "bytes": 405,
-      "sha256": "1afe607aef8bfff11d35a0f197ccf1a479d4c647af744f272e967661a85b241e"
+      "bytes": 427,
+      "sha256": "5b4bbe52c97f61b4a8f4bbb09ff7abf08a81ce64557f70809433c2203e9d88e8"
     },
     "2026-08-23_滚IC滚IM叠加动量完整研究记录.md": {
       "bytes": 22511,
       "sha256": "05e5b0526b63a42fee851e7caa84424d30c76c2f12962b9edf669e45bed9b363"
     },
     "AGENTS.md": {
-      "bytes": 931,
-      "sha256": "51b0306633c032a00e8815797db957fc0af2edb11496ad5c39f891bc3ae8960f"
+      "bytes": 1137,
+      "sha256": "787a1b5d2e1cfdfab7c313042632d62d4a8823d0e527dd836b72b9f22264b208"
     },
     "analyze_im_momentum_basis_decomposition_v1.py": {
       "bytes": 10468,
@@ -42,8 +50,8 @@
       "sha256": "2cfd8631658fefba30aeb076659781b7c807dc17368e8d68014ff60877e7a3a3"
     },
     "build_workspace_manifest.py": {
-      "bytes": 1853,
-      "sha256": "31530b6118c468fecfb782e6aed9c6dd859232cd3595ccd9fb281f01f56b5ec7"
+      "bytes": 1872,
+      "sha256": "e99bd0d66d35395ac5e21fa3f95db1d4809671437c9faba7f302b16a9797d714"
     },
     "data/ic_510500_call_overwrite_delta_tenor_v1/data_manifest.json": {
       "bytes": 1856,
@@ -1281,6 +1289,10 @@
       "bytes": 1053,
       "sha256": "300c5bff87a74fe29c48f4ec0b7c290ff751c12cc7cbf0953d673e370d238d51"
     },
+    "Dockerfile.poe-v1.2": {
+      "bytes": 576,
+      "sha256": "1622c069c40410cf68b558368c86ad742068ee017755d4cbbbf5d720ce5bd370"
+    },
     "docs/ic_510500_put_absolute_momentum_protection_tool_v11_failure.md": {
       "bytes": 1398,
       "sha256": "1ff04481c93126330a39fb6f2ebe915b72d1973f7ed6a590e5ddb1a2a30999b6"
@@ -2338,12 +2350,16 @@
       "sha256": "11b0f036fbe9c04d072b9dca5bac5e0d5bbc6afff61b8d9a9783bc5367e8a0c5"
     },
     "docs/poe_ic_im_mainline_v1_2_design.md": {
-      "bytes": 12878,
-      "sha256": "bb57732a74026fb89723f892d327e076112351e0e2cdbb3312c63f5cb22e9ae6"
+      "bytes": 16262,
+      "sha256": "43b1056bfe35a96cce1d23b759c6361cb48668a75e181549009c4728d89187d5"
     },
     "docs/poe_ic_im_mainlines_v2_design.md": {
       "bytes": 6242,
       "sha256": "cf7a000c73ed58ae332f62ea35e8b64cf36f6567b2b67642aa143fe5e08b47f9"
+    },
+    "docs/poe_ic_im_v1_2_operator_runbook.md": {
+      "bytes": 3612,
+      "sha256": "c520222ef2f4a70a192d0c6c01109f551b310cb670b4fd11a68cb4d4366e3771"
     },
     "freeze_ic_im_system_mainlines_v1.py": {
       "bytes": 12322,
@@ -2740,6 +2756,10 @@
     "migration/source_cleanup_backup_manifest.json": {
       "bytes": 16899,
       "sha256": "30273faf76ab762eb1fc0320697b10fd33cb72ac802612605f05ee23391c1176"
+    },
+    "modal_poe_ic_im_v1_2.py": {
+      "bytes": 2741,
+      "sha256": "67844bdb72117a0551e20ef14ecea8965312ca713d8a1efb1f40c3aaf1c80f74"
     },
     "notes/mainline_registry.md": {
       "bytes": 2492,
@@ -9554,12 +9574,20 @@
       "sha256": "02f845625b02c288af2cdd5494518c69454537c20ab4954cd9c9b91bd4d350a5"
     },
     "poe_ic_im_mainline_v1_2_bot.py": {
-      "bytes": 281986,
-      "sha256": "320be898a2f7ec8fb2389097b454a6dc26cfba89dbdae6b6ddaa8c257eee3071"
+      "bytes": 293807,
+      "sha256": "c7cd0279b795ae6fe524b37c3cc61aaefeca3d719254f7210362f06e0cf03806"
     },
     "poe_ic_im_mainlines_v2_bot.py": {
       "bytes": 117200,
       "sha256": "d69e5fee6f662e7cf1703ed151b3ac598fe46703ecdeae11c578e38f584667d2"
+    },
+    "poe_ic_im_v1_2_server.py": {
+      "bytes": 8797,
+      "sha256": "42798b6e0f1cb7bed3a1460345830e81674ac492c4ba93694ab11d1e9fe4c2ad"
+    },
+    "poe_ic_im_v1_2_state.py": {
+      "bytes": 13241,
+      "sha256": "5287beb816ea6ca3ebe6ffde457fdf921bc6b2ca537b13457c1e44b4127c1487"
     },
     "quant_param_scan_runs/20260816_hold_and_tiers/command_log.txt": {
       "bytes": 439,
@@ -10994,8 +11022,16 @@
       "sha256": "c780b647ca98f7ae0528a4bb41df8a4cb55ddc1b36b4f9a1fe926db292981ed1"
     },
     "README.md": {
-      "bytes": 4329,
-      "sha256": "44e3cd79327b230766236cdd217f678b919853e41589ab2cfa3e98ffde1074d2"
+      "bytes": 5103,
+      "sha256": "81704bdbd8cd8052c7a3900f07b893ec7505eb98bcaab09f46dc2c95441a89d3"
+    },
+    "requirements-modal-deploy.txt": {
+      "bytes": 11,
+      "sha256": "335e8903c7f33d5c071df38f4b4dddce29a981d99a2996f7c751c9455b8ef9b2"
+    },
+    "requirements-poe-v1.2-server.txt": {
+      "bytes": 99,
+      "sha256": "5f3354f96033a50b1ee81daca8189e4b29c1aa9e680d2c7509a6339bc8ba146b"
     },
     "requirements.txt": {
       "bytes": 36,
@@ -11282,12 +11318,16 @@
       "sha256": "bc162b066d399e9194f10ebd6fc6d3e365b187556055b43a34479522b19d1ca1"
     },
     "test_poe_ic_im_mainline_v1_2_bot.py": {
-      "bytes": 44945,
-      "sha256": "61cf3dc82e07afd808cb19db8954597091eb349e73c0125b8d036aae93bb024c"
+      "bytes": 45190,
+      "sha256": "c2d52c121f4d1450c4d84a81416de7daf72ad85316f8b659ea7eb6dc0dcd12ca"
     },
     "test_poe_ic_im_mainlines_v2_bot.py": {
       "bytes": 46070,
       "sha256": "5c2409e1aa474889a0df5e30fca8ad3dca9b59aad6517e590224a5714fb07183"
+    },
+    "test_poe_ic_im_v1_2_state.py": {
+      "bytes": 7633,
+      "sha256": "607852f2d4f08aab5c5764b7753051bb279bc0bcb9852bcac28db7e472955d3e"
     },
     "verify_workspace.py": {
       "bytes": 3092,

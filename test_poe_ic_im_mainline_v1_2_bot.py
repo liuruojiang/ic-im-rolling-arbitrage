@@ -250,7 +250,7 @@ def test_signal_output_lists_each_leg_current_next_change_and_total(monkeypatch)
     bot.ICIMMainlinesBot()._handle_signal(("IC", "IM"), mode="close")
     output = "".join(capture.text)
     for fragment in (
-        "构建 v1.2-20260824-r14",
+        "构建 v1.2-20260825-r16",
         "裸滚核心袖",
         "动量指引袖",
         "独立估值网格",
@@ -365,7 +365,7 @@ def test_v12_im_live_continuation_scales_options_to_half_core_sleeve():
     anchor = bot.LIVE_CONTINUATION_ANCHOR["IM"]
     assert anchor["put_equivalent_units"] == pytest.approx(0.75)
     assert anchor["call_equivalent_units"] == pytest.approx(0.5)
-    assert anchor["last_verified_day"] == date(2026, 8, 21)
+    assert anchor["last_verified_day"] == date(2026, 8, 24)
 
 
 @pytest.mark.parametrize(
@@ -418,37 +418,43 @@ def test_live_proxy_rejects_nan_or_stale_history(monkeypatch, bad_kind):
 
 
 @pytest.mark.parametrize("product", ["IC", "IM"])
-def test_verified_821_market_date_remains_available_but_later_state_fails_closed(product):
-    weekend = datetime(2026, 8, 23, 12, tzinfo=bot.BEIJING)
-    bot._validate_signal_market_date(product, date(2026, 8, 21), weekend)
-    later = datetime(2026, 8, 24, 15, 30, tzinfo=bot.BEIJING)
+def test_verified_824_market_date_allows_exact_next_close_but_not_skipped_day(product):
+    after_close = datetime(2026, 8, 24, 15, 30, tzinfo=bot.BEIJING)
+    bot._validate_signal_market_date(product, date(2026, 8, 24), after_close)
+    later = datetime(2026, 8, 25, 15, 30, tzinfo=bot.BEIJING)
+    assert bot._validate_signal_market_date(
+        product, date(2026, 8, 25), later, mode="close"
+    ) is True
+    skipped = datetime(2026, 8, 26, 15, 30, tzinfo=bot.BEIJING)
     with pytest.raises(RuntimeError, match="审计账本仅逐腿核验至.*暂停新增信号"):
-        bot._validate_signal_market_date(product, date(2026, 8, 24), later)
+        bot._validate_signal_market_date(product, date(2026, 8, 26), skipped)
 
 
 @pytest.mark.parametrize("product", ["IC", "IM"])
-def test_first_unverified_trading_day_intraday_bridge_is_narrow(product):
-    intraday = datetime(2026, 8, 24, 9, 42, tzinfo=bot.BEIJING)
+def test_next_unverified_session_bridge_allows_intraday_and_confirmed_close(product):
+    intraday = datetime(2026, 8, 25, 9, 42, tzinfo=bot.BEIJING)
     assert bot._validate_signal_market_date(
-        product, date(2026, 8, 24), intraday, mode="intraday"
+        product, date(2026, 8, 25), intraday, mode="intraday"
     ) is True
     with pytest.raises(RuntimeError, match="审计账本仅逐腿核验至"):
         bot._validate_signal_market_date(
-            product, date(2026, 8, 24), intraday, mode="close"
+            product, date(2026, 8, 25), intraday, mode="close"
         )
-    after_close = datetime(2026, 8, 24, 15, 1, tzinfo=bot.BEIJING)
+    after_close = datetime(2026, 8, 25, 15, 1, tzinfo=bot.BEIJING)
+    assert bot._validate_signal_market_date(
+        product, date(2026, 8, 25), after_close, mode="intraday"
+    ) is True
+    assert bot._validate_signal_market_date(
+        product, date(2026, 8, 25), after_close, mode="close"
+    ) is True
+    next_day = datetime(2026, 8, 26, 9, 42, tzinfo=bot.BEIJING)
     with pytest.raises(RuntimeError, match="审计账本仅逐腿核验至"):
         bot._validate_signal_market_date(
-            product, date(2026, 8, 24), after_close, mode="intraday"
-        )
-    next_day = datetime(2026, 8, 25, 9, 42, tzinfo=bot.BEIJING)
-    with pytest.raises(RuntimeError, match="审计账本仅逐腿核验至"):
-        bot._validate_signal_market_date(
-            product, date(2026, 8, 25), next_day, mode="intraday"
+            product, date(2026, 8, 26), next_day, mode="intraday"
         )
 
 
-def test_intraday_bridge_current_legs_are_taken_from_verified_anchor():
+def test_session_bridge_current_legs_are_taken_from_verified_anchor():
     live = {
         "momentum_current_weight": 0.0,
         "momentum_current_source_date": date(2026, 8, 24),
@@ -459,13 +465,13 @@ def test_intraday_bridge_current_legs_are_taken_from_verified_anchor():
         "current_core_put_driver": "错误重算",
         "current_momentum_put_driver": "错误重算",
     }
-    anchored = bot._apply_first_unverified_intraday_anchor("IC", live)
-    assert anchored["momentum_current_weight"] == 1.0
+    anchored = bot._apply_next_unverified_session_anchor("IC", live)
+    assert anchored["momentum_current_weight"] == 0.5
     assert anchored["grid_current_units"] == 0.0
     assert anchored["v12_current_put_delta"] == 0.25
     assert anchored["v12_current_core_put_delta"] == 0.25
     assert anchored["v12_current_momentum_put_delta"] == 0.0
-    assert anchored["state_anchor_day"] == date(2026, 8, 21)
+    assert anchored["state_anchor_day"] == date(2026, 8, 24)
 
 
 def test_intraday_live_price_requires_same_day_timestamp(monkeypatch):
@@ -704,7 +710,7 @@ def test_signal_failure_pauses_new_targets_but_shows_last_verified_snapshot(monk
     bot.ICIMMainlinesBot()._handle_signal(("IC", "IM"), mode="intraday")
     output = "".join(capture.text)
     assert output.count("已暂停该品种的新增/调整信号") == 2
-    assert output.count("最后逐腿核验快照（2026-08-21") == 2
+    assert output.count("最后逐腿核验快照（2026-08-24") == 2
     assert "14张 `510500P2612M07500`" in output
     assert "1.5张 `MO2612-P-7200`" in output
     assert "不生成下一交易日目标" in output

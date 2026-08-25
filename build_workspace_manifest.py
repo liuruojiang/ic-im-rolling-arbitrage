@@ -32,6 +32,7 @@ def included(path: Path) -> bool:
         ".venv",
         "__pycache__",
         "htmlcov",
+        "runtime",
         "venv",
     }
     return not any(part in runtime_only for part in relative.parts)

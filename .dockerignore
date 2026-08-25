@@ -1,0 +1,8 @@
+.codex_backups
+.git
+.pytest_cache
+__pycache__
+runtime
+*.pyc
+.env
+.env.*
