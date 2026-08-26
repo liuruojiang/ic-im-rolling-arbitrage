@@ -48,6 +48,7 @@ def _install_volume_barrier(server_module):
     if getattr(coordinator, "_modal_volume_barrier", False):
         return
     original_execute = coordinator.execute_query
+    original_health = coordinator.health
 
     def execute_with_volume_barrier(*args, **kwargs):
         volume.reload()
@@ -55,6 +56,12 @@ def _install_volume_barrier(server_module):
         return original_execute(*args, **kwargs)
 
     coordinator.execute_query = execute_with_volume_barrier
+
+    def health_with_volume_barrier():
+        volume.reload()
+        return original_health()
+
+    coordinator.health = health_with_volume_barrier
     coordinator._modal_volume_barrier = True
 
 
@@ -87,6 +94,6 @@ def refresh_close_ledger() -> dict[str, object]:
     import poe_ic_im_v1_2_server as server
 
     volume.reload()
-    server.coordinator.catch_up_once()
+    server.coordinator.catch_up_until_current(max_sessions=4)
     volume.commit()
     return server.coordinator.health()

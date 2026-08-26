@@ -51,6 +51,7 @@ def _signals(day: date) -> dict[str, dict[str, object]]:
             **common,
             "core_target": "IC2609",
             "put_target_contract": "510500P2612M07500",
+            "put_target_security_id": "10012099",
             "put_target_total_qty": 14,
             "core_put_target_delta": 0.25,
             "momentum_put_target_delta": 0.0,
@@ -87,6 +88,7 @@ def test_state_survives_restart_and_advances_with_hash_chain(tmp_path):
     anchors = anchors_from_record(reloaded)
     assert anchors["IC"]["last_verified_day"] == date(2026, 8, 25)
     assert anchors["IC"]["verified_next_momentum_weight"] == 1.0
+    assert anchors["IC"]["post_put_security_id"] == "10012099"
     assert anchors["IM"]["verified_call_contract"] is None
 
     day2 = second_process.append_confirmed_signals(
@@ -194,6 +196,54 @@ def test_server_close_observer_commits_and_next_process_loads_new_anchor(
     )
     assert text == "next-day-ok"
     assert seen == {"IC": date(2026, 8, 25), "IM": date(2026, 8, 25)}
+
+
+def test_missed_close_catchup_sets_explicit_historical_replay_day(
+    tmp_path, monkeypatch
+):
+    coordinator = server.LedgerCoordinator(StateStore(tmp_path))
+    seen: list[date | None] = []
+
+    def fake_run(_self):
+        replay_day = strategy._HISTORICAL_REPLAY_DAY.get()
+        seen.append(replay_day)
+        assert replay_day == date(2026, 8, 25)
+        for product, signal in _signals(replay_day).items():
+            strategy._SIGNAL_OBSERVER(product, deepcopy(signal))
+        with strategy.poe.start_message() as message:
+            message.write("historical-close-confirmed")
+
+    monkeypatch.setattr(strategy.ICIMMainlinesBot, "run", fake_run)
+    advanced = coordinator.catch_up_once(
+        datetime(2026, 8, 26, 14, 5, tzinfo=strategy.BEIJING)
+    )
+    assert advanced is True
+    assert seen == [date(2026, 8, 25)]
+    assert coordinator.store.load_latest()["verified_day"] == "2026-08-25"
+
+
+def test_catch_up_until_current_advances_each_missing_session_in_order(
+    tmp_path, monkeypatch
+):
+    coordinator = server.LedgerCoordinator(StateStore(tmp_path))
+    seen: list[date] = []
+
+    def fake_run(_self):
+        replay_day = strategy._HISTORICAL_REPLAY_DAY.get()
+        assert replay_day is not None
+        seen.append(replay_day)
+        for product, signal in _signals(replay_day).items():
+            strategy._SIGNAL_OBSERVER(product, deepcopy(signal))
+        with strategy.poe.start_message() as message:
+            message.write("confirmed")
+
+    monkeypatch.setattr(strategy.ICIMMainlinesBot, "run", fake_run)
+    count = coordinator.catch_up_until_current(
+        datetime(2026, 8, 26, 16, 0, tzinfo=strategy.BEIJING), max_sessions=4
+    )
+    assert count == 2
+    assert seen == [date(2026, 8, 25), date(2026, 8, 26)]
+    assert coordinator.store.load_latest()["verified_day"] == "2026-08-26"
 
 
 def test_stale_writer_cannot_overwrite_a_newer_sequence(tmp_path):
