@@ -73,5 +73,5 @@ Git远端保存源码、测试、规格、审计文档和迁移清单。约628MB
 - 不再依赖Poe的日常投递入口由独立自动化仓库`liuruojiang/codex-daily-automation-probe`承载；工作日北京时间16:30、17:00、17:30分三次尝试，成功一次后由交付标记阻止重复邮件。
 - 策略侧入口为`run_ic_im_v1_2_github_digest.py`。它从最近成功的GitHub账本工件恢复状态，只按交易日顺序补账，并在邮件信号与最新账本逐腿完全一致后输出JSON和Markdown。
 - 成功账本以`ic-im-v1-2-ledger`工件保存90天；任一品种缺源、非收盘确认、日期不一致或哈希链异常均不上传新账本。前两次失败只等待重试，最后一次仍失败才发送异常邮件。
-- Gmail复用自动化仓库现有邮件密钥；由于本策略仓库为私有仓库，自动化仓库还需配置只读`ICIM_REPO_TOKEN`。部署与巡检见[GitHub/Gmail运维手册](docs/ic_im_v1_2_github_gmail_runbook.md)。
+- 策略仓库与自动化仓库均为公开仓库，策略检出无需额外访问令牌；Gmail继续复用自动化仓库中受保护的现有`MAIL_*` GitHub Secrets。部署与巡检见[GitHub/Gmail运维手册](docs/ic_im_v1_2_github_gmail_runbook.md)。
 - 日报是研究审计证据，不是账户持仓，不自动下单，也不改变冻结V2主线。
