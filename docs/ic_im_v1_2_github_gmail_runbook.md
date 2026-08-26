@@ -13,9 +13,9 @@ GitHub Runner每次都是新环境，因此必须先恢复最新账本工件。�
 
 ## 一次性设置
 
-在自动化仓库Settings → Secrets and variables → Actions中新增`ICIM_REPO_TOKEN`。令牌只需读取私有策略仓库内容，不应授予仓库写入、Actions管理或账户管理权限；值不得写入代码、日志或聊天。
+策略仓库与自动化仓库均按微盘股方案设为公开仓库，工作流直接检出公开策略仓库，不需要`ICIM_REPO_TOKEN`。
 
-自动化仓库原有以下Gmail密钥直接复用，无需复制：`MAIL_SERVER`、`MAIL_PORT`、`MAIL_USERNAME`、`MAIL_PASSWORD`、`MAIL_FROM`、`MAIL_TO`、`MAIL_USE_SSL`。
+自动化仓库原有以下Gmail密钥继续保存在GitHub Actions Secrets中并直接复用，无需复制：`MAIL_SERVER`、`MAIL_PORT`、`MAIL_USERNAME`、`MAIL_PASSWORD`、`MAIL_FROM`、`MAIL_TO`、`MAIL_USE_SSL`。仓库公开不会公开这些Secret值，但Actions日志和工件本身可被公开查看，因此不得把密钥或私人信息写入报告与日志。
 
 ## 调度与重试
 
