@@ -8,6 +8,7 @@
 - 自动化仓库：`liuruojiang/codex-daily-automation-probe`，工作流`ic-im-v1-2-daily-digest.yml`。
 - 状态：自动化仓库Actions Artifact `ic-im-v1-2-ledger`，包含原子`latest.json`和完整SHA-256日志链，保留90天。
 - 邮件：复用自动化仓库已有`MAIL_*` GitHub Secrets；盘中摘要和完整逐腿Markdown作为附件。
+- 正文：IC、IM各自先列当前值与下一交易日目标，再解释动量Score/Abs20、估值网格阈值、Put估值档与MOM120、Call D10/IV26或5%救援、月度展期原因；动态文字必须来自本次完整信号JSON。
 
 GitHub Runner每次都是新环境，因此必须先恢复最新账本工件。没有工件时只允许从源码内2026-08-24已审计检查点首次启动；不得手工改日期、改JSON或跳过交易日。
 
@@ -39,6 +40,7 @@ GitHub Runner每次都是新环境，因此必须先恢复最新账本工件。�
 
 - GitHub工作流结论成功，Gmail步骤成功。
 - 邮件主题带`[盘中实时]`，日期为当天行情日；正文明确写明须等待收盘确认。
+- IC、IM卡片均存在“为什么是这个结果”，并且Put/Call原因与表格目标一致；缺少原因字段时不得凭经验补写当天数值。
 - 邮件中的`verified_day`是上一已完成交易日，`sequence`只递增不回退；当日盘中快照不增加序号。
 - 当天只有一个未过期交付标记；重复计划任务没有第二封邮件。
 - Actions中最新`ic-im-v1-2-ledger`工件可下载，且下一次运行显示`restored=true`。
