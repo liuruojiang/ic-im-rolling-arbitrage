@@ -169,6 +169,7 @@ def derive_next_anchors(
             target_qty = int(
                 signal.get("put_target_total_qty", anchor.get("post_put_qty", 0))
             )
+            target_security_id = signal.get("put_target_security_id")
             anchor.update(
                 {
                     "post_put_qty": float(target_qty),
@@ -185,6 +186,8 @@ def derive_next_anchors(
                     "verified_call_contracts_normalized": 0.0,
                 }
             )
+            if target_security_id:
+                anchor["post_put_security_id"] = str(target_security_id)
         else:
             put_qty = float(signal["core_put_target_qty_normalized"])
             call_qty = float(signal.get("call_target_qty_normalized", 0.0))

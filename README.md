@@ -59,10 +59,19 @@ Git远端保存源码、测试、规格、审计文档和迁移清单。约628MB
 
 ### POE 1.2 研究入口
 
-- 长期入口为持久化Server Bot：`poe_ic_im_v1_2_server.py` + `poe_ic_im_v1_2_state.py`，容器入口为`Dockerfile.poe-v1.2`，当前构建号为`v1.2-20260825-r16`；头像素材为`assets/poe_ic_im_v1_2_avatar.png`。
+- 长期入口为持久化Server Bot：`poe_ic_im_v1_2_server.py` + `poe_ic_im_v1_2_state.py`，容器入口为`Dockerfile.poe-v1.2`，当前构建号为`v1.2-20260826-r17`；头像素材为`assets/poe_ic_im_v1_2_avatar.png`。
 - 官方推荐的Modal一键部署入口为`modal_poe_ic_im_v1_2.py`；持久Volume与工作日收盘多次重试已内置，部署、巡检和故障处置见[运维手册](docs/poe_ic_im_v1_2_operator_runbook.md)。
 - `poe_ic_im_mainline_v1_2_bot.py`仍可作单文件本地/代码编辑器测试，但无状态复制版不会跨进程保存审计账本，不再作为长期Poe部署方式。
 - 历史绩效查询使用1.2重组曲线，并以真实行情续接；2026-08-21月换日已经按旧腿盯市、新腿收盘接续及交易成本完成逐腿核验。
 - 2026-08-24仅是首次启动检查点；此后每个收盘日自动把IC/IM全部腿整体推进，写入持久卷上的原子`latest.json`和前序SHA-256日志。重启、新会话和次日查询均从最新核验状态续接，不需要修改源码日期。
+- r17修复漏跑后的逐日重放：补账显式读取目标交易日的指数历史收盘、中金所官方日行情和既有510500 Put历史收盘，禁止把查询日实时价带回前一交易日；一次定时任务最多顺序补4个交易日。
 - 托管必须挂载持久`/data`并以密钥方式设置`POE_ACCESS_KEY`；`/healthz`提供核验日期、序号和摘要前缀。任一品种缺源、账本损坏、跳日或并发冲突都停止写入，不产生半日状态。
 - 本入口仍是研究候选，不替代V2冻结主线，也不构成自动或人工下单建议。实现及数据闸门见[POE 1.2设计说明](docs/poe_ic_im_mainline_v1_2_design.md)。
+
+### GitHub / Gmail 1.2 收盘日报
+
+- 不再依赖Poe的日常投递入口由独立自动化仓库`liuruojiang/codex-daily-automation-probe`承载；工作日北京时间16:30、17:00、17:30分三次尝试，成功一次后由交付标记阻止重复邮件。
+- 策略侧入口为`run_ic_im_v1_2_github_digest.py`。它从最近成功的GitHub账本工件恢复状态，只按交易日顺序补账，并在邮件信号与最新账本逐腿完全一致后输出JSON和Markdown。
+- 成功账本以`ic-im-v1-2-ledger`工件保存90天；任一品种缺源、非收盘确认、日期不一致或哈希链异常均不上传新账本。前两次失败只等待重试，最后一次仍失败才发送异常邮件。
+- Gmail复用自动化仓库现有邮件密钥；由于本策略仓库为私有仓库，自动化仓库还需配置只读`ICIM_REPO_TOKEN`。部署与巡检见[GitHub/Gmail运维手册](docs/ic_im_v1_2_github_gmail_runbook.md)。
+- 日报是研究审计证据，不是账户持仓，不自动下单，也不改变冻结V2主线。

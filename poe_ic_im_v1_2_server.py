@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import asyncio
 import os
+import re
 import threading
 import types
 from contextlib import asynccontextmanager, suppress
@@ -102,6 +103,7 @@ class LedgerCoordinator:
         now: datetime | None = None,
         *,
         persist_confirmed: bool = True,
+        replay_day: date | None = None,
     ) -> tuple[str, list[dict[str, Any]], dict[str, dict[str, Any]]]:
         clock = now or strategy._now_beijing()
         with self.lock:
@@ -115,7 +117,9 @@ class LedgerCoordinator:
                 lambda product, signal: observed.__setitem__(product, signal)
             )
             try:
-                with strategy.runtime_clock(clock):
+                with strategy.runtime_clock(clock), strategy.historical_replay(
+                    replay_day
+                ):
                     strategy.ICIMMainlinesBot().run()
             finally:
                 strategy.install_signal_observer(None)
@@ -145,14 +149,38 @@ class LedgerCoordinator:
                 verified + timedelta(days=1)
             )
             try:
-                _, _, observed = self.execute_query("信号", close_clock(next_day))
+                text, _, observed = self.execute_query(
+                    "信号", close_clock(next_day), replay_day=next_day
+                )
                 if set(observed) != {"IC", "IM"}:
-                    raise RuntimeError("自动补账未同时得到IC/IM完整信号")
+                    failures = re.findall(r"完整信号失败：([^\n]+)", text)
+                    detail = "；".join(failures[:2]) or "未返回逐腿失败摘要"
+                    raise RuntimeError(
+                        f"自动补账未同时得到IC/IM完整信号｜{detail}"
+                    )
                 self.last_refresh_error = None
                 return True
             except Exception as exc:  # fail closed; scheduler retries later.
                 self.last_refresh_error = f"{type(exc).__name__}: {exc}"
                 return False
+
+    def catch_up_until_current(
+        self, now: datetime | None = None, *, max_sessions: int = 4
+    ) -> int:
+        if max_sessions <= 0:
+            raise ValueError("max_sessions必须为正")
+        clock = now or strategy._now_beijing()
+        advanced = 0
+        while advanced < max_sessions:
+            latest = self.store.load_latest()
+            verified = date.fromisoformat(str(latest["verified_day"])[:10])
+            if verified >= strategy._latest_completed_exchange_day(clock):
+                self.last_refresh_error = None
+                break
+            if not self.catch_up_once(clock):
+                break
+            advanced += 1
+        return advanced
 
     def health(self) -> dict[str, Any]:
         with self.lock:

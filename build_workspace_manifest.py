@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import argparse
 import hashlib
 import json
 from datetime import datetime
@@ -39,7 +40,26 @@ def included(path: Path) -> bool:
 
 
 def main() -> None:
-    files = sorted(path for path in ROOT.rglob("*") if path.is_file() and included(path))
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--existing-only",
+        action="store_true",
+        help="refresh only paths already registered in the current manifest",
+    )
+    args = parser.parse_args()
+    if args.existing_only:
+        existing = json.loads(OUTPUT.read_text(encoding="utf-8"))
+        registered = [ROOT / path for path in existing.get("files", {})]
+        missing = [path for path in registered if not path.is_file()]
+        if missing:
+            raise FileNotFoundError(
+                "registered workspace file is missing: " + str(missing[0])
+            )
+        files = sorted(registered)
+    else:
+        files = sorted(
+            path for path in ROOT.rglob("*") if path.is_file() and included(path)
+        )
     manifest = {
         "version": "ic_im_mainline_workspace_manifest_v1",
         "generated_at": datetime.now().astimezone().isoformat(timespec="seconds"),

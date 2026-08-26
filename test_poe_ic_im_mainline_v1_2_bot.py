@@ -95,6 +95,53 @@ def test_live_proxy_reconciles_current_and_next_momentum_and_put(monkeypatch):
     assert live["momentum_signal_date"] == date(2026, 8, 21)
 
 
+def test_historical_replay_truncates_future_history_and_never_uses_live_quote(
+    monkeypatch,
+):
+    index = pd.bdate_range(end="2026-08-26", periods=260)
+    history = pd.Series(np.linspace(6000.0, 8000.0, len(index)), index=index)
+    monkeypatch.setattr(bot, "fetch_price_history", lambda _product: history.copy())
+
+    def forbidden_live_quote(_product):
+        raise AssertionError("历史补账不得读取当前实时报价")
+
+    monkeypatch.setattr(bot, "fetch_live_price_quote", forbidden_live_quote)
+    clock = datetime(2026, 8, 25, 15, 20, tzinfo=bot.BEIJING)
+    with bot.historical_replay(date(2026, 8, 25)):
+        live = bot.live_proxy("IC", clock)
+    assert live["history_date"] == date(2026, 8, 25)
+    assert live["live_price_source_date"] == date(2026, 8, 25)
+    assert live["price"] == pytest.approx(float(history.loc["2026-08-25"]))
+
+
+def test_historical_cffex_quote_uses_exact_official_daily_member(monkeypatch):
+    day = date(2026, 8, 25)
+    contracts = sorted(bot._expected_future_contracts("IC", day))
+    daily = pd.DataFrame(
+        {
+            "合约代码": contracts,
+            "今开盘": [7000.0] * len(contracts),
+            "最高价": [7100.0] * len(contracts),
+            "最低价": [6900.0] * len(contracts),
+            "成交量": [100] * len(contracts),
+            "持仓量": [1000] * len(contracts),
+            "今收盘": [7050.0] * len(contracts),
+        }
+    )
+    buffer = io.BytesIO()
+    with zipfile.ZipFile(buffer, "w") as archive:
+        archive.writestr(
+            "nested/20260825_1.csv", daily.to_csv(index=False).encode("gbk")
+        )
+    monkeypatch.setattr(bot, "_cffex_month_archive", lambda _month: buffer.getvalue())
+    clock = datetime(2026, 8, 25, 15, 20, tzinfo=bot.BEIJING)
+    with bot.historical_replay(day):
+        quotes = bot.fetch_cffex_quotes("IC", clock)
+    assert set(quotes["instrument"]) == set(contracts)
+    assert quotes.attrs["source_date"] == day
+    assert quotes.attrs["source"] == "中金所官方日行情"
+
+
 def test_ic_put_integer_breakdown_reconciles_exactly_to_total():
     split = bot._ic_put_quantity_breakdown(
         full_equivalent=20,
@@ -250,7 +297,7 @@ def test_signal_output_lists_each_leg_current_next_change_and_total(monkeypatch)
     bot.ICIMMainlinesBot()._handle_signal(("IC", "IM"), mode="close")
     output = "".join(capture.text)
     for fragment in (
-        "构建 v1.2-20260825-r16",
+        "构建 v1.2-20260826-r17",
         "裸滚核心袖",
         "动量指引袖",
         "独立估值网格",
@@ -747,6 +794,36 @@ def test_cffex_archive_uses_https_and_enforces_download_limit(monkeypatch):
     monkeypatch.setattr(bot.requests, "get", lambda *_args, **_kwargs: OversizedResponse())
     with pytest.raises(RuntimeError, match="超过下载上限"):
         bot._cffex_month_archive(pd.Timestamp("2026-08-01"))
+
+
+def test_cffex_archive_falls_back_to_same_host_http(monkeypatch):
+    calls: list[str] = []
+
+    class Response:
+        headers = {"Content-Length": "8"}
+
+        @staticmethod
+        def raise_for_status():
+            return None
+
+        @staticmethod
+        def iter_content(chunk_size):
+            assert chunk_size > 0
+            yield b"PKsafe!!"
+
+    def fake_get(url, **_kwargs):
+        calls.append(url)
+        if url.startswith("https://"):
+            raise bot.requests.exceptions.SSLError("handshake failed")
+        return Response()
+
+    bot._CFFEX_MONTH_CACHE.clear()
+    monkeypatch.setattr(bot.requests, "get", fake_get)
+    assert bot._cffex_month_archive(pd.Timestamp("2026-08-01")) == b"PKsafe!!"
+    assert calls == [
+        "https://www.cffex.com.cn/sj/historysj/202608/zip/202608.zip",
+        "http://www.cffex.com.cn/sj/historysj/202608/zip/202608.zip",
+    ]
 
 
 def test_cffex_zip_member_limit_is_checked_before_csv_read(monkeypatch):

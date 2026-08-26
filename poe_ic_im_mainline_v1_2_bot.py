@@ -132,6 +132,9 @@ BEIJING = ZoneInfo("Asia/Shanghai")
 _RUNTIME_CLOCK: contextvars.ContextVar[datetime | None] = contextvars.ContextVar(
     "ic_im_v1_2_runtime_clock", default=None
 )
+_HISTORICAL_REPLAY_DAY: contextvars.ContextVar[date | None] = (
+    contextvars.ContextVar("ic_im_v1_2_historical_replay_day", default=None)
+)
 
 
 def _now_beijing() -> datetime:
@@ -149,7 +152,18 @@ def runtime_clock(clock: datetime):
         _RUNTIME_CLOCK.reset(token)
 
 
-BUILD_ID = "v1.2-20260825-r16"
+@contextmanager
+def historical_replay(day: date | None):
+    """Select an explicit completed session for audited catch-up only."""
+
+    token = _HISTORICAL_REPLAY_DAY.set(day)
+    try:
+        yield
+    finally:
+        _HISTORICAL_REPLAY_DAY.reset(token)
+
+
+BUILD_ID = "v1.2-20260826-r17"
 DATA_CUTOFF = date(2026, 8, 14)
 CASH_DAILY = 1.03 ** (1.0 / 252.0) - 1.0
 SIGNAL_NETWORK_BUDGET_SECONDS = 90.0
@@ -683,31 +697,102 @@ def _signal_product_network_budget(product_count: int) -> float:
 def _cffex_month_archive(month: pd.Timestamp) -> bytes:
     key = month.strftime("%Y%m")
     if key not in _CFFEX_MONTH_CACHE:
-        url = f"https://www.cffex.com.cn/sj/historysj/{key}/zip/{key}.zip"
-        response = requests.get(
-            url,
-            timeout=_bounded_timeout(12),
-            headers={"User-Agent": "Mozilla/5.0", "Cache-Control": "no-cache"},
-            stream=True,
-        )
-        response.raise_for_status()
-        declared_size = response.headers.get("Content-Length")
-        if declared_size and int(declared_size) > MAX_CFFEX_DOWNLOAD_BYTES:
-            raise RuntimeError(f"中金所 {key} 月度行情包超过下载上限")
-        chunks: list[bytes] = []
-        downloaded = 0
-        for chunk in response.iter_content(chunk_size=64 * 1024):
-            if not chunk:
-                continue
-            downloaded += len(chunk)
-            if downloaded > MAX_CFFEX_DOWNLOAD_BYTES:
-                raise RuntimeError(f"中金所 {key} 月度行情包超过下载上限")
-            chunks.append(chunk)
-        content = b"".join(chunks)
-        if not content.startswith(b"PK"):
-            raise RuntimeError(f"中金所 {key} 月度行情包格式异常")
-        _CFFEX_MONTH_CACHE[key] = content
+        path = f"www.cffex.com.cn/sj/historysj/{key}/zip/{key}.zip"
+        urls = [f"https://{path}", f"http://{path}"]
+        failures: list[str] = []
+        for url in urls:
+            attempts = 1 if url.startswith("https://") else 3
+            for attempt in range(attempts):
+                try:
+                    response = requests.get(
+                        url,
+                        timeout=_bounded_timeout(
+                            5 if url.startswith("https://") else 15
+                        ),
+                        headers={
+                            "User-Agent": "Mozilla/5.0",
+                            "Cache-Control": "no-cache",
+                        },
+                        stream=True,
+                    )
+                    response.raise_for_status()
+                    declared_size = response.headers.get("Content-Length")
+                    if declared_size and int(declared_size) > MAX_CFFEX_DOWNLOAD_BYTES:
+                        raise RuntimeError(f"中金所 {key} 月度行情包超过下载上限")
+                    chunks: list[bytes] = []
+                    downloaded = 0
+                    for chunk in response.iter_content(chunk_size=64 * 1024):
+                        if not chunk:
+                            continue
+                        downloaded += len(chunk)
+                        if downloaded > MAX_CFFEX_DOWNLOAD_BYTES:
+                            raise RuntimeError(f"中金所 {key} 月度行情包超过下载上限")
+                        chunks.append(chunk)
+                    content = b"".join(chunks)
+                    if not content.startswith(b"PK"):
+                        raise RuntimeError(f"中金所 {key} 月度行情包格式异常")
+                    _CFFEX_MONTH_CACHE[key] = content
+                    break
+                except (requests.RequestException, RuntimeError) as exc:
+                    transport = "HTTPS" if url.startswith("https://") else "HTTP"
+                    failures.append(f"{transport} {type(exc).__name__}: {exc}")
+                    if attempt + 1 < attempts:
+                        time_module.sleep(0.5 * (attempt + 1))
+            if key in _CFFEX_MONTH_CACHE:
+                break
+        if key not in _CFFEX_MONTH_CACHE:
+            raise RuntimeError(
+                f"中金所 {key} 月度行情包HTTPS/HTTP同源下载失败｜"
+                + "｜".join(failures)
+            )
     return _CFFEX_MONTH_CACHE[key]
+
+
+def _cffex_historical_quote_frame(
+    product: str, day: date, clock: datetime
+) -> pd.DataFrame:
+    """Load one official completed session from CFFEX's monthly archive."""
+
+    raw = _cffex_month_archive(pd.Timestamp(day))
+    member_name = f"{day:%Y%m%d}_1.csv"
+    with zipfile.ZipFile(io.BytesIO(raw)) as archive:
+        members = archive.infolist()
+        if len(members) > MAX_CFFEX_ZIP_MEMBERS:
+            raise RuntimeError("中金所月度行情包成员数量超过安全上限")
+        if any(info.file_size > MAX_CFFEX_ZIP_MEMBER_BYTES for info in members):
+            raise RuntimeError("中金所月度行情包单个成员超过安全上限")
+        if sum(info.file_size for info in members) > MAX_CFFEX_ZIP_UNCOMPRESSED_BYTES:
+            raise RuntimeError("中金所月度行情包解压体积超过安全上限")
+        matches = [info for info in members if info.filename.endswith(member_name)]
+        if len(matches) != 1:
+            raise RuntimeError(f"中金所月度行情包缺少唯一日文件 {member_name}")
+        daily = pd.read_csv(
+            io.BytesIO(archive.read(matches[0])), encoding="gbk", low_memory=False
+        )
+    daily.columns = [str(column).strip().lstrip("\ufeff") for column in daily.columns]
+    field_map = {
+        "合约代码": "instrument",
+        "今开盘": "openprice",
+        "最高价": "highest",
+        "最低价": "lowest",
+        "成交量": "volume",
+        "持仓量": "position",
+        "今收盘": "lastprice",
+    }
+    missing = sorted(set(field_map).difference(daily.columns))
+    if missing:
+        raise RuntimeError(
+            f"中金所 {day} 日行情缺少字段: {', '.join(missing)}"
+        )
+    frame = daily.rename(columns=field_map)[list(field_map.values())].copy()
+    frame["instrument"] = frame["instrument"].astype(str).str.strip().str.upper()
+    pattern = rf"{product}\d{{4}}" if product in {"IC", "IM"} else r"MO\d{4}-[CP]-\d+"
+    frame = frame.loc[frame["instrument"].str.fullmatch(pattern)].copy()
+    if frame.empty:
+        raise RuntimeError(f"中金所 {day} 日行情没有 {product} 合约")
+    frame["source_date"] = day
+    frame["source_time"] = "15:15:00"
+    return _validate_quote_frame(frame, product, clock, "中金所官方日行情")
 
 
 def fetch_cffex_daily_marks(
@@ -797,6 +882,59 @@ def fetch_sina_option_closes(security_id: str) -> pd.Series:
     if not points:
         raise RuntimeError(f"上交所期权 {security_id} 未返回日收盘价")
     return pd.Series(points, dtype=float, name="put_mark").sort_index()
+
+
+def fetch_sina_510500_security_id(contract: str) -> str:
+    match = re.fullmatch(r"510500P(\d{4})([MA])(\d{5})", contract)
+    if not match:
+        raise RuntimeError(f"无法为IC Put解析新浪证券代码: {contract}")
+    yymm, style, strike_code = match.groups()
+    response = requests.get(
+        "https://hq.sinajs.cn/",
+        params={"list": f"OP_DOWN_510500{yymm}"},
+        timeout=_bounded_timeout(8),
+        headers={
+            "User-Agent": "Mozilla/5.0 POE-IC-IM-Research/1.0",
+            "Referer": "https://stock.finance.sina.com.cn/",
+            "Cache-Control": "no-cache",
+        },
+    )
+    response.raise_for_status()
+    listing = response.content.decode("gbk", errors="replace")
+    ids = re.findall(r"CON_OP_(\d+)", listing)
+    if not ids:
+        raise RuntimeError(f"新浪未返回510500 Put月份 {yymm} 的证券代码列表")
+    details = requests.get(
+        "https://hq.sinajs.cn/list="
+        + ",".join(f"CON_OP_{value}" for value in ids),
+        timeout=_bounded_timeout(8),
+        headers={
+            "User-Agent": "Mozilla/5.0 POE-IC-IM-Research/1.0",
+            "Referer": "https://stock.finance.sina.com.cn/",
+            "Cache-Control": "no-cache",
+        },
+    )
+    details.raise_for_status()
+    text = details.content.decode("gbk", errors="replace")
+    matches: list[str] = []
+    for security_id, payload in re.findall(
+        r'hq_str_CON_OP_(\d+)="([^"]*)"', text
+    ):
+        fields = payload.split(",")
+        if len(fields) <= 46:
+            continue
+        try:
+            strike_match = int(round(float(fields[7]) * 1000)) == int(strike_code)
+        except ValueError:
+            continue
+        expiry_match = str(fields[46]).replace("-", "")[2:6] == yymm
+        if fields[43] == style and fields[45] == "P" and strike_match and expiry_match:
+            matches.append(security_id)
+    if len(matches) != 1:
+        raise RuntimeError(
+            f"新浪证券代码映射不唯一: {contract} -> {sorted(matches)}"
+        )
+    return matches[0]
 
 
 def _contract_daily_marks(
@@ -1465,6 +1603,13 @@ def _validated_price_history(
         index = index.tz_convert(BEIJING).tz_localize(None)
     index = index.normalize()
     result.index = index
+    replay_day = _HISTORICAL_REPLAY_DAY.get()
+    if replay_day is not None:
+        if replay_day != clock.date():
+            raise RuntimeError(
+                f"{product}历史重放日 {replay_day} 与运行时钟 {clock.date()} 不一致"
+            )
+        result = result.loc[result.index.date <= replay_day]
     if result.empty or result.index.has_duplicates or not result.index.is_monotonic_increasing:
         raise RuntimeError(f"{product} 价格历史日期为空、重复或乱序")
     values = result.to_numpy(dtype=float)
@@ -1485,14 +1630,30 @@ def _validated_price_history(
 
 def live_proxy(product: str, clock: datetime | None = None) -> dict[str, Any]:
     clock = clock or _now_beijing()
-    live_quote = fetch_live_price_quote(product)
-    live_price = float(live_quote["price"])
-    if not math.isfinite(live_price) or live_price <= 0:
-        raise RuntimeError(f"{product} 实时报价含NaN、无穷值或非正价格")
     history = _validated_price_history(product, fetch_price_history(product), clock)
+    replay_day = _HISTORICAL_REPLAY_DAY.get()
+    if replay_day is not None:
+        if history.index[-1].date() != replay_day:
+            raise RuntimeError(
+                f"{product}价格历史缺少待补账交易日 {replay_day} 的正式收盘"
+            )
+        live_price = float(history.iloc[-1])
+        live_quote = {
+            "price": live_price,
+            "source": "指数公开日线历史收盘",
+            "source_date": replay_day,
+            "source_time": "15:00:00",
+        }
+    else:
+        live_quote = fetch_live_price_quote(product)
+        live_price = float(live_quote["price"])
+        if not math.isfinite(live_price) or live_price <= 0:
+            raise RuntimeError(f"{product} 实时报价含NaN、无穷值或非正价格")
     phase = _market_phase(clock)
     live_day = pd.Timestamp(clock.date())
-    if (
+    if replay_day is not None:
+        pass
+    elif (
         _is_exchange_trading_day(clock.date())
         and phase in {"集合竞价", "盘中", "午间休市", "收盘后"}
         and history.index[-1].date() < clock.date()
@@ -2150,6 +2311,13 @@ def fetch_cffex_quotes(
     if product not in {"IC", "IM", "MO"}:
         raise ValueError(f"不支持的中金所品种: {product}")
     now = clock or _now_beijing()
+    replay_day = _HISTORICAL_REPLAY_DAY.get()
+    if replay_day is not None:
+        if replay_day != now.date():
+            raise RuntimeError(
+                f"{product}历史重放日 {replay_day} 与运行时钟 {now.date()} 不一致"
+            )
+        return _cffex_historical_quote_frame(product, replay_day, now)
     successes: list[pd.DataFrame] = []
     failures: list[str] = []
 
@@ -2364,6 +2532,52 @@ def fetch_sse_510500_expiries() -> list[str]:
     if not ordered_months:
         raise RuntimeError("上交所未返回510500ETF期权挂牌月份")
     return ordered_months
+
+
+def fetch_sse_510500_historical_quote(day: date) -> dict[str, Any]:
+    payload = _request_json(
+        "https://web.ifzq.gtimg.cn/appstock/app/kline/kline",
+        {"param": "sh510500,day,,,260"},
+    )
+    rows = ((payload.get("data") or {}).get("sh510500") or {}).get("day") or []
+    points = {
+        date.fromisoformat(str(row[0])): float(row[2])
+        for row in rows
+        if len(row) >= 3
+    }
+    if day not in points:
+        raise RuntimeError(f"上交所510500ETF历史日线缺少 {day} 收盘")
+    ordered = sorted(points)
+    location = ordered.index(day)
+    previous = points[ordered[location - 1]] if location else points[day]
+    return {
+        "date": day.isoformat(),
+        "time": "150000",
+        "last": float(points[day]),
+        "prev_close": float(previous),
+    }
+
+
+def fetch_sse_existing_put_historical_quote(
+    contract: str, security_id: str, day: date
+) -> tuple[pd.DataFrame, dict[str, str]]:
+    closes = fetch_sina_option_closes(security_id)
+    stamp = pd.Timestamp(day)
+    if stamp not in closes.index:
+        raise RuntimeError(f"上交所期权 {contract} 历史日线缺少 {day} 收盘")
+    match = re.fullmatch(r"510500P\d{4}M(\d{5})", contract)
+    if not match:
+        raise RuntimeError(f"无法解析IC Put行权价: {contract}")
+    frame = pd.DataFrame(
+        [
+            {
+                "contract": contract,
+                "last": float(closes.loc[stamp]),
+                "strike": float(match.group(1)) / 1000.0,
+            }
+        ]
+    )
+    return frame, {"date": day.isoformat(), "time": "150000"}
 
 
 def _is_exchange_trading_day(day: date) -> bool:
@@ -2851,6 +3065,7 @@ def select_ic_put_for_reset(
         )
     return {
         "contract": str(selected["contract"]),
+        "security_id": fetch_sina_510500_security_id(str(selected["contract"])),
         "quote": selected,
         "expiry": expiry,
         "strike": float(selected["strike"]),
@@ -3375,8 +3590,22 @@ def build_live_trade_signal(
         match = re.search(r"P(\d{4})", put_contract)
         if not match:
             raise RuntimeError(f"无法解析IC Put合约: {put_contract}")
-        chain, sse_stamp = fetch_sse_510500_chain(match.group(1))
-        etf = fetch_sse_510500_quote()
+        replay_day = _HISTORICAL_REPLAY_DAY.get()
+        if replay_day is not None:
+            security_id = LIVE_CONTINUATION_ANCHOR["IC"].get(
+                "post_put_security_id"
+            )
+            if not security_id:
+                raise RuntimeError(
+                    f"IC历史补账缺少既有Put {put_contract} 的证券代码映射"
+                )
+            chain, sse_stamp = fetch_sse_existing_put_historical_quote(
+                put_contract, str(security_id), replay_day
+            )
+            etf = fetch_sse_510500_historical_quote(replay_day)
+        else:
+            chain, sse_stamp = fetch_sse_510500_chain(match.group(1))
+            etf = fetch_sse_510500_quote()
         chain_day = _validate_market_stamp("上交所510500期权链", sse_stamp["date"], clock)
         etf_day = _validate_market_stamp("上交所510500ETF", etf["date"], clock)
         _require_intraday_bridge_source_day(
@@ -3412,7 +3641,14 @@ def build_live_trade_signal(
         _require_existing_leg_quote("IC Put", put_contract, put_quote, put_action)
         put_market = _format_market(put_contract, put_quote)
         put_target_contract_value: str | None = put_contract
+        put_target_security_id_value: str | None = str(
+            LIVE_CONTINUATION_ANCHOR["IC"].get("post_put_security_id") or ""
+        ) or None
         ic_sizing: dict[str, Any] = {}
+        if replay_day is not None and core_action == "ROLL":
+            raise RuntimeError(
+                "IC历史补账遇到月换日，缺少该日完整510500期权链归档；禁止用当前链替代"
+            )
         if bridge_from_anchor and core_action == "HOLD":
             anchored_total = int(LIVE_CONTINUATION_ANCHOR["IC"]["post_put_qty"])
             protection_changed = not (
@@ -3494,6 +3730,9 @@ def build_live_trade_signal(
             )
             put_target_contract_value = (
                 str(reset["contract"]) if reset["contract"] else None
+            )
+            put_target_security_id_value = (
+                str(reset.get("security_id")) if reset.get("security_id") else None
             )
             if reset["stamp"] is not None:
                 _validate_chain_stamp_matches(
@@ -3606,6 +3845,7 @@ def build_live_trade_signal(
                 "call_action": "HOLD",
                 "put_current_contract": put_contract,
                 "put_target_contract": put_target_contract_value,
+                "put_target_security_id": put_target_security_id_value,
                 "call_current_contract": None,
                 "call_target_contract": None,
                 "call_target_qty_normalized": 0.0,
