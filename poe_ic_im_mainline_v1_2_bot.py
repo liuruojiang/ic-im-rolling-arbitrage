@@ -163,7 +163,7 @@ def historical_replay(day: date | None):
         _HISTORICAL_REPLAY_DAY.reset(token)
 
 
-BUILD_ID = "v1.2-20260826-r17"
+BUILD_ID = "v1.2-20260902-r18"
 DATA_CUTOFF = date(2026, 8, 14)
 CASH_DAILY = 1.03 ** (1.0 / 252.0) - 1.0
 SIGNAL_NETWORK_BUDGET_SECONDS = 90.0
@@ -3436,6 +3436,26 @@ def _apply_next_unverified_session_anchor(
     return result
 
 
+def _validated_signal_state_anchor_day(
+    product: str,
+    live: dict[str, Any],
+    bridge_from_anchor: bool,
+) -> date | None:
+    value = live.get("state_anchor_day")
+    if isinstance(value, pd.Timestamp):
+        value = value.date()
+    elif value is not None and not isinstance(value, date):
+        value = date.fromisoformat(str(value)[:10])
+    if not bridge_from_anchor:
+        return value
+    expected = LIVE_CONTINUATION_ANCHOR[product]["last_verified_day"]
+    if value != expected:
+        raise RuntimeError(
+            f"{product}账本桥接状态锚点不一致：期望 {expected}，实际 {value}"
+        )
+    return value
+
+
 def build_live_trade_signal(
     product: str,
     now: datetime | None = None,
@@ -3457,6 +3477,9 @@ def build_live_trade_signal(
     )
     if bridge_from_anchor:
         live = _apply_next_unverified_session_anchor(product, live)
+    state_anchor_day = _validated_signal_state_anchor_day(
+        product, live, bridge_from_anchor
+    )
     future_quotes = fetch_cffex_quotes(product, clock)
     future_quote_source = str(future_quotes.attrs.get("source", "未知"))
     future_quote_date = future_quotes.attrs.get("source_date")
@@ -3548,6 +3571,7 @@ def build_live_trade_signal(
         "market_phase": phase,
         "market_date": market_date,
         "close_confirmed": close_confirmed,
+        "state_anchor_day": state_anchor_day,
         "stage": stage,
         "fetch_time": clock.strftime("%Y-%m-%d %H:%M:%S"),
         "index_price": live["price"],

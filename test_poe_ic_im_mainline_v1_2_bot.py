@@ -297,7 +297,7 @@ def test_signal_output_lists_each_leg_current_next_change_and_total(monkeypatch)
     bot.ICIMMainlinesBot()._handle_signal(("IC", "IM"), mode="close")
     output = "".join(capture.text)
     for fragment in (
-        "构建 v1.2-20260826-r17",
+        "构建 v1.2-20260902-r18",
         "裸滚核心袖",
         "动量指引袖",
         "独立估值网格",
@@ -519,6 +519,14 @@ def test_session_bridge_current_legs_are_taken_from_verified_anchor():
     assert anchored["v12_current_core_put_delta"] == 0.25
     assert anchored["v12_current_momentum_put_delta"] == 0.0
     assert anchored["state_anchor_day"] == date(2026, 8, 24)
+    assert bot._validated_signal_state_anchor_day("IC", anchored, True) == date(
+        2026, 8, 24
+    )
+
+
+def test_signal_state_anchor_contract_rejects_missing_bridge_anchor():
+    with pytest.raises(RuntimeError, match="账本桥接状态锚点不一致"):
+        bot._validated_signal_state_anchor_day("IC", {}, True)
 
 
 def test_intraday_live_price_requires_same_day_timestamp(monkeypatch):

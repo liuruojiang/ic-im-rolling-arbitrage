@@ -65,7 +65,7 @@ Git远端保存源码、测试、规格、审计文档和迁移清单。约628MB
 
 ### POE 1.2 研究入口
 
-- 长期入口为持久化Server Bot：`poe_ic_im_v1_2_server.py` + `poe_ic_im_v1_2_state.py`，容器入口为`Dockerfile.poe-v1.2`，当前构建号为`v1.2-20260826-r17`；头像素材为`assets/poe_ic_im_v1_2_avatar.png`。
+- 长期入口为持久化Server Bot：`poe_ic_im_v1_2_server.py` + `poe_ic_im_v1_2_state.py`，容器入口为`Dockerfile.poe-v1.2`，当前构建号为`v1.2-20260902-r18`；头像素材为`assets/poe_ic_im_v1_2_avatar.png`。
 - 官方推荐的Modal一键部署入口为`modal_poe_ic_im_v1_2.py`；持久Volume与工作日收盘多次重试已内置，部署、巡检和故障处置见[运维手册](docs/poe_ic_im_v1_2_operator_runbook.md)。
 - `poe_ic_im_mainline_v1_2_bot.py`仍可作单文件本地/代码编辑器测试，但无状态复制版不会跨进程保存审计账本，不再作为长期Poe部署方式。
 - 历史绩效查询使用1.2重组曲线，并以真实行情续接；2026-08-21月换日已经按旧腿盯市、新腿收盘接续及交易成本完成逐腿核验。
