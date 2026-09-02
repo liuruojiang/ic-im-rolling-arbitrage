@@ -7,7 +7,6 @@ on:
     paths-ignore:
       - 'artifacts/cffex_mo_archive_diagnostic/**'
       - 'artifacts/im_author_put_quantity_ablation_v1/**'
-      - 'im_author_put_quantity_ablation_v1.py'
       - 'tools/im_author_put_quantity_ablation_v1.payload2.*'
   workflow_dispatch:
 
@@ -19,9 +18,9 @@ permissions:
   contents: write
 
 jobs:
-  probe-real-data-sources:
+  run-real-data-ablation:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 120
     steps:
       - uses: actions/checkout@v4
         with:
@@ -30,50 +29,35 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Install probe dependency
-        run: python -m pip install requests
-      - name: Probe CFFEX routing and alternate real-data endpoints
-        shell: bash
+          cache: 'pip'
+      - name: Install dependencies
+        run: python -m pip install --upgrade pip && pip install -r requirements.txt
+      - name: Restore official CFFEX archive cache
+        uses: actions/cache@v4
+        with:
+          path: data/im_author_put_quantity_ablation_v1/cffex_raw
+          key: cffex-im-mo-202207-202608-v1
+      - name: Validate frozen research source and specification
         run: |
-          set +e
-          echo '=== DNS IPv4 / IPv6 ==='
-          getent ahostsv4 www.cffex.com.cn || true
-          getent ahostsv6 www.cffex.com.cn || true
-          echo '=== direct CFFEX curl IPv4 ==='
-          curl -4 -I -L --max-time 10 'https://www.cffex.com.cn/sj/historysj/202208/zip/202208.zip' || true
-          echo '=== endpoint probes ==='
-          python - <<'PY'
-          from __future__ import annotations
-          import json
-          import requests
-          from urllib.parse import quote
-
-          probes = [
-              ('cffex_https', 'https://www.cffex.com.cn/sj/historysj/202208/zip/202208.zip', None),
-              ('cffex_http', 'http://www.cffex.com.cn/sj/historysj/202208/zip/202208.zip', None),
-              ('allorigins_cffex', 'https://api.allorigins.win/raw?url=' + quote('http://www.cffex.com.cn/sj/historysj/202208/zip/202208.zip', safe=''), None),
-              ('isomorphic_git_cors_cffex', 'https://cors.isomorphic-git.org/http://www.cffex.com.cn/sj/historysj/202208/zip/202208.zip', None),
-              ('jina_cffex', 'https://r.jina.ai/http://www.cffex.com.cn/sj/historysj/202208/zip/202208.zip', None),
-              ('sina_im2208_daily', 'https://stock2.finance.sina.com.cn/futures/api/jsonp.php/var%20_V21052021_4_12=/InnerFuturesNewService.getDailyKLine', {'symbol': 'IM2208', 'type': '2021_04_12'}),
-              ('sina_mo2208p6200_daily', 'https://stock.finance.sina.com.cn/futures/api/jsonp.php/var%20_mo2208P62002026_9_2=/FutureOptionAllService.getOptionDayline', {'symbol': 'mo2208P6200'}),
-              ('sina_mo2208_chain', 'https://stock.finance.sina.com.cn/futures/api/openapi.php/OptionService.getOptionData', {'type': 'futures', 'product': 'mo', 'exchange': 'cffex', 'pinzhong': 'mo2208'}),
-              ('csindex_000852', 'https://www.csindex.com.cn/csindex-home/perf/index-perf', {'indexCode': '000852', 'startDate': '20220722', 'endDate': '20220831'}),
-          ]
-          session = requests.Session()
-          session.headers.update({'User-Agent': 'Mozilla/5.0 Codex real-data source probe'})
-          for name, url, params in probes:
-              try:
-                  response = session.get(url, params=params, timeout=(6, 15))
-                  payload = response.content
-                  print(json.dumps({
-                      'name': name,
-                      'status': response.status_code,
-                      'url': response.url,
-                      'bytes': len(payload),
-                      'content_type': response.headers.get('content-type'),
-                      'zip_magic': payload[:4].hex(),
-                      'prefix': payload[:160].decode('utf-8', errors='replace'),
-                  }, ensure_ascii=False))
-              except Exception as exc:
-                  print(json.dumps({'name': name, 'error': repr(exc)}, ensure_ascii=False))
-          PY
+          python -m py_compile im_author_put_quantity_ablation_v1.py tools/run_im_author_put_quantity_ablation_http_first.py
+          test "$(sha256sum docs/im_author_put_quantity_ablation_v1_spec.md | awk '{print $1}')" = "b0e254ca27953fd3bd9ca9361ad25699bbc5effb294c5cfcf1670e9a90ed6db2"
+      - name: Run preregistered real IM/MO Put quantity ablation
+        run: python tools/run_im_author_put_quantity_ablation_http_first.py
+      - name: Upload complete research output
+        uses: actions/upload-artifact@v4
+        with:
+          name: im-author-put-quantity-ablation-v1
+          path: artifacts/im_author_put_quantity_ablation_v1
+          if-no-files-found: error
+          retention-days: 90
+      - name: Commit auditable results to isolated branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add artifacts/im_author_put_quantity_ablation_v1
+          if git diff --cached --quiet; then
+            echo "No research result changes"
+          else
+            git commit -m "research: save author-style Put real-data ablation v1"
+            git push origin HEAD:codex/im-put-size-realdata-20260902
+          fi
