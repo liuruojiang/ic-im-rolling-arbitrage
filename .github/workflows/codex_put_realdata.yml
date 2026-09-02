@@ -36,7 +36,7 @@ jobs:
           key: cffex-im-mo-202207-202608-v1
       - name: Reconstruct and validate frozen research source
         run: |
-          base64 -d tools/im_author_put_quantity_ablation_v1.py.gz.b64 | gzip -dc > im_author_put_quantity_ablation_v1.py
+          cat tools/im_author_put_quantity_ablation_v1.payload2.* | base64 -d | gzip -dc > im_author_put_quantity_ablation_v1.py
           python -m py_compile im_author_put_quantity_ablation_v1.py
           test "$(sha256sum docs/im_author_put_quantity_ablation_v1_spec.md | awk '{print $1}')" = "b0e254ca27953fd3bd9ca9361ad25699bbc5effb294c5cfcf1670e9a90ed6db2"
       - name: Run preregistered real IM/MO Put quantity ablation
