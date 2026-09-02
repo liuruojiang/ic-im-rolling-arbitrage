@@ -1,0 +1,533 @@
+{
+  "version": "im_author_put_quantity_ablation_v1",
+  "spec_sha256": "b0e254ca27953fd3bd9ca9361ad25699bbc5effb294c5cfcf1670e9a90ed6db2",
+  "sample_start": "2022-07-22",
+  "sample_end": "2026-08-14",
+  "common_rows": 986,
+  "im_rows": 3944,
+  "mo_put_rows": 122376,
+  "mo_contracts": 1578,
+  "archives": [
+    {
+      "month": "202207",
+      "url": "http://www.cffex.com.cn/sj/historysj/202207/zip/202207.zip",
+      "source": "download",
+      "bytes": 244117,
+      "sha256": "2a23b7baf87fa932beafdd182066534ab6a455c1b9f7656445af0f25def2c18e",
+      "member_count": 21,
+      "first_date": "2022-07-01",
+      "last_date": "2022-07-29"
+    },
+    {
+      "month": "202208",
+      "url": "http://www.cffex.com.cn/sj/historysj/202208/zip/202208.zip",
+      "source": "download",
+      "bytes": 350607,
+      "sha256": "109890fc5c265d4c07f937e5832e9f3b3510d22a6c4439e3e50586f54f2c75ce",
+      "member_count": 23,
+      "first_date": "2022-08-01",
+      "last_date": "2022-08-31"
+    },
+    {
+      "month": "202209",
+      "url": "http://www.cffex.com.cn/sj/historysj/202209/zip/202209.zip",
+      "source": "download",
+      "bytes": 334650,
+      "sha256": "5a852db7f1ddbb39221e8474dabb00c9478f2cf99c07c1def7d04f7cd3a27e8e",
+      "member_count": 21,
+      "first_date": "2022-09-01",
+      "last_date": "2022-09-30"
+    },
+    {
+      "month": "202210",
+      "url": "http://www.cffex.com.cn/sj/historysj/202210/zip/202210.zip",
+      "source": "download",
+      "bytes": 279391,
+      "sha256": "d020681a139b57bfbde6bdd68113204652e5484df6e4363cd72e19914a9aca6d",
+      "member_count": 16,
+      "first_date": "2022-10-10",
+      "last_date": "2022-10-31"
+    },
+    {
+      "month": "202211",
+      "url": "http://www.cffex.com.cn/sj/historysj/202211/zip/202211.zip",
+      "source": "download",
+      "bytes": 369900,
+      "sha256": "0768bdac35ab80e21e0e351383c767d2c42964e872afe0329d06ef31296ffe25",
+      "member_count": 22,
+      "first_date": "2022-11-01",
+      "last_date": "2022-11-30"
+    },
+    {
+      "month": "202212",
+      "url": "http://www.cffex.com.cn/sj/historysj/202212/zip/202212.zip",
+      "source": "download",
+      "bytes": 385294,
+      "sha256": "59b3aca862139a16910d2bc732df7849ea67e530b151a30aac9c3f33fbe98ddd",
+      "member_count": 22,
+      "first_date": "2022-12-01",
+      "last_date": "2022-12-30"
+    },
+    {
+      "month": "202301",
+      "url": "http://www.cffex.com.cn/sj/historysj/202301/zip/202301.zip",
+      "source": "download",
+      "bytes": 323695,
+      "sha256": "d4275b11d25ff0fbec59626e22267d7a36ee6ff6077caac84bb2d4e45434be79",
+      "member_count": 16,
+      "first_date": "2023-01-03",
+      "last_date": "2023-01-31"
+    },
+    {
+      "month": "202302",
+      "url": "http://www.cffex.com.cn/sj/historysj/202302/zip/202302.zip",
+      "source": "download",
+      "bytes": 411548,
+      "sha256": "219ca2430e2d00cda639c48cd3f247a02946a51158e76851f0c9398df56dfa94",
+      "member_count": 20,
+      "first_date": "2023-02-01",
+      "last_date": "2023-02-28"
+    },
+    {
+      "month": "202303",
+      "url": "http://www.cffex.com.cn/sj/historysj/202303/zip/202303.zip",
+      "source": "download",
+      "bytes": 454199,
+      "sha256": "bc216b566a913bea589dbf50bb877240e3140ff488c398aa33b75fb0d96e5750",
+      "member_count": 23,
+      "first_date": "2023-03-01",
+      "last_date": "2023-03-31"
+    },
+    {
+      "month": "202304",
+      "url": "http://www.cffex.com.cn/sj/historysj/202304/zip/202304.zip",
+      "source": "download",
+      "bytes": 372953,
+      "sha256": "7a841185707f4dd696c3028af3563e551048d3d63a643c2d2a427e341a8cae6e",
+      "member_count": 19,
+      "first_date": "2023-04-03",
+      "last_date": "2023-04-28"
+    },
+    {
+      "month": "202305",
+      "url": "http://www.cffex.com.cn/sj/historysj/202305/zip/202305.zip",
+      "source": "download",
+      "bytes": 395001,
+      "sha256": "6d22bf5dc77153c114ed1c661cd8ea0ee61266b65fce67c3f705b567bedc8326",
+      "member_count": 20,
+      "first_date": "2023-05-04",
+      "last_date": "2023-05-31"
+    },
+    {
+      "month": "202306",
+      "url": "http://www.cffex.com.cn/sj/historysj/202306/zip/202306.zip",
+      "source": "download",
+      "bytes": 405683,
+      "sha256": "8a77a961125389be845eb1398c9dede591a7a7c0e2fdc47636b05162591f95ee",
+      "member_count": 20,
+      "first_date": "2023-06-01",
+      "last_date": "2023-06-30"
+    },
+    {
+      "month": "202307",
+      "url": "http://www.cffex.com.cn/sj/historysj/202307/zip/202307.zip",
+      "source": "download",
+      "bytes": 407896,
+      "sha256": "9ec8ce24a47406599701655264aee9728138a04fdd345918746072908cebee25",
+      "member_count": 21,
+      "first_date": "2023-07-03",
+      "last_date": "2023-07-31"
+    },
+    {
+      "month": "202308",
+      "url": "http://www.cffex.com.cn/sj/historysj/202308/zip/202308.zip",
+      "source": "download",
+      "bytes": 467281,
+      "sha256": "9df1a0bb03b9c7bd4d1ba28d9d0ae18998788068000ed42ed3946fdae95597ca",
+      "member_count": 23,
+      "first_date": "2023-08-01",
+      "last_date": "2023-08-31"
+    },
+    {
+      "month": "202309",
+      "url": "http://www.cffex.com.cn/sj/historysj/202309/zip/202309.zip",
+      "source": "download",
+      "bytes": 398825,
+      "sha256": "f9d6d232a48ab5c4721862f963a7608999694b1cbc5f0ca87ba29e4734052f7e",
+      "member_count": 20,
+      "first_date": "2023-09-01",
+      "last_date": "2023-09-28"
+    },
+    {
+      "month": "202310",
+      "url": "http://www.cffex.com.cn/sj/historysj/202310/zip/202310.zip",
+      "source": "download",
+      "bytes": 343767,
+      "sha256": "f47461f0bcb617eabe1c787508251c5b1f1a8b8de802cf32e2834d8abfe6c978",
+      "member_count": 17,
+      "first_date": "2023-10-09",
+      "last_date": "2023-10-31"
+    },
+    {
+      "month": "202311",
+      "url": "http://www.cffex.com.cn/sj/historysj/202311/zip/202311.zip",
+      "source": "download",
+      "bytes": 441561,
+      "sha256": "447cbd9d3b97a8addfc404c1bd2b994b36280bc9c0735c4aa63d61cd4d76287b",
+      "member_count": 22,
+      "first_date": "2023-11-01",
+      "last_date": "2023-11-30"
+    },
+    {
+      "month": "202312",
+      "url": "http://www.cffex.com.cn/sj/historysj/202312/zip/202312.zip",
+      "source": "download",
+      "bytes": 447476,
+      "sha256": "39881e480fdd5589a2cf9a92f9f6b191114b84bcaedbe342610b5deda3569022",
+      "member_count": 21,
+      "first_date": "2023-12-01",
+      "last_date": "2023-12-29"
+    },
+    {
+      "month": "202401",
+      "url": "http://www.cffex.com.cn/sj/historysj/202401/zip/202401.zip",
+      "source": "download",
+      "bytes": 502378,
+      "sha256": "1b6ffec1ac852f01656af5ff18c0a6cb309f7caa0cd134e139bfe8fee5b9a371",
+      "member_count": 22,
+      "first_date": "2024-01-02",
+      "last_date": "2024-01-31"
+    },
+    {
+      "month": "202402",
+      "url": "http://www.cffex.com.cn/sj/historysj/202402/zip/202402.zip",
+      "source": "download",
+      "bytes": 402863,
+      "sha256": "3d27b22880d26bd42bd99e56e9395dadf9af78dc28351bee290d1dedd11ce8d4",
+      "member_count": 15,
+      "first_date": "2024-02-01",
+      "last_date": "2024-02-29"
+    },
+    {
+      "month": "202403",
+      "url": "http://www.cffex.com.cn/sj/historysj/202403/zip/202403.zip",
+      "source": "download",
+      "bytes": 513686,
+      "sha256": "5bf6291462d1aab31a1d803501e60f6b9fd3bd7e283c325f72b644be79862617",
+      "member_count": 21,
+      "first_date": "2024-03-01",
+      "last_date": "2024-03-29"
+    },
+    {
+      "month": "202404",
+      "url": "http://www.cffex.com.cn/sj/historysj/202404/zip/202404.zip",
+      "source": "download",
+      "bytes": 465934,
+      "sha256": "39d61738e7fc5c497e32dcc18efdac1b8de426775908323209c644d4ba4ab196",
+      "member_count": 20,
+      "first_date": "2024-04-01",
+      "last_date": "2024-04-30"
+    },
+    {
+      "month": "202405",
+      "url": "http://www.cffex.com.cn/sj/historysj/202405/zip/202405.zip",
+      "source": "download",
+      "bytes": 443719,
+      "sha256": "0de71610570dd7849439e81871c336141b00d7d629698f952f8b931715971fa2",
+      "member_count": 20,
+      "first_date": "2024-05-06",
+      "last_date": "2024-05-31"
+    },
+    {
+      "month": "202406",
+      "url": "http://www.cffex.com.cn/sj/historysj/202406/zip/202406.zip",
+      "source": "download",
+      "bytes": 411919,
+      "sha256": "25045c26e0f52ac450eff73e35ccbea61efae3d91adc34e98ec0d522355ba953",
+      "member_count": 19,
+      "first_date": "2024-06-03",
+      "last_date": "2024-06-28"
+    },
+    {
+      "month": "202407",
+      "url": "http://www.cffex.com.cn/sj/historysj/202407/zip/202407.zip",
+      "source": "download",
+      "bytes": 500492,
+      "sha256": "b6f542bf35d115e7c7ebbb553025086ae5c23b66a925033dcc7a415d4b6f5e1c",
+      "member_count": 23,
+      "first_date": "2024-07-01",
+      "last_date": "2024-07-31"
+    },
+    {
+      "month": "202408",
+      "url": "http://www.cffex.com.cn/sj/historysj/202408/zip/202408.zip",
+      "source": "download",
+      "bytes": 480597,
+      "sha256": "cedcbfeea91732ec2e58f760a5973a5aea2ad906e915b9cd30be2ecf51bfd838",
+      "member_count": 22,
+      "first_date": "2024-08-01",
+      "last_date": "2024-08-30"
+    },
+    {
+      "month": "202409",
+      "url": "http://www.cffex.com.cn/sj/historysj/202409/zip/202409.zip",
+      "source": "download",
+      "bytes": 443641,
+      "sha256": "f3e0223c5c7def172e39b47fd5b6f252936522218786b9b4b5ee62698ed99367",
+      "member_count": 19,
+      "first_date": "2024-09-02",
+      "last_date": "2024-09-30"
+    },
+    {
+      "month": "202410",
+      "url": "http://www.cffex.com.cn/sj/historysj/202410/zip/202410.zip",
+      "source": "download",
+      "bytes": 574237,
+      "sha256": "d898052baa2fc1cb24681e28be21bf51093b2359175773c4608d295f06905fea",
+      "member_count": 18,
+      "first_date": "2024-10-08",
+      "last_date": "2024-10-31"
+    },
+    {
+      "month": "202411",
+      "url": "http://www.cffex.com.cn/sj/historysj/202411/zip/202411.zip",
+      "source": "download",
+      "bytes": 606434,
+      "sha256": "b39bd8b9c70d4c18beb59022f4b4441bd897e9ad53327d02f60af8f6ed52735e",
+      "member_count": 21,
+      "first_date": "2024-11-01",
+      "last_date": "2024-11-29"
+    },
+    {
+      "month": "202412",
+      "url": "http://www.cffex.com.cn/sj/historysj/202412/zip/202412.zip",
+      "source": "download",
+      "bytes": 569301,
+      "sha256": "b10da45825849d6f5c749fa83923d389d4cbbecb2fe958f9c2288cd8e032f19e",
+      "member_count": 22,
+      "first_date": "2024-12-02",
+      "last_date": "2024-12-31"
+    },
+    {
+      "month": "202501",
+      "url": "http://www.cffex.com.cn/sj/historysj/202501/zip/202501.zip",
+      "source": "download",
+      "bytes": 451440,
+      "sha256": "512324c72d833e1d45a036dbeaa133aa943163e8973623b5e5d87674b28318d5",
+      "member_count": 18,
+      "first_date": "2025-01-02",
+      "last_date": "2025-01-27"
+    },
+    {
+      "month": "202502",
+      "url": "http://www.cffex.com.cn/sj/historysj/202502/zip/202502.zip",
+      "source": "download",
+      "bytes": 425191,
+      "sha256": "2a2e25828029b0fc834e750d282f4461302b0f34d1a84ea33aecd74cf639a657",
+      "member_count": 18,
+      "first_date": "2025-02-05",
+      "last_date": "2025-02-28"
+    },
+    {
+      "month": "202503",
+      "url": "http://www.cffex.com.cn/sj/historysj/202503/zip/202503.zip",
+      "source": "download",
+      "bytes": 456781,
+      "sha256": "06414ede4a513531967b647eb21834fc859fd2ac3edcd7fd71fc46d26ff8325c",
+      "member_count": 21,
+      "first_date": "2025-03-03",
+      "last_date": "2025-03-31"
+    },
+    {
+      "month": "202504",
+      "url": "http://www.cffex.com.cn/sj/historysj/202504/zip/202504.zip",
+      "source": "download",
+      "bytes": 469729,
+      "sha256": "d278bda3cf19a7093cc0196be33c9425cc53d6814f7d799e309cd50546a52cc6",
+      "member_count": 21,
+      "first_date": "2025-04-01",
+      "last_date": "2025-04-30"
+    },
+    {
+      "month": "202505",
+      "url": "http://www.cffex.com.cn/sj/historysj/202505/zip/202505.zip",
+      "source": "download",
+      "bytes": 400706,
+      "sha256": "f223d85b9c542e52991a6da478084d81dd080e2dca306b22b7f15a2687d0cc6a",
+      "member_count": 19,
+      "first_date": "2025-05-06",
+      "last_date": "2025-05-30"
+    },
+    {
+      "month": "202506",
+      "url": "http://www.cffex.com.cn/sj/historysj/202506/zip/202506.zip",
+      "source": "download",
+      "bytes": 394773,
+      "sha256": "27b31853299215c45fd624da2ca4d4508fe76e91187846e1dbf5fe1b8d4b7d90",
+      "member_count": 20,
+      "first_date": "2025-06-03",
+      "last_date": "2025-06-30"
+    },
+    {
+      "month": "202507",
+      "url": "http://www.cffex.com.cn/sj/historysj/202507/zip/202507.zip",
+      "source": "download",
+      "bytes": 452619,
+      "sha256": "5d1d84707042318eb0edaf86f932d7d876570dc187dad3270abf6f640485b307",
+      "member_count": 23,
+      "first_date": "2025-07-01",
+      "last_date": "2025-07-31"
+    },
+    {
+      "month": "202508",
+      "url": "http://www.cffex.com.cn/sj/historysj/202508/zip/202508.zip",
+      "source": "download",
+      "bytes": 465495,
+      "sha256": "676d391001d90d0f36c065bccd807e94b96d76e42b300f7e1c0f12a542179758",
+      "member_count": 21,
+      "first_date": "2025-08-01",
+      "last_date": "2025-08-29"
+    },
+    {
+      "month": "202509",
+      "url": "http://www.cffex.com.cn/sj/historysj/202509/zip/202509.zip",
+      "source": "download",
+      "bytes": 529454,
+      "sha256": "74fa916d7c5d0b1330da0050f47468c76541f9a8ac9ed11dfe253455910ffca3",
+      "member_count": 22,
+      "first_date": "2025-09-01",
+      "last_date": "2025-09-30"
+    },
+    {
+      "month": "202510",
+      "url": "http://www.cffex.com.cn/sj/historysj/202510/zip/202510.zip",
+      "source": "download",
+      "bytes": 384322,
+      "sha256": "f89a692ccea05183e73cf4a2012235adba8aac8962aa94cb2040781f58c59a00",
+      "member_count": 17,
+      "first_date": "2025-10-09",
+      "last_date": "2025-10-31"
+    },
+    {
+      "month": "202511",
+      "url": "http://www.cffex.com.cn/sj/historysj/202511/zip/202511.zip",
+      "source": "download",
+      "bytes": 434839,
+      "sha256": "6126b8ba26c0f15b779ba6846b27c62356d2310d1726c61e50491b4801d7fa6a",
+      "member_count": 20,
+      "first_date": "2025-11-03",
+      "last_date": "2025-11-28"
+    },
+    {
+      "month": "202512",
+      "url": "http://www.cffex.com.cn/sj/historysj/202512/zip/202512.zip",
+      "source": "download",
+      "bytes": 478985,
+      "sha256": "ab425e58fedad5611810d4630bc6fa0c2515a340ef3f34b0ebc46a2d65183bad",
+      "member_count": 23,
+      "first_date": "2025-12-01",
+      "last_date": "2025-12-31"
+    },
+    {
+      "month": "202601",
+      "url": "http://www.cffex.com.cn/sj/historysj/202601/zip/202601.zip",
+      "source": "download",
+      "bytes": 458362,
+      "sha256": "2ae568fe1052125e9e0ec4fddc6bd1b7be398b5b50dbe2b7c4ea9c2b2abc21a2",
+      "member_count": 20,
+      "first_date": "2026-01-05",
+      "last_date": "2026-01-30"
+    },
+    {
+      "month": "202602",
+      "url": "http://www.cffex.com.cn/sj/historysj/202602/zip/202602.zip",
+      "source": "download",
+      "bytes": 322438,
+      "sha256": "d941d98346893fb6d89294cca8020fd9ce7c31ea2613c5ac1342942ac3c91b6e",
+      "member_count": 14,
+      "first_date": "2026-02-02",
+      "last_date": "2026-02-27"
+    },
+    {
+      "month": "202603",
+      "url": "http://www.cffex.com.cn/sj/historysj/202603/zip/202603.zip",
+      "source": "download",
+      "bytes": 503666,
+      "sha256": "21d7019143ce71b050f5a4078b9fdcc7025f085b91e4c8f7901e86bfc11afc14",
+      "member_count": 22,
+      "first_date": "2026-03-02",
+      "last_date": "2026-03-31"
+    },
+    {
+      "month": "202604",
+      "url": "http://www.cffex.com.cn/sj/historysj/202604/zip/202604.zip",
+      "source": "download",
+      "bytes": 471215,
+      "sha256": "9bb1cb86c5b3731da2f1d014bce280bf7702718528fdc7a9fa900acc01e1294a",
+      "member_count": 21,
+      "first_date": "2026-04-01",
+      "last_date": "2026-04-30"
+    },
+    {
+      "month": "202605",
+      "url": "http://www.cffex.com.cn/sj/historysj/202605/zip/202605.zip",
+      "source": "download",
+      "bytes": 416314,
+      "sha256": "66b7425b6cb0e1fe120d1f437e7c6e6c9a77af763f45a3989db91ae8aa488e90",
+      "member_count": 18,
+      "first_date": "2026-05-06",
+      "last_date": "2026-05-29"
+    },
+    {
+      "month": "202606",
+      "url": "http://www.cffex.com.cn/sj/historysj/202606/zip/202606.zip",
+      "source": "download",
+      "bytes": 483762,
+      "sha256": "de56df1e96fe12f837985ffbd793b8996ab0ae10d28773b2df3f1ef428bd9fdb",
+      "member_count": 21,
+      "first_date": "2026-06-01",
+      "last_date": "2026-06-30"
+    },
+    {
+      "month": "202607",
+      "url": "http://www.cffex.com.cn/sj/historysj/202607/zip/202607.zip",
+      "source": "download",
+      "bytes": 535917,
+      "sha256": "abeff1a696ab0f717bead36a736b77bb1346b4a0ee8abbd11b433b4c5ffe98f7",
+      "member_count": 23,
+      "first_date": "2026-07-01",
+      "last_date": "2026-07-31"
+    },
+    {
+      "month": "202608",
+      "url": "http://www.cffex.com.cn/sj/historysj/202608/zip/202608.zip",
+      "source": "download",
+      "bytes": 477030,
+      "sha256": "887147411a5c56c74aa548400cddbb74566da7f5d69f1aa39cafd6e617cb90d7",
+      "member_count": 21,
+      "first_date": "2026-08-03",
+      "last_date": "2026-08-31"
+    }
+  ],
+  "official_index_rows": 986,
+  "checks": {
+    "p0_parity_max_abs": 9.313225746154785e-09,
+    "candidate_count": 7,
+    "same_daily_rows": true,
+    "put_settle_nonpositive_rows": 0,
+    "im_settle_nonpositive_rows": 0
+  },
+  "decision": {
+    "labels": {
+      "P0": "baseline",
+      "P-core": "insurance_only",
+      "P25": "insurance_only",
+      "P50": "insurance_only",
+      "P75": "insurance_only",
+      "P100": "insurance_only",
+      "P100-R": "insurance_only"
+    },
+    "put_quantity_excessive": false,
+    "excessive_reasons": []
+  }
+}

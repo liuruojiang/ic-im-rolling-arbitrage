@@ -1,0 +1,13 @@
+{
+  "annual_returns.csv": "c3c2a630539706b9b62d6d7c53a39fae1bc55d61705249fa62ecce7fd831d271",
+  "cffex_download_manifest.csv": "c0e17906f33fa20b5283457b9a85d14050153959fb1b4a9e379ad5f93d3da460",
+  "common_futures_grid_path.csv": "011ad33a040a10680615a22743aeb70358282d014e1b9af5e6f4d52af6234a6a",
+  "daily_nav.csv": "a5bd98058bdfff0bcbc27221a8930780bb78e978efa34175f3425279992f1407",
+  "data_manifest.json": "167920f4d0a8219ba87987ee34c1c66beaef3e937ee4d4e03b552234b76dc6bc",
+  "metrics.csv": "7e00e2016081ec33ed99a188603be9a9ff7c313033a8d9c4403caae146f9c2d3",
+  "put_accounting_summary.csv": "d5f54d30f3f0bf65e3b219cd4cd450239bfec8519afd203a53a5f56e7a9c93b3",
+  "put_signals.csv": "22586453d49c4e12218cee450b15678c08c7d839eb1c2aa30ce61ab61b21d1b1",
+  "put_transactions.csv": "5279690482ca9b07c397e2d106684644a87efe50f4f35aebf2706b6e0618d9b5",
+  "record.md": "8fd30d10ace27e1e7366de059cc4ea13d87fec4ab1cd1de0de2dcc8165ac11c8",
+  "summary.json": "6468d32469e285e4f0ce461d847210344a8e4e19d85b2d96335a27d8bd417700"
+}
