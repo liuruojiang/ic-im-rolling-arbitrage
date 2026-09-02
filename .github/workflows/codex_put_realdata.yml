@@ -8,6 +8,7 @@ on:
       - 'artifacts/cffex_mo_archive_diagnostic/**'
       - 'artifacts/im_author_put_quantity_ablation_v1/**'
       - 'im_author_put_quantity_ablation_v1.py'
+      - 'tools/im_author_put_quantity_ablation_v1.payload2.*'
   workflow_dispatch:
 
 permissions:
