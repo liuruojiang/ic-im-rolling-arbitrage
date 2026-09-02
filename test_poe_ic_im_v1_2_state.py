@@ -222,17 +222,43 @@ def test_missed_close_catchup_sets_explicit_historical_replay_day(
     assert coordinator.store.load_latest()["verified_day"] == "2026-08-25"
 
 
+def test_same_day_close_catchup_uses_current_complete_market_path(
+    tmp_path, monkeypatch
+):
+    coordinator = server.LedgerCoordinator(StateStore(tmp_path))
+    seen: list[tuple[date | None, date]] = []
+
+    def fake_run(_self):
+        replay_day = strategy._HISTORICAL_REPLAY_DAY.get()
+        runtime_day = strategy._now_beijing().date()
+        seen.append((replay_day, runtime_day))
+        assert replay_day is None
+        assert runtime_day == date(2026, 8, 25)
+        for product, signal in _signals(runtime_day).items():
+            strategy._SIGNAL_OBSERVER(product, deepcopy(signal))
+        with strategy.poe.start_message() as message:
+            message.write("same-day-close-confirmed")
+
+    monkeypatch.setattr(strategy.ICIMMainlinesBot, "run", fake_run)
+    advanced = coordinator.catch_up_once(
+        datetime(2026, 8, 25, 15, 30, tzinfo=strategy.BEIJING)
+    )
+    assert advanced is True
+    assert seen == [(None, date(2026, 8, 25))]
+    assert coordinator.store.load_latest()["verified_day"] == "2026-08-25"
+
+
 def test_catch_up_until_current_advances_each_missing_session_in_order(
     tmp_path, monkeypatch
 ):
     coordinator = server.LedgerCoordinator(StateStore(tmp_path))
-    seen: list[date] = []
+    seen: list[date | None] = []
 
     def fake_run(_self):
         replay_day = strategy._HISTORICAL_REPLAY_DAY.get()
-        assert replay_day is not None
         seen.append(replay_day)
-        for product, signal in _signals(replay_day).items():
+        signal_day = replay_day or strategy._now_beijing().date()
+        for product, signal in _signals(signal_day).items():
             strategy._SIGNAL_OBSERVER(product, deepcopy(signal))
         with strategy.poe.start_message() as message:
             message.write("confirmed")
@@ -242,7 +268,7 @@ def test_catch_up_until_current_advances_each_missing_session_in_order(
         datetime(2026, 8, 26, 16, 0, tzinfo=strategy.BEIJING), max_sessions=4
     )
     assert count == 2
-    assert seen == [date(2026, 8, 25), date(2026, 8, 26)]
+    assert seen == [date(2026, 8, 25), None]
     assert coordinator.store.load_latest()["verified_day"] == "2026-08-26"
 
 

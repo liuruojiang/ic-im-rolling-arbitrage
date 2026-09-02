@@ -149,8 +149,15 @@ class LedgerCoordinator:
                 verified + timedelta(days=1)
             )
             try:
+                # For today's just-completed session, use the live close path: the
+                # exchange's current chain can already contain the complete close
+                # while its historical endpoint still lags by one session.  Older
+                # missed sessions must remain explicit historical replays.
+                same_day_close = next_day == clock.astimezone(strategy.BEIJING).date()
+                query_clock = clock if same_day_close else close_clock(next_day)
+                replay_day = None if same_day_close else next_day
                 text, _, observed = self.execute_query(
-                    "信号", close_clock(next_day), replay_day=next_day
+                    "信号", query_clock, replay_day=replay_day
                 )
                 if set(observed) != {"IC", "IM"}:
                     failures = re.findall(r"完整信号失败：([^\n]+)", text)
