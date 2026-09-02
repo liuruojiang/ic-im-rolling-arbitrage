@@ -37,6 +37,7 @@ jobs:
         with:
           path: data/im_author_put_quantity_ablation_v1/cffex_raw
           key: cffex-im-mo-202207-202608-v1
+          save-always: true
       - name: Validate frozen research source and specification
         run: |
           python -m py_compile im_author_put_quantity_ablation_v1.py tools/run_im_author_put_quantity_ablation_http_first.py
