@@ -11,6 +11,10 @@ on:
       - 'tools/im_author_put_quantity_ablation_v1.payload2.*'
   workflow_dispatch:
 
+concurrency:
+  group: codex-im-put-realdata-research
+  cancel-in-progress: true
+
 permissions:
   contents: write
 
@@ -39,6 +43,17 @@ jobs:
           cat tools/im_author_put_quantity_ablation_v1.payload2.* | base64 -d | gzip -dc > im_author_put_quantity_ablation_v1.py
           python -m py_compile im_author_put_quantity_ablation_v1.py
           test "$(sha256sum docs/im_author_put_quantity_ablation_v1_spec.md | awk '{print $1}')" = "b0e254ca27953fd3bd9ca9361ad25699bbc5effb294c5cfcf1670e9a90ed6db2"
+      - name: Persist auditable research source before execution
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add im_author_put_quantity_ablation_v1.py
+          if git diff --cached --quiet; then
+            echo "Research source already persisted"
+          else
+            git commit -m "research: persist author-style Put ablation source v1"
+            git push origin HEAD:codex/im-put-size-realdata-20260902
+          fi
       - name: Run preregistered real IM/MO Put quantity ablation
         run: python im_author_put_quantity_ablation_v1.py
       - name: Upload complete research output
@@ -48,13 +63,13 @@ jobs:
           path: artifacts/im_author_put_quantity_ablation_v1
           if-no-files-found: error
           retention-days: 90
-      - name: Commit auditable source and results to isolated branch
+      - name: Commit auditable results to isolated branch
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add im_author_put_quantity_ablation_v1.py artifacts/im_author_put_quantity_ablation_v1
+          git add artifacts/im_author_put_quantity_ablation_v1
           if git diff --cached --quiet; then
-            echo "No research changes"
+            echo "No research result changes"
           else
             git commit -m "research: save author-style Put real-data ablation v1"
             git push origin HEAD:codex/im-put-size-realdata-20260902
