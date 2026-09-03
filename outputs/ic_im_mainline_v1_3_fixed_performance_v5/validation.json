@@ -1,0 +1,51 @@
+{
+  "version": "ic_im_mainline_v1_3_fixed_performance_v5",
+  "status": "research_only_fixed_reference_not_live_authority",
+  "date_index_parity": true,
+  "IC": {
+    "rows": 2756,
+    "start": "2015-04-16",
+    "end": "2026-08-14",
+    "grid_state_parity_max_abs": 0.0,
+    "put_target_parity_max_abs": 0.0,
+    "put_model_trade_events": 185,
+    "put_real_trade_events": 95,
+    "min_cash_weight": 0.168316963871863,
+    "real_option_start": "2022-09-19",
+    "formula": "IC v1.3 NAV-defense momentum weights with rerun futures costs, Put execution, cash, and independent grid"
+  },
+  "IM": {
+    "rows": 2756,
+    "start": "2015-04-16",
+    "end": "2026-08-14",
+    "grid_state_parity_max_abs": 0.0,
+    "total_units_parity_max_abs": 0.0,
+    "put_target_vs_executable_actual_timing": {
+      "same_day_target_max_abs": 1.5,
+      "execution_lag_rows": 1,
+      "execution_lag_dates": [
+        "2023-03-06"
+      ],
+      "execution_lag_details": [
+        {
+          "target_date": "2023-03-06",
+          "actual_execution_date": "2023-03-07",
+          "target_qty_normalized": 0.0,
+          "held_through_target_close_qty_normalized": 1.5,
+          "verified_old_contracts": [
+            "MO2305-P-6600"
+          ],
+          "reason": "pending_until_verified_official_close_and_liquidity"
+        }
+      ],
+      "unexplained_mismatch_rows": 0
+    },
+    "call_actual_active_rows": 1652,
+    "call_actual_flat_rows": 1104,
+    "call_actual_state_parity": true,
+    "call_actual_state_source": "fixed_component_call_contract",
+    "min_cash_weight": 0.27473772350349834,
+    "real_market_start": "2022-07-22",
+    "formula": "0.5 core plus 0.5 momentum, v1.1 Put/Call scaled to core, independent 1.60/2.00 grid"
+  }
+}
