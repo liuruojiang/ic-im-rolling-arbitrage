@@ -1,0 +1,439 @@
+{
+  "rules": {
+    "version": "ic_im_mainline_v1_3_r5",
+    "status": "research_candidate_not_live_authority",
+    "products": {
+      "IC": {
+        "version": "ic_mainline_v1_3",
+        "status": "research_candidate_not_live_authority",
+        "parent_version": "ic_mainline_v1_2",
+        "capital_sleeves": {
+          "core_share": 0.5,
+          "momentum_share": 0.5
+        },
+        "momentum": {
+          "source_version": "cn_six_index_simplified_momentum_combo_v1_3",
+          "source_sleeve": "zz500",
+          "bias_ma": 110,
+          "momentum_days": 24,
+          "linear_weight_end": 2.0,
+          "score_threshold": 0.0,
+          "absolute_momentum_days": 20,
+          "absolute_momentum_threshold": 0.0,
+          "absolute_filter_share": 0.5,
+          "nav_decay_threshold": 0.06,
+          "nav_decay_scale": 0.5,
+          "annual_cash_yield": 0.02,
+          "annualization_days": 244,
+          "cost_rate": 0.001,
+          "volume_filter": "off",
+          "hot_score_filter": "off",
+          "execution_weights": [
+            0.0,
+            0.25,
+            0.5,
+            1.0
+          ],
+          "execution": "T_close_signal_and_base_nav_drawdown_to_next_common_session_position"
+        },
+        "put": {
+          "valuation_thresholds": [
+            1.9,
+            1.95,
+            2.0,
+            2.05
+          ],
+          "valuation_target_deltas": [
+            0.25,
+            0.5,
+            0.75,
+            1.0
+          ],
+          "core_mom120_negative_floor_delta": 0.5,
+          "momentum_sleeve_uses_mom120_floor": false,
+          "tenor_months": 3,
+          "moneyness": 0.95,
+          "execution": "T_close_to_next_common_session_close"
+        },
+        "grid": {
+          "entry_lte": 0.375,
+          "exit_gte": 1.0,
+          "additional_units": 1.0,
+          "independent_of_momentum": true,
+          "put_covered": false,
+          "call_covered": false,
+          "execution": "T_close_to_next_session_open"
+        },
+        "call": {
+          "included": false
+        },
+        "provenance": {
+          "parent": "ic_mainline_v1_2.py",
+          "a_share_v1_3": "D:\\动量策略\\A 股股指多头策略\\poe_cn_four_index_raw_momentum_combo_v1_3_bot.py",
+          "ohlcv": "D:\\动量策略\\IC和IM滚动套利\\data\\ic_510500_put_proxy_validation_v1\\sina_000905_index.csv",
+          "spec": "D:\\动量策略\\IC和IM滚动套利\\docs\\ic_mainline_v1_3_spec.md",
+          "source_sha256": {
+            "parent": "8f16a0db3186a961abc0df5481a8fff5df08a8405775c0d7e983a16703c8cec8",
+            "a_share_v1_3": "45cb8ab59e0ba6e2f21759e35fc57068a733f49b5c2c82d2566ec711447f91c4",
+            "ohlcv": "bbee1ef41f0fe0445398a0f51ff98375c766af22f0b0f92f5409dd6ef8456c35",
+            "spec": "7bbc6602e740988e0c794f78e0d0d3b9aa3d31149df836f55358e8e435fece43"
+          }
+        },
+        "orders": "not_generated"
+      },
+      "IM": {
+        "version": "im_mainline_v1_3",
+        "status": "research_candidate_not_live_authority",
+        "research_start": "2015-04-16",
+        "parent_version": "im_mainline_v1_2",
+        "component_parent_version": "im_mainline_v1_1",
+        "capital_sleeves": {
+          "core_share": 0.5,
+          "momentum_share": 0.5,
+          "core_always_held": true
+        },
+        "momentum": {
+          "source_version": "cn_six_index_simplified_momentum_combo_v1_3",
+          "source_sleeve": "zz1000",
+          "bias_ma": 35,
+          "momentum_days": 18,
+          "linear_weight_end": 2.5,
+          "score_threshold": 0.0,
+          "absolute_momentum_days": 20,
+          "absolute_momentum_threshold": 0.0,
+          "absolute_filter_share": 0.5,
+          "volume_ma": 160,
+          "volume_ratio_threshold": 0.85,
+          "volume_warmup_passes": true,
+          "hot_score_threshold": 150.0,
+          "hot_scale": 0.0,
+          "signal_targets": [
+            0.0,
+            0.5,
+            1.0
+          ],
+          "execution": "T_close_to_next_common_session_position"
+        },
+        "options": {
+          "put_policy": "inherit_im_v1_1_core_only",
+          "call_policy": "inherit_im_v1_1_core_only",
+          "momentum_put": false,
+          "momentum_call": false,
+          "grid_put": false,
+          "grid_call": false
+        },
+        "grid": {
+          "entry_lte": 1.6,
+          "exit_gte": 2.0,
+          "additional_units": 1.0,
+          "put_covered": false,
+          "call_covered": false,
+          "execution": "T_close_to_next_session_open"
+        },
+        "parent_rules": {
+          "core_units": 1.0,
+          "grid": {
+            "entry_lte": 1.6,
+            "exit_gte": 2.0,
+            "additional_units": 1.0,
+            "put_covered": false,
+            "call_covered": false,
+            "execution": "T_close_to_next_session_open"
+          },
+          "put": {
+            "absolute_thresholds": [
+              2.45,
+              2.5,
+              2.6
+            ],
+            "relative_quantiles": [
+              0.75,
+              0.85,
+              0.9,
+              0.925
+            ],
+            "mom120_negative_floor_qty": 3,
+            "max_qty": 4,
+            "fourth_contract_source": "valuation_tier_4_only",
+            "tenor_months": 3,
+            "moneyness": 0.95,
+            "execution": "T_close_to_next_session_close"
+          },
+          "call": {
+            "target_days_to_expiry": 10,
+            "minimum_implied_volatility": 0.26,
+            "threat_rescue_ratio": 0.05,
+            "maximum_rescues": 5,
+            "rescue_expiry_rule": "rescue_next_listed",
+            "coverage": "core_im_only",
+            "grid_unit_covered": false
+          }
+        },
+        "provenance": {
+          "parent": "im_mainline_v1_2.py",
+          "component_parent": "im_mainline_v1_1.py",
+          "momentum_implementation": "D:\\动量策略\\A 股股指多头策略\\poe_cn_four_index_raw_momentum_combo_v1_3_bot.py",
+          "momentum_audit": "D:\\动量策略\\IC和IM滚动套利\\quant_param_scan_runs\\20260902_ic_im_im_mainline_v1_2_im_1000_vs_a_v1_3\\daily_outputs\\weight_comparison.csv.gz",
+          "momentum_ohlcv": "D:\\动量策略\\IC和IM滚动套利\\data\\im_mo_csi1000_put_protection_battery_v6\\sina_sh000852_index.csv",
+          "fixed_call_components": "D:\\动量策略\\IC和IM滚动套利\\quant_param_scan_runs\\20260823_im_grid160_put_carry_scan_v23\\daily_outputs\\daily_candidates.csv.gz",
+          "research_record": "2026-08-23_滚IC滚IM叠加动量完整研究记录.md",
+          "spec": "D:\\动量策略\\IC和IM滚动套利\\docs\\im_mainline_v1_3_spec.md",
+          "source_sha256": {
+            "parent": "815e8e65fa77a4b376abccb0da69d6cc67aa20bdf585200ea29014a584e7fdc7",
+            "component_parent": "e9ee72e50f2193531e8dd296b19e252985d9d08673de177b85456d7e32bcaeba",
+            "a_share_v1_3": "45cb8ab59e0ba6e2f21759e35fc57068a733f49b5c2c82d2566ec711447f91c4",
+            "momentum_ohlcv": "9d3995a7189137fee79e5aaa2a58aced57101a1329f1236aca8a0adc86babe74",
+            "fixed_call_components": "734fcefc7b35657b96206a2b7f4fcb97002beacda58629a97645d7b1345850e1",
+            "spec": "8a44a5719cc07250c8598869130855be0061cf30a6b1ba780718c1603f15ba4e"
+          }
+        },
+        "performance_claim": "versioned_v1_3_fixed_reference_built_separately"
+      }
+    },
+    "cross_product_capital_allocation": "not_defined",
+    "cross_product_performance": "not_claimed",
+    "orders": "not_generated",
+    "provenance": {
+      "ic_module": "ic_mainline_v1_3.py",
+      "im_module": "im_mainline_v1_3.py",
+      "spec": "D:\\动量策略\\IC和IM滚动套利\\docs\\ic_im_mainline_v1_3_r5_spec.md",
+      "source_sha256": {
+        "ic_module": "87a3a06ef9000d128676890d079f3f9f82897d9b40a7f018449201aa8238af96",
+        "im_module": "74eb872a35be1981f583243a303704d0b2c8dccd02fd78032275103e12f5d1d9",
+        "ic_spec": "7bbc6602e740988e0c794f78e0d0d3b9aa3d31149df836f55358e8e435fece43",
+        "im_spec": "8a44a5719cc07250c8598869130855be0061cf30a6b1ba780718c1603f15ba4e",
+        "combined_spec": "66202cfa93cf50c4173390643eb45cec4145ebd4cb20a786aaab5a70c1f20c30"
+      }
+    }
+  },
+  "local_audit": {
+    "version": "ic_im_mainline_v1_3_r5",
+    "status": "research_candidate_not_live_authority",
+    "start": "2015-04-16",
+    "end": "2026-08-14",
+    "rows_per_product": 2756,
+    "date_index_parity": true,
+    "cross_product_capital_allocation": "not_defined",
+    "cross_product_performance": "not_claimed",
+    "orders_generated": false,
+    "IC": {
+      "version": "ic_mainline_v1_3",
+      "status": "research_candidate_not_live_authority",
+      "start": "2015-04-16",
+      "end": "2026-08-14",
+      "rows": 2756,
+      "a_share_execution_weight_max_abs_error": 0.0,
+      "a_share_base_nav_max_abs_error": 0.0,
+      "a_share_base_dd_max_abs_error": 0.0,
+      "v1_2_execution_weight_changed_rows": 1114,
+      "v1_2_execution_weight_max_abs_change": 1.0,
+      "nav_defense_active_rows": 1114,
+      "execution_weight_counts": {
+        "0.0": 1408,
+        "0.25": 172,
+        "0.5": 947,
+        "1.0": 229
+      },
+      "inherited_component_max_abs_errors": {
+        "core_ic_units": 0.0,
+        "grid_ic_units": 0.0,
+        "core_put_target_delta": 0.0,
+        "grid_put_target_delta": 0.0,
+        "call_target_contracts": 0.0
+      },
+      "call_nonzero_rows": 0,
+      "grid_put_nonzero_rows": 0,
+      "latest_state": {
+        "date": "2026-08-14",
+        "base_dd_for_gate": -0.11667159216954759,
+        "nav_decay_signal": true,
+        "momentum_signal_target": 0.5,
+        "momentum_execution_weight": 0.5,
+        "momentum_ic_units": 0.25,
+        "total_ic_units": 0.75,
+        "total_put_target_delta": 0.3125
+      },
+      "parent_v1_2_audit": {
+        "version": "ic_mainline_v1_2",
+        "status": "research_candidate_not_live_authority",
+        "start": "2015-04-16",
+        "end": "2026-08-14",
+        "rows": 2756,
+        "source_signal_rule_max_abs_error": 0.0,
+        "momentum_t_plus_1_max_abs_error": 0.0,
+        "put_source_momentum_weight_max_abs_error": 0.0,
+        "initial_source_momentum_weight_reset_to_zero": 1.0,
+        "initial_momentum_execution_weight": 0.0,
+        "initial_put_source_parity_excluded_due_to_strict_zero_reset": true,
+        "core_units_formula_max_abs_error": 0.0,
+        "momentum_units_formula_max_abs_error": 0.0,
+        "total_units_formula_max_abs_error": 0.0,
+        "core_put_formula_max_abs_error": 0.0,
+        "momentum_valuation_put_formula_max_abs_error": 0.0,
+        "total_put_formula_max_abs_error": 0.0,
+        "executed_put_target_parity_max_abs_error": 0.0,
+        "flat_momentum_put_max_abs": 0.0,
+        "call_nonzero_rows": 0,
+        "grid_put_nonzero_rows": 0,
+        "grid_independent_of_momentum": true,
+        "grid_t_plus_1_execution": true,
+        "grid_entries": 3,
+        "grid_exits": 3,
+        "grid_holding_days": 130,
+        "momentum_execution_weight_counts": {
+          "0.0": 1409,
+          "0.5": 178,
+          "1.0": 1169
+        },
+        "latest_state": {
+          "date": "2026-08-14",
+          "momentum_signal_target": 1.0,
+          "momentum_execution_weight": 1.0,
+          "core_ic_units": 0.5,
+          "momentum_ic_units": 0.5,
+          "grid_ic_units": 0.0,
+          "total_ic_units": 1.0,
+          "core_put_target_delta": 0.25,
+          "momentum_put_target_delta": 0.125,
+          "total_put_target_delta": 0.375,
+          "executed_put_contract": "510500P2609M07250",
+          "executed_put_qty": 51.0
+        },
+        "grid_upstream_audit": {
+          "grid_overlap_rows": 946,
+          "grid_model_real_parity_max_abs": 0.0,
+          "grid_signal_date_overlap_equal": true,
+          "grid_entries": 3,
+          "grid_exits": 3,
+          "grid_holding_days": 130,
+          "grid_roll_cost_events": 6,
+          "grid_total_cost": 0.0018000000000000002,
+          "grid_first_entry": "2022-04-22",
+          "grid_last_exit": "2024-10-08"
+        }
+      }
+    },
+    "IM": {
+      "version": "im_mainline_v1_3",
+      "status": "research_candidate_not_live_authority",
+      "start": "2015-04-16",
+      "end": "2026-08-14",
+      "rows": 2756,
+      "source_signal_rule_max_abs_error": 0.0,
+      "frozen_candidate_weight_max_abs_error": 0.0,
+      "a_share_strategy_spec_hash": "9c81ef4d468b0b4f6d28d36f7a0174e88097b2f11c368124ab44edaccc3fee04",
+      "a_share_implementation_hash": "45cb8ab59e0ba6e2f21759e35fc57068a733f49b5c2c82d2566ec711447f91c4",
+      "ohlcv_source": "D:\\动量策略\\IC和IM滚动套利\\data\\im_mo_csi1000_put_protection_battery_v6\\sina_sh000852_index.csv",
+      "ohlcv_source_sha256": "9d3995a7189137fee79e5aaa2a58aced57101a1329f1236aca8a0adc86babe74",
+      "volume_block_signal_rows": 753,
+      "score_hot_signal_rows": 32,
+      "core_units_formula_max_abs_error": 0.0,
+      "momentum_units_formula_max_abs_error": 0.0,
+      "total_units_formula_max_abs_error": 0.0,
+      "grid_parent_parity_max_abs_error": 0.0,
+      "put_core_only_formula_max_abs_error": 0.0,
+      "call_actual_target_formula_max_abs_error": 0.0,
+      "call_actual_active_rows": 1652,
+      "call_actual_flat_rows": 1104,
+      "call_threat_roll_events": 36,
+      "call_threat_roll_count_increment_failures": 0,
+      "call_threat_roll_expiry_order_failures": 0,
+      "call_max_threat_roll_count": 5,
+      "call_threat_entry_blocked_rows": 58,
+      "call_threat_entry_blocked_inconsistency_rows": 0,
+      "call_coverage_capacity_contracts_normalized": 1.0,
+      "call_rescue_expiry_rule": "rescue_next_listed",
+      "momentum_put_nonzero_rows": 0,
+      "momentum_call_nonzero_rows": 0,
+      "normalized_four_put_without_parent_tier4_rows": 0,
+      "momentum_execution_weight_counts": {
+        "0.0": 1721,
+        "0.5": 242,
+        "1.0": 793
+      },
+      "latest_state": {
+        "date": "2026-08-14",
+        "momentum_signal_target": 0.0,
+        "momentum_execution_weight": 1.0,
+        "core_im_units": 0.5,
+        "momentum_im_units": 0.5,
+        "grid_im_units": 0.0,
+        "total_im_units": 1.0,
+        "core_put_execution_qty_normalized": 1.5,
+        "core_call_target_contracts_normalized": 1.0,
+        "core_call_coverage_capacity_contracts_normalized": 1.0,
+        "call_active": true,
+        "call_contract": "MO2608-C-8800",
+        "call_expiry": "2026-08-21",
+        "threat_roll_count": 0,
+        "threat_entry_blocked": false
+      },
+      "parent_v1_1_audit": {
+        "version": "im_mainline_v1_1",
+        "status": "research_candidate_not_live_authority",
+        "research_start": "2015-04-16",
+        "start": "2015-04-16",
+        "end": "2026-08-14",
+        "rows": 2756,
+        "put_signal_target_counts": {
+          "0": 793,
+          "1": 65,
+          "2": 114,
+          "3": 1770,
+          "4": 14
+        },
+        "four_put_days_without_valuation_tier4": 0,
+        "grid_entry_signals": 4,
+        "grid_exit_signals": 4,
+        "grid_holding_days": 670,
+        "pending_grid_order_after_last_close": "none",
+        "upstream_state_audit": {
+          "state_start": "2014-10-17",
+          "state_end": "2026-08-14",
+          "first_relative_calibrated_date": "2020-07-01",
+          "mom120_negative_days": 1433,
+          "mom120_floor_binding_days": 1433,
+          "relative_tier4_days": 14,
+          "absolute_tier3_days": 736,
+          "target_counts": {
+            "0": 914,
+            "1": 65,
+            "2": 114,
+            "3": 337,
+            "4": 1447
+          }
+        }
+      }
+    },
+    "latest_state": {
+      "IC": {
+        "date": "2026-08-14",
+        "base_dd_for_gate": -0.11667159216954759,
+        "nav_decay_signal": true,
+        "momentum_signal_target": 0.5,
+        "momentum_execution_weight": 0.5,
+        "momentum_ic_units": 0.25,
+        "total_ic_units": 0.75,
+        "total_put_target_delta": 0.3125
+      },
+      "IM": {
+        "date": "2026-08-14",
+        "momentum_signal_target": 0.0,
+        "momentum_execution_weight": 1.0,
+        "core_im_units": 0.5,
+        "momentum_im_units": 0.5,
+        "grid_im_units": 0.0,
+        "total_im_units": 1.0,
+        "core_put_execution_qty_normalized": 1.5,
+        "core_call_target_contracts_normalized": 1.0,
+        "core_call_coverage_capacity_contracts_normalized": 1.0,
+        "call_active": true,
+        "call_contract": "MO2608-C-8800",
+        "call_expiry": "2026-08-21",
+        "threat_roll_count": 0,
+        "threat_entry_blocked": false
+      }
+    }
+  },
+  "audit_output": "D:\\动量策略\\IC和IM滚动套利\\outputs\\ic_im_mainline_v1_3_r5\\audit.json"
+}
