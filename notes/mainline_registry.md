@@ -29,12 +29,3 @@
 “主线冻结”表示后续研究默认以此为基准，不表示交易建议、最新下单信号或生产授权。任何规则、阈值、期限、成交时点或资金口径变化都必须新版本预注册。
 
 当前规范：`docs/ic_im_system_mainlines_v2_spec.md`。当前正式输出：`outputs/ic_im_system_mainlines_v2/`。用户在比较IM负动量3/4张的真实扫描后，明确选择4张作为当前主线；比较证据见`quant_param_scan_runs/20260820_ic_im_im_put_four_tier_mom120_floor_scan_v3_im_put_four_tier_mom120_floor_qty/`。
-
-## v1.3 每日研究信号发布授权（2026-09-03）
-
-- 用户明确要求Codex定时任务与GitHub/Gmail每日信号链路改用IC/IM 1.3最新版；发布权威固定为`docs/ic_im_mainline_v1_3_r5_spec.md`、构建`v1.3-20260903-r5`及独立`ic-im-v1-3-ledger`哈希链。
-- v1.3-r5替代v1.2成为上述两个每日研究信号渠道的默认版本；v1.2账本保持只读迁移来源，不得与v1.3账本或交付标记混用。
-- 此授权仅覆盖研究信号计算、审计展示和邮件发送，不改变本表上方冻结V2研究主线，也不授权连接交易接口、自动或人工下单。
-- GitHub链路必须先恢复v1.3账本；首次运行没有v1.3工件时，只能从已验证v1.2工件通过`migrate_ic_im_v1_2_to_v1_3_state.py`重放迁移。盘中快照不得写入账本，IC与IM不完整、日期不一致、迁移证明或哈希链失败时必须停止成功邮件。
-- Codex定时任务与GitHub邮件均须显示1.3-r5构建、行情日、账本核验日、下一交易日、数据源及当前/目标仓位；IC继续禁止Call，IM救援到期日继续使用`rescue_next_listed`。
-- 远端启用证据：策略仓库`main@f8207fc7d04bca04b296e148c83d6d5a57bdaea0`；GitHub Actions首次成功run `33708813109`完成Gmail发送、独立账本与交付标记上传；v1.2 GitHub定时工作流已停用。
