@@ -1,0 +1,234 @@
+{
+  "version": "ic_im_mainline_v1_3_r6_fixed_performance",
+  "status": "research_only_fixed_reference_not_live_authority",
+  "created_at": "2026-09-03T12:33:34.897078+08:00",
+  "target_rules": {
+    "version": "ic_im_mainline_v1_3_r6",
+    "status": "research_candidate_not_live_authority",
+    "products": {
+      "IC": {
+        "version": "ic_mainline_v1_3",
+        "status": "research_candidate_not_live_authority",
+        "parent_version": "ic_mainline_v1_2",
+        "capital_sleeves": {
+          "core_share": 0.5,
+          "momentum_share": 0.5
+        },
+        "momentum": {
+          "source_version": "cn_six_index_simplified_momentum_combo_v1_3",
+          "source_sleeve": "zz500",
+          "bias_ma": 110,
+          "momentum_days": 24,
+          "linear_weight_end": 2.0,
+          "score_threshold": 0.0,
+          "absolute_momentum_days": 20,
+          "absolute_momentum_threshold": 0.0,
+          "absolute_filter_share": 0.5,
+          "nav_decay_threshold": 0.06,
+          "nav_decay_scale": 0.5,
+          "annual_cash_yield": 0.02,
+          "annualization_days": 244,
+          "cost_rate": 0.001,
+          "volume_filter": "off",
+          "hot_score_filter": "off",
+          "execution_weights": [
+            0.0,
+            0.25,
+            0.5,
+            1.0
+          ],
+          "execution": "T_close_signal_and_base_nav_drawdown_to_next_common_session_position"
+        },
+        "put": {
+          "valuation_thresholds": [
+            1.9,
+            1.95,
+            2.0,
+            2.05
+          ],
+          "valuation_target_deltas": [
+            0.25,
+            0.5,
+            0.75,
+            1.0
+          ],
+          "core_mom120_negative_floor_delta": 0.5,
+          "momentum_sleeve_uses_mom120_floor": false,
+          "tenor_months": 3,
+          "moneyness": 0.95,
+          "execution": "T_close_to_next_common_session_close"
+        },
+        "grid": {
+          "entry_lte": 0.375,
+          "exit_gte": 1.0,
+          "additional_units": 1.0,
+          "independent_of_momentum": true,
+          "put_covered": false,
+          "call_covered": false,
+          "execution": "T_close_to_next_session_open"
+        },
+        "call": {
+          "included": false
+        },
+        "provenance": {
+          "parent": "ic_mainline_v1_2.py",
+          "a_share_v1_3": "D:\\动量策略\\A 股股指多头策略\\poe_cn_four_index_raw_momentum_combo_v1_3_bot.py",
+          "ohlcv": "D:\\动量策略\\IC和IM滚动套利\\data\\ic_510500_put_proxy_validation_v1\\sina_000905_index.csv",
+          "spec": "D:\\动量策略\\IC和IM滚动套利\\docs\\ic_mainline_v1_3_spec.md",
+          "source_sha256": {
+            "parent": "8f16a0db3186a961abc0df5481a8fff5df08a8405775c0d7e983a16703c8cec8",
+            "a_share_v1_3": "45cb8ab59e0ba6e2f21759e35fc57068a733f49b5c2c82d2566ec711447f91c4",
+            "ohlcv": "bbee1ef41f0fe0445398a0f51ff98375c766af22f0b0f92f5409dd6ef8456c35",
+            "spec": "7bbc6602e740988e0c794f78e0d0d3b9aa3d31149df836f55358e8e435fece43"
+          }
+        },
+        "orders": "not_generated"
+      },
+      "IM": {
+        "version": "im_mainline_v1_3",
+        "status": "research_candidate_not_live_authority",
+        "research_start": "2015-04-16",
+        "parent_version": "im_mainline_v1_2",
+        "component_parent_version": "im_mainline_v1_1",
+        "capital_sleeves": {
+          "core_share": 0.5,
+          "momentum_share": 0.5,
+          "core_always_held": true
+        },
+        "momentum": {
+          "source_version": "cn_six_index_simplified_momentum_combo_v1_3",
+          "source_sleeve": "zz1000",
+          "bias_ma": 35,
+          "momentum_days": 18,
+          "linear_weight_end": 2.5,
+          "score_threshold": 0.0,
+          "absolute_momentum_days": 20,
+          "absolute_momentum_threshold": 0.0,
+          "absolute_filter_share": 0.5,
+          "volume_ma": 160,
+          "volume_ratio_threshold": 0.85,
+          "volume_warmup_passes": true,
+          "hot_score_threshold": 150.0,
+          "hot_scale": 0.0,
+          "signal_targets": [
+            0.0,
+            0.5,
+            1.0
+          ],
+          "execution": "T_close_to_next_common_session_position"
+        },
+        "options": {
+          "put_policy": "independent_core_and_momentum_current_4tier_mom3",
+          "call_policy": "inherit_im_v1_1_core_only",
+          "momentum_put": true,
+          "momentum_put_formula": "0.5_x_momentum_execution_weight_x_parent_put_target_qty",
+          "momentum_put_contract": "independent_nearest_95pct_strike_about_3m",
+          "momentum_call": false,
+          "grid_put": false,
+          "grid_call": false
+        },
+        "grid": {
+          "entry_lte": 1.6,
+          "exit_gte": 2.0,
+          "additional_units": 1.0,
+          "put_covered": false,
+          "call_covered": false,
+          "execution": "T_close_to_next_session_open"
+        },
+        "parent_rules": {
+          "core_units": 1.0,
+          "grid": {
+            "entry_lte": 1.6,
+            "exit_gte": 2.0,
+            "additional_units": 1.0,
+            "put_covered": false,
+            "call_covered": false,
+            "execution": "T_close_to_next_session_open"
+          },
+          "put": {
+            "absolute_thresholds": [
+              2.45,
+              2.5,
+              2.6
+            ],
+            "relative_quantiles": [
+              0.75,
+              0.85,
+              0.9,
+              0.925
+            ],
+            "mom120_negative_floor_qty": 3,
+            "max_qty": 4,
+            "fourth_contract_source": "valuation_tier_4_only",
+            "tenor_months": 3,
+            "moneyness": 0.95,
+            "execution": "T_close_to_next_session_close"
+          },
+          "call": {
+            "target_days_to_expiry": 10,
+            "minimum_implied_volatility": 0.26,
+            "threat_rescue_ratio": 0.05,
+            "maximum_rescues": 5,
+            "rescue_expiry_rule": "rescue_next_listed",
+            "coverage": "core_im_only",
+            "grid_unit_covered": false
+          }
+        },
+        "provenance": {
+          "parent": "im_mainline_v1_2.py",
+          "component_parent": "im_mainline_v1_1.py",
+          "momentum_implementation": "D:\\动量策略\\A 股股指多头策略\\poe_cn_four_index_raw_momentum_combo_v1_3_bot.py",
+          "momentum_audit": "D:\\动量策略\\IC和IM滚动套利\\quant_param_scan_runs\\20260902_ic_im_im_mainline_v1_2_im_1000_vs_a_v1_3\\daily_outputs\\weight_comparison.csv.gz",
+          "momentum_ohlcv": "D:\\动量策略\\IC和IM滚动套利\\data\\im_mo_csi1000_put_protection_battery_v6\\sina_sh000852_index.csv",
+          "fixed_call_components": "D:\\动量策略\\IC和IM滚动套利\\quant_param_scan_runs\\20260823_im_grid160_put_carry_scan_v23\\daily_outputs\\daily_candidates.csv.gz",
+          "research_record": "2026-08-23_滚IC滚IM叠加动量完整研究记录.md",
+          "spec": "D:\\动量策略\\IC和IM滚动套利\\docs\\ic_im_mainline_v1_3_r6_spec.md",
+          "source_sha256": {
+            "parent": "815e8e65fa77a4b376abccb0da69d6cc67aa20bdf585200ea29014a584e7fdc7",
+            "component_parent": "e9ee72e50f2193531e8dd296b19e252985d9d08673de177b85456d7e32bcaeba",
+            "a_share_v1_3": "45cb8ab59e0ba6e2f21759e35fc57068a733f49b5c2c82d2566ec711447f91c4",
+            "momentum_ohlcv": "9d3995a7189137fee79e5aaa2a58aced57101a1329f1236aca8a0adc86babe74",
+            "fixed_call_components": "734fcefc7b35657b96206a2b7f4fcb97002beacda58629a97645d7b1345850e1",
+            "spec": "24c718a938534362aa6c6c5bd283bf610baf91a852bff210268f5270a790fefa"
+          }
+        },
+        "performance_claim": "versioned_v1_3_fixed_reference_built_separately"
+      }
+    },
+    "cross_product_capital_allocation": "not_defined",
+    "cross_product_performance": "not_claimed",
+    "orders": "not_generated",
+    "provenance": {
+      "ic_module": "ic_mainline_v1_3.py",
+      "im_module": "im_mainline_v1_3.py",
+      "spec": "D:\\动量策略\\IC和IM滚动套利\\docs\\ic_im_mainline_v1_3_r6_spec.md",
+      "source_sha256": {
+        "ic_module": "87a3a06ef9000d128676890d079f3f9f82897d9b40a7f018449201aa8238af96",
+        "im_module": "ee5a5b43a22b80abc55d66384381753f387f17d4a369d1bceacc6cea605fd94a",
+        "ic_spec": "7bbc6602e740988e0c794f78e0d0d3b9aa3d31149df836f55358e8e435fece43",
+        "im_spec": "24c718a938534362aa6c6c5bd283bf610baf91a852bff210268f5270a790fefa",
+        "combined_spec": "24c718a938534362aa6c6c5bd283bf610baf91a852bff210268f5270a790fefa"
+      }
+    }
+  },
+  "inputs": {
+    "docs\\ic_im_mainline_v1_3_r6_spec.md": "24c718a938534362aa6c6c5bd283bf610baf91a852bff210268f5270a790fefa",
+    "outputs\\ic_im_mainline_v1_3_fixed_performance_v5\\ic_daily.csv.gz": "5b3605f769ec1e47fc62647a6136a82f85b0c99a5cdd5233d29f85ea2a6064a2",
+    "outputs\\ic_im_mainline_v1_3_fixed_performance_v5\\metrics_by_window.csv": "07b3827a18ba8ce117ea0a15959bcd5dc7a41d7d03de4882384dc6c3bfb9cba3",
+    "outputs\\im_v13_momentum_put_independent_replay_v1\\daily_curves.csv.gz": "dbe84dbdc4c50753cb47a96262cd51d028c49253e71ccc26858f530a748a4b68",
+    "outputs\\im_v13_momentum_put_independent_replay_v1\\metrics_by_window.csv": "565eacceff5291ed949afaaedfd65ef5f914e80ea73e226823a53a79968dc8cb",
+    "outputs\\im_v13_momentum_put_independent_replay_v1\\put_daily_ledgers.csv.gz": "5c7f3ae06f6af2ae704d2b6873d021916942d077edcc5bceec97bef6da85cac8",
+    "outputs\\im_v13_momentum_put_independent_replay_v1\\put_trades.csv": "18610d3215a5e985fe30f05a241ac189cd4eff59723bb68716913fb5ea296947",
+    "outputs\\im_v13_momentum_put_independent_replay_v1\\put_lifecycles.csv": "86b199af70f6b3c2b64fe57eaf62d4c1dc323c2a9837d31e97006f53f23c941a",
+    "im_mainline_v1_3.py": "ee5a5b43a22b80abc55d66384381753f387f17d4a369d1bceacc6cea605fd94a",
+    "ic_im_mainline_v1_3.py": "475070728de4f3b3cf6332c797aa4d5290048c38dc94d3a546da61936d2c78e4"
+  },
+  "outputs": [
+    "ic_daily.csv.gz",
+    "im_daily_real.csv.gz",
+    "metrics_by_window.csv",
+    "im_v1_3_r5_vs_r6_real_full.csv",
+    "validation.json",
+    "record.md"
+  ]
+}

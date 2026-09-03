@@ -29,3 +29,12 @@
 “主线冻结”表示后续研究默认以此为基准，不表示交易建议、最新下单信号或生产授权。任何规则、阈值、期限、成交时点或资金口径变化都必须新版本预注册。
 
 当前规范：`docs/ic_im_system_mainlines_v2_spec.md`。当前正式输出：`outputs/ic_im_system_mainlines_v2/`。用户在比较IM负动量3/4张的真实扫描后，明确选择4张作为当前主线；比较证据见`quant_param_scan_runs/20260820_ic_im_im_put_four_tier_mom120_floor_scan_v3_im_put_four_tier_mom120_floor_qty/`。
+
+## v1.3 研究信号发布登记（2026-09-03）
+
+- 用户明确批准直接更新现有v1.3并同步本地、Poe与GitHub/Gmail研究信号入口；当前revision为`r6`，构建号`v1.3-20260903-r6`。
+- IC全部规则保持r5不变：核心Put与估值-only动量Put保留，网格无Put，IC无Call。
+- IM核心、动量期货、网格、Call、成本、现金和执行时点不变；新增独立动量Put，目标张数=`0.5 × 父Put目标张数 × 动量执行权重`，约3个月、95%行权价，网格仍无Put。
+- r5账本只读；r6使用schema 3及独立双Put腿账本，只能通过`migrate_ic_im_v1_3_r5_to_r6_state.py`迁移。
+- 本次授权只覆盖研究信号发布，不构成下单、交易或账户持仓授权；冻结V2研究主线与其首次正式输出不改写。
+- 规格：`docs/ic_im_mainline_v1_3_r6_spec.md`；定值证据：`outputs/ic_im_mainline_v1_3_r6_fixed_performance/`。

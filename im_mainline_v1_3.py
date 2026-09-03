@@ -1,9 +1,9 @@
 #!/usr/bin/env python
-"""IM rolling-arbitrage research candidate v1.3 with the current CSI1000 sleeve.
+"""IM rolling-arbitrage v1.3 r6 with the current CSI1000 sleeve and momentum Put.
 
-The version inherits IM v1.2 and changes only its momentum-weight path to the
-current A-share long-only v1.3 CSI1000 rule.  It emits auditable research
-targets only and never orders.
+The version inherits IM v1.2, uses the current A-share long-only v1.3 CSI1000
+momentum rule, and protects the core and momentum sleeves with independent Put
+ledgers.  It emits auditable research targets only and never orders.
 """
 
 from __future__ import annotations
@@ -58,7 +58,7 @@ FIXED_COMPONENTS_PATH = (
     / "daily_candidates.csv.gz"
 )
 REAL_IM_START = pd.Timestamp("2022-07-22")
-SPEC_PATH = ROOT / "docs" / "im_mainline_v1_3_spec.md"
+SPEC_PATH = ROOT / "docs" / "ic_im_mainline_v1_3_r6_spec.md"
 
 
 @dataclass(frozen=True)
@@ -445,9 +445,32 @@ def compose_from_parent_schedule(
     merged["core_put_execution_qty_normalized"] = (
         CORE_CAPITAL_SHARE * merged["parent_put_execution_target_qty"]
     )
-    merged["momentum_put_qty_normalized"] = 0.0
+    merged["momentum_put_signal_qty_normalized"] = (
+        MOMENTUM_CAPITAL_SHARE
+        * merged["parent_put_signal_target_qty"].astype(float)
+        * merged["momentum_signal_target"].astype(float)
+    )
+    merged["momentum_put_execution_qty_normalized"] = (
+        MOMENTUM_CAPITAL_SHARE
+        * merged["parent_put_execution_target_qty"].astype(float)
+        * merged["momentum_execution_weight"].astype(float)
+    )
+    # Compatibility alias: executable target, not actual broker quantity.
+    merged["momentum_put_qty_normalized"] = merged[
+        "momentum_put_execution_qty_normalized"
+    ]
+    merged["total_put_signal_qty_normalized"] = (
+        merged["core_put_signal_qty_normalized"]
+        + merged["momentum_put_signal_qty_normalized"]
+    )
+    merged["total_put_execution_qty_normalized"] = (
+        merged["core_put_execution_qty_normalized"]
+        + merged["momentum_put_execution_qty_normalized"]
+    )
     merged["grid_put_qty"] = 0
-    merged["put_covered_im_units"] = CORE_CAPITAL_SHARE
+    merged["put_covered_im_units"] = (
+        merged["core_im_units"] + merged["momentum_im_units"]
+    )
 
     merged["core_call_covered_im_units"] = CORE_CAPITAL_SHARE
     merged["core_call_coverage_capacity_contracts_normalized"] = (
@@ -672,11 +695,40 @@ def load_authoritative_local_state() -> tuple[pd.DataFrame, dict[str, Any]]:
     grid_parent_error = float(
         np.max(np.abs(schedule["grid_im_units"] - schedule["parent_grid_im_units"]))
     )
-    put_formula_error = float(
+    core_put_formula_error = float(
         np.max(
             np.abs(
                 schedule["core_put_execution_qty_normalized"]
                 - CORE_CAPITAL_SHARE * schedule["parent_put_execution_target_qty"]
+            )
+        )
+    )
+    momentum_put_signal_formula_error = float(
+        np.max(
+            np.abs(
+                schedule["momentum_put_signal_qty_normalized"]
+                - MOMENTUM_CAPITAL_SHARE
+                * schedule["parent_put_signal_target_qty"]
+                * schedule["momentum_signal_target"]
+            )
+        )
+    )
+    momentum_put_execution_formula_error = float(
+        np.max(
+            np.abs(
+                schedule["momentum_put_execution_qty_normalized"]
+                - MOMENTUM_CAPITAL_SHARE
+                * schedule["parent_put_execution_target_qty"]
+                * schedule["momentum_execution_weight"]
+            )
+        )
+    )
+    total_put_formula_error = float(
+        np.max(
+            np.abs(
+                schedule["total_put_execution_qty_normalized"]
+                - schedule["core_put_execution_qty_normalized"]
+                - schedule["momentum_put_execution_qty_normalized"]
             )
         )
     )
@@ -706,7 +758,11 @@ def load_authoritative_local_state() -> tuple[pd.DataFrame, dict[str, Any]]:
         "momentum_units_formula_max_abs_error": momentum_formula_error,
         "total_units_formula_max_abs_error": total_formula_error,
         "grid_parent_parity_max_abs_error": grid_parent_error,
-        "put_core_only_formula_max_abs_error": put_formula_error,
+        "put_core_formula_max_abs_error": core_put_formula_error,
+        "put_core_only_formula_max_abs_error": core_put_formula_error,
+        "momentum_put_signal_formula_max_abs_error": momentum_put_signal_formula_error,
+        "momentum_put_execution_formula_max_abs_error": momentum_put_execution_formula_error,
+        "total_put_execution_formula_max_abs_error": total_put_formula_error,
         "call_actual_target_formula_max_abs_error": call_actual_formula_error,
         "call_actual_active_rows": int(schedule["call_active"].sum()),
         "call_actual_flat_rows": int((~schedule["call_active"]).sum()),
@@ -725,6 +781,12 @@ def load_authoritative_local_state() -> tuple[pd.DataFrame, dict[str, Any]]:
         ),
         "call_rescue_expiry_rule": parent.CALL_POLICY.rescue_expiry_rule,
         "momentum_put_nonzero_rows": int(schedule["momentum_put_qty_normalized"].ne(0).sum()),
+        "momentum_flat_nonzero_put_rows": int(
+            (
+                schedule["momentum_execution_weight"].eq(0.0)
+                & schedule["momentum_put_qty_normalized"].ne(0.0)
+            ).sum()
+        ),
         "momentum_call_nonzero_rows": int(
             schedule["momentum_call_target_contracts_normalized"].ne(0).sum()
         ),
@@ -748,6 +810,12 @@ def load_authoritative_local_state() -> tuple[pd.DataFrame, dict[str, Any]]:
             "total_im_units": float(latest["total_im_units"]),
             "core_put_execution_qty_normalized": float(
                 latest["core_put_execution_qty_normalized"]
+            ),
+            "momentum_put_execution_qty_normalized": float(
+                latest["momentum_put_execution_qty_normalized"]
+            ),
+            "total_put_execution_qty_normalized": float(
+                latest["total_put_execution_qty_normalized"]
             ),
             "core_call_target_contracts_normalized": float(
                 latest["core_call_target_contracts_normalized"]
@@ -784,9 +852,11 @@ def rule_manifest() -> dict[str, Any]:
         },
         "momentum": asdict(MOMENTUM_POLICY),
         "options": {
-            "put_policy": "inherit_im_v1_1_core_only",
+            "put_policy": "independent_core_and_momentum_current_4tier_mom3",
             "call_policy": "inherit_im_v1_1_core_only",
-            "momentum_put": False,
+            "momentum_put": True,
+            "momentum_put_formula": "0.5_x_momentum_execution_weight_x_parent_put_target_qty",
+            "momentum_put_contract": "independent_nearest_95pct_strike_about_3m",
             "momentum_call": False,
             "grid_put": False,
             "grid_call": False,

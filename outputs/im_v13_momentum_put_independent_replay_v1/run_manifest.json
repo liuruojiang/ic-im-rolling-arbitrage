@@ -1,0 +1,20 @@
+{
+  "version": "im_v13_momentum_put_independent_replay_v1",
+  "created_at": "2026-09-03T11:01:58+08:00",
+  "status": "research_only_not_live_approved",
+  "decision": "independent_replay_supports_momentum_put_research_only_not_live_approved",
+  "spec_sha256": "22641097d7da46cb3a1218cb657b919ff92961716a81e2e3742485408e7879b0",
+  "script_sha256": "82086559f376fad76b17ae5c6a248caff6e7fb9522e62670beb33af35b145b85",
+  "source_hashes": {
+    "docs\\im_v13_momentum_put_independent_replay_v1_spec.md": "22641097d7da46cb3a1218cb657b919ff92961716a81e2e3742485408e7879b0",
+    "docs\\im_v13_momentum_put_independent_replay_v1_spec.md.sha256": "736fb8c090809b157db722f9c37e543470ae82d8c695cb34b458b5542520d65f",
+    "outputs\\ic_im_mainline_v1_3_fixed_performance_v5\\im_daily.csv.gz": "5436505d4eba945de652f22df0be457be81ffa6857b13fa5465178f2ba141991",
+    "quant_param_scan_runs\\20260823_im_grid160_put_carry_scan_v23\\daily_outputs\\daily_candidates.csv.gz": "734fcefc7b35657b96206a2b7f4fcb97002beacda58629a97645d7b1345850e1",
+    "outputs\\im_mainline_v1_3\\target_schedule.csv.gz": "83c369ec1f38e373824bec4fe4c25e83cce0754d746a1a0305c92399ed47c1b8",
+    "data\\im_monthly_roll_3m_lowest_put_v1\\cffex_mo_puts.csv": "cf7be9a5218c361961641c6e6a05745d581f87875ac67702fa95d3f4dbe71596",
+    "data\\im_monthly_roll_3m_lowest_put_v1\\cffex_im_contracts.csv": "6f19f04824026e3cf7e4fc7ebfeb20f60637e53bfc3caebc616fae47794f3cc0"
+  },
+  "git_commit": "d9d893c4a552dd99d17480594daeffad5b44933f",
+  "git_status": "M docs/ic_im_v1_3_github_gmail_runbook.md\n?? diagnose_im_momentum_put_change_v1.py\n?? docs/im_v13_momentum_put_independent_replay_v1_spec.md\n?? docs/im_v13_momentum_put_independent_replay_v1_spec.md.sha256\n?? docs/im_v13_put_coverage_scope_ablation_v2_spec.md\n?? docs/im_v13_put_coverage_scope_ablation_v2_spec.md.sha256\n?? run_im_v13_momentum_put_independent_replay_v1.py\n?? scan_im_v13_put_coverage_scope_v1.py\n?? scan_im_v13_put_coverage_scope_v2.py\n?? tmp/",
+  "command": "python -X utf8 run_im_v13_momentum_put_independent_replay_v1.py"
+}

@@ -2,7 +2,7 @@
 
 One-time setup (performed by the operator, never in source control):
   modal setup
-  modal volume create poe-ic-im-v1-3-ledger
+  modal volume create poe-ic-im-v1-3-r6-ledger
   Create Modal Dashboard secret "poe-ic-im-v1-3" with POE_ACCESS_KEY.
   modal deploy modal_poe_ic_im_v1_3.py
 """
@@ -13,7 +13,7 @@ import modal
 
 
 APP_NAME = "poe-ic-im-v1-3"
-VOLUME_NAME = "poe-ic-im-v1-3-ledger"
+VOLUME_NAME = "poe-ic-im-v1-3-r6-ledger"
 SECRET_NAME = "poe-ic-im-v1-3"
 MOUNT = "/data"
 
@@ -32,7 +32,7 @@ image = (
     .env(
         {
             "PYTHONPATH": "/root",
-            "ICIM_STATE_DIR": "/data/ic_im_v1_3",
+            "ICIM_STATE_DIR": "/data/ic_im_v1_3_r6",
             # Modal's scheduled function is the only ledger writer.  Web
             # containers reload the Volume and stay read-only to prevent a
             # scheduler/query race from creating divergent sequence files.

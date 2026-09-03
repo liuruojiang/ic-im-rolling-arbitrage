@@ -33,7 +33,7 @@ def _load_a_share_v13_module():
     return module
 
 
-def test_manifest_inherits_v12_and_records_core_only_options() -> None:
+def test_manifest_inherits_v12_and_records_independent_momentum_put() -> None:
     manifest = v13.rule_manifest()
     assert manifest["parent_version"] == "im_mainline_v1_2"
     assert manifest["component_parent_version"] == "im_mainline_v1_1"
@@ -45,7 +45,8 @@ def test_manifest_inherits_v12_and_records_core_only_options() -> None:
     assert manifest["grid"]["entry_lte"] == 1.60
     assert manifest["grid"]["exit_gte"] == 2.00
     assert manifest["parent_rules"]["put"]["mom120_negative_floor_qty"] == 3
-    assert manifest["options"]["momentum_put"] is False
+    assert manifest["options"]["momentum_put"] is True
+    assert manifest["options"]["momentum_put_contract"] == "independent_nearest_95pct_strike_about_3m"
     assert manifest["options"]["momentum_call"] is False
     assert manifest["options"]["grid_put"] is False
     assert manifest["options"]["grid_call"] is False
@@ -98,7 +99,7 @@ def test_momentum_formula_and_config_match_a_share_v13_zz1000() -> None:
     )
 
 
-def test_v13_schedule_splits_capital_and_keeps_options_off_momentum_and_grid() -> None:
+def test_v13_schedule_splits_capital_and_adds_momentum_put_only() -> None:
     dates = pd.bdate_range("2024-01-02", periods=4)
     state = pd.DataFrame(
         {
@@ -125,7 +126,10 @@ def test_v13_schedule_splits_capital_and_keeps_options_off_momentum_and_grid() -
     assert schedule["total_im_units"].tolist() == [0.5, 1.5, 1.75, 1.0]
     assert schedule["core_put_signal_qty_normalized"].tolist() == [1.5, 1.5, 2.0, 0.0]
     assert schedule["core_put_execution_qty_normalized"].tolist() == [0.0, 1.5, 1.5, 2.0]
-    assert schedule["momentum_put_qty_normalized"].eq(0.0).all()
+    assert schedule["momentum_put_signal_qty_normalized"].tolist() == [0.0, 0.75, 2.0, 0.0]
+    assert schedule["momentum_put_execution_qty_normalized"].tolist() == [0.0, 0.0, 0.75, 2.0]
+    assert schedule["momentum_put_qty_normalized"].tolist() == [0.0, 0.0, 0.75, 2.0]
+    assert schedule["total_put_execution_qty_normalized"].tolist() == [0.0, 1.5, 2.25, 4.0]
     assert schedule["grid_put_qty"].eq(0).all()
     assert schedule["core_call_coverage_capacity_contracts_normalized"].eq(1.0).all()
     assert schedule["core_call_actual_target_contracts_normalized"].isna().all()
@@ -133,7 +137,7 @@ def test_v13_schedule_splits_capital_and_keeps_options_off_momentum_and_grid() -
     assert ~schedule["actual_call_state_available"].any()
     assert schedule["momentum_call_target_contracts_normalized"].eq(0.0).all()
     assert schedule["grid_call_qty"].eq(0).all()
-    assert schedule["put_covered_im_units"].eq(0.5).all()
+    assert schedule["put_covered_im_units"].tolist() == [0.5, 0.5, 0.75, 1.0]
     assert schedule["call_covered_im_units"].eq(0.5).all()
 
 
@@ -228,11 +232,18 @@ def test_local_real_artifact_audit_passes() -> None:
         "call_actual_target_formula_max_abs_error",
     ):
         assert audit[key] <= 1e-12
+    for key in (
+        "momentum_put_signal_formula_max_abs_error",
+        "momentum_put_execution_formula_max_abs_error",
+        "total_put_execution_formula_max_abs_error",
+    ):
+        assert audit[key] <= 1e-12
     assert audit["a_share_strategy_spec_hash"] == "9c81ef4d468b0b4f6d28d36f7a0174e88097b2f11c368124ab44edaccc3fee04"
     assert audit["a_share_implementation_hash"] == "45cb8ab59e0ba6e2f21759e35fc57068a733f49b5c2c82d2566ec711447f91c4"
     assert audit["volume_block_signal_rows"] > 0
     assert audit["score_hot_signal_rows"] > 0
-    assert audit["momentum_put_nonzero_rows"] == 0
+    assert audit["momentum_put_nonzero_rows"] == 699
+    assert audit["momentum_flat_nonzero_put_rows"] == 0
     assert audit["momentum_call_nonzero_rows"] == 0
     assert audit["normalized_four_put_without_parent_tier4_rows"] == 0
     assert audit["call_actual_active_rows"] == 1652

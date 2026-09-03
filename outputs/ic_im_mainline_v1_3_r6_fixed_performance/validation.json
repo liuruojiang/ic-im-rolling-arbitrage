@@ -1,0 +1,20 @@
+{
+  "version": "ic_im_mainline_v1_3_r6_fixed_performance",
+  "status": "research_only_fixed_reference_not_live_authority",
+  "IC_daily_source_sha256": "5b3605f769ec1e47fc62647a6136a82f85b0c99a5cdd5233d29f85ea2a6064a2",
+  "IC_metrics_parity_max_abs_error": 1.9539925233402755e-14,
+  "IM_replay_daily_source_sha256": "dbe84dbdc4c50753cb47a96262cd51d028c49253e71ccc26858f530a748a4b68",
+  "IM_replay_metrics_parity_max_abs_error": 7.771561172376096e-15,
+  "IM_momentum_target_vs_ledger_max_abs_error": 0.0,
+  "IM_real_rows": 986,
+  "IM_min_cash_weight": 0.2747377235034983,
+  "IM_all_returns_finite": true,
+  "IM_date_unique_increasing": true,
+  "v1_3_r5_to_r6_real_full": {
+    "ann_return_delta": 0.013656330319933074,
+    "sharpe_delta": 0.05514305963474597,
+    "max_dd_improvement": 0.025913765684227874
+  },
+  "orders_generated": false,
+  "live_ledger_migrated": false
+}

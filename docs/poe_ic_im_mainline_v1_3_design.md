@@ -13,9 +13,9 @@
 
 ## 持久服务
 
-长期入口为`poe_ic_im_v1_3_server.py`，状态实现为`poe_ic_im_v1_3_state.py`，容器入口为`Dockerfile.poe-v1.3`，Modal入口为`modal_poe_ic_im_v1_3.py`。构建号为`v1.3-20260903-r5`。
+长期入口为`poe_ic_im_v1_3_server.py`，状态实现为`poe_ic_im_v1_3_state.py`，容器入口为`Dockerfile.poe-v1.3`，Modal入口为`modal_poe_ic_im_v1_3.py`。当前构建号为`v1.3-20260903-r6`。
 
-v1.3使用独立目录`runtime/ic_im_v1_3`、独立Modal Volume `poe-ic-im-v1-3-ledger`和独立Secret `poe-ic-im-v1-3`。r5状态记录同时带`strategy_version=1.3`和`strategy_revision=r5`；v1.2及r1至r4记录不能直接载入。首次启用前必须运行`migrate_ic_im_v1_2_to_v1_3_state.py`，从r5创世检查点按IC/IM两腿新规则重放到旧账本最后核验日，并保存旧链摘要和源文件哈希。旧账本只读且不被改写。
+v1.3-r6使用独立目录`runtime/ic_im_v1_3_r6`、独立Modal Volume `poe-ic-im-v1-3-r6-ledger`和Secret `poe-ic-im-v1-3`。状态记录同时带`strategy_version=1.3`、`strategy_revision=r6`和`schema_version=3`；r5及更早记录不能直接载入。首次启用前必须运行`migrate_ic_im_v1_3_r5_to_r6_state.py`，完整校验r5哈希链并在同一核验日生成独立r6创世记录。旧账本只读且不被改写。
 
 `poe_ic_im_mainline_v1_3_bot.py`保留单文件测试兼容，但无跨进程持久存储，不作为长期入口。Modal定时函数是唯一写入者；Web实例每次读取前刷新Volume并保持只读。
 
@@ -29,7 +29,7 @@ v1.3使用独立目录`runtime/ic_im_v1_3`、独立Modal Volume `poe-ic-im-v1-3-
 
 ## 绩效与权限
 
-定值绩效审计使用`outputs/ic_im_mainline_v1_3_fixed_performance_v5/`。IC按新权重重跑期货成本、Put执行、现金与网格；2015年至期权上市前含模型/代理段；IM真实期货与MO段从2022-07-22开始。上市前基差均值来自上市后样本回填，含未来信息，不得称为样本外或实盘绩效。2026-08-14以后的完整逐腿日收益账本尚未形成，Poe必须明确降级到该日，禁止用固定1倍期货桥接冒充1.3绩效。
+定值绩效审计使用`outputs/ic_im_mainline_v1_3_r6_fixed_performance/`。IC逐日收益完全沿用r5；IM只采用2022-07-22起的真实IM/MO独立核心与动量Put重放，不使用上市前理论Put补齐，故5Y/10Y明确为N/A。2026-08-14以后的完整逐腿日收益账本尚未形成，Poe必须明确降级到该日。
 
 本查询面、账本、日报和目标均为研究审计证据。冻结V2仍是登记表中的默认研究主线；在登记表明确标记“获准实盘”前，不构成自动或人工下单建议。
 

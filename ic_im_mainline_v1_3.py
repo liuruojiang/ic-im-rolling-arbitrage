@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Unified read-only research entrypoint for corrected IC/IM v1.3 r5."""
+"""Unified read-only research entrypoint for IC/IM v1.3 r6."""
 
 from __future__ import annotations
 
@@ -16,9 +16,9 @@ import im_mainline_v1_3 as im
 
 
 ROOT = Path(__file__).resolve().parent
-VERSION = "ic_im_mainline_v1_3_r5"
+VERSION = "ic_im_mainline_v1_3_r6"
 STATUS = "research_candidate_not_live_authority"
-SPEC_PATH = ROOT / "docs" / "ic_im_mainline_v1_3_r5_spec.md"
+SPEC_PATH = ROOT / "docs" / "ic_im_mainline_v1_3_r6_spec.md"
 
 
 def _sha256(path: Path) -> str | None:

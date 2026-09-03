@@ -10,7 +10,7 @@ import ic_im_mainline_v1_2 as previous
 
 def test_combined_manifest_contains_both_research_legs() -> None:
     manifest = combined.rule_manifest()
-    assert manifest["version"] == "ic_im_mainline_v1_3_r5"
+    assert manifest["version"] == "ic_im_mainline_v1_3_r6"
     assert manifest["status"] == "research_candidate_not_live_authority"
     assert manifest["products"]["IC"]["version"] == "ic_mainline_v1_3"
     assert manifest["products"]["IM"]["version"] == "im_mainline_v1_3"
@@ -84,7 +84,6 @@ def test_v13_changes_both_momentum_sleeves_and_keeps_parent_components_exact() -
         "grid_held_eod",
         "core_im_units",
         "grid_im_units",
-        "put_covered_im_units",
         "call_covered_im_units",
         "grid_put_qty",
         "grid_call_qty",
@@ -95,7 +94,6 @@ def test_v13_changes_both_momentum_sleeves_and_keeps_parent_components_exact() -
         "parent_put_execution_target_qty",
         "core_put_signal_qty_normalized",
         "core_put_execution_qty_normalized",
-        "momentum_put_qty_normalized",
         "core_call_covered_im_units",
         "core_call_coverage_capacity_contracts_normalized",
         "core_call_actual_target_contracts_normalized",
@@ -112,6 +110,21 @@ def test_v13_changes_both_momentum_sleeves_and_keeps_parent_components_exact() -
         new_schedules["IM"][inherited_im_columns],
         old_schedules["IM"][inherited_im_columns],
     )
+    expected_momentum_put = (
+        0.5
+        * new_schedules["IM"]["put_execution_target_qty"]
+        * new_schedules["IM"]["momentum_execution_weight"]
+    )
+    pd.testing.assert_series_equal(
+        new_schedules["IM"]["momentum_put_qty_normalized"],
+        expected_momentum_put,
+        check_names=False,
+    )
+    assert (
+        new_schedules["IM"]["total_put_execution_qty_normalized"]
+        - new_schedules["IM"]["core_put_execution_qty_normalized"]
+        - new_schedules["IM"]["momentum_put_qty_normalized"]
+    ).abs().max() <= 1e-12
     assert (
         new_schedules["IM"]["margin_buffer_fraction"]
         - 0.30 * new_schedules["IM"]["total_im_units"]

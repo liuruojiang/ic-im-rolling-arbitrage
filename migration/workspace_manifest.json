@@ -1,9 +1,9 @@
 {
   "version": "ic_im_mainline_workspace_manifest_v1",
-  "generated_at": "2026-09-02T18:39:34+08:00",
+  "generated_at": "2026-09-03T12:45:15+08:00",
   "root": "D:\\动量策略\\IC和IM滚动套利",
   "file_count": 2952,
-  "total_bytes": 776018203,
+  "total_bytes": 776019121,
   "files": {
     ".dockerignore": {
       "bytes": 72,
@@ -2818,8 +2818,8 @@
       "sha256": "f0eba0a755ba773e5666d13bb286c619862166556104863cdd1729c3a0b5de4a"
     },
     "notes/mainline_registry.md": {
-      "bytes": 2492,
-      "sha256": "fb4d5945f12d9c3f3cd18cc191ec2d13aac5703a16ec3d90f865f72878efbbe9"
+      "bytes": 3410,
+      "sha256": "15eb378b4439d81f7564da86e70520fe09510912a5d9a6c3bc841ee543b1b8c4"
     },
     "outputs/.ic_im_system_mainlines_v2.failed_20260820_1/current_state.csv": {
       "bytes": 522,

@@ -44,6 +44,10 @@ def _signals(day: date) -> dict[str, dict[str, object]]:
     next_day = strategy._roll_forward_exchange_day(day + timedelta(days=1))
     ic_current = 0.25 if day == date(2026, 8, 25) else 1.0
     im_current = 0.0 if day == date(2026, 8, 25) else 1.0
+    im_momentum_put_current = 0.0 if day == date(2026, 8, 25) else 1.5
+    im_momentum_put_contract = (
+        None if im_momentum_put_current == 0.0 else "MO2612-P-7200"
+    )
     common = {
         "market_date": day,
         "close_confirmed": True,
@@ -76,7 +80,16 @@ def _signals(day: date) -> dict[str, dict[str, object]]:
             "momentum_current_weight": im_current,
             "core_target": "IM2609",
             "put_target_contract": "MO2612-P-7200",
+            "core_put_current_contract": "MO2612-P-7200",
+            "core_put_target_contract": "MO2612-P-7200",
+            "momentum_put_current_contract": im_momentum_put_contract,
+            "momentum_put_target_contract": "MO2612-P-7200",
+            "core_put_current_qty_normalized": 1.5,
             "core_put_target_qty_normalized": 1.5,
+            "momentum_put_current_qty_normalized": im_momentum_put_current,
+            "momentum_put_target_qty_normalized": 1.5,
+            "total_put_current_qty_normalized": 1.5 + im_momentum_put_current,
+            "total_put_target_qty_normalized": 3.0,
             "v13_parent_puts_per_full_core": 3,
             "call_target_qty_normalized": 0.0,
             "call_target_contract": None,
@@ -98,14 +111,16 @@ def test_deployment_mode_refuses_empty_volume(tmp_path, monkeypatch):
 
 def test_v13_ledger_has_independent_schema_and_recomputed_im_genesis(tmp_path):
     record = StateStore(tmp_path).initialize()
-    assert record["schema_version"] == 2
+    assert record["schema_version"] == 3
     assert record["strategy_version"] == "1.3"
-    assert record["strategy_revision"] == "r5"
+    assert record["strategy_revision"] == "r6"
     assert record["genesis"]["copied_parent_momentum_anchor"] is False
     assert record["products"]["IM"]["verified_momentum_weight"] == 0.0
     assert record["products"]["IM"]["verified_next_momentum_weight"] == 0.0
     assert record["products"]["IC"]["verified_momentum_weight"] == 0.5
     assert record["products"]["IC"]["verified_next_momentum_weight"] == 0.25
+    assert record["products"]["IM"]["verified_core_put_qty_normalized"] == 1.5
+    assert record["products"]["IM"]["verified_momentum_put_qty_normalized"] == 0.0
 
 
 def test_v13_state_validator_rejects_v12_record_even_with_matching_shape(tmp_path):
@@ -119,7 +134,7 @@ def test_v13_state_validator_rejects_incomplete_r1_record(tmp_path):
     record = StateStore(tmp_path).initialize()
     record["strategy_revision"] = "r1"
     record["digest"] = state_module._digest(record)
-    with pytest.raises(RuntimeError, match="strategy_revision不是r5"):
+    with pytest.raises(RuntimeError, match="strategy_revision不是r6"):
         state_module._validate_record(record)
 
 
@@ -139,6 +154,8 @@ def test_state_survives_restart_and_advances_with_hash_chain(tmp_path):
     assert anchors["IC"]["verified_next_momentum_weight"] == 1.0
     assert anchors["IC"]["post_put_security_id"] == "10012099"
     assert anchors["IM"]["verified_call_contract"] is None
+    assert anchors["IM"]["verified_momentum_put_qty_normalized"] == 1.5
+    assert anchors["IM"]["verified_total_put_qty_normalized"] == 3.0
 
     day2 = second_process.append_confirmed_signals(
         reloaded, _signals(date(2026, 8, 26))

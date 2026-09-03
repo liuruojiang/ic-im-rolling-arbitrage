@@ -25,9 +25,9 @@ import pandas as pd
 import poe_ic_im_mainline_v1_3_bot as strategy
 
 
-SCHEMA_VERSION = 2
+SCHEMA_VERSION = 3
 STRATEGY_VERSION = "1.3"
-STRATEGY_REVISION = "r5"
+STRATEGY_REVISION = "r6"
 STATE_ENV = "ICIM_STATE_DIR"
 DEFAULT_STATE_DIR = Path(__file__).resolve().parent / "runtime" / "ic_im_v1_3"
 PRODUCTS = ("IC", "IM")
@@ -78,7 +78,7 @@ def _validate_record(record: dict[str, Any]) -> None:
     if str(record.get("strategy_version", "")) != STRATEGY_VERSION:
         raise RuntimeError("Poe账本strategy_version不是独立v1.3，禁止续写旧账本")
     if str(record.get("strategy_revision", "")) != STRATEGY_REVISION:
-        raise RuntimeError("Poe账本strategy_revision不是r5，禁止续写旧版v1.3账本")
+        raise RuntimeError("Poe账本strategy_revision不是r6，禁止续写旧版v1.3账本")
     sequence = record.get("sequence")
     if not isinstance(sequence, int) or isinstance(sequence, bool) or sequence < 0:
         raise RuntimeError("Poe账本sequence必须为非负整数")
@@ -121,6 +121,45 @@ def _validate_record(record: dict[str, Any]) -> None:
     ic = record["products"]["IC"]
     if float(ic.get("verified_call_contracts_normalized", 0.0)) != 0.0:
         raise RuntimeError("IC 1.3明确禁止Call，账本出现Call状态")
+    im = record["products"]["IM"]
+    core_put = _finite_float(
+        im.get("verified_core_put_qty_normalized"), "IM核心Put数量"
+    )
+    momentum_put = _finite_float(
+        im.get("verified_momentum_put_qty_normalized"), "IM动量Put数量"
+    )
+    total_put = _finite_float(
+        im.get("verified_total_put_qty_normalized"), "IM组合Put数量"
+    )
+    legacy_total = _finite_float(
+        im.get("verified_put_qty_normalized"), "IM兼容Put总数量"
+    )
+    parent_puts = im.get("verified_parent_puts")
+    if (
+        core_put < 0.0
+        or momentum_put < 0.0
+        or total_put < 0.0
+        or core_put > 2.0
+        or momentum_put > 2.0
+        or total_put > 4.0
+    ):
+        raise RuntimeError("IM核心/动量/组合Put数量超出合法域")
+    if not math.isclose(total_put, core_put + momentum_put, abs_tol=1e-12):
+        raise RuntimeError("IM组合Put数量不等于核心与动量之和")
+    if not math.isclose(legacy_total, total_put, abs_tol=1e-12):
+        raise RuntimeError("IM兼容Put总数量与双腿合计不一致")
+    if not isinstance(parent_puts, int) or isinstance(parent_puts, bool) or parent_puts not in {0, 1, 2, 3, 4}:
+        raise RuntimeError("IM父规则Put数量非法")
+    if not math.isclose(core_put, 0.5 * parent_puts, abs_tol=1e-12):
+        raise RuntimeError("IM核心Put数量不等于0.5倍父规则目标")
+    core_contract = im.get("post_core_put_contract")
+    momentum_contract = im.get("post_momentum_put_contract")
+    if core_put > 0.0 and not core_contract:
+        raise RuntimeError("IM核心Put非零但缺少独立合约")
+    if momentum_put > 0.0 and not momentum_contract:
+        raise RuntimeError("IM动量Put非零但缺少独立合约")
+    if momentum_put == 0.0 and momentum_contract not in (None, ""):
+        raise RuntimeError("IM动量Put为零但账本仍保留合约")
 
 
 def _as_day(value: Any, label: str) -> date:
@@ -162,6 +201,7 @@ def bootstrap_record() -> dict[str, Any]:
                 "IM": "MA35_Mom18_W2.5_Abs20Blend_Score150_VolumeMA160_0.85",
             },
             "build": strategy.BUILD_ID,
+            "im_put_ledgers": ["core_put", "momentum_put"],
         },
     }
     record["digest"] = _digest(record)
@@ -238,10 +278,10 @@ def derive_next_anchors(
                 "verified_next_grid_units": target_grid,
             }
         )
-        put_target_contract = signal.get("put_target_contract")
-        if put_target_contract:
-            anchor["post_put_contract"] = str(put_target_contract)
         if product == "IC":
+            put_target_contract = signal.get("put_target_contract")
+            if put_target_contract:
+                anchor["post_put_contract"] = str(put_target_contract)
             target_qty_raw = _finite_float(signal.get("put_target_total_qty"), "IC Put数量")
             if target_qty_raw < 0.0 or not target_qty_raw.is_integer():
                 raise RuntimeError("IC Put数量必须为非负整数")
@@ -273,17 +313,77 @@ def derive_next_anchors(
             if target_security_id:
                 anchor["post_put_security_id"] = str(target_security_id)
         else:
-            put_qty = _finite_float(signal.get("core_put_target_qty_normalized"), "IM Put数量")
+            core_current = _finite_float(
+                signal.get("core_put_current_qty_normalized"), "IM当前核心Put数量"
+            )
+            momentum_current = _finite_float(
+                signal.get("momentum_put_current_qty_normalized"), "IM当前动量Put数量"
+            )
+            total_current = _finite_float(
+                signal.get("total_put_current_qty_normalized"), "IM当前组合Put数量"
+            )
+            core_put = _finite_float(
+                signal.get("core_put_target_qty_normalized"), "IM核心Put数量"
+            )
+            momentum_put = _finite_float(
+                signal.get("momentum_put_target_qty_normalized"), "IM动量Put数量"
+            )
+            total_put = _finite_float(
+                signal.get("total_put_target_qty_normalized"), "IM组合Put数量"
+            )
             call_qty = _finite_float(signal.get("call_target_qty_normalized", 0.0), "IM Call数量")
             parent_puts = signal.get("v13_parent_puts_per_full_core")
-            if put_qty < 0.0 or put_qty > 2.0 or call_qty not in {-1.0, 0.0}:
+            if (
+                core_put < 0.0
+                or core_put > 2.0
+                or momentum_put < 0.0
+                or momentum_put > 2.0
+                or total_put < 0.0
+                or total_put > 4.0
+                or call_qty not in {-1.0, 0.0}
+            ):
                 raise RuntimeError("IM期权目标数量超出合法域")
             if not isinstance(parent_puts, int) or isinstance(parent_puts, bool) or parent_puts not in {0, 1, 2, 3, 4}:
                 raise RuntimeError("IM父规则Put数量非法")
+            if not math.isclose(core_current, float(anchor["verified_core_put_qty_normalized"]), abs_tol=1e-12):
+                raise RuntimeError("IM当前核心Put数量不等于账本锚点")
+            if not math.isclose(momentum_current, float(anchor["verified_momentum_put_qty_normalized"]), abs_tol=1e-12):
+                raise RuntimeError("IM当前动量Put数量不等于账本锚点")
+            if not math.isclose(total_current, core_current + momentum_current, abs_tol=1e-12):
+                raise RuntimeError("IM当前组合Put数量不等于核心与动量之和")
+            current_core_contract = signal.get("core_put_current_contract")
+            current_momentum_contract = signal.get("momentum_put_current_contract")
+            if current_core_contract != anchor.get("post_core_put_contract"):
+                raise RuntimeError("IM当前核心Put合约不等于账本锚点")
+            if current_momentum_contract != anchor.get("post_momentum_put_contract"):
+                raise RuntimeError("IM当前动量Put合约不等于账本锚点")
+            if not math.isclose(core_put, 0.5 * parent_puts, abs_tol=1e-12):
+                raise RuntimeError("IM核心Put目标不等于0.5倍父规则目标")
+            expected_momentum = core_put * next_weight
+            if not math.isclose(momentum_put, expected_momentum, abs_tol=1e-12):
+                raise RuntimeError("IM动量Put目标不等于核心目标乘动量执行权重")
+            if not math.isclose(total_put, core_put + momentum_put, abs_tol=1e-12):
+                raise RuntimeError("IM组合Put目标不等于核心与动量之和")
+            core_contract = signal.get("core_put_target_contract")
+            momentum_contract = signal.get("momentum_put_target_contract")
+            if core_put > 0.0 and not core_contract:
+                raise RuntimeError("IM核心Put目标非零但缺少合约")
+            if momentum_put > 0.0 and not momentum_contract:
+                raise RuntimeError("IM动量Put目标非零但缺少独立合约")
+            if momentum_put == 0.0 and momentum_contract not in (None, ""):
+                raise RuntimeError("IM动量Put目标为零但仍保留合约")
             anchor.update(
                 {
-                    "post_put_equivalent_units": 0.5 * put_qty,
-                    "verified_put_qty_normalized": put_qty,
+                    "post_put_contract": core_contract,
+                    "post_core_put_contract": core_contract,
+                    "post_momentum_put_contract": momentum_contract,
+                    "post_put_equivalent_units": 0.5 * total_put,
+                    "post_core_put_equivalent_units": 0.5 * core_put,
+                    "post_momentum_put_equivalent_units": 0.5 * momentum_put,
+                    "verified_put_qty_normalized": total_put,
+                    "verified_core_put_qty_normalized": core_put,
+                    "verified_momentum_put_qty_normalized": momentum_put,
+                    "verified_total_put_qty_normalized": total_put,
                     "verified_parent_puts": parent_puts,
                     "verified_call_contracts_normalized": call_qty,
                     "verified_call_contract": signal.get("call_target_contract"),

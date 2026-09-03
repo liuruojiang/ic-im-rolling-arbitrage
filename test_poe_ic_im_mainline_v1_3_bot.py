@@ -371,6 +371,10 @@ def _fake_signal(product: str) -> dict:
                 "core_put_target_qty_normalized": 1.5,
                 "core_put_current_qty_normalized": 1.5,
                 "momentum_put_current_qty_normalized": 0.0,
+                "momentum_put_target_qty_normalized": 0.75,
+                "total_put_current_qty_normalized": 1.5,
+                "total_put_target_qty_normalized": 2.25,
+                "momentum_put_selection_note": "独立约3个月、95%行权价",
                 "absolute_valuation_tier_label": "基础观察档（低于2.450）",
                 "relative_valuation_tier_label": "第1保护档",
                 "valuation_puts_per_full_core": 1,
@@ -395,7 +399,7 @@ def test_signal_output_lists_each_leg_current_next_change_and_total(monkeypatch)
     bot.ICIMMainlinesBot()._handle_signal(("IC", "IM"), mode="close")
     output = "".join(capture.text)
     for fragment in (
-            "构建 v1.3-20260903-r5",
+            "构建 v1.3-20260903-r6",
         "裸滚核心袖",
         "动量指引袖",
         "独立估值网格",
@@ -447,21 +451,21 @@ def test_signal_routes_keep_explicit_live_and_close_modes(monkeypatch, query, ex
 
 
 @pytest.mark.parametrize(
-    "product, expected_cagr, expected_max_drawdown",
+    "product, expected_rows, expected_start, expected_cagr, expected_max_drawdown",
     [
-        ("IC", 0.2373439638670407, -0.16092248864590464),
-        ("IM", 0.3054509679375996, -0.26568194936468625),
+        ("IC", 2756, date(2015, 4, 16), 0.2373439638670407, -0.16092248864590464),
+        ("IM", 986, date(2022, 7, 22), 0.4831095873793685, -0.23298413337344348),
     ],
 )
 def test_embedded_v13_fixed_curves_are_complete_and_match_full_metrics(
-    product, expected_cagr, expected_max_drawdown
+    product, expected_rows, expected_start, expected_cagr, expected_max_drawdown
 ):
     frame = bot.performance_frame(
         product, date(2015, 4, 16), date(2026, 8, 23), refresh_latest=False
     )
     metrics = bot.performance_metrics(frame)
-    assert len(frame) == 2756
-    assert frame.index[0].date() == date(2015, 4, 16)
+    assert len(frame) == expected_rows
+    assert frame.index[0].date() == expected_start
     assert frame.index[-1].date() == date(2026, 8, 14)
     assert not frame["is_live"].any()
     assert metrics["cagr"] == pytest.approx(expected_cagr, abs=1e-12)

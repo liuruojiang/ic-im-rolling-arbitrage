@@ -1,0 +1,59 @@
+{
+  "status": "research_only_not_live_approved",
+  "spec_sha256": "22641097d7da46cb3a1218cb657b919ff92961716a81e2e3742485408e7879b0",
+  "put_target_schedule_max_abs_error": 0.0,
+  "core_replay_parity": {
+    "rows": 986,
+    "put_pnl_max_abs": 4.9873299934333204e-17,
+    "put_cost_max_abs": 2.710505431213761e-20,
+    "put_mark_max_abs": 4.96564594998361e-17,
+    "put_qty_max_abs": 0.0,
+    "contract_mismatch_rows": 0
+  },
+  "full_curve_v5_parity": {
+    "ret_max_abs": 2.546248802082207e-16,
+    "cash_max_abs": 2.220446049250313e-16,
+    "put_qty_max_abs": 0.0
+  },
+  "price_integrity": {
+    "checked_trade_legs": 272,
+    "missing_raw_quote_legs": 0,
+    "bad_new_liquidity_legs": 0,
+    "max_close_price_error": 0.0
+  },
+  "raw_mo_rows": 123158,
+  "raw_mo_start": "2022-07-22",
+  "raw_mo_end": "2026-08-14",
+  "im_rows": 986,
+  "state_audit": {
+    "state_start": "2014-10-17",
+    "state_end": "2026-08-14",
+    "first_relative_calibrated_date": "2020-07-01",
+    "mom120_negative_days": 1433,
+    "mom120_floor_binding_days": 1433,
+    "relative_tier4_days": 14,
+    "absolute_tier3_days": 736,
+    "target_counts": {
+      "0": 914,
+      "1": 65,
+      "2": 114,
+      "3": 337,
+      "4": 1447
+    }
+  },
+  "decision_checks": {
+    "ann_return_delta": 0.01365633031993263,
+    "max_dd_improvement": 0.025913765684228207,
+    "sharpe_delta": 0.055143059634745306,
+    "worst_20d_delta": 2.7755575615628914e-17,
+    "worst_60d_delta": 0.006352913929285192,
+    "dd_improvement_ge_1pp": true,
+    "cagr_loss_le_0_5pp": true,
+    "sharpe_not_lower": true,
+    "worst_20d_not_worse": true,
+    "worst_60d_not_worse": true,
+    "cash_nonnegative": true,
+    "all_preregistered_checks_pass": true
+  },
+  "scaled_approximation_daily_max_abs": 0.0053002384820810145
+}
