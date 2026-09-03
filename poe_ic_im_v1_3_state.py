@@ -29,7 +29,7 @@ SCHEMA_VERSION = 3
 STRATEGY_VERSION = "1.3"
 STRATEGY_REVISION = "r6"
 STATE_ENV = "ICIM_STATE_DIR"
-DEFAULT_STATE_DIR = Path(__file__).resolve().parent / "runtime" / "ic_im_v1_3"
+DEFAULT_STATE_DIR = Path(__file__).resolve().parent / "runtime" / "ic_im_v1_3_r6"
 PRODUCTS = ("IC", "IM")
 
 
