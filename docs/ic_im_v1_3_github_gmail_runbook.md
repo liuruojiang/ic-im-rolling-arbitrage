@@ -20,3 +20,11 @@ IM盘中成交量门禁使用上一已确认交易日占位并明确披露，不
 成功报告必须显示：构建号、行情日、账本核验日、IC/IM当前仓位与下一交易日目标、动量Score/Abs20、IC基础NAV回撤与6%防守状态、IM成交量比率与极热门禁、网格、Put/Call原因和数据源。IC Call必须为0，IM救援期限必须保持`rescue_next_listed`。
 
 每日巡检最新`ic-im-v1-3-ledger`可下载且下一次运行显示恢复成功。任何缺源、日期不一致、摘要错误或部分品种成功都只保留上一份已验证账本，不发送可被误解为当天调整信号的报告。
+
+## 远端启用记录（2026-09-03）
+
+- 策略仓库PR #6已合并到`main`，提交`f8207fc7d04bca04b296e148c83d6d5a57bdaea0`。
+- 自动化仓库`liuruojiang/codex-daily-automation-probe`的PR #36和#38已合并；工作流`IC IM v1.3-r5 Realtime Digest`处于启用状态，原`IC IM v1.2 Realtime Digest`已停用。
+- 首次远端闭环run `33708813109`成功：从v1.2工件重放迁移、生成1.3-r5收盘确认信号、构建并发送Gmail、上传`ic-im-v1-3-ledger`、上传交付标记和审计工件均为success。
+- 首次远端账本核验日为2026-09-02，sequence=7，digest=`c3d7d80ccf1287cc9dd79591d40fc1014035b08e8a8ceae5ead8e6d299bb6daa`；交付标记为`ic-im-v1-3-r5-close_confirmed-digest-delivered-2026-09-02-c3d7d80ccf12`。
+- Codex自动化`ic-im`已改为只通过v1.3-r5正式研究信号路径处理IC/IM；运行频率仍为北京时间每日14:20预检、14:30后发布。
