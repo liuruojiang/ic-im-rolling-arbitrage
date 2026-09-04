@@ -59,3 +59,12 @@
 - 回滚需同时恢复代码和所匹配r6链，保留r7独立链，禁止用旧代码续写r7；冻结规范和首次正式输出没有改写。
 - 使用既有Python 3.14环境，通过uv run --no-project --python C:/Python314/python.exe python -X utf8运行上述研究脚本、迁移器、run_ic_im_v1_3_github_digest.py及pytest。
 - GitHub远端使用原工作流Python 3.11依赖；Poe云服务未重新部署。本次没有账户持仓读取、下单或仓位变更。
+
+## 发布与交付边界（2026-09-04 13:25 北京时间核验）
+
+- 策略PR #10已合并至liuruojiang/ic-im-rolling-arbitrage/main，合并提交d0f97f3dee8de5bd033ef9183e9137250b132547。
+- 邮件PR #47已合并至liuruojiang/codex-daily-automation-probe/main，合并提交7f8540316e2d37d9384175d2f1ed6ffb44034fa6。GitHub API确认工作流名称为IC IM v1.3-r7 Post-Close Digest，状态active。
+- 从最近成功远端run 33764138964下载真实r6账本工件，完整哈希链校验及r7离线迁移成功：源sequence=1、verified_day=2026-09-03、digest=0d4766a88cfb30064e58871a9116e9fb107063c08d7b990ccbaa1edac2f54fd7；全部锚点原样保留。证据outputs/ic_im_v1_3_r7_remote_source_validation/。
+- 尚未到9月4日收盘，本次没有提前发送额外测试邮件，也没有声称r7邮件已经投递。首个常规收盘任务将从真实r6链迁移并续写9月4日；若在首个新交易日完成前手动调用收盘发布，新创世记录尚无当天信号，应失败关闭而不是拼造旧报告。
+- 最终本地无新增补账的复验产物：outputs/ic_im_v1_3_r7_close_validation_final/；最终Markdown/HTML邮件预览：D:/Codex/workspaces/icim-quarter-r7-automation-20260904/validation/r7-mail-final/。仅验证构建，不调用邮件发送器。
+- 两个仓库工作区均已快进到已合并main；用户原有未跟踪研究文件未加入本次提交。
