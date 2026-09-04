@@ -4770,6 +4770,23 @@ _BOT_SETTINGS = SettingsResponse(
 poe.update_settings(_BOT_SETTINGS)
 
 
+def build_live_signal_with_transport_retry(product: str, mode: str, budget: float) -> dict[str, Any]:
+    """Retry one transient transport failure for this product only."""
+    for attempt in range(2):
+        try:
+            with _network_budget(budget):
+                signal = build_live_trade_signal(product, mode=mode)
+            if attempt:
+                signal.setdefault("data_notes", []).append(
+                    "本品种首次连接中断/超时后重试一次成功；未重复其他品种"
+                )
+            return signal
+        except (requests.ConnectionError, requests.Timeout):
+            if attempt:
+                raise
+    raise AssertionError("unreachable")
+
+
 class ICIMMainlinesBot:
     def run(self) -> None:
         try:
@@ -4810,8 +4827,7 @@ class ICIMMainlinesBot:
             per_product_budget = _signal_product_network_budget(len(products))
             for product in products:
                 try:
-                    with _network_budget(per_product_budget):
-                        live = build_live_trade_signal(product, mode=mode)
+                    live = build_live_signal_with_transport_retry(product, mode, per_product_budget)
                     if _SIGNAL_OBSERVER is not None:
                         _SIGNAL_OBSERVER(product, dict(live))
                 except Exception as exc:  # noqa: BLE001 - isolate each live product.

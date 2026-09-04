@@ -12,6 +12,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 import sys
 import tempfile
 from datetime import date, datetime
@@ -25,6 +26,7 @@ from poe_ic_im_v1_3_state import StateStore, _jsonable
 
 
 PRODUCTS = ("IC", "IM")
+DELIVERY_REVISION = "20260904-crossday-transport-1"
 MODES = ("close", "realtime")
 
 
@@ -171,12 +173,18 @@ def build_artifacts(
     clock: datetime,
     max_sessions: int,
     mode: str = "close",
+    expected_market_date: str = "",
 ) -> dict[str, Any]:
     if mode not in MODES:
         raise ValueError(f"unsupported mode: {mode}")
     store = StateStore(state_dir)
     coordinator = LedgerCoordinator(store)
     completed_day = strategy._latest_completed_exchange_day(clock)
+    actual_market_date = clock.date() if mode == "realtime" else completed_day
+    if expected_market_date and actual_market_date.isoformat() != expected_market_date:
+        raise RuntimeError(
+            f"日报日期不匹配：expected={expected_market_date} actual={actual_market_date}"
+        )
     advanced = coordinator.catch_up_until_current(clock, max_sessions=max_sessions)
     health = coordinator.health(clock)
     if health.get("status") != "ok":
@@ -194,7 +202,16 @@ def build_artifacts(
         report, attachments, observed = coordinator.execute_query(
             "实时信号", clock, persist_confirmed=False
         )
+        _atomic_write_text(out_dir / "diagnostic_report.md", report)
         after = store.load_latest()
+        if set(observed) != set(PRODUCTS):
+            failures = re.findall(r"完整信号失败：([^\n]+)", report)
+            raise RuntimeError(
+                "盘中产物必须同时包含IC和IM完整信号；已取得="
+                + ",".join(sorted(observed))
+                + "；逐品种失败=" + "；".join(failures)
+                + "；完整诊断见 diagnostic_report.md"
+            )
         validate_realtime_artifact(
             clock=clock,
             completed_day=completed_day,
@@ -223,6 +240,7 @@ def build_artifacts(
     _atomic_write_text(report_path, report)
     result = {
         "status": "ok",
+        "delivery_revision": DELIVERY_REVISION,
         "strategy": "IC/IM research candidate 1.3",
         "strategy_revision": state_module.STRATEGY_REVISION,
         "build": strategy.BUILD_ID,
@@ -257,6 +275,7 @@ def write_failure(
         (out_dir / stale_name).unlink(missing_ok=True)
     payload = {
         "status": "failed",
+        "delivery_revision": DELIVERY_REVISION,
         "strategy": "IC/IM research candidate 1.3",
         "strategy_revision": state_module.STRATEGY_REVISION,
         "build": strategy.BUILD_ID,
@@ -278,6 +297,7 @@ def main() -> int:
     parser.add_argument("--now", default="")
     parser.add_argument("--max-sessions", type=int, default=20)
     parser.add_argument("--mode", choices=MODES, default="close")
+    parser.add_argument("--expected-market-date", default="")
     args = parser.parse_args()
     if args.max_sessions <= 0:
         raise SystemExit("--max-sessions must be positive")
@@ -291,6 +311,7 @@ def main() -> int:
             clock=clock,
             max_sessions=args.max_sessions,
             mode=args.mode,
+            expected_market_date=args.expected_market_date,
         )
     except Exception as exc:
         write_failure(out_dir, clock, exc, mode=args.mode)
