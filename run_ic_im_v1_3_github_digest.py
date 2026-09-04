@@ -139,6 +139,11 @@ def render_stored_close_report(latest: dict[str, Any]) -> str:
                 "",
                 f"## {product}",
                 "",
+                "- " + strategy.quarter_roll.format_spread(signal.get("quarter_spread")),
+                (f"- 季度换仓：{product} T-{strategy.quarter_roll.ROLL_DAYS[product]}，"
+                 f"计划执行日 {signal.get('roll_execution_date', 'N/A')} 收盘；期权维护独立")
+                if signal.get("roll_policy", {}).get("tenor") == "strict_quarter"
+                else "- 本记录行情日早于r7生效日；2026-09-04起IM季度T-1、IC季度T-3，旧记录不追改。",
                 f"- 期货总仓：{signal.get('total_units_current', 'N/A')} → "
                 f"{signal.get('total_units_target', 'N/A')}",
                 f"- 核心动作：`{signal.get('core_action', 'N/A')}`；"

@@ -66,6 +66,8 @@ def _sha256(path: Path) -> str:
 
 
 def migrate(old_dir: Path, target_dir: Path) -> dict[str, Any]:
+    if new_state.STRATEGY_REVISION != "r6":
+        raise RuntimeError("r5到r6迁移只能使用归档r6代码；当前版本请从已核验r6链迁移到r7")
     old_dir = old_dir.resolve()
     target_dir = target_dir.resolve()
     if old_dir == target_dir or old_dir in target_dir.parents or target_dir in old_dir.parents:

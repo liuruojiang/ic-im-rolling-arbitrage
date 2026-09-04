@@ -399,7 +399,7 @@ def test_signal_output_lists_each_leg_current_next_change_and_total(monkeypatch)
     bot.ICIMMainlinesBot()._handle_signal(("IC", "IM"), mode="close")
     output = "".join(capture.text)
     for fragment in (
-            "构建 v1.3-20260903-r6",
+            "构建 v1.3-20260904-r7",
         "裸滚核心袖",
         "动量指引袖",
         "独立估值网格",

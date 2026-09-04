@@ -10,7 +10,7 @@ import ic_im_mainline_v1_2 as previous
 
 def test_combined_manifest_contains_both_research_legs() -> None:
     manifest = combined.rule_manifest()
-    assert manifest["version"] == "ic_im_mainline_v1_3_r6"
+    assert manifest["version"] == "ic_im_mainline_v1_3_r7"
     assert manifest["status"] == "research_candidate_not_live_authority"
     assert manifest["products"]["IC"]["version"] == "ic_mainline_v1_3"
     assert manifest["products"]["IM"]["version"] == "im_mainline_v1_3"

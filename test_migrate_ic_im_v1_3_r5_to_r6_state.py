@@ -2,11 +2,18 @@ from __future__ import annotations
 
 import hashlib
 import json
+import pytest
 from copy import deepcopy
 
 import poe_ic_im_mainline_v1_3_bot as strategy
 import poe_ic_im_v1_3_state as state
 from migrate_ic_im_v1_3_r5_to_r6_state import migrate
+
+
+@pytest.fixture(autouse=True)
+def archived_r6_migration_context(monkeypatch):
+    # Exercise the archived migration contract without relabeling it as r7.
+    monkeypatch.setattr(state, "STRATEGY_REVISION", "r6")
 
 
 def _write_r5_fixture(root):
