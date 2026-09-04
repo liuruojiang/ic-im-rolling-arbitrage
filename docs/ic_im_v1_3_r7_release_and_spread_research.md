@@ -68,3 +68,16 @@
 - 尚未到9月4日收盘，本次没有提前发送额外测试邮件，也没有声称r7邮件已经投递。首个常规收盘任务将从真实r6链迁移并续写9月4日；若在首个新交易日完成前手动调用收盘发布，新创世记录尚无当天信号，应失败关闭而不是拼造旧报告。
 - 最终本地无新增补账的复验产物：outputs/ic_im_v1_3_r7_close_validation_final/；最终Markdown/HTML邮件预览：D:/Codex/workspaces/icim-quarter-r7-automation-20260904/validation/r7-mail-final/。仅验证构建，不调用邮件发送器。
 - 两个仓库工作区均已快进到已合并main；用户原有未跟踪研究文件未加入本次提交。
+
+## 远端同步复验与清理（2026-09-04 13:39 北京时间）
+
+- GitHub API再次确认策略main为29358d2c6195f26babe7afabf3add355ef4946c1、邮件main为7f8540316e2d37d9384175d2f1ed6ffb44034fa6；本地对应代码一致。本节后续文档提交不改变策略逻辑。
+- 邮件工作流IC IM v1.3-r7 Post-Close Digest为active；旧IC IM v1.2 Realtime Digest为disabled_manually，未重新启用。当前工作流固定使用r7账本工件、r7邮件与r7投递标记；主分支检出、18:00收盘模式、导入前设置ICIM_STATE_DIR及迁移门禁均已核对。
+- Codex automation ic-im仍为ACTIVE、每日14:30；提示明确r7入口、独立r7账本、IM季度T-1/IC季度T-3及相邻季度价差。全部自动化配置搜索未发现另一份IC/IM日报任务。
+- 重新运行既有pytest：策略侧168 passed、1 warning；自动化侧157 passed、82 subtests passed。唯一警告为第三方Pydantic配置弃用提示。
+- 本轮正式runner以--mode realtime真实联网运行成功，结果见outputs/ic_im_v1_3_r7_publication_acceptance/result.json。market_date=2026-09-04，build=v1.3-20260904-r7，strategy_revision=r7；IC与IM均完整返回。此前盘中源超时未在此次复验重现，没有更改来源或放宽门禁。
+- 同一次盘中快照的价差：IC2609 7654.8减IC2612 7463.0=191.8点；IM2609 7531.2减IM2612 7315.8=215.4点，来源新浪财经。它们是验收时点价格，不是收盘价格。真实输出确认IC计划9月15日收盘、IM计划9月17日收盘换至12月。
+- 盘中实测前后账本digest保持d3fce2ccad8570a4b77658fc839f0fc8816c762231b9fd9494e07d2cf6967b22不变。用同一真实结果运行scripts/build_ic_im_v1_3_digest.py成功生成邮件正文及附件引用，保留在自动化工作区validation/r7-publication-acceptance/；未调用发送器。
+- 远端r7首封收盘邮件仍未发生：最近成功运行33764138964属于旧版。配置/回归/当天盘中正式路径/邮件渲染已验收，不能据此声称9月4日18:00任务或Gmail实际投递已验收。
+- 按用户要求完成可恢复清理：将被最终版本取代的收盘预览2个文件、邮件预览3个文件，以及4个可重建缓存目录（135个文件），移至.codex_backups/cleanup_20260904_1342/。原位置已腾空，但此举不是释放磁盘容量；需要恢复时移回对应目录即可。
+- 保留全部正式test_*.py、未跟踪研究脚本/规范、历史失败诊断、最终收盘预览、当前盘中验收、真实远端账本迁移证据、正式研究数据与全部账本。没有改写任何冻结规范或正式历史输出，没有交易操作。
