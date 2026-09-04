@@ -1816,6 +1816,7 @@ def fetch_ohlcv_history(product: str) -> pd.DataFrame:
         if len(rows) >= 180:
             frame = pd.DataFrame(rows).assign(date=lambda x: pd.to_datetime(x["date"])).set_index("date").sort_index()
             frame.attrs["source"] = "Sina"
+            _validate_v13_ohlcv(product, frame, _now_beijing())
             return frame
         raise RuntimeError("Sina OHLCV不足180行")
     except Exception as exc:
@@ -1849,6 +1850,8 @@ def fetch_ohlcv_history(product: str) -> pd.DataFrame:
         if len(rows) >= 180:
             frame = pd.DataFrame(rows).assign(date=lambda x: pd.to_datetime(x["date"])).set_index("date").sort_index()
             frame.attrs["source"] = "Eastmoney"
+            _validate_v13_ohlcv(product, frame, _now_beijing())
+            frame.attrs["source_failures"] = list(errors)
             return frame
         raise RuntimeError("Eastmoney OHLCV不足180行")
     except Exception as exc:
@@ -1870,6 +1873,8 @@ def fetch_ohlcv_history(product: str) -> pd.DataFrame:
         if len(rows) >= 180:
             frame = pd.DataFrame(rows).assign(date=lambda x: pd.to_datetime(x["date"])).set_index("date").sort_index()
             frame.attrs["source"] = "Tencent"
+            _validate_v13_ohlcv(product, frame, _now_beijing())
+            frame.attrs["source_failures"] = list(errors)
             return frame
         raise RuntimeError("Tencent OHLCV不足180行")
     except Exception as exc:
@@ -1915,7 +1920,8 @@ def live_proxy(product: str, clock: datetime | None = None) -> dict[str, Any]:
     clock = clock or _now_beijing()
     ohlcv: pd.DataFrame | None = None
     if product in {"IC", "IM"}:
-        ohlcv = _validate_v13_ohlcv(product, fetch_ohlcv_history(product), clock)
+        with runtime_clock(clock):
+            ohlcv = _validate_v13_ohlcv(product, fetch_ohlcv_history(product), clock)
         history = ohlcv["close"].copy()
     else:
         history = _validated_price_history(product, fetch_price_history(product), clock)

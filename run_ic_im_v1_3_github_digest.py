@@ -26,7 +26,7 @@ from poe_ic_im_v1_3_state import StateStore, _jsonable
 
 
 PRODUCTS = ("IC", "IM")
-DELIVERY_REVISION = "20260904-crossday-transport-1"
+DELIVERY_REVISION = "20260904-crossday-transport-2"
 MODES = ("close", "realtime")
 
 
