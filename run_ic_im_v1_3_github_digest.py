@@ -75,6 +75,7 @@ def validate_close_artifact(
         )
     for product in PRODUCTS:
         signal = observed[product]
+        state_module.validate_delivery_values(signal, product)
         if not bool(signal.get("close_confirmed")):
             raise RuntimeError(f"{product}不是收盘确认信号")
         if str(signal.get("product")) != product:
@@ -104,6 +105,7 @@ def validate_realtime_artifact(
         )
     for product in PRODUCTS:
         signal = observed[product]
+        state_module.validate_delivery_values(signal, product)
         if bool(signal.get("close_confirmed")):
             raise RuntimeError(f"{product}盘中信号被错误标记为收盘确认")
         if str(signal.get("product")) != product:
@@ -177,14 +179,18 @@ def build_artifacts(
 ) -> dict[str, Any]:
     if mode not in MODES:
         raise ValueError(f"unsupported mode: {mode}")
-    store = StateStore(state_dir)
-    coordinator = LedgerCoordinator(store)
+    if max_sessions <= 0:
+        raise ValueError("max_sessions必须为正")
+    if mode == "realtime" and strategy._market_phase(clock) != "盘中":
+        raise RuntimeError("盘中实时邮件只能在连续交易时段生成")
     completed_day = strategy._latest_completed_exchange_day(clock)
     actual_market_date = clock.date() if mode == "realtime" else completed_day
     if expected_market_date and actual_market_date.isoformat() != expected_market_date:
         raise RuntimeError(
             f"日报日期不匹配：expected={expected_market_date} actual={actual_market_date}"
         )
+    store = StateStore(state_dir)
+    coordinator = LedgerCoordinator(store)
     advanced = coordinator.catch_up_until_current(clock, max_sessions=max_sessions)
     health = coordinator.health(clock)
     if health.get("status") != "ok":

@@ -88,6 +88,12 @@ def _validate_record(record: dict[str, Any]) -> None:
     actual = _digest(record)
     if not expected or expected != actual:
         raise RuntimeError("Poe账本SHA-256校验失败")
+    signals = record.get("signals", {})
+    if signals:
+        if not isinstance(signals, dict) or set(signals) != set(PRODUCTS):
+            raise RuntimeError("Poe账本信号必须同时包含IC和IM")
+        for product in PRODUCTS:
+            validate_delivery_values(signals[product], product)
     days: list[date] = []
     for product in PRODUCTS:
         anchor = _decode_anchor(record["products"][product])
@@ -179,6 +185,24 @@ def _finite_float(value: Any, label: str) -> float:
     return number
 
 
+def validate_delivery_values(signal: dict[str, Any], product: str) -> None:
+    """Reject malformed boundary values before JSON can turn NaN into null.
+
+    Sparse historical bootstrap/test records may omit display exposures; when
+    present, exposures must be real finite nonnegative numbers. No optional
+    diagnostic metric is coerced into a trading value here.
+    """
+    if type(signal.get("close_confirmed")) is not bool:
+        raise RuntimeError(f"{product} close_confirmed必须为布尔值")
+    for field in ("total_units_current", "total_units_target"):
+        if field in signal:
+            value = signal[field]
+            if isinstance(value, bool) or not isinstance(value, (int, float, np.integer, np.floating)):
+                raise RuntimeError(f"{product} {field}必须为数值")
+            if _finite_float(value, f"{product} {field}") < 0.0:
+                raise RuntimeError(f"{product} {field}不能为负数")
+
+
 def bootstrap_record() -> dict[str, Any]:
     products = _jsonable(deepcopy(strategy.LIVE_CONTINUATION_ANCHOR))
     day = products["IC"]["last_verified_day"]
@@ -243,6 +267,7 @@ def derive_next_anchors(
     result = deepcopy(current_anchors)
     for product in PRODUCTS:
         signal = signals[product]
+        validate_delivery_values(signal, product)
         if str(signal.get("product")) != product:
             raise RuntimeError(f"{product}信号产品标签不一致")
         if not bool(signal.get("close_confirmed")):
