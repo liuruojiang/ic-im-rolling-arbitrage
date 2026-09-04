@@ -12,6 +12,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 import sys
 import tempfile
 from datetime import date, datetime
@@ -25,6 +26,7 @@ from poe_ic_im_v1_3_state import StateStore, _jsonable
 
 
 PRODUCTS = ("IC", "IM")
+DELIVERY_REVISION = "20260904-crossday-transport-1"
 MODES = ("close", "realtime")
 
 
@@ -194,7 +196,16 @@ def build_artifacts(
         report, attachments, observed = coordinator.execute_query(
             "实时信号", clock, persist_confirmed=False
         )
+        _atomic_write_text(out_dir / "diagnostic_report.md", report)
         after = store.load_latest()
+        if set(observed) != set(PRODUCTS):
+            failures = re.findall(r"完整信号失败：([^\n]+)", report)
+            raise RuntimeError(
+                "盘中产物必须同时包含IC和IM完整信号；已取得="
+                + ",".join(sorted(observed))
+                + "；逐品种失败=" + "；".join(failures)
+                + "；完整诊断见 diagnostic_report.md"
+            )
         validate_realtime_artifact(
             clock=clock,
             completed_day=completed_day,
@@ -223,6 +234,7 @@ def build_artifacts(
     _atomic_write_text(report_path, report)
     result = {
         "status": "ok",
+        "delivery_revision": DELIVERY_REVISION,
         "strategy": "IC/IM research candidate 1.3",
         "strategy_revision": state_module.STRATEGY_REVISION,
         "build": strategy.BUILD_ID,
@@ -257,6 +269,7 @@ def write_failure(
         (out_dir / stale_name).unlink(missing_ok=True)
     payload = {
         "status": "failed",
+        "delivery_revision": DELIVERY_REVISION,
         "strategy": "IC/IM research candidate 1.3",
         "strategy_revision": state_module.STRATEGY_REVISION,
         "build": strategy.BUILD_ID,
