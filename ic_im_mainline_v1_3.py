@@ -16,9 +16,9 @@ import im_mainline_v1_3 as im
 
 
 ROOT = Path(__file__).resolve().parent
-VERSION = "ic_im_mainline_v1_3_r6"
+VERSION = "ic_im_mainline_v1_3_r7"
 STATUS = "research_candidate_not_live_authority"
-SPEC_PATH = ROOT / "docs" / "ic_im_mainline_v1_3_r6_spec.md"
+SPEC_PATH = ROOT / "docs" / "ic_im_mainline_v1_3_r7_spec.md"
 
 
 def _sha256(path: Path) -> str | None:

@@ -839,9 +839,13 @@ def load_authoritative_local_state() -> tuple[pd.DataFrame, dict[str, Any]]:
 
 
 def rule_manifest() -> dict[str, Any]:
+    import ic_im_quarter_roll_v1_3 as quarter_roll
     return {
         "version": VERSION,
         "status": STATUS,
+        "signal_revision": "r7",
+        "futures_roll": quarter_roll.policy("IM"),
+        "historical_local_state": "r6_frozen_reference_not_r7_forward_ledger",
         "research_start": RESEARCH_START.date().isoformat(),
         "parent_version": previous.VERSION,
         "component_parent_version": parent.VERSION,

@@ -163,7 +163,9 @@ def historical_replay(day: date | None):
         _HISTORICAL_REPLAY_DAY.reset(token)
 
 
-BUILD_ID = "v1.3-20260903-r6"
+import ic_im_quarter_roll_v1_3 as quarter_roll
+
+BUILD_ID = "v1.3-20260904-r7"
 DATA_CUTOFF = date(2026, 8, 14)
 V13_HISTORY_DATE_INDEX = {
     "IC": (date(2005, 1, 4), 5250, "beddc7d6e25a7cb87f1397fb605f3a8fd58c10536a95fb3097ba2ac38e70a56d"),
@@ -978,6 +980,8 @@ def _contract_daily_marks(
 
 
 def latest_continuation_frame(product: str, end: date) -> pd.DataFrame:
+    if end >= quarter_roll.EFFECTIVE_DATE:
+        raise RuntimeError("r7季度规则生效后的绩效尚未生成；禁止用r6月度续接冒充r7收益")
     if end > DATA_CUTOFF:
         raise RuntimeError(
             "1.3逐日仓位、期权与网格续接账本尚未形成；禁止用固定1倍期货桥接冒充1.3绩效，"
@@ -3851,48 +3855,65 @@ def build_live_trade_signal(
     _require_intraday_bridge_source_day(
         f"{product}期货", future_quote_date, market_date, bridge_from_anchor
     )
-    # Contract state is determined by the market/as-of day.  Using the wall
-    # clock here would let a weekend query skip an unpriced strict next month
-    # and jump directly to a quarterly contract.
-    active_future = select_active_future(product, future_quotes, market_date)
-    active_expiry = _third_friday(*_contract_month(str(active_future["instrument"])))
+    # Option maintenance keeps the original monthly reference, independent of futures.
+    monthly_future = select_active_future(product, future_quotes, market_date)
+    monthly_expiry = _third_friday(*_contract_month(str(monthly_future["instrument"])))
     phase = _market_phase(clock)
-    later_futures = future_quotes[
-        future_quotes["instrument"].str.fullmatch(rf"{product}\d{{4}}")
-    ].copy()
-    later_futures["expiry"] = later_futures["instrument"].map(
-        lambda value: _third_friday(*_contract_month(value))
+    close_confirmed = market_date < today or (
+        market_date == today and phase in {"收盘后", "非交易日"}
     )
-    calendar_note = _calendar_coverage_note(later_futures["expiry"])
-    later_futures = later_futures[
-        later_futures["expiry"].gt(active_expiry)
-    ].sort_values("expiry")
-    next_core = _next_listed_future_contract(
-        product, future_quotes, active_expiry
+    option_roll_due = monthly_expiry == market_date or _is_pre_expiry_close(
+        market_date, monthly_expiry, phase
     )
-    pre_expiry_close = _is_pre_expiry_close(market_date, active_expiry, phase)
-    roll_signal_due = active_expiry == market_date or pre_expiry_close
-    roll_execution_date = active_expiry if roll_signal_due else None
-    if roll_signal_due:
-        if not next_core:
-            raise RuntimeError(f"{product}月换时没有更晚的实际挂牌期货合约")
-        active_future = _require_listed_future_quote(
-            product, later_futures, next_core
+    option_core_action = "ROLL" if option_roll_due else "HOLD"
+    option_reference_contract = str(monthly_future["instrument"])
+    if option_roll_due:
+        option_reference_contract = _next_listed_future_contract(
+            product, future_quotes, monthly_expiry
         )
+    option_reference_future = _require_listed_future_quote(
+        product, future_quotes, option_reference_contract
+    )
+    option_reference_expiry = _third_friday(*_contract_month(option_reference_contract))
     ledger_core = str(LIVE_CONTINUATION_ANCHOR[product]["post_core_contract"])
-    target_core = str(active_future["instrument"])
     ledger_core_expiry = _third_friday(*_contract_month(ledger_core))
-    scheduled_roll_completed = market_date >= ledger_core_expiry
-    current_core = ledger_core
-    if roll_signal_due:
-        core_action = "ROLL"
-    elif target_core != current_core:
-        raise RuntimeError(
-            f"{product} 行情活跃合约 {target_core} 与已核验账本当前合约"
-            f" {current_core} 不一致，暂停生成信号"
+    calendar_note = _calendar_coverage_note([
+        _third_friday(*_contract_month(str(c))) for c in future_quotes.instrument
+    ])
+    if market_date >= quarter_roll.EFFECTIVE_DATE:
+        def covered_session(day):
+            _require_official_exchange_calendar(day, "季度换仓日历")
+            return _is_exchange_trading_day(day)
+        future_plan = quarter_roll.roll_state(
+            product, ledger_core,
+            future_quotes.attrs.get("listed_instruments", future_quotes.instrument.tolist()),
+            market_date, close_confirmed,
+            lambda c: _third_friday(*_contract_month(c)), covered_session,
         )
+        current_core = future_plan["core_current"]
+        target_core = future_plan["core_target"]
+        core_action = future_plan["core_action"]
+        next_core = future_plan["next_core"]
+        active_expiry = ledger_core_expiry
+        roll_execution_date = future_plan["roll_execution_date"]
+        scheduled_roll_completed = future_plan["roll_confirmed"]
     else:
-        core_action = "HOLD"
+        # Pre-effective catch-up retains r6 monthly semantics.
+        active_expiry = monthly_expiry
+        next_core = _next_listed_future_contract(product, future_quotes, monthly_expiry)
+        current_core = ledger_core
+        target_core = option_reference_contract
+        core_action = option_core_action
+        roll_execution_date = monthly_expiry if option_roll_due else None
+        scheduled_roll_completed = market_date >= ledger_core_expiry
+        if core_action == "HOLD" and target_core != current_core:
+            raise RuntimeError(f"{product} monthly reference does not match audited ledger")
+        future_plan = dict(core_eod_contract=target_core, roll_confirmed=option_roll_due,
+                           roll_policy={"tenor": "legacy_monthly_pre_effective"})
+    active_future = _require_listed_future_quote(product, future_quotes, target_core)
+    spread = quarter_roll.quarter_spread(
+        product, future_quotes, market_date, lambda c: _third_friday(*_contract_month(c))
+    )
     grid_units, grid_action = _grid_target(product, live)
     close_confirmed = market_date < today or (
         market_date == today and phase in {"收盘后", "非交易日"}
@@ -3977,6 +3998,12 @@ def build_live_trade_signal(
         "roll_date": active_expiry,
         "roll_execution_date": roll_execution_date,
         "scheduled_roll_completed": scheduled_roll_completed,
+        "core_eod_contract": future_plan["core_eod_contract"],
+        "roll_confirmed": future_plan["roll_confirmed"],
+        "roll_policy": future_plan["roll_policy"],
+        "quarter_spread": spread,
+        "option_monthly_reset_due": option_roll_due,
+        "option_reference_contract": option_reference_contract,
         "grid_current": int(round(float(live["grid_current_units"]))),
         "grid_target": grid_units,
         "grid_action": grid_action,
@@ -4033,7 +4060,7 @@ def build_live_trade_signal(
         )
         put_action = (
             "HOLD"
-            if math.isclose(target_delta, prior_delta) and core_action == "HOLD"
+            if math.isclose(target_delta, prior_delta) and option_core_action == "HOLD"
             else "RESIZE_OR_ROLL"
         )
         _require_existing_leg_quote("IC Put", put_contract, put_quote, put_action)
@@ -4043,11 +4070,11 @@ def build_live_trade_signal(
             LIVE_CONTINUATION_ANCHOR["IC"].get("post_put_security_id") or ""
         ) or None
         ic_sizing: dict[str, Any] = {}
-        if replay_day is not None and core_action == "ROLL":
+        if replay_day is not None and option_core_action == "ROLL":
             raise RuntimeError(
                 "IC历史补账遇到月换日，缺少该日完整510500期权链归档；禁止用当前链替代"
             )
-        if core_action == "HOLD":
+        if option_core_action == "HOLD":
             anchored_total = int(LIVE_CONTINUATION_ANCHOR["IC"]["post_put_qty"])
             protection_changed = not (
                 math.isclose(target_delta, prior_delta, abs_tol=1e-12)
@@ -4066,7 +4093,7 @@ def build_live_trade_signal(
                     put_quote,
                     market_date,
                     float(etf["last"]),
-                    float(active_future["lastprice"]),
+                    float(option_reference_future["lastprice"]),
                     anchored_total,
                     current_core_delta,
                     current_momentum_delta,
@@ -4114,16 +4141,12 @@ def build_live_trade_signal(
                     f"动量指引袖{target_momentum}张 + 网格0张） {put_contract}"
                 )
             )
-        elif core_action == "ROLL" or scheduled_roll_completed:
-            reset_day = (
-                frozen_core_expiry
-                if scheduled_roll_completed
-                else (roll_execution_date or today)
-            )
+        elif option_core_action == "ROLL" or option_roll_due:
+            reset_day = monthly_expiry
             reset = select_ic_put_for_reset(
                 reset_day,
                 float(etf["last"]),
-                float(active_future["lastprice"]),
+                float(option_reference_future["lastprice"]),
                 target_delta,
             )
             put_target_contract_value = (
@@ -4154,7 +4177,7 @@ def build_live_trade_signal(
                 )
                 put_market = _format_market(str(reset["contract"]), reset["quote"])
                 if reset["absolute_delta"] is not None:
-                    future_notional = float(active_future["lastprice"]) * 200.0
+                    future_notional = float(option_reference_future["lastprice"]) * 200.0
                     etf_option_notional = float(etf["last"]) * 10_000.0
                     full_equivalent = max(
                         1, round(future_notional / etf_option_notional)
@@ -4178,7 +4201,7 @@ def build_live_trade_signal(
                         int(reset["qty"]),
                     )
                     ic_sizing = {
-                        "put_sizing_future_price": float(active_future["lastprice"]),
+                        "put_sizing_future_price": float(option_reference_future["lastprice"]),
                         "put_sizing_future_multiplier": 200,
                         "put_sizing_future_notional": future_notional,
                         "put_sizing_etf_price": float(etf["last"]),
@@ -4221,13 +4244,13 @@ def build_live_trade_signal(
                         f"{target_breakdown['momentum']}张 + 网格0张） "
                         f"{reset['contract']}"
                     )
-                if scheduled_roll_completed:
+                if option_roll_due:
                     if not ic_sizing:
                         put_current = f"规则续接合约 {reset['contract']}"
         put_action = (
             "HOLD"
             if math.isclose(target_delta, prior_delta, abs_tol=1e-12)
-            and core_action == "HOLD"
+            and option_core_action == "HOLD"
             else "RESIZE_OR_ROLL"
         )
         signal.update(
@@ -4328,17 +4351,13 @@ def build_live_trade_signal(
         )
         core_put_market = _format_market(core_put_contract, core_put_quote)
         im_contract_selection: dict[str, Any] = {}
-        if core_action == "HOLD":
+        if option_core_action == "HOLD":
             im_contract_selection["put_selection_note"] = (
                 f"{LIVE_CONTINUATION_ANCHOR['IM']['last_verified_day']}已核验账本续接；"
                 "非月换日沿用既有合约，只按保护档调整张数"
             )
-        elif (core_action == "ROLL" or scheduled_roll_completed) and put_target > 0:
-            reset_day = (
-                ledger_core_expiry
-                if scheduled_roll_completed
-                else (roll_execution_date or today)
-            )
+        elif (option_core_action == "ROLL" or option_roll_due) and put_target > 0:
+            reset_day = monthly_expiry
             selected_put = select_im_put_for_reset(
                 mo_quotes, reset_day, float(live["price"])
             )
@@ -4497,7 +4516,7 @@ def build_live_trade_signal(
                 mo_quotes,
                 today,
                 float(live["price"]),
-                _third_friday(*_contract_month(target_core)),
+                option_reference_expiry,
             )
             if selected_call is None:
                 call_action = "WAIT_IV_OR_CHAIN"
@@ -4540,7 +4559,7 @@ def build_live_trade_signal(
                 abs_tol=1e-12,
             )
             and core_put_target_contract == core_put_contract
-            and core_action == "HOLD"
+            and option_core_action == "HOLD"
             else "RESIZE_OR_ROLL"
         )
         momentum_put_action = (
@@ -5009,11 +5028,12 @@ class ICIMMainlinesBot:
                     f"{_format_quote_number(live['future_bid'])}/"
                     f"{_format_quote_number(live['future_ask'])}\n"
                 )
+                msg.write("- " + quarter_roll.format_spread(live.get("quarter_spread")) + "\n")
                 if live["scheduled_roll_completed"]:
-                    msg.write("- 8月合约到期月换已计入当前规则仓位，不再误报为下一交易日展期。\n")
+                    msg.write("- 本日期货展期已收盘确认；期权维护日程独立。\n")
                 elif live["core_action"] == "ROLL" and live["roll_execution_date"]:
                     msg.write(
-                        f"- 月换执行日：**{live['roll_execution_date']}**；核心期货与Put同步重置\n"
+                        f"- 季度换仓执行日：**{live['roll_execution_date']} 收盘**；提前预告不代表已执行，期权维护独立\n"
                     )
                 msg.write(f"- Put 行情：{live['put_market']}\n")
                 if product == "IM":
@@ -5029,8 +5049,10 @@ class ICIMMainlinesBot:
                         )
                 if live["next_core"] and live["core_target"] != live["next_core"]:
                     msg.write(
-                        f"- 月度节点：`{live['core_target']}` 规则到期日 {live['roll_date']}；"
-                        f"届时核心腿转入 `{live['next_core']}`，Put按冻结规则同步/月度重置\n"
+                        (f"- 季度规则：{product} T-{quarter_roll.ROLL_DAYS[product]}；所持合约到期日 {live['roll_date']}；"
+                         f"计划 {live['roll_execution_date']} 收盘转入 `{live['next_core']}`，Put维持独立维护\n")
+                        if live.get("roll_policy", {}).get("tenor") == "strict_quarter"
+                        else "- 本行情日早于r7生效日，以上是原月度规则历史续接；2026-09-04起按IM季度T-1、IC季度T-3。\n"
                     )
                 msg.write("- 数据：中金所及已验证备用行情、上交所510500ETF/期权及指数行情；估值与MOM120为价格代理。\n")
                 for note in live["data_notes"][2:]:
@@ -5084,10 +5106,12 @@ class ICIMMainlinesBot:
             )
 
     def _handle_performance(self, intent: QueryIntent) -> None:
+        # Embedded curves remain immutable r6 reference, not r7 quarterly history.
         assert intent.start is not None and intent.end is not None
         with _sm() as msg:
             msg.write(
                 f"## 1.3 历史表现：{intent.start} 至 {intent.end}\n\n"
+                "以下为 r6 冻结历史参考，不是 r7 季度换仓规则的历史绩效。\n\n"
             )
             request_deadline = (
                 time_module.monotonic() + PERFORMANCE_NETWORK_BUDGET_SECONDS

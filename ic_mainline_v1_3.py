@@ -17,6 +17,7 @@ import pandas as pd
 
 import ic_mainline_v1_2 as previous
 import im_mainline_v1_3 as shared
+import ic_im_quarter_roll_v1_3 as quarter_roll
 
 
 ROOT = Path(__file__).resolve().parent
@@ -351,6 +352,9 @@ def rule_manifest() -> dict[str, Any]:
         "version": VERSION,
         "status": STATUS,
         "parent_version": "ic_mainline_v1_2",
+        "signal_revision": "r7",
+        "futures_roll": quarter_roll.policy("IC"),
+        "historical_local_state": "r6_frozen_reference_not_r7_forward_ledger",
         "capital_sleeves": {
             "core_share": CORE_CAPITAL_SHARE,
             "momentum_share": MOMENTUM_CAPITAL_SHARE,

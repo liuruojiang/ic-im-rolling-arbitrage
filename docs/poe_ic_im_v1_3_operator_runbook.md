@@ -1,5 +1,15 @@
 # POE 1.3 持久化服务运维手册
 
+## 2026-09-04 r7 本地及日报入口
+
+本地/Codex/GitHub日报当前代码为`v1.3-20260904-r7`，IM季度T-1、IC季度T-3；本次未重新部署Poe云服务。下面的r6云部署记录是历史操作说明，不可直接拿当前r7源配r6卷部署。
+
+本地从已核验r6迁移：`python -X utf8 migrate_ic_im_v1_3_r6_to_r7_state.py --old-state-dir runtime/ic_im_v1_3_r6 --new-state-dir runtime/ic_im_v1_3_r7`。已有目标目录不得重做迁移。先设置`ICIM_STATE_DIR`为r7绝对路径、`ICIM_REQUIRE_MIGRATION=1`，再运行原日报入口。创世迁移摘要与链首校验，后续记录逐交易日推进。
+
+期货预告与执行日收盘状态分开：`core_target`可为预告目标，`core_eod_contract`仅执行日收盘改变。Put/Call维护独立；价差采用同源同日近季减远季。2026年以外未核验日历仍失败关闭。历史收益查询显式标明r6参考。
+
+## r6 云部署历史记录
+
 适用构建：`v1.3-20260903-r6`
 状态：用户已批准本地、Poe与GitHub/Gmail研究信号发布；不生成订单，不代表账户持仓，不替代冻结V2交易权限边界。
 

@@ -113,7 +113,7 @@ def test_v13_ledger_has_independent_schema_and_recomputed_im_genesis(tmp_path):
     record = StateStore(tmp_path).initialize()
     assert record["schema_version"] == 3
     assert record["strategy_version"] == "1.3"
-    assert record["strategy_revision"] == "r6"
+    assert record["strategy_revision"] == "r7"
     assert record["genesis"]["copied_parent_momentum_anchor"] is False
     assert record["products"]["IM"]["verified_momentum_weight"] == 0.0
     assert record["products"]["IM"]["verified_next_momentum_weight"] == 0.0
@@ -134,7 +134,7 @@ def test_v13_state_validator_rejects_incomplete_r1_record(tmp_path):
     record = StateStore(tmp_path).initialize()
     record["strategy_revision"] = "r1"
     record["digest"] = state_module._digest(record)
-    with pytest.raises(RuntimeError, match="strategy_revision不是r6"):
+    with pytest.raises(RuntimeError, match="strategy_revision不是r7"):
         state_module._validate_record(record)
 
 

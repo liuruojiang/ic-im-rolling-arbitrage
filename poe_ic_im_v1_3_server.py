@@ -94,7 +94,7 @@ class LedgerCoordinator:
             migrated = migration.get("new_ledger", {})
             if (
                 str(migrated.get("strategy_revision")) != state.STRATEGY_REVISION
-                or str(migrated.get("digest")) != str(latest.get("digest"))
+                or str(migrated.get("digest")) != str(self.store.load_sequence(0).get("digest"))
             ):
                 raise RuntimeError("迁移证明与当前v1.3账本revision/digest不一致")
 

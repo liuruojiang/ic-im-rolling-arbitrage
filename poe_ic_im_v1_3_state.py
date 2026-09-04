@@ -27,9 +27,9 @@ import poe_ic_im_mainline_v1_3_bot as strategy
 
 SCHEMA_VERSION = 3
 STRATEGY_VERSION = "1.3"
-STRATEGY_REVISION = "r6"
+STRATEGY_REVISION = "r7"
 STATE_ENV = "ICIM_STATE_DIR"
-DEFAULT_STATE_DIR = Path(__file__).resolve().parent / "runtime" / "ic_im_v1_3_r6"
+DEFAULT_STATE_DIR = Path(__file__).resolve().parent / "runtime" / "ic_im_v1_3_r7"
 PRODUCTS = ("IC", "IM")
 
 
@@ -78,7 +78,7 @@ def _validate_record(record: dict[str, Any]) -> None:
     if str(record.get("strategy_version", "")) != STRATEGY_VERSION:
         raise RuntimeError("Poe账本strategy_version不是独立v1.3，禁止续写旧账本")
     if str(record.get("strategy_revision", "")) != STRATEGY_REVISION:
-        raise RuntimeError("Poe账本strategy_revision不是r6，禁止续写旧版v1.3账本")
+        raise RuntimeError("Poe账本strategy_revision不是r7，禁止续写旧版v1.3账本")
     sequence = record.get("sequence")
     if not isinstance(sequence, int) or isinstance(sequence, bool) or sequence < 0:
         raise RuntimeError("Poe账本sequence必须为非负整数")
@@ -255,6 +255,18 @@ def derive_next_anchors(
         if _as_day(signal.get("next_trade_date"), f"{product} next_trade_date") != expected_next_day:
             raise RuntimeError(f"{product}下一交易日不正确")
         anchor = result[product]
+        if signal_day >= strategy.quarter_roll.EFFECTIVE_DATE:
+            held = str(anchor["post_core_contract"])
+            expected_plan = strategy.quarter_roll.roll_state(
+                product, held, [held, str(signal.get("next_core", ""))], signal_day, True,
+                lambda c: strategy._third_friday(*strategy._contract_month(c)),
+                strategy._is_exchange_trading_day,
+            )
+            for field in ("core_current", "core_target", "core_eod_contract", "roll_confirmed"):
+                if signal.get(field) != expected_plan[field]:
+                    raise RuntimeError(f"{product}季度换仓状态不一致: {field}")
+            if _as_day(signal.get("roll_execution_date"), "roll day") != expected_plan["roll_execution_date"]:
+                raise RuntimeError(f"{product}季度换仓执行日不一致")
         current_weight = _finite_float(signal.get("momentum_current_weight"), f"{product}当前动量权重")
         next_weight = _finite_float(signal.get("momentum_next_weight"), f"{product}下一动量权重")
         allowed = {0.0, 0.25, 0.5, 1.0} if product == "IC" else {0.0, 0.5, 1.0}
@@ -271,7 +283,7 @@ def derive_next_anchors(
         anchor.update(
             {
                 "last_verified_day": signal_day,
-                "post_core_contract": str(signal["core_target"]),
+                "post_core_contract": str(signal.get("core_eod_contract", signal["core_target"])),
                 "verified_momentum_weight": current_weight,
                 "verified_next_momentum_weight": next_weight,
                 "verified_grid_units": current_grid,
