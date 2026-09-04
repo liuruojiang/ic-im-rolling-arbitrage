@@ -30,6 +30,23 @@ def test_invalid_data_never_retried_and_transport_bounded(monkeypatch, error, co
     assert len(calls) == count
 
 
+@pytest.mark.parametrize("mode", ["realtime", "close"])
+def test_expected_date_guard_precedes_ledger_catchup(monkeypatch, tmp_path, mode):
+    from datetime import datetime
+    import run_ic_im_v1_3_github_digest as runner
+    class Coordinator:
+        def catch_up_until_current(self, *a, **kw):
+            pytest.fail("must reject mismatched date before ledger mutation")
+    monkeypatch.setattr(runner, "StateStore", lambda root: object())
+    monkeypatch.setattr(runner, "LedgerCoordinator", lambda store: Coordinator())
+    with pytest.raises(RuntimeError, match="日报日期不匹配"):
+        runner.build_artifacts(
+            state_dir=tmp_path, out_dir=tmp_path,
+            clock=datetime(2026, 9, 4, 14, 30, tzinfo=runner.strategy.BEIJING),
+            max_sessions=20, mode=mode, expected_market_date="2026-09-07",
+        )
+
+
 def test_incomplete_artifact_keeps_product_diagnostic(monkeypatch, tmp_path):
     from datetime import datetime
     import run_ic_im_v1_3_github_digest as runner

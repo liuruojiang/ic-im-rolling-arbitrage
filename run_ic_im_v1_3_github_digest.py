@@ -173,12 +173,18 @@ def build_artifacts(
     clock: datetime,
     max_sessions: int,
     mode: str = "close",
+    expected_market_date: str = "",
 ) -> dict[str, Any]:
     if mode not in MODES:
         raise ValueError(f"unsupported mode: {mode}")
     store = StateStore(state_dir)
     coordinator = LedgerCoordinator(store)
     completed_day = strategy._latest_completed_exchange_day(clock)
+    actual_market_date = clock.date() if mode == "realtime" else completed_day
+    if expected_market_date and actual_market_date.isoformat() != expected_market_date:
+        raise RuntimeError(
+            f"日报日期不匹配：expected={expected_market_date} actual={actual_market_date}"
+        )
     advanced = coordinator.catch_up_until_current(clock, max_sessions=max_sessions)
     health = coordinator.health(clock)
     if health.get("status") != "ok":
@@ -291,6 +297,7 @@ def main() -> int:
     parser.add_argument("--now", default="")
     parser.add_argument("--max-sessions", type=int, default=20)
     parser.add_argument("--mode", choices=MODES, default="close")
+    parser.add_argument("--expected-market-date", default="")
     args = parser.parse_args()
     if args.max_sessions <= 0:
         raise SystemExit("--max-sessions must be positive")
@@ -304,6 +311,7 @@ def main() -> int:
             clock=clock,
             max_sessions=args.max_sessions,
             mode=args.mode,
+            expected_market_date=args.expected_market_date,
         )
     except Exception as exc:
         write_failure(out_dir, clock, exc, mode=args.mode)
