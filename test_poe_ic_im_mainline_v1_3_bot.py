@@ -399,7 +399,7 @@ def test_signal_output_lists_each_leg_current_next_change_and_total(monkeypatch)
     bot.ICIMMainlinesBot()._handle_signal(("IC", "IM"), mode="close")
     output = "".join(capture.text)
     for fragment in (
-            "构建 v1.3-20260904-r7",
+            f"构建 {bot.BUILD_ID}",
         "裸滚核心袖",
         "动量指引袖",
         "独立估值网格",
@@ -461,7 +461,8 @@ def test_embedded_v13_fixed_curves_are_complete_and_match_full_metrics(
     product, expected_rows, expected_start, expected_cagr, expected_max_drawdown
 ):
     frame = bot.performance_frame(
-        product, date(2015, 4, 16), date(2026, 8, 23), refresh_latest=False
+        product, date(2015, 4, 16), date(2026, 8, 23), refresh_latest=False,
+        allow_invalidated_im_history=True,
     )
     metrics = bot.performance_metrics(frame)
     assert len(frame) == expected_rows
@@ -472,7 +473,7 @@ def test_embedded_v13_fixed_curves_are_complete_and_match_full_metrics(
     assert metrics["max_drawdown"] == pytest.approx(expected_max_drawdown, abs=1e-12)
 
 
-def test_recent_year_performance_returns_separate_ic_im_charts(monkeypatch):
+def test_recent_year_performance_keeps_ic_and_withdraws_invalid_im_curve(monkeypatch):
     capture = _CaptureMessage()
     monkeypatch.setattr(bot.poe, "start_message", lambda: capture)
     monkeypatch.setattr(bot, "render_nav_drawdown_chart", lambda *_args: b"png")
@@ -505,9 +506,10 @@ def test_recent_year_performance_returns_separate_ic_im_charts(monkeypatch):
     assert "不是实盘授权" in output
     assert "10.32%年化基差" in output
     assert "含未来信息" in output
-    assert continuation_calls == [("IC", date(2026, 8, 23)), ("IM", date(2026, 8, 23))]
-    assert len(capture.attachments) == 2
-    assert {item["name"].split("_")[0] for item in capture.attachments} == {"ic", "im"}
+    assert "已撤回有效绩效资格" in output
+    assert continuation_calls == [("IC", date(2026, 8, 23))]
+    assert len(capture.attachments) == 1
+    assert {item["name"].split("_")[0] for item in capture.attachments} == {"ic"}
     assert all(item["content_type"] == "image/png" for item in capture.attachments)
 
 
@@ -768,6 +770,22 @@ def test_mo_put_exact_listed_target_cannot_jump_to_priced_month():
     quotes = _mo_valid_subset_with_raw_listing()
     with pytest.raises(RuntimeError, match="MO2612-P-7200.*禁止跳月或跳行权价"):
         bot.select_im_put_for_reset(quotes, date(2026, 8, 21), 7600.0)
+
+
+def test_im_put_expiry_tie_uses_later_listed_expiry():
+    quotes = pd.DataFrame(
+        {
+            "instrument": ["MO2606-P-7000", "MO2609-P-7000"],
+            "lastprice": [100.0, 100.0],
+            "volume": [1.0, 1.0],
+            "position": [1.0, 1.0],
+        }
+    )
+    for selector in (
+        bot.select_im_put_for_reset,
+        bot.select_independent_im_put_for_reset,
+    ):
+        assert selector(quotes, date(2026, 5, 5), 7400.0)["instrument"] == "MO2609-P-7000"
 
 
 def test_d10_and_rescue_do_not_skip_unpriced_nearest_listed_expiry():

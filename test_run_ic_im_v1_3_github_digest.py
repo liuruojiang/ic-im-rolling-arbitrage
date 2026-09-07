@@ -85,6 +85,14 @@ def test_validate_close_artifact_rejects_report_ledger_divergence():
         )
 
 
+def test_september7_digest_requires_corrected_im_put_revision():
+    day = date(2026, 9, 7)
+    observed = {product: signal(product, day) for product in runner.PRODUCTS}
+    latest = {"verified_day": day.isoformat(), "signals": runner._jsonable(observed)}
+    with pytest.raises(RuntimeError, match="已修正月度Put执行版本"):
+        runner.validate_close_artifact(completed_day=day, latest=latest, observed=observed)
+
+
 def test_render_stored_close_report_uses_verified_ledger_without_refetch():
     day = date(2026, 8, 25)
     observed = {product: signal(product, day) for product in runner.PRODUCTS}

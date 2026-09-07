@@ -138,6 +138,31 @@ def test_v13_state_validator_rejects_incomplete_r1_record(tmp_path):
         state_module._validate_record(record)
 
 
+def test_corrected_im_put_execution_evidence_is_fail_closed():
+    signal = {
+        "im_put_execution_revision": strategy.IM_PUT_EXECUTION_REVISION,
+        "put_reference_price": 7400.0,
+        "put_reference_future": "IM2609",
+        "core_current": "IM2609",
+        "option_monthly_reset_due": True,
+        "put_monthly_reset_execution_date": date(2026, 9, 18),
+        "core_put_target_qty_normalized": 1.5,
+        "momentum_put_target_qty_normalized": 1.5,
+        "core_put_action": "RESIZE_OR_ROLL",
+        "momentum_put_action": "RESIZE_OR_ROLL",
+    }
+    state_module.validate_im_put_execution_evidence(signal)
+    for field, value in (
+        ("im_put_execution_revision", "old"),
+        ("put_reference_future", "IM2612"),
+        ("momentum_put_action", "HOLD"),
+    ):
+        broken = deepcopy(signal)
+        broken[field] = value
+        with pytest.raises(RuntimeError):
+            state_module.validate_im_put_execution_evidence(broken)
+
+
 def test_state_survives_restart_and_advances_with_hash_chain(tmp_path):
     first_process = StateStore(tmp_path)
     day0 = first_process.initialize()

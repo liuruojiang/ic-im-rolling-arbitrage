@@ -203,6 +203,21 @@ def validate_delivery_values(signal: dict[str, Any], product: str) -> None:
                 raise RuntimeError(f"{product} {field}不能为负数")
 
 
+def validate_im_put_execution_evidence(signal: dict[str, Any]) -> None:
+    """Reject a stale or internally inconsistent corrected Put signal."""
+    if signal.get("im_put_execution_revision") != strategy.IM_PUT_EXECUTION_REVISION:
+        raise RuntimeError("IM信号缺少已修正月度Put执行版本，禁止当作修复后结果交付")
+    price = _finite_float(signal.get("put_reference_price"), "IM Put参考期货价格")
+    if price <= 0 or signal.get("put_reference_future") != signal.get("core_current"):
+        raise RuntimeError("IM Put行权价参考必须是当前策略期货，不能使用指数或预告合约")
+    if type(signal.get("option_monthly_reset_due")) is not bool:
+        raise RuntimeError("IM月度Put重置标识缺失或非法")
+    if signal["option_monthly_reset_due"]:
+        _as_day(signal.get("put_monthly_reset_execution_date"), "IM月度Put计划日")
+        for sleeve in ("core", "momentum"):
+            qty = _finite_float(signal.get(f"{sleeve}_put_target_qty_normalized"), f"IM {sleeve} Put目标")
+            if qty > 0 and signal.get(f"{sleeve}_put_action") != "RESIZE_OR_ROLL":
+                raise RuntimeError(f"IM {sleeve} Put月度日必须重选，即使到期月与数量相同")
 def bootstrap_record() -> dict[str, Any]:
     products = _jsonable(deepcopy(strategy.LIVE_CONTINUATION_ANCHOR))
     day = products["IC"]["last_verified_day"]
@@ -350,6 +365,10 @@ def derive_next_anchors(
             if target_security_id:
                 anchor["post_put_security_id"] = str(target_security_id)
         else:
+            # Historical r7 journal entries stay readable. New corrected signals
+            # carry their execution revision and are validated before append.
+            if "im_put_execution_revision" in signal:
+                validate_im_put_execution_evidence(signal)
             core_current = _finite_float(
                 signal.get("core_put_current_qty_normalized"), "IM当前核心Put数量"
             )
