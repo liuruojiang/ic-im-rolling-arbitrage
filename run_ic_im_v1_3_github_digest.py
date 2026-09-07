@@ -84,6 +84,8 @@ def validate_close_artifact(
         raise RuntimeError("持久账本尚未推进到最近完成交易日")
     if _jsonable(observed) != latest.get("signals"):
         raise RuntimeError("邮件信号与持久账本最新逐腿记录不一致")
+    if completed_day >= date(2026, 9, 7):
+        state_module.validate_im_put_execution_evidence(observed["IM"])
 
 
 def validate_realtime_artifact(
@@ -122,6 +124,8 @@ def validate_realtime_artifact(
         or before.get("verified_day") != after.get("verified_day")
     ):
         raise RuntimeError("盘中信号不得改写持久收盘账本")
+    if clock.date() >= date(2026, 9, 7):
+        state_module.validate_im_put_execution_evidence(observed["IM"])
 
 
 def render_stored_close_report(latest: dict[str, Any]) -> str:
@@ -250,6 +254,9 @@ def build_artifacts(
         "strategy": "IC/IM research candidate 1.3",
         "strategy_revision": state_module.STRATEGY_REVISION,
         "build": strategy.BUILD_ID,
+        "im_put_execution_revision": observed["IM"].get(
+            "im_put_execution_revision", "historical_before_monthly_correction"
+        ),
         "generated_at": clock.isoformat(),
         "publication_mode": publication_mode,
         "market_date": signal_day.isoformat(),

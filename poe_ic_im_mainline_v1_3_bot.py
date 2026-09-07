@@ -165,7 +165,8 @@ def historical_replay(day: date | None):
 
 import ic_im_quarter_roll_v1_3 as quarter_roll
 
-BUILD_ID = "v1.3-20260904-r7"
+BUILD_ID = "v1.3-20260907-r7-put-monthly-fix1"
+IM_PUT_EXECUTION_REVISION = "im_monthly_reset_20260907_v1"
 DATA_CUTOFF = date(2026, 8, 14)
 V13_HISTORY_DATE_INDEX = {
     "IC": (date(2005, 1, 4), 5250, "beddc7d6e25a7cb87f1397fb605f3a8fd58c10536a95fb3097ba2ac38e70a56d"),
@@ -1210,8 +1211,14 @@ def latest_continuation_frame(product: str, end: date) -> pd.DataFrame:
 
 
 def performance_frame(
-    product: str, start: date, end: date, *, refresh_latest: bool = False
+    product: str, start: date, end: date, *, refresh_latest: bool = False,
+    allow_invalidated_im_history: bool = False,
 ) -> pd.DataFrame:
+    if product == "IM" and not allow_invalidated_im_history:
+        raise RuntimeError(
+            "IM旧r6绩效使用未修正的Put月度执行，已撤回有效绩效资格；"
+            "请使用2026-09-07修复后整轮报告。历史审计须显式启用旧路径。"
+        )
     returns = decode_returns(product)
     benchmark_prices = decode_benchmark_prices(product, returns.index)
     live_flags = pd.Series(False, index=returns.index, dtype=bool)
@@ -3446,7 +3453,7 @@ def select_im_put_for_reset(
     expiries = sorted(set(listed_puts["expiry"]))
     if not expiries:
         raise RuntimeError("没有未来MO Put挂牌月份")
-    expiry = min(expiries, key=lambda value: (abs((value - target_day).days), value))
+    expiry = min(expiries, key=lambda value: (abs((value - target_day).days), -value.toordinal()))
     listed_month = listed_puts[listed_puts["expiry"].eq(expiry)].copy()
     listed_month["strike_error"] = (listed_month["strike"] - 0.95 * spot).abs()
     selected_contract = str(
@@ -4313,10 +4320,9 @@ def build_live_trade_signal(
             )
         option_rows_to_verify: dict[str, float] = {}
         im_anchor = LIVE_CONTINUATION_ANCHOR["IM"]
-        core_put_contract = str(
-            im_anchor.get("post_core_put_contract") or im_anchor["post_put_contract"]
-        )
-        core_put_quote = _quote_row(mo_quotes, core_put_contract)
+        core_put_contract_value = im_anchor.get("post_core_put_contract") or im_anchor.get("post_put_contract")
+        core_put_contract = str(core_put_contract_value) if core_put_contract_value else None
+        core_put_quote = _quote_row(mo_quotes, core_put_contract) if core_put_contract else None
         momentum_put_contract_value = im_anchor.get("post_momentum_put_contract")
         momentum_put_contract = (
             str(momentum_put_contract_value)
@@ -4357,15 +4363,27 @@ def build_live_trade_signal(
         )
         core_put_market = _format_market(core_put_contract, core_put_quote)
         im_contract_selection: dict[str, Any] = {}
-        if option_core_action == "HOLD":
+        # Use the held IM chain, not the cash index or a next-session roll preview.
+        put_reference_future = _require_listed_future_quote(
+            "IM", future_quotes, current_core
+        )
+        put_reference_price = float(put_reference_future["lastprice"])
+        put_reset_day = monthly_expiry if option_roll_due else market_date
+        core_put_reselect = put_target > 0 and (
+            option_roll_due or core_put_current_normalized == 0.0
+            or (core_put_contract is not None and _third_friday(*_contract_month(core_put_contract)) <= market_date)
+        )
+        if core_put_current_normalized > 0.0 and core_put_contract is None:
+            raise RuntimeError("IM核心Put账本数量非零但合约为空，拒绝继续")
+        if not core_put_reselect:
             im_contract_selection["put_selection_note"] = (
                 f"{LIVE_CONTINUATION_ANCHOR['IM']['last_verified_day']}已核验账本续接；"
                 "非月换日沿用既有合约，只按保护档调整张数"
             )
-        elif (option_core_action == "ROLL" or option_roll_due) and put_target > 0:
-            reset_day = monthly_expiry
+        else:
+            reset_day = put_reset_day
             selected_put = select_im_put_for_reset(
-                mo_quotes, reset_day, float(live["price"])
+                mo_quotes, reset_day, put_reference_price
             )
             core_put_target_contract = str(selected_put["instrument"])
             core_put_target_text = (
@@ -4383,31 +4401,32 @@ def build_live_trade_signal(
                 "put_sizing_target_expiry_date": (
                     pd.Timestamp(reset_day) + pd.DateOffset(months=3)
                 ).date(),
-                "put_sizing_target_strike": 0.95 * float(live["price"]),
+                "put_sizing_target_strike": 0.95 * put_reference_price,
             }
 
         momentum_put_target_contract: str | None = None
         momentum_put_target_quote: pd.Series | None = None
         momentum_put_selection_note = "动量执行权重为0，目标空仓"
         if momentum_put_target_normalized > 0.0:
-            desired_expiry = _independent_im_put_target_expiry(
-                mo_quotes, market_date
-            )
             current_expiry = (
                 _third_friday(*_contract_month(momentum_put_contract))
                 if momentum_put_contract
                 else None
             )
-            if momentum_put_contract and current_expiry == desired_expiry:
+            if (
+                momentum_put_contract and momentum_put_current_normalized > 0.0
+                and not option_roll_due and current_expiry > market_date
+            ):
                 momentum_put_target_contract = momentum_put_contract
                 momentum_put_target_quote = momentum_put_quote
                 momentum_put_selection_note = (
-                    "独立动量Put目标月份未变，沿用既有动量腿合约并只调整数量"
+                    "非月度重置日，沿用既有独立动量Put，只按目标调整数量"
                 )
             else:
                 selected_momentum_put = select_independent_im_put_for_reset(
-                    mo_quotes, market_date, float(live["price"])
+                    mo_quotes, put_reset_day, put_reference_price
                 )
+                desired_expiry = _independent_im_put_target_expiry(mo_quotes, put_reset_day)
                 if selected_momentum_put["expiry"] != desired_expiry:
                     raise RuntimeError("IM动量Put独立期限选择与真实重放规则不一致")
                 momentum_put_target_contract = str(
@@ -4418,7 +4437,8 @@ def build_live_trade_signal(
                     selected_momentum_put["lastprice"]
                 )
                 momentum_put_selection_note = (
-                    "动量Put由零进入或目标月份变化，按当日IM收盘独立选择约3个月、95%行权价"
+                    "独立月度重置（同到期月也重选行权价）或从零进入，"
+                    "按策略IM期货报价选择约3个月、95%行权价"
                 )
         momentum_put_current_text = (
             "独立动量Put 0张"
@@ -4576,6 +4596,7 @@ def build_live_trade_signal(
                 abs_tol=1e-12,
             )
             and momentum_put_target_contract == momentum_put_contract
+            and not (option_roll_due and momentum_put_target_normalized > 0.0)
             else "RESIZE_OR_ROLL"
         )
         im_put_action = (
@@ -4681,6 +4702,10 @@ def build_live_trade_signal(
                 "core_put_action": core_put_action,
                 "momentum_put_action": momentum_put_action,
                 "momentum_put_selection_note": momentum_put_selection_note,
+                "im_put_execution_revision": IM_PUT_EXECUTION_REVISION,
+                "put_monthly_reset_execution_date": monthly_expiry if option_roll_due else None,
+                "put_reference_future": str(put_reference_future["instrument"]),
+                "put_reference_price": put_reference_price,
                 "absolute_valuation_tier": live["absolute_valuation_tier"],
                 "absolute_valuation_tier_label": live[
                     "absolute_valuation_tier_label"
@@ -5139,6 +5164,14 @@ class ICIMMainlinesBot:
                 time_module.monotonic() + PERFORMANCE_NETWORK_BUDGET_SECONDS
             )
             for product in intent.products:
+                if product == "IM":
+                    msg.write(
+                        "### IM\n\n旧r6嵌入收益依赖未修正的Put月度执行，"
+                        "已撤回有效绩效资格，暂停展示其收益数字和净值图。"
+                        "修复后的模拟与真实结果见2026-09-07整轮复验报告；"
+                        "该研究结果尚未接成当前持久账本的历史收益。\n\n"
+                    )
+                    continue
                 degraded_reason: str | None = None
                 try:
                     remaining = max(0.25, request_deadline - time_module.monotonic())
