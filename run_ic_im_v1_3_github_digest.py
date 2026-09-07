@@ -26,7 +26,7 @@ from poe_ic_im_v1_3_state import StateStore, _jsonable
 
 
 PRODUCTS = ("IC", "IM")
-DELIVERY_REVISION = "20260908-vip-or-proxy-disclosure-1"
+DELIVERY_REVISION = "20260908-vip-chinabond-disclosure-2"
 MODES = ("close", "realtime")
 
 

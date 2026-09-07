@@ -46,6 +46,7 @@ import numpy as np
 import pandas as pd
 import requests
 import ic_im_daily_valuation as daily_valuation
+import ic_im_chinabond as chinabond
 
 try:
     from fastapi_poe.types import SettingsResponse
@@ -2006,7 +2007,11 @@ def live_proxy(product: str, clock: datetime | None = None) -> dict[str, Any]:
         product, history.index[-1].date(), clock, price=live_price,
         frozen=FROZEN[product], anchor_day=DATA_CUTOFF,
     )
-    used_erp = 1.0 / valuation["pe"] - float(FROZEN[product]["gov10y"])
+    gov10y = chinabond.resolve(history.index[-1].date(), clock,
+                              float(FROZEN[product]["gov10y"]), DATA_CUTOFF)
+    valuation["provenance"]["gov10y"] = gov10y
+    valuation["provenance"]["auxiliary_inputs"] = "股息和相对估值阈值沿用原冻结口径"
+    used_erp = 1.0 / valuation["pe"] - gov10y["yield_decimal"]
     score = valuation_score(valuation["pb"], used_erp, float(FROZEN[product]["dividend"]))
     momentum = _momentum_120_at(history, -1)
     targets = (
@@ -3242,6 +3247,10 @@ def _ic_put_quantity_breakdown(
     }
 
 
+def _gov10y_for_day(product: str, day: date) -> float:
+    return chinabond.resolve(day, _now_beijing(), float(FROZEN[product]["gov10y"]), DATA_CUTOFF)["yield_decimal"]
+
+
 def _size_existing_ic_put(
     contract: str,
     quote: pd.Series,
@@ -3267,7 +3276,7 @@ def _size_existing_ic_put(
         market_price,
         etf_price,
         strike,
-        float(FROZEN["IC"]["gov10y"]),
+        _gov10y_for_day("IC", today),
         float(FROZEN["IC"]["dividend"]),
         years,
     )
@@ -3278,7 +3287,7 @@ def _size_existing_ic_put(
             "P",
             etf_price,
             strike,
-            float(FROZEN["IC"]["gov10y"]),
+            _gov10y_for_day("IC", today),
             float(FROZEN["IC"]["dividend"]),
             iv,
             years,
@@ -3380,7 +3389,7 @@ def select_ic_put_for_reset(
         float(selected["last"]),
         etf_price,
         float(selected["strike"]),
-        float(FROZEN["IC"]["gov10y"]),
+        _gov10y_for_day("IC", today),
         float(FROZEN["IC"]["dividend"]),
         years,
     )
@@ -3392,7 +3401,7 @@ def select_ic_put_for_reset(
                 "P",
                 etf_price,
                 float(selected["strike"]),
-                float(FROZEN["IC"]["gov10y"]),
+                _gov10y_for_day("IC", today),
                 float(FROZEN["IC"]["dividend"]),
                 iv,
                 years,
@@ -3549,7 +3558,7 @@ def select_im_call_d10(
             float(row.lastprice),
             spot,
             float(row.strike),
-            float(FROZEN["IM"]["gov10y"]),
+            _gov10y_for_day("IM", today),
             float(FROZEN["IM"]["dividend"]),
             years,
         )
@@ -3559,7 +3568,7 @@ def select_im_call_d10(
             "C",
             spot,
             float(row.strike),
-            float(FROZEN["IM"]["gov10y"]),
+            _gov10y_for_day("IM", today),
             float(FROZEN["IM"]["dividend"]),
             iv,
             years,
@@ -3617,7 +3626,7 @@ def select_im_call_rescue(
         float(row["lastprice"]),
         spot,
         float(row["strike"]),
-        float(FROZEN["IM"]["gov10y"]),
+        _gov10y_for_day("IM", today),
         float(FROZEN["IM"]["dividend"]),
         years,
     )
@@ -3627,7 +3636,7 @@ def select_im_call_rescue(
         "C",
         spot,
         float(row["strike"]),
-        float(FROZEN["IM"]["gov10y"]),
+        _gov10y_for_day("IM", today),
         float(FROZEN["IM"]["dividend"]),
         iv,
         years,

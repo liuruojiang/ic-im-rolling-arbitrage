@@ -111,4 +111,7 @@ def disclosure(provenance: dict | None) -> str:
                 f"{p.get('reason', '旧账本未记录VIP接入，保留原代理结果')}；"
                 f"可用真实数据日期 {p.get('real_data_date') or '未收到/未通过校验'}；"
                 f"代理锚点 {p.get('proxy_anchor_date', '2026-08-14')}，按指数价格比例推算。")
+    if p.get("gov10y"):
+        from ic_im_chinabond import disclosure as rate_disclosure
+        text += rate_disclosure(p["gov10y"])
     return text + p.get("auxiliary_inputs", "国债收益率、股息和相对估值阈值沿用原冻结口径") + "。"
