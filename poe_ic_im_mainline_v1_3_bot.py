@@ -45,6 +45,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import requests
+import ic_im_daily_valuation as daily_valuation
 
 try:
     from fastapi_poe.types import SettingsResponse
@@ -2001,6 +2002,12 @@ def live_proxy(product: str, clock: datetime | None = None) -> dict[str, Any]:
     proxy_pe = float(FROZEN[product]["pe"]) * ratio
     proxy_erp = 1.0 / proxy_pe - float(FROZEN[product]["gov10y"])
     score = valuation_score(proxy_pb, proxy_erp, float(FROZEN[product]["dividend"]))
+    valuation = daily_valuation.resolve(
+        product, history.index[-1].date(), clock, price=live_price,
+        frozen=FROZEN[product], anchor_day=DATA_CUTOFF,
+    )
+    used_erp = 1.0 / valuation["pe"] - float(FROZEN[product]["gov10y"])
+    score = valuation_score(valuation["pb"], used_erp, float(FROZEN[product]["dividend"]))
     momentum = _momentum_120_at(history, -1)
     targets = (
         ic_targets(score, momentum) if product == "IC" else im_targets(score, momentum)
@@ -2098,6 +2105,7 @@ def live_proxy(product: str, clock: datetime | None = None) -> dict[str, Any]:
         "proxy_pb": proxy_pb,
         "proxy_pe": proxy_pe,
         "proxy_erp": proxy_erp,
+        "valuation_provenance": valuation["provenance"],
         "score": score,
         "momentum_120": momentum,
         "history_date": history.index[-1].date(),
@@ -3838,6 +3846,16 @@ def _validated_signal_state_anchor_day(
     return value
 
 
+def _daily_grid_target(product: str, live: dict[str, Any]) -> float:
+    state = float(live["grid_current_units"])
+    rule = V13_GRID_RULES[product]
+    if live["score"] <= rule["entry"]:
+        return 1.0
+    if live["score"] >= rule["exit"]:
+        return 0.0
+    return state
+
+
 def build_live_trade_signal(
     product: str,
     now: datetime | None = None,
@@ -3859,6 +3877,10 @@ def build_live_trade_signal(
     )
     if bridge_from_anchor:
         live = _apply_next_unverified_session_anchor(product, live)
+    if live.get("valuation_provenance"):
+        # Continue the persisted grid state, including earlier VIP-driven days.
+        # Replaying all earlier days from price proxies would erase hysteresis.
+        live["grid_target_units"] = _daily_grid_target(product, live)
     state_anchor_day = _validated_signal_state_anchor_day(
         product, live, bridge_from_anchor
     )
@@ -3943,7 +3965,8 @@ def build_live_trade_signal(
         stage = f"{market_date} 尚未收盘，收盘信号未形成"
     data_notes = [
         "本次请求重新抓取中金所/上交所/指数行情",
-        "估值与MOM120为当前价格代理",
+        daily_valuation.disclosure(live.get("valuation_provenance")),
+        "MOM120沿用价格指数动量口径",
         f"{product}期货源：{future_quote_source}，as-of {future_quote_date}",
     ]
     if product == "IM":
@@ -3980,6 +4003,7 @@ def build_live_trade_signal(
         "fetch_time": clock.strftime("%Y-%m-%d %H:%M:%S"),
         "index_price": live["price"],
         "score": live["score"],
+        "valuation_provenance": live.get("valuation_provenance", {}),
         "momentum_120": live["momentum_120"],
         "momentum_score": live["momentum_score"],
         "momentum_abs20": live["momentum_abs20"],
@@ -4951,6 +4975,7 @@ class ICIMMainlinesBot:
                         "两项都只作用于下一共同交易日。\n"
                     )
                 msg.write("**估值档位与Put决策链**\n\n")
+                msg.write("**" + daily_valuation.disclosure(live.get("valuation_provenance")) + "**\n\n")
                 if product == "IC":
                     msg.write(
                         f"- 当前估值分 **{live['score']:.3f}**，处于 **{live['valuation_tier_label']}**；"
@@ -5101,7 +5126,7 @@ class ICIMMainlinesBot:
                         if live.get("roll_policy", {}).get("tenor") == "strict_quarter"
                         else "- 本行情日早于r7生效日，以上是原月度规则历史续接；2026-09-04起按IM季度T-1、IC季度T-3。\n"
                     )
-                msg.write("- 数据：中金所及已验证备用行情、上交所510500ETF/期权及指数行情；估值与MOM120为价格代理。\n")
+                msg.write("- 数据：中金所及已验证备用行情、上交所510500ETF/期权及指数行情；PE/PB来源见上述披露，MOM120为价格指数口径。\n")
                 for note in live["data_notes"][2:]:
                     msg.write(f"- 数据审计：{note}\n")
                 msg.write("\n")
