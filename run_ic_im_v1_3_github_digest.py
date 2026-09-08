@@ -26,7 +26,7 @@ from poe_ic_im_v1_3_state import StateStore, _jsonable
 
 
 PRODUCTS = ("IC", "IM")
-DELIVERY_REVISION = "20260908-vip-chinabond-disclosure-2"
+DELIVERY_REVISION = "20260908-mom120-put102-iv-alerts-1"
 MODES = ("close", "realtime")
 
 
@@ -146,6 +146,8 @@ def render_stored_close_report(latest: dict[str, Any]) -> str:
             [
                 "",
                 f"## {product}",
+                str(signal.get("iv_warning", {}).get("text", "IV预警：N/A（历史记录未保存IV监测值）")),
+                str(signal.get("im_put_policy_description", "")),
                 "",
                 "**" + strategy.daily_valuation.disclosure(signal.get("valuation_provenance")) + "**",
                 "",
@@ -256,6 +258,7 @@ def build_artifacts(
         "strategy": "IC/IM research candidate 1.3",
         "strategy_revision": state_module.STRATEGY_REVISION,
         "build": strategy.BUILD_ID,
+        "im_put_policy_revision": strategy.IM_PUT_POLICY_REVISION,
         "im_put_execution_revision": observed["IM"].get(
             "im_put_execution_revision", "historical_before_monthly_correction"
         ),
@@ -294,6 +297,7 @@ def write_failure(
         "strategy": "IC/IM research candidate 1.3",
         "strategy_revision": state_module.STRATEGY_REVISION,
         "build": strategy.BUILD_ID,
+        "im_put_policy_revision": strategy.IM_PUT_POLICY_REVISION,
         "generated_at": clock.isoformat(),
         "publication_mode": "realtime" if mode == "realtime" else "close_confirmed",
         "error_type": type(exc).__name__,

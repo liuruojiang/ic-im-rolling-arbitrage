@@ -140,6 +140,7 @@ def test_v13_state_validator_rejects_incomplete_r1_record(tmp_path):
 
 def test_corrected_im_put_execution_evidence_is_fail_closed():
     signal = {
+        "market_date": date(2026, 9, 7),
         "im_put_execution_revision": strategy.IM_PUT_EXECUTION_REVISION,
         "put_reference_price": 7400.0,
         "put_reference_future": "IM2609",

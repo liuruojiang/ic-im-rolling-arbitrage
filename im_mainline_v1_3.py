@@ -22,6 +22,7 @@ from typing import Any
 import numpy as np
 import pandas as pd
 
+import im_put_policy
 import im_mainline_v1_1 as parent
 import im_mainline_v1_2 as previous
 
@@ -58,7 +59,7 @@ FIXED_COMPONENTS_PATH = (
     / "daily_candidates.csv.gz"
 )
 REAL_IM_START = pd.Timestamp("2022-07-22")
-SPEC_PATH = ROOT / "docs" / "ic_im_mainline_v1_3_r6_spec.md"
+SPEC_PATH = ROOT / "docs" / "ic_im_im_mom120_put102_20260908_v1_spec.md"
 
 
 @dataclass(frozen=True)
@@ -445,14 +446,18 @@ def compose_from_parent_schedule(
     merged["core_put_execution_qty_normalized"] = (
         CORE_CAPITAL_SHARE * merged["parent_put_execution_target_qty"]
     )
+    if "mom120_floor_qty" not in merged:
+        raise ValueError("Parent schedule is missing MOM120 floor quantity")
+    merged["momentum_put_parent_signal_qty"] = merged["mom120_floor_qty"].astype(float)
+    merged["momentum_put_parent_execution_qty"] = merged["momentum_put_parent_signal_qty"].shift(1).fillna(0)
     merged["momentum_put_signal_qty_normalized"] = (
         MOMENTUM_CAPITAL_SHARE
-        * merged["parent_put_signal_target_qty"].astype(float)
+        * merged["momentum_put_parent_signal_qty"].astype(float)
         * merged["momentum_signal_target"].astype(float)
     )
     merged["momentum_put_execution_qty_normalized"] = (
         MOMENTUM_CAPITAL_SHARE
-        * merged["parent_put_execution_target_qty"].astype(float)
+        * merged["momentum_put_parent_execution_qty"].astype(float)
         * merged["momentum_execution_weight"].astype(float)
     )
     # Compatibility alias: executable target, not actual broker quantity.
@@ -708,7 +713,7 @@ def load_authoritative_local_state() -> tuple[pd.DataFrame, dict[str, Any]]:
             np.abs(
                 schedule["momentum_put_signal_qty_normalized"]
                 - MOMENTUM_CAPITAL_SHARE
-                * schedule["parent_put_signal_target_qty"]
+                * schedule["momentum_put_parent_signal_qty"]
                 * schedule["momentum_signal_target"]
             )
         )
@@ -718,7 +723,7 @@ def load_authoritative_local_state() -> tuple[pd.DataFrame, dict[str, Any]]:
             np.abs(
                 schedule["momentum_put_execution_qty_normalized"]
                 - MOMENTUM_CAPITAL_SHARE
-                * schedule["parent_put_execution_target_qty"]
+                * schedule["momentum_put_parent_execution_qty"]
                 * schedule["momentum_execution_weight"]
             )
         )
@@ -859,8 +864,11 @@ def rule_manifest() -> dict[str, Any]:
             "put_policy": "independent_core_and_momentum_current_4tier_mom3",
             "call_policy": "inherit_im_v1_1_core_only",
             "momentum_put": True,
-            "momentum_put_formula": "0.5_x_momentum_execution_weight_x_parent_put_target_qty",
-            "momentum_put_contract": "independent_nearest_95pct_strike_about_3m",
+            "put_policy_revision": im_put_policy.REVISION,
+            "core_put_target_moneyness": 1.02,
+            "momentum_put_target_moneyness": 1.02,
+            "momentum_put_formula": "0.5_x_momentum_execution_weight_x_mom120_negative_floor3",
+            "momentum_put_contract": "independent_nearest_102pct_strike_about_3m",
             "momentum_call": False,
             "grid_put": False,
             "grid_call": False,

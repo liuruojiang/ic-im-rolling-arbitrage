@@ -207,6 +207,12 @@ def validate_im_put_execution_evidence(signal: dict[str, Any]) -> None:
     """Reject a stale or internally inconsistent corrected Put signal."""
     if signal.get("im_put_execution_revision") != strategy.IM_PUT_EXECUTION_REVISION:
         raise RuntimeError("IM信号缺少已修正月度Put执行版本，禁止当作修复后结果交付")
+    if strategy.im_put_policy.active(signal["market_date"]):
+        if signal.get("im_put_policy_revision") != strategy.IM_PUT_POLICY_REVISION or signal.get("im_put_target_moneyness") != 1.02:
+            raise RuntimeError("IM新信号缺少MOM120/102%政策证据")
+        expected = strategy.im_put_policy.momentum_quantity(signal["market_date"], signal.get("momentum_120"), signal["momentum_next_weight"], signal["core_put_target_qty_normalized"])
+        if not math.isclose(_finite_float(signal.get("momentum_put_target_qty_normalized"), "IM动量Put目标"), expected, abs_tol=1e-12):
+            raise RuntimeError("IM动量Put未按仅MOM120条件计算")
     price = _finite_float(signal.get("put_reference_price"), "IM Put参考期货价格")
     if price <= 0 or signal.get("put_reference_future") != signal.get("core_current"):
         raise RuntimeError("IM Put行权价参考必须是当前策略期货，不能使用指数或预告合约")
@@ -415,9 +421,11 @@ def derive_next_anchors(
                 raise RuntimeError("IM当前动量Put合约不等于账本锚点")
             if not math.isclose(core_put, 0.5 * parent_puts, abs_tol=1e-12):
                 raise RuntimeError("IM核心Put目标不等于0.5倍父规则目标")
-            expected_momentum = core_put * next_weight
+            expected_momentum = strategy.im_put_policy.momentum_quantity(
+                signal["market_date"], signal.get("momentum_120"), next_weight, core_put
+            )
             if not math.isclose(momentum_put, expected_momentum, abs_tol=1e-12):
-                raise RuntimeError("IM动量Put目标不等于核心目标乘动量执行权重")
+                raise RuntimeError("IM动量Put目标与对应日期的MOM120/历史规则不一致")
             if not math.isclose(total_put, core_put + momentum_put, abs_tol=1e-12):
                 raise RuntimeError("IM组合Put目标不等于核心与动量之和")
             core_contract = signal.get("core_put_target_contract")

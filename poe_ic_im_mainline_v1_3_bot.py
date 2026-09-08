@@ -167,7 +167,9 @@ def historical_replay(day: date | None):
 
 import ic_im_quarter_roll_v1_3 as quarter_roll
 
-BUILD_ID = "v1.3-20260907-r7-put-monthly-fix1"
+BUILD_ID = "v1.3-20260908-r7-mom120-put102-v1"
+import im_put_policy
+IM_PUT_POLICY_REVISION = im_put_policy.REVISION
 IM_PUT_EXECUTION_REVISION = "im_monthly_reset_20260907_v1"
 DATA_CUTOFF = date(2026, 8, 14)
 V13_HISTORY_DATE_INDEX = {
@@ -3472,7 +3474,7 @@ def select_im_put_for_reset(
         raise RuntimeError("没有未来MO Put挂牌月份")
     expiry = min(expiries, key=lambda value: (abs((value - target_day).days), -value.toordinal()))
     listed_month = listed_puts[listed_puts["expiry"].eq(expiry)].copy()
-    listed_month["strike_error"] = (listed_month["strike"] - 0.95 * spot).abs()
+    listed_month["strike_error"] = (listed_month["strike"] - im_put_policy.moneyness(today) * spot).abs()
     selected_contract = str(
         listed_month.sort_values(["strike_error", "instrument"]).iloc[0]["instrument"]
     )
@@ -3480,8 +3482,8 @@ def select_im_put_for_reset(
     eligible = puts[
         puts["instrument"].eq(selected_contract)
         & puts["lastprice"].gt(0)
-        & puts["volume"].gt(0)
-        & puts["position"].gt(0)
+        & (im_put_policy.active(today) | puts["volume"].gt(0))
+        & (im_put_policy.active(today) | puts["position"].gt(0))
     ].copy()
     if eligible.empty:
         raise RuntimeError(
@@ -3512,7 +3514,7 @@ def select_independent_im_put_for_reset(
     expiry = _independent_im_put_target_expiry(quotes, today)
     listed_puts = _listed_mo_enriched(quotes, "P", today)
     listed_month = listed_puts[listed_puts["expiry"].eq(expiry)].copy()
-    listed_month["strike_error"] = (listed_month["strike"] - 0.95 * spot).abs()
+    listed_month["strike_error"] = (listed_month["strike"] - im_put_policy.moneyness(today) * spot).abs()
     selected_contract = str(
         listed_month.sort_values(["strike_error", "instrument"]).iloc[0]["instrument"]
     )
@@ -3520,8 +3522,8 @@ def select_independent_im_put_for_reset(
     eligible = puts[
         puts["instrument"].eq(selected_contract)
         & puts["lastprice"].gt(0)
-        & puts["volume"].gt(0)
-        & puts["position"].gt(0)
+        & (im_put_policy.active(today) | puts["volume"].gt(0))
+        & (im_put_policy.active(today) | puts["position"].gt(0))
     ].copy()
     if eligible.empty:
         raise RuntimeError(
@@ -3863,6 +3865,52 @@ def _daily_grid_target(product: str, live: dict[str, Any]) -> float:
     if live["score"] >= rule["exit"]:
         return 0.0
     return state
+
+
+def build_iv_warning(product, signal, live, quotes, clock):
+    """Display-only IV monitor; keep the 95% reference used by the IM scans."""
+    day = signal["market_date"]
+    if product == "IC":
+        contract = signal.get("put_current_contract") or ""
+        match = re.fullmatch(r"510500P(\d{2})(\d{2})M(\d{5})", contract)
+        iv = None
+        if match and signal.get("iv_monitor_option_price"):
+            expiry = _fourth_wednesday(2000 + int(match.group(1)), int(match.group(2)))
+            if expiry > day:
+                iv = _implied_volatility("P", signal["iv_monitor_option_price"], signal["etf_price"],
+                                         float(match.group(3))/1000., _gov10y_for_day("IC", day),
+                                         float(FROZEN["IC"]["dividend"]), (expiry-day).days/365.)
+        return im_put_policy.iv_warning(
+            iv, source="上交所510500当日持仓Put报价反解IV",
+            market_date=day, snapshot_time=signal.get("sse_time"), contract=contract,
+        )
+    source = str(quotes.attrs.get("source", "未知"))
+    contract = ""
+    try:
+        source_day = quotes.attrs.get("source_date")
+        if str(source_day)[:10] != str(day)[:10]:
+            raise ValueError("MO报价日期与信号日不一致")
+        expiry = _independent_im_put_target_expiry(quotes, day)
+        listed = _listed_mo_enriched(quotes, "P", day)
+        month = listed[listed.expiry.eq(expiry)].copy()
+        target = im_put_policy.IV_REFERENCE_MONEYNESS * float(signal["put_reference_price"])
+        month["error"] = (month.strike - target).abs()
+        chosen = month.sort_values(["error", "instrument"]).iloc[0]
+        contract = str(chosen.instrument)
+        row = _quote_row(quotes, contract)
+        if row is None or not math.isfinite(float(row["lastprice"])) or float(row["lastprice"]) <= 0:
+            raise ValueError("95%参考Put缺少当日有效价格；未跳选其他合约")
+        iv = _implied_volatility("P", float(row["lastprice"]), float(live["price"]),
+                                 float(chosen.strike), _gov10y_for_day("IM", day),
+                                 float(FROZEN["IM"]["dividend"]), (expiry-day).days/365.0)
+        result = im_put_policy.iv_warning(iv, source=source+"；约3个月95%固定参考Put反解（交易目标102%）",
+                                         market_date=day, snapshot_time=row.get("source_time"), contract=contract)
+        result.update(reference_moneyness=0.95, reference_strike=float(chosen.strike),
+                      option_price=float(row["lastprice"]), spot=float(live["price"]), expiry=str(expiry))
+        return result
+    except (ValueError, RuntimeError, KeyError, IndexError, TypeError) as exc:
+        return im_put_policy.iv_warning(None, source=source, market_date=day,
+                                         snapshot_time=None, contract=contract, reason=str(exc))
 
 
 def build_live_trade_signal(
@@ -4302,6 +4350,7 @@ def build_live_trade_signal(
         signal.update(
             {
                 "etf_price": etf["last"],
+                "iv_monitor_option_price": float(put_quote["last"]) if put_quote is not None else None,
                 "sse_time": f"{sse_stamp['date']} {sse_stamp['time']}",
                 "put_current": put_current,
                 "put_target": put_target,
@@ -4377,7 +4426,7 @@ def build_live_trade_signal(
             im_anchor["verified_momentum_put_qty_normalized"]
         )
         momentum_put_target_normalized = (
-            core_put_target_normalized * float(live["momentum_next_weight"])
+            im_put_policy.momentum_quantity(market_date, live["momentum_120"], live["momentum_next_weight"], core_put_target_normalized)
         )
         total_put_current_normalized = (
             core_put_current_normalized + momentum_put_current_normalized
@@ -4434,12 +4483,12 @@ def build_live_trade_signal(
                 "put_sizing_target_expiry_date": (
                     pd.Timestamp(reset_day) + pd.DateOffset(months=3)
                 ).date(),
-                "put_sizing_target_strike": 0.95 * put_reference_price,
+                "put_sizing_target_strike": im_put_policy.moneyness(market_date) * put_reference_price,
             }
 
         momentum_put_target_contract: str | None = None
         momentum_put_target_quote: pd.Series | None = None
-        momentum_put_selection_note = "动量执行权重为0，目标空仓"
+        momentum_put_selection_note = "MOM120非负或动量执行权重为0，目标空仓" if im_put_policy.active(market_date) else "动量执行权重为0，目标空仓"
         if momentum_put_target_normalized > 0.0:
             current_expiry = (
                 _third_friday(*_contract_month(momentum_put_contract))
@@ -4471,7 +4520,7 @@ def build_live_trade_signal(
                 )
                 momentum_put_selection_note = (
                     "独立月度重置（同到期月也重选行权价）或从零进入，"
-                    "按策略IM期货报价选择约3个月、95%行权价"
+                    f"按策略IM期货报价选择约3个月、{im_put_policy.moneyness(market_date):.0%}行权价"
                 )
         momentum_put_current_text = (
             "独立动量Put 0张"
@@ -4736,6 +4785,10 @@ def build_live_trade_signal(
                 "momentum_put_action": momentum_put_action,
                 "momentum_put_selection_note": momentum_put_selection_note,
                 "im_put_execution_revision": IM_PUT_EXECUTION_REVISION,
+                "im_put_policy_revision": im_put_policy.REVISION if im_put_policy.active(market_date) else "legacy_dual95",
+                "im_put_policy_description": im_put_policy.description(market_date),
+                "im_put_target_moneyness": im_put_policy.moneyness(market_date),
+                "momentum_put_parent_qty": im_put_policy.momentum_parent(live["momentum_120"]) if im_put_policy.active(market_date) else put_target,
                 "put_monthly_reset_execution_date": monthly_expiry if option_roll_due else None,
                 "put_reference_future": str(put_reference_future["instrument"]),
                 "put_reference_price": put_reference_price,
@@ -4757,6 +4810,7 @@ def build_live_trade_signal(
                 **im_contract_selection,
             }
         )
+    signal["iv_warning"] = build_iv_warning(product, signal, live, mo_quotes if product == "IM" else None, clock)
     current_momentum_units = 0.5 * float(signal["momentum_current_weight"])
     target_momentum_units = 0.5 * float(signal["momentum_next_weight"])
     current_total_units = 0.5 + current_momentum_units + float(signal["grid_current"])
@@ -4903,6 +4957,7 @@ class ICIMMainlinesBot:
                     _write_last_verified_snapshot(msg, product)
                     continue
                 msg.write(f"### {PRODUCT_NAMES[product]}\n\n")
+                msg.write(f"**{live.get('iv_warning', {}).get('text', 'IV预警：N/A（旧记录未包含监测值）')}**\n\n")
                 provisional = not live["close_confirmed"]
                 target_label = "下一交易日预估目标" if provisional else "下一交易日确认目标"
                 confirm_text = (
@@ -5013,8 +5068,7 @@ class ICIMMainlinesBot:
                         f"- 估值目标与MOM120下限取较大值；本次最终由 **{live['core_put_driver']}** 决定。"
                         f"固定0.5倍核心袖的规范化目标为 "
                         f"**{live['core_put_target_qty_normalized']:g}张**。\n"
-                        f"- **动量袖**：独立持有约3个月、95%行权价的MO Put；"
-                        f"目标张数=核心Put目标×动量执行权重，本次为 "
+                        f"- **Put政策**：{live.get('im_put_policy_description', im_put_policy.description(live['market_date']))}；动量Put本次为 "
                         f"**{live['momentum_put_target_qty_normalized']:g}张**。网格不配Put，"
                         "动量袖与网格均不卖Call。"
                         "第4张只能由估值第4档产生，MOM120下限本身最多给到每1倍3张。\n"
@@ -5071,8 +5125,7 @@ class ICIMMainlinesBot:
                         f"**{live['core_put_target_qty_normalized']:g}张** | "
                         f"最终由{live['core_put_driver']}决定，只覆盖固定0.5倍核心袖 |\n"
                         f"| IM动量指引袖 | **{live['momentum_put_current_qty_normalized']:g}张** | "
-                        f"**{live['momentum_put_target_qty_normalized']:g}张** | 独立约3个月、95%行权价；"
-                        "目标=核心Put目标×动量执行权重 |\n"
+                        f"**{live['momentum_put_target_qty_normalized']:g}张** | {im_put_policy.description(live['market_date'])} |\n"
                         "| 独立估值网格 | **0张** | **0张** | 规则明确不配Put |\n"
                         f"| **合计** | **{live['total_put_current_qty_normalized']:g}张** | "
                         f"**{live['total_put_target_qty_normalized']:g}张** | 三部分严格相加 |\n\n"
@@ -5084,7 +5137,7 @@ class ICIMMainlinesBot:
                     if live.get("put_sizing_expiry") is not None:
                         msg.write(
                             f"合约选择：以 {live['put_sizing_signal_date']} 后约3个月为目标，"
-                            "在实际挂牌月份中选最近到期月，并取约95%行权价；最终选择到期日 "
+                            f"在实际挂牌月份中选最近到期月，并取约{im_put_policy.moneyness(live['market_date']):.0%}行权价；最终选择到期日 "
                             f"**{live['put_sizing_expiry']}**、行权价 "
                             f"**{live['put_sizing_strike']:.0f}** 的MO Put。\n"
                         )
@@ -5171,8 +5224,7 @@ class ICIMMainlinesBot:
                         "Volume/MA160>=0.85才保留信号，160日暖机期放行。\n"
                     )
                     msg.write(
-                        "- 核心Put保持父规则；动量Put独立选约3个月、95%行权价，"
-                        "目标张数=核心Put目标×动量执行权重；网格不配Put。\n"
+                        f"- {im_put_policy.description(_now_beijing().date())}；约3个月，网格不配Put。\n"
                     )
                     msg.write("- Call仍只覆盖0.5倍核心袖；动量袖与网格不卖Call。\n")
                     msg.write("- IM父规则MOM120<0时最低3张；第4张只能由估值第4档产生。\n")
