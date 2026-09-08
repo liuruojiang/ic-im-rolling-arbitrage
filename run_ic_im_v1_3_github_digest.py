@@ -259,6 +259,7 @@ def build_artifacts(
         "strategy_revision": state_module.STRATEGY_REVISION,
         "build": strategy.BUILD_ID,
         "im_put_policy_revision": strategy.IM_PUT_POLICY_REVISION,
+        "im_execution_fix_revision": strategy.IM_EXECUTION_FIX_REVISION,
         "im_put_execution_revision": observed["IM"].get(
             "im_put_execution_revision", "historical_before_monthly_correction"
         ),
@@ -298,6 +299,7 @@ def write_failure(
         "strategy_revision": state_module.STRATEGY_REVISION,
         "build": strategy.BUILD_ID,
         "im_put_policy_revision": strategy.IM_PUT_POLICY_REVISION,
+        "im_execution_fix_revision": strategy.IM_EXECUTION_FIX_REVISION,
         "generated_at": clock.isoformat(),
         "publication_mode": "realtime" if mode == "realtime" else "close_confirmed",
         "error_type": type(exc).__name__,
@@ -324,14 +326,15 @@ def main() -> int:
     clock = parse_clock(args.now)
     out_dir = Path(args.out_dir)
     try:
-        result = build_artifacts(
-            state_dir=Path(args.state_dir),
-            out_dir=out_dir,
-            clock=clock,
-            max_sessions=args.max_sessions,
-            mode=args.mode,
-            expected_market_date=args.expected_market_date,
-        )
+        with strategy.collection_clock(clock):
+            result = build_artifacts(
+                state_dir=Path(args.state_dir),
+                out_dir=out_dir,
+                clock=clock,
+                max_sessions=args.max_sessions,
+                mode=args.mode,
+                expected_market_date=args.expected_market_date,
+            )
     except Exception as exc:
         write_failure(out_dir, clock, exc, mode=args.mode)
         print(f"ic_im_digest_failed: {type(exc).__name__}: {exc}", file=sys.stderr)

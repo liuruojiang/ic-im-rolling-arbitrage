@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Unified read-only research entrypoint for IC/IM v1.3 r6."""
+"""Read-only IC/IM v1.3 research targets with each product's stated policy scope."""
 
 from __future__ import annotations
 

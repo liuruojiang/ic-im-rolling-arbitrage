@@ -137,6 +137,32 @@ _RUNTIME_CLOCK: contextvars.ContextVar[datetime | None] = contextvars.ContextVar
 _HISTORICAL_REPLAY_DAY: contextvars.ContextVar[date | None] = (
     contextvars.ContextVar("ic_im_v1_3_historical_replay_day", default=None)
 )
+_COLLECTION_CLOCK_ANCHOR = contextvars.ContextVar("ic_im_quote_collection_clock", default=None)
+
+
+@contextmanager
+def collection_clock(clock: datetime):
+    """Advance only quote validation time during collection, never strategy time."""
+    if _COLLECTION_CLOCK_ANCHOR.get() is not None:
+        yield
+        return
+    token = _COLLECTION_CLOCK_ANCHOR.set((clock, time_module.monotonic()))
+    try:
+        yield
+    finally:
+        _COLLECTION_CLOCK_ANCHOR.reset(token)
+
+
+def _iv_observation_clock(clock: datetime, collection_started=None):
+    if _HISTORICAL_REPLAY_DAY.get() is not None:
+        return clock
+    anchor = _COLLECTION_CLOCK_ANCHOR.get()
+    if anchor is None and collection_started is not None:
+        anchor = (clock, collection_started)
+    if anchor is None:
+        return clock
+    start_clock, started = anchor
+    return start_clock + timedelta(seconds=max(0.0, time_module.monotonic() - started))
 
 
 def _now_beijing() -> datetime:
@@ -167,9 +193,10 @@ def historical_replay(day: date | None):
 
 import ic_im_quarter_roll_v1_3 as quarter_roll
 
-BUILD_ID = "v1.3-20260908-r7-mom120-put102-v1"
+BUILD_ID = "v1.3-20260908-r7-mom120-put102-fix1"
 import im_put_policy
 IM_PUT_POLICY_REVISION = im_put_policy.REVISION
+IM_EXECUTION_FIX_REVISION = "im_put_execution_guards_20260908_v2"
 IM_PUT_EXECUTION_REVISION = "im_monthly_reset_20260907_v1"
 DATA_CUTOFF = date(2026, 8, 14)
 V13_HISTORY_DATE_INDEX = {
@@ -821,11 +848,27 @@ def _cffex_historical_quote_frame(
             f"中金所 {day} 日行情缺少字段: {', '.join(missing)}"
         )
     frame = daily.rename(columns=field_map)[list(field_map.values())].copy()
+    frame["raw_close"] = pd.to_numeric(frame["lastprice"], errors="coerce")
+    frame["settle"] = pd.to_numeric(daily.get("今结算", pd.Series(index=daily.index, dtype=float)), errors="coerce")
+    frame["pricing_basis"] = "official_close"
     frame["instrument"] = frame["instrument"].astype(str).str.strip().str.upper()
     pattern = rf"{product}\d{{4}}" if product in {"IC", "IM"} else r"MO\d{4}-[CP]-\d+"
     frame = frame.loc[frame["instrument"].str.fullmatch(pattern)].copy()
     if frame.empty:
         raise RuntimeError(f"中金所 {day} 日行情没有 {product} 合约")
+    # A zero-volume option's reported close can be carried from an older day.
+    # Retain it as evidence, but use today's official settlement as an explicit
+    # valuation estimate. This does not assert an executable fill or alter Call.
+    zero_volume_put = (
+        frame["instrument"].str.fullmatch(r"MO\d{4}-P-\d+")
+        & pd.to_numeric(frame["volume"], errors="coerce").eq(0)
+    )
+    if zero_volume_put.any():
+        settlement = frame.loc[zero_volume_put, "settle"]
+        valid_settlement = np.isfinite(settlement) & settlement.gt(0)
+        frame.loc[zero_volume_put, "lastprice"] = settlement.where(valid_settlement, np.nan)
+        frame.loc[zero_volume_put, "pricing_basis"] = "official_settlement_estimate_zero_volume"
+        frame.loc[settlement.index[~valid_settlement], "pricing_basis"] = "unavailable_zero_volume_no_valid_settlement"
     frame["source_date"] = day
     frame["source_time"] = "15:15:00"
     return _validate_quote_frame(frame, product, clock, "中金所官方日行情")
@@ -2396,6 +2439,22 @@ def _validate_complete_mo_chain(
             )
 
 
+def _live_mo_put_quote_basis(frame: pd.DataFrame) -> pd.DataFrame:
+    """Zero-trade live Puts use explicit two-sided estimates, never old last/settle."""
+    result = frame.copy()
+    result["raw_lastprice"] = result["lastprice"]
+    result["pricing_basis"] = "source_last_quote"
+    zero_put = result["instrument"].astype(str).str.fullmatch(r"MO\d{4}-P-\d+") & pd.to_numeric(result["volume"], errors="coerce").eq(0)
+    bid = pd.to_numeric(result.get("bprice", pd.Series(np.nan, index=result.index)), errors="coerce")
+    ask = pd.to_numeric(result.get("sprice", pd.Series(np.nan, index=result.index)), errors="coerce")
+    valid = zero_put & np.isfinite(bid) & np.isfinite(ask) & bid.gt(0) & ask.ge(bid)
+    result.loc[zero_put, "lastprice"] = np.nan
+    result.loc[zero_put, "pricing_basis"] = "unavailable_zero_volume_no_valid_two_sided_quote"
+    result.loc[valid, "lastprice"] = (bid[valid] + ask[valid]) / 2.0
+    result.loc[valid, "pricing_basis"] = "live_bid_ask_mid_estimate_zero_volume"
+    return result
+
+
 def _fetch_cffex_official_quotes(product: str, clock: datetime) -> pd.DataFrame:
     if product not in {"IC", "IM", "MO"}:
         raise ValueError(f"不支持的中金所品种: {product}")
@@ -2429,6 +2488,8 @@ def _fetch_cffex_official_quotes(product: str, clock: datetime) -> pd.DataFrame:
     frame = _numeric_frame(frame)
     frame["source_date"] = stamp.date()
     frame["source_time"] = stamp.strftime("%H:%M:%S")
+    if product == "MO":
+        frame = _live_mo_put_quote_basis(frame)
     return _validate_quote_frame(frame, product, clock, "中金所官方")
 
 
@@ -2581,7 +2642,7 @@ def _fetch_eastmoney_mo_quotes(clock: datetime) -> pd.DataFrame:
                 "source_time": stamp.strftime("%H:%M:%S"),
             }
         )
-    return _validate_quote_frame(pd.DataFrame(rows), "MO", clock, "东方财富")
+    return _validate_quote_frame(_live_mo_put_quote_basis(pd.DataFrame(rows)), "MO", clock, "东方财富")
 
 
 def _audit_quote_sources(
@@ -2734,6 +2795,7 @@ def verify_sina_option_quote(
     expected_date: date,
     expected_price: float,
     clock: datetime,
+    pricing_basis: str = "source_last_quote",
 ) -> dict[str, Any]:
     match = re.fullmatch(r"MO(\d{4})-([CP])-(\d+)", contract.upper())
     if not match:
@@ -2763,17 +2825,33 @@ def verify_sina_option_quote(
         stamp = datetime.strptime(fields[32], "%Y-%m-%d %H:%M:%S").replace(
             tzinfo=BEIJING
         )
-        lastprice = float(fields[2])
-        volume = float(fields[40])
+        raw_lastprice = pd.to_numeric(fields[2], errors="coerce")
+        lastprice = raw_lastprice
+        volume = pd.to_numeric(fields[40], errors="coerce")
         position = float(fields[5])
+        if pricing_basis == "live_bid_ask_mid_estimate_zero_volume":
+            if match.group(2) != "P":
+                raise ValueError("双边中价复核只允许Put")
+            bid, ask = float(fields[1]), float(fields[3])
+            if not all(math.isfinite(value) and value > 0 for value in (bid, ask)) or bid > ask:
+                raise ValueError("新浪Put双边报价无效")
+            lastprice = (bid + ask) / 2.0
     except (IndexError, TypeError, ValueError) as exc:
         raise RuntimeError(f"新浪MO详报价 {contract} 字段非法") from exc
     if not all(
         math.isfinite(value) and value >= 0
-        for value in (volume, position)
+        for value in ((position,) if pricing_basis == "live_bid_ask_mid_estimate_zero_volume" else (volume, position))
     ) or not math.isfinite(lastprice) or lastprice <= 0:
         raise RuntimeError(f"新浪MO详报价 {contract} 含NaN、无穷值或非正价格")
     source_date = stamp.date()
+    if pricing_basis == "live_bid_ask_mid_estimate_zero_volume":
+        if source_date != expected_date:
+            raise RuntimeError(f"新浪Put双边报价日期 {source_date} 与 {expected_date} 不一致")
+        try:
+            _validate_iv_monitor_times(expected_date, stamp, stamp, _iv_observation_clock(clock),
+                                       expected_date < clock.date() or clock.hour >= 15)
+        except ValueError as exc:
+            raise RuntimeError(f"新浪Put双边报价时间无效：{exc}") from exc
     if source_date < expected_date:
         raise RuntimeError(
             f"新浪MO详报价 {contract} 已过期：最新 {source_date}，应覆盖 {expected_date}"
@@ -2792,6 +2870,8 @@ def verify_sina_option_quote(
         "source_date": source_date,
         "lastprice": lastprice,
         "contract": contract,
+        "pricing_basis": pricing_basis,
+        "raw_lastprice": float(raw_lastprice) if math.isfinite(raw_lastprice) else None,
     }
 
 
@@ -3114,6 +3194,14 @@ def _implied_volatility(
     dividend: float,
     years: float,
 ) -> float | None:
+    try:
+        market_price, spot, strike, rate, dividend, years = (
+            float(value) for value in (market_price, spot, strike, rate, dividend, years)
+        )
+    except (TypeError, ValueError, OverflowError):
+        return None
+    if not all(math.isfinite(value) for value in (market_price, spot, strike, rate, dividend, years)):
+        return None
     if min(market_price, spot, strike, years) <= 0:
         return None
     low, high = 0.001, 5.0
@@ -3144,6 +3232,10 @@ def _format_market(contract: str, row: pd.Series | None) -> str:
     bid = float(row.get("bprice", np.nan))
     ask = float(row.get("sprice", np.nan))
     text = f"`{contract}`，最新 {last:.4g}"
+    if row.get("pricing_basis") == "official_settlement_estimate_zero_volume":
+        text = f"`{contract}`，当日结算估计 {last:.4g}（零成交量；非成交价）"
+    elif row.get("pricing_basis") == "live_bid_ask_mid_estimate_zero_volume":
+        text = f"`{contract}`，双边中价估计 {last:.4g}（零成交量；非成交价）"
     if np.isfinite(bid) and bid >= 0 and np.isfinite(ask) and ask >= 0:
         text += f"，买/卖 {bid:.4g}/{ask:.4g}"
     return text
@@ -3170,12 +3262,13 @@ def _require_existing_leg_quote(
         raise RuntimeError(f"{leg}旧腿 {contract} 缺少有限正价，禁止继续{action}")
     if "position" in row.index:
         position = float(row.get("position", np.nan))
-        if not np.isfinite(position) or position <= 0:
+        im_put = bool(re.fullmatch(r"MO\d{4}-P-\d+", str(contract)))
+        if not np.isfinite(position) or position < 0 or (position == 0 and not im_put):
             raise RuntimeError(f"{leg}旧腿 {contract} 缺少正持仓量，禁止继续{action}")
     if "bprice" in row.index and "sprice" in row.index:
         bid = float(row.get("bprice", np.nan))
         ask = float(row.get("sprice", np.nan))
-        if not all(np.isfinite(value) and value > 0 for value in (bid, ask)):
+        if not all(np.isfinite(value) and value > 0 for value in (bid, ask)) or bid > ask:
             raise RuntimeError(f"{leg}旧腿 {contract} 缺少双边有效报价，禁止继续{action}")
 
 
@@ -3867,23 +3960,89 @@ def _daily_grid_target(product: str, live: dict[str, Any]) -> float:
     return state
 
 
-def build_iv_warning(product, signal, live, quotes, clock):
+IV_MONITOR_MAX_DELAY_SECONDS = 20 * 60
+
+
+def _iv_monitor_stamp(day, source_day, source_time, label):
+    """Parse timestamps emitted by the SSE/CFFEX adapters, without inventing one."""
+    expected = pd.Timestamp(day).date()
+    try:
+        actual = pd.Timestamp(source_day).date() if source_day is not None else None
+    except (TypeError, ValueError):
+        actual = None
+    if actual != expected or source_time is None:
+        raise ValueError(f"{label}缺少与信号日一致的有效行情时间")
+    raw = str(source_time).strip()
+    stamp = None
+    for fmt in ("%Y%m%d %H%M%S", "%Y-%m-%d %H%M%S", "%Y-%m-%d %H:%M:%S", "%H:%M:%S", "%H%M%S"):
+        try:
+            parsed = datetime.strptime(raw, fmt)
+            if fmt in ("%H:%M:%S", "%H%M%S"):
+                parsed = parsed.replace(year=expected.year, month=expected.month, day=expected.day)
+            stamp = parsed.replace(tzinfo=BEIJING)
+            break
+        except ValueError:
+            continue
+    if stamp is None or stamp.date() != expected:
+        raise ValueError(f"{label}行情时间格式或日期无效")
+    return stamp
+
+
+def _validate_iv_monitor_times(day, option_stamp, spot_stamp, clock, close_confirmed):
+    """Monitoring-only freshness contract; exchange quotes may be delayed 20 min."""
+    now = clock.replace(tzinfo=BEIJING) if clock.tzinfo is None else clock.astimezone(BEIJING)
+    if not close_confirmed and (now.date() != pd.Timestamp(day).date() or now.hour >= 15):
+        raise ValueError("采集校验时刻已越过信号盘中时段，IV监测需要重新取数")
+    for label, stamp in (("期权", option_stamp), ("标的", spot_stamp)):
+        if stamp > now:
+            raise ValueError(f"{label}报价时间晚于当前运行时间")
+    reference = now
+    if close_confirmed:
+        # Historical/end-of-day quotes are evaluated against that session close,
+        # not against the evening report's wall clock. CFFEX archive stamps 15:15.
+        end = datetime.combine(pd.Timestamp(day).date(), datetime.min.time()).replace(
+            hour=15, minute=15, tzinfo=BEIJING
+        )
+        reference = min(now, end)
+    for label, stamp in (("期权", option_stamp), ("标的", spot_stamp)):
+        delay = (reference - stamp).total_seconds()
+        if delay < 0 or delay > IV_MONITOR_MAX_DELAY_SECONDS:
+            raise ValueError(f"{label}报价超出IV监测20分钟时间容忍范围")
+    if abs((option_stamp - spot_stamp).total_seconds()) > IV_MONITOR_MAX_DELAY_SECONDS:
+        raise ValueError("期权与标的报价相差超过IV监测20分钟容忍范围")
+
+
+def build_iv_warning(product, signal, live, quotes, clock, *, collection_started=None):
     """Display-only IV monitor; keep the 95% reference used by the IM scans."""
+    clock = _iv_observation_clock(clock, collection_started)
     day = signal["market_date"]
     if product == "IC":
         contract = signal.get("put_current_contract") or ""
         match = re.fullmatch(r"510500P(\d{2})(\d{2})M(\d{5})", contract)
         iv = None
-        if match and signal.get("iv_monitor_option_price"):
+        reason = ""
+        try:
+            option_price = float(signal.get("iv_monitor_option_price"))
+            if not math.isfinite(option_price) or option_price <= 0:
+                raise ValueError("IC持仓Put缺少有限正价，无法反解IV")
+            option_stamp = _iv_monitor_stamp(day, day, signal.get("sse_time"), "IC期权")
+            spot_stamp = _iv_monitor_stamp(day, signal.get("etf_quote_date"), signal.get("etf_quote_time"), "510500ETF")
+            _validate_iv_monitor_times(day, option_stamp, spot_stamp, clock, signal.get("close_confirmed") is True)
+            if not match:
+                raise ValueError("IC持仓Put合约格式无效")
             expiry = _fourth_wednesday(2000 + int(match.group(1)), int(match.group(2)))
             if expiry > day:
-                iv = _implied_volatility("P", signal["iv_monitor_option_price"], signal["etf_price"],
+                iv = _implied_volatility("P", option_price, signal["etf_price"],
                                          float(match.group(3))/1000., _gov10y_for_day("IC", day),
                                          float(FROZEN["IC"]["dividend"]), (expiry-day).days/365.)
-        return im_put_policy.iv_warning(
+        except (ValueError, RuntimeError, KeyError, TypeError, OverflowError) as exc:
+            reason = str(exc)
+        result = im_put_policy.iv_warning(
             iv, source="上交所510500当日持仓Put报价反解IV",
-            market_date=day, snapshot_time=signal.get("sse_time"), contract=contract,
+            market_date=day, snapshot_time=signal.get("sse_time"), contract=contract, reason=reason,
         )
+        result["validation_clock"] = clock.isoformat()
+        return result
     source = str(quotes.attrs.get("source", "未知"))
     contract = ""
     try:
@@ -3900,17 +4059,27 @@ def build_iv_warning(product, signal, live, quotes, clock):
         row = _quote_row(quotes, contract)
         if row is None or not math.isfinite(float(row["lastprice"])) or float(row["lastprice"]) <= 0:
             raise ValueError("95%参考Put缺少当日有效价格；未跳选其他合约")
+        option_stamp = _iv_monitor_stamp(day, source_day, row.get("source_time"), "MO期权")
+        spot_stamp = _iv_monitor_stamp(day, live.get("live_price_source_date"), live.get("live_price_source_time"), "中证1000指数")
+        _validate_iv_monitor_times(day, option_stamp, spot_stamp, clock, signal.get("close_confirmed") is True)
         iv = _implied_volatility("P", float(row["lastprice"]), float(live["price"]),
                                  float(chosen.strike), _gov10y_for_day("IM", day),
                                  float(FROZEN["IM"]["dividend"]), (expiry-day).days/365.0)
-        result = im_put_policy.iv_warning(iv, source=source+"；约3个月95%固定参考Put反解（交易目标102%）",
+        pricing_basis = str(row.get("pricing_basis", "source_last_quote"))
+        pricing_note = "；零成交量，当日结算价估算IV，非成交报价" if pricing_basis == "official_settlement_estimate_zero_volume" else ""
+        if pricing_basis == "live_bid_ask_mid_estimate_zero_volume":
+            pricing_note = "；零成交量，当日双边中价估算IV，非成交报价"
+        result = im_put_policy.iv_warning(iv, source=source+"；约3个月95%固定参考Put反解（交易目标102%）"+pricing_note,
                                          market_date=day, snapshot_time=row.get("source_time"), contract=contract)
         result.update(reference_moneyness=0.95, reference_strike=float(chosen.strike),
-                      option_price=float(row["lastprice"]), spot=float(live["price"]), expiry=str(expiry))
+                      option_price=float(row["lastprice"]), spot=float(live["price"]), expiry=str(expiry),
+                      pricing_basis=pricing_basis, validation_clock=clock.isoformat())
         return result
     except (ValueError, RuntimeError, KeyError, IndexError, TypeError) as exc:
-        return im_put_policy.iv_warning(None, source=source, market_date=day,
+        result = im_put_policy.iv_warning(None, source=source, market_date=day,
                                          snapshot_time=None, contract=contract, reason=str(exc))
+        result["validation_clock"] = clock.isoformat()
+        return result
 
 
 def build_live_trade_signal(
@@ -3918,6 +4087,7 @@ def build_live_trade_signal(
     now: datetime | None = None,
     mode: str = "intraday",
 ) -> dict[str, Any]:
+    collection_started = time_module.monotonic()
     if mode not in {"intraday", "close"}:
         raise ValueError(f"非法信号模式: {mode}")
     clock = now or _now_beijing()
@@ -4350,6 +4520,8 @@ def build_live_trade_signal(
         signal.update(
             {
                 "etf_price": etf["last"],
+                "etf_quote_date": etf["date"],
+                "etf_quote_time": etf["time"],
                 "iv_monitor_option_price": float(put_quote["last"]) if put_quote is not None else None,
                 "sse_time": f"{sse_stamp['date']} {sse_stamp['time']}",
                 "put_current": put_current,
@@ -4402,6 +4574,17 @@ def build_live_trade_signal(
             )
         option_rows_to_verify: dict[str, float] = {}
         im_anchor = LIVE_CONTINUATION_ANCHOR["IM"]
+        previous_reset_value = im_anchor.get("verified_put_monthly_reset_date")
+        previous_put_reset = (
+            date.fromisoformat(str(previous_reset_value)[:10])
+            if previous_reset_value is not None else None
+        )
+        # The monthly event is published at T-1 close and already forms the
+        # next-session Put anchor. Do not publish that same event again at T0.
+        # IC and Call keep the original monthly option calendar above.
+        im_put_reset_due = option_roll_due and previous_put_reset != monthly_expiry
+        if previous_put_reset is not None and previous_put_reset > monthly_expiry:
+            raise RuntimeError("IM Put月度维护标记晚于当前月度事件，拒绝续接")
         core_put_contract_value = im_anchor.get("post_core_put_contract") or im_anchor.get("post_put_contract")
         core_put_contract = str(core_put_contract_value) if core_put_contract_value else None
         core_put_quote = _quote_row(mo_quotes, core_put_contract) if core_put_contract else None
@@ -4450,9 +4633,9 @@ def build_live_trade_signal(
             "IM", future_quotes, current_core
         )
         put_reference_price = float(put_reference_future["lastprice"])
-        put_reset_day = monthly_expiry if option_roll_due else market_date
+        put_reset_day = monthly_expiry if im_put_reset_due else market_date
         core_put_reselect = put_target > 0 and (
-            option_roll_due or core_put_current_normalized == 0.0
+            im_put_reset_due or core_put_current_normalized == 0.0
             or (core_put_contract is not None and _third_friday(*_contract_month(core_put_contract)) <= market_date)
         )
         if core_put_current_normalized > 0.0 and core_put_contract is None:
@@ -4497,7 +4680,7 @@ def build_live_trade_signal(
             )
             if (
                 momentum_put_contract and momentum_put_current_normalized > 0.0
-                and not option_roll_due and current_expiry > market_date
+                and not im_put_reset_due and current_expiry > market_date
             ):
                 momentum_put_target_contract = momentum_put_contract
                 momentum_put_target_quote = momentum_put_quote
@@ -4667,7 +4850,7 @@ def build_live_trade_signal(
                 abs_tol=1e-12,
             )
             and core_put_target_contract == core_put_contract
-            and option_core_action == "HOLD"
+            and not (im_put_reset_due and core_put_target_normalized > 0.0)
             else "RESIZE_OR_ROLL"
         )
         momentum_put_action = (
@@ -4678,7 +4861,7 @@ def build_live_trade_signal(
                 abs_tol=1e-12,
             )
             and momentum_put_target_contract == momentum_put_contract
-            and not (option_roll_due and momentum_put_target_normalized > 0.0)
+            and not (im_put_reset_due and momentum_put_target_normalized > 0.0)
             else "RESIZE_OR_ROLL"
         )
         im_put_action = (
@@ -4701,15 +4884,18 @@ def build_live_trade_signal(
             )
         if mo_quote_source == "东方财富":
             for contract, price in option_rows_to_verify.items():
+                verify_row = _quote_row(mo_quotes, contract)
+                verify_basis = str(verify_row.get("pricing_basis", "source_last_quote")) if verify_row is not None else "source_last_quote"
                 verification = verify_sina_option_quote(
                     contract,
                     mo_quote_date,
                     price,
                     clock,
+                    **({"pricing_basis": verify_basis} if verify_basis == "live_bid_ask_mid_estimate_zero_volume" else {}),
                 )
                 data_notes.append(
                     f"{contract}经{verification['source']}复核，as-of "
-                    f"{verification['source_date']}，最新{verification['lastprice']:g}"
+                    f"{verification['source_date']}，{'双边中价估计（非成交价）' if verify_basis == 'live_bid_ask_mid_estimate_zero_volume' else '最新'}{verification['lastprice']:g}"
                 )
         call_current_text = (
             "规范化0张（已核验空仓，等待新D10/IV26信号）"
@@ -4785,10 +4971,14 @@ def build_live_trade_signal(
                 "momentum_put_action": momentum_put_action,
                 "momentum_put_selection_note": momentum_put_selection_note,
                 "im_put_execution_revision": IM_PUT_EXECUTION_REVISION,
+                "im_execution_fix_revision": IM_EXECUTION_FIX_REVISION,
                 "im_put_policy_revision": im_put_policy.REVISION if im_put_policy.active(market_date) else "legacy_dual95",
                 "im_put_policy_description": im_put_policy.description(market_date),
                 "im_put_target_moneyness": im_put_policy.moneyness(market_date),
                 "momentum_put_parent_qty": im_put_policy.momentum_parent(live["momentum_120"]) if im_put_policy.active(market_date) else put_target,
+                "option_calendar_reset_due": option_roll_due,
+                "option_monthly_reset_due": im_put_reset_due,
+                "put_monthly_reset_already_recorded": option_roll_due and previous_put_reset == monthly_expiry,
                 "put_monthly_reset_execution_date": monthly_expiry if option_roll_due else None,
                 "put_reference_future": str(put_reference_future["instrument"]),
                 "put_reference_price": put_reference_price,
@@ -4810,7 +5000,18 @@ def build_live_trade_signal(
                 **im_contract_selection,
             }
         )
-    signal["iv_warning"] = build_iv_warning(product, signal, live, mo_quotes if product == "IM" else None, clock)
+    if product == "IM":
+        signal["put_pricing_evidence"] = {}
+        for field in ("put_current_contract", "core_put_target_contract", "momentum_put_current_contract", "momentum_put_target_contract"):
+            contract = signal.get(field)
+            row = _quote_row(mo_quotes, contract) if contract else None
+            if row is not None:
+                signal["put_pricing_evidence"][field] = {
+                    "contract": str(contract), "pricing_basis": str(row.get("pricing_basis", "source_last_quote")),
+                    "market_text": _format_market(str(contract), row),
+                }
+    signal["iv_warning"] = build_iv_warning(product, signal, live, mo_quotes if product == "IM" else None, clock,
+                                            collection_started=collection_started)
     current_momentum_units = 0.5 * float(signal["momentum_current_weight"])
     target_momentum_units = 0.5 * float(signal["momentum_next_weight"])
     current_total_units = 0.5 + current_momentum_units + float(signal["grid_current"])

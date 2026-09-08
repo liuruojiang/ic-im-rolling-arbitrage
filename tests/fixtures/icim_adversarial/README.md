@@ -6,3 +6,10 @@ Source: successful GitHub run 33850626309, artifact `ic-im-v1-3-r7-ledger`, down
 - `confirmed.json`: committed 2026-09-04 complete IC/IM record.
 
 These are copied without changing fields or digest. Tests mutate deep copies only and never write the production ledger. Research signal data, not account holdings or order authorization.
+
+`real_zero_volume_put.csv` is the complete original `2026-09-03 / MO2612-P-8600`
+row extracted from the frozen CFFEX option cache. It retains the distinct raw
+close (1215.0), official settlement (1323.6), and zero volume. The companion
+`real_zero_volume_put.provenance.json` records the source cache SHA-256, exact
+selection, and extracted fixture SHA-256. This is real historical quote data,
+not a synthetic price or evidence of an executable fill.

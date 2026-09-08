@@ -1,9 +1,12 @@
 #!/usr/bin/env python
-"""IM rolling-arbitrage v1.3 r6 with the current CSI1000 sleeve and momentum Put.
+"""IM v1.3 local target diagnostic under the current MOM120 Put policy.
 
 The version inherits IM v1.2, uses the current A-share long-only v1.3 CSI1000
 momentum rule, and protects the core and momentum sleeves with independent Put
-ledgers.  It emits auditable research targets only and never orders.
+ledgers. The local history applies the current Put quantity policy to every
+sample row for research; it is neither the frozen r6 schedule nor the forward
+live ledger, and does not reprice 102% Put contracts or claim their performance.
+It emits auditable research targets only and never orders.
 """
 
 from __future__ import annotations
@@ -30,6 +33,7 @@ import im_mainline_v1_2 as previous
 ROOT = Path(__file__).resolve().parent
 VERSION = "im_mainline_v1_3"
 STATUS = "research_candidate_not_live_authority"
+HISTORICAL_LOCAL_STATE = "current_put_policy_retrospective_target_diagnostic"
 RESEARCH_START = pd.Timestamp("2015-04-16")
 
 CORE_CAPITAL_SHARE = 0.50
@@ -748,6 +752,11 @@ def load_authoritative_local_state() -> tuple[pd.DataFrame, dict[str, Any]]:
     audit = {
         "version": VERSION,
         "status": STATUS,
+        "historical_local_state": HISTORICAL_LOCAL_STATE,
+        "put_policy_revision": im_put_policy.REVISION,
+        "historical_policy_application": "current_quantity_policy_on_all_sample_rows",
+        "forward_policy_effective_date": im_put_policy.EFFECTIVE_DATE.isoformat(),
+        "historical_performance_scope": "targets_only_no_repriced_put102_performance_not_forward_ledger",
         "start": schedule["date"].min().date().isoformat(),
         "end": schedule["date"].max().date().isoformat(),
         "rows": int(len(schedule)),
@@ -850,7 +859,10 @@ def rule_manifest() -> dict[str, Any]:
         "status": STATUS,
         "signal_revision": "r7",
         "futures_roll": quarter_roll.policy("IM"),
-        "historical_local_state": "r6_frozen_reference_not_r7_forward_ledger",
+        "historical_local_state": HISTORICAL_LOCAL_STATE,
+        "historical_policy_application": "current_quantity_policy_on_all_sample_rows",
+        "forward_policy_effective_date": im_put_policy.EFFECTIVE_DATE.isoformat(),
+        "historical_performance_scope": "targets_only_no_repriced_put102_performance_not_forward_ledger",
         "research_start": RESEARCH_START.date().isoformat(),
         "parent_version": previous.VERSION,
         "component_parent_version": parent.VERSION,

@@ -12,6 +12,7 @@ import hashlib
 import json
 import math
 import os
+import re
 import tempfile
 from contextlib import contextmanager
 from copy import deepcopy
@@ -93,7 +94,7 @@ def _validate_record(record: dict[str, Any]) -> None:
         if not isinstance(signals, dict) or set(signals) != set(PRODUCTS):
             raise RuntimeError("Poe账本信号必须同时包含IC和IM")
         for product in PRODUCTS:
-            validate_delivery_values(signals[product], product)
+            validate_delivery_values(signals[product], product, historical_record=True)
     days: list[date] = []
     for product in PRODUCTS:
         anchor = _decode_anchor(record["products"][product])
@@ -128,6 +129,10 @@ def _validate_record(record: dict[str, Any]) -> None:
     if float(ic.get("verified_call_contracts_normalized", 0.0)) != 0.0:
         raise RuntimeError("IC 1.3明确禁止Call，账本出现Call状态")
     im = record["products"]["IM"]
+    if strategy.im_put_policy.active(verified_day):
+        validate_im_call_values(im.get("verified_call_contracts_normalized", 0.0),
+                                im.get("verified_call_contract"),
+                                im.get("verified_call_expiry"), im.get("verified_call_strike"))
     core_put = _finite_float(
         im.get("verified_core_put_qty_normalized"), "IM核心Put数量"
     )
@@ -185,7 +190,7 @@ def _finite_float(value: Any, label: str) -> float:
     return number
 
 
-def validate_delivery_values(signal: dict[str, Any], product: str) -> None:
+def validate_delivery_values(signal: dict[str, Any], product: str, *, historical_record: bool = False) -> None:
     """Reject malformed boundary values before JSON can turn NaN into null.
 
     Sparse historical bootstrap/test records may omit display exposures; when
@@ -201,6 +206,79 @@ def validate_delivery_values(signal: dict[str, Any], product: str) -> None:
                 raise RuntimeError(f"{product} {field}必须为数值")
             if _finite_float(value, f"{product} {field}") < 0.0:
                 raise RuntimeError(f"{product} {field}不能为负数")
+    # Frozen older records can be sparse. From the published policy date,
+    # delivery and ledger writes share the same option boundary checks.
+    day = signal.get("market_date")
+    if product == "IM" and day is not None and strategy.im_put_policy.active(day):
+        if not historical_record:
+            validate_im_execution_fix_revision(signal)
+        validate_im_put_execution_evidence(signal)
+        validate_im_option_values(signal)
+
+
+def validate_im_execution_fix_revision(signal: dict[str, Any]) -> None:
+    """Old records remain readable but cannot impersonate a newly fixed producer."""
+    if strategy.im_put_policy.active(signal["market_date"]):
+        if signal.get("im_execution_fix_revision") != strategy.IM_EXECUTION_FIX_REVISION:
+            raise RuntimeError("IM新写入/当前交付缺少已修复执行防线版本，禁止旧生产器继续交付")
+
+
+def _option_number(value: Any, label: str) -> float:
+    if isinstance(value, bool) or not isinstance(value, (int, float, np.integer, np.floating)):
+        raise RuntimeError(f"{label}必须为数值")
+    return _finite_float(value, label)
+
+
+def validate_im_call_values(quantity: Any, contract: Any, expiry: Any, strike: Any) -> None:
+    """A short Call requires one internally consistent listed-contract identity."""
+    qty = _option_number(quantity, "IM Call数量")
+    if qty not in {-1.0, 0.0}:
+        raise RuntimeError("IM Call数量超出合法域")
+    if qty == 0.0:
+        if contract not in (None, "") or expiry not in (None, "") or strike is not None:
+            raise RuntimeError("IM Call数量为零但仍保留合约/到期日/行权价")
+        return
+    match = re.fullmatch(r"MO\d{4}-C-(\d+(?:\.\d+)?)", str(contract or ""))
+    if match is None:
+        raise RuntimeError("IM Call非零但缺少有效MO Call合约")
+    target_strike = _option_number(strike, "IM Call行权价")
+    if target_strike <= 0 or not math.isclose(target_strike, float(match.group(1)), rel_tol=0.0, abs_tol=1e-12):
+        raise RuntimeError("IM Call行权价与合约不一致")
+    expiry_day = _as_day(expiry, "IM Call到期日")
+    try:
+        expected_expiry = strategy._third_friday(*strategy._contract_month(str(contract)))
+    except (TypeError, ValueError) as exc:
+        raise RuntimeError("IM Call合约到期月份非法") from exc
+    if expiry_day != expected_expiry:
+        raise RuntimeError("IM Call到期日与合约不一致")
+
+
+def validate_im_option_values(signal: dict[str, Any]) -> None:
+    """Validate numeric/identity invariants before nonfinite JSON coercion."""
+    for position in ("current", "target"):
+        quantities = {}
+        for sleeve, maximum in (("core", 2.0), ("momentum", 2.0), ("total", 4.0)):
+            field = f"{sleeve}_put_{position}_qty_normalized"
+            qty = _option_number(signal.get(field), f"IM {field}")
+            if not 0.0 <= qty <= maximum:
+                raise RuntimeError("IM期权目标/当前数量超出合法域")
+            quantities[sleeve] = qty
+            if sleeve != "total":
+                contract = signal.get(f"{sleeve}_put_{position}_contract")
+                if qty > 0 and re.fullmatch(r"MO\d{4}-P-\d+(?:\.\d+)?", str(contract or "")) is None:
+                    raise RuntimeError(f"IM {sleeve} Put{position}非零但缺少有效独立合约")
+                if sleeve == "momentum" and qty == 0 and contract not in (None, ""):
+                    raise RuntimeError("IM动量Put为零但仍保留合约")
+        if not math.isclose(quantities["total"], quantities["core"] + quantities["momentum"], rel_tol=0.0, abs_tol=1e-12):
+            raise RuntimeError(f"IM {position}组合Put数量不等于核心与动量之和")
+    parent = signal.get("v13_parent_puts_per_full_core")
+    if not isinstance(parent, int) or isinstance(parent, bool) or parent not in {0, 1, 2, 3, 4}:
+        raise RuntimeError("IM父规则Put数量非法")
+    if not math.isclose(float(signal["core_put_target_qty_normalized"]), 0.5 * parent, rel_tol=0.0, abs_tol=1e-12):
+        raise RuntimeError("IM核心Put目标不等于0.5倍父规则目标")
+    validate_im_call_values(signal.get("call_target_qty_normalized", 0.0),
+                            signal.get("call_target_contract"),
+                            signal.get("call_target_expiry"), signal.get("call_target_strike"))
 
 
 def validate_im_put_execution_evidence(signal: dict[str, Any]) -> None:
@@ -373,8 +451,9 @@ def derive_next_anchors(
         else:
             # Historical r7 journal entries stay readable. New corrected signals
             # carry their execution revision and are validated before append.
-            if "im_put_execution_revision" in signal:
+            if signal_day >= date(2026, 9, 7) or "im_put_execution_revision" in signal:
                 validate_im_put_execution_evidence(signal)
+            validate_im_option_values(signal)
             core_current = _finite_float(
                 signal.get("core_put_current_qty_normalized"), "IM当前核心Put数量"
             )
@@ -436,6 +515,25 @@ def derive_next_anchors(
                 raise RuntimeError("IM动量Put目标非零但缺少独立合约")
             if momentum_put == 0.0 and momentum_contract not in (None, ""):
                 raise RuntimeError("IM动量Put目标为零但仍保留合约")
+            previous_reset_value = anchor.get("verified_put_monthly_reset_date")
+            previous_reset = (
+                _as_day(previous_reset_value, "IM已记录月度Put事件")
+                if previous_reset_value is not None else None
+            )
+            if previous_reset is not None:
+                if previous_reset != strategy._third_friday(previous_reset.year, previous_reset.month):
+                    raise RuntimeError("IM已记录月度Put事件不是合法月度日期")
+                if previous_reset > strategy._roll_forward_exchange_day(previous_day + timedelta(days=1)):
+                    raise RuntimeError("IM已记录月度Put事件超前于账本允许的下一交易日")
+            if signal.get("option_monthly_reset_due") is True:
+                reset_day = _as_day(signal.get("put_monthly_reset_execution_date"), "IM月度Put事件日期")
+                expected_reset = strategy._third_friday(signal_day.year, signal_day.month)
+                prior_session = strategy._roll_backward_exchange_day(expected_reset - timedelta(days=1))
+                if reset_day != expected_reset or signal_day not in (prior_session, expected_reset):
+                    raise RuntimeError("IM月度Put事件必须在该月到期日前一交易日或到期日确认")
+                if previous_reset is not None and reset_day <= previous_reset:
+                    raise RuntimeError("IM同一或更早月度Put事件已经记录，禁止重复维护")
+                anchor["verified_put_monthly_reset_date"] = reset_day
             anchor.update(
                 {
                     "post_put_contract": core_contract,
@@ -605,6 +703,9 @@ class StateStore:
                 raise RuntimeError(f"{record['verified_day']}账本已存在但内容冲突")
             # Recover a crash that completed the append-only journal write but
             # happened before latest.json was atomically replaced.
+            # Validate the recovered day's policy too: its journal may have
+            # been written by an obsolete producer before the process restart.
+            derive_next_anchors(current, existing.get("signals", {}))
             self._atomic_write(self.latest_path, existing)
             return existing
         self._atomic_write(journal, record)

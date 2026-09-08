@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, datetime
 import math
 import pandas as pd
 import pytest
@@ -36,9 +36,11 @@ def test_iv_monitor_uses_fixed_95_reference_and_does_not_mutate_signal(monkeypat
     original=signal.copy()
     monkeypatch.setattr(bot,'_implied_volatility',lambda *a: .51)
     monkeypatch.setattr(bot,'_gov10y_for_day',lambda *a: .02)
-    result=bot.build_iv_warning('IM',signal,dict(price=8100.),quotes,bot._now_beijing())
+    clock=datetime(2026,9,8,13,30,tzinfo=bot.BEIJING)
+    live=dict(price=8100.,live_price_source_date=date(2026,9,8),live_price_source_time="13:30:00")
+    result=bot.build_iv_warning('IM',signal,live,quotes,clock)
     assert result['level']=='critical'
     assert result['contract']=='MO2612-P-7600'
     assert signal==original
     quotes.attrs['source_date']=date(2026,9,7)
-    assert bot.build_iv_warning('IM',signal,dict(price=8100.),quotes,bot._now_beijing())['level']=='unavailable'
+    assert bot.build_iv_warning('IM',signal,live,quotes,clock)['level']=='unavailable'

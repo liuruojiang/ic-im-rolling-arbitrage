@@ -1,0 +1,11 @@
+{
+  "source": "quant_param_scan_runs\\20260908_im_put_revalidation_layer1_v1\\real_options.csv.gz",
+  "source_sha256": "148429ac78214845fba1624495af9edec159a67fcd65bfa92d884c17dbb680b2",
+  "selection": {
+    "date": "2026-09-03",
+    "contract": "MO2612-P-8600"
+  },
+  "rows": 1,
+  "fixture_sha256": "825fd7d02a60f166e14cda1e9cb4b72800c71c4b59b65783598b3e32d77173ce",
+  "price_basis": "untouched original close and official settlement, not a simulated price"
+}

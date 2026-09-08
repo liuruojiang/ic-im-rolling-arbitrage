@@ -17,6 +17,10 @@ def test_combined_manifest_contains_both_research_legs() -> None:
     assert manifest["cross_product_capital_allocation"] == "not_defined"
     assert manifest["cross_product_performance"] == "not_claimed"
     assert manifest["orders"] == "not_generated"
+    im_manifest = manifest["products"]["IM"]
+    assert im_manifest["historical_local_state"] == "current_put_policy_retrospective_target_diagnostic"
+    assert im_manifest["historical_policy_application"] == "current_quantity_policy_on_all_sample_rows"
+    assert im_manifest["historical_performance_scope"] == "targets_only_no_repriced_put102_performance_not_forward_ledger"
 
 
 def test_combined_local_audit_aligns_ic_and_im() -> None:
@@ -33,6 +37,8 @@ def test_combined_local_audit_aligns_ic_and_im() -> None:
     assert audit["IM"]["momentum_call_nonzero_rows"] == 0
     assert audit["IM"]["call_actual_active_rows"] == 1652
     assert audit["IM"]["call_actual_flat_rows"] == 1104
+    assert audit["IM"]["historical_local_state"] == combined.im.rule_manifest()["historical_local_state"]
+    assert audit["IM"]["put_policy_revision"] == combined.im.im_put_policy.REVISION
 
 
 def test_v13_changes_both_momentum_sleeves_and_keeps_parent_components_exact() -> None:
@@ -112,7 +118,7 @@ def test_v13_changes_both_momentum_sleeves_and_keeps_parent_components_exact() -
     )
     expected_momentum_put = (
         0.5
-        * new_schedules["IM"]["put_execution_target_qty"]
+        * new_schedules["IM"]["momentum_120"].lt(0).astype(float).mul(3).shift(1).fillna(0)
         * new_schedules["IM"]["momentum_execution_weight"]
     )
     pd.testing.assert_series_equal(

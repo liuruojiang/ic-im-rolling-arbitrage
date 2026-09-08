@@ -124,7 +124,7 @@ class LedgerCoordinator:
         replay_day: date | None = None,
     ) -> tuple[str, list[dict[str, Any]], dict[str, dict[str, Any]]]:
         clock = now or strategy._now_beijing()
-        with self.lock:
+        with strategy.collection_clock(clock), self.lock:
             record = self._record_for_display(clock)
             strategy.install_runtime_anchors(anchors_from_record(record))
             capture = _CaptureOutput(query)
