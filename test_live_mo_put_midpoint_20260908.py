@@ -10,6 +10,15 @@ CLOCK = datetime(2026, 9, 8, 14, 30, tzinfo=bot.BEIJING)
 BASIS = "live_bid_ask_mid_estimate_zero_volume"
 
 
+def test_string_extension_dtype_can_receive_numeric_midpoint():
+    raw = pd.DataFrame([dict(instrument="MO2611-P-8000", lastprice="-", volume=0., bprice=653., sprice=661.8)])
+    raw["lastprice"] = raw["lastprice"].astype("string")
+    result = bot._live_mo_put_quote_basis(raw)
+    assert result.lastprice.iloc[0] == pytest.approx(657.4)
+    assert result.raw_lastprice.iloc[0] == "-"
+    assert pd.api.types.is_numeric_dtype(result.lastprice)
+
+
 @pytest.mark.parametrize("last", ["-", 0., 730.8])
 def test_zero_volume_put_uses_verified_two_sided_estimate_not_raw_last(last):
     raw = pd.DataFrame([dict(instrument="MO2611-P-8000", lastprice=last, volume=0., bprice=653., sprice=661.8, position=6.)])

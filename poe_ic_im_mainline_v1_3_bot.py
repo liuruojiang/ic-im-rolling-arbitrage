@@ -849,6 +849,7 @@ def _cffex_historical_quote_frame(
         )
     frame = daily.rename(columns=field_map)[list(field_map.values())].copy()
     frame["raw_close"] = pd.to_numeric(frame["lastprice"], errors="coerce")
+    frame["lastprice"] = frame["raw_close"].astype(float)
     frame["settle"] = pd.to_numeric(daily.get("今结算", pd.Series(index=daily.index, dtype=float)), errors="coerce")
     frame["pricing_basis"] = "official_close"
     frame["instrument"] = frame["instrument"].astype(str).str.strip().str.upper()
@@ -2443,6 +2444,7 @@ def _live_mo_put_quote_basis(frame: pd.DataFrame) -> pd.DataFrame:
     """Zero-trade live Puts use explicit two-sided estimates, never old last/settle."""
     result = frame.copy()
     result["raw_lastprice"] = result["lastprice"]
+    result["lastprice"] = pd.to_numeric(result["lastprice"], errors="coerce").astype(float)
     result["pricing_basis"] = "source_last_quote"
     zero_put = result["instrument"].astype(str).str.fullmatch(r"MO\d{4}-P-\d+") & pd.to_numeric(result["volume"], errors="coerce").eq(0)
     bid = pd.to_numeric(result.get("bprice", pd.Series(np.nan, index=result.index)), errors="coerce")
