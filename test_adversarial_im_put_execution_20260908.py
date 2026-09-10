@@ -89,8 +89,9 @@ def test_zero_volume_with_positive_open_interest_is_not_itself_an_exit_block():
     )
 
 
+@pytest.mark.parametrize("entry_on_roll", [False, True])
 @pytest.mark.parametrize("momentum_reentry", [False, True])
-def test_monthly_reset_is_not_persisted_twice_on_tminus1_and_expiry(monkeypatch, tmp_path, momentum_reentry):
+def test_monthly_reset_is_not_persisted_twice_on_tminus1_and_expiry(monkeypatch, tmp_path, momentum_reentry, entry_on_roll):
     """Synthetic future-day prices through the real builder and temp ledger.
 
     Real Sept 4 accepted portable ledger seeds the scenario. All later prices and signals
@@ -119,7 +120,7 @@ def test_monthly_reset_is_not_persisted_twice_on_tminus1_and_expiry(monkeypatch,
         live = deepcopy(template["IM"])
         day = clock.date()
         live.update(history_date=day, price=8000.0, momentum_120=-0.1,
-                    momentum_next_weight=0.0 if momentum_reentry and day == date(2026, 9, 17) else 1.0,
+                    momentum_next_weight=0.0 if ((momentum_reentry and day == date(2026, 9, 17)) or (entry_on_roll and day == date(2026, 9, 16))) else 1.0,
                     momentum_signal_date=day,
                     v13_parent_puts_per_full_core=3,
                     v13_put_target_qty_normalized=1.5,
@@ -162,6 +163,10 @@ def test_monthly_reset_is_not_persisted_twice_on_tminus1_and_expiry(monkeypatch,
                 assert im["core_put_target_contract"] == "MO2612-P-7200"
                 assert im["put_monthly_reset_preview"] is True
                 assert im["option_monthly_reset_due"] is False
+                if entry_on_roll and not momentum_reentry:
+                    assert im["momentum_put_current_qty_normalized"] == 0.0
+                    assert im["momentum_put_target_contract"] == "MO2612-P-8200"
+                    assert im["momentum_put_action"] == "RESIZE_OR_ROLL"
             # IC is an independent unchanged control sleeve. Preserve its
             # audited quantities, but compute its actual quarter-roll plan.
             ic = deepcopy(template["IC"])
