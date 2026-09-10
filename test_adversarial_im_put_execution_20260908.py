@@ -134,7 +134,7 @@ def test_monthly_reset_is_not_persisted_twice_on_tminus1_and_expiry(monkeypatch,
                      if product == "IM" else
                      [f"MO2612-P-{k}" for k in [7200, 7600, 7800, 8000, 8200, 8400, 8600]]
                      + ["MO2609-P-7200"])
-        frame = pd.DataFrame([dict(instrument=c, lastprice=price if product == "IM" else 350.0,
+        frame = pd.DataFrame([dict(instrument=c, lastprice=(price + (400.0 if c == "IM2609" else 0.0)) if product == "IM" else 350.0,
                                    volume=10.0, position=20.0, bprice=349.0, sprice=351.0,
                                    source_date=day, source_time="15:15:00") for c in contracts])
         frame.attrs.update(source="adversarial_synthetic", source_date=day,
@@ -151,6 +151,17 @@ def test_monthly_reset_is_not_persisted_twice_on_tminus1_and_expiry(monkeypatch,
             anchors = state.anchors_from_record(current)
             bot.install_runtime_anchors(anchors)
             im = bot.build_live_trade_signal("IM", datetime.combine(day, datetime.min.time(), tzinfo=bot.BEIJING).replace(hour=18), mode="close")
+            if day == date(2026, 9, 16):
+                assert im["put_reference_future"] == "IM2609"
+            if day == date(2026, 9, 17):
+                assert im["core_current"] == "IM2609"
+                assert im["core_eod_contract"] == "IM2612"
+                assert im["roll_confirmed"] is True
+                assert im["put_reference_future"] == "IM2612"
+                assert im["put_reference_price"] == 8000.0
+                assert im["core_put_target_contract"] == "MO2612-P-7200"
+                assert im["put_monthly_reset_preview"] is True
+                assert im["option_monthly_reset_due"] is False
             # IC is an independent unchanged control sleeve. Preserve its
             # audited quantities, but compute its actual quarter-roll plan.
             ic = deepcopy(template["IC"])
@@ -166,32 +177,12 @@ def test_monthly_reset_is_not_persisted_twice_on_tminus1_and_expiry(monkeypatch,
                       grid_current=anchors["IC"]["verified_next_grid_units"],
                       grid_target=anchors["IC"]["verified_next_grid_units"])
             if day == date(2026, 9, 18):
-                assert str(anchors["IM"]["verified_put_monthly_reset_date"]) == "2026-09-18"
-                assert im["put_monthly_reset_already_recorded"] is True
-                assert im["option_calendar_reset_due"] is True
-                assert im["option_monthly_reset_due"] is False
-                # Separate boundary: an expiring legacy leg must still be
-                # replaced even when this month's regular event was recorded.
-                expiring_anchors = deepcopy(anchors)
-                expiring_anchors["IM"].update(post_core_put_contract="MO2609-P-7200",
-                                               post_put_contract="MO2609-P-7200")
-                bot.install_runtime_anchors(expiring_anchors)
-                replacement = bot.build_live_trade_signal(
-                    "IM", datetime(2026, 9, 18, 18, tzinfo=bot.BEIJING), mode="close"
-                )
-                assert replacement["option_monthly_reset_due"] is False
-                assert replacement["core_put_action"] == "RESIZE_OR_ROLL"
-                assert replacement["core_put_target_contract"] == "MO2612-P-8400"
-                bot.install_runtime_anchors(anchors)
-                for bogus_date, message in ((date(2026, 9, 18), "禁止重复维护"),
-                                            (date(2026, 10, 16), "该月到期日")):
-                    broken = deepcopy(im)
-                    broken.update(option_monthly_reset_due=True,
-                                  put_monthly_reset_execution_date=bogus_date,
-                                  core_put_action="RESIZE_OR_ROLL", momentum_put_action="RESIZE_OR_ROLL")
-                    with pytest.raises(RuntimeError, match=message):
-                        store.append_confirmed_signals(current, {"IC": ic, "IM": broken})
-                    assert store.load_latest()["digest"] == current["digest"]
+                assert anchors["IM"].get("verified_put_monthly_reset_date") != "2026-09-18"
+                assert im["put_monthly_reset_already_recorded"] is False
+                assert im["option_monthly_reset_due"] is True
+                assert im["put_reference_future"] == "IM2612"
+                assert im["put_reference_price"] == 8200.0
+                assert im["core_put_target_contract"] == "MO2612-P-8400"
             current = store.append_confirmed_signals(current, {"IC": ic, "IM": im})
             reloaded = store.load_latest()
             assert reloaded["digest"] == current["digest"]
@@ -214,17 +205,15 @@ def test_monthly_reset_is_not_persisted_twice_on_tminus1_and_expiry(monkeypatch,
             assert ordinary["action"] == "HOLD"
             assert ordinary["current"] == ordinary["target"] == ordinary["persisted"] == "MO2612-P-7200"
         assert last_two[0]["execution_date"] == last_two[1]["execution_date"] == "2026-09-18"
-        assert last_two[0]["persisted"] != last_two[0]["current"], last_two
-        assert last_two[1]["persisted"] == last_two[0]["persisted"], (
-            "Same monthly reset date caused two persisted strike replacements: " + json.dumps(last_two)
-        )
-        assert last_two[1]["action"] == "HOLD"
-        if momentum_reentry:
-            assert last_two[0]["momentum_persisted"] is None
-            assert last_two[1]["momentum_action"] == "RESIZE_OR_ROLL"
-            assert last_two[1]["momentum_persisted"] == "MO2612-P-8400"
-        else:
-            assert last_two[1]["momentum_action"] == "HOLD"
-            assert last_two[1]["momentum_persisted"] == last_two[0]["momentum_persisted"]
+        assert last_two[0]["persisted"] == last_two[0]["current"] == "MO2612-P-7200"
+        assert last_two[0]["action"] == "HOLD"
+        assert last_two[1]["persisted"] == "MO2612-P-8400"
+        assert last_two[1]["action"] == "RESIZE_OR_ROLL"
+        assert str(current["products"]["IM"]["verified_put_monthly_reset_date"]) == "2026-09-18"
+        # Restart after execution: the same event cannot be selected again.
+        bot.install_runtime_anchors(state.anchors_from_record(store.load_latest()))
+        repeated = bot.build_live_trade_signal("IM", datetime(2026, 9, 21, 18, tzinfo=bot.BEIJING), mode="close")
+        assert repeated["option_monthly_reset_due"] is False
+        assert repeated["core_put_target_contract"] == "MO2612-P-8400"
     finally:
         bot.install_runtime_anchors(saved_anchors)

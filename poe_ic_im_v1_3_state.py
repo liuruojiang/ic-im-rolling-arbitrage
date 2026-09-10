@@ -292,8 +292,11 @@ def validate_im_put_execution_evidence(signal: dict[str, Any]) -> None:
         if not math.isclose(_finite_float(signal.get("momentum_put_target_qty_normalized"), "IM动量Put目标"), expected, abs_tol=1e-12):
             raise RuntimeError("IM动量Put未按仅MOM120条件计算")
     price = _finite_float(signal.get("put_reference_price"), "IM Put参考期货价格")
-    if price <= 0 or signal.get("put_reference_future") != signal.get("core_current"):
-        raise RuntimeError("IM Put行权价参考必须是当前策略期货，不能使用指数或预告合约")
+    expected_reference = (signal.get("core_eod_contract")
+                          if signal.get("roll_confirmed") is True
+                          else signal.get("core_current"))
+    if price <= 0 or signal.get("put_reference_future") != expected_reference:
+        raise RuntimeError("IM Put行权价参考必须是已确认持有的策略期货，不能使用指数或未执行预告合约")
     if type(signal.get("option_monthly_reset_due")) is not bool:
         raise RuntimeError("IM月度Put重置标识缺失或非法")
     if signal["option_monthly_reset_due"]:
@@ -529,8 +532,8 @@ def derive_next_anchors(
                 reset_day = _as_day(signal.get("put_monthly_reset_execution_date"), "IM月度Put事件日期")
                 expected_reset = strategy._third_friday(signal_day.year, signal_day.month)
                 prior_session = strategy._roll_backward_exchange_day(expected_reset - timedelta(days=1))
-                if reset_day != expected_reset or signal_day not in (prior_session, expected_reset):
-                    raise RuntimeError("IM月度Put事件必须在该月到期日前一交易日或到期日确认")
+                if reset_day != expected_reset or signal_day != expected_reset:
+                    raise RuntimeError("IM月度Put事件必须在该月到期日确认，禁止提前记为完成")
                 if previous_reset is not None and reset_day <= previous_reset:
                     raise RuntimeError("IM同一或更早月度Put事件已经记录，禁止重复维护")
                 anchor["verified_put_monthly_reset_date"] = reset_day

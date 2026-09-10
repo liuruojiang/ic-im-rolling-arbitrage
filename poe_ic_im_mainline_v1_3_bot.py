@@ -4581,10 +4581,9 @@ def build_live_trade_signal(
             date.fromisoformat(str(previous_reset_value)[:10])
             if previous_reset_value is not None else None
         )
-        # The monthly event is published at T-1 close and already forms the
-        # next-session Put anchor. Do not publish that same event again at T0.
-        # IC and Call keep the original monthly option calendar above.
-        im_put_reset_due = option_roll_due and previous_put_reset != monthly_expiry
+        # Monthly selection uses execution-day quotes, as in the research replay.
+        # The preceding close is only a calendar preview, never a completed reset.
+        im_put_reset_due = market_date == monthly_expiry and previous_put_reset != monthly_expiry
         if previous_put_reset is not None and previous_put_reset > monthly_expiry:
             raise RuntimeError("IM Put月度维护标记晚于当前月度事件，拒绝续接")
         core_put_contract_value = im_anchor.get("post_core_put_contract") or im_anchor.get("post_put_contract")
@@ -4630,9 +4629,13 @@ def build_live_trade_signal(
         )
         core_put_market = _format_market(core_put_contract, core_put_quote)
         im_contract_selection: dict[str, Any] = {}
-        # Use the held IM chain, not the cash index or a next-session roll preview.
+        # A confirmed close roll changes the held chain before the next-session Put plan.
+        # An unconfirmed intraday roll or an earlier preview must not change it.
+        put_reference_contract = (
+            future_plan["core_eod_contract"] if scheduled_roll_completed else current_core
+        )
         put_reference_future = _require_listed_future_quote(
-            "IM", future_quotes, current_core
+            "IM", future_quotes, put_reference_contract
         )
         put_reference_price = float(put_reference_future["lastprice"])
         put_reset_day = monthly_expiry if im_put_reset_due else market_date
@@ -4978,6 +4981,9 @@ def build_live_trade_signal(
                 "im_put_policy_description": im_put_policy.description(market_date),
                 "im_put_target_moneyness": im_put_policy.moneyness(market_date),
                 "momentum_put_parent_qty": im_put_policy.momentum_parent(live["momentum_120"]) if im_put_policy.active(market_date) else put_target,
+                "im_put_calendar_revision": "execution_day_20260911_v1",
+                "put_monthly_reset_preview": option_roll_due and market_date < monthly_expiry,
+                "put_reference_price_date": market_date,
                 "option_calendar_reset_due": option_roll_due,
                 "option_monthly_reset_due": im_put_reset_due,
                 "put_monthly_reset_already_recorded": option_roll_due and previous_put_reset == monthly_expiry,
@@ -5177,6 +5183,10 @@ class ICIMMainlinesBot:
                     f"信号日：**{live['market_date']}**；下一交易日：**{live['next_trade_date']}**；"
                     f"状态：**{confirm_text}**。\n\n"
                 )
+                if product == "IM" and live.get("put_monthly_reset_preview"):
+                    msg.write(f"月度Put维护预告：{live['put_monthly_reset_execution_date']}执行；当天按已持有IM价格重选，当前不锁定新合约。\n\n")
+                if product == "IM" and live.get("option_monthly_reset_due"):
+                    msg.write(f"月度Put执行日：{live['put_monthly_reset_execution_date']}；参考{live['put_reference_future']}，取价日{live.get('put_reference_price_date', live['market_date'])}。盘中为待收盘确认的候选，收盘结果是当日研究执行记录，不是下一日重新选约指令。\n\n")
                 msg.write(
                     "| 仓位腿 | 当前策略仓位 | 下一交易日目标 | 变化 | 执行语义 |\n"
                     "|---|---|---|---|---|\n"
