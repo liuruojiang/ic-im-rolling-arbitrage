@@ -65,3 +65,58 @@ def test_real_frozen_history_is_still_rejected_when_stale():
         bot._validate_v13_ohlcv(
             "IC", frame, datetime(2026, 9, 4, 18, tzinfo=bot.BEIJING)
         )
+
+
+def test_option_history_transport_failure_uses_validated_eastmoney(monkeypatch):
+    expected = pd.Series(
+        {pd.Timestamp("2026-09-08"): 0.3811}, dtype=float, name="put_mark"
+    )
+
+    def failed_sina(_security_id):
+        raise TimeoutError("Sina timed out")
+
+    monkeypatch.setattr(bot, "fetch_sina_option_closes", failed_sina)
+    monkeypatch.setattr(
+        bot, "fetch_eastmoney_option_closes", lambda _security_id: expected.copy()
+    )
+
+    result = bot.fetch_option_closes("10012099")
+
+    assert result.loc[pd.Timestamp("2026-09-08")] == pytest.approx(0.3811)
+    assert result.attrs["source"] == "Eastmoney"
+    assert result.attrs["source_failures"] == [
+        "Sina: TimeoutError: Sina timed out"
+    ]
+
+
+def test_eastmoney_option_history_validates_identity_and_close(monkeypatch):
+    monkeypatch.setattr(
+        bot,
+        "_request_json",
+        lambda _url, _params: {
+            "data": {
+                "code": "10012099",
+                "market": 10,
+                "klines": ["2026-09-08,0.3874,0.3811,0.3955,0.3463,847"],
+            }
+        },
+    )
+
+    result = bot.fetch_eastmoney_option_closes("10012099")
+
+    assert result.loc[pd.Timestamp("2026-09-08")] == pytest.approx(0.3811)
+    assert result.attrs["source"] == "Eastmoney"
+
+
+def test_option_history_fails_closed_when_all_sources_fail(monkeypatch):
+    def failed_sina(_security_id):
+        raise TimeoutError("Sina timed out")
+
+    def failed_eastmoney(_security_id):
+        raise RuntimeError("Eastmoney empty")
+
+    monkeypatch.setattr(bot, "fetch_sina_option_closes", failed_sina)
+    monkeypatch.setattr(bot, "fetch_eastmoney_option_closes", failed_eastmoney)
+
+    with pytest.raises(RuntimeError, match="历史行情全部来源失败"):
+        bot.fetch_option_closes("10012099")

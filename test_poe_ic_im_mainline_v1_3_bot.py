@@ -982,7 +982,7 @@ def test_performance_network_failure_degrades_to_frozen_history(monkeypatch):
     intent = bot.classify_query("最近一年表现 IC", date(2026, 8, 23))
     bot.ICIMMainlinesBot()._handle_performance(intent)
     output = "".join(capture.text)
-    assert "联网续接失败，已明确降级" in output
+    assert "1.3绩效续接账本未启用，仅展示" in output
     assert "冻结历史终点 **2026-08-14**" in output
     assert "未外推、未伪造后续收益" in output
     assert len(capture.attachments) == 1

@@ -337,10 +337,19 @@ def bootstrap_record() -> dict[str, Any]:
 
 def anchors_from_record(record: dict[str, Any]) -> dict[str, dict[str, Any]]:
     _validate_record(record)
-    return {
+    anchors = {
         product: _decode_anchor(deepcopy(record["products"][product]))
         for product in PRODUCTS
     }
+    # Recover exact sleeve quantities from the hash-verified signal, without
+    # rewriting old records or inferring held contracts from today's Delta.
+    signal = record.get("signals", {}).get("IC", {})
+    fields = ("put_target_core_qty", "put_target_momentum_qty")
+    if all(key in signal for key in fields):
+        anchors["IC"]["verified_core_put_qty"] = signal[fields[0]]
+        anchors["IC"]["verified_momentum_put_qty"] = signal[fields[1]]
+    strategy._ic_current_quantity_breakdown(anchors["IC"])
+    return anchors
 
 
 def derive_next_anchors(
@@ -366,7 +375,12 @@ def derive_next_anchors(
             f"账本只能逐交易日推进：当前 {previous_day}，收到 {signal_day}，应为 {expected}"
         )
 
-    result = deepcopy(current_anchors)
+    # Runtime-only recovered quantities must not alter the historical anchor
+    # schema or the exact replay of old hashed records.
+    result = {
+        product: _decode_anchor(deepcopy(current["products"][product]))
+        for product in PRODUCTS
+    }
     for product in PRODUCTS:
         signal = signals[product]
         validate_delivery_values(signal, product)
@@ -451,6 +465,15 @@ def derive_next_anchors(
             )
             if target_security_id:
                 anchor["post_put_security_id"] = str(target_security_id)
+            quantity_anchor = dict(anchor)
+            for field, signal_field in (
+                ("verified_core_put_qty", "put_target_core_qty"),
+                ("verified_momentum_put_qty", "put_target_momentum_qty"),
+            ):
+                quantity_anchor.pop(field, None)
+                if signal_field in signal:
+                    quantity_anchor[field] = signal[signal_field]
+            strategy._ic_current_quantity_breakdown(quantity_anchor)
         else:
             # Historical r7 journal entries stay readable. New corrected signals
             # carry their execution revision and are validated before append.
