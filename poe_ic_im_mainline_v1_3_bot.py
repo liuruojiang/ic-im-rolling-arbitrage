@@ -5359,6 +5359,13 @@ class ICIMMainlinesBot:
                     f"| Call | {live['call_current']} | {live['call_target']} | "
                     f"{ACTION_CN[live['call_action']]} | T收盘评估 → T+1收盘 |\n\n"
                 )
+                if product == "IM":
+                    msg.write(
+                        f"- **Call 独立维护**：当前 {live['call_current']}；目标 {live['call_target']}；"
+                        f"动作 **{ACTION_CN[live['call_action']]}**；{live['call_market']}。\n\n"
+                    )
+                else:
+                    msg.write("- **Call**：IC 1.3 主线明确禁止，当前和目标均无。\n\n")
                 msg.write(
                     "**动量袖为什么是这个仓位**\n\n"
                     f"- 动量 Score：**{live['momentum_score']:.3f}**（要求 >0）；"

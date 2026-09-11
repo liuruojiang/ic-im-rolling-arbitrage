@@ -424,6 +424,8 @@ def test_signal_output_lists_each_leg_current_next_change_and_total(monkeypatch)
         "网格 **0张**",
         "裸滚IM核心袖",
         "IM动量指引袖",
+        "**Call 独立维护**",
+        "**Call**：IC 1.3 主线明确禁止",
         "规范化小数张数不是可直接成交的半张合约",
         "新浪财经，as-of 2026-08-21",
         "行情源回退/不可用汇总：中金所官方超时",
