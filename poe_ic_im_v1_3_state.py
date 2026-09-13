@@ -102,9 +102,9 @@ def _validate_record(record: dict[str, Any]) -> None:
         if not isinstance(day, date):
             raise RuntimeError(f"{product}账本缺少last_verified_day")
         days.append(day)
-        if float(anchor.get("verified_grid_units", -1)) not in {0.0, 1.0}:
+        if float(anchor.get("verified_grid_units", -1)) not in {0.0, 0.5, 1.0}:
             raise RuntimeError(f"{product}账本网格状态非法")
-        if float(anchor.get("verified_next_grid_units", -1)) not in {0.0, 1.0}:
+        if float(anchor.get("verified_next_grid_units", -1)) not in {0.0, 0.5, 1.0}:
             raise RuntimeError(f"{product}账本下一交易日网格状态非法")
     if len(set(days)) != 1:
         raise RuntimeError("IC/IM账本核验日期不一致，禁止部分推进")
@@ -417,8 +417,13 @@ def derive_next_anchors(
             raise RuntimeError(f"{product}当前动量权重不等于前日下一执行权重")
         current_grid = _finite_float(signal.get("grid_current"), f"{product}当前网格")
         target_grid = _finite_float(signal.get("grid_target"), f"{product}目标网格")
-        if current_grid not in {0.0, 1.0} or target_grid not in {0.0, 1.0}:
+        if current_grid not in {0.0, 0.5, 1.0} or target_grid not in {0.0, 0.5, 1.0}:
             raise RuntimeError(f"{product}网格状态非法")
+        if signal_day >= strategy.GRID_POLICY_EFFECTIVE_DATE:
+            if signal.get("grid_policy_revision") != strategy.GRID_POLICY_REVISION:
+                raise RuntimeError(f"{product}网格参数版本不匹配")
+            if target_grid not in {0.0, 0.5}:
+                raise RuntimeError(f"{product}新网格目标不得超过0.5倍")
         if current_grid != float(anchor["verified_next_grid_units"]):
             raise RuntimeError(f"{product}当前网格不等于前日下一执行网格")
         anchor.update(

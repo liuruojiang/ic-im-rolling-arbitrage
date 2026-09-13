@@ -133,6 +133,8 @@ def render_stored_close_report(latest: dict[str, Any]) -> str:
     lines = [
         "# IC / IM 1.3 收盘确认账本",
         "",
+        f"当前发布构建：`{strategy.BUILD_ID}`；网格参数版本：`{strategy.GRID_POLICY_REVISION}`。",
+        "网格新版本：2026-09-14信号日起，IC 0.5进入/1.0退出，IM 0.9进入/1.7退出，各0.5倍；此前账本仍为旧规则。",
         "本附件直接来自已通过SHA-256日志链校验的持久账本，不进行第二次联网重算。",
         "它是研究审计记录，不是账户持仓，也不会自动下单。",
         "",
@@ -258,6 +260,8 @@ def build_artifacts(
         "strategy": "IC/IM research candidate 1.3",
         "strategy_revision": state_module.STRATEGY_REVISION,
         "build": strategy.BUILD_ID,
+        "grid_policy_revision": strategy.GRID_POLICY_REVISION,
+        "grid_release_note": "2026-09-14信号日起：IC 0.5进入/1.0退出，IM 0.9进入/1.7退出，各0.5倍；此前信号仍按旧规则，当前仓位以账本为准。",
         "im_put_policy_revision": strategy.IM_PUT_POLICY_REVISION,
         "im_execution_fix_revision": strategy.IM_EXECUTION_FIX_REVISION,
         "im_put_execution_revision": observed["IM"].get(

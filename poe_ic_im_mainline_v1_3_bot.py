@@ -193,7 +193,7 @@ def historical_replay(day: date | None):
 
 import ic_im_quarter_roll_v1_3 as quarter_roll
 
-BUILD_ID = "v1.3-20260908-r7-mom120-put102-fix1"
+BUILD_ID = "v1.3-20260913-r7-grid-half-v1"
 import im_put_policy
 IM_PUT_POLICY_REVISION = im_put_policy.REVISION
 IM_EXECUTION_FIX_REVISION = "im_put_execution_guards_20260908_v2"
@@ -220,7 +220,7 @@ PRODUCT_NAMES = {"IC": "IC 1.3 / 中证500", "IM": "IM 1.3 / 中证1000"}
 ACTION_CN = {
     "HOLD": "维持",
     "ROLL": "展期",
-    "ADD_GRID": "新增1倍网格",
+    "ADD_GRID": "增加网格仓位",
     "EXIT_GRID": "退出网格",
     "RESIZE_OR_ROLL": "调整或月度重置",
     "RESCUE_NEXT_LISTED": "触发5%救援",
@@ -381,9 +381,18 @@ MOMENTUM_RULES = {
     },
 }
 V13_GRID_RULES = {
-    "IC": {"entry": 0.375, "exit": 1.000},
-    "IM": {"entry": 1.600, "exit": 2.000},
+    "IC": {"entry": 0.500, "exit": 1.000, "units": 0.5},
+    "IM": {"entry": 0.900, "exit": 1.700, "units": 0.5},
 }
+GRID_POLICY_REVISION = "ic_im_grid_half_20260913_v1"
+GRID_POLICY_EFFECTIVE_DATE = date(2026, 9, 14)
+
+
+def grid_rule(product: str, signal_day: date) -> dict[str, float]:
+    if signal_day >= GRID_POLICY_EFFECTIVE_DATE:
+        return V13_GRID_RULES[product]
+    return {"IC": {"entry": .375, "exit": 1., "units": 1.},
+            "IM": {"entry": 1.6, "exit": 2., "units": 1.}}[product]
 
 # The immutable formal return blobs end on DATA_CUTOFF. Performance queries
 # extend them with actual daily marks. The 2026-08-21 monthly reset is included
@@ -1771,21 +1780,23 @@ def _momentum_120_at(close: pd.Series, index: int) -> float:
 def _replay_v13_grid(product: str, prices: pd.Series) -> tuple[float, float]:
     """Return current grid units and the newest T-close target for T+1 open."""
 
-    rule = V13_GRID_RULES[product]
     state = float(V13_FROZEN[product]["grid_units"])
     eligible = prices[prices.index.date > DATA_CUTOFF]
     if eligible.empty:
         return state, state
-    for value in eligible.iloc[:-1]:
+    for stamp, value in eligible.iloc[:-1].items():
+        rule = grid_rule(product, stamp.date())
+        state = min(state, rule["units"])
         score = _proxy_score_for_price(product, float(value))
         if score <= rule["entry"]:
-            state = 1.0
+            state = rule["units"]
         elif score >= rule["exit"]:
             state = 0.0
-    target = state
+    rule = grid_rule(product, eligible.index[-1].date())
+    target = min(state, rule["units"])
     last_score = _proxy_score_for_price(product, float(eligible.iloc[-1]))
     if last_score <= rule["entry"]:
-        target = 1.0
+        target = rule["units"]
     elif last_score >= rule["exit"]:
         target = 0.0
     return state, target
@@ -3383,9 +3394,9 @@ def _format_quote_number(value: Any, decimals: int = 2) -> str:
     return f"{number:.{decimals}f}"
 
 
-def _grid_target(product: str, live: dict[str, Any]) -> tuple[int, str]:
-    current = int(round(float(live["grid_current_units"])))
-    target = int(round(float(live["grid_target_units"])))
+def _grid_target(product: str, live: dict[str, Any]) -> tuple[float, str]:
+    current = float(live["grid_current_units"])
+    target = float(live["grid_target_units"])
     if target > current:
         return target, "ADD_GRID"
     if target < current:
@@ -4079,12 +4090,14 @@ def _validated_signal_state_anchor_day(
 
 def _daily_grid_target(product: str, live: dict[str, Any]) -> float:
     state = float(live["grid_current_units"])
-    rule = V13_GRID_RULES[product]
+    signal_day = live.get("market_date", live.get("history_date", GRID_POLICY_EFFECTIVE_DATE))
+    signal_day = pd.Timestamp(signal_day).date()
+    rule = grid_rule(product, signal_day)
     if live["score"] <= rule["entry"]:
-        return 1.0
+        return rule["units"]
     if live["score"] >= rule["exit"]:
         return 0.0
-    return state
+    return min(state, rule["units"])
 
 
 IV_MONITOR_MAX_DELAY_SECONDS = 20 * 60
@@ -4414,9 +4427,11 @@ def _build_live_trade_signal(
         "quarter_spread": spread,
         "option_monthly_reset_due": option_roll_due,
         "option_reference_contract": option_reference_contract,
-        "grid_current": int(round(float(live["grid_current_units"]))),
+        "grid_current": float(live["grid_current_units"]),
         "grid_target": grid_units,
         "grid_action": grid_action,
+        "grid_policy_revision": GRID_POLICY_REVISION if market_date >= GRID_POLICY_EFFECTIVE_DATE else "legacy_grid_1x",
+        "grid_policy": grid_rule(product, market_date),
         "data_notes": data_notes,
     }
 
@@ -5294,6 +5309,7 @@ class ICIMMainlinesBot:
                 "本次重新联网取数。**当前仓位**是研究规则从已审计账本续接出的策略仓位，"
                 "不是你的账户持仓；**下一交易日目标**不会自动下单。\n\n"
             )
+            msg.write("网格新版本：2026-09-14信号日起，IC 0.5进入/1.0退出，IM 0.9进入/1.7退出，各0.5倍；此前信号沿用旧规则。\n\n")
             per_product_budget = _signal_product_network_budget(len(products))
             for product in products:
                 try:
