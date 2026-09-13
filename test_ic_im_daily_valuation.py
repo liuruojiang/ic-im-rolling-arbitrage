@@ -75,7 +75,7 @@ def test_stored_report_does_not_relabel_proxy_after_late_upload(monkeypatch):
 
 def test_grid_reuses_persisted_state_after_real_day():
     # In-band score must retain yesterday's actual-input-driven grid position.
-    live = {"grid_current_units": 1.0, "score": 1.8}
+    live = {"grid_current_units": 1.0, "score": 1.8, "history_date": "2026-09-11"}
     assert bot._daily_grid_target("IM", live) == 1.0
     live["grid_current_units"] = 0.0
     assert bot._daily_grid_target("IM", live) == 0.0
