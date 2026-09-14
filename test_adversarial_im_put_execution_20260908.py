@@ -189,7 +189,7 @@ def test_monthly_reset_is_not_persisted_twice_on_tminus1_and_expiry(monkeypatch,
                 assert im["put_reference_price"] == 8200.0
                 assert im["core_put_target_contract"] == "MO2612-P-8400"
             if day >= bot.GRID_POLICY_EFFECTIVE_DATE:
-                ic["grid_policy_revision"] = bot.GRID_POLICY_REVISION
+                ic["grid_policy_revision"] = bot.grid_policy_revision(day)
                 ic["grid_policy"] = bot.grid_rule("IC", day)
             current = store.append_confirmed_signals(current, {"IC": ic, "IM": im})
             reloaded = store.load_latest()
