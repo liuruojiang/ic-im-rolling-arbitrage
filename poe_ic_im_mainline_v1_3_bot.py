@@ -389,6 +389,14 @@ IM_GRID_RESTORE_EFFECTIVE_DATE = date(2026, 9, 15)
 GRID_POLICY_EFFECTIVE_DATE = date(2026, 9, 14)
 
 
+def grid_policy_revision(signal_day: date) -> str:
+    if signal_day >= IM_GRID_RESTORE_EFFECTIVE_DATE:
+        return GRID_POLICY_REVISION
+    if signal_day >= GRID_POLICY_EFFECTIVE_DATE:
+        return "ic_im_grid_half_20260913_v1"
+    return "legacy_grid_1x"
+
+
 def grid_rule(product: str, signal_day: date) -> dict[str, float]:
     if signal_day >= IM_GRID_RESTORE_EFFECTIVE_DATE:
         return V13_GRID_RULES[product]
@@ -4434,7 +4442,7 @@ def _build_live_trade_signal(
         "grid_current": float(live["grid_current_units"]),
         "grid_target": grid_units,
         "grid_action": grid_action,
-        "grid_policy_revision": GRID_POLICY_REVISION if market_date >= IM_GRID_RESTORE_EFFECTIVE_DATE else ("ic_im_grid_half_20260913_v1" if market_date >= GRID_POLICY_EFFECTIVE_DATE else "legacy_grid_1x"),
+        "grid_policy_revision": grid_policy_revision(market_date),
         "grid_policy": grid_rule(product, market_date),
         "data_notes": data_notes,
     }

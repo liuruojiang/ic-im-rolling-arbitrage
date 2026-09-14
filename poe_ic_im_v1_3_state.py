@@ -420,7 +420,7 @@ def derive_next_anchors(
         if current_grid not in {0.0, 0.5, 1.0} or target_grid not in {0.0, 0.5, 1.0}:
             raise RuntimeError(f"{product}网格状态非法")
         if signal_day >= strategy.GRID_POLICY_EFFECTIVE_DATE:
-            if signal.get("grid_policy_revision") != strategy.GRID_POLICY_REVISION:
+            if signal.get("grid_policy_revision") != strategy.grid_policy_revision(signal_day):
                 raise RuntimeError(f"{product}网格参数版本不匹配")
             if target_grid not in {0.0, 0.5}:
                 raise RuntimeError(f"{product}新网格目标不得超过0.5倍")

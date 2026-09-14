@@ -3,6 +3,9 @@ import pytest
 import poe_ic_im_mainline_v1_3_bot as bot
 
 def test_versioned_historical_rules():
+    assert bot.grid_policy_revision(date(2026,9,11)) == 'legacy_grid_1x'
+    assert bot.grid_policy_revision(date(2026,9,14)) == 'ic_im_grid_half_20260913_v1'
+    assert bot.grid_policy_revision(date(2026,9,15)) == bot.GRID_POLICY_REVISION
     assert bot.grid_rule('IM',date(2026,9,11)) == {'entry':1.6,'exit':2.,'units':1.}
     assert bot.grid_rule('IM',date(2026,9,14)) == {'entry':.9,'exit':1.7,'units':.5}
     assert bot.grid_rule('IM',date(2026,9,15)) == {'entry':1.6,'exit':2.,'units':.5}
