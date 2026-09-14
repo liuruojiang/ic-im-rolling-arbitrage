@@ -193,7 +193,7 @@ def historical_replay(day: date | None):
 
 import ic_im_quarter_roll_v1_3 as quarter_roll
 
-BUILD_ID = "v1.3-20260913-r7-grid-half-v1"
+BUILD_ID = "v1.3-20260914-r7-im-grid160-half-v1"
 import im_put_policy
 IM_PUT_POLICY_REVISION = im_put_policy.REVISION
 IM_EXECUTION_FIX_REVISION = "im_put_execution_guards_20260908_v2"
@@ -382,15 +382,19 @@ MOMENTUM_RULES = {
 }
 V13_GRID_RULES = {
     "IC": {"entry": 0.500, "exit": 1.000, "units": 0.5},
-    "IM": {"entry": 0.900, "exit": 1.700, "units": 0.5},
+    "IM": {"entry": 1.600, "exit": 2.000, "units": 0.5},
 }
-GRID_POLICY_REVISION = "ic_im_grid_half_20260913_v1"
+GRID_POLICY_REVISION = "ic_im_im_grid160_half_20260914_v1"
+IM_GRID_RESTORE_EFFECTIVE_DATE = date(2026, 9, 15)
 GRID_POLICY_EFFECTIVE_DATE = date(2026, 9, 14)
 
 
 def grid_rule(product: str, signal_day: date) -> dict[str, float]:
-    if signal_day >= GRID_POLICY_EFFECTIVE_DATE:
+    if signal_day >= IM_GRID_RESTORE_EFFECTIVE_DATE:
         return V13_GRID_RULES[product]
+    if signal_day >= GRID_POLICY_EFFECTIVE_DATE:
+        return {"IC": {"entry": .5, "exit": 1., "units": .5},
+                "IM": {"entry": .9, "exit": 1.7, "units": .5}}[product]
     return {"IC": {"entry": .375, "exit": 1., "units": 1.},
             "IM": {"entry": 1.6, "exit": 2., "units": 1.}}[product]
 
@@ -4430,7 +4434,7 @@ def _build_live_trade_signal(
         "grid_current": float(live["grid_current_units"]),
         "grid_target": grid_units,
         "grid_action": grid_action,
-        "grid_policy_revision": GRID_POLICY_REVISION if market_date >= GRID_POLICY_EFFECTIVE_DATE else "legacy_grid_1x",
+        "grid_policy_revision": GRID_POLICY_REVISION if market_date >= IM_GRID_RESTORE_EFFECTIVE_DATE else ("ic_im_grid_half_20260913_v1" if market_date >= GRID_POLICY_EFFECTIVE_DATE else "legacy_grid_1x"),
         "grid_policy": grid_rule(product, market_date),
         "data_notes": data_notes,
     }
@@ -5309,7 +5313,7 @@ class ICIMMainlinesBot:
                 "本次重新联网取数。**当前仓位**是研究规则从已审计账本续接出的策略仓位，"
                 "不是你的账户持仓；**下一交易日目标**不会自动下单。\n\n"
             )
-            msg.write("网格新版本：2026-09-14信号日起，IC 0.5进入/1.0退出，IM 0.9进入/1.7退出，各0.5倍；此前信号沿用旧规则。\n\n")
+            msg.write("网格新版本：2026-09-15信号日起，IM恢复1.6进入/2.0退出、0.5倍，仅估值；IC保持0.5进入/1.0退出、0.5倍。9月14日及更早信号保留当日规则。\n\n")
             per_product_budget = _signal_product_network_budget(len(products))
             for product in products:
                 try:
