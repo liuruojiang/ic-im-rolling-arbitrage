@@ -30,6 +30,8 @@ MOMENTUM_CAPITAL_SHARE = 0.50
 PER_IC_MARGIN_BUFFER = 0.30
 A_SHARE_CASH_YIELD = 0.02
 A_SHARE_COST_RATE = 0.001
+MOMENTUM_DEBOUNCE_EFFECTIVE_DATE = pd.Timestamp("2026-09-16")
+MOMENTUM_DEBOUNCE_POLICY_REVISION = "ic_im_mom120_abs20_2d_plus1_20260915_v1"
 
 A_SHARE_V13_BOT = previous.A_SHARE_V13_BOT
 CSI500_OHLCV_PATH = (
@@ -111,13 +113,16 @@ def build_momentum_schedule(ohlcv: pd.DataFrame) -> pd.DataFrame:
     ).reindex(close.index).rename("abs20")
     if not np.isfinite(float(score.iloc[0])) or not np.isfinite(float(abs20.iloc[0])):
         raise ValueError("CSI500 OHLCV lacks the indicator warm-up required at formal start")
+    legacy_abs_on = abs20.gt(MOMENTUM_POLICY.absolute_momentum_threshold)
+    abs20_confirmed = shared.abs20_recovery_confirmed(abs20)
+    abs20_on = legacy_abs_on.where(abs20.index < MOMENTUM_DEBOUNCE_EFFECTIVE_DATE, abs20_confirmed)
     base_signal = (
         score.gt(MOMENTUM_POLICY.score_threshold).astype(float)
         * (
             1.0
             - MOMENTUM_POLICY.absolute_filter_share
             + MOMENTUM_POLICY.absolute_filter_share
-            * abs20.gt(MOMENTUM_POLICY.absolute_momentum_threshold).astype(float)
+            * abs20_on.astype(float)
         )
     ).rename("base_momentum_signal_target")
     base_execution = base_signal.shift(1, fill_value=0.0).rename(
@@ -155,6 +160,7 @@ def build_momentum_schedule(ohlcv: pd.DataFrame) -> pd.DataFrame:
             "close": close,
             "score": score,
             "abs20": abs20,
+            "abs20_reentry_confirmed": abs20_confirmed,
             "base_momentum_signal_target": base_signal,
             "base_momentum_execution_weight": base_execution,
             "base_strategy_ret_for_nav_gate": base_ret,

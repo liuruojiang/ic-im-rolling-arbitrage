@@ -33,6 +33,8 @@ import im_mainline_v1_2 as previous
 ROOT = Path(__file__).resolve().parent
 VERSION = "im_mainline_v1_3"
 STATUS = "research_candidate_not_live_authority"
+MOMENTUM_DEBOUNCE_EFFECTIVE_DATE = pd.Timestamp("2026-09-16")
+MOMENTUM_DEBOUNCE_POLICY_REVISION = "ic_im_mom120_abs20_2d_plus1_20260915_v1"
 HISTORICAL_LOCAL_STATE = "current_put_policy_retrospective_target_diagnostic"
 RESEARCH_START = pd.Timestamp("2015-04-16")
 
@@ -282,13 +284,33 @@ def calc_bias_momentum(
     return pd.Series(result, index=close.index, name="score")
 
 
+def abs20_recovery_confirmed(abs20: pd.Series) -> pd.Series:
+    """Immediate half exposure at <=0; restore full only after two >+1% closes."""
+    active, streak, output = False, 0, []
+    for item in pd.to_numeric(abs20, errors="coerce"):
+        if not np.isfinite(item) or item <= 0.0:
+            active, streak = False, 0
+        elif active:
+            streak = 0
+        elif item > 0.01:
+            streak += 1
+            if streak >= 2:
+                active, streak = True, 0
+        else:
+            streak = 0
+        output.append(active)
+    return pd.Series(output, index=abs20.index, dtype=bool, name="abs20_reentry_confirmed")
+
+
 def momentum_signal_target(score: pd.Series, abs20: pd.Series) -> pd.Series:
     """Return the close-confirmed 0/0.5/1 target used by the v1.3 ZZ1000 sleeve."""
 
     score_on = pd.to_numeric(score, errors="coerce").gt(MOMENTUM_POLICY.score_threshold)
-    abs_on = pd.to_numeric(abs20, errors="coerce").gt(
+    legacy_abs_on = pd.to_numeric(abs20, errors="coerce").gt(
         MOMENTUM_POLICY.absolute_momentum_threshold
     )
+    confirmed = abs20_recovery_confirmed(abs20)
+    abs_on = legacy_abs_on.where(abs20.index < MOMENTUM_DEBOUNCE_EFFECTIVE_DATE, confirmed)
     target = score_on.astype(float) * (
         (1.0 - MOMENTUM_POLICY.absolute_filter_share)
         + MOMENTUM_POLICY.absolute_filter_share * abs_on.astype(float)
@@ -307,6 +329,7 @@ def build_momentum_schedule(ohlcv: pd.DataFrame) -> pd.DataFrame:
     abs20 = (close / close.shift(MOMENTUM_POLICY.absolute_momentum_days) - 1.0).rename(
         "abs20"
     )
+    abs20_confirmed = abs20_recovery_confirmed(abs20)
     base_target = momentum_signal_target(score, abs20).rename("base_momentum_signal_target")
     volume_ratio = (volume / volume.rolling(MOMENTUM_POLICY.volume_ma).mean()).rename(
         "volume_ratio"
@@ -335,6 +358,7 @@ def build_momentum_schedule(ohlcv: pd.DataFrame) -> pd.DataFrame:
             "close": close.to_numpy(dtype=float),
             "score": score.to_numpy(dtype=float),
             "abs20": abs20.to_numpy(dtype=float),
+            "abs20_reentry_confirmed": abs20_confirmed.to_numpy(dtype=bool),
             "volume": volume.to_numpy(dtype=float),
             "volume_ratio": volume_ratio.to_numpy(dtype=float),
             "volume_pass": volume_pass.to_numpy(dtype=bool),

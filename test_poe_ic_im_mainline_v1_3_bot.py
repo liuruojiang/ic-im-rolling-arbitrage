@@ -75,6 +75,25 @@ def test_ic_put_driver_separates_valuation_from_mom120_floor():
 
 
 @pytest.mark.parametrize("product", ["IC", "IM"])
+def test_mom120_floor_debounce_is_immediate_on_negative_and_releases_after_two_plus1_days(product):
+    index = pd.bdate_range("2026-04-06", periods=123)
+    close = pd.Series(100.0, index=index)
+    close.iloc[0] = 100.0
+    close.iloc[120:123] = [99.0, 101.5, 102.0]
+    state = bot._mom120_floor_state(close)
+    assert bool(state.iloc[-3]) is True
+    assert bool(state.iloc[-2]) is True
+    assert bool(state.iloc[-1]) is False
+
+
+def test_abs20_reentry_requires_two_consecutive_strictly_above_plus1_after_effective_date():
+    index = pd.bdate_range("2026-09-14", periods=4)
+    abs20 = pd.Series([-0.01, 0.005, 0.011, 0.012], index=index)
+    confirmed = bot._recovery_confirmed(abs20)
+    assert confirmed.tolist() == [False, False, False, True]
+
+
+@pytest.mark.parametrize("product", ["IC", "IM"])
 def test_v13_momentum_score_matches_a_share_v13_local_formula(product):
     index = pd.bdate_range("2025-01-02", periods=220)
     close = pd.Series(

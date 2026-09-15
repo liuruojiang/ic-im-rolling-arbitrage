@@ -193,11 +193,13 @@ def historical_replay(day: date | None):
 
 import ic_im_quarter_roll_v1_3 as quarter_roll
 
-BUILD_ID = "v1.3-20260914-r7-im-grid160-half-v1"
+BUILD_ID = "v1.3-20260915-r7-mom120-abs20-debounce-v1"
 import im_put_policy
 IM_PUT_POLICY_REVISION = im_put_policy.REVISION
 IM_EXECUTION_FIX_REVISION = "im_put_execution_guards_20260908_v2"
 IM_PUT_EXECUTION_REVISION = "im_monthly_reset_20260907_v1"
+MOMENTUM_DEBOUNCE_POLICY_REVISION = "ic_im_mom120_abs20_2d_plus1_20260915_v1"
+MOMENTUM_DEBOUNCE_EFFECTIVE_DATE = date(2026, 9, 16)
 DATA_CUTOFF = date(2026, 8, 14)
 V13_HISTORY_DATE_INDEX = {
     "IC": (date(2005, 1, 4), 5250, "beddc7d6e25a7cb87f1397fb605f3a8fd58c10536a95fb3097ba2ac38e70a56d"),
@@ -1514,11 +1516,15 @@ def _tier_band_label(
     )
 
 
-def ic_targets(score: float, momentum_120: float) -> dict[str, Any]:
+def ic_targets(
+    score: float, momentum_120: float, *, mom120_floor_active: bool | None = None
+) -> dict[str, Any]:
     thresholds = (1.90, 1.95, 2.00, 2.05)
     tier = _tier(score, thresholds)
     valuation_delta = (0.0, 0.25, 0.50, 0.75, 1.00)[tier]
-    mom120_floor = 0.50 if momentum_120 < 0 else 0.0
+    mom120_floor = 0.50 if (
+        momentum_120 < 0 if mom120_floor_active is None else mom120_floor_active
+    ) else 0.0
     delta = max(valuation_delta, mom120_floor)
     if valuation_delta > mom120_floor:
         driver = "估值档"
@@ -1540,13 +1546,17 @@ def ic_targets(score: float, momentum_120: float) -> dict[str, Any]:
     }
 
 
-def im_targets(score: float, momentum_120: float) -> dict[str, Any]:
+def im_targets(
+    score: float, momentum_120: float, *, mom120_floor_active: bool | None = None
+) -> dict[str, Any]:
     absolute_thresholds = (2.45, 2.50, 2.60)
     relative_thresholds = tuple(FROZEN["IM"]["relative_thresholds"])
     absolute = _tier(score, absolute_thresholds)
     relative = _tier(score, relative_thresholds)
     valuation_puts = max(absolute, relative)
-    mom120_floor = 3 if momentum_120 < 0 else 0
+    mom120_floor = 3 if (
+        momentum_120 < 0 if mom120_floor_active is None else mom120_floor_active
+    ) else 0
     puts = max(valuation_puts, mom120_floor)
     if valuation_puts > mom120_floor:
         driver = "估值档"
@@ -1598,6 +1608,48 @@ def calc_v13_momentum_score(product: str, close: pd.Series) -> pd.Series:
         slope = float((weights * (x - x_bar) * (y - y_bar)).sum() / denominator)
         result[end] = slope / float(y[0]) * 10000.0
     return pd.Series(result, index=close.index, name="momentum_score")
+
+
+def _recovery_confirmed(
+    value: pd.Series, *, threshold: float = 0.01, days: int = 2
+) -> pd.Series:
+    """Immediate risk-off at <=0; require consecutive strictly-positive recovery."""
+    active, streak, result = False, 0, []
+    for item in pd.to_numeric(value, errors="coerce"):
+        if not np.isfinite(item) or item <= 0.0:
+            active, streak = False, 0
+        elif active:
+            streak = 0
+        elif item > threshold:
+            streak += 1
+            if streak >= days:
+                active, streak = True, 0
+        else:
+            streak = 0
+        result.append(active)
+    return pd.Series(result, index=value.index, dtype=bool)
+
+
+def _mom120_floor_state(close: pd.Series) -> pd.Series:
+    """Apply the dated MOM120 floor release rule without rewriting old signals."""
+    momentum = close / close.shift(120) - 1.0
+    active, streak, result = False, 0, []
+    for stamp, item in momentum.items():
+        if not np.isfinite(item):
+            result.append(active)
+            continue
+        if stamp.date() < MOMENTUM_DEBOUNCE_EFFECTIVE_DATE:
+            active, streak = item < 0.0, 0
+        elif item < 0.0:
+            active, streak = True, 0
+        elif active and item > 0.01:
+            streak += 1
+            if streak >= 2:
+                active, streak = False, 0
+        elif active:
+            streak = 0
+        result.append(active)
+    return pd.Series(result, index=close.index, dtype=bool, name="mom120_floor_active")
 
 
 def _validate_v13_ohlcv(product: str, frame: pd.DataFrame, clock: datetime) -> pd.DataFrame:
@@ -1684,9 +1736,13 @@ def v13_momentum_schedule(
         abs20 = abs20.reindex(close.index)
         if not np.isfinite(float(score.iloc[0])) or not np.isfinite(float(abs20.iloc[0])):
             raise RuntimeError("IC OHLCV缺少正式期起点所需指标暖机历史")
-    base_target = (score > 0).astype(float) * (
-        0.5 + 0.5 * (abs20 > 0).astype(float)
+    abs20_reentry_confirmed = _recovery_confirmed(abs20)
+    legacy_abs20_on = abs20 > 0
+    abs20_on = legacy_abs20_on.where(
+        close.index < pd.Timestamp(MOMENTUM_DEBOUNCE_EFFECTIVE_DATE),
+        abs20_reentry_confirmed,
     )
+    base_target = (score > 0).astype(float) * (0.5 + 0.5 * abs20_on.astype(float))
     volume_ratio = pd.Series(np.nan, index=close.index, name="volume_ratio")
     volume_pass = pd.Series(True, index=close.index, name="volume_pass")
     volume_placeholder = pd.Series(False, index=close.index, name="volume_placeholder")
@@ -1757,6 +1813,7 @@ def v13_momentum_schedule(
             "close": close,
             "momentum_score": score,
             "abs20": abs20,
+            "abs20_reentry_confirmed": abs20_reentry_confirmed,
             "base_signal_target": base_target,
             "volume_ratio": volume_ratio,
             "volume_pass": volume_pass,
@@ -2172,8 +2229,11 @@ def live_proxy(product: str, clock: datetime | None = None) -> dict[str, Any]:
     used_erp = 1.0 / valuation["pe"] - gov10y["yield_decimal"]
     score = valuation_score(valuation["pb"], used_erp, float(FROZEN[product]["dividend"]))
     momentum = _momentum_120_at(history, -1)
+    mom120_floor_active = bool(_mom120_floor_state(history).iloc[-1])
     targets = (
-        ic_targets(score, momentum) if product == "IC" else im_targets(score, momentum)
+        ic_targets(score, momentum, mom120_floor_active=mom120_floor_active)
+        if product == "IC"
+        else im_targets(score, momentum, mom120_floor_active=mom120_floor_active)
     )
     momentum_schedule = v13_momentum_schedule(product, history, ohlcv=ohlcv)
     current_momentum_weight = float(momentum_schedule["execution_weight"].iloc[-1])
@@ -2183,10 +2243,11 @@ def live_proxy(product: str, clock: datetime | None = None) -> dict[str, Any]:
     prior_price = float(history.iloc[-2])
     prior_score = _proxy_score_for_price(product, prior_price)
     prior_mom120 = _momentum_120_at(history, -2)
+    prior_mom120_floor_active = bool(_mom120_floor_state(history).iloc[-2])
     prior_targets = (
-        ic_targets(prior_score, prior_mom120)
+        ic_targets(prior_score, prior_mom120, mom120_floor_active=prior_mom120_floor_active)
         if product == "IC"
-        else im_targets(prior_score, prior_mom120)
+        else im_targets(prior_score, prior_mom120, mom120_floor_active=prior_mom120_floor_active)
     )
     grid_current, grid_target = _replay_v13_grid(product, history)
     if product == "IC":
@@ -2231,6 +2292,7 @@ def live_proxy(product: str, clock: datetime | None = None) -> dict[str, Any]:
             "valuation_tier_label": targets["valuation_tier_label"],
             "valuation_put_delta": targets["valuation_put_delta"],
             "mom120_floor_delta": targets["mom120_floor_delta"],
+            "mom120_floor_active": mom120_floor_active,
             "current_core_put_driver": prior_targets["put_driver"],
             "current_momentum_put_driver": current_momentum_put_driver,
             "core_put_driver": targets["put_driver"],
@@ -2258,6 +2320,7 @@ def live_proxy(product: str, clock: datetime | None = None) -> dict[str, Any]:
             "mom120_floor_puts_per_full_core": targets[
                 "mom120_floor_puts_per_full_core"
             ],
+            "mom120_floor_active": mom120_floor_active,
             "core_put_driver": targets["put_driver"],
         }
     return {
@@ -2274,6 +2337,9 @@ def live_proxy(product: str, clock: datetime | None = None) -> dict[str, Any]:
         "history_date": history.index[-1].date(),
         "momentum_score": float(momentum_schedule["momentum_score"].iloc[-1]),
         "momentum_abs20": float(momentum_schedule["abs20"].iloc[-1]),
+        "momentum_abs20_reentry_confirmed": bool(
+            momentum_schedule["abs20_reentry_confirmed"].iloc[-1]
+        ),
         "momentum_volume_ratio": float(momentum_schedule["volume_ratio"].iloc[-1]),
         "momentum_volume_pass": bool(momentum_schedule["volume_pass"].iloc[-1]),
         "momentum_volume_placeholder": bool(momentum_schedule["volume_placeholder"].iloc[-1]),
@@ -5399,7 +5465,7 @@ class ICIMMainlinesBot:
                     f"- 动量 Score：**{live['momentum_score']:.3f}**（要求 >0）；"
                     f"Abs20：**{live['momentum_abs20']:.2%}**。\n"
                     "- 规则：Score≤0 → 权重0；Score>0且Abs20≤0 → 权重0.5；"
-                    "Score>0且Abs20>0 → 权重1。动量袖期货名义=0.5×权重。\n"
+                    "Abs20恢复满仓须连续两日均>+1%；Score保持即时规则。动量袖期货名义=0.5×权重。\n"
                     f"- 当前动量仓位来自 **{live['momentum_current_source_date']}** 收盘信号；"
                     f"本次 **{live['momentum_signal_date']}** 信号给出下一交易日权重 "
                     f"**{live['momentum_next_weight']:g}**。\n\n"
