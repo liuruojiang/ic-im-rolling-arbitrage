@@ -110,6 +110,42 @@ def test_render_stored_close_report_uses_verified_ledger_without_refetch():
     assert '"close_confirmed": true' in report
 
 
+def test_execution_timing_distinguishes_completed_roll_from_next_open_targets():
+    signal = {
+        "next_trade_date": "2026-09-16",
+        "roll_policy": {"tenor": "strict_quarter"},
+        "roll_execution_date": "2026-09-15",
+        "roll_confirmed": True,
+        "core_action": "ROLL",
+        "core_current": "IC2609",
+        "core_eod_contract": "IC2612",
+    }
+
+    lines = runner._execution_timing_lines("IC", signal)
+
+    assert "2026-09-16 开盘执行" in lines[0]
+    assert "已于 2026-09-15 收盘完成" in lines[1]
+    assert "不是下一交易日开盘动作" in lines[1]
+
+
+def test_execution_timing_labels_future_roll_as_preview():
+    signal = {
+        "next_trade_date": "2026-09-16",
+        "roll_policy": {"tenor": "strict_quarter"},
+        "roll_execution_date": "2026-09-17",
+        "roll_confirmed": False,
+        "core_action": "ROLL",
+        "core_current": "IM2609",
+        "core_target": "IM2612",
+    }
+
+    lines = runner._execution_timing_lines("IM", signal)
+
+    assert "仅预告" in lines[1]
+    assert "2026-09-17 收盘执行" in lines[1]
+    assert "尚未写入账本" in lines[1]
+
+
 def test_validate_realtime_artifact_accepts_complete_non_mutating_snapshot():
     clock = datetime(2026, 8, 26, 14, 20, tzinfo=runner.strategy.BEIJING)
     completed = date(2026, 8, 25)

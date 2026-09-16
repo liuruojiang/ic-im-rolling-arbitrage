@@ -128,6 +128,46 @@ def validate_realtime_artifact(
         state_module.validate_im_put_execution_evidence(observed["IM"])
 
 
+def _execution_timing_lines(product: str, signal: dict[str, Any]) -> list[str]:
+    """Render execution timing separately from signal targets.
+
+    A close report contains both next-open sleeve targets and quarterly futures
+    roll state.  They must not be presented as one undifferentiated action.
+    """
+    next_trade_day = signal.get("next_trade_date", "N/A")
+    lines = [
+        "- 常规仓位（动量／网格）：今日收盘形成目标；仅在目标变化时，于 "
+        f"{next_trade_day} 开盘执行。",
+    ]
+    if signal.get("roll_policy", {}).get("tenor") != "strict_quarter":
+        lines.append(
+            "- 季度期货展期：本记录早于 r7 生效日；2026-09-04 起才采用 "
+            "IM T-1／IC T-3 收盘展期。"
+        )
+        return lines
+
+    execution_day = signal.get("roll_execution_date", "N/A")
+    current = signal.get("core_current", "N/A")
+    destination = signal.get("core_eod_contract", "N/A")
+    if signal.get("roll_confirmed"):
+        lines.append(
+            f"- 季度期货展期：**已于 {execution_day} 收盘完成**，"
+            f"{current} → {destination}；不是下一交易日开盘动作。"
+        )
+    elif signal.get("core_action") == "ROLL":
+        lines.append(
+            f"- 季度期货展期：**仅预告**，计划于 {execution_day} 收盘执行，"
+            f"{current} → {signal.get('core_target', 'N/A')}；尚未写入账本。"
+        )
+    else:
+        lines.append(
+            f"- 季度期货展期：当前无执行；下一计划日为 {execution_day} 收盘，"
+            f"当前仍为 {current}。"
+        )
+    lines.append("- Put／Call：独立于季度期货展期，按各自维护日历处理。")
+    return lines
+
+
 def render_stored_close_report(latest: dict[str, Any]) -> str:
     signals = latest.get("signals", {})
     lines = [
@@ -155,10 +195,7 @@ def render_stored_close_report(latest: dict[str, Any]) -> str:
                 "**" + strategy.daily_valuation.disclosure(signal.get("valuation_provenance")) + "**",
                 "",
                 "- " + strategy.quarter_roll.format_spread(signal.get("quarter_spread")),
-                (f"- 季度换仓：{product} T-{strategy.quarter_roll.ROLL_DAYS[product]}，"
-                 f"计划执行日 {signal.get('roll_execution_date', 'N/A')} 收盘；期权维护独立")
-                if signal.get("roll_policy", {}).get("tenor") == "strict_quarter"
-                else "- 本记录行情日早于r7生效日；2026-09-04起IM季度T-1、IC季度T-3，旧记录不追改。",
+                *_execution_timing_lines(product, signal),
                 f"- 期货总仓：{signal.get('total_units_current', 'N/A')} → "
                 f"{signal.get('total_units_target', 'N/A')}",
                 f"- 核心动作：`{signal.get('core_action', 'N/A')}`；"
