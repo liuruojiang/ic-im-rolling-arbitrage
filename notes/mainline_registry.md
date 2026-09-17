@@ -5,7 +5,7 @@
 - 用户明确本系统仅发布信号，实际成交、行权、结算、交割及账户持仓由用户手动处理；构建更新为`v1.4-20260917-r1-coreput3x-fixedshort95-fix2`，策略规则和参数不变。
 - 卖Put未到期不再显示缺账户证据阻塞；到期缺模型结算依据时发布价外失效与行权/现金结算两个条件分支，其他可核验信号继续发布。
 - 账本只表示研究模型路径，固定输出`research_model_signal_only`及`not_observed_out_of_scope`，不得解释为实际账户已成交或已交割。
-- 规格：`docs/ic_im_v1_4_r1_signal_scope_fix2_spec.md`；记录：`outputs/v1_4_signal_scope_fix2_20260917/record.md`。fix1冻结规格不回写，正式账本未修改，未外部发布、部署或下单。
+- 规格：`docs/ic_im_v1_4_r1_signal_scope_fix2_spec.md`；记录：`outputs/v1_4_signal_scope_fix2_20260917/record.md`。fix1冻结规格不回写，正式账本未修改。2026-09-17 已同步策略仓库、本地 Codex 日报和 GitHub Gmail 日报；仍未授权下单或代替用户处理实际账户结算、交割与行权。
 
 ## IC / IM v1.4-r1 对抗修复 fix1（2026-09-17）
 
@@ -22,7 +22,7 @@
 - IC：固定核心0.5倍在估值0/1档、原1.3执行动量许可及M+1 510500 95% Put IV严格>37.5%时转卖Put；q1名义等值，权利金衰减50%最多提前滚一次，不恢复卖方MOM120，IC仍无Call。
 - IM：固定核心0.5倍在估值0/1档、MOM120非负及M+1 MO 95% Put IV严格>35%时转为q3（规范化1.5张）；权利金衰减60%最多提前滚一次；卖Put、现金等待和恢复期固定核心Call暂停。
 - 动量期货、独立动量Put、网格、MOM120与Abs20防抖、季度换仓继续原规则；动量腿和网格腿不转卖Put。卖Put到期须以实际结算结果分流，未确认时失败关闭；交割后恢复与整轮含成本回本退出保留。
-- 规格：`docs/ic_im_mainline_v1_4_r1_spec.md`；发布记录：`docs/ic_im_v1_4_r1_release_record_20260917.md`。本次只建立本地正式研究信号版本，未推送GitHub、未发邮件、未部署Poe/Modal、未授权下单。
+- 规格：`docs/ic_im_mainline_v1_4_r1_spec.md`；发布记录：`docs/ic_im_v1_4_r1_release_record_20260917.md`；远端日报同步记录：`docs/ic_im_v1_4_r1_daily_sync_20260917.md`。正式研究信号代码已推送 GitHub，本地 Codex 与 GitHub Gmail 日报均锁定 v1.4-r1 fix2；未授权下单或代替用户处理实际账户操作。
 
 ## IC / IM MOM120 与 Abs20 防抖发布（2026-09-15）
 
