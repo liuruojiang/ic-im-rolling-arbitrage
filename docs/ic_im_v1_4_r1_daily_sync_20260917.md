@@ -7,7 +7,7 @@
 - 交付版本：`20260917-v14-coreput3x-fixedshort95-fix2`
 - 生效信号日：`2026-09-18`
 - 策略代码提交：`3c6384f5696c773d254415d18bf6c615f2a66b35`
-- GitHub 自动化提交：`1c710e9dd00fdd2276f8467d77bbcf48bde56c7c`
+- GitHub 自动化提交：`782dec13be27946d3b1923931d1f7ea2d5497371`
 
 ## 本地 Codex
 
