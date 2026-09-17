@@ -33,6 +33,21 @@ def test_reject_obsolete_producer_on_effective_date(field):
     state.validate_delivery_values(signal, 'IC', historical_record=True)
 
 
+def test_migrated_core_put_allows_legacy_target_only_before_effective_date():
+    signal = new_signal()
+    signal.update(
+        market_date=date(2026, 9, 17),
+        v14_core_put_qty=14,
+        v14_core_put_contract='510500P2612M07500',
+        v14_core_put_security_id='10012099',
+        put_target_core_qty=0,
+    )
+    state.validate_delivery_values(signal, 'IC')
+    signal['market_date'] = date(2026, 9, 18)
+    with pytest.raises(RuntimeError, match='核心Put数量与核心目标不一致'):
+        state.validate_delivery_values(signal, 'IC')
+
+
 @pytest.mark.parametrize('changes', [
     {'v14_short_put_contract':'THIS_IS_NOT_A_PUT'},
     {'v14_short_put_expiry':None},

@@ -249,12 +249,17 @@ def validate_v14_new_signal(signal: dict[str, Any], product: str) -> None:
         core_qty = _option_number(signal.get("v14_core_put_qty"), "IC独立核心Put数量")
         core_contract = signal.get("v14_core_put_contract")
         core_security = signal.get("v14_core_put_security_id")
+        market_day = _as_day(signal.get("market_date"), "IC信号日")
         if core_qty < 0 or not core_qty.is_integer():
             raise RuntimeError("IC独立核心Put数量必须为非负整数")
         if core_qty > 0:
             if re.fullmatch(r"510500P\d{4}M\d{5}", str(core_contract or "")) is None or re.fullmatch(r"\d{8}", str(core_security or "")) is None:
                 raise RuntimeError("IC独立核心Put缺少有效合约/证券ID")
-            if _option_number(signal.get("put_target_core_qty"), "IC核心Put目标数量") != core_qty:
+            # v1.4 is forward-only from its effective signal date.  During
+            # backfill, the migrated v1.3 core leg is deliberately retained
+            # while the legacy signal may have a different target quantity.
+            # Once v1.4 is effective, the dedicated leg and target must agree.
+            if market_day >= v14_policy.EFFECTIVE_SIGNAL_DATE and _option_number(signal.get("put_target_core_qty"), "IC核心Put目标数量") != core_qty:
                 raise RuntimeError("IC独立核心Put数量与核心目标不一致")
         elif core_contract not in (None, "") or core_security not in (None, ""):
             raise RuntimeError("IC独立核心Put为零但保留合约身份")
