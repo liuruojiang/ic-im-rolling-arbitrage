@@ -1,0 +1,847 @@
+"""Durable, hash-chained research ledger for the IC/IM v1.4 research signal.
+
+The immutable constants in ``poe_ic_im_mainline_v1_3_bot.py`` are only a
+bootstrap checkpoint.  A server deployment loads ``latest.json`` before each
+query and appends one journal record after a fully confirmed close.  This keeps
+Poe restarts and new conversations independent from hard-coded calendar dates.
+"""
+
+from __future__ import annotations
+
+import hashlib
+import json
+import math
+import os
+import re
+import tempfile
+from contextlib import contextmanager
+from copy import deepcopy
+from datetime import date, datetime, time, timedelta
+from pathlib import Path
+from typing import Any
+
+import numpy as np
+import pandas as pd
+
+import ic_im_v1_4_policy as v14_policy
+import poe_ic_im_mainline_v1_4_bot as strategy
+
+
+SCHEMA_VERSION = 4
+STRATEGY_VERSION = "1.4"
+STRATEGY_REVISION = "r1"
+STATE_ENV = "ICIM_STATE_DIR"
+DEFAULT_STATE_DIR = Path(__file__).resolve().parent / "runtime" / "ic_im_v1_4_r1"
+PRODUCTS = ("IC", "IM")
+
+
+def _jsonable(value: Any) -> Any:
+    if isinstance(value, (date, datetime)):
+        return value.isoformat()
+    if isinstance(value, (np.integer,)):
+        return int(value)
+    if isinstance(value, (np.floating,)):
+        number = float(value)
+        return number if math.isfinite(number) else None
+    if isinstance(value, pd.Timestamp):
+        return value.isoformat()
+    if isinstance(value, dict):
+        return {str(key): _jsonable(item) for key, item in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [_jsonable(item) for item in value]
+    if isinstance(value, float) and not math.isfinite(value):
+        return None
+    return value
+
+
+def _canonical_payload(record: dict[str, Any]) -> bytes:
+    payload = {key: value for key, value in record.items() if key != "digest"}
+    return json.dumps(
+        _jsonable(payload), ensure_ascii=False, sort_keys=True, separators=(",", ":")
+    ).encode("utf-8")
+
+
+def _digest(record: dict[str, Any]) -> str:
+    return hashlib.sha256(_canonical_payload(record)).hexdigest()
+
+
+def _decode_anchor(anchor: dict[str, Any]) -> dict[str, Any]:
+    decoded = dict(anchor)
+    for key, value in list(decoded.items()):
+        if key.endswith("_day") or key.endswith("_expiry"):
+            if isinstance(value, str) and value:
+                decoded[key] = date.fromisoformat(value[:10])
+    return decoded
+
+
+def _validate_record(record: dict[str, Any]) -> None:
+    if int(record.get("schema_version", -1)) != SCHEMA_VERSION:
+        raise RuntimeError("Poe账本schema_version不受支持")
+    if str(record.get("strategy_version", "")) != STRATEGY_VERSION:
+        raise RuntimeError("Poe账本strategy_version不是独立v1.4，禁止续写旧账本")
+    if str(record.get("strategy_revision", "")) != STRATEGY_REVISION:
+        raise RuntimeError("Poe账本strategy_revision不是r1，禁止续写旧版账本")
+    sequence = record.get("sequence")
+    if not isinstance(sequence, int) or isinstance(sequence, bool) or sequence < 0:
+        raise RuntimeError("Poe账本sequence必须为非负整数")
+    if set(record.get("products", {})) != set(PRODUCTS):
+        raise RuntimeError("Poe账本必须同时包含IC和IM")
+    expected = str(record.get("digest", ""))
+    actual = _digest(record)
+    if not expected or expected != actual:
+        raise RuntimeError("Poe账本SHA-256校验失败")
+    signals = record.get("signals", {})
+    if signals:
+        if not isinstance(signals, dict) or set(signals) != set(PRODUCTS):
+            raise RuntimeError("Poe账本信号必须同时包含IC和IM")
+        for product in PRODUCTS:
+            validate_delivery_values(signals[product], product, historical_record=True)
+    days: list[date] = []
+    for product in PRODUCTS:
+        anchor = _decode_anchor(record["products"][product])
+        v14_policy.validate_extension(product, anchor)
+        day = anchor.get("last_verified_day")
+        if not isinstance(day, date):
+            raise RuntimeError(f"{product}账本缺少last_verified_day")
+        days.append(day)
+        if float(anchor.get("verified_grid_units", -1)) not in {0.0, 0.5, 1.0}:
+            raise RuntimeError(f"{product}账本网格状态非法")
+        if float(anchor.get("verified_next_grid_units", -1)) not in {0.0, 0.5, 1.0}:
+            raise RuntimeError(f"{product}账本下一交易日网格状态非法")
+    if len(set(days)) != 1:
+        raise RuntimeError("IC/IM账本核验日期不一致，禁止部分推进")
+    try:
+        verified_day = date.fromisoformat(str(record.get("verified_day", ""))[:10])
+    except ValueError as exc:
+        raise RuntimeError("Poe账本verified_day非法") from exc
+    if verified_day != days[0]:
+        raise RuntimeError("Poe账本顶层verified_day与逐腿锚点不一致")
+    allowed_weights = {0.0, 0.25, 0.5, 1.0}
+    for product in PRODUCTS:
+        anchor = record["products"][product]
+        for key in ("verified_momentum_weight", "verified_next_momentum_weight"):
+            value = float(anchor.get(key, math.nan))
+            allowed = allowed_weights if product == "IC" else {0.0, 0.5, 1.0}
+            if not math.isfinite(value) or value not in allowed:
+                raise RuntimeError(f"{product}账本{key}非法")
+        put_qty = float(anchor.get("verified_put_qty_normalized", math.nan))
+        if not math.isfinite(put_qty) or put_qty < 0.0:
+            raise RuntimeError(f"{product}账本Put数量非法")
+    ic = record["products"]["IC"]
+    if float(ic.get("verified_call_contracts_normalized", 0.0)) != 0.0:
+        raise RuntimeError("IC 1.3明确禁止Call，账本出现Call状态")
+    im = record["products"]["IM"]
+    if strategy.im_put_policy.active(verified_day):
+        validate_im_call_values(im.get("verified_call_contracts_normalized", 0.0),
+                                im.get("verified_call_contract"),
+                                im.get("verified_call_expiry"), im.get("verified_call_strike"))
+    core_put = _finite_float(
+        im.get("verified_core_put_qty_normalized"), "IM核心Put数量"
+    )
+    momentum_put = _finite_float(
+        im.get("verified_momentum_put_qty_normalized"), "IM动量Put数量"
+    )
+    total_put = _finite_float(
+        im.get("verified_total_put_qty_normalized"), "IM组合Put数量"
+    )
+    legacy_total = _finite_float(
+        im.get("verified_put_qty_normalized"), "IM兼容Put总数量"
+    )
+    parent_puts = im.get("verified_parent_puts")
+    if (
+        core_put < 0.0
+        or momentum_put < 0.0
+        or total_put < 0.0
+        or core_put > 2.0
+        or momentum_put > 2.0
+        or total_put > 4.0
+    ):
+        raise RuntimeError("IM核心/动量/组合Put数量超出合法域")
+    if not math.isclose(total_put, core_put + momentum_put, abs_tol=1e-12):
+        raise RuntimeError("IM组合Put数量不等于核心与动量之和")
+    if not math.isclose(legacy_total, total_put, abs_tol=1e-12):
+        raise RuntimeError("IM兼容Put总数量与双腿合计不一致")
+    if not isinstance(parent_puts, int) or isinstance(parent_puts, bool) or parent_puts not in {0, 1, 2, 3, 4}:
+        raise RuntimeError("IM父规则Put数量非法")
+    im_route_state = str(im.get("v14_route_state", "future"))
+    if im_route_state == "future":
+        if not math.isclose(core_put, 0.5 * parent_puts, abs_tol=1e-12):
+            raise RuntimeError("IM核心Put数量不等于0.5倍父规则目标")
+    elif core_put != 0.0 or float(im.get("verified_call_contracts_normalized", 0.0)) != 0.0:
+        raise RuntimeError("IM卖Put/恢复状态必须同步关闭核心Put与固定核心Call")
+    core_contract = im.get("post_core_put_contract")
+    momentum_contract = im.get("post_momentum_put_contract")
+    if core_put > 0.0 and not core_contract:
+        raise RuntimeError("IM核心Put非零但缺少独立合约")
+    if momentum_put > 0.0 and not momentum_contract:
+        raise RuntimeError("IM动量Put非零但缺少独立合约")
+    if momentum_put == 0.0 and momentum_contract not in (None, ""):
+        raise RuntimeError("IM动量Put为零但账本仍保留合约")
+
+
+def _as_day(value: Any, label: str) -> date:
+    try:
+        return value if isinstance(value, date) else date.fromisoformat(str(value)[:10])
+    except (TypeError, ValueError) as exc:
+        raise RuntimeError(f"{label}日期非法") from exc
+
+
+def _finite_float(value: Any, label: str) -> float:
+    try:
+        number = float(value)
+    except (TypeError, ValueError) as exc:
+        raise RuntimeError(f"{label}不是数值") from exc
+    if not math.isfinite(number):
+        raise RuntimeError(f"{label}不是有限数")
+    return number
+
+
+def validate_delivery_values(signal: dict[str, Any], product: str, *, historical_record: bool = False) -> None:
+    """Reject malformed boundary values before JSON can turn NaN into null.
+
+    Sparse historical bootstrap/test records may omit display exposures; when
+    present, exposures must be real finite nonnegative numbers. No optional
+    diagnostic metric is coerced into a trading value here.
+    """
+    if not historical_record:
+        validate_v14_new_signal(signal, product)
+    if type(signal.get("close_confirmed")) is not bool:
+        raise RuntimeError(f"{product} close_confirmed必须为布尔值")
+    for field in ("total_units_current", "total_units_target"):
+        if field in signal:
+            value = signal[field]
+            if isinstance(value, bool) or not isinstance(value, (int, float, np.integer, np.floating)):
+                raise RuntimeError(f"{product} {field}必须为数值")
+            if _finite_float(value, f"{product} {field}") < 0.0:
+                raise RuntimeError(f"{product} {field}不能为负数")
+    # Frozen older records can be sparse. From the published policy date,
+    # delivery and ledger writes share the same option boundary checks.
+    day = signal.get("market_date")
+    if product == "IM" and day is not None and strategy.im_put_policy.active(day):
+        if not historical_record:
+            validate_im_execution_fix_revision(signal)
+        validate_im_put_execution_evidence(signal)
+        validate_im_option_values(signal)
+
+
+def validate_v14_new_signal(signal: dict[str, Any], product: str) -> None:
+    """Strict producer and route boundary for new writes, not frozen history."""
+    for field, expected in (
+        ("strategy_version", STRATEGY_VERSION),
+        ("strategy_revision", STRATEGY_REVISION),
+        ("v14_build_id", v14_policy.BUILD_ID),
+        ("v14_rule_revision", v14_policy.RULE_REVISION),
+    ):
+        if signal.get(field) != expected:
+            raise RuntimeError(f"{product} v1.4生产器身份不匹配: {field}")
+    for field, default in v14_policy.default_extension(product).items():
+        if field not in signal:
+            raise RuntimeError(f"{product} v1.4信号缺少持久字段: {field}")
+        if isinstance(default, bool) and type(signal[field]) is not bool:
+            raise RuntimeError(f"{product} {field}必须为布尔值")
+        if field.endswith("_day") and signal[field] is not None:
+            _as_day(signal[field], f"{product} {field}")
+    v14_policy.validate_extension(product, signal)
+    _option_number(signal["v14_recovery_net_pnl"], f"{product}恢复净损益")
+    qty = _option_number(signal["v14_short_put_qty_normalized"], f"{product}卖Put数量")
+    route = signal["v14_route_state"]
+    if product == "IC":
+        core_qty = _option_number(signal.get("v14_core_put_qty"), "IC独立核心Put数量")
+        core_contract = signal.get("v14_core_put_contract")
+        core_security = signal.get("v14_core_put_security_id")
+        if core_qty < 0 or not core_qty.is_integer():
+            raise RuntimeError("IC独立核心Put数量必须为非负整数")
+        if core_qty > 0:
+            if re.fullmatch(r"510500P\d{4}M\d{5}", str(core_contract or "")) is None or re.fullmatch(r"\d{8}", str(core_security or "")) is None:
+                raise RuntimeError("IC独立核心Put缺少有效合约/证券ID")
+            if _option_number(signal.get("put_target_core_qty"), "IC核心Put目标数量") != core_qty:
+                raise RuntimeError("IC独立核心Put数量与核心目标不一致")
+        elif core_contract not in (None, "") or core_security not in (None, ""):
+            raise RuntimeError("IC独立核心Put为零但保留合约身份")
+        if route != "future" and core_qty != 0:
+            raise RuntimeError("IC卖Put/恢复状态禁止独立核心买Put")
+    if route != "future":
+        if not isinstance(signal.get("v14_cycle_id"), str) or not signal["v14_cycle_id"].strip():
+            raise RuntimeError(f"{product} v1.4活动周期缺少cycle id")
+        if not isinstance(signal.get("v14_last_event_id"), str) or not signal["v14_last_event_id"].strip():
+            raise RuntimeError(f"{product} v1.4活动周期缺少event id")
+        if _option_number(signal.get("call_target_qty_normalized", 0.0), f"{product} Call数量") != 0:
+            raise RuntimeError(f"{product}卖Put/恢复状态禁止固定核心Call")
+        if product == "IC":
+            for field in ("core_put_target_delta", "put_target_core_qty"):
+                if _option_number(signal.get(field), f"IC {field}") != 0:
+                    raise RuntimeError("IC卖Put/恢复状态禁止核心买Put")
+    if route == "short_put":
+        contract = str(signal.get("v14_short_put_contract") or "")
+        pattern = r"510500P(\d{2})(\d{2})M\d{5}" if product == "IC" else r"MO(\d{2})(\d{2})-P-\d+(?:\.\d+)?"
+        match = re.fullmatch(pattern, contract)
+        if match is None:
+            raise RuntimeError(f"{product}卖Put合约身份非法")
+        expiry = _as_day(signal.get("v14_short_put_expiry"), f"{product}卖Put到期日")
+        if (expiry.year, expiry.month) != (2000 + int(match[1]), int(match[2])):
+            raise RuntimeError(f"{product}卖Put到期日与合约月份不一致")
+        scheduled = (strategy._fourth_wednesday(expiry.year, expiry.month)
+                     if product == "IC" else strategy._third_friday(expiry.year, expiry.month))
+        if expiry != strategy._roll_forward_exchange_day(scheduled):
+            raise RuntimeError(f"{product}卖Put到期日与交易日历不一致")
+        if product == "IC" and re.fullmatch(r"\d{8}", str(signal.get("v14_short_put_security_id") or "")) is None:
+            raise RuntimeError("IC卖Put证券ID非法")
+        premium = _option_number(signal.get("v14_short_put_entry_premium"), f"{product}卖Put入场权利金")
+        if qty <= 0 or premium <= 0:
+            raise RuntimeError(f"{product}卖Put数量/权利金必须为正")
+
+
+def validate_im_execution_fix_revision(signal: dict[str, Any]) -> None:
+    """Old records remain readable but cannot impersonate a newly fixed producer."""
+    if strategy.im_put_policy.active(signal["market_date"]):
+        if signal.get("im_execution_fix_revision") != strategy.IM_EXECUTION_FIX_REVISION:
+            raise RuntimeError("IM新写入/当前交付缺少已修复执行防线版本，禁止旧生产器继续交付")
+
+
+def _option_number(value: Any, label: str) -> float:
+    if isinstance(value, bool) or not isinstance(value, (int, float, np.integer, np.floating)):
+        raise RuntimeError(f"{label}必须为数值")
+    return _finite_float(value, label)
+
+
+def validate_im_call_values(quantity: Any, contract: Any, expiry: Any, strike: Any) -> None:
+    """A short Call requires one internally consistent listed-contract identity."""
+    qty = _option_number(quantity, "IM Call数量")
+    if qty not in {-1.0, 0.0}:
+        raise RuntimeError("IM Call数量超出合法域")
+    if qty == 0.0:
+        if contract not in (None, "") or expiry not in (None, "") or strike is not None:
+            raise RuntimeError("IM Call数量为零但仍保留合约/到期日/行权价")
+        return
+    match = re.fullmatch(r"MO\d{4}-C-(\d+(?:\.\d+)?)", str(contract or ""))
+    if match is None:
+        raise RuntimeError("IM Call非零但缺少有效MO Call合约")
+    target_strike = _option_number(strike, "IM Call行权价")
+    if target_strike <= 0 or not math.isclose(target_strike, float(match.group(1)), rel_tol=0.0, abs_tol=1e-12):
+        raise RuntimeError("IM Call行权价与合约不一致")
+    expiry_day = _as_day(expiry, "IM Call到期日")
+    try:
+        expected_expiry = strategy._third_friday(*strategy._contract_month(str(contract)))
+    except (TypeError, ValueError) as exc:
+        raise RuntimeError("IM Call合约到期月份非法") from exc
+    if expiry_day != expected_expiry:
+        raise RuntimeError("IM Call到期日与合约不一致")
+
+
+def validate_im_option_values(signal: dict[str, Any]) -> None:
+    """Validate numeric/identity invariants before nonfinite JSON coercion."""
+    for position in ("current", "target"):
+        quantities = {}
+        for sleeve, maximum in (("core", 2.0), ("momentum", 2.0), ("total", 4.0)):
+            field = f"{sleeve}_put_{position}_qty_normalized"
+            qty = _option_number(signal.get(field), f"IM {field}")
+            if not 0.0 <= qty <= maximum:
+                raise RuntimeError("IM期权目标/当前数量超出合法域")
+            quantities[sleeve] = qty
+            if sleeve != "total":
+                contract = signal.get(f"{sleeve}_put_{position}_contract")
+                if qty > 0 and re.fullmatch(r"MO\d{4}-P-\d+(?:\.\d+)?", str(contract or "")) is None:
+                    raise RuntimeError(f"IM {sleeve} Put{position}非零但缺少有效独立合约")
+                if sleeve == "momentum" and qty == 0 and contract not in (None, ""):
+                    raise RuntimeError("IM动量Put为零但仍保留合约")
+        if not math.isclose(quantities["total"], quantities["core"] + quantities["momentum"], rel_tol=0.0, abs_tol=1e-12):
+            raise RuntimeError(f"IM {position}组合Put数量不等于核心与动量之和")
+    parent = signal.get("v13_parent_puts_per_full_core")
+    if not isinstance(parent, int) or isinstance(parent, bool) or parent not in {0, 1, 2, 3, 4}:
+        raise RuntimeError("IM父规则Put数量非法")
+    route_state = str(signal.get("v14_route_state", "future"))
+    if route_state == "future":
+        if not math.isclose(float(signal["core_put_target_qty_normalized"]), 0.5 * parent, rel_tol=0.0, abs_tol=1e-12):
+            raise RuntimeError("IM核心Put目标不等于0.5倍父规则目标")
+    elif float(signal["core_put_target_qty_normalized"]) != 0.0:
+        raise RuntimeError("IM卖Put/恢复状态核心Put目标必须为0")
+    validate_im_call_values(signal.get("call_target_qty_normalized", 0.0),
+                            signal.get("call_target_contract"),
+                            signal.get("call_target_expiry"), signal.get("call_target_strike"))
+
+
+def validate_im_put_execution_evidence(signal: dict[str, Any]) -> None:
+    """Reject a stale or internally inconsistent corrected Put signal."""
+    if signal.get("im_put_execution_revision") != strategy.IM_PUT_EXECUTION_REVISION:
+        raise RuntimeError("IM信号缺少已修正月度Put执行版本，禁止当作修复后结果交付")
+    if strategy.im_put_policy.active(signal["market_date"]):
+        if signal.get("im_put_policy_revision") != strategy.IM_PUT_POLICY_REVISION or signal.get("im_put_target_moneyness") != 1.02:
+            raise RuntimeError("IM新信号缺少MOM120/102%政策证据")
+        expected = strategy.im_put_policy.momentum_quantity(
+            signal["market_date"], signal.get("momentum_120"),
+            signal["momentum_next_weight"],
+            0.5 * float(signal["v13_parent_puts_per_full_core"]),
+        )
+        if not math.isclose(_finite_float(signal.get("momentum_put_target_qty_normalized"), "IM动量Put目标"), expected, abs_tol=1e-12):
+            raise RuntimeError("IM动量Put未按仅MOM120条件计算")
+    price = _finite_float(signal.get("put_reference_price"), "IM Put参考期货价格")
+    expected_reference = (signal.get("core_eod_contract")
+                          if signal.get("roll_confirmed") is True
+                          else signal.get("core_current"))
+    if price <= 0 or signal.get("put_reference_future") != expected_reference:
+        raise RuntimeError("IM Put行权价参考必须是已确认持有的策略期货，不能使用指数或未执行预告合约")
+    if type(signal.get("option_monthly_reset_due")) is not bool:
+        raise RuntimeError("IM月度Put重置标识缺失或非法")
+    if signal["option_monthly_reset_due"]:
+        _as_day(signal.get("put_monthly_reset_execution_date"), "IM月度Put计划日")
+        for sleeve in ("core", "momentum"):
+            qty = _finite_float(signal.get(f"{sleeve}_put_target_qty_normalized"), f"IM {sleeve} Put目标")
+            if qty > 0 and signal.get(f"{sleeve}_put_action") != "RESIZE_OR_ROLL":
+                raise RuntimeError(f"IM {sleeve} Put月度日必须重选，即使到期月与数量相同")
+def bootstrap_record() -> dict[str, Any]:
+    products = _jsonable(deepcopy(strategy.LIVE_CONTINUATION_ANCHOR))
+    for product in PRODUCTS:
+        products[product].update(_jsonable(v14_policy.default_extension(product)))
+    day = products["IC"]["last_verified_day"]
+    record: dict[str, Any] = {
+        "schema_version": SCHEMA_VERSION,
+        "strategy_version": STRATEGY_VERSION,
+        "strategy_revision": STRATEGY_REVISION,
+        "sequence": 0,
+        "verified_day": day,
+        "updated_at": datetime.now(strategy.BEIJING).isoformat(),
+        "previous_digest": None,
+        "products": products,
+        "signals": {},
+        "source": "v1_4_bootstrap_for_tests_only",
+        "genesis": {
+            "parent_strategy_version": "1.3",
+            "parent_strategy_revision": "r7",
+            "copied_parent_momentum_anchor": False,
+            "momentum_rule": {
+                "IC": "MA110_Mom24_W2_Abs20Blend_NAVDD6pct_half",
+                "IM": "MA35_Mom18_W2.5_Abs20Blend_Score150_VolumeMA160_0.85",
+            },
+            "build": strategy.BUILD_ID,
+            "im_put_ledgers": ["core_put", "momentum_put"],
+            "v14_policy_revision": v14_policy.RULE_REVISION,
+        },
+    }
+    record["digest"] = _digest(record)
+    _validate_record(record)
+    return record
+
+
+def anchors_from_record(record: dict[str, Any]) -> dict[str, dict[str, Any]]:
+    _validate_record(record)
+    anchors = {
+        product: _decode_anchor(deepcopy(record["products"][product]))
+        for product in PRODUCTS
+    }
+    # Recover exact sleeve quantities from the hash-verified signal, without
+    # rewriting old records or inferring held contracts from today's Delta.
+    signal = record.get("signals", {}).get("IC", {})
+    fields = ("put_target_core_qty", "put_target_momentum_qty")
+    if all(key in signal for key in fields):
+        anchors["IC"]["verified_core_put_qty"] = signal[fields[0]]
+        anchors["IC"]["verified_momentum_put_qty"] = signal[fields[1]]
+    strategy._ic_current_quantity_breakdown(anchors["IC"])
+    return anchors
+
+
+def derive_next_anchors(
+    current: dict[str, Any], signals: dict[str, dict[str, Any]]
+) -> dict[str, dict[str, Any]]:
+    _validate_record(current)
+    if set(signals) != set(PRODUCTS):
+        raise RuntimeError("只有IC/IM均完整成功，才允许推进统一审计账本")
+    current_anchors = anchors_from_record(current)
+    signal_days = {signal.get("market_date") for signal in signals.values()}
+    if len(signal_days) != 1:
+        raise RuntimeError("IC/IM收盘信号日期不一致")
+    signal_day_raw = next(iter(signal_days))
+    signal_day = (
+        signal_day_raw
+        if isinstance(signal_day_raw, date)
+        else date.fromisoformat(str(signal_day_raw)[:10])
+    )
+    previous_day = current_anchors["IC"]["last_verified_day"]
+    expected = strategy._roll_forward_exchange_day(previous_day + timedelta(days=1))
+    if signal_day != expected:
+        raise RuntimeError(
+            f"账本只能逐交易日推进：当前 {previous_day}，收到 {signal_day}，应为 {expected}"
+        )
+
+    # Runtime-only recovered quantities must not alter the historical anchor
+    # schema or the exact replay of old hashed records.
+    result = {
+        product: _decode_anchor(deepcopy(current["products"][product]))
+        for product in PRODUCTS
+    }
+    for product in PRODUCTS:
+        signal = signals[product]
+        validate_delivery_values(signal, product)
+        if str(signal.get("product")) != product:
+            raise RuntimeError(f"{product}信号产品标签不一致")
+        if not bool(signal.get("close_confirmed")):
+            raise RuntimeError(f"{product}尚未收盘确认，禁止写入审计账本")
+        if str(signal.get("market_phase")) != "收盘后":
+            raise RuntimeError(f"{product}仅允许收盘后信号写入账本")
+        if _as_day(signal.get("state_anchor_day"), f"{product} state_anchor_day") != previous_day:
+            raise RuntimeError(f"{product}信号未从当前账本锚点续接")
+        expected_next_day = strategy._roll_forward_exchange_day(signal_day + timedelta(days=1))
+        if _as_day(signal.get("next_trade_date"), f"{product} next_trade_date") != expected_next_day:
+            raise RuntimeError(f"{product}下一交易日不正确")
+        anchor = result[product]
+        if signal_day >= strategy.quarter_roll.EFFECTIVE_DATE:
+            held = str(anchor["post_core_contract"])
+            expected_plan = strategy.quarter_roll.roll_state(
+                product, held, [held, str(signal.get("next_core", ""))], signal_day, True,
+                lambda c: strategy._third_friday(*strategy._contract_month(c)),
+                strategy._is_exchange_trading_day,
+            )
+            for field in ("core_current", "core_target", "core_eod_contract", "roll_confirmed"):
+                if signal.get(field) != expected_plan[field]:
+                    raise RuntimeError(f"{product}季度换仓状态不一致: {field}")
+            if _as_day(signal.get("roll_execution_date"), "roll day") != expected_plan["roll_execution_date"]:
+                raise RuntimeError(f"{product}季度换仓执行日不一致")
+        current_weight = _finite_float(signal.get("momentum_current_weight"), f"{product}当前动量权重")
+        next_weight = _finite_float(signal.get("momentum_next_weight"), f"{product}下一动量权重")
+        allowed = {0.0, 0.25, 0.5, 1.0} if product == "IC" else {0.0, 0.5, 1.0}
+        if current_weight not in allowed or next_weight not in allowed:
+            raise RuntimeError(f"{product}动量权重超出离散合法域")
+        if current_weight != float(anchor["verified_next_momentum_weight"]):
+            raise RuntimeError(f"{product}当前动量权重不等于前日下一执行权重")
+        current_grid = _finite_float(signal.get("grid_current"), f"{product}当前网格")
+        target_grid = _finite_float(signal.get("grid_target"), f"{product}目标网格")
+        if current_grid not in {0.0, 0.5, 1.0} or target_grid not in {0.0, 0.5, 1.0}:
+            raise RuntimeError(f"{product}网格状态非法")
+        if signal_day >= strategy.GRID_POLICY_EFFECTIVE_DATE:
+            if signal.get("grid_policy_revision") != strategy.grid_policy_revision(signal_day):
+                raise RuntimeError(f"{product}网格参数版本不匹配")
+            if target_grid not in {0.0, 0.5}:
+                raise RuntimeError(f"{product}新网格目标不得超过0.5倍")
+        if current_grid != float(anchor["verified_next_grid_units"]):
+            raise RuntimeError(f"{product}当前网格不等于前日下一执行网格")
+        anchor.update(
+            {
+                "last_verified_day": signal_day,
+                "post_core_contract": str(signal.get("core_eod_contract", signal["core_target"])),
+                "verified_momentum_weight": current_weight,
+                "verified_next_momentum_weight": next_weight,
+                "verified_grid_units": current_grid,
+                "verified_next_grid_units": target_grid,
+            }
+        )
+        if product == "IC":
+            put_target_contract = signal.get("put_target_contract")
+            if put_target_contract:
+                anchor["post_put_contract"] = str(put_target_contract)
+            target_qty_raw = _finite_float(signal.get("put_target_total_qty"), "IC Put数量")
+            if target_qty_raw < 0.0 or not target_qty_raw.is_integer():
+                raise RuntimeError("IC Put数量必须为非负整数")
+            target_qty = int(target_qty_raw)
+            core_delta = _finite_float(signal.get("core_put_target_delta"), "IC核心Put Delta")
+            momentum_delta = _finite_float(signal.get("momentum_put_target_delta"), "IC动量Put Delta")
+            total_delta = _finite_float(signal.get("total_put_target_delta"), "IC总Put Delta")
+            if min(core_delta, momentum_delta, total_delta) < 0.0 or max(core_delta, momentum_delta, total_delta) > 1.0:
+                raise RuntimeError("IC Put Delta超出0到1")
+            if not math.isclose(total_delta, core_delta + momentum_delta, abs_tol=1e-12):
+                raise RuntimeError("IC总Put Delta不等于核心与动量之和")
+            if _finite_float(signal.get("call_target_qty_normalized", 0.0), "IC Call数量") != 0.0:
+                raise RuntimeError("IC 1.3明确禁止Call")
+            target_security_id = signal.get("put_target_security_id")
+            anchor.update(
+                {
+                    "post_put_qty": float(target_qty),
+                    "verified_put_qty_normalized": float(target_qty),
+                    "verified_core_put_delta": core_delta,
+                    "verified_momentum_put_delta": momentum_delta,
+                    "verified_total_put_delta": total_delta,
+                    "verified_core_put_driver": str(signal["core_put_driver"]),
+                    "verified_momentum_put_driver": str(
+                        signal["momentum_put_driver"]
+                    ),
+                    "verified_call_contracts_normalized": 0.0,
+                }
+            )
+            if target_security_id:
+                anchor["post_put_security_id"] = str(target_security_id)
+            quantity_anchor = dict(anchor)
+            for field, signal_field in (
+                ("verified_core_put_qty", "put_target_core_qty"),
+                ("verified_momentum_put_qty", "put_target_momentum_qty"),
+            ):
+                quantity_anchor.pop(field, None)
+                if signal_field in signal:
+                    quantity_anchor[field] = signal[signal_field]
+            breakdown = strategy._ic_current_quantity_breakdown(quantity_anchor)
+            anchor["verified_core_put_qty"] = breakdown["core"]
+            anchor["verified_momentum_put_qty"] = breakdown["momentum"]
+        else:
+            # Historical r7 journal entries stay readable. New corrected signals
+            # carry their execution revision and are validated before append.
+            if signal_day >= date(2026, 9, 7) or "im_put_execution_revision" in signal:
+                validate_im_put_execution_evidence(signal)
+            validate_im_option_values(signal)
+            core_current = _finite_float(
+                signal.get("core_put_current_qty_normalized"), "IM当前核心Put数量"
+            )
+            momentum_current = _finite_float(
+                signal.get("momentum_put_current_qty_normalized"), "IM当前动量Put数量"
+            )
+            total_current = _finite_float(
+                signal.get("total_put_current_qty_normalized"), "IM当前组合Put数量"
+            )
+            core_put = _finite_float(
+                signal.get("core_put_target_qty_normalized"), "IM核心Put数量"
+            )
+            momentum_put = _finite_float(
+                signal.get("momentum_put_target_qty_normalized"), "IM动量Put数量"
+            )
+            total_put = _finite_float(
+                signal.get("total_put_target_qty_normalized"), "IM组合Put数量"
+            )
+            call_qty = _finite_float(signal.get("call_target_qty_normalized", 0.0), "IM Call数量")
+            parent_puts = signal.get("v13_parent_puts_per_full_core")
+            if (
+                core_put < 0.0
+                or core_put > 2.0
+                or momentum_put < 0.0
+                or momentum_put > 2.0
+                or total_put < 0.0
+                or total_put > 4.0
+                or call_qty not in {-1.0, 0.0}
+            ):
+                raise RuntimeError("IM期权目标数量超出合法域")
+            if not isinstance(parent_puts, int) or isinstance(parent_puts, bool) or parent_puts not in {0, 1, 2, 3, 4}:
+                raise RuntimeError("IM父规则Put数量非法")
+            if not math.isclose(core_current, float(anchor["verified_core_put_qty_normalized"]), abs_tol=1e-12):
+                raise RuntimeError("IM当前核心Put数量不等于账本锚点")
+            if not math.isclose(momentum_current, float(anchor["verified_momentum_put_qty_normalized"]), abs_tol=1e-12):
+                raise RuntimeError("IM当前动量Put数量不等于账本锚点")
+            if not math.isclose(total_current, core_current + momentum_current, abs_tol=1e-12):
+                raise RuntimeError("IM当前组合Put数量不等于核心与动量之和")
+            current_core_contract = signal.get("core_put_current_contract")
+            current_momentum_contract = signal.get("momentum_put_current_contract")
+            if current_core_contract != anchor.get("post_core_put_contract"):
+                raise RuntimeError("IM当前核心Put合约不等于账本锚点")
+            if current_momentum_contract != anchor.get("post_momentum_put_contract"):
+                raise RuntimeError("IM当前动量Put合约不等于账本锚点")
+            route_state = str(signal.get("v14_route_state", "future"))
+            if route_state == "future":
+                if not math.isclose(core_put, 0.5 * parent_puts, abs_tol=1e-12):
+                    raise RuntimeError("IM核心Put目标不等于0.5倍父规则目标")
+            elif core_put != 0.0 or call_qty != 0.0:
+                raise RuntimeError("IM卖Put/恢复状态必须同步关闭核心Put与固定核心Call")
+            expected_momentum = strategy.im_put_policy.momentum_quantity(
+                signal["market_date"], signal.get("momentum_120"), next_weight,
+                0.5 * parent_puts,
+            )
+            if not math.isclose(momentum_put, expected_momentum, abs_tol=1e-12):
+                raise RuntimeError("IM动量Put目标与对应日期的MOM120/历史规则不一致")
+            if not math.isclose(total_put, core_put + momentum_put, abs_tol=1e-12):
+                raise RuntimeError("IM组合Put目标不等于核心与动量之和")
+            core_contract = signal.get("core_put_target_contract")
+            momentum_contract = signal.get("momentum_put_target_contract")
+            if core_put > 0.0 and not core_contract:
+                raise RuntimeError("IM核心Put目标非零但缺少合约")
+            if momentum_put > 0.0 and not momentum_contract:
+                raise RuntimeError("IM动量Put目标非零但缺少独立合约")
+            if momentum_put == 0.0 and momentum_contract not in (None, ""):
+                raise RuntimeError("IM动量Put目标为零但仍保留合约")
+            previous_reset_value = anchor.get("verified_put_monthly_reset_date")
+            previous_reset = (
+                _as_day(previous_reset_value, "IM已记录月度Put事件")
+                if previous_reset_value is not None else None
+            )
+            if previous_reset is not None:
+                if previous_reset != strategy._third_friday(previous_reset.year, previous_reset.month):
+                    raise RuntimeError("IM已记录月度Put事件不是合法月度日期")
+                if previous_reset > strategy._roll_forward_exchange_day(previous_day + timedelta(days=1)):
+                    raise RuntimeError("IM已记录月度Put事件超前于账本允许的下一交易日")
+            if signal.get("option_monthly_reset_due") is True:
+                reset_day = _as_day(signal.get("put_monthly_reset_execution_date"), "IM月度Put事件日期")
+                expected_reset = strategy._third_friday(signal_day.year, signal_day.month)
+                prior_session = strategy._roll_backward_exchange_day(expected_reset - timedelta(days=1))
+                if reset_day != expected_reset or signal_day != expected_reset:
+                    raise RuntimeError("IM月度Put事件必须在该月到期日确认，禁止提前记为完成")
+                if previous_reset is not None and reset_day <= previous_reset:
+                    raise RuntimeError("IM同一或更早月度Put事件已经记录，禁止重复维护")
+                anchor["verified_put_monthly_reset_date"] = reset_day
+            anchor.update(
+                {
+                    "post_put_contract": core_contract,
+                    "post_core_put_contract": core_contract,
+                    "post_momentum_put_contract": momentum_contract,
+                    "post_put_equivalent_units": 0.5 * total_put,
+                    "post_core_put_equivalent_units": 0.5 * core_put,
+                    "post_momentum_put_equivalent_units": 0.5 * momentum_put,
+                    "verified_put_qty_normalized": total_put,
+                    "verified_core_put_qty_normalized": core_put,
+                    "verified_momentum_put_qty_normalized": momentum_put,
+                    "verified_total_put_qty_normalized": total_put,
+                    "verified_parent_puts": parent_puts,
+                    "verified_call_contracts_normalized": call_qty,
+                    "verified_call_contract": signal.get("call_target_contract"),
+                    "verified_call_expiry": signal.get("call_target_expiry"),
+                    "verified_call_strike": signal.get("call_target_strike"),
+                    "verified_threat_roll_count": int(
+                        signal.get("call_target_threat_roll_count", 0)
+                    ),
+                }
+            )
+        for key in v14_policy.default_extension(product):
+            if key not in signal:
+                raise RuntimeError(f"{product} v1.4信号缺少持久字段: {key}")
+            anchor[key] = deepcopy(signal[key])
+        v14_policy.validate_extension(product, anchor)
+    return result
+
+
+class StateStore:
+    def __init__(self, root: str | os.PathLike[str] | None = None) -> None:
+        configured = root or os.environ.get(STATE_ENV)
+        self.root = Path(configured) if configured else DEFAULT_STATE_DIR
+        self.latest_path = self.root / "latest.json"
+        self.journal_dir = self.root / "journal"
+        self.lock_path = self.root / ".ledger.lock"
+
+    @contextmanager
+    def _exclusive_lock(self):
+        self.root.mkdir(parents=True, exist_ok=True)
+        stream = self.lock_path.open("a+b")
+        try:
+            stream.seek(0)
+            stream.write(b"\0")
+            stream.flush()
+            stream.seek(0)
+            if os.name == "nt":
+                import msvcrt
+
+                msvcrt.locking(stream.fileno(), msvcrt.LK_LOCK, 1)
+            else:
+                import fcntl
+
+                fcntl.flock(stream.fileno(), fcntl.LOCK_EX)
+            yield
+        finally:
+            stream.seek(0)
+            if os.name == "nt":
+                import msvcrt
+
+                msvcrt.locking(stream.fileno(), msvcrt.LK_UNLCK, 1)
+            else:
+                import fcntl
+
+                fcntl.flock(stream.fileno(), fcntl.LOCK_UN)
+            stream.close()
+
+    def _atomic_write(self, path: Path, record: dict[str, Any]) -> None:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        payload = json.dumps(
+            _jsonable(record), ensure_ascii=False, sort_keys=True, indent=2
+        ) + "\n"
+        handle, temporary = tempfile.mkstemp(
+            prefix=f".{path.name}.", suffix=".tmp", dir=path.parent
+        )
+        try:
+            with os.fdopen(handle, "w", encoding="utf-8", newline="\n") as stream:
+                stream.write(payload)
+                stream.flush()
+                os.fsync(stream.fileno())
+            os.replace(temporary, path)
+        finally:
+            if os.path.exists(temporary):
+                os.unlink(temporary)
+
+    def initialize(self) -> dict[str, Any]:
+        with self._exclusive_lock():
+            if self.latest_path.exists():
+                return self.load_latest()
+            record = bootstrap_record()
+            journal = self.journal_dir / f"000000-{record['verified_day']}.json"
+            self._atomic_write(journal, record)
+            self._atomic_write(self.latest_path, record)
+            return record
+
+    def load_latest(self) -> dict[str, Any]:
+        try:
+            record = json.loads(self.latest_path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError) as exc:
+            raise RuntimeError(f"无法读取Poe持久化账本: {exc}") from exc
+        _validate_record(record)
+        previous_digest: str | None = None
+        previous_day: date | None = None
+        for sequence in range(int(record["sequence"]) + 1):
+            item = self._load_sequence_record(sequence)
+            if item.get("previous_digest") != previous_digest:
+                raise RuntimeError(f"Poe账本序号 {sequence} 的前序SHA-256链断裂")
+            previous_digest = str(item["digest"])
+            item_day = _as_day(item["verified_day"], "账本verified_day")
+            if previous_day is not None and item_day != strategy._roll_forward_exchange_day(previous_day + timedelta(days=1)):
+                raise RuntimeError(f"Poe账本序号 {sequence} 未逐交易日推进")
+            previous_day = item_day
+        if previous_digest != record["digest"]:
+            raise RuntimeError("latest.json未指向审计日志链的最新序号")
+        return record
+
+    def _load_sequence_record(self, sequence: int) -> dict[str, Any]:
+        matches = sorted(self.journal_dir.glob(f"{sequence:06d}-*.json"))
+        if len(matches) != 1:
+            raise RuntimeError(f"Poe账本序号 {sequence} 不存在或重复")
+        record = json.loads(matches[0].read_text(encoding="utf-8"))
+        _validate_record(record)
+        if int(record["sequence"]) != sequence:
+            raise RuntimeError(f"Poe账本文件序号与内容不一致: {sequence}")
+        expected_name = f"{sequence:06d}-{record['verified_day']}.json"
+        if matches[0].name != expected_name:
+            raise RuntimeError(f"Poe账本文件名与内容日期不一致: {matches[0].name}")
+        return record
+
+    def load_sequence(self, sequence: int) -> dict[str, Any]:
+        latest = self.load_latest()
+        if sequence < 0 or sequence > int(latest["sequence"]):
+            raise RuntimeError(f"Poe账本序号 {sequence} 超出当前日志范围")
+        return self._load_sequence_record(sequence)
+
+    def append_confirmed_signals(
+        self, current: dict[str, Any], signals: dict[str, dict[str, Any]]
+    ) -> dict[str, Any]:
+        with self._exclusive_lock():
+            latest = self.load_latest()
+            if latest["digest"] != current["digest"]:
+                raise RuntimeError("Poe账本已被另一请求推进，请重新读取后再写入")
+            return self._append_locked(current, signals)
+
+    def _append_locked(self, current: dict[str, Any], signals: dict[str, dict[str, Any]]) -> dict[str, Any]:
+        anchors = derive_next_anchors(current, signals)
+        signal_day = next(iter({signal["market_date"] for signal in signals.values()}))
+        sequence = int(current["sequence"]) + 1
+        record: dict[str, Any] = {
+            "schema_version": SCHEMA_VERSION,
+            "strategy_version": STRATEGY_VERSION,
+            "strategy_revision": STRATEGY_REVISION,
+            "sequence": sequence,
+            "verified_day": _jsonable(signal_day),
+            "updated_at": datetime.now(strategy.BEIJING).isoformat(),
+            "previous_digest": current["digest"],
+            "products": _jsonable(anchors),
+            "signals": _jsonable(signals),
+            "source": "automatic_close_replay",
+        }
+        record["digest"] = _digest(record)
+        _validate_record(record)
+        journal = self.journal_dir / f"{sequence:06d}-{record['verified_day']}.json"
+        if journal.exists():
+            existing = json.loads(journal.read_text(encoding="utf-8"))
+            _validate_record(existing)
+            if (
+                existing.get("previous_digest") != current["digest"]
+                or str(existing.get("verified_day")) != str(record["verified_day"])
+            ):
+                raise RuntimeError(f"{record['verified_day']}账本已存在但内容冲突")
+            # Recover a crash that completed the append-only journal write but
+            # happened before latest.json was atomically replaced.
+            # Validate the recovered day's policy too: its journal may have
+            # been written by an obsolete producer before the process restart.
+            derive_next_anchors(current, existing.get("signals", {}))
+            self._atomic_write(self.latest_path, existing)
+            return existing
+        self._atomic_write(journal, record)
+        self._atomic_write(self.latest_path, record)
+        return record
+
+
+def close_clock(day: date) -> datetime:
+    return datetime.combine(day, time(15, 20), tzinfo=strategy.BEIJING)

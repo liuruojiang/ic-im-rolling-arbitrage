@@ -1,0 +1,504 @@
+{
+  "result": "NO_CHANGE_IN_SAME_ENGINE_HISTORICAL_OUTPUTS",
+  "comparison_basis": "same frozen research entrypoints and source snapshots; only output directory changed",
+  "files_compared": 58,
+  "rows_compared": 119527,
+  "max_numeric_difference": 0.0,
+  "metrics": {
+    "IC_real_full": {
+      "current_ann_return": 0.2689304251409505,
+      "joint_ann_return": 0.3038262725667524,
+      "current_sharpe": 1.5105109146961115,
+      "joint_sharpe": 1.8326807758812165,
+      "current_max_dd": -0.1106563600687565,
+      "joint_max_dd": -0.1193654655125081
+    },
+    "IM_real_full_5bp": {
+      "profit3x_ann_return": 0.3780678115829736,
+      "joint_ann_return": 0.3880364401139207,
+      "profit3x_sharpe": 1.7300594910916662,
+      "joint_sharpe": 1.8106726702157727,
+      "profit3x_max_dd": -0.1625882403650996,
+      "joint_max_dd": -0.168454474987314
+    },
+    "IM_real_cycle_concentration": {
+      "scope": "real",
+      "cycle_count": 3,
+      "positive_contribution_sum": 0.02698634857903,
+      "largest_positive_contribution": 0.0182721541529833,
+      "largest_cycle_share": 0.6770887917449439,
+      "passes_50pct_gate": false
+    }
+  },
+  "files": [
+    {
+      "product": "IC",
+      "file": "annual_attribution.csv",
+      "status": "identical",
+      "old_rows": 68,
+      "new_rows": 68,
+      "max_numeric_difference": 0.0
+    },
+    {
+      "product": "IC",
+      "file": "daily_outputs\\cycles.csv",
+      "status": "identical",
+      "old_rows": 19,
+      "new_rows": 19,
+      "max_numeric_difference": 0.0
+    },
+    {
+      "product": "IC",
+      "file": "daily_outputs\\router_events.csv",
+      "status": "identical",
+      "old_rows": 92,
+      "new_rows": 92,
+      "max_numeric_difference": 0.0
+    },
+    {
+      "product": "IC",
+      "file": "daily_outputs\\signals.csv",
+      "status": "identical",
+      "old_rows": 3700,
+      "new_rows": 3700,
+      "max_numeric_difference": 0.0
+    },
+    {
+      "product": "IC",
+      "file": "daily_outputs\\trades.csv",
+      "status": "identical",
+      "old_rows": 1090,
+      "new_rows": 1090,
+      "max_numeric_difference": 0.0
+    },
+    {
+      "product": "IC",
+      "file": "integrity_checks.csv",
+      "status": "identical",
+      "old_rows": 2,
+      "new_rows": 2,
+      "max_numeric_difference": 0.0
+    },
+    {
+      "product": "IC",
+      "file": "promotion_gates.csv",
+      "status": "identical",
+      "old_rows": 6,
+      "new_rows": 6,
+      "max_numeric_difference": 0.0
+    },
+    {
+      "product": "IC",
+      "file": "referenced_cycle_robustness.csv",
+      "status": "identical",
+      "old_rows": 1,
+      "new_rows": 1,
+      "max_numeric_difference": 0.0
+    },
+    {
+      "product": "IC",
+      "file": "scan_summary.csv",
+      "status": "identical",
+      "old_rows": 40,
+      "new_rows": 40,
+      "max_numeric_difference": 0.0
+    },
+    {
+      "product": "IC",
+      "file": "window_metrics.csv",
+      "status": "identical",
+      "old_rows": 8,
+      "new_rows": 8,
+      "max_numeric_difference": 0.0
+    },
+    {
+      "product": "IC",
+      "file": "daily_outputs\\daily.csv.gz",
+      "status": "identical",
+      "old_rows": 14808,
+      "new_rows": 14808,
+      "max_numeric_difference": 0.0
+    },
+    {
+      "product": "IM",
+      "file": "cost_comparison.csv",
+      "status": "identical",
+      "old_rows": 6,
+      "new_rows": 6,
+      "max_numeric_difference": 0.0
+    },
+    {
+      "product": "IM",
+      "file": "cycle_concentration.csv",
+      "status": "identical",
+      "old_rows": 2,
+      "new_rows": 2,
+      "max_numeric_difference": 0.0
+    },
+    {
+      "product": "IM",
+      "file": "cycle_leave_one_out.csv",
+      "status": "identical",
+      "old_rows": 13,
+      "new_rows": 13,
+      "max_numeric_difference": 0.0
+    },
+    {
+      "product": "IM",
+      "file": "daily_outputs\\loo_rerun_cycles.csv",
+      "status": "identical",
+      "old_rows": 96,
+      "new_rows": 96,
+      "max_numeric_difference": 0.0
+    },
+    {
+      "product": "IM",
+      "file": "scan_summary.csv",
+      "status": "identical",
+      "old_rows": 60,
+      "new_rows": 60,
+      "max_numeric_difference": 0.0
+    },
+    {
+      "product": "IM",
+      "file": "window_metrics.csv",
+      "status": "identical",
+      "old_rows": 12,
+      "new_rows": 12,
+      "max_numeric_difference": 0.0
+    },
+    {
+      "product": "IM",
+      "file": "daily_outputs\\call_artifacts\\model\\20190226\\model_mloo20190226_p_raw26_call_raw.csv.gz",
+      "status": "identical",
+      "old_rows": 2756,
+      "new_rows": 2756,
+      "max_numeric_difference": 0.0
+    },
+    {
+      "product": "IM",
+      "file": "daily_outputs\\call_artifacts\\model\\20190226\\model_mloo20190226_p_raw26_call_signals.csv.gz",
+      "status": "identical",
+      "old_rows": 1299,
+      "new_rows": 1299,
+      "max_numeric_difference": 0.0
+    },
+    {
+      "product": "IM",
+      "file": "daily_outputs\\call_artifacts\\model\\20190226\\model_mloo20190226_p_raw26_call_trades.csv.gz",
+      "status": "identical",
+      "old_rows": 105,
+      "new_rows": 105,
+      "max_numeric_difference": 0.0
+    },
+    {
+      "product": "IM",
+      "file": "daily_outputs\\call_artifacts\\model\\20190507\\model_mloo20190507_p_raw26_call_raw.csv.gz",
+      "status": "identical",
+      "old_rows": 2756,
+      "new_rows": 2756,
+      "max_numeric_difference": 0.0
+    },
+    {
+      "product": "IM",
+      "file": "daily_outputs\\call_artifacts\\model\\20190507\\model_mloo20190507_p_raw26_call_signals.csv.gz",
+      "status": "identical",
+      "old_rows": 1282,
+      "new_rows": 1282,
+      "max_numeric_difference": 0.0
+    },
+    {
+      "product": "IM",
+      "file": "daily_outputs\\call_artifacts\\model\\20190507\\model_mloo20190507_p_raw26_call_trades.csv.gz",
+      "status": "identical",
+      "old_rows": 103,
+      "new_rows": 103,
+      "max_numeric_difference": 0.0
+    },
+    {
+      "product": "IM",
+      "file": "daily_outputs\\call_artifacts\\model\\20200204\\model_mloo20200204_p_raw26_call_raw.csv.gz",
+      "status": "identical",
+      "old_rows": 2756,
+      "new_rows": 2756,
+      "max_numeric_difference": 0.0
+    },
+    {
+      "product": "IM",
+      "file": "daily_outputs\\call_artifacts\\model\\20200204\\model_mloo20200204_p_raw26_call_signals.csv.gz",
+      "status": "identical",
+      "old_rows": 1288,
+      "new_rows": 1288,
+      "max_numeric_difference": 0.0
+    },
+    {
+      "product": "IM",
+      "file": "daily_outputs\\call_artifacts\\model\\20200204\\model_mloo20200204_p_raw26_call_trades.csv.gz",
+      "status": "identical",
+      "old_rows": 104,
+      "new_rows": 104,
+      "max_numeric_difference": 0.0
+    },
+    {
+      "product": "IM",
+      "file": "daily_outputs\\call_artifacts\\model\\20200929\\model_mloo20200929_p_raw26_call_raw.csv.gz",
+      "status": "identical",
+      "old_rows": 2756,
+      "new_rows": 2756,
+      "max_numeric_difference": 0.0
+    },
+    {
+      "product": "IM",
+      "file": "daily_outputs\\call_artifacts\\model\\20200929\\model_mloo20200929_p_raw26_call_signals.csv.gz",
+      "status": "identical",
+      "old_rows": 1325,
+      "new_rows": 1325,
+      "max_numeric_difference": 0.0
+    },
+    {
+      "product": "IM",
+      "file": "daily_outputs\\call_artifacts\\model\\20200929\\model_mloo20200929_p_raw26_call_trades.csv.gz",
+      "status": "identical",
+      "old_rows": 99,
+      "new_rows": 99,
+      "max_numeric_difference": 0.0
+    },
+    {
+      "product": "IM",
+      "file": "daily_outputs\\call_artifacts\\model\\20221101\\model_mloo20221101_p_raw26_call_raw.csv.gz",
+      "status": "identical",
+      "old_rows": 2756,
+      "new_rows": 2756,
+      "max_numeric_difference": 0.0
+    },
+    {
+      "product": "IM",
+      "file": "daily_outputs\\call_artifacts\\model\\20221101\\model_mloo20221101_p_raw26_call_signals.csv.gz",
+      "status": "identical",
+      "old_rows": 1322,
+      "new_rows": 1322,
+      "max_numeric_difference": 0.0
+    },
+    {
+      "product": "IM",
+      "file": "daily_outputs\\call_artifacts\\model\\20221101\\model_mloo20221101_p_raw26_call_trades.csv.gz",
+      "status": "identical",
+      "old_rows": 100,
+      "new_rows": 100,
+      "max_numeric_difference": 0.0
+    },
+    {
+      "product": "IM",
+      "file": "daily_outputs\\call_artifacts\\model\\20240807\\model_mloo20240807_p_raw26_call_raw.csv.gz",
+      "status": "identical",
+      "old_rows": 2756,
+      "new_rows": 2756,
+      "max_numeric_difference": 0.0
+    },
+    {
+      "product": "IM",
+      "file": "daily_outputs\\call_artifacts\\model\\20240807\\model_mloo20240807_p_raw26_call_signals.csv.gz",
+      "status": "identical",
+      "old_rows": 1300,
+      "new_rows": 1300,
+      "max_numeric_difference": 0.0
+    },
+    {
+      "product": "IM",
+      "file": "daily_outputs\\call_artifacts\\model\\20240807\\model_mloo20240807_p_raw26_call_trades.csv.gz",
+      "status": "identical",
+      "old_rows": 103,
+      "new_rows": 103,
+      "max_numeric_difference": 0.0
+    },
+    {
+      "product": "IM",
+      "file": "daily_outputs\\call_artifacts\\model\\20241008\\model_mloo20241008_p_raw26_call_raw.csv.gz",
+      "status": "identical",
+      "old_rows": 2756,
+      "new_rows": 2756,
+      "max_numeric_difference": 0.0
+    },
+    {
+      "product": "IM",
+      "file": "daily_outputs\\call_artifacts\\model\\20241008\\model_mloo20241008_p_raw26_call_signals.csv.gz",
+      "status": "identical",
+      "old_rows": 1285,
+      "new_rows": 1285,
+      "max_numeric_difference": 0.0
+    },
+    {
+      "product": "IM",
+      "file": "daily_outputs\\call_artifacts\\model\\20241008\\model_mloo20241008_p_raw26_call_trades.csv.gz",
+      "status": "identical",
+      "old_rows": 106,
+      "new_rows": 106,
+      "max_numeric_difference": 0.0
+    },
+    {
+      "product": "IM",
+      "file": "daily_outputs\\call_artifacts\\model\\20250410\\model_mloo20250410_p_raw26_call_raw.csv.gz",
+      "status": "identical",
+      "old_rows": 2756,
+      "new_rows": 2756,
+      "max_numeric_difference": 0.0
+    },
+    {
+      "product": "IM",
+      "file": "daily_outputs\\call_artifacts\\model\\20250410\\model_mloo20250410_p_raw26_call_signals.csv.gz",
+      "status": "identical",
+      "old_rows": 1286,
+      "new_rows": 1286,
+      "max_numeric_difference": 0.0
+    },
+    {
+      "product": "IM",
+      "file": "daily_outputs\\call_artifacts\\model\\20250410\\model_mloo20250410_p_raw26_call_trades.csv.gz",
+      "status": "identical",
+      "old_rows": 103,
+      "new_rows": 103,
+      "max_numeric_difference": 0.0
+    },
+    {
+      "product": "IM",
+      "file": "daily_outputs\\call_artifacts\\model\\20250819\\model_mloo20250819_p_raw26_call_raw.csv.gz",
+      "status": "identical",
+      "old_rows": 2756,
+      "new_rows": 2756,
+      "max_numeric_difference": 0.0
+    },
+    {
+      "product": "IM",
+      "file": "daily_outputs\\call_artifacts\\model\\20250819\\model_mloo20250819_p_raw26_call_signals.csv.gz",
+      "status": "identical",
+      "old_rows": 1286,
+      "new_rows": 1286,
+      "max_numeric_difference": 0.0
+    },
+    {
+      "product": "IM",
+      "file": "daily_outputs\\call_artifacts\\model\\20250819\\model_mloo20250819_p_raw26_call_trades.csv.gz",
+      "status": "identical",
+      "old_rows": 98,
+      "new_rows": 98,
+      "max_numeric_difference": 0.0
+    },
+    {
+      "product": "IM",
+      "file": "daily_outputs\\call_artifacts\\model\\20260203\\model_mloo20260203_p_raw26_call_raw.csv.gz",
+      "status": "identical",
+      "old_rows": 2756,
+      "new_rows": 2756,
+      "max_numeric_difference": 0.0
+    },
+    {
+      "product": "IM",
+      "file": "daily_outputs\\call_artifacts\\model\\20260203\\model_mloo20260203_p_raw26_call_signals.csv.gz",
+      "status": "identical",
+      "old_rows": 1288,
+      "new_rows": 1288,
+      "max_numeric_difference": 0.0
+    },
+    {
+      "product": "IM",
+      "file": "daily_outputs\\call_artifacts\\model\\20260203\\model_mloo20260203_p_raw26_call_trades.csv.gz",
+      "status": "identical",
+      "old_rows": 102,
+      "new_rows": 102,
+      "max_numeric_difference": 0.0
+    },
+    {
+      "product": "IM",
+      "file": "daily_outputs\\call_artifacts\\real\\20241008\\real_rloo20241008_p_raw26_call_raw.csv.gz",
+      "status": "identical",
+      "old_rows": 986,
+      "new_rows": 986,
+      "max_numeric_difference": 0.0
+    },
+    {
+      "product": "IM",
+      "file": "daily_outputs\\call_artifacts\\real\\20241008\\real_rloo20241008_p_raw26_call_signals.csv.gz",
+      "status": "identical",
+      "old_rows": 642,
+      "new_rows": 642,
+      "max_numeric_difference": 0.0
+    },
+    {
+      "product": "IM",
+      "file": "daily_outputs\\call_artifacts\\real\\20241008\\real_rloo20241008_p_raw26_call_trades.csv.gz",
+      "status": "identical",
+      "old_rows": 28,
+      "new_rows": 28,
+      "max_numeric_difference": 0.0
+    },
+    {
+      "product": "IM",
+      "file": "daily_outputs\\call_artifacts\\real\\20250410\\real_rloo20250410_p_raw26_call_raw.csv.gz",
+      "status": "identical",
+      "old_rows": 986,
+      "new_rows": 986,
+      "max_numeric_difference": 0.0
+    },
+    {
+      "product": "IM",
+      "file": "daily_outputs\\call_artifacts\\real\\20250410\\real_rloo20250410_p_raw26_call_signals.csv.gz",
+      "status": "identical",
+      "old_rows": 660,
+      "new_rows": 660,
+      "max_numeric_difference": 0.0
+    },
+    {
+      "product": "IM",
+      "file": "daily_outputs\\call_artifacts\\real\\20250410\\real_rloo20250410_p_raw26_call_trades.csv.gz",
+      "status": "identical",
+      "old_rows": 32,
+      "new_rows": 32,
+      "max_numeric_difference": 0.0
+    },
+    {
+      "product": "IM",
+      "file": "daily_outputs\\call_artifacts\\real\\20260203\\real_rloo20260203_p_raw26_call_raw.csv.gz",
+      "status": "identical",
+      "old_rows": 986,
+      "new_rows": 986,
+      "max_numeric_difference": 0.0
+    },
+    {
+      "product": "IM",
+      "file": "daily_outputs\\call_artifacts\\real\\20260203\\real_rloo20260203_p_raw26_call_signals.csv.gz",
+      "status": "identical",
+      "old_rows": 638,
+      "new_rows": 638,
+      "max_numeric_difference": 0.0
+    },
+    {
+      "product": "IM",
+      "file": "daily_outputs\\call_artifacts\\real\\20260203\\real_rloo20260203_p_raw26_call_trades.csv.gz",
+      "status": "identical",
+      "old_rows": 32,
+      "new_rows": 32,
+      "max_numeric_difference": 0.0
+    },
+    {
+      "product": "IM",
+      "file": "daily_outputs\\cost_daily.csv.gz",
+      "status": "identical",
+      "old_rows": 22452,
+      "new_rows": 22452,
+      "max_numeric_difference": 0.0
+    },
+    {
+      "product": "IM",
+      "file": "daily_outputs\\loo_daily.csv.gz",
+      "status": "identical",
+      "old_rows": 30518,
+      "new_rows": 30518,
+      "max_numeric_difference": 0.0
+    }
+  ],
+  "limitations": [
+    "Production adapter/state repairs are not imported by the frozen research engines.",
+    "Real listed samples still end on 2026-08-14; no 2026-09-18 formal signal exists yet.",
+    "Model layers remain theoretical and are not executable-market evidence."
+  ]
+}
