@@ -46,6 +46,28 @@ def _candidate(product: str, **overrides):
     return candidate
 
 
+def test_producer_identity_is_date_aware_for_append_only_history():
+    assert policy.identity_for_signal_day(date(2026, 9, 17)) == (
+        policy.PREVIOUS_BUILD_ID,
+        policy.PREVIOUS_RULE_REVISION,
+    )
+    assert policy.identity_for_signal_day(date(2026, 9, 18)) == (
+        policy.BUILD_ID,
+        policy.RULE_REVISION,
+    )
+
+
+def test_replay_before_fix3_keeps_original_producer_identity():
+    result = policy.apply_policy(
+        "IC",
+        _signal("IC", market_date=date(2026, 9, 17)),
+        policy.default_extension("IC"),
+        candidate={"tradable": False},
+    )
+    assert result["v14_build_id"] == policy.PREVIOUS_BUILD_ID
+    assert result["v14_rule_revision"] == policy.PREVIOUS_RULE_REVISION
+
+
 def test_ic_seller_uses_v13_execution_permission_not_removed_mom120_gate():
     signal = _signal("IC", momentum_120=-0.10, momentum_next_weight=0.5)
     allowed, reason = policy.seller_permission("IC", signal, _candidate("IC"))

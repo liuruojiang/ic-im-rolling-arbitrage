@@ -226,11 +226,15 @@ def validate_delivery_values(signal: dict[str, Any], product: str, *, historical
 
 def validate_v14_new_signal(signal: dict[str, Any], product: str) -> None:
     """Strict producer and route boundary for new writes, not frozen history."""
+    market_date = signal.get("market_date")
+    if not market_date:
+        raise RuntimeError(f"{product} v1.4信号缺少market_date")
+    expected_build_id, expected_rule_revision = v14_policy.identity_for_signal_day(market_date)
     for field, expected in (
         ("strategy_version", STRATEGY_VERSION),
         ("strategy_revision", STRATEGY_REVISION),
-        ("v14_build_id", v14_policy.BUILD_ID),
-        ("v14_rule_revision", v14_policy.RULE_REVISION),
+        ("v14_build_id", expected_build_id),
+        ("v14_rule_revision", expected_rule_revision),
     ):
         if signal.get(field) != expected:
             raise RuntimeError(f"{product} v1.4生产器身份不匹配: {field}")

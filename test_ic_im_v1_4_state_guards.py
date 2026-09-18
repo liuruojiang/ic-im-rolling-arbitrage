@@ -37,15 +37,31 @@ def test_migrated_core_put_allows_legacy_target_only_before_effective_date():
     signal = new_signal()
     signal.update(
         market_date=date(2026, 9, 17),
+        v14_build_id=policy.PREVIOUS_BUILD_ID,
+        v14_rule_revision=policy.PREVIOUS_RULE_REVISION,
         v14_core_put_qty=14,
         v14_core_put_contract='510500P2612M07500',
         v14_core_put_security_id='10012099',
         put_target_core_qty=0,
     )
     state.validate_delivery_values(signal, 'IC')
-    signal['market_date'] = date(2026, 9, 18)
+    signal.update(
+        market_date=date(2026, 9, 18),
+        v14_build_id=policy.BUILD_ID,
+        v14_rule_revision=policy.RULE_REVISION,
+    )
     with pytest.raises(RuntimeError, match='核心Put数量与核心目标不一致'):
         state.validate_delivery_values(signal, 'IC')
+
+
+def test_pre_fix3_replay_accepts_its_original_producer_identity():
+    signal = new_signal()
+    signal.update(
+        market_date=date(2026, 9, 17),
+        v14_build_id=policy.PREVIOUS_BUILD_ID,
+        v14_rule_revision=policy.PREVIOUS_RULE_REVISION,
+    )
+    state.validate_delivery_values(signal, 'IC')
 
 
 @pytest.mark.parametrize('changes', [
