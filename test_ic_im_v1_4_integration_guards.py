@@ -132,6 +132,7 @@ def test_ic_candidate_falls_back_to_sina_when_sse_times_out(monkeypatch):
     chain=pd.DataFrame([{'contract':'510500P2610M07500','last':.1237,'strike':7.5}])
     monkeypatch.setattr(bot, 'fetch_sse_510500_chain', lambda _month: (_ for _ in ()).throw(TimeoutError('SSE timeout')))
     monkeypatch.setattr(bot, 'fetch_sina_510500_chain', lambda _month: (chain, {'date':'20260918','time':'150000','source':'新浪财经期权详报价（上交所回退）'}))
+    monkeypatch.setattr(bot, 'fetch_sina_510500_security_id', lambda _contract: '10012357')
     candidate=bot._v14_ic_short_put_candidate(signal)
     assert candidate['tradable'] is True
     assert candidate['contract']=='510500P2610M07500'
