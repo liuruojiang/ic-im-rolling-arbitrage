@@ -3125,7 +3125,100 @@ def fetch_sse_510500_chain(expiry_ym: str) -> tuple[pd.DataFrame, dict[str, str]
     return frame, {
         "date": str(payload.get("date", "")),
         "time": str(payload.get("time", "")).zfill(6),
+        "source": "上交所行情接口",
     }
+
+
+def fetch_sina_510500_chain(expiry_ym: str) -> tuple[pd.DataFrame, dict[str, str]]:
+    """Fetch a live 510500 Put chain from Sina as an audited SSE outage fallback."""
+    match = re.fullmatch(r"(20)?(\d{2})(\d{2})", str(expiry_ym))
+    if not match:
+        raise ValueError(f"非法ETF期权月份: {expiry_ym}")
+    yy, month = match.group(2), match.group(3)
+    headers = {
+        "User-Agent": "Mozilla/5.0 POE-IC-IM-Research/1.0",
+        "Referer": "https://stock.finance.sina.com.cn/",
+        "Cache-Control": "no-cache",
+    }
+    listing_response = requests.get(
+        "https://hq.sinajs.cn/",
+        params={"list": f"OP_DOWN_510500{yy}{month}"},
+        timeout=_bounded_timeout(8),
+        headers=headers,
+    )
+    listing_response.raise_for_status()
+    _response_with_size_limit(listing_response, "新浪510500 Put列表")
+    listing = listing_response.content.decode("gbk", errors="replace")
+    ids = sorted(set(re.findall(r"CON_OP_(\d+)", listing)))
+    if not ids:
+        raise RuntimeError(f"新浪未返回510500 Put月份 {yy}{month} 的证券代码列表")
+    details_response = requests.get(
+        "https://hq.sinajs.cn/list=" + ",".join(f"CON_OP_{value}" for value in ids),
+        timeout=_bounded_timeout(8),
+        headers=headers,
+    )
+    details_response.raise_for_status()
+    _response_with_size_limit(details_response, "新浪510500 Put详情")
+    rows: list[dict[str, Any]] = []
+    stamps: set[tuple[str, str]] = set()
+    details = details_response.content.decode("gbk", errors="replace")
+    for _, payload in re.findall(r'hq_str_CON_OP_(\d+)="([^"]*)"', details):
+        fields = payload.split(",")
+        if len(fields) <= 46 or fields[43] not in {"M", "A"} or fields[45] != "P":
+            continue
+        expiry = str(fields[46]).replace("-", "")
+        if expiry[2:6] != f"{yy}{month}":
+            continue
+        try:
+            strike = float(fields[7])
+            last = float(fields[3])
+            observed = datetime.strptime(fields[32], "%Y-%m-%d %H:%M:%S")
+        except (TypeError, ValueError) as exc:
+            raise RuntimeError("新浪510500 Put详情含无效价格或时间戳") from exc
+        if not (math.isfinite(strike) and math.isfinite(last) and strike > 0):
+            raise RuntimeError("新浪510500 Put详情含非有限价格或行权价")
+        style = fields[43]
+        contract = f"510500P{yy}{month}{style}{int(round(strike * 1000)):05d}"
+        rows.append(
+            {
+                "contract": contract,
+                "last": last,
+                "chg_rate": None,
+                "pre_settle": float(fields[40]) if fields[40] else None,
+                "strike": strike,
+            }
+        )
+        stamps.add((observed.strftime("%Y%m%d"), observed.strftime("%H%M%S")))
+    if not rows:
+        raise RuntimeError(f"新浪未返回有效510500 Put月份 {yy}{month} 行情")
+    if len(stamps) != 1:
+        raise RuntimeError(f"新浪510500 Put月份 {yy}{month} 时间戳不一致")
+    source_day, source_time = stamps.pop()
+    return pd.DataFrame(rows), {
+        "date": source_day,
+        "time": source_time,
+        "source": "新浪财经期权详报价（上交所回退）",
+    }
+
+
+def fetch_510500_chain_with_failover(expiry_ym: str) -> tuple[pd.DataFrame, dict[str, str]]:
+    """Use SSE first, then Sina; never substitute stale or malformed quotes."""
+    failures: list[str] = []
+    for source, fetcher in (
+        ("上交所行情接口", fetch_sse_510500_chain),
+        ("新浪财经期权详报价", fetch_sina_510500_chain),
+    ):
+        try:
+            chain, stamp = fetcher(expiry_ym)
+            required = {"contract", "last", "strike"}
+            if not required.issubset(chain.columns) or chain.empty:
+                raise RuntimeError("期权链为空或缺少必要字段")
+            normalized_stamp = dict(stamp)
+            normalized_stamp.setdefault("source", source)
+            return chain, normalized_stamp
+        except Exception as exc:
+            failures.append(f"{source}: {type(exc).__name__}: {exc}")
+    raise RuntimeError("510500期权链所有来源均不可用；" + "；".join(failures))
 
 
 def fetch_sse_510500_expiries() -> list[str]:
@@ -4325,9 +4418,12 @@ def _v14_ic_short_put_candidate(
     else:
         year, month = _month_after(roll_from_expiry.year, roll_from_expiry.month)
     expiry_month = f"{year:04d}{month:02d}"
-    if expiry_month not in fetch_sse_510500_expiries():
-        return {"tradable": False, "reason": "target_m1_not_listed", "month": expiry_month}
-    chain, stamp = fetch_sse_510500_chain(expiry_month[2:])
+    try:
+        chain, stamp = fetch_510500_chain_with_failover(expiry_month[2:])
+    except RuntimeError as exc:
+        if "证券代码列表" in str(exc) or "有效510500 Put月份" in str(exc):
+            return {"tradable": False, "reason": "target_m1_not_listed", "month": expiry_month}
+        raise
     _validate_chain_stamp_matches("v1.4 IC卖Put候选", stamp, signal["market_date"], _now_beijing())
     puts = chain[
         chain.contract.str.contains(rf"510500P{expiry_month[2:]}M", regex=True)
@@ -4373,6 +4469,7 @@ def _v14_ic_short_put_candidate(
         "decision_known_entry_abs_delta": abs_delta,
         "quote_date": stamp.get("date"),
         "quote_time": stamp.get("time"),
+        "quote_source": stamp.get("source"),
     }
 
 
@@ -4460,7 +4557,7 @@ def _v14_ic_core_overlay(signal: dict[str, Any], anchor: dict[str, Any]) -> None
             match = re.search(r"P(\d{4})", str(contract))
             if not match:
                 raise RuntimeError("IC独立核心Put合约格式错误")
-            chain, stamp = fetch_sse_510500_chain(match.group(1))
+            chain, stamp = fetch_510500_chain_with_failover(match.group(1))
         _validate_chain_stamp_matches("IC独立核心Put", stamp, day, _now_beijing())
         row = _quote_row(chain, str(contract))
         if row is None or not math.isfinite(float(row["last"])) or float(row["last"]) <= 0:
@@ -4859,7 +4956,7 @@ def _build_live_trade_signal(
             )
             etf = fetch_sse_510500_historical_quote(replay_day)
         else:
-            chain, sse_stamp = fetch_sse_510500_chain(match.group(1))
+            chain, sse_stamp = fetch_510500_chain_with_failover(match.group(1))
             etf = fetch_sse_510500_quote()
         chain_day = _validate_market_stamp("上交所510500期权链", sse_stamp["date"], clock)
         etf_day = _validate_market_stamp("上交所510500ETF", etf["date"], clock)

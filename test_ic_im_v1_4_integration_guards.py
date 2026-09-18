@@ -7,13 +7,13 @@ import poe_ic_im_mainline_v1_4_bot as bot
 
 def test_ic_candidate_rejects_stale_chain():
     signal={'market_date':date(2026,9,18),'next_trade_date':date(2026,9,21)}
-    with bot.runtime_clock(datetime(2026,9,18,16,tzinfo=bot.BEIJING)), patch.object(bot,'fetch_sse_510500_expiries',return_value=['202610']), patch.object(bot,'fetch_sse_510500_chain',return_value=(pd.DataFrame(),{'date':'20260901','time':'150000'})):
+    with bot.runtime_clock(datetime(2026,9,18,16,tzinfo=bot.BEIJING)), patch.object(bot,'fetch_510500_chain_with_failover',return_value=(pd.DataFrame(),{'date':'20260901','time':'150000'})):
         with pytest.raises(RuntimeError):
             bot._v14_ic_short_put_candidate(signal)
 
 
 def test_ic_replay_does_not_fetch_current_chain():
-    with bot.historical_replay(date(2026,9,18)), patch.object(bot,'fetch_sse_510500_chain',side_effect=AssertionError('must not fetch current')):
+    with bot.historical_replay(date(2026,9,18)), patch.object(bot,'fetch_510500_chain_with_failover',side_effect=AssertionError('must not fetch current')):
         assert bot._v14_ic_short_put_candidate({})['tradable'] is False
 
 
@@ -109,7 +109,7 @@ def test_ic_dedicated_core_next_day_mark_and_quantity():
     anchor={'v14_core_put_contract':'510500P2612M07500','v14_core_put_security_id':'123','v14_core_put_qty':5,'verified_core_put_delta':.25}
     signal={'market_date':date(2026,9,22),'iv_monitor_option_price':.1,'core_put_target_delta':.25,'put_target_momentum_qty':3,'put_target_contract':'old'}
     chain=pd.DataFrame([{'contract':'510500P2612M07500','last':.8}])
-    with patch.object(bot,'fetch_sse_510500_chain',return_value=(chain,{})),patch.object(bot,'_validate_chain_stamp_matches'):
+    with patch.object(bot,'fetch_510500_chain_with_failover',return_value=(chain,{})),patch.object(bot,'_validate_chain_stamp_matches'):
         bot._v14_ic_core_overlay(signal,anchor)
     assert signal['iv_monitor_option_price']==.8
     assert signal['put_target_core_qty']==5
@@ -124,3 +124,22 @@ def test_ic_dedicated_core_historical_query_uses_core_security_id():
     with bot.historical_replay(date(2026,9,22)),patch.object(bot,'fetch_sse_existing_put_historical_quote',return_value=(chain,{})) as fetch,patch.object(bot,'_validate_chain_stamp_matches'):
         bot._v14_ic_core_overlay(signal,anchor)
     fetch.assert_called_once_with('510500P2612M07500','123',date(2026,9,22))
+
+
+def test_ic_candidate_falls_back_to_sina_when_sse_times_out(monkeypatch):
+    signal={'market_date':date(2026,9,18),'next_trade_date':date(2026,9,21),
+            'etf_price':7.83,'future_last':7641.0}
+    chain=pd.DataFrame([{'contract':'510500P2610M07500','last':.1237,'strike':7.5}])
+    monkeypatch.setattr(bot, 'fetch_sse_510500_chain', lambda _month: (_ for _ in ()).throw(TimeoutError('SSE timeout')))
+    monkeypatch.setattr(bot, 'fetch_sina_510500_chain', lambda _month: (chain, {'date':'20260918','time':'150000','source':'新浪财经期权详报价（上交所回退）'}))
+    candidate=bot._v14_ic_short_put_candidate(signal)
+    assert candidate['tradable'] is True
+    assert candidate['contract']=='510500P2610M07500'
+    assert candidate['quote_source']=='新浪财经期权详报价（上交所回退）'
+
+
+def test_ic_chain_failover_refuses_all_unavailable_sources(monkeypatch):
+    monkeypatch.setattr(bot, 'fetch_sse_510500_chain', lambda _month: (_ for _ in ()).throw(TimeoutError('SSE timeout')))
+    monkeypatch.setattr(bot, 'fetch_sina_510500_chain', lambda _month: (_ for _ in ()).throw(TimeoutError('Sina timeout')))
+    with pytest.raises(RuntimeError, match='所有来源均不可用'):
+        bot.fetch_510500_chain_with_failover('2610')
