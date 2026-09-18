@@ -4346,7 +4346,17 @@ def _v14_ic_short_put_candidate(
         _gov10y_for_day("IC", signal["market_date"]),
         float(FROZEN["IC"]["dividend"]), years,
     )
-    qty = 0.5 * float(signal["future_last"]) * 200.0 / (etf * 10_000.0)
+    # IC fixed core is 0.5x.  The approved fix3 sizing scales that core
+    # notional by decision-known option Delta so the initial total short-Put
+    # Delta is 0.5 per 1x IC, rather than retaining the old q1-notional size.
+    abs_delta = abs(_bs_price_delta(
+        "P", etf, float(selected.strike), _gov10y_for_day("IC", signal["market_date"]),
+        float(FROZEN["IC"]["dividend"]), float(iv), years,
+    )[1])
+    if not math.isfinite(abs_delta) or abs_delta <= 0.0:
+        return {"tradable": False, "reason": "candidate_delta_unavailable"}
+    q1_notional = 0.5 * float(signal["future_last"]) * 200.0 / (etf * 10_000.0)
+    qty = q1_notional * 0.50 / abs_delta
     return {
         "tradable": iv is not None,
         "reason": "ok" if iv is not None else "iv_unavailable",
@@ -4357,7 +4367,8 @@ def _v14_ic_short_put_candidate(
         "premium": premium,
         "iv": iv,
         "qty_normalized": qty,
-        "quantity_rule": "q1_notional_continuous_research",
+        "quantity_rule": "q_delta05_continuous_research",
+        "decision_known_entry_abs_delta": abs_delta,
         "quote_date": stamp.get("date"),
         "quote_time": stamp.get("time"),
     }
@@ -6005,7 +6016,7 @@ class ICIMMainlinesBot:
                         "与0.1%单边换手成本；成交量/高分清仓过滤关闭。\n"
                     )
                     msg.write("- 买Put：固定核心买Put达到入场权利金3倍时，T收盘触发兑现，T+1收盘按新合约重建；动量Put独立，不随核心兑现。\n")
-                    msg.write("- 卖Put路由：固定核心处于估值0/1档、原执行动量许可且M+1约95%行权价Put IV严格>37.5%时，以q1名义等值切换；权利金衰减50%最多提前滚一次。\n")
+                    msg.write("- 卖Put路由：固定核心处于估值0/1档、原执行动量许可且M+1约95%行权价Put IV严格>30%时，以q_delta05（每1倍IC初始总Delta 0.5）切换；权利金衰减50%最多提前滚一次。\n")
                     msg.write("- 卖Put或恢复路线期间固定核心买Put暂停；到期输出模型条件分支，不要求账户成交或交割回执。\n")
                     msg.write("- 网格：≤0.500 加0.5倍，≥1.000 退出；新增腿不配Put。\n")
                     msg.write("- IC不卖Call。\n\n")

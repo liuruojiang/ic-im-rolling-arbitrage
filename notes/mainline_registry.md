@@ -1,5 +1,11 @@
 # IC / IM 系统主线登记表
 
+## IC / IM v1.4-r1 IC 卖Put参数修正 fix3（2026-09-18）
+
+- 用户确认将污染修正后逐层测试结果同步至正式研究信号。构建`v1.4-20260918-r1-coreput3x-fixedshort95-fix3-iciv30-qdelta05`，规则版本`ic_im_v1_4_iciv30_qdelta05_20260918_v1`。
+- IC固定核心卖Put改为M+1 510500 95% Put自身IV严格>30%、`q_delta05`（每1倍IC总初始Delta 0.5）；保留估值0/1、原执行动量许可、50%一次提前展期与核心买Put三倍兑现；卖方MOM120、动量腿/网格腿卖Put和IC Call继续排除。
+- schema 4/r1账本前向续接，旧r1规格、历史账本与已发送日报不改写；IM规则不变。规格：`docs/ic_im_v1_4_r1_fix3_iciv30_qdelta05_spec.md`。
+
 ## IC / IM v1.4-r1 信号边界修正 fix2（2026-09-17）
 
 - 用户明确本系统仅发布信号，实际成交、行权、结算、交割及账户持仓由用户手动处理；构建更新为`v1.4-20260917-r1-coreput3x-fixedshort95-fix2`，策略规则和参数不变。

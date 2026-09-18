@@ -54,8 +54,8 @@ def test_parameter_copy_matches_half_unit_grid(monkeypatch):
     assert "IC 1.4" in text and "≤0.500 加0.5倍" in text
     assert "IM 1.4" in text and "≤1.60 加0.5倍" in text
     assert "3倍" in text
-    assert "IV严格>37.5%" in text
-    assert "q1" in text
+    assert "IV严格>30%" in text
+    assert "q_delta05" in text
     assert "IV严格>35%" in text
     assert "q3" in text
     assert "卖Put、现金等待及恢复路线期间固定核心Call暂停" in text
@@ -63,6 +63,6 @@ def test_parameter_copy_matches_half_unit_grid(monkeypatch):
     assert "加1倍" not in text
 
 
-def test_delivery_identity_is_fix2():
-    assert digest.DELIVERY_REVISION.endswith("-fix2")
-    assert strategy.BUILD_ID.endswith("-fix2")
+def test_delivery_identity_is_fix3():
+    assert digest.DELIVERY_REVISION.endswith("-fix3-iciv30-qdelta05")
+    assert strategy.BUILD_ID.endswith("-fix3-iciv30-qdelta05")

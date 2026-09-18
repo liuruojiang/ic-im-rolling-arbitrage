@@ -12,8 +12,8 @@ from datetime import date
 from typing import Any
 
 
-BUILD_ID = "v1.4-20260917-r1-coreput3x-fixedshort95-fix2"
-RULE_REVISION = "ic_im_v1_4_coreput3x_fixed_short95_20260917_v1"
+BUILD_ID = "v1.4-20260918-r1-coreput3x-fixedshort95-fix3-iciv30-qdelta05"
+RULE_REVISION = "ic_im_v1_4_iciv30_qdelta05_20260918_v1"
 EFFECTIVE_SIGNAL_DATE = date(2026, 9, 18)
 PROFIT_MULTIPLE = 3.0
 VALID_STATES = {
@@ -26,9 +26,9 @@ VALID_STATES = {
 
 PRODUCT_RULES = {
     "IC": {
-        "iv_threshold": 0.375,
+        "iv_threshold": 0.30,
         "premium_decay": 0.50,
-        "quantity": "q1_notional",
+        "quantity": "q_delta05",
         "seller_mom120": False,
     },
     "IM": {
