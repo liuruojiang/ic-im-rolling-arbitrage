@@ -4346,6 +4346,8 @@ def _v14_ic_short_put_candidate(
         _gov10y_for_day("IC", signal["market_date"]),
         float(FROZEN["IC"]["dividend"]), years,
     )
+    if iv is None:
+        return {"tradable": False, "reason": "iv_unavailable"}
     # IC fixed core is 0.5x.  The approved fix3 sizing scales that core
     # notional by decision-known option Delta so the initial total short-Put
     # Delta is 0.5 per 1x IC, rather than retaining the old q1-notional size.
@@ -4358,8 +4360,8 @@ def _v14_ic_short_put_candidate(
     q1_notional = 0.5 * float(signal["future_last"]) * 200.0 / (etf * 10_000.0)
     qty = q1_notional * 0.50 / abs_delta
     return {
-        "tradable": iv is not None,
-        "reason": "ok" if iv is not None else "iv_unavailable",
+        "tradable": True,
+        "reason": "ok",
         "contract": str(selected.contract),
         "security_id": fetch_sina_510500_security_id(str(selected.contract)),
         "expiry": expiry,
