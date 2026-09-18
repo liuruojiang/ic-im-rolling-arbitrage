@@ -46,8 +46,8 @@ def test_migrated_schema4_chain_advances_atomically_before_effective_date(tmp_pa
         signal.update(
             strategy_version="1.4",
             strategy_revision="r1",
-            v14_build_id=policy.BUILD_ID,
-            v14_rule_revision=policy.RULE_REVISION,
+            v14_build_id=policy.identity_for_signal_day(signal["market_date"])[0],
+            v14_rule_revision=policy.identity_for_signal_day(signal["market_date"])[1],
         )
     advanced = store.append_confirmed_signals(current, signals)
     assert advanced["sequence"] == 1
@@ -81,8 +81,15 @@ def test_migration_preserves_ic_both_sleeves_and_forward_updates(tmp_path):
                               total_put_target_delta=.5)
     for product, signal in next_signals.items():
         signal.update(policy.default_extension(product))
+        build_id, rule_revision = policy.identity_for_signal_day(signal['market_date'])
         signal.update(strategy_version='1.4', strategy_revision='r1',
-                      v14_build_id=policy.BUILD_ID, v14_rule_revision=policy.RULE_REVISION)
+                      v14_build_id=build_id, v14_rule_revision=rule_revision)
     updated = new_state.StateStore(target).append_confirmed_signals(migrated, next_signals)
     assert updated['products']['IC']['verified_core_put_qty'] == 8
     assert updated['products']['IC']['verified_momentum_put_qty'] == 6
+    projected = new_state.anchors_from_record(updated)['IC']
+    assert projected['v14_core_put_qty'] == 8
+    assert projected['v14_core_put_contract'] == next_signals['IC']['put_target_contract']
+    assert projected['v14_core_put_security_id'] == next_signals['IC']['put_target_security_id']
+    assert projected['v14_core_put_entry_premium'] is None
+    assert projected['v14_core_put_profit3x_eligible'] is False

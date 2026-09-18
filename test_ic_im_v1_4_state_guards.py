@@ -54,6 +54,21 @@ def test_migrated_core_put_allows_legacy_target_only_before_effective_date():
         state.validate_delivery_values(signal, 'IC')
 
 
+def test_intraday_core_put_target_may_differ_until_close_confirmation():
+    signal = new_signal()
+    signal.update(
+        close_confirmed=False,
+        v14_core_put_qty=12,
+        v14_core_put_contract='510500P2612M07500',
+        v14_core_put_security_id='10012099',
+        put_target_core_qty=14,
+    )
+    state.validate_delivery_values(signal, 'IC')
+    signal['close_confirmed'] = True
+    with pytest.raises(RuntimeError, match='核心Put数量与核心目标不一致'):
+        state.validate_delivery_values(signal, 'IC')
+
+
 def test_pre_fix3_replay_accepts_its_original_producer_identity():
     signal = new_signal()
     signal.update(

@@ -263,7 +263,11 @@ def validate_v14_new_signal(signal: dict[str, Any], product: str) -> None:
             # backfill, the migrated v1.3 core leg is deliberately retained
             # while the legacy signal may have a different target quantity.
             # Once v1.4 is effective, the dedicated leg and target must agree.
-            if market_day >= v14_policy.EFFECTIVE_SIGNAL_DATE and _option_number(signal.get("put_target_core_qty"), "IC核心Put目标数量") != core_qty:
+            if (
+                market_day >= v14_policy.EFFECTIVE_SIGNAL_DATE
+                and bool(signal.get("close_confirmed"))
+                and _option_number(signal.get("put_target_core_qty"), "IC核心Put目标数量") != core_qty
+            ):
                 raise RuntimeError("IC独立核心Put数量与核心目标不一致")
         elif core_contract not in (None, "") or core_security not in (None, ""):
             raise RuntimeError("IC独立核心Put为零但保留合约身份")
@@ -444,7 +448,33 @@ def anchors_from_record(record: dict[str, Any]) -> dict[str, dict[str, Any]]:
     if all(key in signal for key in fields):
         anchors["IC"]["verified_core_put_qty"] = signal[fields[0]]
         anchors["IC"]["verified_momentum_put_qty"] = signal[fields[1]]
+        signal_day = _as_day(signal.get("market_date"), "IC历史信号日")
+        # Frozen pre-effective records kept the migrated v1.4 core extension,
+        # while their v1.3 target leg became the next session's actual holding.
+        # Project that hash-verified target into the in-memory continuation
+        # anchor only; never rewrite the historical record or invent a cost
+        # basis for the 3x rule.
+        if (
+            signal_day < v14_policy.EFFECTIVE_SIGNAL_DATE
+            and anchors["IC"].get("v14_route_state") == "future"
+        ):
+            core_qty = _option_number(signal[fields[0]], "IC历史核心Put目标数量")
+            if core_qty < 0 or not core_qty.is_integer():
+                raise RuntimeError("IC历史核心Put目标数量必须为非负整数")
+            core_contract = signal.get("put_target_contract") if core_qty > 0 else None
+            core_security = signal.get("put_target_security_id") if core_qty > 0 else None
+            anchors["IC"].update(
+                v14_core_put_contract=core_contract,
+                v14_core_put_security_id=core_security,
+                v14_core_put_qty=int(core_qty),
+                v14_core_put_entry_premium=None,
+                v14_core_put_profit3x_eligible=False,
+                v14_profit_pending=False,
+                v14_profit_trigger_day=None,
+                v14_profit_execution_day=None,
+            )
     strategy._ic_current_quantity_breakdown(anchors["IC"])
+    v14_policy.validate_extension("IC", anchors["IC"])
     return anchors
 
 
