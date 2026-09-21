@@ -147,3 +147,11 @@ def test_ic_chain_failover_refuses_all_unavailable_sources(monkeypatch):
     monkeypatch.setattr(bot, 'fetch_sina_510500_chain', lambda _month: (_ for _ in ()).throw(TimeoutError('Sina timeout')))
     with pytest.raises(RuntimeError, match='所有来源均不可用'):
         bot.fetch_510500_chain_with_failover('2610')
+
+
+def test_mom120_positive_but_debounce_active_is_labeled_as_pending_release():
+    ic = bot.ic_targets(1.0, 0.0125, mom120_floor_active=True)
+    im = bot.im_targets(1.0, 0.0125, mom120_floor_active=True)
+    expected = 'MOM120防抖保护未解除（需连续两日均严格>+1%）'
+    assert ic['put_driver'] == expected
+    assert im['put_driver'] == expected

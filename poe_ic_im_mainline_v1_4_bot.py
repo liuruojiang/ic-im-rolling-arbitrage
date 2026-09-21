@@ -1530,7 +1530,11 @@ def ic_targets(
     if valuation_delta > mom120_floor:
         driver = "估值档"
     elif mom120_floor > valuation_delta:
-        driver = "MOM120负动量下限"
+        driver = (
+            "MOM120负动量下限"
+            if momentum_120 < 0.0
+            else "MOM120防抖保护未解除（需连续两日均严格>+1%）"
+        )
     elif delta > 0:
         driver = "估值档与MOM120下限同时命中同一目标"
     else:
@@ -1562,7 +1566,11 @@ def im_targets(
     if valuation_puts > mom120_floor:
         driver = "估值档"
     elif mom120_floor > valuation_puts:
-        driver = "MOM120负动量下限"
+        driver = (
+            "MOM120负动量下限"
+            if momentum_120 < 0.0
+            else "MOM120防抖保护未解除（需连续两日均严格>+1%）"
+        )
     elif puts > 0:
         driver = "估值档与MOM120下限同时命中同一目标"
     else:
