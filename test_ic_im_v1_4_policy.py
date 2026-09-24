@@ -52,6 +52,14 @@ def test_producer_identity_is_date_aware_for_append_only_history():
         policy.PREVIOUS_RULE_REVISION,
     )
     assert policy.identity_for_signal_day(date(2026, 9, 18)) == (
+        policy.FIX3_BUILD_ID,
+        policy.FIX3_RULE_REVISION,
+    )
+    assert policy.identity_for_signal_day(date(2026, 9, 23)) == (
+        policy.FIX3_BUILD_ID,
+        policy.FIX3_RULE_REVISION,
+    )
+    assert policy.identity_for_signal_day(date(2026, 9, 24)) == (
         policy.BUILD_ID,
         policy.RULE_REVISION,
     )

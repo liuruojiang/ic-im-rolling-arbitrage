@@ -26,7 +26,7 @@ from poe_ic_im_v1_4_state import StateStore, _jsonable
 
 
 PRODUCTS = ("IC", "IM")
-DELIVERY_REVISION = "20260918-v14-coreput3x-fixedshort95-fix3-iciv30-qdelta05"
+DELIVERY_REVISION = "20260924-v14-coreput3x-fixedshort95-fix4-integrated-iciv30-qdelta05"
 MODES = ("close", "realtime")
 
 
