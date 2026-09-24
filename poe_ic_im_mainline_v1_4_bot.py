@@ -512,6 +512,9 @@ _NETWORK_DEADLINE: contextvars.ContextVar[float | None] = contextvars.ContextVar
     "poe_ic_im_network_deadline",
     default=None,
 )
+_SIGNAL_PRODUCT_BUDGET_OVERRIDE: contextvars.ContextVar[float | None] = (
+    contextvars.ContextVar("ic_im_signal_product_budget_override", default=None)
+)
 
 
 @dataclass(frozen=True)
@@ -772,9 +775,27 @@ def _remaining_network_budget() -> float | None:
     return max(0.0, deadline - time_module.monotonic())
 
 
+@contextmanager
+def signal_product_budget_override(seconds: float | None):
+    """Give the one-shot digest more time without changing Poe request limits."""
+
+    if seconds is not None and (
+        not math.isfinite(seconds) or seconds <= 0 or seconds > 300
+    ):
+        raise ValueError("逐品种联网预算必须在0到300秒之间")
+    token = _SIGNAL_PRODUCT_BUDGET_OVERRIDE.set(seconds)
+    try:
+        yield
+    finally:
+        _SIGNAL_PRODUCT_BUDGET_OVERRIDE.reset(token)
+
+
 def _signal_product_network_budget(product_count: int) -> float:
     if product_count <= 0:
         raise ValueError("信号品种数必须为正")
+    override = _SIGNAL_PRODUCT_BUDGET_OVERRIDE.get()
+    if override is not None:
+        return override
     return min(
         SIGNAL_PRODUCT_NETWORK_BUDGET_SECONDS,
         SIGNAL_NETWORK_BUDGET_SECONDS / product_count,
