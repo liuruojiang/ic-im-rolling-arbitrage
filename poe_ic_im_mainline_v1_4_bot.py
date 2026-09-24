@@ -4577,7 +4577,9 @@ def _v14_ic_core_overlay(signal: dict[str, Any], anchor: dict[str, Any]) -> None
             target_delta = float(signal["core_put_target_delta"])
             held_delta = float(anchor.get("verified_core_put_delta", target_delta))
             qty = int(anchor.get("v14_core_put_qty", 0))
-            if not math.isclose(target_delta, held_delta, abs_tol=1e-12):
+            if target_delta == 0.0:
+                qty = 0
+            elif not math.isclose(target_delta, held_delta, abs_tol=1e-12):
                 expiry_match = re.fullmatch(r"510500P(\d{2})(\d{2})M(\d{5})",str(contract))
                 if not expiry_match:
                     raise RuntimeError("IC独立核心Put格式无效")
@@ -4594,8 +4596,10 @@ def _v14_ic_core_overlay(signal: dict[str, Any], anchor: dict[str, Any]) -> None
                     raise RuntimeError("IC独立核心Put绝对Delta无效")
                 equivalent = max(1,round(float(signal["future_last"])*200/(spot*10000)))
                 qty = max(1,round(equivalent*target_delta/delta)) if target_delta > 0 else 0
-            signal.update(v14_core_put_contract=contract,
-                          v14_core_put_security_id=anchor.get("v14_core_put_security_id"),
+            # The held leg still supplies today's mark, but a zero T+1 core
+            # target must not carry its contract identity into the new ledger.
+            signal.update(v14_core_put_contract=contract if qty > 0 else None,
+                          v14_core_put_security_id=anchor.get("v14_core_put_security_id") if qty > 0 else None,
                           v14_core_put_qty=qty, put_target_core_qty=qty,
                           put_target_total_qty=qty+int(signal.get("put_target_momentum_qty",0)))
     if signal.get("option_monthly_reset_due") and signal.get("close_confirmed"):

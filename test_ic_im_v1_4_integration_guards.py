@@ -126,6 +126,23 @@ def test_ic_dedicated_core_historical_query_uses_core_security_id():
     fetch.assert_called_once_with('510500P2612M07500','123',date(2026,9,22))
 
 
+def test_ic_core_target_zero_clears_identity_but_keeps_held_mark():
+    anchor={'v14_core_put_contract':'510500P2612M07500','v14_core_put_security_id':'10012099',
+            'v14_core_put_qty':14,'verified_core_put_delta':.25}
+    signal={'market_date':date(2026,9,22),'core_put_target_delta':0.,
+            'put_target_momentum_qty':0,'option_monthly_reset_due':False}
+    chain=pd.DataFrame([{'contract':'510500P2612M07500','last':.08}])
+    with bot.historical_replay(date(2026,9,22)),patch.object(bot,'fetch_sse_existing_put_historical_quote',return_value=(chain,{})),patch.object(bot,'_validate_chain_stamp_matches'):
+        bot._v14_ic_core_overlay(signal,anchor)
+    assert signal['iv_monitor_option_price']==.08
+    assert signal['put_current_core_qty']==14
+    assert signal['put_target_core_qty']==0
+    assert signal['put_target_total_qty']==0
+    assert signal['v14_core_put_qty']==0
+    assert signal['v14_core_put_contract'] is None
+    assert signal['v14_core_put_security_id'] is None
+
+
 def test_ic_candidate_falls_back_to_sina_when_sse_times_out(monkeypatch):
     signal={'market_date':date(2026,9,18),'next_trade_date':date(2026,9,21),
             'etf_price':7.83,'future_last':7641.0}
