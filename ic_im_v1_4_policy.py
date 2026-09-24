@@ -12,11 +12,15 @@ from datetime import date
 from typing import Any
 
 
-BUILD_ID = "v1.4-20260918-r1-coreput3x-fixedshort95-fix3-iciv30-qdelta05"
+BUILD_ID = "v1.4-20260924-r1-coreput3x-fixedshort95-fix4-integrated-iciv30-qdelta05"
 RULE_REVISION = "ic_im_v1_4_iciv30_qdelta05_20260918_v1"
 EFFECTIVE_SIGNAL_DATE = date(2026, 9, 18)
-# The r1 ledger is append-only.  Signals before this forward change retain the
-# producer identity under which they were first produced; new signals use fix3.
+# The r1 ledger is append-only. Strategy rules started on September 18, while
+# the integrated producer build starts on September 24. Historical signals
+# retain the producer identity under which they were first produced.
+BUILD_EFFECTIVE_SIGNAL_DATE = date(2026, 9, 24)
+FIX3_BUILD_ID = "v1.4-20260918-r1-coreput3x-fixedshort95-fix3-iciv30-qdelta05"
+FIX3_RULE_REVISION = RULE_REVISION
 PREVIOUS_BUILD_ID = "v1.4-20260917-r1-coreput3x-fixedshort95-fix2"
 PREVIOUS_RULE_REVISION = "ic_im_v1_4_coreput3x_fixed_short95_20260917_v1"
 PROFIT_MULTIPLE = 3.0
@@ -34,6 +38,8 @@ def identity_for_signal_day(value: date | str) -> tuple[str, str]:
     day = value if isinstance(value, date) else date.fromisoformat(str(value)[:10])
     if day < EFFECTIVE_SIGNAL_DATE:
         return PREVIOUS_BUILD_ID, PREVIOUS_RULE_REVISION
+    if day < BUILD_EFFECTIVE_SIGNAL_DATE:
+        return FIX3_BUILD_ID, FIX3_RULE_REVISION
     return BUILD_ID, RULE_REVISION
 
 PRODUCT_RULES = {

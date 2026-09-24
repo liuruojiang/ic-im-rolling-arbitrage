@@ -9,7 +9,7 @@ from test_poe_ic_im_v1_3_state import _signals
 def new_signal():
     signal = _signals(date(2026, 8, 25))['IC']
     signal.update(policy.default_extension('IC'))
-    signal.update(market_date=date(2026, 9, 18), strategy_version='1.4', strategy_revision='r1',
+    signal.update(market_date=date(2026, 9, 24), strategy_version='1.4', strategy_revision='r1',
                   v14_build_id=policy.BUILD_ID, v14_rule_revision=policy.RULE_REVISION)
     return signal
 
@@ -47,8 +47,8 @@ def test_migrated_core_put_allows_legacy_target_only_before_effective_date():
     state.validate_delivery_values(signal, 'IC')
     signal.update(
         market_date=date(2026, 9, 18),
-        v14_build_id=policy.BUILD_ID,
-        v14_rule_revision=policy.RULE_REVISION,
+        v14_build_id=policy.FIX3_BUILD_ID,
+        v14_rule_revision=policy.FIX3_RULE_REVISION,
     )
     with pytest.raises(RuntimeError, match='核心Put数量与核心目标不一致'):
         state.validate_delivery_values(signal, 'IC')
@@ -75,6 +75,16 @@ def test_pre_fix3_replay_accepts_its_original_producer_identity():
         market_date=date(2026, 9, 17),
         v14_build_id=policy.PREVIOUS_BUILD_ID,
         v14_rule_revision=policy.PREVIOUS_RULE_REVISION,
+    )
+    state.validate_delivery_values(signal, 'IC')
+
+
+def test_fix3_window_replay_accepts_its_original_producer_identity():
+    signal = new_signal()
+    signal.update(
+        market_date=date(2026, 9, 23),
+        v14_build_id=policy.FIX3_BUILD_ID,
+        v14_rule_revision=policy.FIX3_RULE_REVISION,
     )
     state.validate_delivery_values(signal, 'IC')
 

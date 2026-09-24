@@ -63,6 +63,6 @@ def test_parameter_copy_matches_half_unit_grid(monkeypatch):
     assert "加1倍" not in text
 
 
-def test_delivery_identity_is_fix3():
-    assert digest.DELIVERY_REVISION.endswith("-fix3-iciv30-qdelta05")
-    assert strategy.BUILD_ID.endswith("-fix3-iciv30-qdelta05")
+def test_delivery_identity_is_fix4_integrated():
+    assert digest.DELIVERY_REVISION.endswith("-fix4-integrated-iciv30-qdelta05")
+    assert strategy.BUILD_ID.endswith("-fix4-integrated-iciv30-qdelta05")

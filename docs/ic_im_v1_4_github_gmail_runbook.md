@@ -4,7 +4,8 @@
 
 ## 正式入口
 
-- 策略构建：`v1.4-20260918-r1-coreput3x-fixedshort95-fix3-iciv30-qdelta05`。
+- 策略构建：`v1.4-20260924-r1-coreput3x-fixedshort95-fix4-integrated-iciv30-qdelta05`；策略规则仍为`ic_im_v1_4_iciv30_qdelta05_20260918_v1`。
+- 生产者身份前向生效：2026-09-18至2026-09-23保留fix3身份，2026-09-24起使用fix4；不得重写旧账本生产者身份。
 - 本地和远端 runner：`run_ic_im_v1_4_github_digest.py`。
 - 持久状态：schema 4、revision r1，独立目录/工件 `ic-im-v1-4-r1-ledger`。
 - GitHub 工作流：`ic-im-v1-4-daily-digest.yml`，北京时间20:00收盘确认发布。
