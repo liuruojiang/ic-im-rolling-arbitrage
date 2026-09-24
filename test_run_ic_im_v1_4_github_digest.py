@@ -66,3 +66,12 @@ def test_parameter_copy_matches_half_unit_grid(monkeypatch):
 def test_delivery_identity_is_fix4_integrated():
     assert digest.DELIVERY_REVISION.endswith("-fix4-integrated-iciv30-qdelta05")
     assert strategy.BUILD_ID.endswith("-fix4-integrated-iciv30-qdelta05")
+
+
+def test_digest_budget_override_is_scoped_and_preserves_request_deadline():
+    assert strategy._signal_product_network_budget(2) == 45.0
+    with strategy.signal_product_budget_override(180.0):
+        assert strategy._signal_product_network_budget(2) == 180.0
+        with strategy._network_budget(1.0):
+            assert 0 < strategy._bounded_timeout(8.0) <= 1.0
+    assert strategy._signal_product_network_budget(2) == 45.0

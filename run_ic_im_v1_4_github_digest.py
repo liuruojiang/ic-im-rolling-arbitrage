@@ -373,6 +373,7 @@ def main() -> int:
     parser.add_argument("--max-sessions", type=int, default=20)
     parser.add_argument("--mode", choices=MODES, default="close")
     parser.add_argument("--expected-market-date", default="")
+    parser.add_argument("--network-budget-per-product", type=float, default=None)
     args = parser.parse_args()
     if args.max_sessions <= 0:
         raise SystemExit("--max-sessions must be positive")
@@ -380,7 +381,9 @@ def main() -> int:
     clock = parse_clock(args.now)
     out_dir = Path(args.out_dir)
     try:
-        with strategy.collection_clock(clock):
+        with strategy.collection_clock(clock), strategy.signal_product_budget_override(
+            args.network_budget_per_product
+        ):
             result = build_artifacts(
                 state_dir=Path(args.state_dir),
                 out_dir=out_dir,
