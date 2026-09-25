@@ -68,6 +68,10 @@ def test_producer_identity_is_date_aware_for_append_only_history():
         policy.FIX4_RULE_REVISION,
     )
     assert policy.identity_for_signal_day(date(2026, 9, 26)) == (
+        policy.FIX6_BUILD_ID,
+        policy.FIX6_RULE_REVISION,
+    )
+    assert policy.identity_for_signal_day(date(2026, 9, 28)) == (
         policy.BUILD_ID,
         policy.RULE_REVISION,
     )
@@ -385,6 +389,89 @@ def test_profit_execution_requires_scheduled_common_session_close(day, confirmed
         v14_profit_reentry_entry_premium=12.), anchor, candidate={"tradable": False})
     assert result["v14_profit_pending"] is True
     assert result["v14_action"] != "EXECUTE_CORE_PUT_PROFIT3X_REENTER"
+
+
+@pytest.mark.parametrize("product", ["IC", "IM"])
+def test_fix7_profit_plan_selects_at_t_and_confirms_only_t1_open(product):
+    anchor = policy.default_extension(product)
+    anchor.update(v14_core_put_entry_premium=10.0, v14_core_put_profit3x_eligible=True)
+    fields = {
+        "v14_profit_plan_contract": "510500P2612M07000" if product == "IC" else "MO2612-P-7000",
+        "v14_profit_plan_qty": 5 if product == "IC" else 1.5,
+        "v14_profit_plan_security_id": "10012001" if product == "IC" else None,
+        "v14_core_put_mark": 30.0,
+    }
+    if product == "IC":
+        anchor.update(v14_core_put_contract="510500P2612M07500", v14_core_put_security_id="10012000", v14_core_put_qty=5)
+        fields.update(v14_core_put_contract="510500P2612M07500", v14_core_put_security_id="10012000", v14_core_put_qty=5)
+    else:
+        fields.update(core_put_current_contract="MO2612-P-7500", core_put_current_qty_normalized=1.5)
+    trigger = policy.apply_policy(product, _signal(product, market_date=date(2026, 9, 28),
+        next_trade_date=date(2026, 9, 29), **fields), anchor, candidate={"tradable": False})
+    assert trigger["v14_action"] == "CORE_PUT_PROFIT3X_REENTER"
+    assert trigger["v14_profit_reentry_status"] == "scheduled_t_plus_1_open"
+    assert trigger["v14_profit_reentry_contract"] == fields["v14_profit_plan_contract"]
+    pending = {key: trigger[key] for key in policy.default_extension(product)}
+    policy.validate_extension(product, pending)
+    waiting = policy.apply_policy(product, _signal(product, market_date=date(2026, 9, 29),
+        next_trade_date=date(2026, 9, 30), v14_profit_reentry_entry_premium=12.0),
+        pending, candidate={"tradable": False})
+    assert waiting["v14_action"] == "WAIT_CORE_PUT_PROFIT3X_REENTER"
+    assert waiting["v14_profit_pending"] is True
+    executed = policy.apply_policy(product, _signal(product, market_date=date(2026, 9, 29),
+        next_trade_date=date(2026, 9, 30), v14_profit_reentry_status="confirmed_open_research_price",
+        v14_profit_reentry_contract=fields["v14_profit_plan_contract"],
+        v14_profit_reentry_entry_premium=12.0, v14_profit_exit_open_price=30.0,
+        v14_profit_open_executed_qty=fields["v14_profit_plan_qty"],
+        v14_profit_open_price_day=date(2026, 9, 29)), pending, candidate={"tradable": False})
+    assert executed["v14_action"] == "EXECUTE_CORE_PUT_PROFIT3X_REENTER"
+    assert executed["v14_core_put_entry_premium"] == 12.0
+    assert executed["v14_profit_pending"] is False
+    competing_route = policy.apply_policy(product, _signal(product, market_date=date(2026, 9, 29),
+        next_trade_date=date(2026, 9, 30), v14_profit_reentry_status="confirmed_open_research_price",
+        v14_profit_reentry_contract=fields["v14_profit_plan_contract"],
+        v14_profit_reentry_entry_premium=12.0, v14_profit_exit_open_price=30.0,
+        v14_profit_open_executed_qty=fields["v14_profit_plan_qty"],
+        v14_profit_open_price_day=date(2026, 9, 29)), pending, candidate=_candidate(product))
+    assert competing_route["v14_action"] == "EXECUTE_CORE_PUT_PROFIT3X_REENTER"
+    assert competing_route["v14_route_state"] == "future"
+
+
+def test_fix7_no_t_close_preselection_does_not_create_a_fake_open_order():
+    anchor = policy.default_extension("IC")
+    anchor.update(v14_core_put_entry_premium=10.0, v14_core_put_profit3x_eligible=True,
+                  v14_core_put_contract="510500P2612M07500", v14_core_put_security_id="10012000", v14_core_put_qty=5)
+    result = policy.apply_policy("IC", _signal("IC", market_date=date(2026, 9, 28),
+        next_trade_date=date(2026, 9, 29), v14_core_put_mark=30.0,
+        v14_core_put_contract="510500P2612M07500", v14_core_put_security_id="10012000", v14_core_put_qty=5),
+        anchor, candidate={"tradable": False})
+    assert result["v14_action"] == "HOLD"
+    assert result["v14_profit_pending"] is False
+    assert result["v14_action_reason"] == "profit3x_t_close_preselection_unavailable"
+
+
+def test_fix7_monthly_reset_cancels_pending_open_execution():
+    anchor = policy.default_extension("IC")
+    anchor.update(v14_profit_pending=True, v14_profit_trigger_day=date(2026, 9, 28),
+                  v14_profit_execution_day=date(2026, 9, 29),
+                  v14_profit_old_contract="510500P2612M07500", v14_profit_old_security_id="10012000",
+                  v14_profit_old_qty=5, v14_profit_reentry_contract="510500P2612M07000",
+                  v14_profit_reentry_security_id="10012001", v14_profit_reentry_qty=5)
+    result = policy.apply_policy("IC", _signal("IC", market_date=date(2026, 9, 29),
+        option_monthly_reset_due=True, v14_core_put_target_entry_premium=20.0),
+        anchor, candidate={"tradable": False})
+    assert result["v14_action"] != "EXECUTE_CORE_PUT_PROFIT3X_REENTER"
+    assert result["v14_profit_pending"] is False
+    assert result["v14_profit_reentry_contract"] is None
+
+
+def test_fix6_pending_crossing_fix7_boundary_keeps_old_close_semantics():
+    anchor = policy.default_extension("IC")
+    anchor.update(v14_profit_pending=True, v14_profit_trigger_day=date(2026, 9, 25),
+                  v14_profit_execution_day=date(2026, 9, 28))
+    result = policy.apply_policy("IC", _signal("IC", market_date=date(2026, 9, 28),
+        v14_profit_reentry_entry_premium=12.0), anchor, candidate={"tradable": False})
+    assert result["v14_action"] == "EXECUTE_CORE_PUT_PROFIT3X_REENTER"
 
 
 @pytest.mark.parametrize("product,field", [("IC", "momentum_next_weight"), ("IM", "momentum_120")])

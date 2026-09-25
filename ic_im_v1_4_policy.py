@@ -12,14 +12,18 @@ from datetime import date
 from typing import Any
 
 
-BUILD_ID = "v1.4-20260926-r1-coreput3x-fixedshort95-fix6-nocall-repeatroll-iciv30-qdelta05"
-RULE_REVISION = "ic_im_v1_4_no_im_call_repeat_short_put_roll_20260926_v1"
+BUILD_ID = "v1.4-20260928-r1-coreput3x-open-fix7-nocall-repeatroll-iciv30-qdelta05"
+RULE_REVISION = "ic_im_v1_4_coreput3x_t1_open_20260928_v1"
 EFFECTIVE_SIGNAL_DATE = date(2026, 9, 18)
 # The r1 ledger is append-only. Each producer/rule change is forward-only;
 # September 25 and earlier signals retain their original producer identity.
-BUILD_EFFECTIVE_SIGNAL_DATE = date(2026, 9, 26)
-REPEAT_ROLL_EFFECTIVE_SIGNAL_DATE = BUILD_EFFECTIVE_SIGNAL_DATE
-NO_CALL_EFFECTIVE_SIGNAL_DATE = BUILD_EFFECTIVE_SIGNAL_DATE
+BUILD_EFFECTIVE_SIGNAL_DATE = date(2026, 9, 28)
+PROFIT_OPEN_EFFECTIVE_SIGNAL_DATE = BUILD_EFFECTIVE_SIGNAL_DATE
+FIX6_BUILD_EFFECTIVE_SIGNAL_DATE = date(2026, 9, 26)
+FIX6_BUILD_ID = "v1.4-20260926-r1-coreput3x-fixedshort95-fix6-nocall-repeatroll-iciv30-qdelta05"
+FIX6_RULE_REVISION = "ic_im_v1_4_no_im_call_repeat_short_put_roll_20260926_v1"
+REPEAT_ROLL_EFFECTIVE_SIGNAL_DATE = FIX6_BUILD_EFFECTIVE_SIGNAL_DATE
+NO_CALL_EFFECTIVE_SIGNAL_DATE = FIX6_BUILD_EFFECTIVE_SIGNAL_DATE
 FIX4_BUILD_EFFECTIVE_SIGNAL_DATE = date(2026, 9, 24)
 FIX4_BUILD_ID = "v1.4-20260924-r1-coreput3x-fixedshort95-fix4-integrated-iciv30-qdelta05"
 FIX4_RULE_REVISION = "ic_im_v1_4_iciv30_qdelta05_20260918_v1"
@@ -45,6 +49,8 @@ def identity_for_signal_day(value: date | str) -> tuple[str, str]:
     if day < FIX4_BUILD_EFFECTIVE_SIGNAL_DATE:
         return FIX3_BUILD_ID, FIX3_RULE_REVISION
     if day < BUILD_EFFECTIVE_SIGNAL_DATE:
+        if day >= FIX6_BUILD_EFFECTIVE_SIGNAL_DATE:
+            return FIX6_BUILD_ID, FIX6_RULE_REVISION
         return FIX4_BUILD_ID, FIX4_RULE_REVISION
     return BUILD_ID, RULE_REVISION
 
@@ -90,6 +96,12 @@ def default_extension(product: str) -> dict[str, Any]:
         "v14_profit_pending": False,
         "v14_profit_trigger_day": None,
         "v14_profit_execution_day": None,
+        "v14_profit_old_contract": None,
+        "v14_profit_old_security_id": None,
+        "v14_profit_old_qty": 0.0,
+        "v14_profit_reentry_contract": None,
+        "v14_profit_reentry_security_id": None,
+        "v14_profit_reentry_qty": 0.0,
         "v14_last_event_id": None,
     }
 
@@ -138,6 +150,14 @@ def validate_extension(product: str, state: dict[str, Any]) -> None:
             raise RuntimeError(f"{product} profit execution date lacks a pending trigger")
         if date.fromisoformat(str(state["v14_profit_execution_day"])[:10]) <= date.fromisoformat(str(trigger)[:10]):
             raise RuntimeError(f"{product} profit execution must follow trigger day")
+        trigger_day = date.fromisoformat(str(trigger)[:10])
+        if trigger_day >= PROFIT_OPEN_EFFECTIVE_SIGNAL_DATE:
+            if not state.get("v14_profit_old_contract") or not state.get("v14_profit_reentry_contract"):
+                raise RuntimeError(f"{product} open profit plan lacks old/new contracts")
+            if float(state.get("v14_profit_old_qty") or 0) <= 0 or float(state.get("v14_profit_reentry_qty") or 0) <= 0:
+                raise RuntimeError(f"{product} open profit plan lacks old/new quantities")
+            if product == "IC" and (not state.get("v14_profit_old_security_id") or not state.get("v14_profit_reentry_security_id")):
+                raise RuntimeError("IC open profit plan lacks old/new security ids")
     entry = state.get("v14_core_put_entry_premium")
     core_qty = float(state.get("v14_core_put_qty", 0.0))
     if not math.isfinite(core_qty) or core_qty < 0:
@@ -217,9 +237,18 @@ def apply_policy(
     allowed, permission_reason = seller_permission(product, signal, candidate)
     route = state["v14_route_state"]
     close_confirmed = bool(signal.get("close_confirmed"))
+    trigger_value = state.get("v14_profit_trigger_day")
+    trigger_day = date.fromisoformat(str(trigger_value)[:10]) if trigger_value else None
+    pending_open_due = bool(
+        state.get("v14_profit_pending")
+        and trigger_day is not None
+        and trigger_day >= PROFIT_OPEN_EFFECTIVE_SIGNAL_DATE
+        and str(state.get("v14_profit_execution_day"))[:10] == day.isoformat()
+        and not signal.get("option_monthly_reset_due")
+    )
 
-    # Priority: expiry/settlement > an already pending early roll > new route
-    # entry > ordinary monthly Put maintenance > 3x profit reset.
+    # The prior close's committed open plan precedes a new route signal that
+    # can only be confirmed at today's close. Earlier versions keep priority.
     expiry = state.get("v14_short_put_expiry")
     expiry_day = date.fromisoformat(str(expiry)[:10]) if expiry else None
     if not close_confirmed:
@@ -283,7 +312,7 @@ def apply_policy(
                 target["v14_roll_pending"] = True
                 target["v14_roll_trigger_day"] = state.get("v14_roll_trigger_day") or day
                 target["v14_roll_wait_reason"] = roll_reason
-    elif route == "future" and allowed:
+    elif route == "future" and allowed and not pending_open_due:
         action, reason = "ENTER_SHORT_PUT", "high_iv_fixed_core_route"
         target.update(
             v14_route_state="short_put",
@@ -334,8 +363,21 @@ def apply_policy(
             target["v14_profit_pending"] = False
             target["v14_profit_trigger_day"] = None
             target["v14_profit_execution_day"] = None
+            for key in ("v14_profit_old_contract", "v14_profit_old_security_id", "v14_profit_reentry_contract", "v14_profit_reentry_security_id"):
+                target[key] = None
+            target["v14_profit_old_qty"] = target["v14_profit_reentry_qty"] = 0.0
 
     monthly_priority = bool(signal.get("option_monthly_reset_due"))
+    if day >= PROFIT_OPEN_EFFECTIVE_SIGNAL_DATE and bool(target.get("v14_profit_pending")):
+        core_target = (signal.get("put_target_core_qty") if product == "IC"
+                       else signal.get("core_put_target_qty_normalized"))
+        if core_target is not None and float(core_target) <= 0:
+            target["v14_profit_pending"] = False
+            target["v14_profit_trigger_day"] = None
+            target["v14_profit_execution_day"] = None
+            for key in ("v14_profit_old_contract", "v14_profit_old_security_id", "v14_profit_reentry_contract", "v14_profit_reentry_security_id"):
+                target[key] = None
+            target["v14_profit_old_qty"] = target["v14_profit_reentry_qty"] = 0.0
     mark = signal.get("v14_core_put_mark")
     entry = target.get("v14_core_put_entry_premium")
     profit_hit = (
@@ -346,36 +388,84 @@ def apply_policy(
         and math.isfinite(float(mark))
         and float(mark) >= PROFIT_MULTIPLE * float(entry)
     )
-    if action == "HOLD" and close_confirmed and not monthly_priority and bool(state.get("v14_profit_pending")):
+    if action == "HOLD" and close_confirmed and not monthly_priority and bool(target.get("v14_profit_pending")):
         reentry_premium = signal.get("v14_profit_reentry_entry_premium")
         execution_value = state.get("v14_profit_execution_day")
         execution_day = date.fromisoformat(str(execution_value)[:10]) if execution_value else None
-        if execution_day == day and reentry_premium is not None and math.isfinite(float(reentry_premium)) and float(reentry_premium) > 0:
+        trigger_value = state.get("v14_profit_trigger_day")
+        trigger_day = date.fromisoformat(str(trigger_value)[:10]) if trigger_value else None
+        opening_rule = trigger_day is not None and trigger_day >= PROFIT_OPEN_EFFECTIVE_SIGNAL_DATE
+        open_confirmed = (
+            signal.get("v14_profit_reentry_status") == "confirmed_open_research_price"
+            and signal.get("v14_profit_reentry_contract") == state.get("v14_profit_reentry_contract")
+            and signal.get("v14_profit_open_price_day") == day
+            and math.isclose(float(signal.get("v14_profit_open_executed_qty") or 0.0),
+                             float(state.get("v14_profit_reentry_qty") or 0.0), abs_tol=1e-12)
+            and signal.get("v14_profit_exit_open_price") is not None
+            and math.isfinite(float(signal["v14_profit_exit_open_price"]))
+            and float(signal["v14_profit_exit_open_price"]) > 0
+        ) if opening_rule else True
+        if execution_day == day and open_confirmed and reentry_premium is not None and math.isfinite(float(reentry_premium)) and float(reentry_premium) > 0:
             action, reason = "EXECUTE_CORE_PUT_PROFIT3X_REENTER", "confirmed_reentry_premium"
             target["v14_core_put_entry_premium"] = float(reentry_premium)
             target["v14_core_put_profit3x_eligible"] = True
             target["v14_profit_pending"] = False
             target["v14_profit_trigger_day"] = None
             target["v14_profit_execution_day"] = None
+            for key in ("v14_profit_old_contract", "v14_profit_old_security_id", "v14_profit_reentry_contract", "v14_profit_reentry_security_id"):
+                target[key] = None
+            target["v14_profit_old_qty"] = target["v14_profit_reentry_qty"] = 0.0
         else:
             action, reason = "WAIT_CORE_PUT_PROFIT3X_REENTER", "reentry_not_confirmed"
     elif action == "HOLD" and profit_hit and not monthly_priority:
-        action, reason = "CORE_PUT_PROFIT3X_REENTER", "three_times_entry_premium"
-        target["v14_profit_pending"] = True
-        target["v14_profit_trigger_day"] = day
-        target["v14_profit_execution_day"] = signal["next_trade_date"]
+        opening_rule = day >= PROFIT_OPEN_EFFECTIVE_SIGNAL_DATE
+        selected = signal.get("v14_profit_plan_contract")
+        selected_qty = signal.get("v14_profit_plan_qty")
+        old_contract = signal.get("v14_core_put_contract") if product == "IC" else signal.get("core_put_current_contract")
+        old_qty = signal.get("v14_core_put_qty") if product == "IC" else signal.get("core_put_current_qty_normalized")
+        ready = (not opening_rule or (selected and selected_qty is not None and float(selected_qty) > 0
+                 and old_contract and old_qty is not None and float(old_qty) > 0
+                 and (product != "IC" or (signal.get("v14_profit_plan_security_id") and signal.get("v14_core_put_security_id")))))
+        if ready:
+            action, reason = "CORE_PUT_PROFIT3X_REENTER", "three_times_entry_premium"
+            target["v14_profit_pending"] = True
+            target["v14_profit_trigger_day"] = day
+            target["v14_profit_execution_day"] = signal["next_trade_date"]
+            if opening_rule:
+                target.update(v14_profit_old_contract=old_contract,
+                              v14_profit_old_security_id=signal.get("v14_core_put_security_id") if product == "IC" else None,
+                              v14_profit_old_qty=float(old_qty),
+                              v14_profit_reentry_contract=str(selected),
+                              v14_profit_reentry_security_id=signal.get("v14_profit_plan_security_id") if product == "IC" else None,
+                              v14_profit_reentry_qty=float(selected_qty))
+                out["v14_profit_reentry_status"] = "scheduled_t_plus_1_open"
+        else:
+            reason = "profit3x_t_close_preselection_unavailable"
     if close_confirmed and monthly_priority and target["v14_route_state"] == "future" and signal.get("v14_core_put_target_entry_premium"):
         target["v14_core_put_entry_premium"] = float(signal["v14_core_put_target_entry_premium"])
         target["v14_core_put_profit3x_eligible"] = True
         target["v14_profit_pending"] = False
         target["v14_profit_trigger_day"] = None
         target["v14_profit_execution_day"] = None
+        for key in ("v14_profit_old_contract", "v14_profit_old_security_id", "v14_profit_reentry_contract", "v14_profit_reentry_security_id"):
+            target[key] = None
+        target["v14_profit_old_qty"] = target["v14_profit_reentry_qty"] = 0.0
 
     if action in {"ENTER_SHORT_PUT", "ROLL_SHORT_PUT"}:
         target["v14_profit_pending"] = False
         target["v14_profit_trigger_day"] = None
         target["v14_profit_execution_day"] = None
+        for key in ("v14_profit_old_contract", "v14_profit_old_security_id", "v14_profit_reentry_contract", "v14_profit_reentry_security_id"):
+            target[key] = None
+        target["v14_profit_old_qty"] = target["v14_profit_reentry_qty"] = 0.0
     if target["v14_route_state"] != "future":
+        if day >= PROFIT_OPEN_EFFECTIVE_SIGNAL_DATE:
+            target["v14_profit_pending"] = False
+            target["v14_profit_trigger_day"] = None
+            target["v14_profit_execution_day"] = None
+            for key in ("v14_profit_old_contract", "v14_profit_old_security_id", "v14_profit_reentry_contract", "v14_profit_reentry_security_id"):
+                target[key] = None
+            target["v14_profit_old_qty"] = target["v14_profit_reentry_qty"] = 0.0
         target.update(v14_core_put_contract=None, v14_core_put_security_id=None, v14_core_put_qty=0.0)
     event_id = _event_id(product, signal, action, target.get("v14_short_put_contract"))
     if action not in {"HOLD", "WAIT_SHORT_PUT_ROLL", "HOLD_RECOVERY"}:

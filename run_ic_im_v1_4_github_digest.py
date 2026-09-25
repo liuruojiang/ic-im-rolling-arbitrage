@@ -26,7 +26,7 @@ from poe_ic_im_v1_4_state import StateStore, _jsonable
 
 
 PRODUCTS = ("IC", "IM")
-DELIVERY_REVISION = "20260926-v14-coreput3x-fixedshort95-fix6-nocall-repeatroll-iciv30-qdelta05"
+DELIVERY_REVISION = "20260928-v14-coreput3x-open-fix7-nocall-repeatroll-iciv30-qdelta05"
 MODES = ("close", "realtime")
 
 
@@ -187,6 +187,22 @@ def render_stored_close_report(latest: dict[str, Any]) -> str:
     ]
     for product in PRODUCTS:
         signal = signals[product]
+        profit_detail = []
+        if signal.get("v14_profit_reentry_status") == "scheduled_t_plus_1_open":
+            profit_detail.append(
+                f"- 3倍兑现次日开盘计划：{signal.get('v14_profit_execution_day')} 卖旧 "
+                f"{signal.get('v14_profit_old_contract')}、买预选 "
+                f"{signal.get('v14_profit_reentry_contract')}，数量 "
+                f"{signal.get('v14_profit_reentry_qty')}；尚非成交。"
+            )
+        elif signal.get("v14_profit_reentry_status") == "confirmed_open_research_price":
+            profit_detail.append(
+                f"- 3倍兑现开盘纸面确认：{signal.get('v14_profit_open_price_day')} 旧 "
+                f"{signal.get('v14_profit_open_old_contract')} @ {signal.get('v14_profit_exit_open_price')}；"
+                f"新 {signal.get('v14_profit_open_executed_contract')} @ "
+                f"{signal.get('v14_profit_reentry_entry_premium')}，数量 "
+                f"{signal.get('v14_profit_open_executed_qty')}；非账户成交。"
+            )
         expiry_branches = signal.get("v14_expiry_conditional_signal")
         expiry_line = (
             "- 卖Put到期条件信号：模型结算依据尚待核验；价外失效→结束卖Put周期并返回普通期货路线；"
@@ -211,6 +227,8 @@ def render_stored_close_report(latest: dict[str, Any]) -> str:
                 f"动量动作：`{signal.get('momentum_action', 'N/A')}`；"
                 f"网格动作：`{signal.get('grid_action', 'N/A')}`",
                 f"- v1.4核心Put：{signal.get('v14_core_put_contract') or signal.get('core_put_target_contract') or 'N/A'}；数量：{signal.get('v14_core_put_qty', 'N/A')}；兑现状态：{signal.get('v14_profit_reentry_status', 'N/A')}；模型生命周期：{signal.get('v14_lifecycle_evidence_status', 'N/A')}",
+                "- 核心买Put三倍兑现：2026-09-28及以后信号T收盘预选、下一共同交易日开盘平旧买新；此前旧信号按当时T+1收盘规则。月度普通Put维护仍按独立的预定日收盘模型流程。",
+                *profit_detail,
                 "- 信号边界：本报告只发布策略参考信号；实际成交、行权、结算、交割和账户持仓由用户自行处理。",
                 expiry_line,
                 f"- Put动作：`{signal.get('put_action', 'N/A')}`；"

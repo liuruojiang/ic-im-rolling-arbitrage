@@ -89,5 +89,5 @@ def test_new_build_preserves_fix3_and_fix4_date_identity():
     assert policy.identity_for_signal_day(date(2026, 9, 23)) == (policy.FIX3_BUILD_ID, policy.FIX3_RULE_REVISION)
     assert policy.identity_for_signal_day(date(2026, 9, 24)) == (policy.FIX4_BUILD_ID, policy.FIX4_RULE_REVISION)
     assert policy.identity_for_signal_day(date(2026, 9, 25)) == (policy.FIX4_BUILD_ID, policy.FIX4_RULE_REVISION)
-    assert policy.identity_for_signal_day(date(2026, 9, 26)) == (policy.BUILD_ID, policy.RULE_REVISION)
-
+    assert policy.identity_for_signal_day(date(2026, 9, 26)) == (policy.FIX6_BUILD_ID, policy.FIX6_RULE_REVISION)
+    assert policy.identity_for_signal_day(date(2026, 9, 28)) == (policy.BUILD_ID, policy.RULE_REVISION)

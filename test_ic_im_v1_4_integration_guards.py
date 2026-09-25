@@ -58,6 +58,81 @@ def test_profit_reentry_only_confirmed_execution_day_and_core_only():
         assert signal['momentum_put_target_contract']=='MO2612-P-7000'
 
 
+def test_fix7_ic_t_close_preselection_and_t1_open_confirmation_are_separate():
+    signal={'market_date':date(2026,9,28),'close_confirmed':True,
+            'option_monthly_reset_due':False,'put_target_core_qty':5,
+            'etf_price':8.,'future_last':8000.,'core_put_target_delta':.25,
+            'v14_core_put_mark':.31}
+    anchor={'v14_route_state':'future','v14_core_put_profit3x_eligible':True,
+            'v14_core_put_entry_premium':.10}
+    selected={'contract':'510500P2612M07000','security_id':'10012001','qty':5,
+              'quote':{'last':.12},'stamp':{'date':'20260928','time':'150000'}}
+    with patch.object(bot,'select_ic_put_for_reset',return_value=selected) as choose,\
+         patch.object(bot,'_validate_chain_stamp_matches'):
+        bot._v14_prepare_profit_open_plan('IC',signal,anchor,None)
+    choose.assert_called_once_with(date(2026,9,28),8.,8000.,.25)
+    assert signal['v14_profit_plan_contract']==selected['contract']
+    assert signal['v14_profit_reentry_status']=='t_close_preselected_for_next_open'
+    tomorrow={'market_date':date(2026,9,29),'close_confirmed':True,
+              'option_monthly_reset_due':False,'put_target_core_qty':5,
+              'put_target_momentum_qty':3}
+    pending={'v14_route_state':'future','v14_profit_pending':True,
+             'v14_profit_trigger_day':date(2026,9,28),
+             'v14_profit_execution_day':date(2026,9,29),
+             'v14_profit_old_contract':'510500P2612M07500',
+             'v14_profit_old_security_id':'10012000',
+             'v14_profit_reentry_contract':selected['contract'],
+             'v14_profit_reentry_security_id':selected['security_id'],
+             'v14_profit_reentry_qty':5}
+    with patch.object(bot,'fetch_option_dated_open',side_effect=[(.30,'Sina:dated_open'),(.12,'Sina:dated_open')]) as fetch,\
+         patch.object(bot,'select_ic_put_for_reset',side_effect=AssertionError('T+1 close reselection forbidden')):
+        bot._v14_prepare_lifecycle_evidence('IC',tomorrow,pending,None)
+    assert fetch.call_count==2
+    assert tomorrow['v14_profit_reentry_entry_premium']==.12
+    assert tomorrow['v14_profit_exit_open_price']==.30
+    assert tomorrow['v14_profit_open_price_day']==date(2026,9,29)
+    assert tomorrow['put_target_total_qty']==8
+
+
+def test_fix7_im_open_missing_leg_fails_instead_of_falling_back_to_close():
+    anchor={'v14_route_state':'future','v14_profit_pending':True,
+            'v14_profit_trigger_day':date(2026,9,28),
+            'v14_profit_execution_day':date(2026,9,29),
+            'v14_profit_old_contract':'MO2612-P-7500',
+            'v14_profit_reentry_contract':'MO2612-P-7000','v14_profit_reentry_qty':1.5}
+    signal={'market_date':date(2026,9,29),'close_confirmed':True,
+            'option_monthly_reset_due':False,'core_put_target_qty_normalized':1.5}
+    chain=pd.DataFrame([{'instrument':'MO2612-P-7500','openprice':.0,'lastprice':30.},
+                        {'instrument':'MO2612-P-7000','openprice':12.,'lastprice':11.}])
+    with pytest.raises(RuntimeError,match='正开盘价'):
+        bot._v14_prepare_lifecycle_evidence('IM',signal,anchor,chain)
+
+
+def test_fix7_ic_open_source_never_uses_a_close_as_fallback():
+    class Response:
+        text='callback([{"d":"2026-09-29","o":"0","c":"0.30"}]);'
+        def raise_for_status(self):
+            pass
+        content=b'ok'
+    with patch.object(bot.requests,'get',return_value=Response()),\
+         patch.object(bot,'_response_with_size_limit'),\
+         patch.object(bot,'_request_json',return_value={'data':{'code':'10012000','market':10,
+             'klines':['2026-09-29,0,0.30,0.31,0.29,10,100']}}):
+        with pytest.raises(RuntimeError,match='开盘价不可核验'):
+            bot.fetch_option_dated_open('10012000',date(2026,9,29))
+
+
+def test_fix7_ic_open_source_accepts_identical_vendor_duplicate_only():
+    class Response:
+        text='callback([{"d":"2026-09-29","o":"0.12","c":"0.30"},'\
+             '{"d":"2026-09-29","o":"0.12","c":"0.30"}]);'
+        def raise_for_status(self):
+            pass
+        content=b'ok'
+    with patch.object(bot.requests,'get',return_value=Response()),patch.object(bot,'_response_with_size_limit'):
+        assert bot.fetch_option_dated_open('10012000',date(2026,9,29))==(.12,'Sina:dated_open')
+
+
 def test_signal_scope_does_not_require_account_execution_evidence():
     signal={'market_date': date(2026, 9, 18)}
     anchor={'v14_route_state':'short_put','v14_short_put_expiry':date(2026, 9, 18)}

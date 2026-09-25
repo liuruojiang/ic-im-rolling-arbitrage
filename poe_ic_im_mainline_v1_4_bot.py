@@ -1079,6 +1079,57 @@ def fetch_option_closes(security_id: str) -> pd.Series:
     )
 
 
+def fetch_option_dated_open(security_id: str, day: date) -> tuple[float, str]:
+    """Read this contract's dated opening price; never substitute a close."""
+    if not re.fullmatch(r"\d{8}", str(security_id)):
+        raise ValueError("IC Put证券代码格式异常")
+    failures: list[str] = []
+    try:
+        response = requests.get(
+            "https://stock.finance.sina.com.cn/futures/api/jsonp_v2.php//StockOptionDaylineService.getSymbolInfo",
+            params={"symbol": security_id}, timeout=_bounded_timeout(8),
+            headers={"User-Agent": "Mozilla/5.0", "Cache-Control": "no-cache"},
+        )
+        response.raise_for_status()
+        _response_with_size_limit(response, "新浪期权历史开盘价")
+        match = re.search(r"\((\[.*\])\)\s*;?\s*$", response.text, flags=re.DOTALL)
+        if match is None:
+            raise RuntimeError("新浪开盘行情格式异常")
+        rows = [item for item in json.loads(match.group(1)) if item.get("d") == day.isoformat()]
+        if not rows:
+            raise RuntimeError("新浪缺少指定交易日期开盘记录")
+        openings = {float(item["o"]) for item in rows}
+        if len(openings) != 1:
+            raise RuntimeError("新浪同日开盘记录相互冲突")
+        opening = openings.pop()
+        if not math.isfinite(opening) or opening <= 0:
+            raise RuntimeError("新浪指定交易日期缺少正开盘价")
+        return opening, "Sina:dated_open"
+    except Exception as exc:
+        failures.append(f"Sina:{type(exc).__name__}:{exc}")
+    try:
+        payload = _request_json(
+            "https://push2his.eastmoney.com/api/qt/stock/kline/get",
+            {"secid": f"10.{security_id}", "klt": "101", "fqt": "0", "lmt": "10000",
+             "end": "20500101", "fields1": "f1,f2,f3,f4,f5,f6",
+             "fields2": "f51,f52,f53,f54,f55,f56,f57"},
+        )
+        data = payload.get("data") or {}
+        if str(data.get("code") or "") != str(security_id) or int(data.get("market", -1)) != 10:
+            raise RuntimeError("东方财富期权证券身份不一致")
+        rows = [str(raw).split(",") for raw in data.get("klines") or []]
+        matches = [fields for fields in rows if fields and fields[0] == day.isoformat()]
+        if len(matches) != 1 or len(matches[0]) < 3:
+            raise RuntimeError("东方财富指定交易日期开盘记录不唯一")
+        opening = float(matches[0][1])
+        if not math.isfinite(opening) or opening <= 0:
+            raise RuntimeError("东方财富指定交易日期缺少正开盘价")
+        return opening, "Eastmoney:dated_open"
+    except Exception as exc:
+        failures.append(f"Eastmoney:{type(exc).__name__}:{exc}")
+    raise RuntimeError(f"IC Put {security_id} {day} 开盘价不可核验；" + "；".join(failures))
+
+
 def fetch_sina_510500_security_id(contract: str) -> str:
     match = re.fullmatch(r"510500P(\d{4})([MA])(\d{5})", contract)
     if not match:
@@ -4665,6 +4716,52 @@ def _v14_prepare_lifecycle_evidence(product: str, signal: dict[str, Any], anchor
     if route != "future":
         return
     day = signal["market_date"]
+    trigger_value = anchor.get("v14_profit_trigger_day")
+    trigger_day = date.fromisoformat(str(trigger_value)[:10]) if trigger_value else None
+    if trigger_day is not None and trigger_day >= v14_policy.PROFIT_OPEN_EFFECTIVE_SIGNAL_DATE:
+        if (product == "IC" and int(signal.get("put_target_core_qty", 0)) <= 0) or (
+                product == "IM" and float(signal.get("core_put_target_qty_normalized", 0.0)) <= 0):
+            return
+        old_contract = str(anchor.get("v14_profit_old_contract") or "")
+        new_contract = str(anchor.get("v14_profit_reentry_contract") or "")
+        planned_qty = float(anchor.get("v14_profit_reentry_qty") or 0.0)
+        if not old_contract or not new_contract or planned_qty <= 0:
+            raise RuntimeError("3倍兑现T收盘预选计划不完整，禁止冒充次日开盘执行")
+        if product == "IC":
+            old_open, old_source = fetch_option_dated_open(str(anchor.get("v14_profit_old_security_id") or ""), day)
+            new_open, new_source = fetch_option_dated_open(str(anchor.get("v14_profit_reentry_security_id") or ""), day)
+            signal.update(v14_core_put_contract=new_contract,
+                          v14_core_put_security_id=anchor["v14_profit_reentry_security_id"],
+                          v14_core_put_qty=int(planned_qty), put_target_core_qty=int(planned_qty),
+                          put_target_total_qty=int(planned_qty)+int(signal.get("put_target_momentum_qty", 0)),
+                          core_put_action="RESIZE_OR_ROLL", put_action="RESIZE_OR_ROLL")
+        else:
+            if quotes is None:
+                raise RuntimeError("IM 次日开盘兑现缺少 MO 期权链")
+            old_row = _quote_row(quotes, old_contract)
+            new_row = _quote_row(quotes, new_contract)
+            if old_row is None or new_row is None:
+                raise RuntimeError("IM 三倍兑现旧/新合约未在执行日挂牌链中同时找到")
+            old_open, new_open = float(old_row["openprice"]), float(new_row["openprice"])
+            old_source = new_source = str(quotes.attrs.get("source", "MO_dated_open"))
+            if not math.isclose(float(signal.get("core_put_target_qty_normalized", 0.0)), planned_qty, abs_tol=1e-12):
+                raise RuntimeError("IM 次日风险目标量与T收盘预选量不同，禁止伪称同一开盘成交")
+            signal.update(core_put_target_contract=new_contract, put_target_contract=new_contract,
+                          core_put_action="RESIZE_OR_ROLL", put_action="RESIZE_OR_ROLL")
+        if not all(math.isfinite(value) and value > 0 for value in (old_open, new_open)):
+            raise RuntimeError("三倍兑现任一腿缺少执行日正开盘价，禁止回填收盘或昨收")
+        signal.update(v14_profit_reentry_entry_premium=new_open,
+                      v14_profit_reentry_contract=new_contract,
+                      v14_profit_open_executed_contract=new_contract,
+                      v14_profit_open_old_contract=old_contract,
+                      v14_profit_open_old_qty=float(anchor.get("v14_profit_old_qty") or 0.0),
+                      v14_profit_exit_open_price=old_open,
+                      v14_profit_open_old_source=old_source,
+                      v14_profit_open_new_source=new_source,
+                      v14_profit_open_executed_qty=planned_qty,
+                      v14_profit_open_price_day=day,
+                      v14_profit_reentry_status="confirmed_open_research_price")
+        return
     if product == "IC":
         if _HISTORICAL_REPLAY_DAY.get() is not None:
             signal["v14_profit_reentry_status"] = "blocked_historical_new_contract_chain_unavailable"
@@ -4703,6 +4800,41 @@ def _v14_prepare_lifecycle_evidence(product: str, signal: dict[str, Any], anchor
                   v14_profit_reentry_status="confirmed_close_research_price")
 
 
+def _v14_prepare_profit_open_plan(product: str, signal: dict[str, Any], anchor: dict[str, Any], quotes: pd.DataFrame | None) -> None:
+    """Select a new 3x core Put from signal-day closes, never tomorrow's chain."""
+    day = signal["market_date"]
+    if (day < v14_policy.PROFIT_OPEN_EFFECTIVE_SIGNAL_DATE or not signal.get("close_confirmed")
+            or signal.get("option_monthly_reset_due") or anchor.get("v14_route_state") != "future"
+            or anchor.get("v14_profit_pending") or not anchor.get("v14_core_put_profit3x_eligible")):
+        return
+    entry, mark = anchor.get("v14_core_put_entry_premium"), signal.get("v14_core_put_mark")
+    if (entry is None or mark is None or not math.isfinite(float(mark))
+            or float(mark) < v14_policy.PROFIT_MULTIPLE * float(entry)):
+        return
+    try:
+        if product == "IC":
+            if int(signal.get("put_target_core_qty", 0)) <= 0:
+                return
+            selected = select_ic_put_for_reset(day, float(signal["etf_price"]),
+                                               float(signal["future_last"]), float(signal["core_put_target_delta"]))
+            if selected.get("quote") is None or selected.get("qty") is None:
+                raise RuntimeError("IC T收盘无可用核心Put预选合约或数量")
+            _validate_chain_stamp_matches("IC核心3x次日开盘预选", selected["stamp"], day, _now_beijing())
+            contract, qty, security_id = selected["contract"], int(selected["qty"]), selected["security_id"]
+        else:
+            if quotes is None or float(signal.get("core_put_target_qty_normalized", 0.0)) <= 0:
+                return
+            selected = select_im_put_for_reset(quotes, day, float(signal["put_reference_price"]))
+            contract, qty, security_id = str(selected["instrument"]), float(signal["core_put_target_qty_normalized"]), None
+        if not contract or qty <= 0 or (product == "IC" and not security_id):
+            raise RuntimeError("T收盘预选核心Put身份不完整")
+        signal.update(v14_profit_plan_contract=contract, v14_profit_plan_qty=qty,
+                      v14_profit_plan_security_id=security_id,
+                      v14_profit_reentry_status="t_close_preselected_for_next_open")
+    except Exception as exc:
+        signal["v14_profit_reentry_status"] = f"t_close_preselection_unavailable:{type(exc).__name__}:{exc}"
+
+
 def _apply_v14_live_policy(
     product: str,
     signal: dict[str, Any],
@@ -4736,6 +4868,7 @@ def _apply_v14_live_policy(
         mark, target_entry = _v14_option_mark(product, signal, mo_quotes)
         signal["v14_core_put_mark"] = mark
         signal["v14_core_put_target_entry_premium"] = target_entry
+        _v14_prepare_profit_open_plan(product, signal, anchor, mo_quotes)
         current_short = anchor.get("v14_short_put_contract")
         if current_short:
             if product == "IC":
@@ -4757,7 +4890,7 @@ def _apply_v14_live_policy(
             product, signal, anchor,
             candidate={"tradable": False}, roll_candidate={"tradable": False},
         )
-        if fallback.get("v14_action") == "PUBLISH_SHORT_PUT_EXPIRY_BRANCHES":
+        if fallback.get("v14_action") in {"PUBLISH_SHORT_PUT_EXPIRY_BRANCHES", "EXECUTE_CORE_PUT_PROFIT3X_REENTER"}:
             fallback["v14_candidate_data_status"] = f"unavailable: {type(exc).__name__}: {exc}"
         else:
             fallback["v14_action"] = "HOLD_FAIL_CLOSED"
@@ -5907,6 +6040,17 @@ class ICIMMainlinesBot:
                     msg.write(f"月度Put维护预告：{live['put_monthly_reset_execution_date']}执行；当天按已持有IM价格重选，当前不锁定新合约。\n\n")
                 if product == "IM" and live.get("option_monthly_reset_due"):
                     msg.write(f"月度Put执行日：{live['put_monthly_reset_execution_date']}；参考{live['put_reference_future']}，取价日{live.get('put_reference_price_date', live['market_date'])}。盘中为待收盘确认的候选，收盘结果是当日研究执行记录，不是下一日重新选约指令。\n\n")
+                profit_status = live.get("v14_profit_reentry_status")
+                if profit_status == "scheduled_t_plus_1_open":
+                    msg.write(f"核心买Put三倍兑现开盘计划：{live['market_date']}收盘确认；{live['v14_profit_execution_day']}开盘卖旧合约{live['v14_profit_old_contract']}、买入预选合约{live['v14_profit_reentry_contract']}，规范化目标量{live['v14_profit_reentry_qty']:g}。此为模型计划，尚非成交。\n\n")
+                elif profit_status == "confirmed_open_research_price":
+                    msg.write(f"核心买Put三倍兑现纸面执行：{live['v14_profit_open_price_day']}开盘卖旧合约{live['v14_profit_open_old_contract']}，模型价{live['v14_profit_exit_open_price']}；买入{live['v14_profit_open_executed_contract']}，模型价{live['v14_profit_reentry_entry_premium']}，数量{live['v14_profit_open_executed_qty']:g}。不是账户成交回执。\n\n")
+                put_timing = (
+                    "预定维护日收盘模型记录（非T+1）" if live.get("option_monthly_reset_due")
+                    else "T收盘预选 → T+1开盘" if profit_status == "scheduled_t_plus_1_open"
+                    else "本交易日开盘纸面确认" if profit_status == "confirmed_open_research_price"
+                    else "T收盘评估 → T+1收盘"
+                )
                 msg.write(
                     "| 仓位腿 | 当前策略仓位 | 下一交易日目标 | 变化 | 执行语义 |\n"
                     "|---|---|---|---|---|\n"
@@ -5930,7 +6074,7 @@ class ICIMMainlinesBot:
                 )
                 msg.write(
                     f"| Put | {live['put_current']} | {live['put_target']} | "
-                    f"{ACTION_CN[live['put_action']]} | T收盘评估 → T+1收盘 |\n"
+                    f"{ACTION_CN[live['put_action']]} | {put_timing} |\n"
                 )
                 msg.write(
                     f"| Call | {live['call_current']} | {live['call_target']} | "
@@ -6156,7 +6300,7 @@ class ICIMMainlinesBot:
                         "信号目标减半并于下一共同交易日执行。基础NAV含2%年化闲置现金收益"
                         "与0.1%单边换手成本；成交量/高分清仓过滤关闭。\n"
                     )
-                    msg.write("- 买Put：固定核心买Put达到入场权利金3倍时，T收盘触发兑现，T+1收盘按新合约重建；动量Put独立，不随核心兑现。\n")
+                    msg.write("- 买Put：固定核心达到入场权利金3倍时，自2026-09-28信号日起T收盘预选合约、下一共同交易日开盘平旧买新；此前旧信号按T+1收盘旧规则。动量Put独立，不随核心兑现。\n")
                     msg.write("- 卖Put路由：固定核心处于估值0/1档、原执行动量许可且M+1约95%行权价Put IV严格>30%时，以q_delta05（每1倍IC初始总Delta 0.5）切换；自2026-09-26信号日起，权利金衰减50%且新腿仍满足准入时可反复提前展期。\n")
                     msg.write("- 卖Put或恢复路线期间固定核心买Put暂停；到期输出模型条件分支，不要求账户成交或交割回执。\n")
                     msg.write("- 网格：≤0.500 加0.5倍，≥1.000 退出；新增腿不配Put。\n")
@@ -6173,7 +6317,7 @@ class ICIMMainlinesBot:
                     msg.write(
                         f"- {im_put_policy.description(_now_beijing().date())}；约3个月，网格不配Put。\n"
                     )
-                    msg.write("- 买Put：固定核心买Put达到入场权利金3倍时，T收盘触发兑现，T+1收盘重建；动量Put独立。\n")
+                    msg.write("- 买Put：固定核心达到入场权利金3倍时，自2026-09-28信号日起T收盘预选合约、下一共同交易日开盘平旧买新；此前旧信号按T+1收盘旧规则。动量Put独立。\n")
                     msg.write("- 卖Put路由：固定核心处于估值0/1档、MOM120非负且M+1约95%行权价MO Put IV严格>35%时，切换为q3（规范化1.5张）；自2026-09-26信号日起，权利金衰减60%且新腿仍满足准入时可反复提前展期。\n")
                     msg.write("- 自2026-09-26信号日起IM不再卖Call；若旧模型腿仍在，目标为买回旧Call。此前信号仍按当时规则保留。\n")
                     msg.write("- IM父规则MOM120<0时最低3张；第4张只能由估值第4档产生。\n")

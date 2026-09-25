@@ -63,9 +63,10 @@ def test_parameter_copy_matches_half_unit_grid(monkeypatch):
     assert "加1倍" not in text
 
 
-def test_delivery_identity_is_fix6_no_call_repeat_roll():
-    assert digest.DELIVERY_REVISION.endswith("-fix6-nocall-repeatroll-iciv30-qdelta05")
-    assert strategy.BUILD_ID.endswith("-fix6-nocall-repeatroll-iciv30-qdelta05")
+def test_delivery_identity_is_fix7_profit3x_next_open():
+    assert "coreput3x-open-fix7" in digest.DELIVERY_REVISION
+    assert "coreput3x-open-fix7" in strategy.BUILD_ID
+    assert strategy.v14_policy.FIX6_BUILD_ID.endswith("-fix6-nocall-repeatroll-iciv30-qdelta05")
 
 
 def test_digest_budget_override_is_scoped_and_preserves_request_deadline():

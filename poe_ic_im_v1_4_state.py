@@ -246,6 +246,19 @@ def validate_v14_new_signal(signal: dict[str, Any], product: str) -> None:
         if field.endswith("_day") and signal[field] is not None:
             _as_day(signal[field], f"{product} {field}")
     v14_policy.validate_extension(product, signal)
+    if (_as_day(signal["market_date"], f"{product}信号日") >= v14_policy.PROFIT_OPEN_EFFECTIVE_SIGNAL_DATE
+            and signal.get("v14_action") == "EXECUTE_CORE_PUT_PROFIT3X_REENTER"):
+        if signal.get("v14_profit_reentry_status") != "confirmed_open_research_price":
+            raise RuntimeError(f"{product} 新版3倍兑现未取得开盘模型证据")
+        if _as_day(signal.get("v14_profit_open_price_day"), f"{product}开盘价日期") != _as_day(signal["market_date"], f"{product}信号日"):
+            raise RuntimeError(f"{product} 3倍兑现开盘报价日期不符")
+        for field in ("v14_profit_exit_open_price", "v14_profit_reentry_entry_premium", "v14_profit_open_executed_qty"):
+            if _option_number(signal.get(field), f"{product} {field}") <= 0:
+                raise RuntimeError(f"{product} 3倍兑现缺少两腿正开盘价或目标量")
+        if not signal.get("v14_profit_open_old_contract") or not signal.get("v14_profit_open_executed_contract"):
+            raise RuntimeError(f"{product} 3倍兑现缺少旧/新开盘成交合约身份")
+        if _option_number(signal.get("v14_profit_open_old_qty"), f"{product}旧Put开盘卖出数量") <= 0:
+            raise RuntimeError(f"{product} 3倍兑现旧Put开盘卖出数量无效")
     _option_number(signal["v14_recovery_net_pnl"], f"{product}恢复净损益")
     qty = _option_number(signal["v14_short_put_qty_normalized"], f"{product}卖Put数量")
     route = signal["v14_route_state"]
