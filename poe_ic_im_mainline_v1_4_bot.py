@@ -3976,6 +3976,8 @@ def select_im_call_d10(
         calls["expiry"].eq(expiry)
         & calls["strike"].gt(spot)
         & calls["lastprice"].gt(0)
+        & ((today >= v14_policy.REPEAT_ROLL_EFFECTIVE_SIGNAL_DATE) | calls["volume"].gt(0))
+        & ((today >= v14_policy.REPEAT_ROLL_EFFECTIVE_SIGNAL_DATE) | calls["position"].gt(0))
     ].copy()
     if calls.empty:
         return None
@@ -4043,6 +4045,8 @@ def select_im_call_rescue(
     calls = calls[
         calls["instrument"].eq(target_contract)
         & calls["lastprice"].gt(0)
+        & ((today >= v14_policy.REPEAT_ROLL_EFFECTIVE_SIGNAL_DATE) | calls["volume"].gt(0))
+        & ((today >= v14_policy.REPEAT_ROLL_EFFECTIVE_SIGNAL_DATE) | calls["position"].gt(0))
     ].copy()
     if calls.empty:
         return None
@@ -4523,6 +4527,9 @@ def _v14_im_short_put_candidate(
     # A dated positive quote is actionable under the user's market-maker
     # paper-fill assumption; recorded prints/OI are not admission gates.
     tradable = math.isfinite(premium) and premium > 0
+    if signal["market_date"] < v14_policy.REPEAT_ROLL_EFFECTIVE_SIGNAL_DATE:
+        # Reproducing a pre-fix5 signal must retain its original quote gate.
+        tradable = tradable and float(row.get("volume", 0.0)) > 0 and float(row.get("position", 0.0)) > 0
     strike = float(month[month.instrument.eq(contract)].iloc[0].strike)
     years = max((expiry - signal["market_date"]).days, 1) / 365.0
     iv = _implied_volatility(
