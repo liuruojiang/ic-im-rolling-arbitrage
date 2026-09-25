@@ -9,7 +9,7 @@ from test_poe_ic_im_v1_3_state import _signals
 def new_signal():
     signal = _signals(date(2026, 8, 25))['IC']
     signal.update(policy.default_extension('IC'))
-    signal.update(market_date=date(2026, 9, 24), strategy_version='1.4', strategy_revision='r1',
+    signal.update(market_date=date(2026, 9, 28), strategy_version='1.4', strategy_revision='r1',
                   v14_build_id=policy.BUILD_ID, v14_rule_revision=policy.RULE_REVISION)
     return signal
 

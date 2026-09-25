@@ -12,15 +12,18 @@ from datetime import date
 from typing import Any
 
 
-BUILD_ID = "v1.4-20260924-r1-coreput3x-fixedshort95-fix4-integrated-iciv30-qdelta05"
-RULE_REVISION = "ic_im_v1_4_iciv30_qdelta05_20260918_v1"
+BUILD_ID = "v1.4-20260926-r1-coreput3x-fixedshort95-fix5-repeatroll-iciv30-qdelta05"
+RULE_REVISION = "ic_im_v1_4_repeat_short_put_roll_20260926_v1"
 EFFECTIVE_SIGNAL_DATE = date(2026, 9, 18)
-# The r1 ledger is append-only. Strategy rules started on September 18, while
-# the integrated producer build starts on September 24. Historical signals
-# retain the producer identity under which they were first produced.
-BUILD_EFFECTIVE_SIGNAL_DATE = date(2026, 9, 24)
+# The r1 ledger is append-only. Each producer/rule change is forward-only;
+# September 25 and earlier signals retain their original producer identity.
+BUILD_EFFECTIVE_SIGNAL_DATE = date(2026, 9, 26)
+REPEAT_ROLL_EFFECTIVE_SIGNAL_DATE = BUILD_EFFECTIVE_SIGNAL_DATE
+FIX4_BUILD_EFFECTIVE_SIGNAL_DATE = date(2026, 9, 24)
+FIX4_BUILD_ID = "v1.4-20260924-r1-coreput3x-fixedshort95-fix4-integrated-iciv30-qdelta05"
+FIX4_RULE_REVISION = "ic_im_v1_4_iciv30_qdelta05_20260918_v1"
 FIX3_BUILD_ID = "v1.4-20260918-r1-coreput3x-fixedshort95-fix3-iciv30-qdelta05"
-FIX3_RULE_REVISION = RULE_REVISION
+FIX3_RULE_REVISION = FIX4_RULE_REVISION
 PREVIOUS_BUILD_ID = "v1.4-20260917-r1-coreput3x-fixedshort95-fix2"
 PREVIOUS_RULE_REVISION = "ic_im_v1_4_coreput3x_fixed_short95_20260917_v1"
 PROFIT_MULTIPLE = 3.0
@@ -38,8 +41,10 @@ def identity_for_signal_day(value: date | str) -> tuple[str, str]:
     day = value if isinstance(value, date) else date.fromisoformat(str(value)[:10])
     if day < EFFECTIVE_SIGNAL_DATE:
         return PREVIOUS_BUILD_ID, PREVIOUS_RULE_REVISION
-    if day < BUILD_EFFECTIVE_SIGNAL_DATE:
+    if day < FIX4_BUILD_EFFECTIVE_SIGNAL_DATE:
         return FIX3_BUILD_ID, FIX3_RULE_REVISION
+    if day < BUILD_EFFECTIVE_SIGNAL_DATE:
+        return FIX4_BUILD_ID, FIX4_RULE_REVISION
     return BUILD_ID, RULE_REVISION
 
 PRODUCT_RULES = {
@@ -252,7 +257,8 @@ def apply_policy(
             and float(mark) <= entry * (1.0 - float(PRODUCT_RULES[product]["premium_decay"]))
         )
         pending = bool(state["v14_roll_pending"])
-        if (decay_hit or pending) and not bool(state["v14_early_roll_used"]):
+        repeat_roll_enabled = day >= REPEAT_ROLL_EFFECTIVE_SIGNAL_DATE
+        if (decay_hit or pending) and (repeat_roll_enabled or not bool(state["v14_early_roll_used"])):
             replacement = roll_candidate or candidate
             roll_allowed, roll_reason = seller_permission(product, signal, replacement)
             if roll_allowed:
@@ -263,7 +269,10 @@ def apply_policy(
                     v14_short_put_qty_normalized=float(replacement["qty_normalized"]),
                     v14_short_put_entry_premium=float(replacement["premium"]),
                     v14_short_put_expiry=replacement["expiry"],
-                    v14_early_roll_used=True,
+                    # In the new forward rule the next leg has its own entry
+                    # premium and may roll again when it independently qualifies.
+                    # Retain the old one-roll flag on historical signal dates.
+                    v14_early_roll_used=not repeat_roll_enabled,
                     v14_roll_pending=False,
                     v14_roll_trigger_day=None,
                     v14_roll_wait_reason=None,
