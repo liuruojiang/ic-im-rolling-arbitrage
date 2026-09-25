@@ -12,13 +12,14 @@ from datetime import date
 from typing import Any
 
 
-BUILD_ID = "v1.4-20260926-r1-coreput3x-fixedshort95-fix5-repeatroll-iciv30-qdelta05"
-RULE_REVISION = "ic_im_v1_4_repeat_short_put_roll_20260926_v1"
+BUILD_ID = "v1.4-20260926-r1-coreput3x-fixedshort95-fix6-nocall-repeatroll-iciv30-qdelta05"
+RULE_REVISION = "ic_im_v1_4_no_im_call_repeat_short_put_roll_20260926_v1"
 EFFECTIVE_SIGNAL_DATE = date(2026, 9, 18)
 # The r1 ledger is append-only. Each producer/rule change is forward-only;
 # September 25 and earlier signals retain their original producer identity.
 BUILD_EFFECTIVE_SIGNAL_DATE = date(2026, 9, 26)
 REPEAT_ROLL_EFFECTIVE_SIGNAL_DATE = BUILD_EFFECTIVE_SIGNAL_DATE
+NO_CALL_EFFECTIVE_SIGNAL_DATE = BUILD_EFFECTIVE_SIGNAL_DATE
 FIX4_BUILD_EFFECTIVE_SIGNAL_DATE = date(2026, 9, 24)
 FIX4_BUILD_ID = "v1.4-20260924-r1-coreput3x-fixedshort95-fix4-integrated-iciv30-qdelta05"
 FIX4_RULE_REVISION = "ic_im_v1_4_iciv30_qdelta05_20260918_v1"
@@ -435,6 +436,17 @@ def apply_policy(
         float(out.get("total_units_target", 0.0))
         - float(out.get("total_units_current", 0.0))
     )
+    if product == "IM" and day >= NO_CALL_EFFECTIVE_SIGNAL_DATE:
+        has_call = bool(out.get("call_current_contract")) and bool(out.get("call_has_position", True))
+        out.update(
+            call_target_qty_normalized=0.0,
+            call_target_contract=None,
+            call_target_expiry=None,
+            call_target_strike=None,
+            call_target_threat_roll_count=0,
+            call_action="CLOSE_CALL" if has_call else "HOLD",
+            call_target="目标空仓（fix6停止卖Call）",
+        )
     out.update(target)
     out["v14_action"] = action
     out["v14_action_reason"] = reason
