@@ -84,6 +84,34 @@ def test_replay_before_fix3_keeps_original_producer_identity():
     assert result["v14_rule_revision"] == policy.PREVIOUS_RULE_REVISION
 
 
+@pytest.mark.parametrize("day,expected_action", [
+    (date(2026, 9, 25), "OPEN_CALL"),
+    (date(2026, 9, 26), "HOLD"),
+])
+def test_no_call_boundary_preserves_old_signal_and_blocks_new_open(day, expected_action):
+    signal = _signal("IM", market_date=day, next_trade_date=date(2026, 9, 28),
+                     call_current_contract=None, call_action="OPEN_CALL",
+                     call_target_contract="MO2610-C-9000", call_target_qty_normalized=-1.0,
+                     call_target_expiry=date(2026, 10, 16), call_target_strike=9000.0)
+    result = policy.apply_policy("IM", signal, policy.default_extension("IM"),
+                                 candidate={"tradable": False})
+    assert result["call_action"] == expected_action
+    if day >= policy.NO_CALL_EFFECTIVE_SIGNAL_DATE:
+        assert result["call_target_qty_normalized"] == 0.0
+        assert result["call_target_contract"] is None
+
+
+def test_no_call_closes_existing_position_without_reopening():
+    signal = _signal("IM", market_date=date(2026, 9, 28), next_trade_date=date(2026, 9, 29),
+                     call_action="RESCUE_NEXT_LISTED", call_target_contract="MO2611-C-9500",
+                     call_target_qty_normalized=-1.0)
+    result = policy.apply_policy("IM", signal, policy.default_extension("IM"),
+                                 candidate={"tradable": False})
+    assert result["call_action"] == "CLOSE_CALL"
+    assert result["call_target_contract"] is None
+    assert result["call_target_qty_normalized"] == 0.0
+
+
 def test_ic_seller_uses_v13_execution_permission_not_removed_mom120_gate():
     signal = _signal("IC", momentum_120=-0.10, momentum_next_weight=0.5)
     allowed, reason = policy.seller_permission("IC", signal, _candidate("IC"))

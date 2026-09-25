@@ -5458,7 +5458,11 @@ def _build_live_trade_signal(
         call_target_strike: float | None = None
         call_target_qty_normalized = 0.0
         call_target_threat_roll_count = threat_roll_count
-        if not call_finished:
+        no_call_signal = market_date >= v14_policy.NO_CALL_EFFECTIVE_SIGNAL_DATE
+        if no_call_signal:
+            call_action = "CLOSE_CALL" if not call_finished else "HOLD"
+            call_target = "买回旧Call，此后不再卖Call" if not call_finished else "目标空仓（fix6停止卖Call）"
+        elif not call_finished:
             if call_otm <= 0.05 + 1e-12:
                 if threat_roll_count >= 5:
                     call_action = "CLOSE_CALL"
@@ -5541,7 +5545,7 @@ def _build_live_trade_signal(
                 option_rows_to_verify[str(selected_row["instrument"])] = float(
                     selected_row["lastprice"]
                 )
-        if call_contract:
+        if call_contract and (not no_call_signal or not call_finished):
             _require_existing_leg_quote("IM Call", call_contract, call_quote, call_action)
         core_put_action = (
             "HOLD"
@@ -5599,7 +5603,7 @@ def _build_live_trade_signal(
                     f"{verification['source_date']}，{'双边中价估计（非成交价）' if verify_basis == 'live_bid_ask_mid_estimate_zero_volume' else '最新'}{verification['lastprice']:g}"
                 )
         call_current_text = (
-            "规范化0张（已核验空仓，等待新D10/IV26信号）"
+            "规范化0张（已核验空仓）" if no_call_signal else "规范化0张（已核验空仓，等待新D10/IV26信号）"
             if call_contract is None
             else (
                 "0张（旧Call已到期，等待新D10信号）"
@@ -6108,14 +6112,18 @@ class ICIMMainlinesBot:
                 msg.write(f"- Put 行情：{live['put_market']}\n")
                 if product == "IM":
                     if live.get("call_has_position"):
-                        msg.write(
-                            f"- Call 行情：{live['call_market']}；旧Call虚值度 **{live['call_otm']:.2%}**，"
-                            f"5%救援阈值当前{'已触发' if live['call_otm'] <= 0.05 else '未触发'}\n"
-                        )
+                        if live["market_date"] >= v14_policy.NO_CALL_EFFECTIVE_SIGNAL_DATE:
+                            msg.write(f"- Call 行情：{live['call_market']}；fix6目标为平旧仓，不再救援或新开。\n")
+                        else:
+                            msg.write(
+                                f"- Call 行情：{live['call_market']}；旧Call虚值度 **{live['call_otm']:.2%}**，"
+                                f"5%救援阈值当前{'已触发' if live['call_otm'] <= 0.05 else '未触发'}\n"
+                            )
                     else:
                         msg.write(
                             f"- Call 行情：{live['call_market']}；当前无旧Call，"
-                            "只评估新D10/IV26候选\n"
+                            + ("fix6不再新开Call\n" if live["market_date"] >= v14_policy.NO_CALL_EFFECTIVE_SIGNAL_DATE
+                               else "只评估新D10/IV26候选\n")
                         )
                 if live["next_core"] and live["core_target"] != live["next_core"]:
                     msg.write(
@@ -6167,14 +6175,12 @@ class ICIMMainlinesBot:
                     )
                     msg.write("- 买Put：固定核心买Put达到入场权利金3倍时，T收盘触发兑现，T+1收盘重建；动量Put独立。\n")
                     msg.write("- 卖Put路由：固定核心处于估值0/1档、MOM120非负且M+1约95%行权价MO Put IV严格>35%时，切换为q3（规范化1.5张）；自2026-09-26信号日起，权利金衰减60%且新腿仍满足准入时可反复提前展期。\n")
-                    msg.write("- 普通期货路线的Call只覆盖0.5倍固定核心；卖Put、现金等待及恢复路线期间固定核心Call暂停；动量袖与网格不卖Call。\n")
+                    msg.write("- 自2026-09-26信号日起IM不再卖Call；若旧模型腿仍在，目标为买回旧Call。此前信号仍按当时规则保留。\n")
                     msg.write("- IM父规则MOM120<0时最低3张；第4张只能由估值第4档产生。\n")
                     msg.write(
                         "- 网格：≤1.60 加0.5倍，≥2.00 退出；新增腿不加Put或Call。\n"
                     )
-                    msg.write(
-                        "- Call：D10、IV≥26%、5%威胁救援、`rescue_next_listed`、最多5次。\n\n"
-                    )
+                    msg.write("- fix6不再执行D10/IV26开仓或5%救援。\n\n")
             msg.write(
                 "本版本是正式研究信号，只发布策略参考路径；不生成订单，也不是实盘授权。实际成交、行权、结算、交割和账户持仓由用户自行处理。\n\n"
             )

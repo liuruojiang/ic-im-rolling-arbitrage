@@ -58,14 +58,14 @@ def test_parameter_copy_matches_half_unit_grid(monkeypatch):
     assert "q_delta05" in text
     assert "IV严格>35%" in text
     assert "q3" in text
-    assert "卖Put、现金等待及恢复路线期间固定核心Call暂停" in text
+    assert "自2026-09-26信号日起IM不再卖Call" in text
     assert "正式研究信号" in text
     assert "加1倍" not in text
 
 
-def test_delivery_identity_is_fix5_repeat_roll():
-    assert digest.DELIVERY_REVISION.endswith("-fix5-repeatroll-iciv30-qdelta05")
-    assert strategy.BUILD_ID.endswith("-fix5-repeatroll-iciv30-qdelta05")
+def test_delivery_identity_is_fix6_no_call_repeat_roll():
+    assert digest.DELIVERY_REVISION.endswith("-fix6-nocall-repeatroll-iciv30-qdelta05")
+    assert strategy.BUILD_ID.endswith("-fix6-nocall-repeatroll-iciv30-qdelta05")
 
 
 def test_digest_budget_override_is_scoped_and_preserves_request_deadline():

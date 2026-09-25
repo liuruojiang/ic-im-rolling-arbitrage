@@ -14,6 +14,25 @@ def new_signal():
     return signal
 
 
+def test_fix6_im_delivery_rejects_reintroduced_call_and_wrong_exit_action():
+    signal = _signals(date(2026, 9, 28))['IM']
+    signal.update(call_current_contract=None, call_has_position=False, call_action='HOLD')
+    state.validate_im_option_values(signal)
+    signal.update(call_target_qty_normalized=-1.0, call_target_contract='MO2610-C-9000',
+                  call_target_expiry=date(2026, 10, 16), call_target_strike=9000.0,
+                  call_action='OPEN_CALL')
+    with pytest.raises(RuntimeError, match='不得卖Call'):
+        state.validate_im_option_values(signal)
+    signal.update(call_target_qty_normalized=0.0, call_target_contract=None,
+                  call_target_expiry=None, call_target_strike=None,
+                  call_current_contract='MO2610-C-9000', call_has_position=True,
+                  call_action='RESCUE_NEXT_LISTED')
+    with pytest.raises(RuntimeError, match='退场动作'):
+        state.validate_im_option_values(signal)
+    signal['call_action'] = 'CLOSE_CALL'
+    state.validate_im_option_values(signal)
+
+
 def short_signal():
     signal = new_signal()
     signal.update(v14_route_state='short_put', v14_cycle_id='IC-2026-09-21-510500P2610M07500',

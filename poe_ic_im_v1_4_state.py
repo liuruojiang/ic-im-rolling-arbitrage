@@ -371,6 +371,12 @@ def validate_im_option_values(signal: dict[str, Any]) -> None:
     validate_im_call_values(signal.get("call_target_qty_normalized", 0.0),
                             signal.get("call_target_contract"),
                             signal.get("call_target_expiry"), signal.get("call_target_strike"))
+    if _as_day(signal.get("market_date"), "IM信号日") >= v14_policy.NO_CALL_EFFECTIVE_SIGNAL_DATE:
+        if signal.get("call_target_qty_normalized") != 0.0:
+            raise RuntimeError("fix6 IM新信号不得卖Call")
+        expected = "CLOSE_CALL" if signal.get("call_current_contract") and signal.get("call_has_position", True) else "HOLD"
+        if signal.get("call_action") != expected:
+            raise RuntimeError("fix6 IM Call退场动作与当前模型仓位不一致")
 
 
 def validate_im_put_execution_evidence(signal: dict[str, Any]) -> None:
