@@ -3976,8 +3976,8 @@ def select_im_call_d10(
         calls["expiry"].eq(expiry)
         & calls["strike"].gt(spot)
         & calls["lastprice"].gt(0)
-        & calls["volume"].gt(0)
-        & calls["position"].gt(0)
+        & ((today >= v14_policy.REPEAT_ROLL_EFFECTIVE_SIGNAL_DATE) | calls["volume"].gt(0))
+        & ((today >= v14_policy.REPEAT_ROLL_EFFECTIVE_SIGNAL_DATE) | calls["position"].gt(0))
     ].copy()
     if calls.empty:
         return None
@@ -4045,8 +4045,8 @@ def select_im_call_rescue(
     calls = calls[
         calls["instrument"].eq(target_contract)
         & calls["lastprice"].gt(0)
-        & calls["volume"].gt(0)
-        & calls["position"].gt(0)
+        & ((today >= v14_policy.REPEAT_ROLL_EFFECTIVE_SIGNAL_DATE) | calls["volume"].gt(0))
+        & ((today >= v14_policy.REPEAT_ROLL_EFFECTIVE_SIGNAL_DATE) | calls["position"].gt(0))
     ].copy()
     if calls.empty:
         return None
@@ -4524,11 +4524,12 @@ def _v14_im_short_put_candidate(
     if row is None:
         return {"tradable": False, "reason": "target_m1_no_quote", "contract": contract, "expiry": expiry}
     premium = float(row["lastprice"])
-    tradable = (
-        math.isfinite(premium) and premium > 0
-        and float(row.get("volume", 0.0)) > 0
-        and float(row.get("position", 0.0)) > 0
-    )
+    # A dated positive quote is actionable under the user's market-maker
+    # paper-fill assumption; recorded prints/OI are not admission gates.
+    tradable = math.isfinite(premium) and premium > 0
+    if signal["market_date"] < v14_policy.REPEAT_ROLL_EFFECTIVE_SIGNAL_DATE:
+        # Reproducing a pre-fix5 signal must retain its original quote gate.
+        tradable = tradable and float(row.get("volume", 0.0)) > 0 and float(row.get("position", 0.0)) > 0
     strike = float(month[month.instrument.eq(contract)].iloc[0].strike)
     years = max((expiry - signal["market_date"]).days, 1) / 365.0
     iv = _implied_volatility(
@@ -6148,7 +6149,7 @@ class ICIMMainlinesBot:
                         "与0.1%单边换手成本；成交量/高分清仓过滤关闭。\n"
                     )
                     msg.write("- 买Put：固定核心买Put达到入场权利金3倍时，T收盘触发兑现，T+1收盘按新合约重建；动量Put独立，不随核心兑现。\n")
-                    msg.write("- 卖Put路由：固定核心处于估值0/1档、原执行动量许可且M+1约95%行权价Put IV严格>30%时，以q_delta05（每1倍IC初始总Delta 0.5）切换；权利金衰减50%最多提前滚一次。\n")
+                    msg.write("- 卖Put路由：固定核心处于估值0/1档、原执行动量许可且M+1约95%行权价Put IV严格>30%时，以q_delta05（每1倍IC初始总Delta 0.5）切换；自2026-09-26信号日起，权利金衰减50%且新腿仍满足准入时可反复提前展期。\n")
                     msg.write("- 卖Put或恢复路线期间固定核心买Put暂停；到期输出模型条件分支，不要求账户成交或交割回执。\n")
                     msg.write("- 网格：≤0.500 加0.5倍，≥1.000 退出；新增腿不配Put。\n")
                     msg.write("- IC不卖Call。\n\n")
@@ -6165,7 +6166,7 @@ class ICIMMainlinesBot:
                         f"- {im_put_policy.description(_now_beijing().date())}；约3个月，网格不配Put。\n"
                     )
                     msg.write("- 买Put：固定核心买Put达到入场权利金3倍时，T收盘触发兑现，T+1收盘重建；动量Put独立。\n")
-                    msg.write("- 卖Put路由：固定核心处于估值0/1档、MOM120非负且M+1约95%行权价MO Put IV严格>35%时，切换为q3（规范化1.5张）；权利金衰减60%最多提前滚一次。\n")
+                    msg.write("- 卖Put路由：固定核心处于估值0/1档、MOM120非负且M+1约95%行权价MO Put IV严格>35%时，切换为q3（规范化1.5张）；自2026-09-26信号日起，权利金衰减60%且新腿仍满足准入时可反复提前展期。\n")
                     msg.write("- 普通期货路线的Call只覆盖0.5倍固定核心；卖Put、现金等待及恢复路线期间固定核心Call暂停；动量袖与网格不卖Call。\n")
                     msg.write("- IM父规则MOM120<0时最低3张；第4张只能由估值第4档产生。\n")
                     msg.write(

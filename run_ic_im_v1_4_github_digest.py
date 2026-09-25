@@ -26,7 +26,7 @@ from poe_ic_im_v1_4_state import StateStore, _jsonable
 
 
 PRODUCTS = ("IC", "IM")
-DELIVERY_REVISION = "20260924-v14-coreput3x-fixedshort95-fix4-integrated-iciv30-qdelta05"
+DELIVERY_REVISION = "20260926-v14-coreput3x-fixedshort95-fix5-repeatroll-iciv30-qdelta05"
 MODES = ("close", "realtime")
 
 
@@ -173,7 +173,8 @@ def render_stored_close_report(latest: dict[str, Any]) -> str:
     lines = [
         "# IC / IM 1.4 收盘确认账本",
         "",
-        f"当前发布构建：`{strategy.BUILD_ID}`；网格参数版本：`{strategy.GRID_POLICY_REVISION}`；动量防抖版本：`{strategy.MOMENTUM_DEBOUNCE_POLICY_REVISION}`。",
+        f"本记录信号构建：`{signals.get('IC', {}).get('v14_build_id', 'N/A')}`；当前程序构建：`{strategy.BUILD_ID}`；网格参数版本：`{strategy.GRID_POLICY_REVISION}`；动量防抖版本：`{strategy.MOMENTUM_DEBOUNCE_POLICY_REVISION}`。",
+        "卖Put展期规则：2026-09-25及以前信号最多成功展期一次；2026-09-26及以后信号每次满足条件可继续展期。本记录以逐腿信号版本为准。",
         "自2026-09-16信号日起，IC与IM的核心Put在MOM120<0时立即保护，连续两日均>+1%才解除；Abs20≤0立即降至半仓，连续两日均>+1%才恢复满仓；Score不变。",
         "网格新版本：2026-09-15信号日起，IM恢复1.6进入/2.0退出、0.5倍，仅估值；IC保持0.5进入/1.0退出、0.5倍。此前信号保留当日规则。",
         "本附件直接来自已通过SHA-256日志链校验的持久账本，不进行第二次联网重算。",
@@ -308,6 +309,8 @@ def build_artifacts(
         "strategy": "IC/IM research signal 1.4",
         "strategy_revision": state_module.STRATEGY_REVISION,
         "build": strategy.BUILD_ID,
+        "signal_build": observed["IC"].get("v14_build_id"),
+        "signal_rule_revision": observed["IC"].get("v14_rule_revision"),
         "grid_policy_revision": strategy.GRID_POLICY_REVISION,
         "momentum_debounce_policy_revision": strategy.MOMENTUM_DEBOUNCE_POLICY_REVISION,
         "momentum_debounce_effective_date": strategy.MOMENTUM_DEBOUNCE_EFFECTIVE_DATE.isoformat(),
