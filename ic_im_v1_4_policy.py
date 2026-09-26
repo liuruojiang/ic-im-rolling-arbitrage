@@ -12,13 +12,16 @@ from datetime import date
 from typing import Any
 
 
-BUILD_ID = "v1.4-20260928-r1-coreput3x-open-fix7-nocall-repeatroll-iciv30-qdelta05"
-RULE_REVISION = "ic_im_v1_4_coreput3x_t1_open_20260928_v1"
+BUILD_ID = "v1.4-20260929-r1-ordinaryput-open-fix8"
+RULE_REVISION = "ic_im_v1_4_ordinary_put_t1_open_20260929_v1"
+FIX7_BUILD_ID = "v1.4-20260928-r1-coreput3x-open-fix7-nocall-repeatroll-iciv30-qdelta05"
+FIX7_RULE_REVISION = "ic_im_v1_4_coreput3x_t1_open_20260928_v1"
 EFFECTIVE_SIGNAL_DATE = date(2026, 9, 18)
 # The r1 ledger is append-only. Each producer/rule change is forward-only;
 # September 25 and earlier signals retain their original producer identity.
-BUILD_EFFECTIVE_SIGNAL_DATE = date(2026, 9, 28)
-PROFIT_OPEN_EFFECTIVE_SIGNAL_DATE = BUILD_EFFECTIVE_SIGNAL_DATE
+BUILD_EFFECTIVE_SIGNAL_DATE = date(2026, 9, 29)
+ORDINARY_PUT_OPEN_EFFECTIVE_SIGNAL_DATE = BUILD_EFFECTIVE_SIGNAL_DATE
+PROFIT_OPEN_EFFECTIVE_SIGNAL_DATE = date(2026, 9, 28)
 FIX6_BUILD_EFFECTIVE_SIGNAL_DATE = date(2026, 9, 26)
 FIX6_BUILD_ID = "v1.4-20260926-r1-coreput3x-fixedshort95-fix6-nocall-repeatroll-iciv30-qdelta05"
 FIX6_RULE_REVISION = "ic_im_v1_4_no_im_call_repeat_short_put_roll_20260926_v1"
@@ -48,10 +51,12 @@ def identity_for_signal_day(value: date | str) -> tuple[str, str]:
         return PREVIOUS_BUILD_ID, PREVIOUS_RULE_REVISION
     if day < FIX4_BUILD_EFFECTIVE_SIGNAL_DATE:
         return FIX3_BUILD_ID, FIX3_RULE_REVISION
-    if day < BUILD_EFFECTIVE_SIGNAL_DATE:
+    if day < PROFIT_OPEN_EFFECTIVE_SIGNAL_DATE:
         if day >= FIX6_BUILD_EFFECTIVE_SIGNAL_DATE:
             return FIX6_BUILD_ID, FIX6_RULE_REVISION
         return FIX4_BUILD_ID, FIX4_RULE_REVISION
+    if day < BUILD_EFFECTIVE_SIGNAL_DATE:
+        return FIX7_BUILD_ID, FIX7_RULE_REVISION
     return BUILD_ID, RULE_REVISION
 
 PRODUCT_RULES = {
@@ -102,6 +107,7 @@ def default_extension(product: str) -> dict[str, Any]:
         "v14_profit_reentry_contract": None,
         "v14_profit_reentry_security_id": None,
         "v14_profit_reentry_qty": 0.0,
+        "v14_ordinary_put_pending": None,
         "v14_last_event_id": None,
     }
 
@@ -144,6 +150,31 @@ def validate_extension(product: str, state: dict[str, Any]) -> None:
         raise RuntimeError("IM active short-Put quantity must equal q3 delta05 (1.5)")
     if bool(state.get("v14_profit_pending")) and not state.get("v14_profit_trigger_day"):
         raise RuntimeError(f"{product} profit pending lacks a trigger day")
+    plan = state.get("v14_ordinary_put_pending")
+    if plan is not None:
+        if route != "future" or bool(state.get("v14_profit_pending")):
+            raise RuntimeError(f"{product} ordinary Put plan conflicts with core route or 3x plan")
+        if not isinstance(plan, dict) or plan.get("product") != product or not isinstance(plan.get("legs"), dict):
+            raise RuntimeError(f"{product} ordinary Put plan is malformed")
+        trigger = date.fromisoformat(str(plan.get("signal_day"))[:10])
+        execution = date.fromisoformat(str(plan.get("execution_day"))[:10])
+        if trigger < ORDINARY_PUT_OPEN_EFFECTIVE_SIGNAL_DATE or execution <= trigger:
+            raise RuntimeError(f"{product} ordinary Put plan date is invalid")
+        for name in ("core", "momentum"):
+            leg = plan["legs"].get(name)
+            if not isinstance(leg, dict):
+                raise RuntimeError(f"{product} ordinary {name} Put leg is missing")
+            expected_change = (leg.get("old_contract") != leg.get("new_contract") or
+                               not math.isclose(float(leg.get("old_qty", math.nan)),
+                                                float(leg.get("new_qty", math.nan)), abs_tol=1e-12))
+            if type(leg.get("changed")) is not bool or leg["changed"] != expected_change:
+                raise RuntimeError(f"{product} ordinary {name} Put change flag is invalid")
+            for prefix in ("old", "new"):
+                qty = float(leg.get(f"{prefix}_qty", math.nan))
+                if not math.isfinite(qty) or qty < 0 or (qty > 0 and not leg.get(f"{prefix}_contract")):
+                    raise RuntimeError(f"{product} ordinary {name} Put {prefix} identity is invalid")
+                if product == "IC" and qty > 0 and not leg.get(f"{prefix}_security_id"):
+                    raise RuntimeError("IC ordinary Put plan lacks security id")
     if state.get("v14_profit_execution_day") is not None:
         trigger = state.get("v14_profit_trigger_day")
         if not state.get("v14_profit_pending") or trigger is None:
@@ -165,6 +196,45 @@ def validate_extension(product: str, state: dict[str, Any]) -> None:
     eligible = bool(state.get("v14_core_put_profit3x_eligible"))
     if eligible and (entry is None or not math.isfinite(float(entry)) or float(entry) <= 0):
         raise RuntimeError(f"{product} 3x eligibility lacks an entry premium")
+
+
+def project_ordinary_open(product: str, anchor: dict[str, Any], plan: dict[str, Any]) -> dict[str, Any]:
+    """Project a verified opening plan into a transient continuation anchor."""
+    result = deepcopy(anchor)
+    core, momentum = plan["legs"]["core"], plan["legs"]["momentum"]
+    core_qty, momentum_qty = float(core["new_qty"]), float(momentum["new_qty"])
+    if product == "IC":
+        result.update(
+            post_put_contract=momentum["new_contract"] or result.get("post_put_contract"),
+            post_put_security_id=momentum["new_security_id"] or result.get("post_put_security_id"),
+            post_put_qty=core_qty + momentum_qty,
+            verified_put_qty_normalized=core_qty + momentum_qty,
+            verified_core_put_qty=int(core_qty),
+            verified_momentum_put_qty=int(momentum_qty),
+            verified_core_put_delta=float(plan["core_delta"]),
+            verified_momentum_put_delta=float(plan["momentum_delta"]),
+            verified_total_put_delta=float(plan["core_delta"]) + float(plan["momentum_delta"]),
+            verified_core_put_driver=plan["core_driver"],
+            verified_momentum_put_driver=plan["momentum_driver"],
+            v14_core_put_contract=core["new_contract"],
+            v14_core_put_security_id=core["new_security_id"],
+            v14_core_put_qty=int(core_qty),
+        )
+    else:
+        result.update(
+            post_put_contract=core["new_contract"],
+            post_core_put_contract=core["new_contract"],
+            post_momentum_put_contract=momentum["new_contract"],
+            post_put_equivalent_units=0.5 * (core_qty + momentum_qty),
+            post_core_put_equivalent_units=0.5 * core_qty,
+            post_momentum_put_equivalent_units=0.5 * momentum_qty,
+            verified_put_qty_normalized=core_qty + momentum_qty,
+            verified_core_put_qty_normalized=core_qty,
+            verified_momentum_put_qty_normalized=momentum_qty,
+            verified_total_put_qty_normalized=core_qty + momentum_qty,
+            verified_parent_puts=int(plan["parent_puts"]),
+        )
+    return result
 
 
 def seller_permission(product: str, signal: dict[str, Any], candidate: dict[str, Any]) -> tuple[bool, str]:
@@ -467,6 +537,8 @@ def apply_policy(
                 target[key] = None
             target["v14_profit_old_qty"] = target["v14_profit_reentry_qty"] = 0.0
         target.update(v14_core_put_contract=None, v14_core_put_security_id=None, v14_core_put_qty=0.0)
+    if target["v14_route_state"] != "future" or target.get("v14_profit_pending"):
+        target["v14_ordinary_put_pending"] = None
     event_id = _event_id(product, signal, action, target.get("v14_short_put_contract"))
     if action not in {"HOLD", "WAIT_SHORT_PUT_ROLL", "HOLD_RECOVERY"}:
         if event_id == state.get("v14_last_event_id"):
