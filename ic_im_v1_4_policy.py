@@ -12,14 +12,17 @@ from datetime import date
 from typing import Any
 
 
-BUILD_ID = "v1.4-20260929-r1-ordinaryput-open-fix8"
-RULE_REVISION = "ic_im_v1_4_ordinary_put_t1_open_20260929_v1"
+BUILD_ID = "v1.4-20260929-r1-ordinaryput-open-ic-seller-mom120-fix9"
+RULE_REVISION = "ic_im_v1_4_ordinaryput_open_ic_seller_mom120_20260929_v1"
+FIX8_BUILD_ID = "v1.4-20260929-r1-ordinaryput-open-fix8"
+FIX8_RULE_REVISION = "ic_im_v1_4_ordinary_put_t1_open_20260929_v1"
 FIX7_BUILD_ID = "v1.4-20260928-r1-coreput3x-open-fix7-nocall-repeatroll-iciv30-qdelta05"
 FIX7_RULE_REVISION = "ic_im_v1_4_coreput3x_t1_open_20260928_v1"
 EFFECTIVE_SIGNAL_DATE = date(2026, 9, 18)
 # The r1 ledger is append-only. Each producer/rule change is forward-only;
 # September 25 and earlier signals retain their original producer identity.
 BUILD_EFFECTIVE_SIGNAL_DATE = date(2026, 9, 29)
+IC_SELLER_MOM120_EFFECTIVE_SIGNAL_DATE = BUILD_EFFECTIVE_SIGNAL_DATE
 ORDINARY_PUT_OPEN_EFFECTIVE_SIGNAL_DATE = BUILD_EFFECTIVE_SIGNAL_DATE
 PROFIT_OPEN_EFFECTIVE_SIGNAL_DATE = date(2026, 9, 28)
 FIX6_BUILD_EFFECTIVE_SIGNAL_DATE = date(2026, 9, 26)
@@ -64,7 +67,7 @@ PRODUCT_RULES = {
         "iv_threshold": 0.30,
         "premium_decay": 0.50,
         "quantity": "q_delta05",
-        "seller_mom120": False,
+        "seller_mom120": True,
     },
     "IM": {
         "iv_threshold": 0.35,
@@ -251,11 +254,18 @@ def seller_permission(product: str, signal: dict[str, Any], candidate: dict[str,
         tier = signal.get("valuation_tier")
         if tier is None or not math.isfinite(float(tier)) or float(tier) not in (0.0, 1.0):
             return False, "valuation_not_0_or_1"
-        # The IC seller keeps the original v1.3 execution-momentum permit; it
-        # does not add the removed IC seller MOM120 gate.
-        momentum = signal.get("momentum_next_weight")
-        if momentum is None or not math.isfinite(float(momentum)) or float(momentum) <= 0.0:
-            return False, "ic_execution_momentum_not_permitted"
+        day = date.fromisoformat(str(signal["market_date"])[:10])
+        if day >= IC_SELLER_MOM120_EFFECTIVE_SIGNAL_DATE:
+            momentum = signal.get("momentum_120")
+            if momentum is None or not math.isfinite(float(momentum)):
+                return False, "mom120_unavailable"
+            if float(momentum) < 0.0:
+                return False, "mom120_negative"
+        else:
+            # Historical signals retain their original execution-momentum permit.
+            momentum = signal.get("momentum_next_weight")
+            if momentum is None or not math.isfinite(float(momentum)) or float(momentum) <= 0.0:
+                return False, "ic_execution_momentum_not_permitted"
     else:
         tier = signal.get("valuation_puts_per_full_core")
         if tier is None or not math.isfinite(float(tier)) or float(tier) not in (0.0, 1.0):

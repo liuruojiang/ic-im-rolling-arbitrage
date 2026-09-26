@@ -65,13 +65,13 @@ def test_parameter_copy_matches_half_unit_grid(monkeypatch):
     assert "加1倍" not in text
 
 
-def test_delivery_identity_preserves_fix7_then_uses_fix8():
+def test_delivery_identity_preserves_fix7_then_uses_fix9():
     assert digest.delivery_revision_for_signal_day(date(2026, 9, 25)) == digest.FIX4_DELIVERY_REVISION
     assert digest.delivery_revision_for_signal_day(date(2026, 9, 26)) == digest.FIX6_DELIVERY_REVISION
     assert "coreput3x-open-fix7" in digest.delivery_revision_for_signal_day(date(2026, 9, 28))
     assert "coreput3x-open-fix7" in strategy.v14_policy.identity_for_signal_day(date(2026, 9, 28))[0]
-    assert "ordinary-put-open-fix8" in digest.delivery_revision_for_signal_day(date(2026, 9, 29))
-    assert "ordinaryput-open-fix8" in strategy.BUILD_ID
+    assert "ic-seller-mom120-fix9" in digest.delivery_revision_for_signal_day(date(2026, 9, 29))
+    assert "ic-seller-mom120-fix9" in strategy.BUILD_ID
     assert strategy.v14_policy.FIX6_BUILD_ID.endswith("-fix6-nocall-repeatroll-iciv30-qdelta05")
 
 

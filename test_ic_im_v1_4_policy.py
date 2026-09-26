@@ -120,16 +120,65 @@ def test_no_call_closes_existing_position_without_reopening():
     assert result["call_target_qty_normalized"] == 0.0
 
 
-def test_ic_seller_uses_v13_execution_permission_not_removed_mom120_gate():
-    signal = _signal("IC", momentum_120=-0.10, momentum_next_weight=0.5)
+def test_ic_seller_keeps_v13_execution_permission_before_fix9():
+    signal = _signal("IC", market_date=date(2026, 9, 28),
+                     momentum_120=-0.10, momentum_next_weight=0.5)
     allowed, reason = policy.seller_permission("IC", signal, _candidate("IC"))
     assert allowed is True
     assert reason == "allowed"
     blocked, reason = policy.seller_permission(
-        "IC", _signal("IC", momentum_next_weight=0.0), _candidate("IC")
+        "IC", _signal("IC", market_date=date(2026, 9, 28),
+                      momentum_next_weight=0.0), _candidate("IC")
     )
     assert blocked is False
     assert reason == "ic_execution_momentum_not_permitted"
+
+
+def test_ic_seller_fix9_uses_price_mom120_not_momentum_leg_or_buyer_debounce():
+    day = date(2026, 9, 29)
+    base = _signal("IC", market_date=day, next_trade_date=date(2026, 9, 30),
+                   momentum_next_weight=0.0, momentum_120=0.0,
+                   mom120_floor_active=True)
+    allowed, reason = policy.seller_permission("IC", base, _candidate("IC"))
+    assert (allowed, reason) == (True, "allowed")
+    opened = policy.apply_policy("IC", base, policy.default_extension("IC"),
+                                 candidate=_candidate("IC"))
+    assert opened["v14_action"] == "ENTER_SHORT_PUT"
+    assert opened["v14_build_id"] == policy.BUILD_ID
+    assert opened["v14_rule_revision"] == policy.RULE_REVISION
+    for value, expected in [(-0.001, "mom120_negative"),
+                            (None, "mom120_unavailable"),
+                            (float("nan"), "mom120_unavailable"),
+                            (float("inf"), "mom120_unavailable")]:
+        blocked, reason = policy.seller_permission(
+            "IC", {**base, "momentum_120": value, "momentum_next_weight": 1.0},
+            _candidate("IC"))
+        assert (blocked, reason) == (False, expected)
+
+
+def test_ic_seller_fix9_rechecks_mom120_on_pending_repeat_roll():
+    entry = policy.apply_policy("IC", _signal("IC", market_date=date(2026, 9, 29),
+        next_trade_date=date(2026, 9, 30), momentum_120=0.01,
+        momentum_next_weight=0.0), policy.default_extension("IC"),
+        candidate=_candidate("IC"))
+    anchor = {key: entry[key] for key in policy.default_extension("IC")}
+    replacement = _candidate("IC", contract="510500P2611M07500",
+                             expiry=date(2026, 11, 25), premium=0.10)
+    waiting = policy.apply_policy("IC", _signal("IC", market_date=date(2026, 9, 30),
+        next_trade_date=date(2026, 10, 9), momentum_120=-0.01,
+        momentum_next_weight=1.0, v14_short_put_mark=0.05),
+        anchor, candidate=replacement, roll_candidate=replacement)
+    assert waiting["v14_action"] == "WAIT_SHORT_PUT_ROLL"
+    assert waiting["v14_action_reason"] == "mom120_negative"
+    assert waiting["v14_roll_pending"] is True
+    rolled = policy.apply_policy("IC", _signal("IC", market_date=date(2026, 10, 9),
+        next_trade_date=date(2026, 10, 12), momentum_120=0.001,
+        momentum_next_weight=0.0, v14_short_put_mark=0.08),
+        {key: waiting[key] for key in policy.default_extension("IC")},
+        candidate=replacement, roll_candidate=replacement)
+    assert rolled["v14_action"] == "ROLL_SHORT_PUT"
+    assert rolled["v14_roll_pending"] is False
+    assert rolled["v14_early_roll_used"] is False
 
 
 def test_im_seller_requires_nonnegative_mom120_and_q3_enters_atomically():
