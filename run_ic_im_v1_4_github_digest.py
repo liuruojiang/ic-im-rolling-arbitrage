@@ -29,7 +29,7 @@ PRODUCTS = ("IC", "IM")
 FIX4_DELIVERY_REVISION = "20260924-v14-coreput3x-fixedshort95-fix4-integrated-iciv30-qdelta05"
 FIX6_DELIVERY_REVISION = "20260926-v14-coreput3x-fixedshort95-fix6-nocall-repeatroll-iciv30-qdelta05"
 FIX7_DELIVERY_REVISION = "20260928-v14-coreput3x-open-fix7-nocall-repeatroll-iciv30-qdelta05"
-DELIVERY_REVISION = "20260929-v14-ordinary-put-open-fix8"
+DELIVERY_REVISION = "20260929-v14-ordinary-put-open-ic-seller-mom120-fix9"
 MODES = ("close", "realtime")
 
 
