@@ -3,6 +3,7 @@ from unittest.mock import patch
 import pandas as pd
 import pytest
 import poe_ic_im_mainline_v1_4_bot as bot
+import ic_im_v1_4_policy as policy
 
 
 def test_ic_candidate_rejects_stale_chain():
@@ -10,6 +11,96 @@ def test_ic_candidate_rejects_stale_chain():
     with bot.runtime_clock(datetime(2026,9,18,16,tzinfo=bot.BEIJING)), patch.object(bot,'fetch_510500_chain_with_failover',return_value=(pd.DataFrame(),{'date':'20260901','time':'150000'})):
         with pytest.raises(RuntimeError):
             bot._v14_ic_short_put_candidate(signal)
+
+
+def test_fix8_ic_monthly_preview_is_not_a_completed_reset():
+    with patch.object(bot, '_is_pre_expiry_close', return_value=True):
+        assert bot._v14_monthly_option_calendar('IC', date(2026, 9, 28), date(2026, 9, 29), True) == (True, False)
+        assert bot._v14_monthly_option_calendar('IC', date(2026, 9, 29), date(2026, 9, 30), True) == (False, True)
+        assert bot._v14_monthly_option_calendar('IC', date(2026, 9, 30), date(2026, 9, 30), True) == (True, False)
+
+
+def test_monthly_calendar_uses_holiday_adjusted_actual_expiry():
+    assert bot._third_friday(2026, 6) == date(2026, 6, 22)
+    assert bot._is_pre_expiry_close(date(2026, 6, 18), date(2026, 6, 22), True)
+    assert bot._v14_monthly_option_calendar('IC', date(2026, 6, 22), date(2026, 6, 22), True) == (True, False)
+
+
+def test_fix8_im_ordinary_plan_needs_exact_next_day_open_and_closes_on_missing_price():
+    anchor = policy.default_extension('IM')
+    anchor.update(post_core_put_contract='MO2612-P-7500',
+                  post_momentum_put_contract='MO2612-P-7300',
+                  verified_core_put_qty_normalized=1.0,
+                  verified_momentum_put_qty_normalized=.5)
+    signal = {'market_date': date(2026, 9, 29), 'next_trade_date': date(2026, 9, 30),
+              'close_confirmed': True, 'option_monthly_reset_due': False,
+              'v14_route_state': 'future', 'v14_profit_pending': False,
+              'v14_action': 'HOLD', 'core_put_target_contract': 'MO2612-P-7500',
+              'core_put_target_qty_normalized': 1.0,
+              'momentum_put_target_contract': 'MO2612-P-7200',
+              'momentum_put_target_qty_normalized': .5,
+              'v13_parent_puts_per_full_core': 2}
+    bot._v14_schedule_ordinary_put('IM', signal, anchor, None)
+    plan = signal['v14_ordinary_put_pending']
+    assert signal['v14_ordinary_put_plan_status'] == 'scheduled_t_plus_1_open'
+    assert plan['legs']['core']['changed'] is False
+    assert plan['legs']['momentum']['changed'] is True
+    anchor['v14_ordinary_put_pending'] = plan
+    chain = pd.DataFrame([
+        {'instrument': 'MO2612-P-7300', 'openprice': 20.0},
+        {'instrument': 'MO2612-P-7200', 'openprice': 11.0},
+    ])
+    chain.attrs.update(source='中金所', source_date=date(2026, 9, 30))
+    original = bot.LIVE_CONTINUATION_ANCHOR['IM']
+    bot.LIVE_CONTINUATION_ANCHOR['IM'] = anchor
+    try:
+        with patch.object(bot, 'fetch_cffex_quotes', return_value=chain):
+            evidence = bot._v14_ordinary_open_evidence('IM', date(2026, 9, 30), datetime(2026, 9, 30, 16))
+        assert evidence['status'] == 'confirmed_open_research_price'
+        assert {x['contract'] for x in evidence['prices']} == {'MO2612-P-7300', 'MO2612-P-7200'}
+        missing = chain.drop(columns='openprice')
+        missing.attrs.update(chain.attrs)
+        with patch.object(bot, 'fetch_cffex_quotes', return_value=missing):
+            closed = bot._v14_ordinary_open_evidence('IM', date(2026, 9, 30), datetime(2026, 9, 30, 16))
+        assert closed['status'] == 'closed_missing_open_price'
+        assert 'openprice' in closed['reason']
+    finally:
+        bot.LIVE_CONTINUATION_ANCHOR['IM'] = original
+
+
+def test_fix8_ic_momentum_open_uses_frozen_security_id_without_touching_core_basis():
+    anchor = policy.default_extension('IC')
+    anchor.update(v14_core_put_contract='510500P2612M07500',
+                  v14_core_put_security_id='10012000', v14_core_put_qty=2,
+                  v14_core_put_entry_premium=.20, v14_core_put_profit3x_eligible=True,
+                  post_put_contract='510500P2612M07400', post_put_security_id='10012001',
+                  verified_momentum_put_qty=0)
+    signal = {'market_date': date(2026, 9, 29), 'next_trade_date': date(2026, 9, 30),
+              'close_confirmed': True, 'option_monthly_reset_due': False,
+              'v14_route_state': 'future', 'v14_profit_pending': False, 'v14_action': 'HOLD',
+              'v14_core_put_contract': '510500P2612M07500',
+              'v14_core_put_security_id': '10012000', 'put_target_core_qty': 2,
+              'put_target_contract': '510500P2612M07300',
+              'put_target_security_id': '10012002', 'put_target_momentum_qty': 3,
+              'core_put_target_delta': .25, 'momentum_put_target_delta': .25,
+              'core_put_driver': 'valuation', 'momentum_put_driver': 'momentum'}
+    bot._v14_schedule_ordinary_put('IC', signal, anchor, None)
+    plan = signal['v14_ordinary_put_pending']
+    assert plan['legs']['core']['changed'] is False
+    anchor['v14_ordinary_put_pending'] = plan
+    original = bot.LIVE_CONTINUATION_ANCHOR['IC']
+    bot.LIVE_CONTINUATION_ANCHOR['IC'] = anchor
+    try:
+        with patch.object(bot, 'fetch_option_dated_open', return_value=(.15, 'Sina:dated_open')) as fetch:
+            evidence = bot._v14_ordinary_open_evidence('IC', date(2026, 9, 30), datetime(2026, 9, 30, 16))
+        assert evidence['status'] == 'confirmed_open_research_price'
+        fetch.assert_called_once_with('10012002', date(2026, 9, 30))
+        projected = policy.project_ordinary_open('IC', anchor, plan)
+        assert projected['v14_core_put_entry_premium'] == .20
+        assert projected['post_put_security_id'] == '10012002'
+        assert projected['verified_momentum_put_qty'] == 3
+    finally:
+        bot.LIVE_CONTINUATION_ANCHOR['IC'] = original
 
 
 def test_ic_replay_does_not_fetch_current_chain():

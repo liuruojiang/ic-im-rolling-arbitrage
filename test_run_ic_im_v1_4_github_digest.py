@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 from contextlib import contextmanager
+from datetime import date, datetime
+import json
 
 import poe_ic_im_mainline_v1_4_bot as strategy
 import run_ic_im_v1_4_github_digest as digest
@@ -63,10 +65,24 @@ def test_parameter_copy_matches_half_unit_grid(monkeypatch):
     assert "加1倍" not in text
 
 
-def test_delivery_identity_is_fix7_profit3x_next_open():
-    assert "coreput3x-open-fix7" in digest.DELIVERY_REVISION
-    assert "coreput3x-open-fix7" in strategy.BUILD_ID
+def test_delivery_identity_preserves_fix7_then_uses_fix8():
+    assert digest.delivery_revision_for_signal_day(date(2026, 9, 25)) == digest.FIX4_DELIVERY_REVISION
+    assert digest.delivery_revision_for_signal_day(date(2026, 9, 26)) == digest.FIX6_DELIVERY_REVISION
+    assert "coreput3x-open-fix7" in digest.delivery_revision_for_signal_day(date(2026, 9, 28))
+    assert "coreput3x-open-fix7" in strategy.v14_policy.identity_for_signal_day(date(2026, 9, 28))[0]
+    assert "ordinary-put-open-fix8" in digest.delivery_revision_for_signal_day(date(2026, 9, 29))
+    assert "ordinaryput-open-fix8" in strategy.BUILD_ID
     assert strategy.v14_policy.FIX6_BUILD_ID.endswith("-fix6-nocall-repeatroll-iciv30-qdelta05")
+
+
+def test_failure_artifact_keeps_signal_day_for_transition_gate(tmp_path):
+    digest.write_failure(tmp_path, datetime(2026, 9, 29, 8, tzinfo=strategy.BEIJING),
+                         RuntimeError('diagnostic'), expected_market_date='2026-09-28')
+    payload = json.loads((tmp_path / 'result.json').read_text(encoding='utf-8'))
+    assert payload['status'] == 'failed'
+    assert payload['market_date'] == '2026-09-28'
+    assert payload['build'] == strategy.v14_policy.FIX7_BUILD_ID
+    assert payload['delivery_revision'] == digest.FIX7_DELIVERY_REVISION
 
 
 def test_digest_budget_override_is_scoped_and_preserves_request_deadline():

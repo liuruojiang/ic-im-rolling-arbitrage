@@ -4626,6 +4626,15 @@ def _v14_option_mark(product: str, signal: dict[str, Any], quotes: pd.DataFrame 
     return mark, target
 
 
+def _v14_monthly_option_calendar(product: str, market_date: date,
+                                 monthly_expiry: date, close_confirmed: bool) -> tuple[bool, bool]:
+    preview = _is_pre_expiry_close(market_date, monthly_expiry, close_confirmed)
+    due = monthly_expiry == market_date or (
+        preview and (product != "IC" or market_date < v14_policy.ORDINARY_PUT_OPEN_EFFECTIVE_SIGNAL_DATE)
+    )
+    return due, preview and not due
+
+
 def _v14_ic_core_overlay(signal: dict[str, Any], anchor: dict[str, Any]) -> None:
     """Price the dedicated core independently; the legacy contract is momentum."""
     contract = anchor.get("v14_core_put_contract")
@@ -4835,6 +4844,122 @@ def _v14_prepare_profit_open_plan(product: str, signal: dict[str, Any], anchor: 
         signal["v14_profit_reentry_status"] = f"t_close_preselection_unavailable:{type(exc).__name__}:{exc}"
 
 
+def _v14_ordinary_open_evidence(product: str, market_date: date, clock: datetime) -> dict[str, Any] | None:
+    """Verify yesterday's exact contracts at today's open before projecting holdings."""
+    anchor = LIVE_CONTINUATION_ANCHOR[product]
+    plan = anchor.get("v14_ordinary_put_pending")
+    if not plan:
+        return None
+    v14_policy.validate_extension(product, anchor)
+    execution_day = date.fromisoformat(str(plan["execution_day"])[:10])
+    if market_date < execution_day:
+        return {"status": "awaiting_execution_day", "plan": plan}
+    if market_date > execution_day:
+        return {"status": "closed_missed_execution_day", "plan": plan}
+    # A monthly reset is a same-day close event and has priority over a
+    # preselected ordinary opening change on that date.
+    if market_date == _third_friday(market_date.year, market_date.month):
+        return {"status": "closed_monthly_priority", "plan": plan}
+    prices: list[dict[str, Any]] = []
+    try:
+        chain = fetch_cffex_quotes("MO", clock) if product == "IM" else None
+        if chain is not None and chain.attrs.get("source_date") != market_date:
+            raise RuntimeError("MO开盘报价日期与执行日不一致")
+        seen: set[tuple[str, str | None]] = set()
+        for leg in plan["legs"].values():
+            if not leg.get("changed"):
+                continue
+            for side in ("old", "new"):
+                qty = float(leg[f"{side}_qty"])
+                if qty <= 0:
+                    continue
+                contract = str(leg[f"{side}_contract"])
+                security_id = leg.get(f"{side}_security_id")
+                key = (contract, security_id)
+                if key in seen:
+                    continue
+                seen.add(key)
+                if product == "IC":
+                    price, source = fetch_option_dated_open(str(security_id), market_date)
+                else:
+                    row = _quote_row(chain, contract)
+                    if row is None or "openprice" not in row:
+                        raise RuntimeError(f"{contract} 缺少指定日开盘价；东方财富 MO 备用源未提供 openprice")
+                    price, source = float(row["openprice"]), str(chain.attrs.get("source", "MO"))
+                if not math.isfinite(float(price)) or float(price) <= 0:
+                    raise RuntimeError(f"{contract} 指定日开盘价非正或无效")
+                prices.append({"contract": contract, "security_id": security_id,
+                               "openprice": float(price), "source": source,
+                               "price_day": market_date})
+    except (RuntimeError, ValueError, KeyError, TypeError, requests.RequestException) as exc:
+        return {"status": "closed_missing_open_price", "plan": plan,
+                "reason": f"{type(exc).__name__}: {exc}"}
+    return {"status": "confirmed_open_research_price", "plan": plan, "prices": prices}
+
+
+def _v14_schedule_ordinary_put(product: str, signal: dict[str, Any], anchor: dict[str, Any],
+                               opening: dict[str, Any] | None) -> None:
+    """Persist an exact T-close plan; it is not a paper execution yet."""
+    prior = anchor.get("v14_ordinary_put_pending")
+    if opening is not None:
+        signal["v14_ordinary_put_open_status"] = opening["status"]
+        signal["v14_ordinary_put_open_plan"] = opening["plan"]
+        if opening.get("prices") is not None:
+            signal["v14_ordinary_put_open_prices"] = opening["prices"]
+        if opening.get("reason"):
+            signal["v14_ordinary_put_open_reason"] = opening["reason"]
+    signal["v14_ordinary_put_pending"] = None
+    day = signal["market_date"]
+    if (day < v14_policy.ORDINARY_PUT_OPEN_EFFECTIVE_SIGNAL_DATE or not signal.get("close_confirmed")
+            or signal.get("option_monthly_reset_due") or signal.get("v14_route_state") != "future"
+            or signal.get("v14_profit_pending") or signal.get("v14_action") in {
+                "CORE_PUT_PROFIT3X_REENTER", "EXECUTE_CORE_PUT_PROFIT3X_REENTER",
+                "HOLD_FAIL_CLOSED"}):
+        return
+    if prior and opening and opening["status"] == "awaiting_execution_day":
+        signal["v14_ordinary_put_pending"] = prior
+        return
+    if product == "IC":
+        core = dict(old_contract=anchor.get("v14_core_put_contract"),
+                    old_security_id=anchor.get("v14_core_put_security_id"),
+                    old_qty=float(anchor.get("v14_core_put_qty", 0)),
+                    new_contract=signal.get("v14_core_put_contract"),
+                    new_security_id=signal.get("v14_core_put_security_id"),
+                    new_qty=float(signal.get("put_target_core_qty", 0)))
+        momentum = dict(old_contract=anchor.get("post_put_contract") if float(anchor.get("verified_momentum_put_qty", 0)) > 0 else None,
+                        old_security_id=anchor.get("post_put_security_id") if float(anchor.get("verified_momentum_put_qty", 0)) > 0 else None,
+                        old_qty=float(anchor.get("verified_momentum_put_qty", 0)),
+                        new_contract=signal.get("put_target_contract") if float(signal.get("put_target_momentum_qty", 0)) > 0 else None,
+                        new_security_id=signal.get("put_target_security_id") if float(signal.get("put_target_momentum_qty", 0)) > 0 else None,
+                        new_qty=float(signal.get("put_target_momentum_qty", 0)))
+    else:
+        core = dict(old_contract=anchor.get("post_core_put_contract") if float(anchor.get("verified_core_put_qty_normalized", 0)) > 0 else None,
+                    old_security_id=None, old_qty=float(anchor.get("verified_core_put_qty_normalized", 0)),
+                    new_contract=signal.get("core_put_target_contract"), new_security_id=None,
+                    new_qty=float(signal.get("core_put_target_qty_normalized", 0)))
+        momentum = dict(old_contract=anchor.get("post_momentum_put_contract") if float(anchor.get("verified_momentum_put_qty_normalized", 0)) > 0 else None,
+                        old_security_id=None, old_qty=float(anchor.get("verified_momentum_put_qty_normalized", 0)),
+                        new_contract=signal.get("momentum_put_target_contract"), new_security_id=None,
+                        new_qty=float(signal.get("momentum_put_target_qty_normalized", 0)))
+    legs = {"core": core, "momentum": momentum}
+    for leg in legs.values():
+        leg["changed"] = leg["old_contract"] != leg["new_contract"] or not math.isclose(
+            leg["old_qty"], leg["new_qty"], abs_tol=1e-12
+        )
+    if not any(leg["changed"] for leg in legs.values()):
+        return
+    plan = {"product": product, "signal_day": day, "execution_day": signal["next_trade_date"], "legs": legs}
+    if product == "IC":
+        plan.update(core_delta=float(signal["core_put_target_delta"]),
+                    momentum_delta=float(signal["momentum_put_target_delta"]),
+                    core_driver=str(signal["core_put_driver"]),
+                    momentum_driver=str(signal["momentum_put_driver"]))
+    else:
+        plan["parent_puts"] = int(signal["v13_parent_puts_per_full_core"])
+    signal["v14_ordinary_put_pending"] = plan
+    signal["v14_ordinary_put_plan_status"] = "scheduled_t_plus_1_open"
+
+
 def _apply_v14_live_policy(
     product: str,
     signal: dict[str, Any],
@@ -4905,7 +5030,13 @@ def build_live_trade_signal(
     with runtime_clock(clock):
         if mode == "close" and _is_exchange_trading_day(clock.date()) and _market_phase(clock) != "收盘后":
             raise RuntimeError("今日尚未收盘，收盘确认信号尚不可用；盘中研究请查询实时信号")
-        return _build_live_trade_signal(product, clock, mode)
+        original_anchor = LIVE_CONTINUATION_ANCHOR[product]
+        try:
+            return _build_live_trade_signal(product, clock, mode)
+        finally:
+            # Opening confirmation is an in-memory projection for this query.
+            # Only the state store may persist a fully validated close signal.
+            LIVE_CONTINUATION_ANCHOR[product] = original_anchor
 
 
 def _build_live_trade_signal(
@@ -4928,6 +5059,22 @@ def _build_live_trade_signal(
     bridge_from_anchor = _validate_signal_market_date(
         product, market_date, clock, mode
     )
+    opening = _v14_ordinary_open_evidence(product, market_date, clock)
+    if opening is not None and opening["status"] == "confirmed_open_research_price":
+        LIVE_CONTINUATION_ANCHOR[product] = v14_policy.project_ordinary_open(
+            product, LIVE_CONTINUATION_ANCHOR[product], opening["plan"]
+        )
+        core_leg = opening["plan"]["legs"]["core"]
+        if core_leg.get("changed") and float(core_leg["new_qty"]) > 0:
+            core_price = next(
+                item["openprice"] for item in opening["prices"]
+                if item["contract"] == core_leg["new_contract"]
+            )
+            LIVE_CONTINUATION_ANCHOR[product]["v14_core_put_entry_premium"] = core_price
+            LIVE_CONTINUATION_ANCHOR[product]["v14_core_put_profit3x_eligible"] = True
+        elif core_leg.get("changed"):
+            LIVE_CONTINUATION_ANCHOR[product]["v14_core_put_entry_premium"] = None
+            LIVE_CONTINUATION_ANCHOR[product]["v14_core_put_profit3x_eligible"] = False
     if bridge_from_anchor:
         live = _apply_next_unverified_session_anchor(product, live)
     elif market_date == LIVE_CONTINUATION_ANCHOR[product]["last_verified_day"]:
@@ -4952,8 +5099,8 @@ def _build_live_trade_signal(
     close_confirmed = market_date < today or (
         market_date == today and phase in {"收盘后", "非交易日"}
     )
-    option_roll_due = monthly_expiry == market_date or _is_pre_expiry_close(
-        market_date, monthly_expiry, close_confirmed
+    option_roll_due, monthly_preview_only = _v14_monthly_option_calendar(
+        product, market_date, monthly_expiry, close_confirmed
     )
     option_core_action = "ROLL" if option_roll_due else "HOLD"
     option_reference_contract = str(monthly_future["instrument"])
@@ -5095,6 +5242,8 @@ def _build_live_trade_signal(
         "roll_policy": future_plan["roll_policy"],
         "quarter_spread": spread,
         "option_monthly_reset_due": option_roll_due,
+        "option_monthly_reset_preview": product == "IC" and monthly_preview_only,
+        "option_monthly_reset_execution_date": monthly_expiry,
         "option_reference_contract": option_reference_contract,
         "grid_current": float(live["grid_current_units"]),
         "grid_target": grid_units,
@@ -5880,6 +6029,7 @@ def _build_live_trade_signal(
         signal,
         mo_quotes=mo_quotes if product == "IM" else None,
     )
+    _v14_schedule_ordinary_put(product, signal, LIVE_CONTINUATION_ANCHOR[product], opening)
     return signal
 
 
@@ -6038,6 +6188,8 @@ class ICIMMainlinesBot:
                     )
                 if product == "IM" and live.get("put_monthly_reset_preview"):
                     msg.write(f"月度Put维护预告：{live['put_monthly_reset_execution_date']}执行；当天按已持有IM价格重选，当前不锁定新合约。\n\n")
+                if product == "IC" and live.get("option_monthly_reset_preview"):
+                    msg.write(f"月度Put维护预告：{live['option_monthly_reset_execution_date']}收盘执行；今日仅预告，不重复重选或记为已维护。\n\n")
                 if product == "IM" and live.get("option_monthly_reset_due"):
                     msg.write(f"月度Put执行日：{live['put_monthly_reset_execution_date']}；参考{live['put_reference_future']}，取价日{live.get('put_reference_price_date', live['market_date'])}。盘中为待收盘确认的候选，收盘结果是当日研究执行记录，不是下一日重新选约指令。\n\n")
                 profit_status = live.get("v14_profit_reentry_status")
@@ -6045,10 +6197,20 @@ class ICIMMainlinesBot:
                     msg.write(f"核心买Put三倍兑现开盘计划：{live['market_date']}收盘确认；{live['v14_profit_execution_day']}开盘卖旧合约{live['v14_profit_old_contract']}、买入预选合约{live['v14_profit_reentry_contract']}，规范化目标量{live['v14_profit_reentry_qty']:g}。此为模型计划，尚非成交。\n\n")
                 elif profit_status == "confirmed_open_research_price":
                     msg.write(f"核心买Put三倍兑现纸面执行：{live['v14_profit_open_price_day']}开盘卖旧合约{live['v14_profit_open_old_contract']}，模型价{live['v14_profit_exit_open_price']}；买入{live['v14_profit_open_executed_contract']}，模型价{live['v14_profit_reentry_entry_premium']}，数量{live['v14_profit_open_executed_qty']:g}。不是账户成交回执。\n\n")
+                ordinary_status = live.get("v14_ordinary_put_open_status")
+                if ordinary_status == "confirmed_open_research_price":
+                    msg.write(f"普通核心/动量买Put：{live['market_date']}按前一收盘预选身份及当日开盘价完成纸面确认；逐腿开盘价见信号证据。不是账户成交回执。\n\n")
+                elif ordinary_status and ordinary_status.startswith("closed_"):
+                    msg.write(f"普通核心/动量买Put前次开盘计划已关闭：`{ordinary_status}`；{live.get('v14_ordinary_put_open_reason', '未形成可核验开盘执行')}。未记纸面成交。\n\n")
+                if live.get("v14_ordinary_put_plan_status") == "scheduled_t_plus_1_open":
+                    plan = live["v14_ordinary_put_pending"]
+                    msg.write(f"普通核心/动量买Put开盘计划：{plan['signal_day']}收盘定目标及合约，{plan['execution_day']}开盘待按预选身份与开盘价确认；尚非纸面或账户成交。\n\n")
                 put_timing = (
                     "预定维护日收盘模型记录（非T+1）" if live.get("option_monthly_reset_due")
                     else "T收盘预选 → T+1开盘" if profit_status == "scheduled_t_plus_1_open"
                     else "本交易日开盘纸面确认" if profit_status == "confirmed_open_research_price"
+                    else "T收盘预选 → T+1开盘待确认" if live.get("v14_ordinary_put_plan_status") == "scheduled_t_plus_1_open"
+                    else "本交易日开盘纸面确认" if ordinary_status == "confirmed_open_research_price"
                     else "T收盘评估 → T+1收盘"
                 )
                 msg.write(

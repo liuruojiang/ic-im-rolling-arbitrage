@@ -104,6 +104,13 @@ def _validate_record(record: dict[str, Any]) -> None:
         if not isinstance(day, date):
             raise RuntimeError(f"{product}账本缺少last_verified_day")
         days.append(day)
+        pending = anchor.get("v14_ordinary_put_pending")
+        if pending is not None:
+            if _as_day(pending.get("signal_day"), f"{product}普通Put计划日") != day:
+                raise RuntimeError(f"{product}普通Put待执行计划不属于账本核验日")
+            expected_execution = strategy._roll_forward_exchange_day(day + timedelta(days=1))
+            if _as_day(pending.get("execution_day"), f"{product}普通Put执行日") != expected_execution:
+                raise RuntimeError(f"{product}普通Put待执行计划未指向下一共同交易日")
         if float(anchor.get("verified_grid_units", -1)) not in {0.0, 0.5, 1.0}:
             raise RuntimeError(f"{product}账本网格状态非法")
         if float(anchor.get("verified_next_grid_units", -1)) not in {0.0, 0.5, 1.0}:
@@ -246,6 +253,28 @@ def validate_v14_new_signal(signal: dict[str, Any], product: str) -> None:
         if field.endswith("_day") and signal[field] is not None:
             _as_day(signal[field], f"{product} {field}")
     v14_policy.validate_extension(product, signal)
+    ordinary_status = signal.get("v14_ordinary_put_open_status")
+    if ordinary_status == "confirmed_open_research_price":
+        plan = signal.get("v14_ordinary_put_open_plan")
+        prices = signal.get("v14_ordinary_put_open_prices")
+        if not isinstance(plan, dict) or not isinstance(prices, list):
+            raise RuntimeError(f"{product}普通Put开盘确认缺少计划或报价")
+        if _as_day(plan.get("execution_day"), "普通Put执行日") != _as_day(market_date, "信号日"):
+            raise RuntimeError(f"{product}普通Put开盘确认跨日")
+        expected = {
+            (leg[f"{side}_contract"], leg.get(f"{side}_security_id"))
+            for leg in plan["legs"].values() for side in ("old", "new")
+            if leg.get("changed") and float(leg[f"{side}_qty"]) > 0
+        }
+        observed = set()
+        for item in prices:
+            if _as_day(item.get("price_day"), "普通Put开盘报价日") != _as_day(market_date, "信号日"):
+                raise RuntimeError(f"{product}普通Put报价日期不符")
+            if _option_number(item.get("openprice"), "普通Put开盘价") <= 0:
+                raise RuntimeError(f"{product}普通Put开盘价无效")
+            observed.add((item.get("contract"), item.get("security_id")))
+        if observed != expected:
+            raise RuntimeError(f"{product}普通Put开盘报价合约身份不符")
     if (_as_day(signal["market_date"], f"{product}信号日") >= v14_policy.PROFIT_OPEN_EFFECTIVE_SIGNAL_DATE
             and signal.get("v14_action") == "EXECUTE_CORE_PUT_PROFIT3X_REENTER"):
         if signal.get("v14_profit_reentry_status") != "confirmed_open_research_price":
@@ -464,7 +493,7 @@ def anchors_from_record(record: dict[str, Any]) -> dict[str, dict[str, Any]]:
     # rewriting old records or inferring held contracts from today's Delta.
     signal = record.get("signals", {}).get("IC", {})
     fields = ("put_target_core_qty", "put_target_momentum_qty")
-    if all(key in signal for key in fields):
+    if all(key in signal for key in fields) and not anchors["IC"].get("v14_ordinary_put_pending"):
         anchors["IC"]["verified_core_put_qty"] = signal[fields[0]]
         anchors["IC"]["verified_momentum_put_qty"] = signal[fields[1]]
         signal_day = _as_day(signal.get("market_date"), "IC历史信号日")
@@ -495,6 +524,55 @@ def anchors_from_record(record: dict[str, Any]) -> dict[str, dict[str, Any]]:
     strategy._ic_current_quantity_breakdown(anchors["IC"])
     v14_policy.validate_extension("IC", anchors["IC"])
     return anchors
+
+
+def validate_ordinary_put_plan(product: str, anchor: dict[str, Any],
+                               signal: dict[str, Any], signal_day: date) -> None:
+    """A changed ordinary target cannot be silently booked as a close fill."""
+    if (signal_day < v14_policy.ORDINARY_PUT_OPEN_EFFECTIVE_SIGNAL_DATE
+            or signal.get("v14_route_state") != "future"
+            or signal.get("option_monthly_reset_due") or signal.get("v14_profit_pending")
+            or signal.get("v14_action") in {
+                "CORE_PUT_PROFIT3X_REENTER", "EXECUTE_CORE_PUT_PROFIT3X_REENTER"}):
+        return
+    plan = signal.get("v14_ordinary_put_pending")
+    if product == "IC":
+        expected_legs = {
+            "core": (anchor.get("v14_core_put_contract"), float(anchor.get("v14_core_put_qty", 0)),
+                     signal.get("v14_core_put_contract"), float(signal.get("put_target_core_qty", 0))),
+            "momentum": (anchor.get("post_put_contract") if float(anchor.get("verified_momentum_put_qty", 0)) > 0 else None,
+                         float(anchor.get("verified_momentum_put_qty", 0)),
+                         signal.get("put_target_contract") if float(signal.get("put_target_momentum_qty", 0)) > 0 else None,
+                         float(signal.get("put_target_momentum_qty", 0))),
+        }
+    else:
+        expected_legs = {
+            "core": (anchor.get("post_core_put_contract") if float(anchor.get("verified_core_put_qty_normalized", 0)) > 0 else None,
+                     float(anchor.get("verified_core_put_qty_normalized", 0)),
+                     signal.get("core_put_target_contract"), float(signal.get("core_put_target_qty_normalized", 0))),
+            "momentum": (anchor.get("post_momentum_put_contract") if float(anchor.get("verified_momentum_put_qty_normalized", 0)) > 0 else None,
+                         float(anchor.get("verified_momentum_put_qty_normalized", 0)),
+                         signal.get("momentum_put_target_contract"), float(signal.get("momentum_put_target_qty_normalized", 0))),
+        }
+    changed = any(old_contract != new_contract or not math.isclose(old_qty, new_qty, abs_tol=1e-12)
+                  for old_contract, old_qty, new_contract, new_qty in expected_legs.values())
+    if changed and signal.get("v14_ordinary_put_plan_status") != "scheduled_t_plus_1_open":
+        raise RuntimeError(f"{product}普通Put目标变化缺少T收盘预选计划，禁止提前记账")
+    if plan is not None:
+        for name, (old_contract, old_qty, new_contract, new_qty) in expected_legs.items():
+            leg = plan["legs"][name]
+            if (leg["old_contract"] != old_contract or leg["new_contract"] != new_contract
+                    or not math.isclose(float(leg["old_qty"]), old_qty, abs_tol=1e-12)
+                    or not math.isclose(float(leg["new_qty"]), new_qty, abs_tol=1e-12)):
+                raise RuntimeError(f"{product}普通{name} Put预选身份与账本/目标不一致")
+            if product == "IC":
+                old_security = (anchor.get("v14_core_put_security_id") if name == "core"
+                                else anchor.get("post_put_security_id")) if old_qty > 0 else None
+                new_security = (signal.get("v14_core_put_security_id") if name == "core"
+                                else signal.get("put_target_security_id")) if new_qty > 0 else None
+                if (leg.get("old_security_id") != old_security
+                        or leg.get("new_security_id") != new_security):
+                    raise RuntimeError(f"IC普通{name} Put证券ID与账本/目标不一致")
 
 
 def derive_next_anchors(
@@ -529,6 +607,13 @@ def derive_next_anchors(
     for product in PRODUCTS:
         signal = signals[product]
         validate_delivery_values(signal, product)
+        opening_plan = current_anchors[product].get("v14_ordinary_put_pending")
+        if signal.get("v14_ordinary_put_open_status") == "confirmed_open_research_price":
+            if not opening_plan or _jsonable(signal.get("v14_ordinary_put_open_plan")) != _jsonable(opening_plan):
+                raise RuntimeError(f"{product}普通Put开盘确认与既有待执行计划不一致")
+            if _as_day(opening_plan["execution_day"], "普通Put执行日") != signal_day:
+                raise RuntimeError(f"{product}普通Put开盘确认日期不符")
+            result[product] = v14_policy.project_ordinary_open(product, result[product], opening_plan)
         if str(signal.get("product")) != product:
             raise RuntimeError(f"{product}信号产品标签不一致")
         if not bool(signal.get("close_confirmed")):
@@ -541,6 +626,8 @@ def derive_next_anchors(
         if _as_day(signal.get("next_trade_date"), f"{product} next_trade_date") != expected_next_day:
             raise RuntimeError(f"{product}下一交易日不正确")
         anchor = result[product]
+        prior_option_anchor = deepcopy(anchor)
+        validate_ordinary_put_plan(product, anchor, signal, signal_day)
         if signal_day >= strategy.quarter_roll.EFFECTIVE_DATE:
             held = str(anchor["post_core_contract"])
             expected_plan = strategy.quarter_roll.roll_state(
@@ -743,6 +830,32 @@ def derive_next_anchors(
             if key not in signal:
                 raise RuntimeError(f"{product} v1.4信号缺少持久字段: {key}")
             anchor[key] = deepcopy(signal[key])
+        if signal.get("v14_ordinary_put_plan_status") == "scheduled_t_plus_1_open":
+            if not signal.get("v14_ordinary_put_pending"):
+                raise RuntimeError(f"{product}普通Put预选状态缺少待执行计划")
+            # T close freezes intent, not a fill. Keep option holdings at the
+            # last confirmed open/close until the next session's open evidence.
+            held_keys = (
+                ("post_put_contract", "post_put_security_id", "post_put_qty",
+                 "verified_put_qty_normalized", "verified_core_put_qty",
+                 "verified_momentum_put_qty", "verified_core_put_delta",
+                 "verified_momentum_put_delta", "verified_total_put_delta",
+                 "verified_core_put_driver", "verified_momentum_put_driver",
+                 "v14_core_put_contract", "v14_core_put_security_id", "v14_core_put_qty",
+                 "v14_core_put_entry_premium", "v14_core_put_profit3x_eligible")
+                if product == "IC" else
+                ("post_put_contract", "post_core_put_contract", "post_momentum_put_contract",
+                 "post_put_equivalent_units", "post_core_put_equivalent_units",
+                 "post_momentum_put_equivalent_units", "verified_put_qty_normalized",
+                 "verified_core_put_qty_normalized", "verified_momentum_put_qty_normalized",
+                 "verified_total_put_qty_normalized", "verified_parent_puts",
+                 "v14_core_put_entry_premium", "v14_core_put_profit3x_eligible")
+            )
+            for key in held_keys:
+                if key in prior_option_anchor:
+                    anchor[key] = deepcopy(prior_option_anchor[key])
+                else:
+                    anchor.pop(key, None)
         v14_policy.validate_extension(product, anchor)
     return result
 
