@@ -493,37 +493,94 @@ def anchors_from_record(record: dict[str, Any]) -> dict[str, dict[str, Any]]:
     # rewriting old records or inferring held contracts from today's Delta.
     signal = record.get("signals", {}).get("IC", {})
     fields = ("put_target_core_qty", "put_target_momentum_qty")
-    if all(key in signal for key in fields) and not anchors["IC"].get("v14_ordinary_put_pending"):
+    pending = anchors["IC"].get("v14_ordinary_put_pending")
+    if all(key in signal for key in fields) and not pending:
         anchors["IC"]["verified_core_put_qty"] = signal[fields[0]]
         anchors["IC"]["verified_momentum_put_qty"] = signal[fields[1]]
         signal_day = _as_day(signal.get("market_date"), "IC历史信号日")
-        # Frozen pre-effective records kept the migrated v1.4 core extension,
-        # while their v1.3 target leg became the next session's actual holding.
-        # Project that hash-verified target into the in-memory continuation
-        # anchor only; never rewrite the historical record or invent a cost
-        # basis for the 3x rule.
-        if (
-            signal_day < v14_policy.EFFECTIVE_SIGNAL_DATE
-            and anchors["IC"].get("v14_route_state") == "future"
-        ):
-            core_qty = _option_number(signal[fields[0]], "IC历史核心Put目标数量")
-            if core_qty < 0 or not core_qty.is_integer():
-                raise RuntimeError("IC历史核心Put目标数量必须为非负整数")
-            core_contract = signal.get("put_target_contract") if core_qty > 0 else None
-            core_security = signal.get("put_target_security_id") if core_qty > 0 else None
-            anchors["IC"].update(
-                v14_core_put_contract=core_contract,
-                v14_core_put_security_id=core_security,
-                v14_core_put_qty=int(core_qty),
-                v14_core_put_entry_premium=None,
-                v14_core_put_profit3x_eligible=False,
-                v14_profit_pending=False,
-                v14_profit_trigger_day=None,
-                v14_profit_execution_day=None,
-            )
+        recover_ic_ordinary_core_transition(anchors["IC"], signal, signal_day)
+    elif all(key in signal for key in fields):
+        recover_ic_ordinary_core_transition(
+            anchors["IC"], signal, _as_day(signal.get("market_date"), "IC历史信号日")
+        )
     strategy._ic_current_quantity_breakdown(anchors["IC"])
     v14_policy.validate_extension("IC", anchors["IC"])
     return anchors
+
+
+def ic_ordinary_put_transition_identity_only(
+    signal: dict[str, Any], pending: Any | None = None
+) -> bool:
+    """Identify the one-time fix8/fix9 IC identity migration without a trade."""
+    if str(signal.get("product")) != "IC":
+        return False
+    try:
+        signal_day = _as_day(signal.get("market_date"), "IC普通Put信号日")
+        if signal_day != v14_policy.ORDINARY_PUT_OPEN_EFFECTIVE_SIGNAL_DATE:
+            return False
+        plan = pending if pending is not None else signal.get("v14_ordinary_put_pending")
+        if not isinstance(plan, dict):
+            return False
+        legs = plan.get("legs")
+        if not isinstance(legs, dict) or not isinstance(legs.get("core"), dict):
+            return False
+        if any(bool(leg.get("changed")) for name, leg in legs.items() if name != "core"):
+            return False
+        core = legs["core"]
+        current_qty = _option_number(signal.get("put_current_core_qty"), "IC当前核心Put数量")
+        target_qty = _option_number(signal.get("put_target_core_qty"), "IC目标核心Put数量")
+        return bool(
+            core.get("changed")
+            and core.get("old_contract") is None
+            and math.isclose(_option_number(core.get("old_qty"), "IC迁移旧核心Put数量"), 0.0, abs_tol=1e-12)
+            and current_qty > 0
+            and current_qty == target_qty
+            and str(signal.get("put_current_contract")) == str(signal.get("put_target_contract"))
+            and str(core.get("new_contract")) == str(signal.get("put_target_contract"))
+            and str(core.get("new_security_id")) == str(signal.get("put_target_security_id"))
+            and math.isclose(_option_number(core.get("new_qty"), "IC迁移新核心Put数量"), target_qty, abs_tol=1e-12)
+        )
+    except (RuntimeError, TypeError, ValueError):
+        return False
+
+
+def recover_ic_ordinary_core_transition(
+    anchor: dict[str, Any], signal: dict[str, Any], signal_day: date
+) -> bool:
+    """Project the verified pre-fix8 holding and remove its one known phantom plan."""
+    pending = anchor.get("v14_ordinary_put_pending")
+    transition_seed_day = strategy._roll_backward_exchange_day(
+        v14_policy.ORDINARY_PUT_OPEN_EFFECTIVE_SIGNAL_DATE - timedelta(days=1)
+    )
+    pre_effective = bool(
+        pending is None
+        and (
+            signal_day < v14_policy.EFFECTIVE_SIGNAL_DATE
+            or signal_day == transition_seed_day
+        )
+        and anchor.get("v14_route_state") == "future"
+    )
+    identity_only = ic_ordinary_put_transition_identity_only(signal, pending)
+    if not pre_effective and not identity_only:
+        return False
+    core_qty = _option_number(signal.get("put_target_core_qty"), "IC迁移核心Put目标数量")
+    if core_qty < 0 or not core_qty.is_integer() or (identity_only and core_qty <= 0):
+        raise RuntimeError("IC迁移核心Put目标数量非法")
+    anchor.update(
+        verified_core_put_qty=int(core_qty),
+        verified_momentum_put_qty=signal.get("put_target_momentum_qty"),
+        v14_core_put_contract=signal.get("put_target_contract") if core_qty > 0 else None,
+        v14_core_put_security_id=signal.get("put_target_security_id") if core_qty > 0 else None,
+        v14_core_put_qty=int(core_qty),
+        v14_core_put_entry_premium=None,
+        v14_core_put_profit3x_eligible=False,
+        v14_profit_pending=False,
+        v14_profit_trigger_day=None,
+        v14_profit_execution_day=None,
+    )
+    if identity_only:
+        anchor["v14_ordinary_put_pending"] = None
+    return True
 
 
 def validate_ordinary_put_plan(product: str, anchor: dict[str, Any],

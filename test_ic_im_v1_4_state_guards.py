@@ -104,6 +104,53 @@ def test_fix8_pending_survives_hash_chain_restart_and_missing_open_closes_old_pl
         bot.LIVE_CONTINUATION_ANCHOR['IM'] = original
 
 
+def test_fix8_ic_pre_effective_holding_projects_without_a_new_open_plan():
+    anchor = policy.default_extension('IC')
+    anchor['v14_route_state'] = 'future'
+    signal = {
+        'product': 'IC', 'market_date': date(2026, 9, 28),
+        'put_target_core_qty': 10, 'put_target_momentum_qty': 0,
+        'put_target_contract': '510500P2612M07500',
+        'put_target_security_id': '10012099',
+    }
+    assert state.recover_ic_ordinary_core_transition(anchor, signal, signal['market_date']) is True
+    assert anchor['v14_core_put_contract'] == '510500P2612M07500'
+    assert anchor['v14_core_put_security_id'] == '10012099'
+    assert anchor['v14_core_put_qty'] == 10
+    assert anchor['v14_ordinary_put_pending'] is None
+
+
+def test_fix8_ic_first_day_identity_migration_is_not_a_trade_and_clears_phantom_plan():
+    plan = {
+        'product': 'IC', 'signal_day': date(2026, 9, 29),
+        'execution_day': date(2026, 9, 30),
+        'legs': {
+            'core': {
+                'changed': True, 'old_contract': None, 'old_security_id': None, 'old_qty': 0.0,
+                'new_contract': '510500P2612M07500', 'new_security_id': '10012099', 'new_qty': 10.0,
+            },
+            'momentum': {
+                'changed': False, 'old_contract': None, 'old_security_id': None, 'old_qty': 0.0,
+                'new_contract': None, 'new_security_id': None, 'new_qty': 0.0,
+            },
+        },
+    }
+    anchor = policy.default_extension('IC')
+    anchor.update(v14_route_state='future', v14_ordinary_put_pending=plan)
+    signal = {
+        'product': 'IC', 'market_date': date(2026, 9, 29),
+        'put_current_contract': '510500P2612M07500', 'put_current_core_qty': 10,
+        'put_target_contract': '510500P2612M07500', 'put_target_security_id': '10012099',
+        'put_target_core_qty': 10, 'put_target_momentum_qty': 0,
+        'v14_ordinary_put_pending': plan,
+    }
+    assert state.ic_ordinary_put_transition_identity_only(signal, plan) is True
+    assert state.recover_ic_ordinary_core_transition(anchor, signal, signal['market_date']) is True
+    assert anchor['v14_ordinary_put_pending'] is None
+    assert anchor['v14_core_put_contract'] == '510500P2612M07500'
+    assert anchor['v14_core_put_qty'] == 10
+
+
 def test_fix6_im_delivery_rejects_reintroduced_call_and_wrong_exit_action():
     signal = _signals(date(2026, 9, 28))['IM']
     signal.update(call_current_contract=None, call_has_position=False, call_action='HOLD')

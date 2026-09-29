@@ -218,10 +218,16 @@ def render_stored_close_report(latest: dict[str, Any]) -> str:
             )
         ordinary = signal.get("v14_ordinary_put_pending")
         if signal.get("v14_ordinary_put_plan_status") == "scheduled_t_plus_1_open" and ordinary:
-            profit_detail.append(
-                f"- 普通核心/动量买Put：{ordinary.get('signal_day')}收盘预选，"
-                f"{ordinary.get('execution_day')}开盘待确认；尚非纸面成交。"
-            )
+            if product == "IC" and state_module.ic_ordinary_put_transition_identity_only(signal, ordinary):
+                profit_detail.append(
+                    "- 普通核心买Put：内部迁移身份已与正式持仓对齐；"
+                    "合约和数量均未变化，不构成调整。"
+                )
+            else:
+                profit_detail.append(
+                    f"- 普通核心/动量买Put：{ordinary.get('signal_day')}收盘预选，"
+                    f"{ordinary.get('execution_day')}开盘待确认；尚非纸面成交。"
+                )
         if signal.get("v14_ordinary_put_open_status") == "confirmed_open_research_price":
             profit_detail.append("- 普通核心/动量买Put：按预选合约及当日正开盘价完成纸面确认；非账户成交。")
         elif str(signal.get("v14_ordinary_put_open_status", "")).startswith("closed_"):
