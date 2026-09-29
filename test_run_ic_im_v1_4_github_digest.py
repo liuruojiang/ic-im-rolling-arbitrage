@@ -37,6 +37,39 @@ def test_stored_close_report_renders_expiry_branches_visibly():
     assert "实际账户操作由用户自行处理" in report
 
 
+def test_fix9_attachment_explains_original_identity_only_plan_without_rewriting_it():
+    identity_plan = {
+        "product": "IC", "signal_day": "2026-09-29", "execution_day": "2026-09-30",
+        "legs": {
+            "core": {
+                "changed": True, "old_contract": None, "old_security_id": None,
+                "old_qty": 0, "new_contract": "510500P2612M07500",
+                "new_security_id": "10012099", "new_qty": 10,
+            },
+            "momentum": {
+                "changed": False, "old_contract": None, "old_security_id": None,
+                "old_qty": 0, "new_contract": None, "new_security_id": None,
+                "new_qty": 0,
+            },
+        },
+    }
+    signal = {
+        "product": "IC", "market_date": "2026-09-29", "next_trade_date": "2026-09-30",
+        "put_current_contract": "510500P2612M07500", "put_current_core_qty": 10,
+        "put_current_momentum_qty": 0, "put_target_contract": "510500P2612M07500",
+        "put_target_security_id": "10012099", "put_target_core_qty": 10,
+        "put_target_momentum_qty": 0, "v14_ordinary_put_plan_status": "scheduled_t_plus_1_open",
+        "v14_ordinary_put_pending": identity_plan,
+    }
+    report = digest.render_stored_close_report({
+        "verified_day": "2026-09-29", "sequence": 8, "digest": "d" * 64,
+        "signals": {"IC": signal, "IM": {}},
+    })
+    assert "不代表下一交易日开仓" in report
+    assert '"new_qty": 10' in report
+    assert '"v14_ordinary_put_plan_status": "scheduled_t_plus_1_open"' in report
+
+
 def test_parameter_copy_matches_half_unit_grid(monkeypatch):
     chunks: list[str] = []
 

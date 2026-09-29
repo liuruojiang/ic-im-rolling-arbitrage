@@ -519,26 +519,56 @@ def ic_ordinary_put_transition_identity_only(
         if signal_day != v14_policy.ORDINARY_PUT_OPEN_EFFECTIVE_SIGNAL_DATE:
             return False
         plan = pending if pending is not None else signal.get("v14_ordinary_put_pending")
-        if not isinstance(plan, dict):
+        execution_day = strategy._roll_forward_exchange_day(signal_day + timedelta(days=1))
+        if (
+            not isinstance(plan, dict)
+            or plan.get("product") != "IC"
+            or _as_day(plan.get("signal_day"), "IC普通Put计划日") != signal_day
+            or _as_day(plan.get("execution_day"), "IC普通Put执行日") != execution_day
+            or _as_day(signal.get("next_trade_date"), "IC下一交易日") != execution_day
+        ):
             return False
         legs = plan.get("legs")
-        if not isinstance(legs, dict) or not isinstance(legs.get("core"), dict):
+        if not isinstance(legs, dict) or set(legs) != {"core", "momentum"}:
             return False
-        if any(bool(leg.get("changed")) for name, leg in legs.items() if name != "core"):
+        core, momentum = legs["core"], legs["momentum"]
+        if not isinstance(core, dict) or not isinstance(momentum, dict):
             return False
-        core = legs["core"]
         current_qty = _option_number(signal.get("put_current_core_qty"), "IC当前核心Put数量")
         target_qty = _option_number(signal.get("put_target_core_qty"), "IC目标核心Put数量")
+        current_momentum_qty = _option_number(
+            signal.get("put_current_momentum_qty"), "IC当前动量Put数量"
+        )
+        target_momentum_qty = _option_number(
+            signal.get("put_target_momentum_qty"), "IC目标动量Put数量"
+        )
+        target_contract = signal.get("put_target_contract")
+        target_security_id = signal.get("put_target_security_id")
+        current_contract = signal.get("put_current_contract")
+        current_security_id = signal.get("put_current_security_id")
         return bool(
-            core.get("changed")
+            core.get("changed") is True
             and core.get("old_contract") is None
+            and core.get("old_security_id") is None
             and math.isclose(_option_number(core.get("old_qty"), "IC迁移旧核心Put数量"), 0.0, abs_tol=1e-12)
             and current_qty > 0
             and current_qty == target_qty
-            and str(signal.get("put_current_contract")) == str(signal.get("put_target_contract"))
-            and str(core.get("new_contract")) == str(signal.get("put_target_contract"))
-            and str(core.get("new_security_id")) == str(signal.get("put_target_security_id"))
+            and isinstance(current_contract, str) and bool(current_contract)
+            and current_contract == target_contract
+            and (current_security_id is None or current_security_id == target_security_id)
+            and isinstance(target_contract, str) and bool(target_contract)
+            and isinstance(target_security_id, str) and bool(target_security_id)
+            and core.get("new_contract") == target_contract
+            and core.get("new_security_id") == target_security_id
             and math.isclose(_option_number(core.get("new_qty"), "IC迁移新核心Put数量"), target_qty, abs_tol=1e-12)
+            and momentum.get("changed") is False
+            and momentum.get("old_contract") is None
+            and momentum.get("new_contract") is None
+            and momentum.get("old_security_id") is None
+            and momentum.get("new_security_id") is None
+            and math.isclose(_option_number(momentum.get("old_qty"), "IC迁移旧动量Put数量"), 0.0, abs_tol=1e-12)
+            and math.isclose(_option_number(momentum.get("new_qty"), "IC迁移新动量Put数量"), 0.0, abs_tol=1e-12)
+            and current_momentum_qty == target_momentum_qty == 0.0
         )
     except (RuntimeError, TypeError, ValueError):
         return False
@@ -617,12 +647,28 @@ def validate_ordinary_put_plan(product: str, anchor: dict[str, Any],
     if changed and signal.get("v14_ordinary_put_plan_status") != "scheduled_t_plus_1_open":
         raise RuntimeError(f"{product}普通Put目标变化缺少T收盘预选计划，禁止提前记账")
     if plan is not None:
+        expected_execution_day = strategy._roll_forward_exchange_day(signal_day + timedelta(days=1))
+        if (
+            not isinstance(plan, dict)
+            or plan.get("product") != product
+            or _as_day(plan.get("signal_day"), f"{product}普通Put计划日") != signal_day
+            or _as_day(plan.get("execution_day"), f"{product}普通Put执行日") != expected_execution_day
+            or not isinstance(plan.get("legs"), dict)
+            or set(plan["legs"]) != set(expected_legs)
+        ):
+            raise RuntimeError(f"{product}普通Put预选计划品种/日期/腿结构不一致")
         for name, (old_contract, old_qty, new_contract, new_qty) in expected_legs.items():
             leg = plan["legs"][name]
             if (leg["old_contract"] != old_contract or leg["new_contract"] != new_contract
                     or not math.isclose(float(leg["old_qty"]), old_qty, abs_tol=1e-12)
                     or not math.isclose(float(leg["new_qty"]), new_qty, abs_tol=1e-12)):
                 raise RuntimeError(f"{product}普通{name} Put预选身份与账本/目标不一致")
+            expected_changed = (
+                old_contract != new_contract
+                or not math.isclose(old_qty, new_qty, abs_tol=1e-12)
+            )
+            if type(leg.get("changed")) is not bool or leg["changed"] != expected_changed:
+                raise RuntimeError(f"{product}普通{name} Put变化标记与身份/数量不一致")
             if product == "IC":
                 old_security = (anchor.get("v14_core_put_security_id") if name == "core"
                                 else anchor.get("post_put_security_id")) if old_qty > 0 else None
@@ -631,6 +677,8 @@ def validate_ordinary_put_plan(product: str, anchor: dict[str, Any],
                 if (leg.get("old_security_id") != old_security
                         or leg.get("new_security_id") != new_security):
                     raise RuntimeError(f"IC普通{name} Put证券ID与账本/目标不一致")
+            elif leg.get("old_security_id") is not None or leg.get("new_security_id") is not None:
+                raise RuntimeError(f"IM普通{name} Put不应包含证券ID")
 
 
 def derive_next_anchors(
@@ -656,10 +704,11 @@ def derive_next_anchors(
             f"账本只能逐交易日推进：当前 {previous_day}，收到 {signal_day}，应为 {expected}"
         )
 
-    # Runtime-only recovered quantities must not alter the historical anchor
-    # schema or the exact replay of old hashed records.
+    # Use the same recovered runtime state for validation and for the successor
+    # record. This never rewrites the old hash-chained record; it only prevents
+    # a recognized identity-only migration from surviving as a phantom plan.
     result = {
-        product: _decode_anchor(deepcopy(current["products"][product]))
+        product: deepcopy(current_anchors[product])
         for product in PRODUCTS
     }
     for product in PRODUCTS:
