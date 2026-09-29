@@ -537,9 +537,10 @@ def validate_ordinary_put_plan(product: str, anchor: dict[str, Any],
         return
     plan = signal.get("v14_ordinary_put_pending")
     if product == "IC":
+        new_core_contract, new_core_security, new_core_qty = strategy._v14_ic_ordinary_core_target(signal)
         expected_legs = {
             "core": (anchor.get("v14_core_put_contract"), float(anchor.get("v14_core_put_qty", 0)),
-                     signal.get("v14_core_put_contract"), float(signal.get("put_target_core_qty", 0))),
+                     new_core_contract, new_core_qty),
             "momentum": (anchor.get("post_put_contract") if float(anchor.get("verified_momentum_put_qty", 0)) > 0 else None,
                          float(anchor.get("verified_momentum_put_qty", 0)),
                          signal.get("put_target_contract") if float(signal.get("put_target_momentum_qty", 0)) > 0 else None,
@@ -568,7 +569,7 @@ def validate_ordinary_put_plan(product: str, anchor: dict[str, Any],
             if product == "IC":
                 old_security = (anchor.get("v14_core_put_security_id") if name == "core"
                                 else anchor.get("post_put_security_id")) if old_qty > 0 else None
-                new_security = (signal.get("v14_core_put_security_id") if name == "core"
+                new_security = (new_core_security if name == "core"
                                 else signal.get("put_target_security_id")) if new_qty > 0 else None
                 if (leg.get("old_security_id") != old_security
                         or leg.get("new_security_id") != new_security):

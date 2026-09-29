@@ -4897,6 +4897,16 @@ def _v14_ordinary_open_evidence(product: str, market_date: date, clock: datetime
     return {"status": "confirmed_open_research_price", "plan": plan, "prices": prices}
 
 
+def _v14_ic_ordinary_core_target(signal: dict[str, Any]) -> tuple[str | None, str | None, float]:
+    """Resolve the independent IC core identity, including its first opening."""
+    qty = float(signal.get("put_target_core_qty", 0))
+    if qty <= 0:
+        return None, None, qty
+    contract = signal.get("v14_core_put_contract") or signal.get("put_target_contract")
+    security_id = signal.get("v14_core_put_security_id") or signal.get("put_target_security_id")
+    return contract, security_id, qty
+
+
 def _v14_schedule_ordinary_put(product: str, signal: dict[str, Any], anchor: dict[str, Any],
                                opening: dict[str, Any] | None) -> None:
     """Persist an exact T-close plan; it is not a paper execution yet."""
@@ -4920,13 +4930,7 @@ def _v14_schedule_ordinary_put(product: str, signal: dict[str, Any], anchor: dic
         signal["v14_ordinary_put_pending"] = prior
         return
     if product == "IC":
-        new_core_qty = float(signal.get("put_target_core_qty", 0))
-        new_core_contract = (
-            signal.get("v14_core_put_contract") or signal.get("put_target_contract")
-        ) if new_core_qty > 0 else None
-        new_core_security_id = (
-            signal.get("v14_core_put_security_id") or signal.get("put_target_security_id")
-        ) if new_core_qty > 0 else None
+        new_core_contract, new_core_security_id, new_core_qty = _v14_ic_ordinary_core_target(signal)
         core = dict(old_contract=anchor.get("v14_core_put_contract"),
                     old_security_id=anchor.get("v14_core_put_security_id"),
                     old_qty=float(anchor.get("v14_core_put_qty", 0)),
