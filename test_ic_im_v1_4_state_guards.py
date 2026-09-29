@@ -1,5 +1,5 @@
 from copy import deepcopy
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from unittest.mock import patch
 import pandas as pd
 import pytest
@@ -25,6 +25,7 @@ def test_fix8_ordinary_target_requires_matching_pending_plan_before_ledger_write
               'verified_momentum_put_qty_normalized': 0.0}
     signal = {'v14_route_state': 'future', 'option_monthly_reset_due': False,
               'v14_profit_pending': False, 'v14_action': 'HOLD',
+              'next_trade_date': date(2026, 9, 30),
               'core_put_target_contract': 'MO2612-P-7500',
               'core_put_target_qty_normalized': 1.0,
               'momentum_put_target_contract': 'MO2612-P-7200',
@@ -33,17 +34,67 @@ def test_fix8_ordinary_target_requires_matching_pending_plan_before_ledger_write
         state.validate_ordinary_put_plan('IM', anchor, signal, day)
     signal['v14_ordinary_put_plan_status'] = 'scheduled_t_plus_1_open'
     signal['v14_ordinary_put_pending'] = {
+        'product': 'IM', 'signal_day': day, 'execution_day': date(2026, 9, 30),
         'legs': {
             'core': {'old_contract': 'MO2612-P-7500', 'old_qty': 1.0,
-                     'new_contract': 'MO2612-P-7500', 'new_qty': 1.0},
+                     'new_contract': 'MO2612-P-7500', 'new_qty': 1.0,
+                     'old_security_id': None, 'new_security_id': None, 'changed': False},
             'momentum': {'old_contract': None, 'old_qty': 0.0,
-                         'new_contract': 'MO2612-P-7200', 'new_qty': .5},
+                         'new_contract': 'MO2612-P-7200', 'new_qty': .5,
+                         'old_security_id': None, 'new_security_id': None, 'changed': True},
         }
     }
     state.validate_ordinary_put_plan('IM', anchor, signal, day)
     signal['v14_ordinary_put_pending']['legs']['momentum']['new_contract'] = 'MO2612-P-7100'
     with pytest.raises(RuntimeError, match='预选身份'):
         state.validate_ordinary_put_plan('IM', anchor, signal, day)
+
+
+@pytest.mark.parametrize('field,value', [
+    ('product', 'IM'),
+    ('signal_day', date(2026, 9, 28)),
+    ('execution_day', date(2026, 10, 1)),
+])
+def test_fix9_rejects_ordinary_put_plan_metadata_mismatch(field, value):
+    day = date(2026, 9, 29)
+    anchor = policy.default_extension('IC')
+    anchor.update(v14_route_state='future', post_put_contract='510500P2612M07500',
+                  post_put_security_id='10012099', verified_momentum_put_qty=0)
+    signal = {
+        'product': 'IC', 'market_date': day, 'next_trade_date': date(2026, 9, 30),
+        'close_confirmed': True, 'v14_route_state': 'future',
+        'option_monthly_reset_due': False, 'v14_profit_pending': False,
+        'v14_action': 'HOLD', 'put_target_core_qty': 10,
+        'put_target_momentum_qty': 0, 'put_target_contract': '510500P2612M07500',
+        'put_target_security_id': '10012099', 'core_put_target_delta': .25,
+        'momentum_put_target_delta': 0.0, 'core_put_driver': 'MOM120负动量下限',
+        'momentum_put_driver': '动量袖空仓，按规则Put归零',
+    }
+    bot._v14_schedule_ordinary_put('IC', signal, anchor, None)
+    signal['v14_ordinary_put_pending'][field] = value
+    with pytest.raises(RuntimeError, match='品种/日期/腿结构'):
+        state.validate_ordinary_put_plan('IC', anchor, signal, day)
+
+
+def test_fix9_rejects_changed_flag_that_disagrees_with_plan_identity():
+    day = date(2026, 9, 29)
+    anchor = policy.default_extension('IC')
+    anchor.update(v14_route_state='future', post_put_contract='510500P2612M07500',
+                  post_put_security_id='10012099', verified_momentum_put_qty=0)
+    signal = {
+        'product': 'IC', 'market_date': day, 'next_trade_date': date(2026, 9, 30),
+        'close_confirmed': True, 'v14_route_state': 'future',
+        'option_monthly_reset_due': False, 'v14_profit_pending': False,
+        'v14_action': 'HOLD', 'put_target_core_qty': 10,
+        'put_target_momentum_qty': 0, 'put_target_contract': '510500P2612M07500',
+        'put_target_security_id': '10012099', 'core_put_target_delta': .25,
+        'momentum_put_target_delta': 0.0, 'core_put_driver': 'MOM120负动量下限',
+        'momentum_put_driver': '动量袖空仓，按规则Put归零',
+    }
+    bot._v14_schedule_ordinary_put('IC', signal, anchor, None)
+    signal['v14_ordinary_put_pending']['legs']['core']['changed'] = False
+    with pytest.raises(RuntimeError, match='变化标记'):
+        state.validate_ordinary_put_plan('IC', anchor, signal, day)
 
 
 def test_fix8_pending_survives_hash_chain_restart_and_missing_open_closes_old_plan(tmp_path):
@@ -139,7 +190,9 @@ def test_fix8_ic_first_day_identity_migration_is_not_a_trade_and_clears_phantom_
     anchor.update(v14_route_state='future', v14_ordinary_put_pending=plan)
     signal = {
         'product': 'IC', 'market_date': date(2026, 9, 29),
+        'next_trade_date': date(2026, 9, 30),
         'put_current_contract': '510500P2612M07500', 'put_current_core_qty': 10,
+        'put_current_momentum_qty': 0,
         'put_target_contract': '510500P2612M07500', 'put_target_security_id': '10012099',
         'put_target_core_qty': 10, 'put_target_momentum_qty': 0,
         'v14_ordinary_put_pending': plan,
@@ -149,6 +202,46 @@ def test_fix8_ic_first_day_identity_migration_is_not_a_trade_and_clears_phantom_
     assert anchor['v14_ordinary_put_pending'] is None
     assert anchor['v14_core_put_contract'] == '510500P2612M07500'
     assert anchor['v14_core_put_qty'] == 10
+
+
+def test_derive_next_anchors_uses_recovered_identity_state_for_next_write(monkeypatch):
+    current = state.bootstrap_record()
+    previous_day = date.fromisoformat(current['verified_day'])
+    signal_day = bot._roll_forward_exchange_day(previous_day + timedelta(days=1))
+    next_day = bot._roll_forward_exchange_day(signal_day + timedelta(days=1))
+    recovered = {
+        product: state._decode_anchor(deepcopy(current['products'][product]))
+        for product in state.PRODUCTS
+    }
+    recovered['IC'].update(
+        v14_core_put_contract='510500P2612M07500',
+        v14_core_put_security_id='10012099',
+        v14_core_put_qty=10,
+        verified_core_put_qty=10,
+        v14_ordinary_put_pending=None,
+    )
+    monkeypatch.setattr(state, 'anchors_from_record', lambda _record: recovered)
+    monkeypatch.setattr(state, 'validate_delivery_values', lambda *_args, **_kwargs: None)
+    observed = {}
+
+    def capture_anchor(product, anchor, _signal, _day):
+        observed[product] = deepcopy(anchor)
+        raise RuntimeError('captured validator input')
+
+    monkeypatch.setattr(state, 'validate_ordinary_put_plan', capture_anchor)
+    signals = {
+        product: {
+            'product': product, 'market_date': signal_day,
+            'next_trade_date': next_day, 'state_anchor_day': previous_day,
+            'close_confirmed': True, 'market_phase': '收盘后',
+        }
+        for product in state.PRODUCTS
+    }
+    with pytest.raises(RuntimeError, match='captured validator input'):
+        state.derive_next_anchors(current, signals)
+    assert observed['IC']['v14_core_put_contract'] == '510500P2612M07500'
+    assert observed['IC']['v14_core_put_qty'] == 10
+    assert observed['IC']['v14_ordinary_put_pending'] is None
 
 
 def test_fix6_im_delivery_rejects_reintroduced_call_and_wrong_exit_action():

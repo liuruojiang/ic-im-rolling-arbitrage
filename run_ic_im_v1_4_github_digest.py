@@ -217,8 +217,14 @@ def render_stored_close_report(latest: dict[str, Any]) -> str:
                 f"{signal.get('v14_profit_open_executed_qty')}；非账户成交。"
             )
         ordinary = signal.get("v14_ordinary_put_pending")
+        identity_migration = bool(
+            product == "IC"
+            and signal.get("v14_ordinary_put_plan_status") == "scheduled_t_plus_1_open"
+            and ordinary
+            and state_module.ic_ordinary_put_transition_identity_only(signal, ordinary)
+        )
         if signal.get("v14_ordinary_put_plan_status") == "scheduled_t_plus_1_open" and ordinary:
-            if product == "IC" and state_module.ic_ordinary_put_transition_identity_only(signal, ordinary):
+            if identity_migration:
                 profit_detail.append(
                     "- 普通核心买Put：内部迁移身份已与正式持仓对齐；"
                     "合约和数量均未变化，不构成调整。"
@@ -261,6 +267,12 @@ def render_stored_close_report(latest: dict[str, Any]) -> str:
                 f"- v1.4核心Put：{signal.get('v14_core_put_contract') or signal.get('core_put_target_contract') or 'N/A'}；数量：{signal.get('v14_core_put_qty', 'N/A')}；兑现状态：{signal.get('v14_profit_reentry_status', 'N/A')}；模型生命周期：{signal.get('v14_lifecycle_evidence_status', 'N/A')}",
                 "- 买Put时点：3倍兑现自2026-09-28起T收盘预选、T+1开盘核价；普通核心/动量Put自2026-09-29起同样执行。月度维护按原定当日收盘，季度期货展期时钟不变。",
                 *profit_detail,
+                *(
+                    [
+                        "- 注：下方完整逐腿JSON保留哈希账本原始字段；其中核心Put的0→目标数量是内部身份迁移记录。恢复器会先按同合约同数量持仓对齐并清除待执行状态，因此不代表下一交易日开仓。"
+                    ]
+                    if identity_migration else []
+                ),
                 "- 信号边界：本报告只发布策略参考信号；实际成交、行权、结算、交割和账户持仓由用户自行处理。",
                 expiry_line,
                 f"- Put动作：`{signal.get('put_action', 'N/A')}`；"
