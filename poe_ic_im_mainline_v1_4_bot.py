@@ -4920,12 +4920,19 @@ def _v14_schedule_ordinary_put(product: str, signal: dict[str, Any], anchor: dic
         signal["v14_ordinary_put_pending"] = prior
         return
     if product == "IC":
+        new_core_qty = float(signal.get("put_target_core_qty", 0))
+        new_core_contract = (
+            signal.get("v14_core_put_contract") or signal.get("put_target_contract")
+        ) if new_core_qty > 0 else None
+        new_core_security_id = (
+            signal.get("v14_core_put_security_id") or signal.get("put_target_security_id")
+        ) if new_core_qty > 0 else None
         core = dict(old_contract=anchor.get("v14_core_put_contract"),
                     old_security_id=anchor.get("v14_core_put_security_id"),
                     old_qty=float(anchor.get("v14_core_put_qty", 0)),
-                    new_contract=signal.get("v14_core_put_contract"),
-                    new_security_id=signal.get("v14_core_put_security_id"),
-                    new_qty=float(signal.get("put_target_core_qty", 0)))
+                    new_contract=new_core_contract,
+                    new_security_id=new_core_security_id,
+                    new_qty=new_core_qty)
         momentum = dict(old_contract=anchor.get("post_put_contract") if float(anchor.get("verified_momentum_put_qty", 0)) > 0 else None,
                         old_security_id=anchor.get("post_put_security_id") if float(anchor.get("verified_momentum_put_qty", 0)) > 0 else None,
                         old_qty=float(anchor.get("verified_momentum_put_qty", 0)),
