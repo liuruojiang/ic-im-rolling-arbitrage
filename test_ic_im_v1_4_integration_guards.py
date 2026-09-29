@@ -103,6 +103,30 @@ def test_fix8_ic_momentum_open_uses_frozen_security_id_without_touching_core_bas
         bot.LIVE_CONTINUATION_ANCHOR['IC'] = original
 
 
+def test_fix8_ic_first_ordinary_core_open_uses_shared_target_identity():
+    anchor = policy.default_extension('IC')
+    anchor.update(post_put_contract='510500P2612M07500',
+                  post_put_security_id='10012099', verified_momentum_put_qty=0)
+    signal = {'market_date': date(2026, 9, 29), 'next_trade_date': date(2026, 9, 30),
+              'close_confirmed': True, 'option_monthly_reset_due': False,
+              'v14_route_state': 'future', 'v14_profit_pending': False, 'v14_action': 'HOLD',
+              'v14_core_put_contract': None, 'v14_core_put_security_id': None,
+              'put_target_core_qty': 10, 'put_target_contract': '510500P2612M07500',
+              'put_target_security_id': '10012099', 'put_target_momentum_qty': 0,
+              'core_put_target_delta': .25, 'momentum_put_target_delta': 0.0,
+              'core_put_driver': 'MOM120负动量下限',
+              'momentum_put_driver': '动量袖空仓，按规则Put归零'}
+
+    bot._v14_schedule_ordinary_put('IC', signal, anchor, None)
+
+    plan = signal['v14_ordinary_put_pending']
+    assert plan['legs']['core']['new_contract'] == '510500P2612M07500'
+    assert plan['legs']['core']['new_security_id'] == '10012099'
+    assert plan['legs']['core']['new_qty'] == 10
+    pending = dict(anchor, v14_ordinary_put_pending=plan)
+    policy.validate_extension('IC', pending)
+
+
 def test_ic_replay_does_not_fetch_current_chain():
     with bot.historical_replay(date(2026,9,18)), patch.object(bot,'fetch_510500_chain_with_failover',side_effect=AssertionError('must not fetch current')):
         assert bot._v14_ic_short_put_candidate({})['tradable'] is False
