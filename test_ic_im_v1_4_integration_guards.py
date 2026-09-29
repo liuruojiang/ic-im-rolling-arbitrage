@@ -4,6 +4,7 @@ import pandas as pd
 import pytest
 import poe_ic_im_mainline_v1_4_bot as bot
 import ic_im_v1_4_policy as policy
+import poe_ic_im_v1_4_state as state
 
 
 def test_ic_candidate_rejects_stale_chain():
@@ -125,6 +126,7 @@ def test_fix8_ic_first_ordinary_core_open_uses_shared_target_identity():
     assert plan['legs']['core']['new_qty'] == 10
     pending = dict(anchor, v14_ordinary_put_pending=plan)
     policy.validate_extension('IC', pending)
+    state.validate_ordinary_put_plan('IC', anchor, signal, date(2026, 9, 29))
 
 
 def test_ic_replay_does_not_fetch_current_chain():
