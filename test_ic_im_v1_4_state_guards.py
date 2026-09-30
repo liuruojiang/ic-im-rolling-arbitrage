@@ -58,8 +58,11 @@ def test_fix8_ordinary_target_requires_matching_pending_plan_before_ledger_write
 def test_fix9_rejects_ordinary_put_plan_metadata_mismatch(field, value):
     day = date(2026, 9, 29)
     anchor = policy.default_extension('IC')
-    anchor.update(v14_route_state='future', post_put_contract='510500P2612M07500',
-                  post_put_security_id='10012099', verified_momentum_put_qty=0)
+    # Start from a fully specified empty holding; the test targets plan
+    # metadata, not the independent core-quantity migration guard.
+    anchor.update(v14_route_state='future', post_put_contract=None,
+                  post_put_security_id=None, post_put_qty=0,
+                  verified_core_put_qty=0, verified_momentum_put_qty=0)
     signal = {
         'product': 'IC', 'market_date': day, 'next_trade_date': date(2026, 9, 30),
         'close_confirmed': True, 'v14_route_state': 'future',
@@ -79,8 +82,9 @@ def test_fix9_rejects_ordinary_put_plan_metadata_mismatch(field, value):
 def test_fix9_rejects_changed_flag_that_disagrees_with_plan_identity():
     day = date(2026, 9, 29)
     anchor = policy.default_extension('IC')
-    anchor.update(v14_route_state='future', post_put_contract='510500P2612M07500',
-                  post_put_security_id='10012099', verified_momentum_put_qty=0)
+    anchor.update(v14_route_state='future', post_put_contract=None,
+                  post_put_security_id=None, post_put_qty=0,
+                  verified_core_put_qty=0, verified_momentum_put_qty=0)
     signal = {
         'product': 'IC', 'market_date': day, 'next_trade_date': date(2026, 9, 30),
         'close_confirmed': True, 'v14_route_state': 'future',
