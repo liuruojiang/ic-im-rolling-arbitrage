@@ -108,6 +108,13 @@ def test_delivery_identity_preserves_fix7_then_uses_fix9():
     assert strategy.v14_policy.FIX6_BUILD_ID.endswith("-fix6-nocall-repeatroll-iciv30-qdelta05")
 
 
+def test_realtime_report_build_follows_signal_day_not_latest_module_build():
+    sep28 = datetime(2026, 9, 28, 14, 40, tzinfo=strategy.BEIJING)
+    sep29 = datetime(2026, 9, 29, 14, 40, tzinfo=strategy.BEIJING)
+    assert strategy._report_build_id("intraday", sep28) == strategy.v14_policy.FIX7_BUILD_ID
+    assert strategy._report_build_id("intraday", sep29) == strategy.v14_policy.BUILD_ID
+
+
 def test_failure_artifact_keeps_signal_day_for_transition_gate(tmp_path):
     digest.write_failure(tmp_path, datetime(2026, 9, 29, 8, tzinfo=strategy.BEIJING),
                          RuntimeError('diagnostic'), expected_market_date='2026-09-28')
