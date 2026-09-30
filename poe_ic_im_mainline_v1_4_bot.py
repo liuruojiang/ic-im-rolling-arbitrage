@@ -193,9 +193,45 @@ def historical_replay(day: date | None):
 
 import ic_im_quarter_roll_v1_3 as quarter_roll
 import ic_im_v1_4_policy as v14_policy
+import im_put_policy
 
 BUILD_ID = v14_policy.BUILD_ID
-import im_put_policy
+
+
+def _report_build_id(mode: str, clock: datetime | None = None) -> str:
+    """Use the producer identity effective on the report's signal day."""
+    if mode not in {"intraday", "close"}:
+        raise ValueError(f"unsupported signal report mode: {mode}")
+    current = clock or _now_beijing()
+    signal_day = (
+        current.date()
+        if mode == "intraday"
+        else _latest_completed_exchange_day(current)
+    )
+    return v14_policy.identity_for_signal_day(signal_day)[0]
+
+
+def _im_call_current_text(
+    call_contract: str | None, no_call_signal: bool, call_finished: bool,
+) -> str:
+    if call_contract is None:
+        return ("规范化0张（已核验空仓）" if no_call_signal
+                else "规范化0张（已核验空仓，等待新D10/IV26信号）")
+    if call_finished:
+        return "0张（旧Call已到期）"
+    return f"规范化空1张 {call_contract}（只覆盖0.5倍核心袖）"
+
+
+def _im_call_finished(
+    contract: str | None, expiry: date | None, signal_day: date,
+    close_confirmed: bool,
+) -> bool:
+    return contract is None or (
+        expiry is not None
+        and (signal_day > expiry or (signal_day == expiry and close_confirmed))
+    )
+
+
 IM_PUT_POLICY_REVISION = im_put_policy.REVISION
 IM_EXECUTION_FIX_REVISION = "im_put_execution_guards_20260908_v2"
 IM_PUT_EXECUTION_REVISION = "im_monthly_reset_20260907_v1"
@@ -209,6 +245,9 @@ V13_HISTORY_DATE_INDEX = {
 CASH_DAILY = 1.03 ** (1.0 / 252.0) - 1.0
 SIGNAL_NETWORK_BUDGET_SECONDS = 90.0
 SIGNAL_PRODUCT_NETWORK_BUDGET_SECONDS = 45.0
+# Generic queries stay on the verified ledger through the settlement window;
+# an explicit close-signal request may try fresh, fully validated data at 15:00.
+SETTLEMENT_SNAPSHOT_CUTOFF = time(15, 30)
 QUOTE_OFFICIAL_SOURCE_BUDGET_SECONDS = 4.0
 QUOTE_VENDOR_SOURCE_BUDGET_SECONDS = 8.0
 QUOTE_FALLBACK_RESERVE_SECONDS = 10.0
@@ -495,11 +534,41 @@ def install_runtime_anchors(anchors: dict[str, dict[str, Any]]) -> None:
     """Install validated runtime anchors without replacing the frozen bootstrap."""
     if set(anchors) != {"IC", "IM"}:
         raise ValueError("运行时账本必须同时包含IC和IM")
+    prepared: dict[str, dict[str, Any]] = {}
     for product in ("IC", "IM"):
         anchor = dict(anchors[product])
         if not isinstance(anchor.get("last_verified_day"), date):
             raise ValueError(f"{product}运行时账本缺少合法last_verified_day")
-        LIVE_CONTINUATION_ANCHOR[product] = anchor
+        for key in ("post_core_contract", "post_put_contract", "verified_momentum_weight",
+                    "verified_next_momentum_weight", "verified_grid_units",
+                    "verified_next_grid_units", "verified_put_qty_normalized",
+                    "verified_call_contracts_normalized"):
+            if key not in anchor:
+                raise ValueError(f"{product}运行时账本缺少{key}")
+        if product == "IC":
+            breakdown = _ic_current_quantity_breakdown(anchor)
+            if not math.isclose(float(anchor["verified_put_qty_normalized"]),
+                                breakdown["total"], abs_tol=1e-12):
+                raise ValueError("IC运行时账本Put兼容总量与分袖总量不一致")
+            # Legacy records may only identify a single non-zero sleeve by its
+            # verified Delta. Normalize that unambiguous case in memory; never
+            # infer a split from today's quote or rewrite the persisted record.
+            anchor["verified_core_put_qty"] = breakdown["core"]
+            anchor["verified_momentum_put_qty"] = breakdown["momentum"]
+        else:
+            required = ("post_core_put_contract", "verified_core_put_qty_normalized",
+                        "verified_momentum_put_qty_normalized", "verified_total_put_qty_normalized")
+            if any(key not in anchor for key in required):
+                raise ValueError("IM运行时账本缺少Put分袖字段")
+            total = float(anchor["verified_core_put_qty_normalized"]) + float(
+                anchor["verified_momentum_put_qty_normalized"])
+            if not math.isfinite(total) or not math.isclose(total, float(
+                anchor["verified_total_put_qty_normalized"]), abs_tol=1e-12) or not math.isclose(
+                total, float(anchor["verified_put_qty_normalized"]), abs_tol=1e-12):
+                raise ValueError("IM运行时账本Put分袖与总量不一致")
+        v14_policy.validate_extension(product, anchor)
+        prepared[product] = anchor
+    LIVE_CONTINUATION_ANCHOR.update(prepared)
 
 
 def install_signal_observer(observer: Any = None) -> None:
@@ -616,6 +685,29 @@ def parse_date_range(
         except ValueError as exc:
             raise ValueError("日期区间无效，请使用真实存在的 YYYY-MM-DD 日期") from exc
         return (start, end) if start <= end else (end, start)
+
+    single_day = re.search(r"(?<!\d)(20\d{2})[-/.年](\d{1,2})[-/.月](\d{1,2})日?(?!\d)", query)
+    if single_day:
+        try:
+            day = date(*(int(value) for value in single_day.groups()))
+        except ValueError as exc:
+            raise ValueError("日期无效，请使用真实存在的 YYYY-MM-DD 日期") from exc
+        return day, day
+
+    year_to_month = re.search(
+        r"(20\d{2})\s*年\s*(?:到|至|~|—|-)\s*(20\d{2})\s*年\s*(\d{1,2})\s*月",
+        query,
+    )
+    if year_to_month:
+        first_year, last_year, last_month = map(int, year_to_month.groups())
+        first = date(first_year, 1, 1)
+        try:
+            last = date(last_year, last_month, month_calendar.monthrange(last_year, last_month)[1])
+        except ValueError as exc:
+            raise ValueError("年月范围无效") from exc
+        if first > last:
+            raise ValueError("年月范围起点晚于终点")
+        return first, last
 
     year_range = re.search(
         r"(?:从\s*)?(20\d{2})\s*年?\s*(?:到|至|~|—|-)\s*(20\d{2})\s*年?",
@@ -804,53 +896,52 @@ def _signal_product_network_budget(product_count: int) -> float:
 
 def _cffex_month_archive(month: pd.Timestamp) -> bytes:
     key = month.strftime("%Y%m")
-    if key not in _CFFEX_MONTH_CACHE:
+    # The remote archive mutates in the actual current month. Use wall time,
+    # not the historical replay/collection clock, for cache invalidation.
+    use_cache = key != datetime.now(BEIJING).strftime("%Y%m")
+    if not use_cache or key not in _CFFEX_MONTH_CACHE:
         path = f"www.cffex.com.cn/sj/historysj/{key}/zip/{key}.zip"
-        urls = [f"https://{path}", f"http://{path}"]
+        # Do not fall back to HTTP: a PK header is not an integrity check for
+        # historical marks that may enter a persisted research ledger.
+        url = f"https://{path}"
         failures: list[str] = []
-        for url in urls:
-            attempts = 1 if url.startswith("https://") else 3
-            for attempt in range(attempts):
+        try:
+            response = requests.get(
+                url,
+                timeout=_bounded_timeout(5),
+                headers={"User-Agent": "Mozilla/5.0", "Cache-Control": "no-cache"},
+                stream=True,
+            )
+            response.raise_for_status()
+            declared_size = response.headers.get("Content-Length")
+            if declared_size:
                 try:
-                    response = requests.get(
-                        url,
-                        timeout=_bounded_timeout(
-                            5 if url.startswith("https://") else 15
-                        ),
-                        headers={
-                            "User-Agent": "Mozilla/5.0",
-                            "Cache-Control": "no-cache",
-                        },
-                        stream=True,
-                    )
-                    response.raise_for_status()
-                    declared_size = response.headers.get("Content-Length")
-                    if declared_size and int(declared_size) > MAX_CFFEX_DOWNLOAD_BYTES:
-                        raise RuntimeError(f"中金所 {key} 月度行情包超过下载上限")
-                    chunks: list[bytes] = []
-                    downloaded = 0
-                    for chunk in response.iter_content(chunk_size=64 * 1024):
-                        if not chunk:
-                            continue
-                        downloaded += len(chunk)
-                        if downloaded > MAX_CFFEX_DOWNLOAD_BYTES:
-                            raise RuntimeError(f"中金所 {key} 月度行情包超过下载上限")
-                        chunks.append(chunk)
-                    content = b"".join(chunks)
-                    if not content.startswith(b"PK"):
-                        raise RuntimeError(f"中金所 {key} 月度行情包格式异常")
-                    _CFFEX_MONTH_CACHE[key] = content
-                    break
-                except (requests.RequestException, RuntimeError) as exc:
-                    transport = "HTTPS" if url.startswith("https://") else "HTTP"
-                    failures.append(f"{transport} {type(exc).__name__}: {exc}")
-                    if attempt + 1 < attempts:
-                        time_module.sleep(0.5 * (attempt + 1))
-            if key in _CFFEX_MONTH_CACHE:
-                break
-        if key not in _CFFEX_MONTH_CACHE:
+                    size = int(declared_size)
+                except ValueError as exc:
+                    raise RuntimeError(f"中金所 {key} 月度行情包长度标头非法") from exc
+                if size > MAX_CFFEX_DOWNLOAD_BYTES:
+                    raise RuntimeError(f"中金所 {key} 月度行情包超过下载上限")
+            chunks: list[bytes] = []
+            downloaded = 0
+            for chunk in response.iter_content(chunk_size=64 * 1024):
+                if not chunk:
+                    continue
+                downloaded += len(chunk)
+                if downloaded > MAX_CFFEX_DOWNLOAD_BYTES:
+                    raise RuntimeError(f"中金所 {key} 月度行情包超过下载上限")
+                chunks.append(chunk)
+            content = b"".join(chunks)
+            if not content.startswith(b"PK"):
+                raise RuntimeError(f"中金所 {key} 月度行情包格式异常")
+            if use_cache:
+                _CFFEX_MONTH_CACHE[key] = content
+            else:
+                return content
+        except (requests.RequestException, RuntimeError) as exc:
+            failures.append(f"HTTPS {type(exc).__name__}: {exc}")
+        if not use_cache or key not in _CFFEX_MONTH_CACHE:
             raise RuntimeError(
-                f"中金所 {key} 月度行情包HTTPS/HTTP同源下载失败｜"
+                f"中金所 {key} 月度行情包HTTPS下载失败｜"
                 + "｜".join(failures)
             )
     return _CFFEX_MONTH_CACHE[key]
@@ -1195,233 +1286,15 @@ def _contract_daily_marks(
 
 
 def latest_continuation_frame(product: str, end: date) -> pd.DataFrame:
+    """The old r6 continuation is disabled; never invent a post-cutoff return."""
+    if end <= DATA_CUTOFF:
+        return pd.DataFrame(columns=["ret", "benchmark_price", "is_live", "is_transition"])
     if end >= quarter_roll.EFFECTIVE_DATE:
         raise RuntimeError("r7季度规则生效后的绩效尚未生成；禁止用r6月度续接冒充r7收益")
-    if end > DATA_CUTOFF:
-        raise RuntimeError(
-            "1.3逐日仓位、期权与网格续接账本尚未形成；禁止用固定1倍期货桥接冒充1.3绩效，"
-            f"绩效仅可降级到已哈希冻结的 {DATA_CUTOFF}"
-        )
-    anchor = LIVE_CONTINUATION_ANCHOR[product]
-    effective_end = min(end, anchor["last_verified_day"])
-    start = DATA_CUTOFF + timedelta(days=1)
-    if effective_end < start:
-        return pd.DataFrame(
-            columns=["ret", "benchmark_price", "is_live", "is_transition"]
-        )
-
-    contracts = [anchor["core_contract"], anchor["post_core_contract"]]
-    if product == "IM":
-        contracts.extend(
-            [
-                anchor["put_contract"],
-                anchor["call_contract"],
-                anchor["post_put_contract"],
-            ]
-        )
-    marks = fetch_cffex_daily_marks(contracts, start, effective_end)
-    benchmark = fetch_price_history(product)
-    benchmark.index = pd.to_datetime(benchmark.index).normalize()
-
-    core = _contract_daily_marks(
-        marks, str(anchor["core_contract"]), product, "核心期货"
+    raise RuntimeError(
+        "1.3逐日仓位、期权与网格续接账本尚未形成；禁止用固定1倍期货桥接冒充1.3绩效，"
+        f"绩效仅可降级到已哈希冻结的 {DATA_CUTOFF}"
     )
-    core = core.loc[(core.index.date >= start) & (core.index.date <= effective_end)]
-    if core.empty:
-        raise RuntimeError(f"{product} 暂无 {DATA_CUTOFF} 之后的已完成交易日")
-    first_day = core.index[0]
-    first_pre_settle = float(core.iloc[0]["pre_settle"])
-    if not math.isclose(
-        first_pre_settle, float(anchor["core_settle"]), rel_tol=0.0, abs_tol=1e-6
-    ):
-        raise RuntimeError(
-            f"{product} 续接锚点不连续：{first_day.date()} 前结算 {first_pre_settle:g} "
-            f"!= 正式段末值 {float(anchor['core_settle']):g}"
-        )
-    missing_benchmark = core.index.difference(benchmark.index)
-    if len(missing_benchmark):
-        raise RuntimeError(
-            f"{product} 指数缺少 {missing_benchmark[0].date()} 的收盘价"
-        )
-
-    rows: list[dict[str, Any]] = []
-    if product == "IC":
-        option = fetch_option_closes(anchor["put_security_id"])
-        post_option = fetch_option_closes(anchor["post_put_security_id"])
-        cutoff_stamp = pd.Timestamp(DATA_CUTOFF)
-        if cutoff_stamp not in option.index:
-            raise RuntimeError(
-                f"IC Put续接锚点缺少正式段末日 {DATA_CUTOFF} 的历史收盘"
-            )
-        cutoff_mark = float(option.loc[cutoff_stamp])
-        if not math.isclose(
-            cutoff_mark, float(anchor["put_mark"]), rel_tol=0.0, abs_tol=1e-6
-        ):
-            raise RuntimeError(
-                f"IC Put续接锚点不连续：{DATA_CUTOFF} 新浪收盘 {cutoff_mark:g} "
-                f"!= 正式段末值 {float(anchor['put_mark']):g}"
-            )
-        missing_option = core.index.difference(option.index)
-        if len(missing_option):
-            raise RuntimeError(
-                f"IC 期权缺少 {missing_option[0].date()} 的实际收盘价"
-            )
-        prior_mark = float(anchor["put_mark"])
-        qty = float(anchor["put_qty"])
-        notional_fraction = qty / float(anchor["put_full_qty"])
-        for day, item in core.iterrows():
-            settle = float(item["settle"])
-            pre_settle = float(item["pre_settle"])
-            mark = float(option.loc[day])
-            gross = settle / pre_settle - 1.0
-            put_pnl = qty * 10_000.0 * (mark - prior_mark) / (pre_settle * 200.0)
-            futures_cost = 0.0
-            put_cost = 0.0
-            eod_settle = settle
-            eod_mark = mark
-            eod_qty = qty
-            is_transition = day.date() == anchor["transition_day"]
-
-            if day.date() == anchor["resize_day"]:
-                eod_qty = float(anchor["resized_put_qty"])
-                new_fraction = eod_qty / float(anchor["put_full_qty"])
-                put_cost += abs(new_fraction - notional_fraction) * 0.0001
-                notional_fraction = new_fraction
-
-            if is_transition:
-                post_core = _contract_daily_marks(
-                    marks, str(anchor["post_core_contract"]), product, "展期后核心期货"
-                )
-                if day not in post_core.index or day not in post_option.index:
-                    raise RuntimeError(f"IC 月换日 {day.date()} 缺少新期货或新Put收盘")
-                eod_settle = float(post_core.loc[day, "settle"])
-                eod_mark = float(post_option.loc[day])
-                eod_qty = float(anchor["post_put_qty"])
-                new_fraction = eod_qty / float(anchor["post_put_full_qty"])
-                put_cost += (notional_fraction + new_fraction) * 0.0001
-                notional_fraction = new_fraction
-                futures_cost = 2.0 * 0.0001
-
-            put_mark_fraction = (
-                eod_qty * 10_000.0 * eod_mark / (eod_settle * 200.0)
-            )
-            cash_weight = max(0.0, 1.0 - 0.30 - put_mark_fraction)
-            futures_net = (1.0 + gross) * (1.0 - futures_cost) - 1.0
-            ret = (
-                (1.0 + futures_net + put_pnl) * (1.0 - put_cost)
-                - 1.0
-                + cash_weight * CASH_DAILY
-            )
-            rows.append(
-                {
-                    "date": day,
-                    "ret": ret,
-                    "benchmark_price": float(benchmark.loc[day]),
-                    "is_live": True,
-                    "is_transition": is_transition,
-                }
-            )
-            prior_mark = eod_mark
-            qty = eod_qty
-    else:
-        put = _contract_daily_marks(
-            marks, str(anchor["put_contract"]), product, "Put"
-        )
-        call = _contract_daily_marks(
-            marks, str(anchor["call_contract"]), product, "Call"
-        )
-        post_core = _contract_daily_marks(
-            marks, str(anchor["post_core_contract"]), product, "展期后核心期货"
-        )
-        post_put = _contract_daily_marks(
-            marks, str(anchor["post_put_contract"]), product, "展期后Put"
-        )
-        missing_put = core.index.difference(put.index)
-        missing_call = core.index.difference(call.index)
-        if len(missing_put) or len(missing_call):
-            missing = missing_put[0] if len(missing_put) else missing_call[0]
-            raise RuntimeError(f"IM 期权缺少 {missing.date()} 的实际结算价")
-        for leg, series, expected in (
-            ("Put", put, anchor["put_mark"]),
-            ("Call", call, anchor["call_mark"]),
-        ):
-            actual = float(series.loc[first_day, "pre_settle"])
-            if not math.isclose(actual, float(expected), rel_tol=0.0, abs_tol=1e-6):
-                raise RuntimeError(
-                    f"IM {leg}续接锚点不连续：{first_day.date()} 前结算 {actual:g} "
-                    f"!= 正式段末值 {float(expected):g}"
-                )
-        prior_put = float(anchor["put_mark"])
-        prior_call = float(anchor["call_mark"])
-        put_units = float(anchor["put_equivalent_units"])
-        call_units = float(anchor["call_equivalent_units"])
-        strike = float(anchor["call_strike"])
-        for day, item in core.iterrows():
-            settle = float(item["settle"])
-            pre_settle = float(item["pre_settle"])
-            put_mark = float(put.loc[day, "settle"])
-            call_mark = float(call.loc[day, "settle"])
-            spot = float(benchmark.loc[day])
-            gross = settle / pre_settle - 1.0
-            put_pnl = put_units * (put_mark - prior_put) / pre_settle
-            call_pnl = -call_units * (call_mark - prior_call) / pre_settle
-            is_transition = day.date() == anchor["transition_day"]
-            futures_cost = 0.0
-            put_cost = 0.0
-            call_cost = 0.0
-            eod_settle = settle
-            eod_put_mark = put_mark
-            eod_call_mark = call_mark
-            eod_put_units = put_units
-            eod_call_units = call_units
-
-            if is_transition:
-                if day not in post_core.index or day not in post_put.index:
-                    raise RuntimeError(f"IM 月换日 {day.date()} 缺少新期货或新Put结算")
-                eod_settle = float(post_core.loc[day, "settle"])
-                eod_put_mark = float(post_put.loc[day, "settle"])
-                eod_call_mark = 0.0
-                eod_put_units = float(anchor["post_put_equivalent_units"])
-                eod_call_units = 0.0
-                futures_cost = 2.0 * 0.0001
-                # Parent path rolls 1.5 full-notional Put fractions each side;
-                # v1.3 carries only half of that core sleeve.
-                put_cost = 0.5 * (1.5 + 1.5) * 0.0001
-
-            put_mark_fraction = eod_put_units * eod_put_mark / eod_settle
-            out_of_money = max(strike - spot, 0.0)
-            call_margin = eod_call_units * (
-                eod_call_mark + max(0.12 * spot - out_of_money, 0.07 * spot)
-            ) / eod_settle
-            cash_weight = max(
-                0.0, 1.0 - 0.30 - put_mark_fraction - call_margin
-            )
-            ret = (
-                (1.0 + gross + put_pnl + call_pnl)
-                * (1.0 - futures_cost)
-                * (1.0 - put_cost)
-                * (1.0 - call_cost)
-                - 1.0
-                + cash_weight * CASH_DAILY
-            )
-            rows.append(
-                {
-                    "date": day,
-                    "ret": ret,
-                    "benchmark_price": spot,
-                    "is_live": True,
-                    "is_transition": is_transition,
-                }
-            )
-            prior_put = eod_put_mark
-            prior_call = eod_call_mark
-            put_units = eod_put_units
-            call_units = eod_call_units
-
-    result = pd.DataFrame(rows).set_index("date").sort_index()
-    if not np.isfinite(result[["ret", "benchmark_price"]]).all().all():
-        raise RuntimeError(f"{product} 最新续接收益含无效值")
-    return result
 
 
 def performance_frame(
@@ -1438,22 +1311,7 @@ def performance_frame(
     live_flags = pd.Series(False, index=returns.index, dtype=bool)
     transition_flags = pd.Series(False, index=returns.index, dtype=bool)
     if refresh_latest and end > DATA_CUTOFF:
-        continuation = latest_continuation_frame(product, end)
-        if not continuation.empty:
-            returns = pd.concat([returns, continuation["ret"]]).sort_index()
-            benchmark_prices = pd.concat(
-                [benchmark_prices, continuation["benchmark_price"]]
-            ).sort_index()
-            live_flags = pd.concat(
-                [live_flags, continuation["is_live"].astype(bool)]
-            ).sort_index()
-            continuation_transition = continuation.get(
-                "is_transition",
-                pd.Series(False, index=continuation.index, dtype=bool),
-            )
-            transition_flags = pd.concat(
-                [transition_flags, continuation_transition.astype(bool)]
-            ).sort_index()
+        latest_continuation_frame(product, end)
     for label, series in (
         ("策略收益", returns),
         ("指数价格", benchmark_prices),
@@ -2014,7 +1872,7 @@ def fetch_live_price_quote(product: str) -> dict[str, Any]:
         "https://push2.eastmoney.com/api/qt/stock/get",
         {
             "secid": EASTMONEY_SECIDS[product],
-            "fields": "f43,f44,f45,f60",
+            "fields": "f43,f44,f45,f60,f86",
             "ut": "fa5fd1943c7b386f172d6893dbfba10b",
         },
     )
@@ -2022,11 +1880,20 @@ def fetch_live_price_quote(product: str) -> dict[str, Any]:
     price = float(data.get("f43", 0)) / 100.0
     if not math.isfinite(price) or price <= 0:
         raise RuntimeError(f"{product} 未取得有效实时价格")
+    try:
+        raw_stamp = float(data["f86"])
+        if not math.isfinite(raw_stamp):
+            raise ValueError("non-finite timestamp")
+        stamp = datetime.fromtimestamp(raw_stamp, tz=BEIJING)
+        if not 2000 <= stamp.year <= 2100:
+            raise ValueError("timestamp out of range")
+    except (KeyError, TypeError, ValueError, OSError, OverflowError) as exc:
+        raise RuntimeError(f"东方财富 {product} 指数报价缺少有效供应商更新时间") from exc
     return {
         "price": price,
         "source": "东方财富",
-        "source_date": None,
-        "source_time": None,
+        "source_date": stamp.date(),
+        "source_time": stamp.strftime("%H:%M:%S"),
     }
 
 
@@ -2894,6 +2761,7 @@ def _fetch_eastmoney_mo_quotes(clock: datetime) -> pd.DataFrame:
         rows.append(
             {
                 "instrument": instrument,
+                "openprice": item.get("o"),
                 "lastprice": item.get("p"),
                 "bprice": item.get("mrj"),
                 "sprice": item.get("mcj"),
@@ -3141,6 +3009,61 @@ def verify_sina_option_quote(
     }
 
 
+def verify_sina_option_open(
+    contract: str, expected_date: date, expected_open: float, clock: datetime
+) -> dict[str, Any]:
+    """Independently check an Eastmoney MO opening mark before paper execution."""
+    match = re.fullmatch(r"MO(\d{4})-([CP])-(\d+)", contract.upper())
+    if not match:
+        raise ValueError(f"新浪MO开盘复核无法识别合约: {contract}")
+    symbol = f"mo{match.group(1)}{match.group(2)}{match.group(3)}"
+    response = requests.get(
+        "https://hq.sinajs.cn/etag.php",
+        params={"list": f"P_OP_{symbol}"},
+        timeout=_bounded_timeout(6),
+        headers={
+            "User-Agent": "Mozilla/5.0 POE-IC-IM-Research/1.0",
+            "Referer": "https://stock.finance.sina.com.cn/",
+            "Cache-Control": "no-cache",
+        },
+    )
+    response.raise_for_status()
+    payload = _response_with_size_limit(response, f"新浪MO开盘价 {contract}").decode(
+        "gbk", errors="replace"
+    )
+    quoted = re.search(rf'hq_str_P_OP_{re.escape(symbol)}="([^"]*)"', payload)
+    if not quoted or not quoted.group(1):
+        raise RuntimeError(f"新浪MO开盘复核 {contract} 为空")
+    fields = quoted.group(1).split(",")
+    if len(fields) <= 32:
+        raise RuntimeError(f"新浪MO开盘复核 {contract} 字段不足")
+    try:
+        stamp = datetime.strptime(fields[32], "%Y-%m-%d %H:%M:%S").replace(
+            tzinfo=BEIJING
+        )
+        strike = float(fields[7])
+        openprice = float(fields[9])
+        vendor_open = float(expected_open)
+    except (TypeError, ValueError) as exc:
+        raise RuntimeError(f"新浪MO开盘复核 {contract} 字段非法") from exc
+    if (not math.isclose(strike, float(match.group(3)), abs_tol=1e-9)
+            or stamp.date() != expected_date
+            # CFFEX option opening auction matches during 09:29-09:30;
+            # a contract may have no continuous-session update afterward.
+            or stamp.time() < time(9, 29)
+            or stamp > clock + timedelta(minutes=2)):
+        raise RuntimeError(f"新浪MO开盘复核 {contract} 合约或行情日期不匹配")
+    if not all(math.isfinite(value) and value > 0 for value in (openprice, vendor_open)):
+        raise RuntimeError(f"新浪MO开盘复核 {contract} 缺少双源正开盘价")
+    if abs(openprice - vendor_open) > 0.200001:
+        raise RuntimeError(
+            f"MO开盘价源冲突：东方财富 {contract}={vendor_open:g}，"
+            f"新浪={openprice:g}（{expected_date}）"
+        )
+    return {"source": "新浪财经详报价", "source_date": stamp.date(),
+            "openprice": openprice, "contract": contract}
+
+
 def _sse_quote_json(path: str, params: dict[str, Any]) -> dict[str, Any]:
     response = requests.get(
         f"https://yunhq.sse.com.cn:32042/{path.lstrip('/')}",
@@ -3240,7 +3163,7 @@ def fetch_sina_510500_chain(expiry_ym: str) -> tuple[pd.DataFrame, dict[str, str
     details_response.raise_for_status()
     _response_with_size_limit(details_response, "新浪510500 Put详情")
     rows: list[dict[str, Any]] = []
-    stamps: set[tuple[str, str]] = set()
+    stamps: list[datetime] = []
     details = details_response.content.decode("gbk", errors="replace")
     for _, payload in re.findall(r'hq_str_CON_OP_(\d+)="([^"]*)"', details):
         fields = payload.split(",")
@@ -3266,14 +3189,16 @@ def fetch_sina_510500_chain(expiry_ym: str) -> tuple[pd.DataFrame, dict[str, str
                 "chg_rate": None,
                 "pre_settle": float(fields[40]) if fields[40] else None,
                 "strike": strike,
+                "source_stamp": observed.replace(tzinfo=BEIJING),
             }
         )
-        stamps.add((observed.strftime("%Y%m%d"), observed.strftime("%H%M%S")))
+        stamps.append(observed)
     if not rows:
         raise RuntimeError(f"新浪未返回有效510500 Put月份 {yy}{month} 行情")
-    if len(stamps) != 1:
-        raise RuntimeError(f"新浪510500 Put月份 {yy}{month} 时间戳不一致")
-    source_day, source_time = stamps.pop()
+    # Keep stale rows identifiable.  Dropping one here could silently move a
+    # nearest-strike selection to another contract; selected rows are checked.
+    latest = max(stamps)
+    source_day, source_time = latest.strftime("%Y%m%d"), latest.strftime("%H%M%S")
     return pd.DataFrame(rows), {
         "date": source_day,
         "time": source_time,
@@ -3507,13 +3432,47 @@ def _require_listed_future_quote(
     return rows.iloc[0]
 
 
-def _quote_row(frame: pd.DataFrame, contract: str) -> pd.Series | None:
+def _require_selected_510500_quote_time(
+    row: pd.Series, clock: datetime, market_date: date | None
+) -> None:
+    if "source_stamp" not in row.index:
+        return
+    if market_date is None:
+        raise RuntimeError("新浪510500期权逐行报价缺少信号日，禁止校验自身日期")
+    stamp = row["source_stamp"]
+    if pd.isna(stamp) or not isinstance(stamp, (datetime, pd.Timestamp)) or stamp.tzinfo is None:
+        raise RuntimeError("新浪510500期权合约缺少有效逐行时间戳")
+    if stamp.date() != market_date:
+        raise RuntimeError("新浪510500期权选中合约报价日期与信号日不一致")
+    now = clock.astimezone(BEIJING) if clock.tzinfo else clock.replace(tzinfo=BEIJING)
+    close_confirmed = stamp.date() < now.date() or _market_phase(now) == "收盘后"
+    try:
+        # Sina fallback has per-contract timestamps, so selected core/candidate
+        # rows must pass the 20-minute gate. SSE's aggregate source cannot
+        # supply equivalent row-level evidence; the stricter fallback is intentional.
+        _validate_iv_monitor_times(stamp.date(), stamp, stamp, now, close_confirmed)
+    except ValueError as exc:
+        raise RuntimeError("新浪510500期权合约报价时间不满足20分钟新鲜度") from exc
+
+
+def _quote_row(
+    frame: pd.DataFrame, contract: str, market_date: date | None = None
+) -> pd.Series | None:
     rows = (
         frame[frame["instrument"].eq(contract)]
         if "instrument" in frame
         else frame[frame["contract"].eq(contract)]
     )
-    return rows.iloc[0] if len(rows) else None
+    if not len(rows):
+        return None
+    row = rows.iloc[0]
+    try:
+        _require_selected_510500_quote_time(row, _now_beijing(), market_date)
+    except RuntimeError:
+        # A stale held leg is missing market evidence, not a global lookup
+        # failure.  A changing action must still fail in _require_existing_leg_quote.
+        return None
+    return row
 
 
 def _normal_cdf(value: float) -> float:
@@ -4514,6 +4473,9 @@ def _v14_ic_short_put_candidate(
     etf = float(signal["etf_price"])
     puts["distance"] = (puts.strike - 0.95 * etf).abs()
     selected = puts.sort_values(["distance", "contract"]).iloc[0]
+    _require_selected_510500_quote_time(
+        selected, _now_beijing(), signal["market_date"]
+    )
     expiry = _fourth_wednesday(year, month)
     years = max((expiry - signal["market_date"]).days, 1) / 365.0
     premium = float(selected["last"])
@@ -4548,7 +4510,8 @@ def _v14_ic_short_put_candidate(
         "quantity_rule": "q_delta05_continuous_research",
         "decision_known_entry_abs_delta": abs_delta,
         "quote_date": stamp.get("date"),
-        "quote_time": stamp.get("time"),
+        "quote_time": (pd.Timestamp(selected["source_stamp"]).strftime("%H%M%S")
+                       if "source_stamp" in selected.index else stamp.get("time")),
         "quote_source": stamp.get("source"),
     }
 
@@ -4636,7 +4599,13 @@ def _v14_monthly_option_calendar(product: str, market_date: date,
 
 
 def _v14_ic_core_overlay(signal: dict[str, Any], anchor: dict[str, Any]) -> None:
-    """Price the dedicated core independently; the legacy contract is momentum."""
+    """Price the dedicated core independently of the legacy/shared Put field.
+
+    Before the identity migration, ``post_put_contract`` can be the single
+    economic core leg; afterward it can hold the independent momentum leg.
+    The ordinary-open planner requires explicit v1.4 core identity instead of
+    treating that shared field as proof of a dedicated contract.
+    """
     contract = anchor.get("v14_core_put_contract")
     if contract:
         day = signal["market_date"]
@@ -4649,7 +4618,7 @@ def _v14_ic_core_overlay(signal: dict[str, Any], anchor: dict[str, Any]) -> None
                 raise RuntimeError("IC独立核心Put合约格式错误")
             chain, stamp = fetch_510500_chain_with_failover(match.group(1))
         _validate_chain_stamp_matches("IC独立核心Put", stamp, day, _now_beijing())
-        row = _quote_row(chain, str(contract))
+        row = _quote_row(chain, str(contract), day)
         if row is None or not math.isfinite(float(row["last"])) or float(row["last"]) <= 0:
             raise RuntimeError("IC独立核心Put缺少有效当日报价")
         signal["iv_monitor_option_price"] = float(row["last"])
@@ -4739,6 +4708,8 @@ def _v14_prepare_lifecycle_evidence(product: str, signal: dict[str, Any], anchor
         if product == "IC":
             old_open, old_source = fetch_option_dated_open(str(anchor.get("v14_profit_old_security_id") or ""), day)
             new_open, new_source = fetch_option_dated_open(str(anchor.get("v14_profit_reentry_security_id") or ""), day)
+            if not all(math.isfinite(value) and value > 0 for value in (old_open, new_open)):
+                raise RuntimeError("三倍兑现任一腿缺少执行日正开盘价，禁止回填收盘或昨收")
             signal.update(v14_core_put_contract=new_contract,
                           v14_core_put_security_id=anchor["v14_profit_reentry_security_id"],
                           v14_core_put_qty=int(planned_qty), put_target_core_qty=int(planned_qty),
@@ -4751,14 +4722,24 @@ def _v14_prepare_lifecycle_evidence(product: str, signal: dict[str, Any], anchor
             new_row = _quote_row(quotes, new_contract)
             if old_row is None or new_row is None:
                 raise RuntimeError("IM 三倍兑现旧/新合约未在执行日挂牌链中同时找到")
-            old_open, new_open = float(old_row["openprice"]), float(new_row["openprice"])
+            if "openprice" not in old_row or "openprice" not in new_row:
+                raise RuntimeError("IM 三倍兑现旧/新合约缺少指定日开盘价，禁止使用收盘价代替")
+            try:
+                old_open, new_open = float(old_row["openprice"]), float(new_row["openprice"])
+            except (TypeError, ValueError) as exc:
+                raise RuntimeError("IM 三倍兑现旧/新合约指定日开盘价无效") from exc
+            if not all(math.isfinite(value) and value > 0 for value in (old_open, new_open)):
+                raise RuntimeError("三倍兑现任一腿缺少执行日正开盘价，禁止回填收盘或昨收")
             old_source = new_source = str(quotes.attrs.get("source", "MO_dated_open"))
+            if old_source == "东方财富":
+                observed_clock = _now_beijing()
+                verify_sina_option_open(old_contract, day, old_open, observed_clock)
+                verify_sina_option_open(new_contract, day, new_open, observed_clock)
+                old_source = new_source = "东方财富（新浪逐合约开盘价复核）"
             if not math.isclose(float(signal.get("core_put_target_qty_normalized", 0.0)), planned_qty, abs_tol=1e-12):
                 raise RuntimeError("IM 次日风险目标量与T收盘预选量不同，禁止伪称同一开盘成交")
             signal.update(core_put_target_contract=new_contract, put_target_contract=new_contract,
                           core_put_action="RESIZE_OR_ROLL", put_action="RESIZE_OR_ROLL")
-        if not all(math.isfinite(value) and value > 0 for value in (old_open, new_open)):
-            raise RuntimeError("三倍兑现任一腿缺少执行日正开盘价，禁止回填收盘或昨收")
         signal.update(v14_profit_reentry_entry_premium=new_open,
                       v14_profit_reentry_contract=new_contract,
                       v14_profit_open_executed_contract=new_contract,
@@ -4844,7 +4825,10 @@ def _v14_prepare_profit_open_plan(product: str, signal: dict[str, Any], anchor: 
         signal["v14_profit_reentry_status"] = f"t_close_preselection_unavailable:{type(exc).__name__}:{exc}"
 
 
-def _v14_ordinary_open_evidence(product: str, market_date: date, clock: datetime) -> dict[str, Any] | None:
+def _v14_ordinary_open_evidence(
+    product: str, market_date: date, clock: datetime,
+    quote_cache: dict[str, pd.DataFrame] | None = None,
+) -> dict[str, Any] | None:
     """Verify yesterday's exact contracts at today's open before projecting holdings."""
     anchor = LIVE_CONTINUATION_ANCHOR[product]
     plan = anchor.get("v14_ordinary_put_pending")
@@ -4863,6 +4847,8 @@ def _v14_ordinary_open_evidence(product: str, market_date: date, clock: datetime
     prices: list[dict[str, Any]] = []
     try:
         chain = fetch_cffex_quotes("MO", clock) if product == "IM" else None
+        if chain is not None and quote_cache is not None:
+            quote_cache["MO"] = chain
         if chain is not None and chain.attrs.get("source_date") != market_date:
             raise RuntimeError("MO开盘报价日期与执行日不一致")
         seen: set[tuple[str, str | None]] = set()
@@ -4884,10 +4870,13 @@ def _v14_ordinary_open_evidence(product: str, market_date: date, clock: datetime
                 else:
                     row = _quote_row(chain, contract)
                     if row is None or "openprice" not in row:
-                        raise RuntimeError(f"{contract} 缺少指定日开盘价；东方财富 MO 备用源未提供 openprice")
+                        raise RuntimeError(f"{contract} 缺少指定日 MO openprice 开盘价")
                     price, source = float(row["openprice"]), str(chain.attrs.get("source", "MO"))
                 if not math.isfinite(float(price)) or float(price) <= 0:
                     raise RuntimeError(f"{contract} 指定日开盘价非正或无效")
+                if product == "IM" and source == "东方财富":
+                    verify_sina_option_open(contract, market_date, price, clock)
+                    source = "东方财富（新浪逐合约开盘价复核）"
                 prices.append({"contract": contract, "security_id": security_id,
                                "openprice": float(price), "source": source,
                                "price_day": market_date})
@@ -4930,16 +4919,25 @@ def _v14_schedule_ordinary_put(product: str, signal: dict[str, Any], anchor: dic
         signal["v14_ordinary_put_pending"] = prior
         return
     if product == "IC":
+        held = _ic_current_quantity_breakdown(anchor)
+        if int(anchor.get("v14_core_put_qty", 0)) != held["core"]:
+            raise RuntimeError("IC账本核心Put数量与独立持仓明细不一致，禁止生成开盘换仓计划")
+        if held["core"] > 0 and (not anchor.get("v14_core_put_contract")
+                                  or not anchor.get("v14_core_put_security_id")):
+            raise RuntimeError("IC账本核心Put有持仓但缺少独立合约身份，禁止生成开盘换仓计划")
+        if held["momentum"] > 0 and (not anchor.get("post_put_contract")
+                                      or not anchor.get("post_put_security_id")):
+            raise RuntimeError("IC账本动量Put有持仓但缺少合约身份，禁止生成开盘换仓计划")
         new_core_contract, new_core_security_id, new_core_qty = _v14_ic_ordinary_core_target(signal)
         core = dict(old_contract=anchor.get("v14_core_put_contract"),
                     old_security_id=anchor.get("v14_core_put_security_id"),
-                    old_qty=float(anchor.get("v14_core_put_qty", 0)),
+                    old_qty=float(held["core"]),
                     new_contract=new_core_contract,
                     new_security_id=new_core_security_id,
                     new_qty=new_core_qty)
-        momentum = dict(old_contract=anchor.get("post_put_contract") if float(anchor.get("verified_momentum_put_qty", 0)) > 0 else None,
-                        old_security_id=anchor.get("post_put_security_id") if float(anchor.get("verified_momentum_put_qty", 0)) > 0 else None,
-                        old_qty=float(anchor.get("verified_momentum_put_qty", 0)),
+        momentum = dict(old_contract=anchor.get("post_put_contract") if held["momentum"] > 0 else None,
+                        old_security_id=anchor.get("post_put_security_id") if held["momentum"] > 0 else None,
+                        old_qty=float(held["momentum"]),
                         new_contract=signal.get("put_target_contract") if float(signal.get("put_target_momentum_qty", 0)) > 0 else None,
                         new_security_id=signal.get("put_target_security_id") if float(signal.get("put_target_momentum_qty", 0)) > 0 else None,
                         new_qty=float(signal.get("put_target_momentum_qty", 0)))
@@ -4978,10 +4976,10 @@ def _apply_v14_live_policy(
     mo_quotes: pd.DataFrame | None = None,
 ) -> dict[str, Any]:
     anchor = LIVE_CONTINUATION_ANCHOR[product]
-    if product == "IC":
-        _v14_ic_core_overlay(signal, anchor)
-    _v14_prepare_lifecycle_evidence(product, signal, anchor, mo_quotes)
     try:
+        if product == "IC":
+            _v14_ic_core_overlay(signal, anchor)
+        _v14_prepare_lifecycle_evidence(product, signal, anchor, mo_quotes)
         if product == "IC":
             candidate = _v14_ic_short_put_candidate(signal)
         else:
@@ -5039,6 +5037,8 @@ def build_live_trade_signal(
 ) -> dict[str, Any]:
     clock = now or _now_beijing()
     with runtime_clock(clock):
+        # The exchange session ends at 15:00.  The generic snapshot route is
+        # deliberately more conservative until 15:30; these are not one gate.
         if mode == "close" and _is_exchange_trading_day(clock.date()) and _market_phase(clock) != "收盘后":
             raise RuntimeError("今日尚未收盘，收盘确认信号尚不可用；盘中研究请查询实时信号")
         original_anchor = LIVE_CONTINUATION_ANCHOR[product]
@@ -5070,7 +5070,8 @@ def _build_live_trade_signal(
     bridge_from_anchor = _validate_signal_market_date(
         product, market_date, clock, mode
     )
-    opening = _v14_ordinary_open_evidence(product, market_date, clock)
+    quote_cache: dict[str, pd.DataFrame] = {}
+    opening = _v14_ordinary_open_evidence(product, market_date, clock, quote_cache)
     if opening is not None and opening["status"] == "confirmed_open_research_price":
         LIVE_CONTINUATION_ANCHOR[product] = v14_policy.project_ordinary_open(
             product, LIVE_CONTINUATION_ANCHOR[product], opening["plan"]
@@ -5297,7 +5298,7 @@ def _build_live_trade_signal(
             raise RuntimeError(
                 f"上交所ETF与期权链日期不一致：{etf_day} != {chain_day}"
             )
-        put_quote = _quote_row(chain, put_contract)
+        put_quote = _quote_row(chain, put_contract, market_date)
         target_delta = float(live["v13_put_target_delta"])
         prior_delta = float(live["v13_current_put_delta"])
         current_core_delta = float(live["v13_current_core_put_delta"])
@@ -5499,9 +5500,8 @@ def _build_live_trade_signal(
                         f"{target_breakdown['momentum']}张 + 网格0张） "
                         f"{reset['contract']}"
                     )
-                if option_roll_due:
-                    if not ic_sizing:
-                        put_current = f"规则续接合约 {reset['contract']}"
+                # A missing IV may leave the target quantity unresolved, but
+                # the held contract identity must never become the new target.
         put_action = (
             "HOLD"
             if math.isclose(target_delta, prior_delta, abs_tol=1e-12)
@@ -5514,7 +5514,9 @@ def _build_live_trade_signal(
                 "etf_quote_date": etf["date"],
                 "etf_quote_time": etf["time"],
                 "iv_monitor_option_price": float(put_quote["last"]) if put_quote is not None else None,
-                "sse_time": f"{sse_stamp['date']} {sse_stamp['time']}",
+                "sse_time": (pd.Timestamp(put_quote["source_stamp"]).strftime("%Y%m%d %H%M%S")
+                             if put_quote is not None and "source_stamp" in put_quote.index
+                             else f"{sse_stamp['date']} {sse_stamp['time']}"),
                 "put_current": put_current,
                 "put_target": put_target,
                 "put_action": put_action,
@@ -5550,7 +5552,9 @@ def _build_live_trade_signal(
             }
         )
     else:
-        mo_quotes = fetch_cffex_quotes("MO", clock)
+        mo_quotes = quote_cache.get("MO")
+        if mo_quotes is None:
+            mo_quotes = fetch_cffex_quotes("MO", clock)
         mo_quote_source = str(mo_quotes.attrs.get("source", "未知"))
         mo_quote_date = mo_quotes.attrs.get("source_date")
         _require_intraday_bridge_source_day(
@@ -5735,13 +5739,7 @@ def _build_live_trade_signal(
             if call_contract
             else "无（已核验Call仓位为0）"
         )
-        call_finished = call_contract is None or (
-            call_expiry is not None
-            and (
-                today > call_expiry
-                or (today == call_expiry and clock.time() >= time(15, 0))
-            )
-        )
+        call_finished = _im_call_finished(call_contract, call_expiry, market_date, close_confirmed)
         threat_roll_count = int(
             LIVE_CONTINUATION_ANCHOR["IM"].get("verified_threat_roll_count", 0)
 
@@ -5763,7 +5761,7 @@ def _build_live_trade_signal(
                 else:
                     rescue = select_im_call_rescue(
                         mo_quotes,
-                        today,
+                        market_date,
                         float(live["price"]),
                         call_expiry,
                         float(call_strike_value),
@@ -5803,7 +5801,7 @@ def _build_live_trade_signal(
         else:
             selected_call = select_im_call_d10(
                 mo_quotes,
-                today,
+                market_date,
                 float(live["price"]),
                 option_reference_expiry,
             )
@@ -5895,15 +5893,7 @@ def _build_live_trade_signal(
                     f"{contract}经{verification['source']}复核，as-of "
                     f"{verification['source_date']}，{'双边中价估计（非成交价）' if verify_basis == 'live_bid_ask_mid_estimate_zero_volume' else '最新'}{verification['lastprice']:g}"
                 )
-        call_current_text = (
-            "规范化0张（已核验空仓）" if no_call_signal else "规范化0张（已核验空仓，等待新D10/IV26信号）"
-            if call_contract is None
-            else (
-                "0张（旧Call已到期，等待新D10信号）"
-                if call_finished
-                else f"规范化空1张 {call_contract}（只覆盖0.5倍核心袖）"
-            )
-        )
+        call_current_text = _im_call_current_text(call_contract, no_call_signal, call_finished)
         call_target = call_target.replace("空2张", "规范化空1张")
         put_current_text = (
             f"核心Put {core_put_current_normalized:g}张 {core_put_contract}；"
@@ -6138,13 +6128,25 @@ class ICIMMainlinesBot:
             self._handle_snapshot(intent.products)
 
     def _handle_snapshot(self, products: tuple[str, ...]) -> None:
+        clock = _now_beijing()
+        if (_is_exchange_trading_day(clock.date())
+                and (_market_phase(clock) != "收盘后" or clock.time() < SETTLEMENT_SNAPSHOT_CUTOFF)):
+            with _sm() as msg:
+                msg.write("## 最近已核验研究账本快照\n\n今日完整收盘数据尚未核验。\n\n")
+                for product in products:
+                    try:
+                        _write_last_verified_snapshot(msg, product)
+                    except Exception as exc:  # noqa: BLE001 - keep the other product's report.
+                        msg.write(f"### {PRODUCT_NAMES[product]}\n\n⚠️ 账本快照无法安全渲染：{exc}\n\n")
+            return
         self._handle_signal(products, mode="close")
 
     def _handle_signal(self, products: tuple[str, ...], mode: str) -> None:
         with _sm() as msg:
             title = "实时信号（联网刷新）" if mode == "intraday" else "信号（收盘确认）"
+            report_build_id = _report_build_id(mode)
             msg.write(
-                f"## IC / IM 1.4 {title}｜构建 {BUILD_ID}"
+                f"## IC / IM 1.4 {title}｜构建 {report_build_id}"
                 f"（{_now_beijing():%Y-%m-%d %H:%M:%S} 北京时间）\n\n"
             )
             msg.write(
@@ -6164,7 +6166,14 @@ class ICIMMainlinesBot:
                         "已暂停该品种的新增/调整信号；不会用NaN、陈旧行情或未重放账本"
                         "推导替代目标。\n\n"
                     )
-                    _write_last_verified_snapshot(msg, product)
+                    try:
+                        _write_last_verified_snapshot(msg, product)
+                    except Exception as snapshot_exc:  # noqa: BLE001 - reporting fallback only.
+                        msg.write(
+                            "⚠️ 最后已核验快照也无法安全渲染："
+                            f"{type(snapshot_exc).__name__}: {snapshot_exc}。"
+                            "请核对持久账本；本品种不提供当前仓位或目标。\n\n"
+                        )
                     continue
                 msg.write(f"### {PRODUCT_NAMES[product]}\n\n")
                 msg.write(f"**{live.get('iv_warning', {}).get('text', 'IV预警：N/A（旧记录未包含监测值）')}**\n\n")
@@ -6204,11 +6213,15 @@ class ICIMMainlinesBot:
                 if product == "IM" and live.get("option_monthly_reset_due"):
                     msg.write(f"月度Put执行日：{live['put_monthly_reset_execution_date']}；参考{live['put_reference_future']}，取价日{live.get('put_reference_price_date', live['market_date'])}。盘中为待收盘确认的候选，收盘结果是当日研究执行记录，不是下一日重新选约指令。\n\n")
                 profit_status = live.get("v14_profit_reentry_status")
+                ordinary_status = live.get("v14_ordinary_put_open_status")
+                if (profit_status in {"scheduled_t_plus_1_open", "confirmed_open_research_price"}
+                        or ordinary_status == "confirmed_open_research_price"
+                        or live.get("v14_ordinary_put_plan_status") == "scheduled_t_plus_1_open"):
+                    msg.write("期权“开盘价”按供应商当日开盘字段作纸面研究价：集合竞价无成交时，可能取其后首笔成交，低流动性合约甚至可能晚于上午；不保证是09:30价格或账户可成交价。\n\n")
                 if profit_status == "scheduled_t_plus_1_open":
                     msg.write(f"核心买Put三倍兑现开盘计划：{live['market_date']}收盘确认；{live['v14_profit_execution_day']}开盘卖旧合约{live['v14_profit_old_contract']}、买入预选合约{live['v14_profit_reentry_contract']}，规范化目标量{live['v14_profit_reentry_qty']:g}。此为模型计划，尚非成交。\n\n")
                 elif profit_status == "confirmed_open_research_price":
                     msg.write(f"核心买Put三倍兑现纸面执行：{live['v14_profit_open_price_day']}开盘卖旧合约{live['v14_profit_open_old_contract']}，模型价{live['v14_profit_exit_open_price']}；买入{live['v14_profit_open_executed_contract']}，模型价{live['v14_profit_reentry_entry_premium']}，数量{live['v14_profit_open_executed_qty']:g}。不是账户成交回执。\n\n")
-                ordinary_status = live.get("v14_ordinary_put_open_status")
                 if ordinary_status == "confirmed_open_research_price":
                     msg.write(f"普通核心/动量买Put：{live['market_date']}按前一收盘预选身份及当日开盘价完成纸面确认；逐腿开盘价见信号证据。不是账户成交回执。\n\n")
                 elif ordinary_status and ordinary_status.startswith("closed_"):
@@ -6556,8 +6569,6 @@ class ICIMMainlinesBot:
                         continue
                 metrics = performance_metrics(frame)
                 actual_end = frame.index[-1].date()
-                live_rows = int(frame["is_live"].sum())
-                transition_rows = int(frame["is_transition"].sum())
                 chart = render_nav_drawdown_chart(product, frame, intent.start)
                 msg.write(f"### {PRODUCT_NAMES[product]}\n\n")
                 if degraded_reason is not None:
@@ -6573,22 +6584,7 @@ class ICIMMainlinesBot:
                     content_type="image/png",
                     is_inline=True,
                 )
-                if live_rows:
-                    msg.write(
-                        f"数据已更新至 **{actual_end}**：{DATA_CUTOFF}及以前为1.3哈希校验定值参考段，"
-                        f"其后 {live_rows} 个交易日按真实期货、期权和指数日行情实时续接。"
-                        "历史段不会被改写。\n\n"
-                    )
-                    if transition_rows:
-                        transition_note = (
-                            "；IM旧Call到期归零" if product == "IM" else ""
-                        )
-                        msg.write(
-                            "续接已包含 **2026-08-21** 月换日：当日按旧仓盯市，"
-                            f"收盘计入期货展期、Put重置及相应交易成本{transition_note}。\n\n"
-                        )
-                else:
-                    msg.write(f"本次区间数据截至 **{actual_end}**。\n\n")
+                msg.write(f"本次仅展示冻结历史，区间数据截至 **{actual_end}**。\n\n")
                 if actual_end < intent.end:
                     msg.write(
                         f"请求终点晚于当前可核验终点；{actual_end}之后暂无已纳入且完成"
