@@ -115,6 +115,15 @@ def _validate_record(record: dict[str, Any]) -> None:
             raise RuntimeError(f"{product}账本网格状态非法")
         if float(anchor.get("verified_next_grid_units", -1)) not in {0.0, 0.5, 1.0}:
             raise RuntimeError(f"{product}账本下一交易日网格状态非法")
+        if day >= strategy.fear_grid.EFFECTIVE_SIGNAL_DATE:
+            for units_field, source_field in (
+                ("verified_grid_units", "verified_grid_entry_source"),
+                ("verified_next_grid_units", "verified_next_grid_entry_source"),
+            ):
+                units = float(anchor[units_field])
+                source = anchor.get(source_field)
+                if units not in {0.0, 0.5} or source not in strategy.fear_grid.SOURCES or (units == 0.0) != (source == "none"):
+                    raise RuntimeError(f"{product}账本网格仓位与入场来源不一致: {source_field}")
     if len(set(days)) != 1:
         raise RuntimeError("IC/IM账本核验日期不一致，禁止部分推进")
     try:
@@ -224,11 +233,52 @@ def validate_delivery_values(signal: dict[str, Any], product: str, *, historical
     # Frozen older records can be sparse. From the published policy date,
     # delivery and ledger writes share the same option boundary checks.
     day = signal.get("market_date")
+    if day is not None and _as_day(day, "网格信号日") >= strategy.fear_grid.EFFECTIVE_SIGNAL_DATE:
+        validate_fear_grid_signal(signal, product)
     if product == "IM" and day is not None and strategy.im_put_policy.active(day):
         if not historical_record:
             validate_im_execution_fix_revision(signal)
         validate_im_put_execution_evidence(signal)
         validate_im_option_values(signal)
+
+
+def validate_fear_grid_signal(signal: dict[str, Any], product: str) -> None:
+    day = _as_day(signal.get("market_date"), "网格信号日")
+    if signal.get("grid_policy_revision") != strategy.grid_policy_revision(day):
+        raise RuntimeError(f"{product}恐慌网格规则身份不一致")
+    status = signal.get("fear_data_status")
+    allowed = {"same_day_post_close", "retrospective_replay", "missing_published_history"}
+    if status not in allowed | {"intraday_provisional", "intraday_unpublished"}:
+        raise RuntimeError(f"{product}恐慌数据状态非法")
+    if signal.get("close_confirmed") and status not in allowed:
+        raise RuntimeError(f"{product}未确认的恐慌读数不得进入收盘账本")
+    if signal.get("fear_source_url") != strategy.fear_grid.CSV_URL:
+        raise RuntimeError(f"{product}恐慌来源 URL 不匹配")
+    if re.fullmatch(r"[0-9a-f]{64}", str(signal.get("fear_csv_sha256", ""))) is None:
+        raise RuntimeError(f"{product}恐慌来源哈希无效")
+    for field in ("fear_retrieved_at", "fear_page_updated_at"):
+        stamp = datetime.fromisoformat(str(signal.get(field, "")))
+        if stamp.tzinfo is None:
+            raise RuntimeError(f"{product} {field} 缺少时区")
+    fear = signal.get("fear_greed_index")
+    if fear is None:
+        if signal.get("fear_data_date") is not None or status not in {"missing_published_history", "intraday_unpublished"}:
+            raise RuntimeError(f"{product}恐慌缺值状态与日期不一致")
+    elif _as_day(signal.get("fear_data_date"), "恐慌数据日") != day:
+        raise RuntimeError(f"{product}恐慌数据日不是本信号日")
+    current = _finite_float(signal.get("grid_current"), f"{product}当前网格")
+    target = _finite_float(signal.get("grid_target"), f"{product}目标网格")
+    units, source, reason = strategy.fear_grid.transition(
+        product, current, signal.get("grid_entry_source_current"),
+        _finite_float(signal.get("score"), f"{product}估值分"), fear,
+    )
+    if target != units or signal.get("grid_entry_source_target") != source:
+        raise RuntimeError(f"{product}恐慌网格目标或来源与规则不符")
+    if signal.get("grid_transition_reason") != reason:
+        raise RuntimeError(f"{product}恐慌网格原因与规则不符")
+    action = "ADD_GRID" if target > current else "EXIT_GRID" if target < current else "HOLD"
+    if signal.get("grid_action") != action:
+        raise RuntimeError(f"{product}恐慌网格动作与仓位变化不符")
 
 
 def validate_v14_new_signal(signal: dict[str, Any], product: str) -> None:
@@ -697,6 +747,11 @@ def derive_next_anchors(
         if isinstance(signal_day_raw, date)
         else date.fromisoformat(str(signal_day_raw)[:10])
     )
+    if signal_day >= strategy.fear_grid.EFFECTIVE_SIGNAL_DATE:
+        shared_fields = ("fear_greed_index", "fear_data_date", "fear_data_status",
+                         "fear_page_updated_at", "fear_csv_sha256")
+        if any(signals["IC"].get(field) != signals["IM"].get(field) for field in shared_fields):
+            raise RuntimeError("IC/IM恐慌数据来自不同版本，禁止共同写账")
     previous_day = current_anchors["IC"]["last_verified_day"]
     expected = strategy._roll_forward_exchange_day(previous_day + timedelta(days=1))
     if signal_day != expected:
@@ -765,6 +820,16 @@ def derive_next_anchors(
                 raise RuntimeError(f"{product}新网格目标不得超过0.5倍")
         if current_grid != float(anchor["verified_next_grid_units"]):
             raise RuntimeError(f"{product}当前网格不等于前日下一执行网格")
+        if signal_day >= strategy.fear_grid.EFFECTIVE_SIGNAL_DATE:
+            expected_source = anchor.get("verified_next_grid_entry_source")
+            if expected_source is None:
+                if previous_day >= strategy.fear_grid.EFFECTIVE_SIGNAL_DATE:
+                    raise RuntimeError(f"{product}前一新版网格来源缺失")
+                expected_source = strategy.fear_grid.source_for_legacy_units(current_grid)
+            if signal.get("grid_entry_source_current") != expected_source:
+                raise RuntimeError(f"{product}当前网格来源未从前日账本延续")
+            anchor["verified_grid_entry_source"] = expected_source
+            anchor["verified_next_grid_entry_source"] = signal["grid_entry_source_target"]
         anchor.update(
             {
                 "last_verified_day": signal_day,
