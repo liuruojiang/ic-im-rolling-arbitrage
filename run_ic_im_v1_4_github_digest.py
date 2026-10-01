@@ -29,13 +29,16 @@ PRODUCTS = ("IC", "IM")
 FIX4_DELIVERY_REVISION = "20260924-v14-coreput3x-fixedshort95-fix4-integrated-iciv30-qdelta05"
 FIX6_DELIVERY_REVISION = "20260926-v14-coreput3x-fixedshort95-fix6-nocall-repeatroll-iciv30-qdelta05"
 FIX7_DELIVERY_REVISION = "20260928-v14-coreput3x-open-fix7-nocall-repeatroll-iciv30-qdelta05"
-DELIVERY_REVISION = "20260929-v14-ordinary-put-open-ic-seller-mom120-fix9"
+FIX9_DELIVERY_REVISION = "20260929-v14-ordinary-put-open-ic-seller-mom120-fix9"
+DELIVERY_REVISION = "20261008-v14-fear-grid25-50-fix10"
 MODES = ("close", "realtime")
 
 
 def delivery_revision_for_signal_day(signal_day: date) -> str:
-    if signal_day >= strategy.v14_policy.ORDINARY_PUT_OPEN_EFFECTIVE_SIGNAL_DATE:
+    if signal_day >= strategy.v14_policy.FEAR_GRID_EFFECTIVE_SIGNAL_DATE:
         return DELIVERY_REVISION
+    if signal_day >= strategy.v14_policy.ORDINARY_PUT_OPEN_EFFECTIVE_SIGNAL_DATE:
+        return FIX9_DELIVERY_REVISION
     if signal_day >= strategy.v14_policy.PROFIT_OPEN_EFFECTIVE_SIGNAL_DATE:
         return FIX7_DELIVERY_REVISION
     if signal_day >= strategy.v14_policy.FIX6_BUILD_EFFECTIVE_SIGNAL_DATE:
@@ -183,14 +186,17 @@ def _execution_timing_lines(product: str, signal: dict[str, Any]) -> list[str]:
 
 def render_stored_close_report(latest: dict[str, Any]) -> str:
     signals = latest.get("signals", {})
+    signal_day = date.fromisoformat(str(latest["verified_day"])[:10])
     lines = [
         "# IC / IM 1.4 收盘确认账本",
         "",
-        f"本记录信号构建：`{signals.get('IC', {}).get('v14_build_id', 'N/A')}`；当前程序构建：`{strategy.BUILD_ID}`；网格参数版本：`{strategy.GRID_POLICY_REVISION}`；动量防抖版本：`{strategy.MOMENTUM_DEBOUNCE_POLICY_REVISION}`。",
+        f"本记录信号构建：`{signals.get('IC', {}).get('v14_build_id', 'N/A')}`；当前程序构建：`{strategy.BUILD_ID}`；网格参数版本：`{strategy.grid_policy_revision(signal_day)}`；动量防抖版本：`{strategy.MOMENTUM_DEBOUNCE_POLICY_REVISION}`。",
         "卖Put展期规则：2026-09-25及以前信号最多成功展期一次；2026-09-26及以后信号每次满足条件可继续展期。本记录以逐腿信号版本为准。",
         "IM卖Call规则：2026-09-25及以前信号保留旧版；2026-09-26及以后信号目标为空仓，若模型账本有旧仓只输出平仓目标。本记录以逐腿信号版本为准。",
         "自2026-09-16信号日起，IC与IM的核心Put在MOM120<0时立即保护，连续两日均>+1%才解除；Abs20≤0立即降至半仓，连续两日均>+1%才恢复满仓；Score不变。",
-        "网格新版本：2026-09-15信号日起，IM恢复1.6进入/2.0退出、0.5倍，仅估值；IC保持0.5进入/1.0退出、0.5倍。此前信号保留当日规则。",
+        ("网格新版本：2026-10-08信号日起，估值或恐慌≤25入单个0.5倍网格；按冻结的入场来源分别在估值退出线或恐慌≥50退出。"
+         if signal_day >= strategy.v14_policy.FEAR_GRID_EFFECTIVE_SIGNAL_DATE else
+         "网格版本：2026-09-15信号日起，IM恢复1.6进入/2.0退出、0.5倍，仅估值；IC保持0.5进入/1.0退出、0.5倍。此前信号保留当日规则。"),
         "本附件直接来自已通过SHA-256日志链校验的持久账本，不进行第二次联网重算。",
         "它是研究审计记录，不是账户持仓，也不会自动下单。",
         "",
@@ -200,6 +206,15 @@ def render_stored_close_report(latest: dict[str, Any]) -> str:
     ]
     for product in PRODUCTS:
         signal = signals[product]
+        if signal_day >= strategy.v14_policy.FEAR_GRID_EFFECTIVE_SIGNAL_DATE:
+            lines.append(
+                f"- {product} 恐贪 {signal.get('fear_greed_index', '缺失')}"
+                f"（{signal.get('fear_data_date') or signal_day.isoformat()}，"
+                f"{signal.get('fear_data_status', 'N/A')}）；网格来源 "
+                f"`{signal.get('grid_entry_source_current', 'N/A')}` → "
+                f"`{signal.get('grid_entry_source_target', 'N/A')}`；"
+                f"CSV SHA-256 `{signal.get('fear_csv_sha256', 'N/A')}`。"
+            )
         profit_detail = []
         if signal.get("v14_profit_reentry_status") == "scheduled_t_plus_1_open":
             profit_detail.append(
@@ -374,10 +389,14 @@ def build_artifacts(
         "build": observed["IC"].get("v14_build_id"),
         "signal_build": observed["IC"].get("v14_build_id"),
         "signal_rule_revision": observed["IC"].get("v14_rule_revision"),
-        "grid_policy_revision": strategy.GRID_POLICY_REVISION,
+        "grid_policy_revision": strategy.grid_policy_revision(signal_day),
         "momentum_debounce_policy_revision": strategy.MOMENTUM_DEBOUNCE_POLICY_REVISION,
         "momentum_debounce_effective_date": strategy.MOMENTUM_DEBOUNCE_EFFECTIVE_DATE.isoformat(),
-        "grid_release_note": "2026-09-15信号日起：IM恢复1.6进入/2.0退出、0.5倍，仅估值；IC保持0.5进入/1.0退出、0.5倍。此前信号保留当日规则，当前仓位以账本为准。",
+        "grid_release_note": (
+            "2026-10-08信号日起：估值或恐慌≤25入单个0.5倍网格，按冻结来源分别由估值退出线或恐慌≥50退出；旧日规则不回写。"
+            if signal_day >= strategy.v14_policy.FEAR_GRID_EFFECTIVE_SIGNAL_DATE else
+            "2026-09-15信号日起：IM恢复1.6进入/2.0退出、0.5倍，仅估值；IC保持0.5进入/1.0退出、0.5倍。此前信号保留当日规则，当前仓位以账本为准。"
+        ),
         "im_put_policy_revision": strategy.IM_PUT_POLICY_REVISION,
         "im_execution_fix_revision": strategy.IM_EXECUTION_FIX_REVISION,
         "im_put_execution_revision": observed["IM"].get(

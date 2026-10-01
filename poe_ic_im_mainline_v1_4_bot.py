@@ -47,6 +47,7 @@ import pandas as pd
 import requests
 import ic_im_daily_valuation as daily_valuation
 import ic_im_chinabond as chinabond
+import ic_im_fear_grid_v1 as fear_grid
 
 try:
     from fastapi_poe.types import SettingsResponse
@@ -426,20 +427,26 @@ V13_GRID_RULES = {
     "IC": {"entry": 0.500, "exit": 1.000, "units": 0.5},
     "IM": {"entry": 1.600, "exit": 2.000, "units": 0.5},
 }
-GRID_POLICY_REVISION = "ic_im_im_grid160_half_20260914_v1"
+GRID_POLICY_REVISION = "ic_im_or_fear25_paired_exit50_20261008_v1"
+PREVIOUS_GRID_POLICY_REVISION = "ic_im_im_grid160_half_20260914_v1"
 IM_GRID_RESTORE_EFFECTIVE_DATE = date(2026, 9, 15)
 GRID_POLICY_EFFECTIVE_DATE = date(2026, 9, 14)
 
 
 def grid_policy_revision(signal_day: date) -> str:
-    if signal_day >= IM_GRID_RESTORE_EFFECTIVE_DATE:
+    if signal_day >= fear_grid.EFFECTIVE_SIGNAL_DATE:
         return GRID_POLICY_REVISION
+    if signal_day >= IM_GRID_RESTORE_EFFECTIVE_DATE:
+        return PREVIOUS_GRID_POLICY_REVISION
     if signal_day >= GRID_POLICY_EFFECTIVE_DATE:
         return "ic_im_grid_half_20260913_v1"
     return "legacy_grid_1x"
 
 
 def grid_rule(product: str, signal_day: date) -> dict[str, float]:
+    if signal_day >= fear_grid.EFFECTIVE_SIGNAL_DATE:
+        return {**V13_GRID_RULES[product], "fear_entry": fear_grid.ENTRY_MAX,
+                "fear_exit": fear_grid.EXIT_MIN}
     if signal_day >= IM_GRID_RESTORE_EFFECTIVE_DATE:
         return V13_GRID_RULES[product]
     if signal_day >= GRID_POLICY_EFFECTIVE_DATE:
@@ -5091,9 +5098,31 @@ def _build_live_trade_signal(
         live = _apply_next_unverified_session_anchor(product, live)
     elif market_date == LIVE_CONTINUATION_ANCHOR[product]["last_verified_day"]:
         live = _apply_next_unverified_session_anchor(product, live, next_session=False)
-    if live.get("valuation_provenance"):
-        # Continue the persisted grid state, including earlier VIP-driven days.
-        # Replaying all earlier days from price proxies would erase hysteresis.
+    fear_evidence: dict[str, Any] | None = None
+    if market_date >= fear_grid.EFFECTIVE_SIGNAL_DATE:
+        if not live.get("valuation_provenance"):
+            raise RuntimeError(f"{product} 新网格信号缺少已核验估值来源")
+        anchor = LIVE_CONTINUATION_ANCHOR[product]
+        source_key = ("verified_next_grid_entry_source" if bridge_from_anchor
+                      else "verified_grid_entry_source")
+        current_source = anchor.get(source_key)
+        if current_source is None:
+            # The last pre-fix10 grid could only have entered by valuation.
+            current_source = fear_grid.source_for_legacy_units(
+                float(live["grid_current_units"])
+            )
+        fear_evidence = fear_grid.fetch_score(market_date, mode)
+        next_units, next_source, grid_reason = fear_grid.transition(
+            product, float(live["grid_current_units"]), current_source,
+            float(live["score"]), fear_evidence["fear_greed_index"],
+        )
+        live["grid_target_units"] = next_units
+        live["grid_entry_source_current"] = current_source
+        live["grid_entry_source_target"] = next_source
+        live["grid_transition_reason"] = grid_reason
+    elif live.get("valuation_provenance"):
+        # Continue the persisted valuation grid state without replaying older
+        # proxy scores. Historical signals keep their original field contract.
         live["grid_target_units"] = _daily_grid_target(product, live)
     state_anchor_day = _validated_signal_state_anchor_day(
         product, live, bridge_from_anchor
@@ -5198,6 +5227,14 @@ def _build_live_trade_signal(
             f"{LIVE_CONTINUATION_ANCHOR[product]['last_verified_day']}已核验收盘锚点；"
             f"{market_date}行情只形成下一交易日目标"
         )
+    if fear_evidence is not None:
+        data_notes.append(
+            f"恐贪来源：{fear_evidence['fear_data_status']}，"
+            f"数据日 {fear_evidence['fear_data_date'] or '缺失'}，"
+            f"分数 {fear_evidence['fear_greed_index'] if fear_evidence['fear_greed_index'] is not None else '缺失'}；"
+            f"网页更新 {fear_evidence['fear_page_updated_at']}；"
+            f"CSV SHA-256 {fear_evidence['fear_csv_sha256']}"
+        )
     data_notes.extend(future_quotes.attrs.get("source_audit", []))
     if future_quotes.attrs.get("source_failures"):
         data_notes.append(
@@ -5264,6 +5301,13 @@ def _build_live_trade_signal(
         "grid_policy": grid_rule(product, market_date),
         "data_notes": data_notes,
     }
+    if fear_evidence is not None:
+        signal.update(fear_evidence)
+        signal.update({
+            "grid_entry_source_current": live["grid_entry_source_current"],
+            "grid_entry_source_target": live["grid_entry_source_target"],
+            "grid_transition_reason": live["grid_transition_reason"],
+        })
 
     if product == "IC":
         put_contract = str(LIVE_CONTINUATION_ANCHOR["IC"]["post_put_contract"])
@@ -6153,7 +6197,7 @@ class ICIMMainlinesBot:
                 "本次重新联网取数。**当前仓位**是研究规则从已审计账本续接出的策略仓位，"
                 "不是你的账户持仓；**下一交易日目标**不会自动下单。\n\n"
             )
-            msg.write("网格新版本：2026-09-15信号日起，IM恢复1.6进入/2.0退出、0.5倍，仅估值；IC保持0.5进入/1.0退出、0.5倍。9月14日及更早信号保留当日规则。\n\n")
+            msg.write("网格规则：2026-10-08信号日起，估值或恐慌≤25入单个0.5倍网格；按入场来源分别在估值退出线或恐慌≥50退出。此前信号保留当日规则。\n\n")
             per_product_budget = _signal_product_network_budget(len(products))
             for product in products:
                 try:
@@ -6250,8 +6294,10 @@ class ICIMMainlinesBot:
                     f"{live['momentum_units_target']:g}倍（权重 {live['momentum_next_weight']:g}） | "
                     f"{live['momentum_units_change']:+g}倍 | T收盘信号 → 下一交易日形成仓位 |\n"
                 )
+                grid_label = ("独立网格（估值/恐慌）" if live["market_date"] >= fear_grid.EFFECTIVE_SIGNAL_DATE
+                              else "独立估值网格")
                 msg.write(
-                    f"| 独立估值网格 | {live['grid_current']}倍 | {live['grid_target']}倍 | "
+                    f"| {grid_label} | {live['grid_current']}倍 | {live['grid_target']}倍 | "
                     f"{live['grid_target'] - live['grid_current']:+g}倍 | T收盘信号 → T+1开盘 |\n"
                 )
                 msg.write(
@@ -6266,6 +6312,13 @@ class ICIMMainlinesBot:
                     f"| Call | {live['call_current']} | {live['call_target']} | "
                     f"{ACTION_CN[live['call_action']]} | T收盘评估 → T+1收盘 |\n\n"
                 )
+                if live["market_date"] >= fear_grid.EFFECTIVE_SIGNAL_DATE:
+                    msg.write(
+                        f"- 恐贪读数：**{live.get('fear_greed_index', '缺失')}**；"
+                        f"数据状态 `{live.get('fear_data_status', 'N/A')}`；"
+                        f"网格来源 `{live.get('grid_entry_source_current', 'N/A')}` → "
+                        f"`{live.get('grid_entry_source_target', 'N/A')}`。\n\n"
+                    )
                 if product == "IM":
                     msg.write(
                         f"- **Call 独立维护**：当前 {live['call_current']}；目标 {live['call_target']}；"
@@ -6344,7 +6397,7 @@ class ICIMMainlinesBot:
                         "第4张只能由估值第4档产生，MOM120下限本身最多给到每1倍3张。\n"
                     )
                 msg.write(
-                    f"- 注意：表格中的独立估值网格 **{live['grid_target']}倍** 是网格仓位，"
+                    f"- 注意：表格中的{grid_label} **{live['grid_target']}倍** 是网格仓位，"
                     "不是估值等级；估值等级以上述档位文字为准。\n"
                 )
                 msg.write("\n**Put按仓位来源拆分**\n\n")
