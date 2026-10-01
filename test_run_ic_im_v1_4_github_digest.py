@@ -104,7 +104,8 @@ def test_delivery_identity_preserves_fix7_then_uses_fix9():
     assert "coreput3x-open-fix7" in digest.delivery_revision_for_signal_day(date(2026, 9, 28))
     assert "coreput3x-open-fix7" in strategy.v14_policy.identity_for_signal_day(date(2026, 9, 28))[0]
     assert "ic-seller-mom120-fix9" in digest.delivery_revision_for_signal_day(date(2026, 9, 29))
-    assert "ic-seller-mom120-fix9" in strategy.BUILD_ID
+    assert "ic-seller-mom120-fix9" in strategy.v14_policy.FIX9_BUILD_ID
+    assert "fear-grid25-50-fix10" in strategy.BUILD_ID
     assert strategy.v14_policy.FIX6_BUILD_ID.endswith("-fix6-nocall-repeatroll-iciv30-qdelta05")
 
 
@@ -112,7 +113,7 @@ def test_realtime_report_build_follows_signal_day_not_latest_module_build():
     sep28 = datetime(2026, 9, 28, 14, 40, tzinfo=strategy.BEIJING)
     sep29 = datetime(2026, 9, 29, 14, 40, tzinfo=strategy.BEIJING)
     assert strategy._report_build_id("intraday", sep28) == strategy.v14_policy.FIX7_BUILD_ID
-    assert strategy._report_build_id("intraday", sep29) == strategy.v14_policy.BUILD_ID
+    assert strategy._report_build_id("intraday", sep29) == strategy.v14_policy.FIX9_BUILD_ID
 
 
 def test_failure_artifact_keeps_signal_day_for_transition_gate(tmp_path):

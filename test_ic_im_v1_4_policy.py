@@ -76,6 +76,10 @@ def test_producer_identity_is_date_aware_for_append_only_history():
         policy.FIX7_RULE_REVISION,
     )
     assert policy.identity_for_signal_day(date(2026, 9, 29)) == (
+        policy.FIX9_BUILD_ID,
+        policy.FIX9_RULE_REVISION,
+    )
+    assert policy.identity_for_signal_day(date(2026, 10, 8)) == (
         policy.BUILD_ID,
         policy.RULE_REVISION,
     )
@@ -144,8 +148,8 @@ def test_ic_seller_fix9_uses_price_mom120_not_momentum_leg_or_buyer_debounce():
     opened = policy.apply_policy("IC", base, policy.default_extension("IC"),
                                  candidate=_candidate("IC"))
     assert opened["v14_action"] == "ENTER_SHORT_PUT"
-    assert opened["v14_build_id"] == policy.BUILD_ID
-    assert opened["v14_rule_revision"] == policy.RULE_REVISION
+    assert opened["v14_build_id"] == policy.FIX9_BUILD_ID
+    assert opened["v14_rule_revision"] == policy.FIX9_RULE_REVISION
     for value, expected in [(-0.001, "mom120_negative"),
                             (None, "mom120_unavailable"),
                             (float("nan"), "mom120_unavailable"),
