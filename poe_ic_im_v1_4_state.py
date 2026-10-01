@@ -256,10 +256,25 @@ def validate_fear_grid_signal(signal: dict[str, Any], product: str) -> None:
         raise RuntimeError(f"{product}恐慌来源 URL 不匹配")
     if re.fullmatch(r"[0-9a-f]{64}", str(signal.get("fear_csv_sha256", ""))) is None:
         raise RuntimeError(f"{product}恐慌来源哈希无效")
+    stamps = {}
     for field in ("fear_retrieved_at", "fear_page_updated_at"):
         stamp = datetime.fromisoformat(str(signal.get(field, "")))
         if stamp.tzinfo is None:
             raise RuntimeError(f"{product} {field} 缺少时区")
+        stamps[field] = stamp.astimezone(strategy.fear_grid.BEIJING)
+    retrieved = stamps["fear_retrieved_at"]
+    page_updated = stamps["fear_page_updated_at"]
+    if page_updated > retrieved or day > retrieved.date():
+        raise RuntimeError(f"{product}恐慌来源时间晚于获取时刻")
+    if status == "same_day_post_close" and (
+        day != retrieved.date() or page_updated.date() != day or
+        page_updated.time() <= time(15, 0)
+    ):
+        raise RuntimeError(f"{product}恐慌同日收盘证据不成立")
+    if status in {"retrospective_replay", "missing_published_history"} and day >= retrieved.date():
+        raise RuntimeError(f"{product}恐慌历史回放状态与获取日期冲突")
+    if status in {"intraday_provisional", "intraday_unpublished"} and day != retrieved.date():
+        raise RuntimeError(f"{product}恐慌盘中状态与获取日期冲突")
     fear = signal.get("fear_greed_index")
     if fear is None:
         if signal.get("fear_data_date") is not None or status not in {"missing_published_history", "intraday_unpublished"}:

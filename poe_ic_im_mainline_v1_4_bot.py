@@ -5111,7 +5111,13 @@ def _build_live_trade_signal(
             current_source = fear_grid.source_for_legacy_units(
                 float(live["grid_current_units"])
             )
-        fear_evidence = fear_grid.fetch_score(market_date, mode)
+        # A post-close "实时信号" query must meet the same Fear confirmation
+        # gate as the close route before it can describe a confirmed target.
+        fear_mode = (
+            "close" if market_date < today or
+            (market_date == today and _market_phase(clock) == "收盘后") else mode
+        )
+        fear_evidence = fear_grid.fetch_score(market_date, fear_mode)
         next_units, next_source, grid_reason = fear_grid.transition(
             product, float(live["grid_current_units"]), current_source,
             float(live["score"]), fear_evidence["fear_greed_index"],
