@@ -135,6 +135,8 @@ def fetch_score(signal_day: date, mode: str) -> dict[str, Any]:
     page_day, page_score, page_updated = _parse_page(_bounded_get(PAGE_URL, 512 * 1024))
     if page_day != latest or not math.isclose(page_score, values[latest], abs_tol=0.005, rel_tol=0.0):
         raise RuntimeError("恐贪网页与 CSV 最新数据不一致，暂停确认信号")
+    if latest > fetched.date() or page_updated > fetched or signal_day > fetched.date():
+        raise RuntimeError("恐贪来源出现未来日期或更新时间，暂停确认信号")
 
     value = values.get(signal_day)
     if signal_day > latest:
@@ -149,10 +151,8 @@ def fetch_score(signal_day: date, mode: str) -> dict[str, Any]:
     elif mode == "intraday":
         status = "intraday_provisional"
     else:
-        if page_updated.date() != signal_day or page_updated.time() < time(15, 0):
+        if page_updated.date() != signal_day or page_updated.time() <= time(15, 0):
             raise RuntimeError(f"恐贪 {signal_day} 指标页尚无收盘后更新，暂停确认信号")
-        if page_updated > fetched:
-            raise RuntimeError("恐贪网页更新时间晚于实际获取时刻")
         status = "same_day_post_close"
     return {
         "fear_greed_index": value,
