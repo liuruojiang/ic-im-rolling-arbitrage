@@ -6211,9 +6211,24 @@ class ICIMMainlinesBot:
                     if _SIGNAL_OBSERVER is not None:
                         _SIGNAL_OBSERVER(product, dict(live))
                 except Exception as exc:  # noqa: BLE001 - isolate each live product.
+                    fear_line = ""
+                    if _now_beijing().date() >= fear_grid.EFFECTIVE_SIGNAL_DATE:
+                        try:
+                            observed_fear = fear_grid.fetch_score(
+                                _now_beijing().date(),
+                                "intraday" if mode == "intraday" else "close",
+                            )
+                            fear_line = (
+                                f"当日恐慌指数：{observed_fear['fear_greed_index'] if observed_fear['fear_greed_index'] is not None else '未发布'}"
+                                f"；数据日 {observed_fear['fear_data_date'] or '未发布'}；"
+                                f"状态 `{observed_fear['fear_data_status']}`（仅独立观察）。\n\n"
+                            )
+                        except Exception as fear_exc:  # noqa: BLE001 - warning must still render.
+                            fear_line = f"当日恐慌指数：未核验（{fear_exc}）。\n\n"
                     msg.write(
-                        f"### {PRODUCT_NAMES[product]}\n\n⚠️ 完整信号失败：{exc}\n\n"
-                        "已暂停该品种的新增/调整信号；不会用NaN、陈旧行情或未重放账本"
+                        f"### {PRODUCT_NAMES[product]}\n\n⚠️ 当日信号警告：{exc}\n\n"
+                        + fear_line
+                        + "该品种的新目标尚未确认；不会用NaN、陈旧行情或未重放账本"
                         "推导替代目标。\n\n"
                     )
                     try:
@@ -6321,6 +6336,7 @@ class ICIMMainlinesBot:
                 if live["market_date"] >= fear_grid.EFFECTIVE_SIGNAL_DATE:
                     msg.write(
                         f"- 恐贪读数：**{live.get('fear_greed_index', '缺失')}**；"
+                        f"数据日 `{live.get('fear_data_date') or '未发布'}`；"
                         f"数据状态 `{live.get('fear_data_status', 'N/A')}`；"
                         f"网格来源 `{live.get('grid_entry_source_current', 'N/A')}` → "
                         f"`{live.get('grid_entry_source_target', 'N/A')}`。\n\n"

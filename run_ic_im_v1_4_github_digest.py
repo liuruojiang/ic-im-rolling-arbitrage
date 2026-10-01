@@ -437,6 +437,26 @@ def write_failure(
                       clock.date() if mode == "realtime" else strategy._latest_completed_exchange_day(clock))
     except (ValueError, RuntimeError):
         signal_day = clock.date()
+    fear_observation: dict[str, Any] = {
+        "fear_greed_index": None,
+        "fear_data_date": None,
+        "fear_data_status": "unavailable",
+        "fear_warning": "当日恐慌指数尚未取得可核验读数",
+    }
+    if signal_day >= strategy.v14_policy.FEAR_GRID_EFFECTIVE_SIGNAL_DATE:
+        try:
+            observed = strategy.fear_grid.fetch_score(
+                signal_day, "intraday" if mode == "realtime" else "close"
+            )
+            fear_observation.update({
+                key: observed.get(key)
+                for key in ("fear_greed_index", "fear_data_date", "fear_data_status")
+            })
+            fear_observation["fear_warning"] = "信号未确认；恐慌读数仅为独立观察"
+        except Exception as fear_exc:
+            fear_observation["fear_warning"] = (
+                f"当日恐慌指数未核验：{type(fear_exc).__name__}: {fear_exc}"
+            )
     payload = {
         "status": "failed",
         "delivery_revision": delivery_revision_for_signal_day(signal_day),
@@ -450,6 +470,7 @@ def write_failure(
         "publication_mode": "realtime" if mode == "realtime" else "close_confirmed",
         "error_type": type(exc).__name__,
         "error": str(exc),
+        **fear_observation,
     }
     _atomic_write_text(
         out_dir / "result.json", json.dumps(payload, ensure_ascii=False, indent=2) + "\n"
