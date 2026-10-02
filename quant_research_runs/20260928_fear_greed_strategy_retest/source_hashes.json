@@ -1,0 +1,20 @@
+{
+  "quant_research_runs\\20260928_fear_greed_strategy_retest\\retest_fear_gated_grid.py": "e63654239c5a6b0eb38e8654a03f5e75422fe065b327ec8b45f46ebf4749393f",
+  "quant_research_runs\\20260928_csi1000_fear_greed_reproduction\\data_manifest.json": "ec1920d3d5ab336db69cb6e00646299f2723f5548fc9bb0f2e0c458b3b426951",
+  "quant_research_runs\\20260928_csi1000_fear_greed_reproduction\\inputs\\fear_greed_full.csv": "1b209c9166250ef4d320503386a94d6e3b868595d38fd687a03d7acea7cb7de9",
+  "quant_research_runs\\20260928_csi1000_fear_greed_reproduction\\aligned_daily_inputs.csv": "3739fc1d45e67b81487fc635aac6b4633d6709b140d65293fcad47e891194bff",
+  "quant_param_scan_runs\\20260908_im_mom120_put102_combined_v1\\real_fixed_base.csv.gz": "0d318bbb4177ed99d42d90c04d511e133d26f155aac56f234300abc50f5a71db",
+  "quant_param_scan_runs\\20260908_im_mom120_put102_combined_v1\\real_combined_put.csv.gz": "3985eedd1d834caa1f0294fbbeaa6dad5057e822867948434346e66928a849db",
+  "quant_param_scan_runs\\20260908_im_mom120_put102_combined_v1\\real_fixed_call.csv.gz": "cc4ee3cc30acd42345a4eb230bc102511951e1266c714841bbe98ddba7871023",
+  "quant_param_scan_runs\\20260914_im_grid_half_full_audit_v3\\real_original160_half_daily.csv.gz": "5b733c0c8548b0883b3612f8f9426a38289d7cf65334b8ed23eeab80081aa54a",
+  "quant_param_scan_runs\\20260914_im_grid_half_full_audit_v3\\real_no_grid_daily.csv.gz": "ac29eb1fc7da611f88936da3e2cb0128076377f84a6c32528dfcdefd0ed3f402",
+  "quant_param_scan_runs\\20260908_im_put_revalidation_layer1_v1\\valuation_state_through_last_required_eval.csv.gz": "5ce0905240583622b08e2f1c3438b66f5345dc46aad3645e08a0e69d6bf86753",
+  "quant_param_scan_runs\\20260908_im_put_revalidation_layer1_v1\\model_market.csv.gz": "f7d58723c48e88d6258bc03066da287d99d04b05a219e5aba73017eb672549a5",
+  "quant_param_scan_runs\\20260908_im_put_revalidation_layer1_v1\\real_upstream.csv.gz": "b5ddcfa271aa4dc84584b27ccb7b4b8fdba01864b6807bef2e46ce74d2890b19",
+  "quant_param_scan_runs\\20260908_im_full_combination_momentum_put_signal_v1\\official_im_quotes.csv.gz": "3189b660e323009ef358d3bff918466820a4fb30ffbb6be6d43333eab7b449b9",
+  "quant_param_scan_runs\\20260908_im_full_combination_momentum_put_signal_v1\\quarter1_close_bridges.csv.gz": "dc3ed6c6d87a4e8648724f2269fa3c7ae253c3440ba02ef92fe75575115f6aa2",
+  "quant_param_scan_runs\\20260908_im_full_combination_joint_iv_derisk_v1\\real_baseline_call_trades.csv.gz": "27bd11a049bac6680e1bb3542a0780bdafda714bc61fcec0679dc0e2d8d047b8",
+  "im_fixed_valuation_overlay_entry_exit_scan_v15.py": "d80e7286de1d6571c59b79f965f78a733e7a8243fc3724d581d792d31b3a3aa0",
+  "quant_param_scan_runs\\20260908_im_full_combination_momentum_put_signal_v1\\full_components.py": "17f9a7b01b1155c155d8b064d8d9d473af140a89a13fa94e54421d169f1b3163",
+  ".codex_backups\\cleanup_20260907_1800\\root_research_scripts\\research_im_r7_two_tier_grid_v1.py": "1df5d4d86cddc7532e3642eec4df85e8cda709effd5051c94bb1b6ca99df60f7"
+}

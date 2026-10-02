@@ -1,0 +1,51 @@
+{
+  "status": "RETROSPECTIVE_SNAPSHOT_ONLY",
+  "retrieved": {
+    "fear_greed_full.csv": {
+      "url": "https://baifenwei.com/data/fear-greed/fear-greed-full.csv",
+      "retrieved_utc": "2026-09-30T15:29:00+00:00",
+      "status": 200,
+      "sha256": "b705b269642ba9d8784552aed2da5270c08a03ad5d2749d161082fa55dc6943c",
+      "byte_count": 136337,
+      "etag": "\"b6ede5a979d9d152029e3733f57a4f4d\"",
+      "last_modified": null,
+      "date_header": "Wed, 30 Sep 2026 15:28:59 GMT"
+    },
+    "subscores.json": {
+      "url": "https://baifenwei.com/data/fear-greed/subscores.json",
+      "retrieved_utc": "2026-09-30T15:29:01+00:00",
+      "status": 200,
+      "sha256": "94068d1dcb750460495e8dc8e894b6a836bf2af6f5c1fa842ac8ab72a9f9e9f7",
+      "byte_count": 35041,
+      "etag": "W/\"1ccf0af075759cad2e305571fbd503e1\"",
+      "last_modified": null,
+      "date_header": "Wed, 30 Sep 2026 15:29:01 GMT"
+    }
+  },
+  "full_csv_rows": 8019,
+  "full_csv_first_date": "1993-08-27",
+  "full_csv_last_date": "2026-09-30",
+  "prior_snapshot_path": "D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20260928_csi1000_fear_greed_reproduction\\inputs\\fear_greed_full.csv",
+  "prior_snapshot_sha256": "1b209c9166250ef4d320503386a94d6e3b868595d38fd687a03d7acea7cb7de9",
+  "prior_rows": 8016,
+  "prior_overlap_changed_dates": [],
+  "new_dates_since_prior": [
+    "2026-09-28",
+    "2026-09-29",
+    "2026-09-30"
+  ],
+  "missing_2026_07_27": true,
+  "subscore_rows": 725,
+  "subscore_first_date": "2023-10-09",
+  "subscore_last_date": "2026-09-30",
+  "subscore_names": [
+    "volatility",
+    "relative_turnover_rate",
+    "margin_trading",
+    "market_breadth",
+    "rsi",
+    "limit_up_down_ratio"
+  ],
+  "subscore_generated_at": "2026-09-30T23:01:16",
+  "point_in_time_vintages_obtained": false
+}

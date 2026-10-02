@@ -1,0 +1,22 @@
+{
+  "passed": true,
+  "fear_input_hash_matches_registered_reproduction": true,
+  "baseline_grid_replay_max_abs_error": {
+    "overlay_gross_ret": 9.939423416260862e-17,
+    "overlay_cost_rate": 0.0,
+    "overlay_held_eod": 0.0,
+    "grid_carry": 0.0
+  },
+  "full_portfolio_baseline_max_abs_error": {
+    "ret": 9.974659986866641e-17,
+    "nav": 4.440892098500626e-16,
+    "cash_weight": 5.551115123125783e-17,
+    "futures_gross_ret": 9.974659986866641e-17,
+    "futures_cost_rate": 5.421010862427522e-20
+  },
+  "candidate_independent_accounting": true,
+  "unchanged_base_put_call_components": true,
+  "production_modified": false,
+  "fear_cutoff": "<=25",
+  "lookahead_rule": "signal close t, execute next listed session open"
+}

@@ -1,0 +1,5 @@
+﻿path,action,signal_date,signal_ic_score,signal_fear_score,execution_date,contract,execution_open,cycle_id
+valuation_only,buy,2022-03-15,0.3861036837376398,16.93,2022-03-16,IC2206,5859.6,1
+valuation_only,sell,2022-07-04,1.0067961882535998,66.78,2022-07-05,IC2209,6424.4,1
+fear_le25_confirmed,buy,2022-03-15,0.3861036837376398,16.93,2022-03-16,IC2206,5859.6,1
+fear_le25_confirmed,sell,2022-07-04,1.0067961882535998,66.78,2022-07-05,IC2209,6424.4,1

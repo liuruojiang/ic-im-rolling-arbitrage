@@ -1,0 +1,11 @@
+{
+  "quant_research_runs\\20260928_csi1000_fear_greed_reproduction\\inputs\\fear_greed_full.csv": "1b209c9166250ef4d320503386a94d6e3b868595d38fd687a03d7acea7cb7de9",
+  "outputs\\ic_mainline_v1_3\\target_schedule.csv.gz": "eb764f52f943a363391868768646030fababc77c712812715089a70e868c4746",
+  "quant_param_scan_runs\\20260904_ic_v13_full_roll_tenor_timing_v2\\candidate_checkpoints\\quarter_T3_fixed.csv.gz": "fd6bc4be29d8f6f35875affb8dd0efc1498346625fcbe26d34b1b6fc9ef1d3af",
+  "data\\ic_monthly_discount_roll_v1\\cffex_ic_contracts.csv": "4e02b889747112459125999382c3ff2fe89017aaea30df05e91bb2a7bc1e2104",
+  "outputs\\nav_r7_complete_refresh_20260912\\ic_full_daily.csv.gz": "710324f54dee23613a651bc0f18b52b57aba94941704d16d693beaa101621baa",
+  "quant_param_scan_runs\\20260913_ic_grid_own_calibration\\daily_candidates.csv.gz": "0661046969144da2af5081bf87366043dc2365507dcf88e6e8fd76d257c3d1f4",
+  "quant_param_scan_runs\\20260913_ic_grid_own_calibration\\trade_events.csv": "83589ad21acfb94c4028b868c96c483c22f1abdc548fff961cf8ceaff75b72bf",
+  "quant_research_runs\\20260928_ic_fear_grid_retest\\retest_ic_fear_gated_grid.py": "c2bff3c475b75d41740423c456f77fe5188b4da650150de35f14598375c6379d",
+  "quant_research_runs\\20260928_ic_fear_grid_retest\\preregistered_spec.md": "31861d85d87935976cab552607f47ef1ea24ccfa7053d461bc8ccc78c39b7fd1"
+}

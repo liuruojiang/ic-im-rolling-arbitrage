@@ -1,0 +1,123 @@
+{
+  "status": "research_diagnostic_reproduction",
+  "generated_at_asia_shanghai": "2026-09-28T10:17:00+08:00",
+  "window": {
+    "start": "2022-07-22",
+    "end": "2026-09-18"
+  },
+  "fear_data_source": {
+    "url": "https://baifenwei.com/data/fear-greed/fear-greed-full.csv",
+    "page_url": "https://baifenwei.com/indicator/fear-greed/",
+    "methodology_url": "https://baifenwei.com/methodology/",
+    "snapshot": "inputs\\fear_greed_full.csv",
+    "sha256": "1b209c9166250ef4d320503386a94d6e3b868595d38fd687a03d7acea7cb7de9",
+    "fields": [
+      "date",
+      "fear_greed_index"
+    ],
+    "source_description": "Baifenwei A-share composite fear-greed series; downloaded full history, then restricted to the registered sample window.",
+    "current_page_band_labels": [
+      "0–25",
+      "26–45",
+      "46–55",
+      "56–75",
+      "76–100"
+    ]
+  },
+  "price_data_source": {
+    "url": "https://www.csindex.com.cn/csindex-home/perf/index-perf",
+    "query": {
+      "indexCode": "000852",
+      "startDate": "20220722",
+      "endDate": "20260918"
+    },
+    "snapshot": "inputs\\csi1000_official_ohlc_response.json",
+    "sha256": "f8a635405857fc2a2b32bb9618e8887229a650e69dde74792209faf45d31ccac",
+    "fields_used": [
+      "tradeDate",
+      "open",
+      "close"
+    ],
+    "adjustment": "official CSI 1000 price index levels; no price adjustment"
+  },
+  "input_coverage": {
+    "fear_csv_rows_full": 8016,
+    "fear_csv_first_date_full": "1993-08-27",
+    "fear_csv_last_date_full": "2026-09-24",
+    "fear_rows_in_window": 1010,
+    "official_price_rows_in_window": 1011,
+    "aligned_rows": 1010,
+    "aligned_first_date": "2022-07-22",
+    "aligned_last_date": "2026-09-18",
+    "official_dates_without_fear_score": [
+      "2026-07-27"
+    ],
+    "fear_dates_without_official_price": [],
+    "fear_score_min": 5.47,
+    "fear_score_max": 99.87,
+    "fear_band_full_window_counts": {
+      "0–24，极冷": 29,
+      "25–44，偏冷": 329,
+      "45–54，中性": 265,
+      "55–74，偏热": 326,
+      "75–100，极热": 61
+    }
+  },
+  "price_close_crosscheck": {
+    "available": true,
+    "path": "data/ic_im_valuation_risk_premium_forecast_v3/csindex_000852.csv",
+    "overlap_rows": 986,
+    "maximum_absolute_close_difference": 0.0,
+    "all_overlapping_closes_equal": true
+  },
+  "calculation": {
+    "signal_clock": "Fear-greed value dated t is assumed known after t close.",
+    "screenshot_reproduction_entry": "Open of the next row after the date inner-join; this reproduces every displayed screenshot cell at two decimals.",
+    "screenshot_reproduction_exit": "Close at N rows after the signal on the inner-joined series; entry session counts as holding day 1.",
+    "strict_calendar_entry": "Open of the next official CSI 1000 session after the signal date, even if that session has no fear score.",
+    "strict_calendar_exit": "Close of the Nth official CSI 1000 session after the signal date; all intervening official closes enter the drawdown path.",
+    "forward_return": "exit close / entry open - 1; arithmetic mean across signal episodes.",
+    "interval_max_drawdown": "For each episode, use [entry open, close of entry session, ..., close of exit session] and compute the minimum price / prior running peak - 1; report the arithmetic mean of episode drawdowns.",
+    "fear_bands": {
+      "0–24，极冷": "[0, 25)",
+      "25–44，偏冷": "[25, 45)",
+      "45–54，中性": "[45, 55)",
+      "55–74，偏热": "[55, 75)",
+      "75–100，极热": "[75, 101)"
+    },
+    "transaction_costs": "none; descriptive conditional index statistics only",
+    "overlap": "Signal windows overlap; sample counts are not independent events."
+  },
+  "valid_samples_by_horizon": {
+    "5": 1005,
+    "10": 1000,
+    "20": 990
+  },
+  "strict_calendar_valid_samples_by_horizon": {
+    "5": 1005,
+    "10": 1000,
+    "20": 990
+  },
+  "calendar_alignment_sensitivity": {
+    "episode_entry_or_exit_dates_changed_by_horizon": {
+      "5": 5,
+      "10": 10,
+      "20": 20
+    },
+    "source_of_difference": "Fear CSV has no score on 2026-07-27; the strict variant preserves that official price session in subsequent holding paths."
+  },
+  "outputs": {
+    "aligned_daily_inputs.csv": 1010,
+    "episode_results.csv": 2995,
+    "results.csv": 15,
+    "strict_calendar_episode_results.csv": 2995,
+    "strict_calendar_results.csv": 15,
+    "calendar_sensitivity.csv": 15
+  },
+  "runtime": {
+    "python": "3.14.4",
+    "pandas": "2.3.3",
+    "numpy": "2.4.3",
+    "script_sha256": "1acc8da488311083946fec0a40c3ded34b641056405c5cff9a03f4af470e4f02"
+  }
+}

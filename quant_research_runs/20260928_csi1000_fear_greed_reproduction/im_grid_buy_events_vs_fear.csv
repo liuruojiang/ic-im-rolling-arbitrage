@@ -1,0 +1,3 @@
+﻿layer,candidate,family,low_threshold,high_threshold,action,signal_date,signal_value,execution_date,execution_reason,execution_contract,execution_open,execution_volume,tier,size,fear_greed_index,fear_band,signal_in_extreme_fear
+real,L1.60_H2.00,fixed_score,1.6,2.0,buy,2022-10-10,1.54,2022-10-11,t_plus_1_open,IM2212,5882.0,11556,1,0.5,24.29,0–24，极冷,True
+real,L1.60_H2.00,fixed_score,1.6,2.0,buy,2024-01-17,1.5507013732833954,2024-01-18,t_plus_1_open,IM2403,5203.8,60621,1,0.5,28.12,25–44，偏冷,False

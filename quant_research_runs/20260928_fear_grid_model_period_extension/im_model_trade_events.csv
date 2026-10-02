@@ -1,0 +1,9 @@
+﻿layer,candidate,family,low_threshold,high_threshold,action,signal_date,signal_value,execution_date,execution_reason,execution_contract,execution_open,execution_volume,tier,size,signal_fear_score,path
+model,L1.60_H2.00,fixed_score,1.6,2.0,buy,2018-10-18,1.482196114996115,2018-10-19,t_plus_1_open,CSI1000_MODEL,4345.564510960516,,1,0.5,18.42,valuation_only
+model,L1.60_H2.00,fixed_score,1.6,2.0,sell,2019-02-22,2.0017163107397087,2019-02-25,t_plus_1_open,CSI1000_MODEL,5464.050131437629,,1,0.5,85.82,valuation_only
+model,L1.60_H2.00,fixed_score,1.6,2.0,buy,2022-04-25,1.406918618774937,2022-04-26,t_plus_1_open,CSI1000_MODEL,5954.137095159631,,1,0.5,10.27,valuation_only
+model,L1.60_H2.00,fixed_score,1.6,2.0,sell,2022-06-06,2.01047685305502,2022-06-07,t_plus_1_open,CSI1000_MODEL,7281.772523974336,,1,0.5,69.35,valuation_only
+model,L1.60_H2.00,fixed_score,1.6,2.0,buy,2018-10-18,1.482196114996115,2018-10-19,t_plus_1_open,CSI1000_MODEL,4345.564510960516,,1,0.5,18.42,fear_le25_confirmed
+model,L1.60_H2.00,fixed_score,1.6,2.0,sell,2019-02-22,2.0017163107397087,2019-02-25,t_plus_1_open,CSI1000_MODEL,5464.050131437629,,1,0.5,85.82,fear_le25_confirmed
+model,L1.60_H2.00,fixed_score,1.6,2.0,buy,2022-04-25,1.406918618774937,2022-04-26,t_plus_1_open,CSI1000_MODEL,5954.137095159631,,1,0.5,10.27,fear_le25_confirmed
+model,L1.60_H2.00,fixed_score,1.6,2.0,sell,2022-06-06,2.01047685305502,2022-06-07,t_plus_1_open,CSI1000_MODEL,7281.772523974336,,1,0.5,69.35,fear_le25_confirmed

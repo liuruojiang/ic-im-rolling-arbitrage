@@ -1,0 +1,286 @@
+{
+  "status": "PASS",
+  "fear_input_hash_matches_registered_snapshot": true,
+  "fear_score_range_0_100": true,
+  "im": {
+    "market_sessions": 1770,
+    "fear_missing_sessions": 0,
+    "fear_le25_days": 115,
+    "fear_le25_and_score_le1_6_days": 5,
+    "score_le1_6_days": 13,
+    "baseline_entries": 2,
+    "candidate_entries": 2,
+    "baseline_entry_signal_fear_scores": [
+      18.42,
+      10.27
+    ],
+    "candidate_entry_signal_fear_scores": [
+      18.42,
+      10.27
+    ],
+    "grid_parity_max_abs": {
+      "overlay_gross_ret": 9.996344030316351e-17,
+      "overlay_cost_rate": 0.0,
+      "overlay_held_eod": 0.0,
+      "grid_carry": 0.0
+    },
+    "portfolio_parity_max_abs": {
+      "ret": 9.974659986866641e-17,
+      "nav": 1.7763568394002505e-15,
+      "cash_weight": 5.551115123125783e-17,
+      "futures_gross_ret": 9.8879238130678e-17,
+      "futures_cost_rate": 5.421010862427522e-20
+    },
+    "no_grid_parity_max_abs": {
+      "ret": 9.974659986866641e-17,
+      "nav": 8.881784197001252e-16,
+      "cash_weight": 5.551115123125783e-17,
+      "futures_gross_ret": 0.0,
+      "futures_cost_rate": 0.0
+    },
+    "independent_accounting_max_abs": 0.0,
+    "fear_vs_valuation_prelisting_path_max_abs": {
+      "ret": 0.0,
+      "nav": 0.0
+    },
+    "unchanged_non_grid_components": true,
+    "fear_gate_coverage_complete": true,
+    "production_modified": false,
+    "summaries": [
+      {
+        "instrument": "IM",
+        "candidate": "module_off_no_grid",
+        "start": "2015-04-16",
+        "end": "2022-07-21",
+        "rows": 1769,
+        "ann_return": 0.15270298727698162,
+        "ann_vol": 0.1142513033945012,
+        "sharpe_repo": 1.301291009871515,
+        "max_dd": -0.10660698214632602,
+        "total_return": 1.7117302295934027,
+        "dd_peak": "2020-02-25",
+        "dd_trough": "2020-03-23",
+        "trading_days": 1770,
+        "grid_held_days": 0,
+        "min_cash": 0.30769694524450303,
+        "grid_entries": 0,
+        "grid_exits": 0,
+        "grid_carry_sum": 0.0
+      },
+      {
+        "instrument": "IM",
+        "candidate": "IM_valuation_1.6_2.0_grid_half",
+        "start": "2015-04-16",
+        "end": "2022-07-21",
+        "rows": 1769,
+        "ann_return": 0.19159553795184858,
+        "ann_vol": 0.11937459059947896,
+        "sharpe_repo": 1.5285707716073658,
+        "max_dd": -0.10660698214632569,
+        "total_return": 2.423044707859321,
+        "dd_peak": "2020-02-25",
+        "dd_trough": "2020-03-23",
+        "trading_days": 1770,
+        "grid_held_days": 110,
+        "min_cash": 0.30769694524450303,
+        "grid_entries": 2,
+        "grid_exits": 2,
+        "grid_carry_sum": 0.0165
+      },
+      {
+        "instrument": "IM",
+        "candidate": "fear_le25_IM_grid_half",
+        "start": "2015-04-16",
+        "end": "2022-07-21",
+        "rows": 1769,
+        "ann_return": 0.19159553795184858,
+        "ann_vol": 0.11937459059947896,
+        "sharpe_repo": 1.5285707716073658,
+        "max_dd": -0.10660698214632569,
+        "total_return": 2.423044707859321,
+        "dd_peak": "2020-02-25",
+        "dd_trough": "2020-03-23",
+        "trading_days": 1770,
+        "grid_held_days": 110,
+        "min_cash": 0.30769694524450303,
+        "grid_entries": 2,
+        "grid_exits": 2,
+        "grid_carry_sum": 0.0165
+      }
+    ],
+    "carry_sensitivity": [
+      {
+        "instrument": "IM",
+        "candidate": "IM_valuation_1.6_2.0_grid_half",
+        "modeled_long_carry_per_unit_daily": 0.0,
+        "start": "2015-04-16",
+        "end": "2022-07-21",
+        "rows": 1769,
+        "ann_return": 0.1300968990581639,
+        "ann_vol": 0.11924732200961664,
+        "sharpe_repo": 1.0854619824221003,
+        "max_dd": -0.1313623440595998,
+        "total_return": 1.359737342659745,
+        "dd_peak": "2016-01-19",
+        "dd_trough": "2017-03-24",
+        "trading_days": 1770,
+        "grid_held_days": 110,
+        "min_cash": 0.30769694524450303
+      },
+      {
+        "instrument": "IM",
+        "candidate": "fear_le25_IM_grid_half",
+        "modeled_long_carry_per_unit_daily": 0.0,
+        "start": "2015-04-16",
+        "end": "2022-07-21",
+        "rows": 1769,
+        "ann_return": 0.1300968990581639,
+        "ann_vol": 0.11924732200961664,
+        "sharpe_repo": 1.0854619824221003,
+        "max_dd": -0.1313623440595998,
+        "total_return": 1.359737342659745,
+        "dd_peak": "2016-01-19",
+        "dd_trough": "2017-03-24",
+        "trading_days": 1770,
+        "grid_held_days": 110,
+        "min_cash": 0.30769694524450303
+      },
+      {
+        "instrument": "IM",
+        "candidate": "module_off_no_grid",
+        "modeled_long_carry_per_unit_daily": 0.0,
+        "start": "2015-04-16",
+        "end": "2022-07-21",
+        "rows": 1769,
+        "ann_return": 0.09577148096938082,
+        "ann_vol": 0.11415375590494618,
+        "sharpe_repo": 0.8584082868547829,
+        "max_dd": -0.1313623440595998,
+        "total_return": 0.9003257221285388,
+        "dd_peak": "2016-01-19",
+        "dd_trough": "2017-03-24",
+        "trading_days": 1770,
+        "grid_held_days": 0,
+        "min_cash": 0.30769694524450303
+      },
+      {
+        "instrument": "IM",
+        "candidate": "IM_valuation_1.6_2.0_grid_half",
+        "modeled_long_carry_per_unit_daily": 0.0003,
+        "start": "2015-04-16",
+        "end": "2022-07-21",
+        "rows": 1769,
+        "ann_return": 0.19159553795184858,
+        "ann_vol": 0.11937459059947896,
+        "sharpe_repo": 1.5285707716073658,
+        "max_dd": -0.10660698214632569,
+        "total_return": 2.423044707859321,
+        "dd_peak": "2020-02-25",
+        "dd_trough": "2020-03-23",
+        "trading_days": 1770,
+        "grid_held_days": 110,
+        "min_cash": 0.30769694524450303
+      },
+      {
+        "instrument": "IM",
+        "candidate": "fear_le25_IM_grid_half",
+        "modeled_long_carry_per_unit_daily": 0.0003,
+        "start": "2015-04-16",
+        "end": "2022-07-21",
+        "rows": 1769,
+        "ann_return": 0.19159553795184858,
+        "ann_vol": 0.11937459059947896,
+        "sharpe_repo": 1.5285707716073658,
+        "max_dd": -0.10660698214632569,
+        "total_return": 2.423044707859321,
+        "dd_peak": "2020-02-25",
+        "dd_trough": "2020-03-23",
+        "trading_days": 1770,
+        "grid_held_days": 110,
+        "min_cash": 0.30769694524450303
+      },
+      {
+        "instrument": "IM",
+        "candidate": "module_off_no_grid",
+        "modeled_long_carry_per_unit_daily": 0.0003,
+        "start": "2015-04-16",
+        "end": "2022-07-21",
+        "rows": 1769,
+        "ann_return": 0.15270298727698162,
+        "ann_vol": 0.1142513033945012,
+        "sharpe_repo": 1.301291009871515,
+        "max_dd": -0.10660698214632602,
+        "total_return": 1.7117302295934027,
+        "dd_peak": "2020-02-25",
+        "dd_trough": "2020-03-23",
+        "trading_days": 1770,
+        "grid_held_days": 0,
+        "min_cash": 0.30769694524450303
+      }
+    ]
+  },
+  "ic": {
+    "market_sessions": 1810,
+    "fear_missing_sessions": 0,
+    "fear_le25_days": 116,
+    "fear_le25_and_score_le0_5_days": 11,
+    "score_le0_5_days": 29,
+    "baseline_entries": 1,
+    "candidate_entries": 1,
+    "fear_blocked_valuation_entry_days": 0,
+    "baseline_entry_events": [
+      {
+        "signal_date": "2022-03-15",
+        "signal_fear_score": 16.93,
+        "execution_date": "2022-03-16",
+        "execution_open": 5859.6
+      }
+    ],
+    "candidate_entry_events": [
+      {
+        "signal_date": "2022-03-15",
+        "signal_fear_score": 16.93,
+        "execution_date": "2022-03-16",
+        "execution_open": 5859.6
+      }
+    ],
+    "frozen_target_grid_parity_max_abs": {
+      "held_state": 0.0,
+      "buy_events": 0.0,
+      "sell_events": 0.0
+    },
+    "saved_calibration_parity_max_abs": {
+      "held_state": 0.0,
+      "grid_net_increment_1x": 9.8879238130678e-17
+    },
+    "saved_calibration_events_match": true,
+    "saved_calibration_recomposition_max_abs": 9.8879238130678e-17,
+    "formal_daily_return_parity_max_abs": 0.0,
+    "valuation_score_target_parity_max_abs": 0.0,
+    "official_quote_missing_rows": 0,
+    "official_t3_roll_bridge_days": 31,
+    "official_t3_roll_bridge_max_abs_error": 2.5673907444456745e-16,
+    "grid_held_t3_roll_events_1x": [
+      {
+        "date": "2022-06-14",
+        "contract": "IC2206",
+        "gross_return_1x": 0.0018223514359352,
+        "cost_rate_1x": 0.0002,
+        "grid_net_increment_1x": 0.0016219869656479702
+      }
+    ],
+    "common_calendar": true,
+    "fear_vs_valuation_prelisting_path_max_abs": {
+      "held_state": 0.0,
+      "buy_events": 0.0,
+      "sell_events": 0.0,
+      "grid_contribution": 0.0,
+      "portfolio_return": 0.0
+    },
+    "nonnegative_cash": true,
+    "theoretical_put_model_period": true,
+    "production_modified": false
+  },
+  "production_modified": false,
+  "decision": "research_only_no_promotion"
+}
