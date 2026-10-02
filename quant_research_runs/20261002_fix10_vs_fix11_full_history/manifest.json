@@ -1,0 +1,16 @@
+{
+  "input_sha256": "40ede7733d0be851016a7749a7d864fdc3b1d4003241c0fb18d46f76af943d32",
+  "producer_sha256": "0f371c74c1ae3639a1a1e7fd6a22a75a941176735bc32690fa3948532e061af0",
+  "helper_sha256": "65dd1b89b744c7993f68ec50ece547d282106a59da0ba1719968ccde30b0a029",
+  "research_script_sha256": "e726cc567f8412a207290ca63b0ea83c06c25dd53d26193b2b4e5238999719f3",
+  "spec_sha256": "867c02e3301d021f03b8358c584ad60e2122bcf79cba24c681e3d805d29d019e",
+  "fix11_saved_path_parity": "PASS",
+  "scope": "IC price-index momentum sleeve, full-history independent arm paths, no account/Put/grid",
+  "windows": [
+    "Full",
+    "10Y",
+    "5Y",
+    "3Y",
+    "1Y"
+  ]
+}

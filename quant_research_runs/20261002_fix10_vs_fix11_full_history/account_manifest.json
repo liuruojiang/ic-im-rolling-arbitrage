@@ -1,0 +1,17 @@
+{
+  "risk10_saved_parity": "PASS",
+  "risk_unchanged_columns_parity": "PASS",
+  "changed_momentum_target_days": 104,
+  "fix10_put_targets_saved_parity": "PASS",
+  "fix10_saved_full_account_parity": "PASS",
+  "scope": "IC listed full-account theoretical replay; Fear snapshot not point-in-time certified",
+  "fear_sha256": "1b209c9166250ef4d320503386a94d6e3b868595d38fd687a03d7acea7cb7de9",
+  "baseline_sha256": "bfadedc03c935848947f90a79c3ab080c87ef191fbb05e664bdd69eafa12cf18",
+  "formal_source_sha256": "0f371c74c1ae3639a1a1e7fd6a22a75a941176735bc32690fa3948532e061af0",
+  "research_script_sha256": "7e4a5b5f334f3fa2bf92d3cd9d4e405e60c65c3e74ebb2a48dbc4b9c837acdcc",
+  "spec_sha256": "867c02e3301d021f03b8358c584ad60e2122bcf79cba24c681e3d805d29d019e",
+  "target_sha256": {
+    "FIX10_full": "cf564f39318fc786ac406dbe3e9086a449085f95ea97a04fc789032586e94c18",
+    "FIX11_full": "b62e1b41ccb761577499cc0804888bbeaaae38058e18206f953455732d172100"
+  }
+}

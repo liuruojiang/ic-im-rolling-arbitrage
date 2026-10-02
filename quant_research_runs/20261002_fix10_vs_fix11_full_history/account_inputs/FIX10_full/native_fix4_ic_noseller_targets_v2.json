@@ -1,0 +1,10 @@
+{
+  "classification": "NATIVE_IC_RISK_AND_OPTION_TARGET_STAGE_NO_3X_SELLER_ACCOUNT_NAV",
+  "rows": 945,
+  "new_put_selections": 72,
+  "fail_closed_events": [],
+  "version": "v2",
+  "formal_producer_sha256": "0f371c74c1ae3639a1a1e7fd6a22a75a941176735bc32690fa3948532e061af0",
+  "input_risk_sha256": "2765472fef8070c359aa3386e3ade85ba3601635de17d6ba6e5e91e886cc3f15",
+  "not_a_nav": true
+}

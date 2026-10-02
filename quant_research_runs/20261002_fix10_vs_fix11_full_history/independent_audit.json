@@ -1,0 +1,37 @@
+{
+  "sleeve": {
+    "FIX10_full": {
+      "abs_state_mismatch": 0,
+      "base_nav_max_error": 1.7763568394002505e-15,
+      "return_max_error": 9.996344030316351e-17,
+      "trade_days": 423,
+      "turnover": 166.0
+    },
+    "FIX11_full": {
+      "abs_state_mismatch": 0,
+      "base_nav_max_error": 1.7763568394002505e-15,
+      "return_max_error": 9.985502008591496e-17,
+      "trade_days": 413,
+      "turnover": 163.5
+    }
+  },
+  "account": {
+    "FIX10_full": {
+      "nav_max_error": 7.194245199571014e-14,
+      "trade_events": 267,
+      "future_trades": 133,
+      "option_trades": 133,
+      "fee": 2443556.9907605746,
+      "fee_reconciliation_error": 1.3969838619232178e-09
+    },
+    "FIX11_full": {
+      "nav_max_error": 7.016609515630989e-14,
+      "trade_events": 270,
+      "future_trades": 135,
+      "option_trades": 134,
+      "fee": 2397656.5054765716,
+      "fee_reconciliation_error": 2.3283064365386963e-09
+    }
+  },
+  "grid_equal": true
+}
