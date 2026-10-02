@@ -1,0 +1,68 @@
+{
+  "input": "D:\\动量策略\\_worktrees\\icim-csi500-param-sync\\quant_research_runs\\20261002_ic_csi500_abs40_debounce\\sina_sh000905_ohlcv.csv",
+  "sha256": "40ede7733d0be851016a7749a7d864fdc3b1d4003241c0fb18d46f76af943d32",
+  "source": "Sina sh000905 via frozen IC/IM input",
+  "formal_source_sha256": "6d26a0705def0e247d43a19175607046d119eae8ab60c8ea9ea6e27dc4d9fa42",
+  "prior_research_runner_sha256": "65dd1b89b744c7993f68ec50ece547d282106a59da0ba1719968ccde30b0a029",
+  "raw_rows": 5282,
+  "formal_rows": 4792,
+  "formal_start": "2007-01-15",
+  "end": "2026-09-30",
+  "specs": {
+    "new_abs20_static": [
+      105,
+      1.6,
+      20,
+      "static"
+    ],
+    "new_abs20_debounce_all": [
+      105,
+      1.6,
+      20,
+      "debounce_all"
+    ],
+    "new_abs20_debounce_dated": [
+      105,
+      1.6,
+      20,
+      "icim_effective"
+    ],
+    "new_abs40_static": [
+      105,
+      1.6,
+      40,
+      "static"
+    ],
+    "new_abs40_debounce_all": [
+      105,
+      1.6,
+      40,
+      "debounce_all"
+    ],
+    "old_abs20_static": [
+      110,
+      2.0,
+      20,
+      "static"
+    ],
+    "old_abs20_debounce_dated": [
+      110,
+      2.0,
+      20,
+      "icim_effective"
+    ]
+  },
+  "formal_parity": {
+    "target_max_error": 0.0,
+    "execution_max_error": 0.0
+  },
+  "since_2026_09_16_new_abs20_static_equals_dated_target": true,
+  "event_definitions": {
+    "trade_days": "full-path execution_weight delta != 0; count by execution date including first window date",
+    "turnover": "sum abs(full-path execution_weight delta)",
+    "effective_abs_flips": "abs_on changes on signal day, first formal row excluded",
+    "abs_only_base_signals": "effective_abs flip while Score > 0 on both adjacent signal days",
+    "clean_abs_execution_trades": "above plus unchanged NAV gate, shifted to next execution row and trade observed"
+  },
+  "assumptions": "price-index paper sleeve, T close signal to next close-to-close return row; 2% idle cash, 10bp one-way turnover, 6%/50% NAV defense; excludes futures roll and real fills"
+}

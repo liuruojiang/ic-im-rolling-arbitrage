@@ -1,0 +1,6 @@
+left,right,left_only_trade_days,right_only_trade_days,shared_trade_days,shared_trade_different_size_or_direction,target_different_days,execution_weight_different_days,nav_gate_different_days
+new_abs20_static,new_abs20_debounce_all,137,110,329,43,223,223,121
+new_abs20_static,new_abs20_debounce_dated,0,0,466,0,0,0,0
+new_abs20_static,new_abs40_static,203,150,263,78,743,743,215
+new_abs40_static,new_abs40_debounce_all,120,73,293,18,193,193,84
+old_abs20_static,old_abs20_debounce_dated,0,0,466,0,0,0,0
