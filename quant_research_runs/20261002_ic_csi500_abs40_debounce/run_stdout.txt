@@ -1,0 +1,64 @@
+{
+  "input": "D:\\动量策略\\_worktrees\\icim-csi500-param-sync\\quant_research_runs\\20261002_ic_csi500_abs40_debounce\\sina_sh000905_ohlcv.csv",
+  "input_sha256": "40ede7733d0be851016a7749a7d864fdc3b1d4003241c0fb18d46f76af943d32",
+  "formal_source": "D:\\动量策略\\_worktrees\\icim-csi500-param-sync\\poe_ic_im_mainline_v1_4_bot.py",
+  "formal_source_sha256": "6d26a0705def0e247d43a19175607046d119eae8ab60c8ea9ea6e27dc4d9fa42",
+  "ashare_spec_hash": "59dfc7d293b80acdd1baaa5eea8ab154be4edd047d11f8217e1f954fe7cb7833",
+  "formal_baseline_max_error": {
+    "momentum_score": 0.0,
+    "abs20": 0.0,
+    "base_signal_target": 0.0,
+    "base_nav_for_dd": 0.0,
+    "base_dd_for_gate": 0.0,
+    "nav_decay_signal": 0.0,
+    "signal_target": 0.0,
+    "execution_weight": 0.0
+  },
+  "new_static_ashare_max_error": {
+    "score": 0.0,
+    "abs40": 0.0,
+    "base_target": 0.0,
+    "execution_weight": 0.0,
+    "strategy_ret": 0.0
+  },
+  "events": {
+    "static_vs_debounce_target_different_days": 193,
+    "static_vs_debounce_execution_different_days": 193,
+    "debounce_target_lower_days": 146,
+    "debounce_target_higher_days_due_to_nav_feedback": 47,
+    "debounce_blocks_full_base_days": 115,
+    "debounce_blocks_full_base_days_1y": 4,
+    "debounce_blocks_full_base_segments": 77,
+    "new_static_vs_debounce_different_since_live_debounce_date": 0,
+    "latest_signal_date": "2026-09-30",
+    "latest_static_target": 0.0,
+    "latest_debounce_target": 0.0
+  },
+  "assumptions": "CSI500 price-index close-to-close research sleeve; T close signal -> next return row; 2% idle cash, 10bp one-way turnover, 6%/50% base-NAV defense; no futures basis, options, margin or fills"
+}
+                   arm window      start        end  rows  total_return  annual_return_244    max_dd  mean_execution_weight  turnover  execution_switches  half_to_full  full_to_half  nav_gate_days
+    old_icim_effective   Full 2007-01-15 2026-09-30  4792      6.142437           0.105290 -0.290581               0.312709    188.50                 466            55            48           3710
+    old_icim_effective    10Y 2016-09-30 2026-09-30  2428      0.571587           0.046480 -0.121375               0.254325     77.00                 219            10             9           2161
+    old_icim_effective     5Y 2021-09-30 2026-09-30  1212      0.477908           0.081816 -0.115898               0.269389     39.00                 106             9             8            946
+    old_icim_effective     3Y 2023-10-09 2026-09-30   726      0.502019           0.146512 -0.115898               0.321281     25.25                  57             9             8            460
+    old_icim_effective     1Y 2025-09-30 2026-09-30   242      0.052386           0.052831 -0.115898               0.324380     10.50                  18             2             3             66
+            old_static   Full 2007-01-15 2026-09-30  4792      6.142437           0.105290 -0.290581               0.312709    188.50                 466            55            48           3710
+            old_static    10Y 2016-09-30 2026-09-30  2428      0.571587           0.046480 -0.121375               0.254325     77.00                 219            10             9           2161
+            old_static     5Y 2021-09-30 2026-09-30  1212      0.477908           0.081816 -0.115898               0.269389     39.00                 106             9             8            946
+            old_static     3Y 2023-10-09 2026-09-30   726      0.502019           0.146512 -0.115898               0.321281     25.25                  57             9             8            460
+            old_static     1Y 2025-09-30 2026-09-30   242      0.052386           0.052831 -0.115898               0.324380     10.50                  18             2             3             66
+            new_static   Full 2007-01-15 2026-09-30  4792      7.421672           0.114601 -0.234495               0.282659    163.50                 413            51            47           3805
+            new_static    10Y 2016-09-30 2026-09-30  2428      0.652638           0.051782 -0.098762               0.230745     63.00                 178             9             6           2165
+            new_static     5Y 2021-09-30 2026-09-30  1212      0.511240           0.086684 -0.098762               0.242368     31.50                  84             9             6            949
+            new_static     3Y 2023-10-09 2026-09-30   726      0.510715           0.148738 -0.098762               0.289945     21.75                  51             9             6            463
+            new_static     1Y 2025-09-30 2026-09-30   242      0.053568           0.054023 -0.097063               0.283058      9.50                  17             4             3             66
+      new_debounce_all   Full 2007-01-15 2026-09-30  4792      6.616513           0.108913 -0.232654               0.277702    147.00                 366            51            45           3791
+      new_debounce_all    10Y 2016-09-30 2026-09-30  2428      0.562988           0.045903 -0.104604               0.220449     54.50                 154             8             5           2180
+      new_debounce_all     5Y 2021-09-30 2026-09-30  1212      0.398437           0.069845 -0.104604               0.229167     28.00                  75             8             5            964
+      new_debounce_all     3Y 2023-10-09 2026-09-30   726      0.403283           0.120608 -0.104604               0.271350     19.25                  46             8             5            478
+      new_debounce_all     1Y 2025-09-30 2026-09-30   242      0.037260           0.037574 -0.104604               0.274793      9.50                  17             4             3             66
+new_debounce_effective   Full 2007-01-15 2026-09-30  4792      7.421672           0.114601 -0.234495               0.282659    163.50                 413            51            47           3805
+new_debounce_effective    10Y 2016-09-30 2026-09-30  2428      0.652638           0.051782 -0.098762               0.230745     63.00                 178             9             6           2165
+new_debounce_effective     5Y 2021-09-30 2026-09-30  1212      0.511240           0.086684 -0.098762               0.242368     31.50                  84             9             6            949
+new_debounce_effective     3Y 2023-10-09 2026-09-30   726      0.510715           0.148738 -0.098762               0.289945     21.75                  51             9             6            463
+new_debounce_effective     1Y 2025-09-30 2026-09-30   242      0.053568           0.054023 -0.097063               0.283058      9.50                  17             4             3             66

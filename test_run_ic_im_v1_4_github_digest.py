@@ -105,7 +105,9 @@ def test_delivery_identity_preserves_fix7_then_uses_fix9():
     assert "coreput3x-open-fix7" in strategy.v14_policy.identity_for_signal_day(date(2026, 9, 28))[0]
     assert "ic-seller-mom120-fix9" in digest.delivery_revision_for_signal_day(date(2026, 9, 29))
     assert "ic-seller-mom120-fix9" in strategy.v14_policy.FIX9_BUILD_ID
-    assert "fear-grid25-50-fix10" in strategy.BUILD_ID
+    assert "fear-grid25-50-fix10" in strategy.v14_policy.FIX10_BUILD_ID
+    assert "ic-csi500-abs40-fix11" in strategy.BUILD_ID
+    assert digest.delivery_revision_for_signal_day(date(2026, 10, 8)) == digest.DELIVERY_REVISION
     assert strategy.v14_policy.FIX6_BUILD_ID.endswith("-fix6-nocall-repeatroll-iciv30-qdelta05")
 
 

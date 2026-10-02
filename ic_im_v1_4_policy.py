@@ -12,8 +12,10 @@ from datetime import date
 from typing import Any
 
 
-BUILD_ID = "v1.4-20261008-r1-fear-grid25-50-fix10"
-RULE_REVISION = "ic_im_v1_4_fear_grid25_50_20261008_v1"
+BUILD_ID = "v1.4-20261008-r1-ic-csi500-abs40-fix11"
+RULE_REVISION = "ic_im_v1_4_ic_csi500_ma105_w16_abs40_static_20261008_v1"
+FIX10_BUILD_ID = "v1.4-20261008-r1-fear-grid25-50-fix10"
+FIX10_RULE_REVISION = "ic_im_v1_4_fear_grid25_50_20261008_v1"
 FIX9_BUILD_ID = "v1.4-20260929-r1-ordinaryput-open-ic-seller-mom120-fix9"
 FIX9_RULE_REVISION = "ic_im_v1_4_ordinaryput_open_ic_seller_mom120_20260929_v1"
 FIX8_BUILD_ID = "v1.4-20260929-r1-ordinaryput-open-fix8"
@@ -25,6 +27,7 @@ EFFECTIVE_SIGNAL_DATE = date(2026, 9, 18)
 # September 25 and earlier signals retain their original producer identity.
 BUILD_EFFECTIVE_SIGNAL_DATE = date(2026, 9, 29)
 FEAR_GRID_EFFECTIVE_SIGNAL_DATE = date(2026, 10, 8)
+IC_CSI500_EFFECTIVE_SIGNAL_DATE = date(2026, 10, 8)
 IC_SELLER_MOM120_EFFECTIVE_SIGNAL_DATE = BUILD_EFFECTIVE_SIGNAL_DATE
 ORDINARY_PUT_OPEN_EFFECTIVE_SIGNAL_DATE = BUILD_EFFECTIVE_SIGNAL_DATE
 PROFIT_OPEN_EFFECTIVE_SIGNAL_DATE = date(2026, 9, 28)
@@ -65,6 +68,8 @@ def identity_for_signal_day(value: date | str) -> tuple[str, str]:
         return FIX7_BUILD_ID, FIX7_RULE_REVISION
     if day < FEAR_GRID_EFFECTIVE_SIGNAL_DATE:
         return FIX9_BUILD_ID, FIX9_RULE_REVISION
+    if day < IC_CSI500_EFFECTIVE_SIGNAL_DATE:
+        return FIX10_BUILD_ID, FIX10_RULE_REVISION
     return BUILD_ID, RULE_REVISION
 
 PRODUCT_RULES = {

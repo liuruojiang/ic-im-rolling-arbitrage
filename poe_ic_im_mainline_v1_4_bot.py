@@ -238,6 +238,16 @@ IM_EXECUTION_FIX_REVISION = "im_put_execution_guards_20260908_v2"
 IM_PUT_EXECUTION_REVISION = "im_monthly_reset_20260907_v1"
 MOMENTUM_DEBOUNCE_POLICY_REVISION = "ic_im_mom120_abs20_2d_plus1_20260915_v1"
 MOMENTUM_DEBOUNCE_EFFECTIVE_DATE = date(2026, 9, 16)
+IC_MOMENTUM_POLICY_REVISION = "ic_csi500_ma105_mom24_w16_abs40_static_navdd6_20261008_v1"
+IC_MOMENTUM_EFFECTIVE_SIGNAL_DATE = v14_policy.IC_CSI500_EFFECTIVE_SIGNAL_DATE
+
+
+def ic_momentum_policy_revision(signal_day: date) -> str:
+    return (
+        IC_MOMENTUM_POLICY_REVISION
+        if signal_day >= IC_MOMENTUM_EFFECTIVE_SIGNAL_DATE
+        else MOMENTUM_DEBOUNCE_POLICY_REVISION
+    )
 DATA_CUTOFF = date(2026, 8, 14)
 V13_HISTORY_DATE_INDEX = {
     "IC": (date(2005, 1, 4), 5250, "beddc7d6e25a7cb87f1397fb605f3a8fd58c10536a95fb3097ba2ac38e70a56d"),
@@ -403,9 +413,9 @@ V13_FROZEN = {
 
 MOMENTUM_RULES = {
     "IC": {
-        "ma": 110,
+        "ma": 105,
         "days": 24,
-        "weight_end": 2.0,
+        "weight_end": 1.6,
         "formal_start": "2007-01-15",
         "nav_decay_threshold": 0.06,
         "nav_decay_scale": 0.5,
@@ -423,6 +433,7 @@ MOMENTUM_RULES = {
         "hot_scale": 0.0,
     },
 }
+IC_MOMENTUM_PREVIOUS_RULE = {"ma": 110, "days": 24, "weight_end": 2.0}
 V13_GRID_RULES = {
     "IC": {"entry": 0.500, "exit": 1.000, "units": 0.5},
     "IM": {"entry": 1.600, "exit": 2.000, "units": 0.5},
@@ -1530,10 +1541,12 @@ def im_targets(
     }
 
 
-def calc_v13_momentum_score(product: str, close: pd.Series) -> pd.Series:
+def calc_v13_momentum_score(
+    product: str, close: pd.Series, *, rule_override: dict | None = None
+) -> pd.Series:
     """Exact weighted bias-momentum score inherited from A-share v1.3."""
 
-    rule = MOMENTUM_RULES[product]
+    rule = rule_override if rule_override is not None else MOMENTUM_RULES[product]
     prices = pd.to_numeric(close, errors="coerce").to_numpy(dtype=float)
     result = np.full(len(prices), np.nan)
     ma_days = int(rule["ma"])
@@ -1671,7 +1684,14 @@ def v13_momentum_schedule(
     indicator_close = close.copy()
     score = calc_v13_momentum_score(product, indicator_close)
     abs20 = (indicator_close / indicator_close.shift(20) - 1.0).rename("abs20")
+    abs40 = (indicator_close / indicator_close.shift(40) - 1.0).rename("abs40")
     if product == "IC":
+        old_score = calc_v13_momentum_score(
+            product, indicator_close, rule_override=IC_MOMENTUM_PREVIOUS_RULE
+        )
+        score = old_score.where(
+            indicator_close.index < pd.Timestamp(IC_MOMENTUM_EFFECTIVE_SIGNAL_DATE), score
+        )
         formal_start = pd.Timestamp(MOMENTUM_RULES[product]["formal_start"])
         close = indicator_close.loc[indicator_close.index >= formal_start]
         if close.empty or close.index[0] != formal_start:
@@ -1680,6 +1700,7 @@ def v13_momentum_schedule(
             )
         score = score.reindex(close.index)
         abs20 = abs20.reindex(close.index)
+        abs40 = abs40.reindex(close.index)
         if not np.isfinite(float(score.iloc[0])) or not np.isfinite(float(abs20.iloc[0])):
             raise RuntimeError("IC OHLCV缺少正式期起点所需指标暖机历史")
     abs20_reentry_confirmed = _recovery_confirmed(abs20)
@@ -1688,7 +1709,26 @@ def v13_momentum_schedule(
         close.index < pd.Timestamp(MOMENTUM_DEBOUNCE_EFFECTIVE_DATE),
         abs20_reentry_confirmed,
     )
-    base_target = (score > 0).astype(float) * (0.5 + 0.5 * abs20_on.astype(float))
+    if product == "IC":
+        old_signal_day = close.index < pd.Timestamp(IC_MOMENTUM_EFFECTIVE_SIGNAL_DATE)
+        active_abs = abs20.where(old_signal_day, abs40).rename("abs_momentum")
+        active_abs_days = pd.Series(
+            np.where(old_signal_day, 20, 40), index=close.index, name="abs_momentum_days"
+        )
+        active_abs_on = abs20_on.where(old_signal_day, abs40.gt(0.0))
+        abs_debounce_active = pd.Series(False, index=close.index, name="abs_debounce_active")
+        abs_debounce_active.loc[old_signal_day] = (
+            close.index[old_signal_day] >= pd.Timestamp(MOMENTUM_DEBOUNCE_EFFECTIVE_DATE)
+        )
+    else:
+        active_abs = abs20.rename("abs_momentum")
+        active_abs_days = pd.Series(20, index=close.index, name="abs_momentum_days")
+        active_abs_on = abs20_on
+        abs_debounce_active = pd.Series(
+            close.index >= pd.Timestamp(MOMENTUM_DEBOUNCE_EFFECTIVE_DATE),
+            index=close.index, name="abs_debounce_active"
+        )
+    base_target = (score > 0).astype(float) * (0.5 + 0.5 * active_abs_on.astype(float))
     volume_ratio = pd.Series(np.nan, index=close.index, name="volume_ratio")
     volume_pass = pd.Series(True, index=close.index, name="volume_pass")
     volume_placeholder = pd.Series(False, index=close.index, name="volume_placeholder")
@@ -1759,7 +1799,12 @@ def v13_momentum_schedule(
             "close": close,
             "momentum_score": score,
             "abs20": abs20,
+            "abs40": abs40,
             "abs20_reentry_confirmed": abs20_reentry_confirmed,
+            "abs_momentum": active_abs,
+            "abs_momentum_days": active_abs_days,
+            "abs_momentum_on": active_abs_on,
+            "abs_debounce_active": abs_debounce_active,
             "base_signal_target": base_target,
             "volume_ratio": volume_ratio,
             "volume_pass": volume_pass,
@@ -2292,6 +2337,12 @@ def live_proxy(product: str, clock: datetime | None = None) -> dict[str, Any]:
         "history_date": history.index[-1].date(),
         "momentum_score": float(momentum_schedule["momentum_score"].iloc[-1]),
         "momentum_abs20": float(momentum_schedule["abs20"].iloc[-1]),
+        "momentum_abs": float(momentum_schedule["abs_momentum"].iloc[-1]),
+        "momentum_abs_days": int(momentum_schedule["abs_momentum_days"].iloc[-1]),
+        "momentum_abs_on": bool(momentum_schedule["abs_momentum_on"].iloc[-1]),
+        "momentum_abs_debounce_active": bool(
+            momentum_schedule["abs_debounce_active"].iloc[-1]
+        ),
         "momentum_abs20_reentry_confirmed": bool(
             momentum_schedule["abs20_reentry_confirmed"].iloc[-1]
         ),
@@ -5264,6 +5315,10 @@ def _build_live_trade_signal(
         "momentum_120": live["momentum_120"],
         "momentum_score": live["momentum_score"],
         "momentum_abs20": live["momentum_abs20"],
+        "momentum_abs": live.get("momentum_abs", live["momentum_abs20"]),
+        "momentum_abs_days": live.get("momentum_abs_days", 20),
+        "momentum_abs_on": live.get("momentum_abs_on", live["momentum_abs20"] > 0),
+        "momentum_abs_debounce_active": live.get("momentum_abs_debounce_active", True),
         "momentum_volume_ratio": live["momentum_volume_ratio"],
         "momentum_volume_pass": live["momentum_volume_pass"],
         "momentum_volume_placeholder": live["momentum_volume_placeholder"],
@@ -6348,12 +6403,21 @@ class ICIMMainlinesBot:
                     )
                 else:
                     msg.write("- **Call**：IC 1.4 明确禁止，当前和目标均无。\n\n")
+                abs_days = int(live.get("momentum_abs_days", 20))
+                abs_value = float(live.get("momentum_abs", live["momentum_abs20"]))
+                abs_rule_text = (
+                    f"Abs{abs_days}>0即恢复满仓，不使用两日恢复防抖；Score保持即时规则。"
+                    if product == "IC" and abs_days == 40 else
+                    f"Abs{abs_days}恢复满仓须连续两日均>+1%；Score保持即时规则。"
+                    if live.get("momentum_abs_debounce_active", True) else
+                    f"Abs{abs_days}>0即恢复满仓；Score保持即时规则。"
+                )
                 msg.write(
                     "**动量袖为什么是这个仓位**\n\n"
                     f"- 动量 Score：**{live['momentum_score']:.3f}**（要求 >0）；"
-                    f"Abs20：**{live['momentum_abs20']:.2%}**。\n"
-                    "- 规则：Score≤0 → 权重0；Score>0且Abs20≤0 → 权重0.5；"
-                    "Abs20恢复满仓须连续两日均>+1%；Score保持即时规则。动量袖期货名义=0.5×权重。\n"
+                    f"Abs{abs_days}：**{abs_value:.2%}**。\n"
+                    f"- 规则：Score≤0 → 权重0；Score>0且Abs{abs_days}≤0 → 权重0.5；"
+                    f"{abs_rule_text}动量袖期货名义=0.5×权重。\n"
                     f"- 当前动量仓位来自 **{live['momentum_current_source_date']}** 收盘信号；"
                     f"本次 **{live['momentum_signal_date']}** 信号给出下一交易日权重 "
                     f"**{live['momentum_next_weight']:g}**。\n\n"
@@ -6394,7 +6458,7 @@ class ICIMMainlinesBot:
                         f"- **核心袖**：估值目标 {live['valuation_put_delta']:.0%} 与MOM120下限 "
                         f"{live['mom120_floor_delta']:.0%} 取较大值；本次由 **{live['core_put_driver']}** "
                         f"决定完整目标，乘0.5倍核心袖后贡献 **{live['core_put_target_delta']:.1%} Delta**。\n"
-                        f"- **动量袖**：先由Score+Abs20决定权重 **{live['momentum_next_weight']:g}**；"
+                        f"- **动量袖**：先由Score+Abs{abs_days}决定权重 **{live['momentum_next_weight']:g}**；"
                         "空仓则Put为0，有仓时只套用估值档，不继承MOM120下限。"
                         f"本次由 **{live['momentum_put_driver']}** 决定，贡献 "
                         f"**{live['momentum_put_target_delta']:.1%} Delta**。\n"
@@ -6554,7 +6618,8 @@ class ICIMMainlinesBot:
                 if product == "IC":
                     msg.write("### IC 1.4（SC查询别名）\n\n")
                     msg.write(
-                        "- 动量：MA110 / Mom24 / W2；Score>0；50% OFF + 50% Abs20>0。\n"
+                        "- 动量：2026-10-08信号日起 MA105 / Mom24 / W1.6、50% OFF + 50% Abs40>0；"
+                        "IC Abs 恢复防抖关闭。此前沿用 MA110 / Mom24 / W2、Abs20 及当日有效防抖。\n"
                     )
                     msg.write(
                         "- 相对1.2新增：按同一基础信号策略的NAV计算回撤；回撤达到6%时，"
