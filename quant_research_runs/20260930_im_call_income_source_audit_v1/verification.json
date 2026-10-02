@@ -1,0 +1,28 @@
+{
+  "greed_cross_front_d20": {
+    "call_sides": 32,
+    "episodes": 9,
+    "rescue_rolls": 7,
+    "call_cashflow_parity_error": -1.1641532182693481e-10
+  },
+  "greed_cross_front_d40": {
+    "call_sides": 40,
+    "episodes": 8,
+    "rescue_rolls": 12,
+    "call_cashflow_parity_error": -2.3283064365386963e-10
+  },
+  "prior_index_study_crosscheck": {
+    "sha256": "809a7f8f3a6fafe908b13c073e644bdca6c2a6eb7b2c1a0c90aff99c7b1297d0",
+    "matched_episodes": 8,
+    "all_open_to_flat_index_returns_negative": true,
+    "call_pnl_max_abs_difference": 1.5279510989785194e-10
+  },
+  "source_sha256": {
+    "events.csv.gz": "95d70c23009ff0d8d065f7c3acf7cdb72f73b822ea60074cc969e9d60fd5805c",
+    "daily_outputs.csv.gz": "0621feea348743d746ae658b2683fd08b10d7f3b7f472237d5744e1641b9a18c",
+    "account_call_open_events.csv": "1c5c8bfd1d739d20e443544e678e2ed0e9d63be89f20e68ca07f4bdc32dc57c1",
+    "signal_inputs.csv.gz": "81aed296cf52297541387165bd58e1cccf6ede8ecd685414fabeb2abbc6d02fe",
+    "scan_summary.csv": "5d42473b05706443ade862664bcf0de80d20660aa97f061a085845d9961744b6"
+  },
+  "journal_final_equity_parity_max_abs": 5.960464477539063e-08
+}

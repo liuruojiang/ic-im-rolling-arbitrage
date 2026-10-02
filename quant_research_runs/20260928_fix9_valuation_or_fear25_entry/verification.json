@@ -1,0 +1,583 @@
+{
+  "classification": "fix9_as_if_current_listed_full_account_OR_entry_research_only",
+  "run_id": "20260928_fix9_valuation_or_fear25_entry",
+  "strategy_identity": "v1.4-r1 fix9 as-if-current full-account replay",
+  "ic_rule": "fix9 MOM120 seller-admission rule applied retrospectively",
+  "im_rule": "unchanged formal IM path under the fix9 full-account engine",
+  "valuation_entry_exit_thresholds": {
+    "IC": {
+      "entry": 0.5,
+      "exit": 1.0
+    },
+    "IM": {
+      "entry": 1.6,
+      "exit": 2.0
+    }
+  },
+  "fear_entry_max_inclusive": 25.0,
+  "or_rule": "flat: valuation score <= entry threshold OR fear score <=25; held: exit only when valuation score >= original exit threshold",
+  "fear_only_reference": "flat: fear score <=25; held: exit only when valuation score >= original exit threshold",
+  "missing_fear_rule": "no Fear-based entry when missing; valuation can still trigger OR entry",
+  "execution": "T close signal, T+1 listed futures open fill",
+  "scope": "listed_quotes_fix9_asif_current",
+  "coverage": [
+    {
+      "product": "IC",
+      "rows": 945,
+      "start": "2022-09-19",
+      "end": "2026-08-13",
+      "fear_missing_dates": [
+        "2026-07-27"
+      ],
+      "risk_signals_sha256": "4f4ae7e41b9d9430decb42d0117107303765f9f59da6fae0dd812cda2281aa13",
+      "no_seller_targets_sha256": "9f756da88ffd144685c2be828c9062b154a2706d970a86efa6739f946ba061b6"
+    },
+    {
+      "product": "IM",
+      "rows": 986,
+      "start": "2022-07-22",
+      "end": "2026-08-14",
+      "fear_missing_dates": [
+        "2026-07-27"
+      ],
+      "risk_signals_sha256": "80adb115e4f489e28ad7bda9f8da279cbc282f54221eb0ff10a99d8ff5db7c9d",
+      "no_seller_targets_sha256": "b80e8e93a316d9bc4ff4c4260f8f2677e01f3280060f57328a1f82f464c5bd83"
+    }
+  ],
+  "missing_fear_dates": {
+    "IC": [
+      "2026-07-27"
+    ],
+    "IM": [
+      "2026-07-27"
+    ]
+  },
+  "valuation_state_reconstruction": "exact match to frozen fix9 grid_target_units for IC and IM",
+  "fix9_ic_seller_lifecycle_audit": {
+    "product": "IC",
+    "arm": "repeat_roll",
+    "rows": 944,
+    "actions": {
+      "HOLD": 850,
+      "WAIT_SHORT_PUT_ROLL": 85,
+      "ROLL_SHORT_PUT": 3,
+      "ENTER_SHORT_PUT": 2,
+      "SHORT_PUT_ASSIGNED": 1,
+      "ENTER_RECOVERY_FUTURE": 1,
+      "EXIT_RECOVERY_AT_BREAKEVEN": 1,
+      "SHORT_PUT_EXPIRE_WORTHLESS": 1
+    },
+    "model_fill_assumption": "T+1 dated positive open with market maker; no daily volume limit",
+    "entry_basis": "T close premium for formal decay; T+1 open for cash",
+    "scope": "formal seller lifecycle state events only, not 3x or account NAV",
+    "formal_sha256": "d86ff81a103f6a37836f27e90f2205c202a2bf49328f03be82a5ea6b8ceca326"
+  },
+  "valuation_grid_fix9_baseline_parity": [
+    {
+      "product": "IC",
+      "candidate": "IC_VALUATION_GRID_LISTED_FIX9",
+      "status": "PASS",
+      "reference": "IC_mom120_replacement_core50_mom50_basis100",
+      "daily_rows": 945,
+      "event_rows": 5779,
+      "daily_numeric_tolerance": 1e-08,
+      "daily_numeric_columns_checked": [
+        "equity_close",
+        "cash_close",
+        "margin_reserved",
+        "option_value",
+        "etf_value",
+        "seller_buffer",
+        "call_buffer",
+        "fees_cumulative",
+        "profit3x_resets_to_date",
+        "nav",
+        "return_net"
+      ],
+      "daily_exact_columns_checked": [
+        "product",
+        "arm",
+        "date",
+        "seller_route"
+      ],
+      "daily_exact_mismatches": {
+        "product": 0,
+        "arm": 0,
+        "date": 0,
+        "seller_route": 0
+      },
+      "max_abs_daily_error": 7.450580596923828e-09,
+      "daily_column_errors": {
+        "equity_close": 7.450580596923828e-09,
+        "cash_close": 7.450580596923828e-09,
+        "margin_reserved": 3.725290298461914e-09,
+        "option_value": 1.862645149230957e-09,
+        "etf_value": 0.0,
+        "seller_buffer": 9.313225746154785e-10,
+        "call_buffer": 0.0,
+        "fees_cumulative": 4.656612873077393e-10,
+        "profit3x_resets_to_date": 0.0,
+        "nav": 4.440892098500626e-16,
+        "return_net": 9.952975943416931e-17
+      },
+      "event_signature": "exact identities/order; numeric fields within tolerance",
+      "event_numeric_tolerance": 1e-08,
+      "event_numeric_max_abs_error": {
+        "cash_change": 4.656612873077393e-10,
+        "equity_change": 2.3283064365386963e-10,
+        "quantity_change": 5.684341886080802e-14,
+        "price": 0.0,
+        "fee": 3.637978807091713e-12,
+        "shares_received": 0.0
+      },
+      "event_category_mismatches": {
+        "date": 0,
+        "event": 0,
+        "symbol": 0,
+        "signal_date": 0,
+        "order_id": 0,
+        "phase": 0,
+        "kind": 0,
+        "model_fill_only": 0,
+        "price_basis": 0,
+        "quarter_roll": 0,
+        "underlying": 0
+      }
+    },
+    {
+      "product": "IM",
+      "candidate": "IM_VALUATION_GRID_LISTED_FIX9",
+      "status": "PASS",
+      "reference": "IM_formal_core50_mom50_basis100",
+      "daily_rows": 986,
+      "event_rows": 6707,
+      "daily_numeric_tolerance": 1e-08,
+      "daily_numeric_columns_checked": [
+        "equity_close",
+        "cash_close",
+        "margin_reserved",
+        "option_value",
+        "etf_value",
+        "seller_buffer",
+        "call_buffer",
+        "fees_cumulative",
+        "profit3x_resets_to_date",
+        "nav",
+        "return_net"
+      ],
+      "daily_exact_columns_checked": [
+        "product",
+        "arm",
+        "date",
+        "seller_route"
+      ],
+      "daily_exact_mismatches": {
+        "product": 0,
+        "arm": 0,
+        "date": 0,
+        "seller_route": 0
+      },
+      "max_abs_daily_error": 7.450580596923828e-09,
+      "daily_column_errors": {
+        "equity_close": 7.450580596923828e-09,
+        "cash_close": 7.450580596923828e-09,
+        "margin_reserved": 3.725290298461914e-09,
+        "option_value": 9.313225746154785e-10,
+        "etf_value": 0.0,
+        "seller_buffer": 1.862645149230957e-09,
+        "call_buffer": 0.0,
+        "fees_cumulative": 4.656612873077393e-10,
+        "profit3x_resets_to_date": 0.0,
+        "nav": 4.440892098500626e-16,
+        "return_net": 9.974659986866641e-17
+      },
+      "event_signature": "exact identities/order; numeric fields within tolerance",
+      "event_numeric_tolerance": 1e-08,
+      "event_numeric_max_abs_error": {
+        "cash_change": 9.313225746154785e-10,
+        "equity_change": 2.3283064365386963e-10,
+        "quantity_change": 1.4210854715202004e-14,
+        "price": 0.0,
+        "fee": 3.637978807091713e-12,
+        "shares_received": 0.0
+      },
+      "event_category_mismatches": {
+        "date": 0,
+        "event": 0,
+        "symbol": 0,
+        "signal_date": 0,
+        "order_id": 0,
+        "phase": 0,
+        "kind": 0,
+        "model_fill_only": 0,
+        "price_basis": 0,
+        "quarter_roll": 0,
+        "underlying": 0
+      }
+    }
+  ],
+  "no_grid_saved_fix9_replay_parity": [
+    {
+      "product": "IC",
+      "status": "PASS",
+      "reference": "IC_NO_GRID_LISTED_FIX9",
+      "daily_rows": 945,
+      "max_abs_errors": {
+        "nav": 4.440892098500626e-16,
+        "return_net": 9.974659986866641e-17,
+        "equity_close": 7.450580596923828e-09,
+        "cash_close": 7.450580596923828e-09,
+        "margin_reserved": 1.862645149230957e-09,
+        "option_value": 4.656612873077393e-10,
+        "seller_buffer": 9.313225746154785e-10,
+        "fees_cumulative": 4.656612873077393e-10
+      },
+      "nav_return_tolerance": 1e-10,
+      "cash_equity_tolerance": 1e-06
+    },
+    {
+      "product": "IM",
+      "status": "PASS",
+      "reference": "IM_NO_GRID_LISTED_FIX9",
+      "daily_rows": 986,
+      "max_abs_errors": {
+        "nav": 4.440892098500626e-16,
+        "return_net": 9.974659986866641e-17,
+        "equity_close": 7.450580596923828e-09,
+        "cash_close": 7.450580596923828e-09,
+        "margin_reserved": 3.725290298461914e-09,
+        "option_value": 9.313225746154785e-10,
+        "seller_buffer": 9.313225746154785e-10,
+        "fees_cumulative": 2.3283064365386963e-10
+      },
+      "nav_return_tolerance": 1e-10,
+      "cash_equity_tolerance": 1e-06
+    }
+  ],
+  "grid_execution_audits": [
+    {
+      "product": "IC",
+      "candidate": "IC_NO_GRID_LISTED_FIX9",
+      "signals": 0,
+      "executed_signals": 0,
+      "terminal_unexecuted": 0,
+      "missing_t1_open_fills": [],
+      "wrong_phase_or_date": [],
+      "same_day_quarter_roll_fills": 0
+    },
+    {
+      "product": "IC",
+      "candidate": "IC_VALUATION_GRID_LISTED_FIX9",
+      "signals": 6,
+      "executed_signals": 6,
+      "terminal_unexecuted": 0,
+      "missing_t1_open_fills": [],
+      "wrong_phase_or_date": [],
+      "same_day_quarter_roll_fills": 4,
+      "non_roll_same_day_close_fills": 0
+    },
+    {
+      "product": "IC",
+      "candidate": "IC_FEAR_ONLY_ENTRY_VALUATION_EXIT_LISTED_FIX9",
+      "signals": 36,
+      "executed_signals": 36,
+      "terminal_unexecuted": 0,
+      "missing_t1_open_fills": [],
+      "wrong_phase_or_date": [],
+      "same_day_quarter_roll_fills": 4,
+      "non_roll_same_day_close_fills": 0
+    },
+    {
+      "product": "IC",
+      "candidate": "IC_VALUATION_OR_FEAR25_LISTED_FIX9",
+      "signals": 36,
+      "executed_signals": 36,
+      "terminal_unexecuted": 0,
+      "missing_t1_open_fills": [],
+      "wrong_phase_or_date": [],
+      "same_day_quarter_roll_fills": 4,
+      "non_roll_same_day_close_fills": 0
+    },
+    {
+      "product": "IM",
+      "candidate": "IM_NO_GRID_LISTED_FIX9",
+      "signals": 0,
+      "executed_signals": 0,
+      "terminal_unexecuted": 0,
+      "missing_t1_open_fills": [],
+      "wrong_phase_or_date": [],
+      "same_day_quarter_roll_fills": 0
+    },
+    {
+      "product": "IM",
+      "candidate": "IM_VALUATION_GRID_LISTED_FIX9",
+      "signals": 4,
+      "executed_signals": 4,
+      "terminal_unexecuted": 0,
+      "missing_t1_open_fills": [],
+      "wrong_phase_or_date": [],
+      "same_day_quarter_roll_fills": 12,
+      "non_roll_same_day_close_fills": 0
+    },
+    {
+      "product": "IM",
+      "candidate": "IM_FEAR_ONLY_ENTRY_VALUATION_EXIT_LISTED_FIX9",
+      "signals": 20,
+      "executed_signals": 20,
+      "terminal_unexecuted": 0,
+      "missing_t1_open_fills": [],
+      "wrong_phase_or_date": [],
+      "same_day_quarter_roll_fills": 12,
+      "non_roll_same_day_close_fills": 0
+    },
+    {
+      "product": "IM",
+      "candidate": "IM_VALUATION_OR_FEAR25_LISTED_FIX9",
+      "signals": 20,
+      "executed_signals": 20,
+      "terminal_unexecuted": 0,
+      "missing_t1_open_fills": [],
+      "wrong_phase_or_date": [],
+      "same_day_quarter_roll_fills": 12,
+      "non_roll_same_day_close_fills": 0
+    }
+  ],
+  "account_feasibility": [
+    {
+      "product": "IC",
+      "candidate": "IC_NO_GRID_LISTED_FIX9",
+      "minimum_nav": 0.9467151555649266,
+      "minimum_close_cash": 8691661.643190552,
+      "minimum_free_cash_after_margin": 8691661.643190552,
+      "all_nav_cash_finite": true
+    },
+    {
+      "product": "IC",
+      "candidate": "IC_VALUATION_GRID_LISTED_FIX9",
+      "minimum_nav": 0.9772401627120444,
+      "minimum_close_cash": 11522903.716237906,
+      "minimum_free_cash_after_margin": 11522903.716237906,
+      "all_nav_cash_finite": true
+    },
+    {
+      "product": "IC",
+      "candidate": "IC_FEAR_ONLY_ENTRY_VALUATION_EXIT_LISTED_FIX9",
+      "minimum_nav": 0.9851808837361213,
+      "minimum_close_cash": 12046658.872497115,
+      "minimum_free_cash_after_margin": 6458842.533125002,
+      "all_nav_cash_finite": true
+    },
+    {
+      "product": "IC",
+      "candidate": "IC_VALUATION_OR_FEAR25_LISTED_FIX9",
+      "minimum_nav": 0.9772401627120444,
+      "minimum_close_cash": 11962907.026383786,
+      "minimum_free_cash_after_margin": 6413938.7975657005,
+      "all_nav_cash_finite": true
+    },
+    {
+      "product": "IM",
+      "candidate": "IM_NO_GRID_LISTED_FIX9",
+      "minimum_nav": 0.9510354367900216,
+      "minimum_close_cash": 23971617.08122114,
+      "minimum_free_cash_after_margin": 15741839.440439936,
+      "all_nav_cash_finite": true
+    },
+    {
+      "product": "IM",
+      "candidate": "IM_VALUATION_GRID_LISTED_FIX9",
+      "minimum_nav": 0.993373161625747,
+      "minimum_close_cash": 23971617.08122114,
+      "minimum_free_cash_after_margin": 14627288.552525518,
+      "all_nav_cash_finite": true
+    },
+    {
+      "product": "IM",
+      "candidate": "IM_FEAR_ONLY_ENTRY_VALUATION_EXIT_LISTED_FIX9",
+      "minimum_nav": 0.9865876178689288,
+      "minimum_close_cash": 23891807.733225204,
+      "minimum_free_cash_after_margin": 15015962.536537083,
+      "all_nav_cash_finite": true
+    },
+    {
+      "product": "IM",
+      "candidate": "IM_VALUATION_OR_FEAR25_LISTED_FIX9",
+      "minimum_nav": 0.9865876178689288,
+      "minimum_close_cash": 23891807.733225204,
+      "minimum_free_cash_after_margin": 14563162.549277527,
+      "all_nav_cash_finite": true
+    }
+  ],
+  "candidate_rule_audits": [
+    {
+      "product": "IC",
+      "candidate": "IC_FEAR_ONLY_ENTRY_VALUATION_EXIT_LISTED_FIX9",
+      "trigger": "fear_only",
+      "entry_thresholds": {
+        "entry": 0.5,
+        "exit": 1.0
+      },
+      "fear_entry_max_inclusive": 25.0,
+      "exit_rule": "held grid exits if valuation score >= 1.0",
+      "valuation_or_fear_gate_buy_count": 18,
+      "buy_reason_counts": {
+        "fear_only": 18
+      },
+      "exit_dates": [
+        "2022-12-05",
+        "2024-04-26",
+        "2024-09-30",
+        "2025-01-22",
+        "2025-04-14",
+        "2025-04-21",
+        "2025-05-12",
+        "2025-11-24",
+        "2026-03-04",
+        "2026-03-24",
+        "2026-04-07",
+        "2026-07-14",
+        "2026-07-17",
+        "2026-07-21",
+        "2026-07-23",
+        "2026-07-27",
+        "2026-07-29",
+        "2026-07-31"
+      ],
+      "entry_signal_count": 18,
+      "exit_signal_count": 18,
+      "entry_causes": {
+        "fear_only": 18
+      }
+    },
+    {
+      "product": "IC",
+      "candidate": "IC_VALUATION_OR_FEAR25_LISTED_FIX9",
+      "trigger": "valuation_or_fear",
+      "entry_thresholds": {
+        "entry": 0.5,
+        "exit": 1.0
+      },
+      "fear_entry_max_inclusive": 25.0,
+      "exit_rule": "held grid exits if valuation score >= 1.0",
+      "valuation_or_fear_gate_buy_count": 18,
+      "buy_reason_counts": {
+        "fear_only": 16,
+        "valuation_only": 1,
+        "both": 1
+      },
+      "exit_dates": [
+        "2022-12-05",
+        "2024-04-26",
+        "2024-09-30",
+        "2025-01-22",
+        "2025-04-14",
+        "2025-04-21",
+        "2025-05-12",
+        "2025-11-24",
+        "2026-03-04",
+        "2026-03-24",
+        "2026-04-07",
+        "2026-07-14",
+        "2026-07-17",
+        "2026-07-21",
+        "2026-07-23",
+        "2026-07-27",
+        "2026-07-29",
+        "2026-07-31"
+      ],
+      "entry_signal_count": 18,
+      "exit_signal_count": 18,
+      "entry_causes": {
+        "fear_only": 16,
+        "valuation_only": 1,
+        "both": 1
+      }
+    },
+    {
+      "product": "IM",
+      "candidate": "IM_FEAR_ONLY_ENTRY_VALUATION_EXIT_LISTED_FIX9",
+      "trigger": "fear_only",
+      "entry_thresholds": {
+        "entry": 1.6,
+        "exit": 2.0
+      },
+      "fear_entry_max_inclusive": 25.0,
+      "exit_rule": "held grid exits if valuation score >= 2.0",
+      "valuation_or_fear_gate_buy_count": 10,
+      "buy_reason_counts": {
+        "fear_only": 10
+      },
+      "exit_dates": [
+        "2022-08-03",
+        "2022-11-04",
+        "2025-08-18",
+        "2025-11-26",
+        "2026-03-04",
+        "2026-03-24",
+        "2026-04-07",
+        "2026-07-14",
+        "2026-07-21",
+        "2026-08-05"
+      ],
+      "entry_signal_count": 10,
+      "exit_signal_count": 10,
+      "entry_causes": {
+        "fear_only": 10
+      }
+    },
+    {
+      "product": "IM",
+      "candidate": "IM_VALUATION_OR_FEAR25_LISTED_FIX9",
+      "trigger": "valuation_or_fear",
+      "entry_thresholds": {
+        "entry": 1.6,
+        "exit": 2.0
+      },
+      "fear_entry_max_inclusive": 25.0,
+      "exit_rule": "held grid exits if valuation score >= 2.0",
+      "valuation_or_fear_gate_buy_count": 10,
+      "buy_reason_counts": {
+        "fear_only": 8,
+        "both": 1,
+        "valuation_only": 1
+      },
+      "exit_dates": [
+        "2022-08-03",
+        "2022-11-04",
+        "2025-08-18",
+        "2025-11-26",
+        "2026-03-04",
+        "2026-03-24",
+        "2026-04-07",
+        "2026-07-14",
+        "2026-07-21",
+        "2026-08-05"
+      ],
+      "entry_signal_count": 10,
+      "exit_signal_count": 10,
+      "entry_causes": {
+        "fear_only": 8,
+        "both": 1,
+        "valuation_only": 1
+      }
+    }
+  ],
+  "fees_financing": {
+    "source": "fix9 native account engine",
+    "grid_units": 0.5,
+    "futures_margin_buffer": "30% performance basis",
+    "seller_reserve": "15% NAV feasibility ceiling",
+    "cash_rate": "3% annual in native engine",
+    "separate_grid_carry": "none"
+  },
+  "fear_snapshot_sha256": "1b209c9166250ef4d320503386a94d6e3b868595d38fd687a03d7acea7cb7de9",
+  "point_in_time_fear_history_proven": false,
+  "source_hashes": "source_hashes.json",
+  "outputs": [
+    "portfolio_summary.csv",
+    "outputs/fix9_full_account_daily_nav.csv.gz",
+    "outputs/grid_transition_signals.csv",
+    "outputs/grid_account_fills.csv"
+  ],
+  "created_at": "2026-09-28T19:33:19.247238+08:00"
+}

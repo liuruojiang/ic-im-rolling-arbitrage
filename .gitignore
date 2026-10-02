@@ -24,6 +24,9 @@ outputs/
 runtime/
 quant_param_scan_runs/
 .codex_backups/
+runs/
+tmp/
+.playwright-cli/
 
 # OS/editor noise
 .DS_Store
@@ -33,6 +36,8 @@ Thumbs.db
 *.log
 *.bak
 *.bak_*
+*.bak-*
 *_backup*
 *_old.py
 *_copy.py
+/tmp_router_source.txt

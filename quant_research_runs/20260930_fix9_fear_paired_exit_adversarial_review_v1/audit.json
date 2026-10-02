@@ -1,0 +1,28 @@
+{
+  "status": "PASS_FOR_SAVED_DATA_ARITHMETIC_ONLY",
+  "scope": "Independent valuation-only fix9 comparator; selected IC Fear50 and IM Fear55 paired-exit arms",
+  "selected": {
+    "IC": 50,
+    "IM": 55
+  },
+  "comparison_rows": 6,
+  "year_rows": 10,
+  "exit_signal_rows": 18,
+  "selected_exit_signal_other_entry_count": 0,
+  "selected_next_signal_reentry_count": 0,
+  "fear_missing_on_model_calendar": [
+    "2026-07-27"
+  ],
+  "source_hashes_sha256": {
+    "valuation_daily": "ae8b6da420aebe5df5ad7e00c3e8bb8fd08107bf7230ed0e20fe590d9663cc50",
+    "valuation_summary": "919d0a62b39b67cbc62467a8f52204a497307c39a399bdfb9104c04d1b8e4ead",
+    "candidate_daily": "bfadedc03c935848947f90a79c3ab080c87ef191fbb05e664bdd69eafa12cf18",
+    "candidate_summary": "82d9b214957b43dcd413c6608e524310a557bdbc9f6b73e34f3d622f9aa900e6",
+    "candidate_signals": "fee3638e1bd78aa93136676c0606a63552811770a18366ceff9130d79a2bccae",
+    "fear_snapshot": "1b209c9166250ef4d320503386a94d6e3b868595d38fd687a03d7acea7cb7de9"
+  },
+  "limits": [
+    "Retrospective Fear snapshot is not point-in-time certified",
+    "Saved full-account paths do not model live fills or new timing/missing-value scenarios"
+  ]
+}

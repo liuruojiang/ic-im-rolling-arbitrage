@@ -1,0 +1,35 @@
+{
+  "window": [
+    "2022-07-22",
+    "2026-08-14"
+  ],
+  "official_price_rows": 986,
+  "fear_missing_dates": [
+    "2026-07-27"
+  ],
+  "downcross_days": 41,
+  "actual_d40_account_open_signal_days": 8,
+  "horizons": [
+    1,
+    5,
+    10,
+    20,
+    40
+  ],
+  "price_source_sha256": "f8a635405857fc2a2b32bb9618e8887229a650e69dde74792209faf45d31ccac",
+  "fear_source_sha256": "1b209c9166250ef4d320503386a94d6e3b868595d38fd687a03d7acea7cb7de9",
+  "account_corr": {
+    "episode_count": 8,
+    "pearson_terminal_index_return_vs_call_cash_pnl": 0.2431680487660908,
+    "spearman_terminal_index_return_vs_call_cash_pnl": 0.28571428571428575,
+    "pearson_peak_index_upside_vs_call_cash_pnl": -0.5642980245171547,
+    "spearman_peak_index_upside_vs_call_cash_pnl": -0.6190476190476191
+  },
+  "forty_session_overlap_sensitivity": {
+    "forty_session_downcross_events": 41,
+    "connected_forty_session_clusters": 9,
+    "first_event_per_cluster_mean_return": -0.0087993749618793,
+    "last_event_per_cluster_mean_return": -0.058107223916295886
+  },
+  "classification": "descriptive_snapshot_not_point_in_time_or_tradable"
+}

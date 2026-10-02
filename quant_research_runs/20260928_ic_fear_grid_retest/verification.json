@@ -1,0 +1,27 @@
+{
+  "status": "PASS",
+  "ic_score_matches_target_schedule_max_abs": 0.0,
+  "official_contract_quote_missing_rows": 0,
+  "ic_formal_return_matches_official_daily_max_abs": 0.0,
+  "saved_real_grid_replay_parity": {
+    "held_state": 0.0,
+    "buy_events": 0.0,
+    "sell_events": 0.0
+  },
+  "saved_ic_0_5_1_0_calibration_parity": {
+    "held_state": 0.0,
+    "grid_net_increment_1x": 9.8879238130678e-17
+  },
+  "saved_ic_0_5_1_0_full_return_recomposition_max_abs": 9.8879238130678e-17,
+  "saved_ic_0_5_1_0_event_dates_match": true,
+  "window_calendar_complete": true,
+  "nonnegative_candidate_cash": true,
+  "portfolio_paths_have_same_calendar": true,
+  "fear_join_kept_market_calendar": true,
+  "thresholds": {
+    "entry": 0.5,
+    "exit": 1.0,
+    "fear_le": 25,
+    "grid_size": 0.5
+  }
+}

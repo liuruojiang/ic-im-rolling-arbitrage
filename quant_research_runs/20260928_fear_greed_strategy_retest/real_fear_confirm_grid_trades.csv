@@ -1,0 +1,5 @@
+layer,candidate,family,low_threshold,high_threshold,action,signal_date,signal_value,execution_date,execution_reason,execution_contract,execution_open,execution_volume,tier,size
+real,L1.60_H2.00,fixed_score,1.6,2.0,buy,2022-10-10,1.54,2022-10-11,t_plus_1_open,IM2212,5882.0,11556,1,0.5
+real,L1.60_H2.00,fixed_score,1.6,2.0,sell,2023-02-09,2.0,2023-02-10,t_plus_1_open,IM2303,7003.4,25482,1,0.5
+real,L1.60_H2.00,fixed_score,1.6,2.0,buy,2024-01-22,1.3012516129032254,2024-01-23,t_plus_1_open,IM2403,4740.4,66930,1,0.5
+real,L1.60_H2.00,fixed_score,1.6,2.0,sell,2026-01-09,2.06,2026-01-12,t_plus_1_open,IM2603,8131.0,172951,1,0.5
