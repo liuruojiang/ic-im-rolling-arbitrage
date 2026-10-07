@@ -1107,6 +1107,11 @@ class StateStore:
         with self._exclusive_lock():
             if self.latest_path.exists():
                 return self.load_latest()
+            if self.journal_dir.exists() and any(self.journal_dir.iterdir()):
+                raise RuntimeError(
+                    "Poe账本latest.json缺失但已有journal，禁止重建创世记录；"
+                    "请恢复完整哈希链账本后重试"
+                )
             record = bootstrap_record()
             journal = self.journal_dir / f"000000-{record['verified_day']}.json"
             self._atomic_write(journal, record)

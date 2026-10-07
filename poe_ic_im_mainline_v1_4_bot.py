@@ -1669,6 +1669,15 @@ def _validate_v13_ohlcv(product: str, frame: pd.DataFrame, clock: datetime) -> p
             expected_days.add(cursor)
         cursor += timedelta(days=1)
     actual_days = set(result.index.date)
+    unexpected_days = sorted(
+        day for day in actual_days
+        if day >= coverage_start and day not in expected_days
+    )
+    if unexpected_days:
+        preview = ", ".join(day.isoformat() for day in unexpected_days[:5])
+        raise RuntimeError(
+            f"{product} OHLCV混入非交易日，发现{len(unexpected_days)}日：{preview}"
+        )
     missing_days = sorted(expected_days - actual_days)
     if missing_days:
         preview = ", ".join(day.isoformat() for day in missing_days[:5])
@@ -3873,7 +3882,7 @@ def select_ic_put_for_reset(
     month, expiry = min(
         candidates, key=lambda item: (abs((item[1] - target_day).days), item[1])
     )
-    chain, stamp = fetch_sse_510500_chain(month[2:])
+    chain, stamp = fetch_510500_chain_with_failover(month[2:])
     puts = chain[
         chain["contract"].str.contains(rf"510500P{month[2:]}M", regex=True)
         & chain["last"].gt(0)
@@ -3882,6 +3891,7 @@ def select_ic_put_for_reset(
         raise RuntimeError(f"{month} 没有可用标准510500ETF Put")
     puts["strike_error"] = (puts["strike"] - 0.95 * etf_price).abs()
     selected = puts.sort_values(["strike_error", "contract"]).iloc[0]
+    _require_selected_510500_quote_time(selected, _now_beijing(), today)
     years = max((expiry - today).days, 1) / 365.0
     iv = _implied_volatility(
         "P",
@@ -5076,15 +5086,19 @@ def _apply_v14_live_policy(
             product, signal, anchor, candidate=candidate, roll_candidate=roll_candidate
         )
     except Exception as exc:
-        # v1.4 admission is fail-closed.  Existing states are not silently
-        # changed when a candidate quote or IV cannot be verified.
+        # Candidate admission is fail-closed; independent lifecycle events
+        # keep the action that produced their state/event-id transition.
         fallback = v14_policy.apply_policy(
             product, signal, anchor,
             candidate={"tradable": False}, roll_candidate={"tradable": False},
         )
-        if fallback.get("v14_action") in {"PUBLISH_SHORT_PUT_EXPIRY_BRANCHES", "EXECUTE_CORE_PUT_PROFIT3X_REENTER"}:
-            fallback["v14_candidate_data_status"] = f"unavailable: {type(exc).__name__}: {exc}"
-        else:
+        fallback["v14_candidate_data_status"] = f"unavailable: {type(exc).__name__}: {exc}"
+        completed_lifecycle_actions = {
+            "PUBLISH_SHORT_PUT_EXPIRY_BRANCHES", "EXECUTE_CORE_PUT_PROFIT3X_REENTER",
+            "SHORT_PUT_EXPIRE_WORTHLESS", "SHORT_PUT_ASSIGNED",
+            "ENTER_RECOVERY_FUTURE", "EXIT_RECOVERY_AT_BREAKEVEN",
+        }
+        if fallback.get("v14_action") not in completed_lifecycle_actions:
             fallback["v14_action"] = "HOLD_FAIL_CLOSED"
             fallback["v14_action_reason"] = f"{type(exc).__name__}: {exc}"
         return fallback
@@ -6147,7 +6161,13 @@ def _write_last_verified_snapshot(msg: Any, product: str) -> None:
     anchor = LIVE_CONTINUATION_ANCHOR[product]
     momentum_weight = float(anchor["verified_momentum_weight"])
     grid_units = float(anchor["verified_grid_units"])
-    total_units = 0.5 + 0.5 * momentum_weight + grid_units
+    route = anchor.get("v14_route_state", "future")
+    core_units = 0.5 if route in {"future", "recovery_future"} else 0.0
+    total_units = core_units + 0.5 * momentum_weight + grid_units
+    core_text = (
+        f"{core_units:g}倍核心期货：`{anchor['post_core_contract']}`（路线 `{route}`）"
+        if core_units > 0 else f"核心路线：`{route}`；核心期货0倍"
+    )
     put_qty = float(anchor["verified_put_qty_normalized"])
     put_contract = str(anchor["post_put_contract"])
     call_qty = float(anchor["verified_call_contracts_normalized"])
@@ -6170,7 +6190,7 @@ def _write_last_verified_snapshot(msg: Any, product: str) -> None:
         put_snapshot = f"{put_qty:g}张 `{put_contract}`"
     msg.write(
         f"**最后逐腿核验快照（{anchor['last_verified_day']}，仅研究审计）**\n\n"
-        f"- 0.5倍核心袖：`{anchor['post_core_contract']}`\n"
+        f"- {core_text}\n"
         f"- 动量袖：权重 {momentum_weight:g}，期货名义 {0.5 * momentum_weight:g}倍\n"
         f"- 独立网格：{grid_units:g}倍；期货合计：{total_units:g}倍\n"
         f"- Put：{put_snapshot}；Call：{call_text}\n"
@@ -6651,6 +6671,12 @@ class ICIMMainlinesBot:
                         "- 网格：≤1.60 加0.5倍，≥2.00 退出；新增腿不加Put或Call。\n"
                     )
                     msg.write("- fix6不再执行D10/IV26开仓或5%救援。\n\n")
+            msg.write(
+                "2026-10-08信号日起：估值或恐慌≤25入场单个0.5倍网格；"
+                "入场时冻结来源，不叠加、不在持有中改来源。估值来源按各产品估值退出线，"
+                "恐慌来源按恐慌≥50退出；两者同时入场时任一对应退出条件触发即退出，"
+                "退出信号当天不重新入场。此前信号沿用当日旧规则。\n\n"
+            )
             msg.write(
                 "本版本是正式研究信号，只发布策略参考路径；不生成订单，也不是实盘授权。实际成交、行权、结算、交割和账户持仓由用户自行处理。\n\n"
             )
