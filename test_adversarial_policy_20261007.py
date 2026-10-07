@@ -82,4 +82,3 @@ def test_candidate_failure_does_not_hide_completed_recovery_transition(monkeypat
     assert output["v14_route_state"] == "future"
     assert output["v14_action"] == "EXIT_RECOVERY_AT_BREAKEVEN"
     assert "EXIT_RECOVERY_AT_BREAKEVEN" in output["v14_last_event_id"]
-
