@@ -28,6 +28,38 @@
 
 手动工作流`ic-im-v1-4-delivery-readiness.yml`用于无发送预检：从正式工作流解析策略pin，恢复最近成功的正式账本到隔离目录，经迁移/全链/日期验证，运行官方runner及正常日报打包器，再做TLS、SMTP认证与MAIL/RCPT/RSET检查。它不提交DATA，不上传正式账本、发送intent或已交付marker。预检通过只证明当次生成与传输准备，未来交易日行情和实际邮件投递仍分别验收。
 
+## 本地累计离线专项与已知边界
+
+本地 `ic-im` 提示词的 IC/IM 专项统一收集以下 21 文件，相同文件只运行一次。使用 `python -B -X utf8 -m pytest -q -p no:cacheprovider`，由测试子进程施加 60 秒硬超时。只在子进程环境副本中将 `ICIM_STATE_DIR` 指向新建临时目录并设置 `ICIM_REQUIRE_MIGRATION=0`；正式 runner 仍使用原状态路径和 `ICIM_REQUIRE_MIGRATION=1`。缺文件、失败或超时只阻塞本策略，保存实际日志；不能用部分清单代替通过。
+
+```text
+test_delivery_transport_retry.py
+test_ohlcv_provider_validation.py
+test_ic_im_v1_4_policy.py
+test_poe_ic_im_v1_4_state.py
+test_migrate_ic_im_v1_3_r7_to_v1_4_r1_state.py
+test_ic_im_v1_4_integration_guards.py
+test_run_ic_im_v1_4_github_digest.py
+test_adversarial_icim_delivery.py
+test_im_put_policy.py
+test_adversarial_im_put_execution_20260908.py
+test_adversarial_im_ledger_20260908.py
+test_adversarial_im_report_iv_20260908.py
+test_im_put_price_basis.py
+test_live_mo_put_midpoint_20260908.py
+test_grid_half_release_20260913.py
+test_im_grid160_half_release_20260914.py
+test_ic_im_v1_4_ic_csi500_forward.py
+test_adversarial_market_20261007.py
+test_adversarial_state_20261007.py
+test_adversarial_delivery_20261007.py
+test_adversarial_policy_20261007.py
+```
+
+独立复核实际为 369 项全通过，零失败/跳过；此数是该次收集结果，不作为将来固定门槛。上轮 233 项对应 13 文件，不能冒称完整累计专项。
+
+云端打包器的独立交易日历、数量/待执行计划二次门禁存在两类待修 P2。已测 8 个异常被正式账本续接和收盘产物校验拒绝；生产流程必须保留这两层上游校验，不得仅以打包成功判定发送准备完成。详见 [同步与复核记录](ic_im_v1_4_delivery_sync_20261007.md)。历史审计 `verify.py` 绑定恢复前 seq8 且覆盖旧输出，不在当前 canonical 工作区直接重跑。
+
 ## 行情源与开盘纸面价格
 
 - 指数盘中价代码顺序为腾讯优先、东财`f86`时间戳回退。2026-09-30 14:10左右的**本地诊断**中，IC/IM均由腾讯返回当日时间戳，东财指数接口返回HTTP 502；当时腾讯是本地唯一通过核验的盘中指数源，不推断云端或未来也如此。腾讯失败且东财仍不可用时，指数盘中信号失败关闭，不使用无时间戳价格。
