@@ -1,9 +1,9 @@
 {
   "version": "ic_im_mainline_workspace_manifest_v1",
-  "generated_at": "2026-09-03T12:45:15+08:00",
+  "generated_at": "2026-10-07T14:17:28+08:00",
   "root": "D:\\动量策略\\IC和IM滚动套利",
-  "file_count": 2952,
-  "total_bytes": 776019121,
+  "file_count": 2953,
+  "total_bytes": 776047750,
   "files": {
     ".dockerignore": {
       "bytes": 72,
@@ -18,8 +18,8 @@
       "sha256": "705fd4d6451a31d36b3df7de96f83f30ac976c9b4a6d1e51671d8e2f33e2d0da"
     },
     ".gitignore": {
-      "bytes": 427,
-      "sha256": "5b4bbe52c97f61b4a8f4bbb09ff7abf08a81ce64557f70809433c2203e9d88e8"
+      "bytes": 486,
+      "sha256": "c558ff67843f967b8079b21bcee6753a8b310ed9560ce70b618517685df80d75"
     },
     "2026-08-23_滚IC滚IM叠加动量完整研究记录.md": {
       "bytes": 22511,
@@ -2818,8 +2818,8 @@
       "sha256": "f0eba0a755ba773e5666d13bb286c619862166556104863cdd1729c3a0b5de4a"
     },
     "notes/mainline_registry.md": {
-      "bytes": 3410,
-      "sha256": "15eb378b4439d81f7564da86e70520fe09510912a5d9a6c3bc841ee543b1b8c4"
+      "bytes": 25911,
+      "sha256": "97e230645392f645df4fb7cd3c917909e2e1f75576cd3551b6bc419c41d9c694"
     },
     "outputs/.ic_im_system_mainlines_v2.failed_20260820_1/current_state.csv": {
       "bytes": 522,
@@ -11812,6 +11812,10 @@
     "verify_workspace.py": {
       "bytes": 3092,
       "sha256": "37313fb892286843afcb8dcbe7a58653a4703b49aeb739f0e5efdd57fd87864a"
+    },
+    "docs/ic_im_v1_4_delivery_sync_20261007.md": {
+      "bytes": 6069,
+      "sha256": "f177401c53104f523683a78c4f1b0598c35585be3d3bd7081d7924e078e21715"
     }
   }
 }

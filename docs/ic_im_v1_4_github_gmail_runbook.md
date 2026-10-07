@@ -4,7 +4,7 @@
 
 ## 正式入口
 
-- 2026-09-29起的正式研究信号构建为`v1.4-20260929-r1-ordinaryput-open-ic-seller-mom120-fix9`，规则为`ic_im_v1_4_ordinaryput_open_ic_seller_mom120_20260929_v1`；以`notes/mainline_registry.md`逐信号日核验生产者身份。
+- 2026-10-08起的正式研究信号构建为`v1.4-20261008-r1-ic-csi500-abs40-fix11`，规则为`ic_im_v1_4_ic_csi500_ma105_w16_abs40_static_20261008_v1`，承接同日恐慌网格。2026-09-29至09-30信号保留fix9；以`notes/mainline_registry.md`逐信号日核验生产者身份。
 - 生产者身份只前向生效：2026-09-18至09-23保留fix3，09-24起承接fix4，09-29起按fix9及其前向规则；不得重写旧账本生产者身份。
 - 本地和远端 runner：`run_ic_im_v1_4_github_digest.py`。
 - 持久状态：schema 4、revision r1，独立目录/工件 `ic-im-v1-4-r1-ledger`。
@@ -22,7 +22,11 @@
 
 定时发布只使用`close_confirmed`。工作流先运行交付回归、恢复/迁移账本、核验固定策略提交与BUILD_ID，再生成报告、邮件正文、发送intent、Gmail结果、正式账本和交付marker。发送intent存在但完成marker缺失时，禁止自动重发，须先核对原run和Gmail。
 
-本地Codex每日14:30任务与GitHub Gmail分别验收：本地输出不等于邮件送达，不另行SMTP补发。两者必须显示相同1.4构建、策略revision、信号边界和到期条件分支。
+本地Codex工作日14:15任务与GitHub Gmail分别验收：本地输出不等于邮件送达，不另行SMTP补发。两者必须显示相同信号日对应的1.4构建、策略revision、信号边界和到期条件分支。程序最新构建与历史信号身份分开：休市时最近已完成日仍为2026-09-30，不把该日报改成10月8日fix11。
+
+2026-10-07同步的策略执行提交为`739071a201506dd869b9a156e490c3bafd95a334`。云端每日工作流固定读取该提交；本地可使用其后只改文档的提交，六个执行文件必须相同。发布及发送准备验收记录见`docs/ic_im_v1_4_delivery_sync_20261007.md`。
+
+手动工作流`ic-im-v1-4-delivery-readiness.yml`用于无发送预检：从正式工作流解析策略pin，恢复最近成功的正式账本到隔离目录，经迁移/全链/日期验证，运行官方runner及正常日报打包器，再做TLS、SMTP认证与MAIL/RCPT/RSET检查。它不提交DATA，不上传正式账本、发送intent或已交付marker。预检通过只证明当次生成与传输准备，未来交易日行情和实际邮件投递仍分别验收。
 
 ## 行情源与开盘纸面价格
 
