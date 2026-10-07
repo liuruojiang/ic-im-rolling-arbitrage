@@ -354,7 +354,7 @@ def build_artifacts(
         _atomic_write_text(out_dir / "diagnostic_report.md", report)
         after = store.load_latest()
         if set(observed) != set(PRODUCTS):
-            failures = re.findall(r"完整信号失败：([^\n]+)", report)
+            failures = re.findall(r"(?:完整信号失败|当日信号警告)：([^\n]+)", report)
             raise RuntimeError(
                 "盘中产物必须同时包含IC和IM完整信号；已取得="
                 + ",".join(sorted(observed))

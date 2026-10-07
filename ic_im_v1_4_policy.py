@@ -198,7 +198,11 @@ def validate_extension(product: str, state: dict[str, Any]) -> None:
         if trigger_day >= PROFIT_OPEN_EFFECTIVE_SIGNAL_DATE:
             if not state.get("v14_profit_old_contract") or not state.get("v14_profit_reentry_contract"):
                 raise RuntimeError(f"{product} open profit plan lacks old/new contracts")
-            if float(state.get("v14_profit_old_qty") or 0) <= 0 or float(state.get("v14_profit_reentry_qty") or 0) <= 0:
+            quantities = (
+                float(state.get("v14_profit_old_qty") or 0),
+                float(state.get("v14_profit_reentry_qty") or 0),
+            )
+            if not all(math.isfinite(qty) and qty > 0 for qty in quantities):
                 raise RuntimeError(f"{product} open profit plan lacks old/new quantities")
             if product == "IC" and (not state.get("v14_profit_old_security_id") or not state.get("v14_profit_reentry_security_id")):
                 raise RuntimeError("IC open profit plan lacks old/new security ids")

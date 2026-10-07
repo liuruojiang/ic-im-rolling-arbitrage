@@ -178,7 +178,7 @@ class LedgerCoordinator:
                     "信号", query_clock, replay_day=replay_day
                 )
                 if set(observed) != {"IC", "IM"}:
-                    failures = re.findall(r"完整信号失败：([^\n]+)", text)
+                    failures = re.findall(r"(?:完整信号失败|当日信号警告)：([^\n]+)", text)
                     detail = "；".join(failures[:2]) or "未返回逐腿失败摘要"
                     raise RuntimeError(
                         f"自动补账未同时得到IC/IM完整信号｜{detail}"
