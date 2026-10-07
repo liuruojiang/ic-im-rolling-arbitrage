@@ -1,9 +1,9 @@
 {
   "version": "ic_im_mainline_workspace_manifest_v1",
-  "generated_at": "2026-10-07T14:17:28+08:00",
+  "generated_at": "2026-10-07T16:49:23+08:00",
   "root": "D:\\动量策略\\IC和IM滚动套利",
-  "file_count": 2953,
-  "total_bytes": 776047750,
+  "file_count": 2955,
+  "total_bytes": 776064271,
   "files": {
     ".dockerignore": {
       "bytes": 72,
@@ -2818,8 +2818,8 @@
       "sha256": "f0eba0a755ba773e5666d13bb286c619862166556104863cdd1729c3a0b5de4a"
     },
     "notes/mainline_registry.md": {
-      "bytes": 25911,
-      "sha256": "97e230645392f645df4fb7cd3c917909e2e1f75576cd3551b6bc419c41d9c694"
+      "bytes": 26496,
+      "sha256": "c5c7f2f50b72048b3d719d2dd36263b34bc7149eaab3fe41fcb4ef6de974e263"
     },
     "outputs/.ic_im_system_mainlines_v2.failed_20260820_1/current_state.csv": {
       "bytes": 522,
@@ -11814,8 +11814,16 @@
       "sha256": "37313fb892286843afcb8dcbe7a58653a4703b49aeb739f0e5efdd57fd87864a"
     },
     "docs/ic_im_v1_4_delivery_sync_20261007.md": {
-      "bytes": 6069,
-      "sha256": "f177401c53104f523683a78c4f1b0598c35585be3d3bd7081d7924e078e21715"
+      "bytes": 9088,
+      "sha256": "4691eb413eb1ab8d6717986ec6eaff1f5660887bdbf062aeabaf5450e949e84f"
+    },
+    "docs/ic_im_v1_4_adversarial_fix_20261007.md": {
+      "bytes": 6353,
+      "sha256": "8690ac6a3f35dcb16d84877a2a24e7e03a81aa41888067fa5d423b45d7b552c3"
+    },
+    "docs/ic_im_v1_4_github_gmail_runbook.md": {
+      "bytes": 6564,
+      "sha256": "5f36c337e379c480f92ccd0db582ae4a8e803d43bf5a5be7cada3be99bd3de13"
     }
   }
 }
