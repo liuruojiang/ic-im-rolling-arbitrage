@@ -22,15 +22,17 @@
 
 定时发布只使用`close_confirmed`。工作流先运行交付回归、恢复/迁移账本、核验固定策略提交与BUILD_ID，再生成报告、邮件正文、发送intent、Gmail结果、正式账本和交付marker。发送intent存在但完成marker缺失时，禁止自动重发，须先核对原run和Gmail。
 
-本地Codex工作日14:15任务与GitHub Gmail分别验收：本地输出不等于邮件送达，不另行SMTP补发。两者必须显示相同信号日对应的1.4构建、策略revision、信号边界和到期条件分支。程序最新构建与历史信号身份分开：休市时最近已完成日仍为2026-09-30，不把该日报改成10月8日fix11。
+本地Codex工作日14:15任务与GitHub Gmail分别验收：本地输出不等于邮件送达，不另行SMTP补发。两者必须显示相同信号日对应的1.4构建、策略revision、信号边界和到期条件分支。程序最新构建与历史信号身份分开：例如2026-10-01至10-07休市时最近已完成日为2026-09-30，不把该历史日报改成10月8日fix11。
 
-2026-10-07同步的策略执行提交为`739071a201506dd869b9a156e490c3bafd95a334`。云端每日工作流固定读取该提交；本地可使用其后只改文档的提交，六个执行文件必须相同。发布及发送准备验收记录见`docs/ic_im_v1_4_delivery_sync_20261007.md`。
+2026-10-09用户批准的CFFEX传输/失败诊断修复已由策略PR #41合并，当前正式执行提交为`408c9badea5351ae7c0021f9b1e9adfdb804d554`。云端每日工作流应固定读取该提交；本地可使用其后只改文档的提交，执行文件必须一致。fix11构建、规则与信号日边界不变，旧`739071a201506dd869b9a156e490c3bafd95a334`仅为历史发布记录。修复及回归见`docs/ic_im_v1_4_cffex_transport_release_20261009.md`；10/07历史发送准备证据保留在`docs/ic_im_v1_4_delivery_sync_20261007.md`。
+
+云端PR #137/#138均已合并，10/09同步时main为`2dc8b2c6394b926277ac85a428140040f5769669`，三组远端CI零跳过。真实10/09收盘无发送readiness为run37911491710，隔离seq11；Put固定表按同快照仅重打包验收。今日正常20:00邮件与实际INBOX仍须分开核验；完整证据及边界见`docs/ic_im_v1_4_delivery_sync_20261009.md`。
 
 手动工作流`ic-im-v1-4-delivery-readiness.yml`用于无发送预检：从正式工作流解析策略pin，恢复最近成功的正式账本到隔离目录，经迁移/全链/日期验证，运行官方runner及正常日报打包器，再做TLS、SMTP认证与MAIL/RCPT/RSET检查。它不提交DATA，不上传正式账本、发送intent或已交付marker。预检通过只证明当次生成与传输准备，未来交易日行情和实际邮件投递仍分别验收。
 
 ## 本地累计离线专项与已知边界
 
-本地 `ic-im` 提示词的 IC/IM 专项统一收集以下 21 文件，相同文件只运行一次。使用 `python -B -X utf8 -m pytest -q -p no:cacheprovider`，由测试子进程施加 60 秒硬超时。只在子进程环境副本中将 `ICIM_STATE_DIR` 指向新建临时目录并设置 `ICIM_REQUIRE_MIGRATION=0`；正式 runner 仍使用原状态路径和 `ICIM_REQUIRE_MIGRATION=1`。缺文件、失败或超时只阻塞本策略，保存实际日志；不能用部分清单代替通过。
+本地 `ic-im` 提示词的 IC/IM 专项统一收集以下 23 文件，相同文件只运行一次。使用 `python -B -X utf8 -m pytest -q -p no:cacheprovider`，由测试子进程施加 60 秒硬超时。只在子进程环境副本中将 `ICIM_STATE_DIR` 指向新建临时目录并设置 `ICIM_REQUIRE_MIGRATION=0`；正式 runner 仍使用原状态路径和 `ICIM_REQUIRE_MIGRATION=1`。缺文件、失败或超时只阻塞本策略，保存实际日志；不能用部分清单代替通过。
 
 ```text
 test_delivery_transport_retry.py
@@ -54,11 +56,13 @@ test_adversarial_market_20261007.py
 test_adversarial_state_20261007.py
 test_adversarial_delivery_20261007.py
 test_adversarial_policy_20261007.py
+test_adversarial_cffex_transport_20261009.py
+test_adversarial_cffex_close_runner_20261009.py
 ```
 
-独立复核实际为 369 项全通过，零失败/跳过；此数是该次收集结果，不作为将来固定门槛。上轮 233 项对应 13 文件，不能冒称完整累计专项。
+10/09修复后实际为400项全通过，零失败/错误/跳过，外层11.319秒；此数是该次收集结果，不作为将来固定门槛。10/07的369项对应原21文件，233项仅对应13文件，不能冒称当前完整累计专项。
 
-云端打包器的独立交易日历、数量/待执行计划二次门禁存在两类待修 P2。已测 8 个异常被正式账本续接和收盘产物校验拒绝；生产流程必须保留这两层上游校验，不得仅以打包成功判定发送准备完成。详见 [同步与复核记录](ic_im_v1_4_delivery_sync_20261007.md)。历史审计 `verify.py` 绑定恢复前 seq8 且覆盖旧输出，不在当前 canonical 工作区直接重跑。
+10/07记录的云端打包器独立交易日历、数量/待执行计划两类P2在10/09远端同步中补修并独立验收，最新发布和readiness结果见`docs/ic_im_v1_4_delivery_sync_20261009.md`；原始反例及历史结论保留。生产流程仍须保留正式账本续接和收盘产物校验，不得仅以打包成功判定发送准备完成。历史审计 `verify.py` 绑定恢复前seq8且覆盖旧输出，不在当前canonical工作区直接重跑。
 
 ## 行情源与开盘纸面价格
 
