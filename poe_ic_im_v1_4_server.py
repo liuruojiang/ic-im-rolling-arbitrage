@@ -79,6 +79,7 @@ class LedgerCoordinator:
         self.store = store or StateStore()
         self.lock = threading.RLock()
         self.last_refresh_error: str | None = None
+        self.last_refresh_diagnostic: str | None = None
         require_migration = os.environ.get("ICIM_REQUIRE_MIGRATION", "0") == "1"
         if require_migration and not self.store.latest_path.is_file():
             raise RuntimeError("部署卷缺少已迁移的v1.4账本，禁止静默创建创世状态")
@@ -157,6 +158,7 @@ class LedgerCoordinator:
     def catch_up_once(self, now: datetime | None = None) -> bool:
         clock = now or strategy._now_beijing()
         with self.lock:
+            self.last_refresh_diagnostic = None
             latest = self.store.load_latest()
             verified = date.fromisoformat(str(latest["verified_day"])[:10])
             completed = strategy._latest_completed_exchange_day(clock)
@@ -177,11 +179,16 @@ class LedgerCoordinator:
                 text, _, observed = self.execute_query(
                     "信号", query_clock, replay_day=replay_day
                 )
+                self.last_refresh_diagnostic = (
+                    f"诊断交易日：{next_day.isoformat()}\n"
+                    f"采集路径：{'current_close' if same_day_close else 'historical_replay'}\n\n"
+                    + text
+                )
                 if set(observed) != {"IC", "IM"}:
                     failures = re.findall(r"(?:完整信号失败|当日信号警告)：([^\n]+)", text)
                     detail = "；".join(failures[:2]) or "未返回逐腿失败摘要"
                     raise RuntimeError(
-                        f"自动补账未同时得到IC/IM完整信号｜{detail}"
+                        f"自动补账未同时得到IC/IM完整信号｜诊断交易日{next_day}｜{detail}"
                     )
                 after = self.store.load_latest()
                 after_day = date.fromisoformat(str(after["verified_day"])[:10])

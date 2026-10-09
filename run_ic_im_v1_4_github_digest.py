@@ -35,6 +35,14 @@ DELIVERY_REVISION = "20261008-v14-ic-csi500-abs40-fix11"
 MODES = ("close", "realtime")
 
 
+class _ArtifactBuildError(RuntimeError):
+    """Carry only this attempt's query text into the failure artifact."""
+
+    def __init__(self, message: str, diagnostic_report: str | None = None) -> None:
+        super().__init__(message)
+        self.diagnostic_report = diagnostic_report
+
+
 def delivery_revision_for_signal_day(signal_day: date) -> str:
     if signal_day >= strategy.v14_policy.IC_CSI500_EFFECTIVE_SIGNAL_DATE:
         return DELIVERY_REVISION
@@ -337,7 +345,10 @@ def build_artifacts(
     advanced = coordinator.catch_up_until_current(clock, max_sessions=max_sessions)
     health = coordinator.health(clock)
     if health.get("status") != "ok":
-        raise RuntimeError(str(health.get("refresh_error") or "账本补写状态异常"))
+        raise _ArtifactBuildError(
+            str(health.get("refresh_error") or "账本补写状态异常"),
+            getattr(coordinator, "last_refresh_diagnostic", None),
+        )
     if str(health.get("verified_day"))[:10] != completed_day.isoformat():
         raise RuntimeError(
             "账本未追平最近完成交易日："
@@ -355,19 +366,23 @@ def build_artifacts(
         after = store.load_latest()
         if set(observed) != set(PRODUCTS):
             failures = re.findall(r"(?:完整信号失败|当日信号警告)：([^\n]+)", report)
-            raise RuntimeError(
+            raise _ArtifactBuildError(
                 "盘中产物必须同时包含IC和IM完整信号；已取得="
                 + ",".join(sorted(observed))
                 + "；逐品种失败=" + "；".join(failures)
-                + "；完整诊断见 diagnostic_report.md"
+                + "；完整诊断见 diagnostic_report.md",
+                report,
             )
-        validate_realtime_artifact(
-            clock=clock,
-            completed_day=completed_day,
-            before=latest,
-            after=after,
-            observed=observed,
-        )
+        try:
+            validate_realtime_artifact(
+                clock=clock,
+                completed_day=completed_day,
+                before=latest,
+                after=after,
+                observed=observed,
+            )
+        except RuntimeError as exc:
+            raise _ArtifactBuildError(str(exc), report) from exc
         report_name = "ic_im_v1_4_realtime_signal.md"
         publication_mode = "realtime"
         signal_day = clock.date()
@@ -484,6 +499,20 @@ def write_failure(
         out_dir / "result.json", json.dumps(payload, ensure_ascii=False, indent=2) + "\n"
     )
     _atomic_write_text(out_dir / "failure.txt", f"{type(exc).__name__}: {exc}\n")
+    diagnostic = (
+        "# 本次 IC/IM 失败诊断\n\n"
+        f"生成时间：{clock.isoformat()}\n"
+        f"目标行情日：{signal_day.isoformat()}\n"
+        f"模式：{mode}\n\n"
+        f"{type(exc).__name__}: {exc}\n\n"
+        "目标行情日不代表已取得该日完整信号；以下内容仅用于诊断，不能作为有效目标。\n\n"
+    )
+    query_diagnostic = getattr(exc, "diagnostic_report", None)
+    if query_diagnostic:
+        diagnostic += str(query_diagnostic)
+    else:
+        diagnostic += "本次失败前未取得可保存的逐腿查询诊断。\n"
+    _atomic_write_text(out_dir / "diagnostic_report.md", diagnostic)
 
 
 def main() -> int:

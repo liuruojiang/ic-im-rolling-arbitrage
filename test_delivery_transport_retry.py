@@ -1,6 +1,8 @@
 import pytest
 import requests
+import pandas as pd
 import poe_ic_im_mainline_v1_3_bot as bot
+import poe_ic_im_mainline_v1_4_bot as v14bot
 
 
 @pytest.mark.parametrize("mode", ["intraday", "close"])
@@ -15,6 +17,63 @@ def test_transport_retry_only_failed_product(monkeypatch, mode):
     result = bot.build_live_signal_with_transport_retry("IC", mode, 45.0)
     assert calls == ["IC", "IC"]
     assert result["data_notes"]
+
+
+def test_cffex_read_timeout_retries_only_failed_product_once(monkeypatch):
+    build_calls = []
+    request_calls = []
+    month = pd.Timestamp(
+        v14bot.datetime.now(v14bot.BEIJING).date().replace(day=1)
+    )
+
+    class Response:
+        headers = {}
+
+        def raise_for_status(self):
+            return None
+
+        def iter_content(self, chunk_size):
+            assert chunk_size == 64 * 1024
+            yield b"PK\x03\x04test-archive"
+
+        def close(self):
+            return None
+
+    def get(url, **kwargs):
+        request_calls.append((url, kwargs))
+        if len(request_calls) == 1:
+            raise requests.ReadTimeout("CFFEX timed out")
+        return Response()
+
+    def build(product, mode):
+        build_calls.append(product)
+        if product == "IC":
+            v14bot._cffex_month_archive(month)
+        return {"product": product, "data_notes": []}
+
+    monkeypatch.setattr(v14bot.requests, "get", get)
+    monkeypatch.setattr(v14bot, "build_live_trade_signal", build)
+
+    ic = v14bot.build_live_signal_with_transport_retry("IC", "close", 45.0)
+    im = v14bot.build_live_signal_with_transport_retry("IM", "close", 45.0)
+
+    assert ic["product"] == "IC"
+    assert im["product"] == "IM"
+    assert build_calls == ["IC", "IC", "IM"]
+    assert len(request_calls) == 2
+
+
+def test_cffex_read_timeout_preserves_retryable_type(monkeypatch):
+    month = pd.Timestamp(
+        v14bot.datetime.now(v14bot.BEIJING).date().replace(day=1)
+    )
+
+    def timeout(*args, **kwargs):
+        raise requests.ReadTimeout("CFFEX timed out")
+
+    monkeypatch.setattr(v14bot.requests, "get", timeout)
+    with pytest.raises(requests.ReadTimeout, match="中金所 .* 月度行情包HTTPS传输失败"):
+        v14bot._cffex_month_archive(month)
 
 
 @pytest.mark.parametrize("error,count", [(ValueError("stale date"), 1),
