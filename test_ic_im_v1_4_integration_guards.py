@@ -706,7 +706,7 @@ def test_current_month_cffex_archive_does_not_reuse_stale_cache(monkeypatch):
     key = month.strftime('%Y%m')
     monkeypatch.setitem(bot._CFFEX_MONTH_CACHE, key, b'PKstale')
     with patch.object(bot.requests, 'get', side_effect=bot.requests.ConnectionError('HTTPS unavailable')) as fetch:
-        with pytest.raises(RuntimeError, match='HTTPS下载失败'):
+        with pytest.raises(bot.requests.ConnectionError, match='HTTPS传输失败'):
             bot._cffex_month_archive(month)
     assert fetch.call_count == 1
     assert fetch.call_args.args[0].startswith('https://')

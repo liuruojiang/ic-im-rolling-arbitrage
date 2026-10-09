@@ -923,6 +923,7 @@ def _cffex_month_archive(month: pd.Timestamp) -> bytes:
         # historical marks that may enter a persisted research ledger.
         url = f"https://{path}"
         failures: list[str] = []
+        response = None
         try:
             response = requests.get(
                 url,
@@ -941,7 +942,16 @@ def _cffex_month_archive(month: pd.Timestamp) -> bytes:
                     raise RuntimeError(f"中金所 {key} 月度行情包超过下载上限")
             chunks: list[bytes] = []
             downloaded = 0
-            for chunk in response.iter_content(chunk_size=64 * 1024):
+            stream = iter(response.iter_content(chunk_size=64 * 1024))
+            while True:
+                # Requests' socket timeout applies to each read, not the whole
+                # response. Never accept or cache a body beyond our shared budget.
+                _bounded_timeout(5)
+                try:
+                    chunk = next(stream)
+                except StopIteration:
+                    break
+                _bounded_timeout(5)
                 if not chunk:
                     continue
                 downloaded += len(chunk)
@@ -949,14 +959,36 @@ def _cffex_month_archive(month: pd.Timestamp) -> bytes:
                     raise RuntimeError(f"中金所 {key} 月度行情包超过下载上限")
                 chunks.append(chunk)
             content = b"".join(chunks)
+            _bounded_timeout(5)
             if not content.startswith(b"PK"):
                 raise RuntimeError(f"中金所 {key} 月度行情包格式异常")
             if use_cache:
                 _CFFEX_MONTH_CACHE[key] = content
             else:
                 return content
+        except (
+            requests.ConnectionError,
+            requests.Timeout,
+            requests.exceptions.ChunkedEncodingError,
+        ) as exc:
+            failures.append(f"HTTPS {type(exc).__name__}: {exc}")
+            # Requests maps a broken streaming connection to ChunkedEncodingError.
+            # Normalize only that transport failure to the existing bounded retry.
+            error_type = (
+                requests.ConnectionError
+                if isinstance(exc, requests.exceptions.ChunkedEncodingError)
+                else type(exc)
+            )
+            raise error_type(
+                f"中金所 {key} 月度行情包HTTPS传输失败｜{type(exc).__name__}: {exc}",
+                request=exc.request,
+                response=exc.response,
+            ) from exc
         except (requests.RequestException, RuntimeError) as exc:
             failures.append(f"HTTPS {type(exc).__name__}: {exc}")
+        finally:
+            if response is not None:
+                response.close()
         if not use_cache or key not in _CFFEX_MONTH_CACHE:
             raise RuntimeError(
                 f"中金所 {key} 月度行情包HTTPS下载失败｜"
