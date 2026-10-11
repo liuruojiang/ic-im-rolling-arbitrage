@@ -1,0 +1,13 @@
+{
+  "original_path": "D:\\Codex\\home\\automations\\ic-im\\runs\\20260930\\run_1432\\icim-pinned-25ef",
+  "original_branch": "",
+  "original_head": "25ef7b571adfe058c33706d87c6ac076c577e9fe",
+  "scope": "Historical working-copy evidence; archived rather than replacing current formal state.",
+  "files": [
+    {
+      "path": "test_poe_ic_im_v1_4_state.py",
+      "bytes": 289,
+      "sha256": "473ef8fedddb61fdf50d7b4a79fdb2db274b59e489268b461ecfcabf8dc7034d"
+    }
+  ]
+}
