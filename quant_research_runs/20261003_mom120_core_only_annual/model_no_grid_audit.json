@@ -1,0 +1,42 @@
+{
+  "classification": "research_only_latest_no_grid_core_plus_momentum",
+  "engine_sha256": "23bcc16adeb21a8fbc2efdba6bf204a5ae271534792746bbf9e060404241ce93",
+  "audits": {
+    "IC": {
+      "full_baseline_max_return_error": 9.974659986866641e-17,
+      "nav_identity_max_error": 1.9984014443252818e-14,
+      "min_free_cash": 13248671.46458572,
+      "trade_counts": {
+        "future|core|": 57,
+        "future|momentum|": 178,
+        "future|grid|": 0,
+        "option|core_put|": 180,
+        "option|momentum_put|": 96,
+        "option|seller|": 7,
+        "option|call|": 0
+      },
+      "rows": 1770,
+      "start": "2015-04-16",
+      "end": "2022-07-21",
+      "input_folder": "quant_research_runs\\20261003_mom120_core_only_annual\\latest_model_inputs"
+    },
+    "IM": {
+      "full_baseline_max_return_error": 9.996344030316351e-17,
+      "nav_identity_max_error": 3.1530333899354446e-14,
+      "min_free_cash": 23974914.74506224,
+      "trade_counts": {
+        "future|core|": 63,
+        "future|momentum|": 219,
+        "future|grid|": 0,
+        "option|core_put|": 220,
+        "option|momentum_put|": 153,
+        "option|seller|": 6,
+        "option|call|": 0
+      },
+      "rows": 1770,
+      "start": "2015-04-16",
+      "end": "2022-07-21",
+      "input_folder": "quant_research_runs\\20261003_mom120_core_only_annual\\latest_model_inputs"
+    }
+  }
+}
