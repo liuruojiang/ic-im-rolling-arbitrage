@@ -1,0 +1,7 @@
+﻿product,period,start,end,trading_days,cumulative_return,annualized_return_252,data_basis
+IC,model_period,2015-04-16,2022-07-21,1770,0.8578202158907722,0.09219159387483913,actual_listed_futures
+IM,model_period,2015-04-16,2022-07-21,1770,0.45353644504187296,0.05469053119038234,synthetic_IM_futures
+IC,listed_real_period,2022-09-19,2026-08-13,945,0.7082576887158505,0.15349106755548086,actual_listed_futures
+IM,listed_real_period,2022-07-22,2026-08-14,986,0.5617592486454557,0.12068489672717322,actual_listed_futures
+IC,since_futures_listing,2015-04-16,2026-08-14,2756,1.4795100076457701,0.0865746744510995,actual_listed_futures
+IM,since_futures_listing,2022-07-22,2026-08-14,986,0.5617592486454592,0.12068489672717385,actual_listed_futures

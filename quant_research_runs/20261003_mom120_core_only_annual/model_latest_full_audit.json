@@ -1,0 +1,29 @@
+{
+  "classification": "research_only_latest_fix10_fix11_as_if_current_prelisting_model",
+  "baseline_max_return_error": {
+    "IC": 9.974659986866641e-17,
+    "IM": 9.974659986866641e-17
+  },
+  "grid_signals": {
+    "IC": {
+      "entries": 25,
+      "exits": 25
+    },
+    "IM": {
+      "entries": 26,
+      "exits": 26
+    }
+  },
+  "ic_core_put_target_quantity_changed_days_from_fix9": 217,
+  "producer_sha256": "0f371c74c1ae3639a1a1e7fd6a22a75a941176735bc32690fa3948532e061af0",
+  "fear_snapshot_sha256": "1b209c9166250ef4d320503386a94d6e3b868595d38fd687a03d7acea7cb7de9",
+  "account_engine_sha256": "23bcc16adeb21a8fbc2efdba6bf204a5ae271534792746bbf9e060404241ce93",
+  "input_sha256": {
+    "native_fix4_ic_noseller_targets_v2.csv.gz": "6be6ce4344292eb7cbfb89498aa44d1a3eb3aab4f36607ad1c2a93694aea420b",
+    "native_fix4_ic_risk_signals_v1.csv.gz": "1d8dd185035196e98bccdac7a2069b0ae70bb09b2b5f713f2fd54bf15191d016",
+    "native_fix4_im_noseller_targets_v3.csv.gz": "d0062275ff1df784af125396061a3a145fcf70bd267d8fcda58daddc54e75753",
+    "native_fix4_im_risk_signals_v1.csv.gz": "10e4210f2be76dd6820befd17f7d0aaf43be08cd0f8cd02b1f31bd6f55935049",
+    "native_fix4_seller_candidates_v1.csv.gz": "0a7707c8fb8303bdf5f45ce79ab3d36b33a1a0dfdd3180d58422eff517dcafeb",
+    "native_fix4_seller_lifecycle_v4.csv.gz": "aa5c4fd384c56f19c937ea63ecbc7076694de5c8ea9fa5fb91d48c42d293918d"
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "audits": {
+    "IC": {
+      "parent_target_input": "quant_research_runs\\20261002_fix10_vs_fix11_full_history\\account_inputs\\FIX11_full",
+      "trade_counts": {
+        "future|core|": 31,
+        "future|momentum|": 0,
+        "future|grid|": 0,
+        "option|core_put|": 95,
+        "option|momentum_put|": 0,
+        "option|seller|": 8,
+        "option|call|": 0
+      },
+      "nav_identity_max_error": 1.3322676295501878e-15,
+      "min_free_cash": 8565960.086984629,
+      "start": "2022-09-19",
+      "end": "2026-08-13",
+      "rows": 945
+    },
+    "IM": {
+      "parent_target_input": "quant_param_scan_runs\\20260926_icim_fix8_momentum_transfer_robustness\\input_variants\\im\\formal",
+      "trade_counts": {
+        "future|core|": 37,
+        "future|momentum|": 0,
+        "future|grid|": 0,
+        "option|core_put|": 110,
+        "option|momentum_put|": 0,
+        "option|seller|": 8,
+        "option|call|": 0
+      },
+      "nav_identity_max_error": 1.176836406102666e-14,
+      "min_free_cash": 21355055.9335531,
+      "start": "2022-07-22",
+      "end": "2026-08-14",
+      "rows": 986
+    }
+  },
+  "engine_sha256": "849dbf336b74f334b680e2307cd958ffc033f5f935080677c3d5319f157ac8f6",
+  "source_code_sha256": "0f371c74c1ae3639a1a1e7fd6a22a75a941176735bc32690fa3948532e061af0",
+  "classification": "research_only_core_no_momentum_no_grid_no_new_call"
+}

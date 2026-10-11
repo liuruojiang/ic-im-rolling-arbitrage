@@ -1,0 +1,66 @@
+{
+  "status": "PASS",
+  "checks": {
+    "model_IC": {
+      "full_rows": 1770,
+      "core_rows": 1770,
+      "negative_mom120_rows": 814,
+      "negative_no_grid_rows": 814,
+      "negative_core_rows": 814,
+      "negative_mom120_source": "prior T close, mapped to T+1 execution/P&L row",
+      "full_nav_identity_error": 1.141309269314661e-13,
+      "core_nav_identity_error": 9.992007221626409e-14,
+      "no_grid_nav_identity_error": 9.592326932761353e-14,
+      "pure_roll_nav_identity_error": 7.593925488436071e-14
+    },
+    "model_IM": {
+      "full_rows": 1770,
+      "core_rows": 1770,
+      "negative_mom120_rows": 973,
+      "negative_no_grid_rows": 973,
+      "negative_core_rows": 973,
+      "negative_mom120_source": "prior T close, mapped to T+1 execution/P&L row",
+      "full_nav_identity_error": 1.141309269314661e-13,
+      "core_nav_identity_error": 8.038014698286133e-14,
+      "no_grid_nav_identity_error": 1.283417816466681e-13,
+      "pure_roll_nav_identity_error": 5.81756864903582e-14
+    },
+    "real_IC": {
+      "full_rows": 945,
+      "core_rows": 945,
+      "negative_mom120_rows": 461,
+      "negative_no_grid_rows": 461,
+      "negative_core_rows": 461,
+      "negative_mom120_source": "prior T close, mapped to T+1 execution/P&L row",
+      "full_nav_identity_error": 7.016609515630989e-14,
+      "core_nav_identity_error": 4.773959005888173e-14,
+      "no_grid_nav_identity_error": 4.574118861455645e-14,
+      "pure_roll_nav_identity_error": 4.618527782440651e-14
+    },
+    "real_IM": {
+      "full_rows": 986,
+      "core_rows": 986,
+      "negative_mom120_rows": 481,
+      "negative_no_grid_rows": 481,
+      "negative_core_rows": 481,
+      "negative_mom120_source": "prior T close, mapped to T+1 execution/P&L row",
+      "full_nav_identity_error": 7.327471962526033e-14,
+      "core_nav_identity_error": 4.263256414560601e-14,
+      "no_grid_nav_identity_error": 6.17284001691587e-14,
+      "pure_roll_nav_identity_error": 4.6629367034256575e-14
+    }
+  },
+  "sources": {
+    "quant_research_runs\\20261002_fix10_vs_fix11_full_history\\account_daily_paths.csv.gz": "244f2dba987ef63737f602de7efd43416c2a76baf1759364259b7789474c93e0",
+    "quant_param_scan_runs\\20260928_fear_entry_paired_exit_fix9_certified_v2\\outputs\\fix9_full_account_daily_nav.csv.gz": "bfadedc03c935848947f90a79c3ab080c87ef191fbb05e664bdd69eafa12cf18",
+    "quant_research_runs\\20261003_mom120_core_only_annual\\model_latest_full_daily.csv.gz": "a27737a2d08ebf4f496aa0d2fde727e39c3b182d8a0a7db26b857964d51f878b",
+    "quant_research_runs\\20261003_mom120_core_only_annual\\model_core_only_daily.csv.gz": "5e86b888abc995cf68c8b07ed9dbf9c38d62af6a256fda17498de9be2e80f1a4",
+    "quant_research_runs\\20261003_mom120_core_only_annual\\real_core_only_daily.csv.gz": "a6d2d53ad9707992137de3f7de365d21c34832aa2df4c85abcf12c2e6916f5a5",
+    "quant_research_runs\\20261003_mom120_core_only_annual\\model_no_grid_daily.csv.gz": "5db97ee0a475fcba187d6ca1f9f0d39cbf18fafeb54f10bfa04ddcd8d1bde3bf",
+    "quant_research_runs\\20261003_mom120_core_only_annual\\real_no_grid_daily.csv.gz": "d952aa1e11e6c09728071b74f6e3e9bd7c5250430d08be7cc957746aa7e19905",
+    "quant_research_runs\\20261003_mom120_core_only_annual\\model_pure_roll_daily.csv.gz": "a35347406b1c99b524146bacc5f0604a428f5a452d1140eee502465ca086fbd9",
+    "quant_research_runs\\20261003_mom120_core_only_annual\\real_pure_roll_daily.csv.gz": "c9ebe6b4549a9754782e008b6a5a81a707fb5cf77037d5870b72820d9ebd875e"
+  },
+  "scope": "research-only as-if-current; model and real histories never chained into one account NAV",
+  "return_definition": "within-year or within-segment compound net daily returns; all three MOM120 scenarios use the same prior-T-close-selected T+1 dates and omit other dates"
+}

@@ -1,0 +1,42 @@
+{
+  "classification": "research_only_latest_no_grid_core_plus_momentum",
+  "engine_sha256": "23bcc16adeb21a8fbc2efdba6bf204a5ae271534792746bbf9e060404241ce93",
+  "audits": {
+    "IC": {
+      "full_baseline_max_return_error": 9.8879238130678e-17,
+      "nav_identity_max_error": 8.43769498715119e-15,
+      "min_free_cash": 8707152.524809774,
+      "trade_counts": {
+        "future|core|": 31,
+        "future|momentum|": 78,
+        "future|grid|": 0,
+        "option|core_put|": 95,
+        "option|momentum_put|": 31,
+        "option|seller|": 8,
+        "option|call|": 0
+      },
+      "rows": 945,
+      "start": "2022-09-19",
+      "end": "2026-08-13",
+      "input_folder": "quant_research_runs\\20261002_fix10_vs_fix11_full_history\\account_inputs\\FIX11_full"
+    },
+    "IM": {
+      "full_baseline_max_return_error": 9.974659986866641e-17,
+      "nav_identity_max_error": 5.329070518200751e-15,
+      "min_free_cash": 15741839.440439936,
+      "trade_counts": {
+        "future|core|": 37,
+        "future|momentum|": 98,
+        "future|grid|": 0,
+        "option|core_put|": 110,
+        "option|momentum_put|": 57,
+        "option|seller|": 8,
+        "option|call|": 0
+      },
+      "rows": 986,
+      "start": "2022-07-22",
+      "end": "2026-08-14",
+      "input_folder": "quant_research_runs\\20261003_mom120_core_only_annual\\real_im_fear50_inputs"
+    }
+  }
+}
