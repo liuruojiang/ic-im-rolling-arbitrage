@@ -32,6 +32,8 @@
 
 ## 本地累计离线专项与已知边界
 
+同日后续 Put 摘要修复的当前正式执行代码提交为 `5c80544bb3ffd21a1bddb31e751d567b459927a3`，包含 Tencent 修复，覆盖下面 `3b692774` 的当前 pin 表述。独立生命周期与普通保护核心 Put 的合约及数量分列；24 文件 416 项、零失败/错误/跳过、12.152 秒。保存的当日 result.json 只重生成报告，canonical seq12 不变，不重复 producer 或发送。详见 `docs/ic_im_v1_4_put_summary_repair_20261012.md`。
+
 2026-10-12 腾讯历史备用源修复已由策略 PR #43 合并。当前正式执行代码提交为 `3b6927743850f76443f20734c2c3835da5473ba7`，本地可用执行文件相同的后续正式提交；此段覆盖此前 408c9b 的当前 pin 表述。fix11 身份和历史链不变，详见 `docs/ic_im_v1_4_tencent_history_repair_20261012.md`。累计专项增加 `test_tencent_ohlcv_pagination_20261012.py`，现为 24 文件；本次实测 415 项、零失败/错误/跳过、13.494 秒，不固定将来测试数量。
 
 本地 `ic-im` 提示词的 IC/IM 专项统一收集以下 24 文件，相同文件只运行一次。使用 `python -B -X utf8 -m pytest -q -p no:cacheprovider`，由测试子进程施加 60 秒硬超时。只在子进程环境副本中将 `ICIM_STATE_DIR` 指向新建临时目录并设置 `ICIM_REQUIRE_MIGRATION=0`；正式 runner 仍使用原状态路径和 `ICIM_REQUIRE_MIGRATION=1`。缺文件、失败或超时只阻塞本策略，保存实际日志；不能用部分清单代替通过。
