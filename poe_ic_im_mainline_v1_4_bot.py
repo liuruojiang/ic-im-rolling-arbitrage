@@ -284,6 +284,15 @@ ACTION_CN = {
 }
 EASTMONEY_SECIDS = {"IC": "1.000905", "IM": "1.000852"}
 TENCENT_SYMBOLS = {"IC": "sh000905", "IM": "sh000852"}
+TENCENT_OHLCV_HISTORY_URL = (
+    "https://proxy.finance.qq.com/ifzqgtimg/appstock/app/newfqkline/get"
+)
+TENCENT_OHLCV_PAGE_COUNT = 1000
+TENCENT_OHLCV_PAGE_STEP_YEARS = 3
+TENCENT_OHLCV_TIMEOUT_SECONDS = 8.0
+# The Tencent newfqkline daily index endpoint reports volume in 100-share lot units.
+# This is a fixed property of that endpoint, not a cross-provider estimate.
+TENCENT_OHLCV_VOLUME_TO_SHARES = 100.0
 
 # CFFEX/SSE official 2026 weekday closures. Weekends are always closed even
 # when the State Council designates them as make-up working days. Keep the
@@ -2038,6 +2047,317 @@ class SignalTransportError(RuntimeError, requests.ConnectionError):
     """All attempted sources failed in transport, not data validation."""
 
 
+def _fetch_tencent_ohlcv_history(product: str, clock: datetime) -> pd.DataFrame:
+    """Fetch Tencent daily index OHLCV in same-source pages and validate once."""
+
+    symbol = TENCENT_SYMBOLS[product]
+    history_start = V13_HISTORY_DATE_INDEX[product][0]
+    expected_day = _latest_completed_exchange_day(clock)
+    all_rows: dict[date, tuple[str, ...]] = {}
+    page_manifest: list[dict[str, Any]] = []
+    year = history_start.year
+    first_page = True
+    page_number = 0
+
+    while True:
+        page_start = history_start if first_page else date(year, 1, 1)
+        page_end = min(
+            date(year + TENCENT_OHLCV_PAGE_STEP_YEARS, 1, 31), expected_day
+        )
+        if page_end < page_start:
+            raise RuntimeError(
+                f"{product} Tencent分页日期无效：{page_start}至{page_end}"
+            )
+
+        page_number += 1
+        params = {
+            "param": (
+                f"{symbol},day,{page_start.isoformat()},{page_end.isoformat()},"
+                f"{TENCENT_OHLCV_PAGE_COUNT},qfq"
+            )
+        }
+        started_at = datetime.now(BEIJING)
+        timeout_seconds = _bounded_timeout(TENCENT_OHLCV_TIMEOUT_SECONDS)
+        response = None
+        raw = b""
+        downloaded = 0
+        declared_size: int | None = None
+        response_url = TENCENT_OHLCV_HISTORY_URL
+        http_status: Any = "unknown"
+        try:
+            try:
+                response = requests.get(
+                    TENCENT_OHLCV_HISTORY_URL,
+                    params=params,
+                    timeout=timeout_seconds,
+                    headers={
+                        "User-Agent": "Mozilla/5.0 POE-IC-IM-Research/1.0",
+                        "Referer": "https://gu.qq.com/",
+                        "Cache-Control": "no-cache",
+                        "Pragma": "no-cache",
+                    },
+                    stream=True,
+                )
+            except requests.exceptions.ChunkedEncodingError as exc:
+                ended_at = datetime.now(BEIJING)
+                message = (
+                    f"{product} Tencent分页连接中断：window={page_start}..{page_end}; "
+                    f"started={started_at.isoformat()}; ended={ended_at.isoformat()}; "
+                    f"error={exc}"
+                )
+                raise requests.ConnectionError(
+                    message, request=exc.request, response=exc.response
+                ) from exc
+            except (requests.ConnectionError, requests.Timeout) as exc:
+                ended_at = datetime.now(BEIJING)
+                message = (
+                    f"{product} Tencent分页连接失败：window={page_start}..{page_end}; "
+                    f"timeout={timeout_seconds:.3f}s; started={started_at.isoformat()}; "
+                    f"ended={ended_at.isoformat()}; error={exc}"
+                )
+                raise type(exc)(message) from exc
+
+            response_url = str(getattr(response, "url", TENCENT_OHLCV_HISTORY_URL))
+            http_status = getattr(response, "status_code", "unknown")
+            _bounded_timeout(TENCENT_OHLCV_TIMEOUT_SECONDS)
+            response.raise_for_status()
+            response_headers = getattr(response, "headers", {}) or {}
+            declared_header = response_headers.get("Content-Length")
+            if declared_header not in (None, ""):
+                try:
+                    declared_size = int(declared_header)
+                except (TypeError, ValueError) as exc:
+                    raise RuntimeError(
+                        f"{product} Tencent分页Content-Length非法：{declared_header!r}"
+                    ) from exc
+                if declared_size < 0:
+                    raise RuntimeError(
+                        f"{product} Tencent分页Content-Length为负数：{declared_size}"
+                    )
+                if declared_size > MAX_QUOTE_RESPONSE_BYTES:
+                    raise RuntimeError(
+                        f"{product} Tencent分页响应声明大小超过"
+                        f"{MAX_QUOTE_RESPONSE_BYTES}字节：{declared_size}"
+                    )
+
+            chunks: list[bytes] = []
+            stream = iter(response.iter_content(chunk_size=64 * 1024))
+            while True:
+                # The request timeout is per socket read. Check the shared
+                # product budget both before and after every streamed chunk.
+                _bounded_timeout(TENCENT_OHLCV_TIMEOUT_SECONDS)
+                try:
+                    chunk = next(stream)
+                except StopIteration:
+                    break
+                _bounded_timeout(TENCENT_OHLCV_TIMEOUT_SECONDS)
+                if not chunk:
+                    continue
+                if not isinstance(chunk, (bytes, bytearray)):
+                    raise RuntimeError(
+                        f"{product} Tencent分页流返回非字节块：{type(chunk).__name__}"
+                    )
+                if len(chunk) > MAX_QUOTE_RESPONSE_BYTES - downloaded:
+                    raise RuntimeError(
+                        f"{product} Tencent分页响应累计大小超过"
+                        f"{MAX_QUOTE_RESPONSE_BYTES}字节"
+                    )
+                downloaded += len(chunk)
+                chunks.append(bytes(chunk))
+                _bounded_timeout(TENCENT_OHLCV_TIMEOUT_SECONDS)
+
+            raw = b"".join(chunks)
+            ended_at = datetime.now(BEIJING)
+            response_sha256 = hashlib.sha256(raw).hexdigest()
+            response_audit = (
+                f"window={page_start}..{page_end}; url={response_url}; "
+                f"http={http_status}; bytes={downloaded}; "
+                f"content_length={declared_size}; sha256={response_sha256}; "
+                f"started={started_at.isoformat()}; ended={ended_at.isoformat()}"
+            )
+            _bounded_timeout(TENCENT_OHLCV_TIMEOUT_SECONDS)
+            try:
+                payload = json.loads(raw)
+            except (UnicodeDecodeError, ValueError) as exc:
+                raise RuntimeError(
+                    f"{product} Tencent分页JSON解析失败：{response_audit}; error={exc}"
+                ) from exc
+            _bounded_timeout(TENCENT_OHLCV_TIMEOUT_SECONDS)
+        except requests.exceptions.ChunkedEncodingError as exc:
+            ended_at = datetime.now(BEIJING)
+            message = (
+                f"{product} Tencent分页流连接中断：window={page_start}..{page_end}; "
+                f"url={response_url}; http={http_status}; bytes={downloaded}; "
+                f"started={started_at.isoformat()}; ended={ended_at.isoformat()}; "
+                f"error={exc}"
+            )
+            raise requests.ConnectionError(
+                message, request=exc.request, response=exc.response or response
+            ) from exc
+        except requests.HTTPError as exc:
+            ended_at = datetime.now(BEIJING)
+            raise RuntimeError(
+                f"{product} Tencent分页HTTP失败：window={page_start}..{page_end}; "
+                f"url={response_url}; http={http_status}; "
+                f"started={started_at.isoformat()}; ended={ended_at.isoformat()}; "
+                f"error={exc}"
+            ) from exc
+        except (requests.ConnectionError, requests.Timeout) as exc:
+            ended_at = datetime.now(BEIJING)
+            message = (
+                f"{product} Tencent分页连接失败：window={page_start}..{page_end}; "
+                f"url={response_url}; http={http_status}; bytes={downloaded}; "
+                f"started={started_at.isoformat()}; ended={ended_at.isoformat()}; "
+                f"error={exc}"
+            )
+            raise type(exc)(message) from exc
+        finally:
+            if response is not None:
+                response.close()
+
+        if not isinstance(payload, dict):
+            raise RuntimeError(
+                f"{product} Tencent分页响应JSON类型错误：{type(payload).__name__}; "
+                f"{response_audit}"
+            )
+        api_code = payload.get("code")
+        api_message = payload.get("msg")
+        if api_code not in (0, "0") or api_message not in (None, "", "ok"):
+            raise RuntimeError(
+                f"{product} Tencent OHLCV API拒绝请求：code={api_code!r}, "
+                f"msg={api_message!r}; {response_audit}"
+            )
+
+        data = payload.get("data")
+        node = data.get(symbol) if isinstance(data, dict) else None
+        if not isinstance(node, dict):
+            raise RuntimeError(
+                f"{product} Tencent分页缺少{symbol}数据节点，"
+                f"{response_audit}"
+            )
+        row_key = next(
+            (key for key in ("qfqday", "day") if node.get(key)), None
+        )
+        raw_rows = node.get(row_key) if row_key else None
+        if not isinstance(raw_rows, list) or not raw_rows:
+            raise RuntimeError(
+                f"{product} Tencent分页无日线数据，window={page_start}..{page_end}; "
+                f"node_keys={list(node)}; {response_audit}"
+            )
+
+        page_dates: list[date] = []
+        page_seen: set[date] = set()
+        filtered_before_history_start = 0
+        accepted_rows: list[tuple[date, tuple[str, ...]]] = []
+        for item in raw_rows:
+            if not isinstance(item, (list, tuple)) or len(item) < 6:
+                raise RuntimeError(
+                    f"{product} Tencent分页行字段不足6项，"
+                    f"window={page_start}..{page_end}"
+                )
+            row = tuple(str(value) for value in item[:6])
+            try:
+                row_day = date.fromisoformat(row[0][:10])
+            except ValueError as exc:
+                raise RuntimeError(
+                    f"{product} Tencent分页日期非法：{row[0]!r}"
+                ) from exc
+            if row_day in page_seen:
+                raise RuntimeError(
+                    f"{product} Tencent分页内部日期重复：{row_day}"
+                )
+            page_seen.add(row_day)
+            page_dates.append(row_day)
+            if row_day > expected_day:
+                raise RuntimeError(
+                    f"{product} Tencent分页含未来日期：{row_day} > {expected_day}"
+                )
+            if row_day < history_start:
+                filtered_before_history_start += 1
+                continue
+            accepted_rows.append((row_day, row))
+
+        for row_day, row in accepted_rows:
+            prior = all_rows.get(row_day)
+            if prior is not None and prior != row:
+                raise RuntimeError(
+                    f"{product} Tencent分页重叠行冲突：{row_day}; "
+                    f"prior={prior!r}; current={row!r}"
+                )
+
+        # Do not accept page rows or continue to another request after the
+        # shared signal budget has expired while parsing this response.
+        _bounded_timeout(TENCENT_OHLCV_TIMEOUT_SECONDS)
+        for row_day, row in accepted_rows:
+            all_rows[row_day] = row
+
+        page_manifest.append(
+            {
+                "page": page_number,
+                "window_start": page_start.isoformat(),
+                "window_end": page_end.isoformat(),
+                "started_at": started_at.isoformat(),
+                "ended_at": ended_at.isoformat(),
+                "elapsed_seconds": round((ended_at - started_at).total_seconds(), 3),
+                "http_status": int(http_status),
+                "request_url": response_url,
+                "params": params,
+                "response_bytes": downloaded,
+                "response_sha256": response_sha256,
+                "api_code": api_code,
+                "api_msg": api_message,
+                "row_key": row_key,
+                "raw_row_count": len(raw_rows),
+                "filtered_before_history_start": filtered_before_history_start,
+                "first_response_date": min(page_dates).isoformat(),
+                "last_response_date": max(page_dates).isoformat(),
+                "accepted_row_count": len(accepted_rows),
+                "count_cap_reached": len(raw_rows) >= TENCENT_OHLCV_PAGE_COUNT,
+            }
+        )
+
+        if page_end >= expected_day:
+            break
+        year += TENCENT_OHLCV_PAGE_STEP_YEARS
+        first_page = False
+
+    if not all_rows:
+        raise RuntimeError(f"{product} Tencent OHLCV合并后为空")
+    records = []
+    for row_day in sorted(all_rows):
+        row = all_rows[row_day]
+        records.append(
+            {
+                "date": row_day,
+                "open": float(row[1]),
+                "close": float(row[2]),
+                "high": float(row[3]),
+                "low": float(row[4]),
+                "volume": float(row[5]) * TENCENT_OHLCV_VOLUME_TO_SHARES,
+            }
+        )
+    frame = (
+        pd.DataFrame(records)
+        .assign(date=lambda value: pd.to_datetime(value["date"], errors="raise"))
+        .set_index("date")
+        .sort_index()
+    )
+    frame.attrs.update(
+        {
+            "source": "Tencent",
+            "source_api": "Tencent newfqkline",
+            "source_adjustment": "qfq",
+            "source_volume_scale": TENCENT_OHLCV_VOLUME_TO_SHARES,
+            "source_page_manifest": page_manifest,
+        }
+    )
+    _bounded_timeout(TENCENT_OHLCV_TIMEOUT_SECONDS)
+    validated = _validate_v13_ohlcv(product, frame, clock)
+    _bounded_timeout(TENCENT_OHLCV_TIMEOUT_SECONDS)
+    validated.attrs.update(frame.attrs)
+    return validated
+
+
 def fetch_ohlcv_history(product: str) -> pd.DataFrame:
     """Fetch raw daily index OHLCV using the A-share v1.3 source order."""
 
@@ -2110,26 +2430,9 @@ def fetch_ohlcv_history(product: str) -> pd.DataFrame:
         errors.append(f"Eastmoney: {type(exc).__name__}: {exc}")
         causes.append(exc)
     try:
-        payload = _request_json(
-            "https://web.ifzq.gtimg.cn/appstock/app/fqkline/get",
-            {"param": f"{symbol},day,,,10000,qfq"},
-        )
-        node = ((payload.get("data") or {}).get(symbol) or {})
-        raw_rows = node.get("qfqday") or node.get("day") or []
-        rows = [
-            {
-                "date": item[0], "open": float(item[1]), "close": float(item[2]),
-                "high": float(item[3]), "low": float(item[4]), "volume": float(item[5]),
-            }
-            for item in raw_rows if len(item) >= 6
-        ]
-        if len(rows) >= 180:
-            frame = pd.DataFrame(rows).assign(date=lambda x: pd.to_datetime(x["date"])).set_index("date").sort_index()
-            frame.attrs["source"] = "Tencent"
-            _validate_v13_ohlcv(product, frame, _now_beijing())
-            frame.attrs["source_failures"] = list(errors)
-            return frame
-        raise RuntimeError("Tencent OHLCV不足180行")
+        frame = _fetch_tencent_ohlcv_history(product, _now_beijing())
+        frame.attrs["source_failures"] = list(errors)
+        return frame
     except Exception as exc:
         errors.append(f"Tencent: {type(exc).__name__}: {exc}")
         causes.append(exc)
@@ -2395,6 +2698,19 @@ def live_proxy(product: str, clock: datetime | None = None) -> dict[str, Any]:
         "momentum_base_dd": float(momentum_schedule["base_dd_for_gate"].iloc[-1]),
         "momentum_nav_defense": bool(momentum_schedule["nav_decay_signal"].iloc[-1]),
         "momentum_ohlcv_source": (ohlcv.attrs.get("source", "未知") if ohlcv is not None else None),
+        "momentum_ohlcv_source_audit": (
+            list(ohlcv.attrs.get("source_page_manifest") or [])
+            if ohlcv is not None
+            else []
+        ),
+        "momentum_ohlcv_source_failures": (
+            list(ohlcv.attrs.get("source_failures") or [])
+            if ohlcv is not None
+            else []
+        ),
+        "momentum_ohlcv_source_volume_scale": (
+            ohlcv.attrs.get("source_volume_scale") if ohlcv is not None else None
+        ),
         "momentum_current_weight": current_momentum_weight,
         "momentum_next_weight": next_momentum_weight,
         "momentum_signal_date": history.index[-1].date(),
@@ -5324,6 +5640,22 @@ def _build_live_trade_signal(
                 else "成交量已通过日期、OHLC关系、正值与数量级校验"
             )
         )
+    if live.get("momentum_ohlcv_source_failures"):
+        data_notes.append(
+            "指数OHLCV前序来源失败："
+            + "；".join(live["momentum_ohlcv_source_failures"])
+        )
+    if live.get("momentum_ohlcv_source_audit"):
+        page_summary = [
+            f"{page['page']}:{page['first_response_date']}..{page['last_response_date']}"
+            f" sha256={page['response_sha256']}"
+            f" bytes={page['response_bytes']}"
+            f" {page['started_at']}..{page['ended_at']}"
+            for page in live["momentum_ohlcv_source_audit"]
+        ]
+        data_notes.append(
+            "Tencent OHLCV分页来源审计：" + "；".join(page_summary)
+        )
     if bridge_from_anchor:
         data_notes.append(
             f"账本下一交易日桥接：当前腿固定取"
@@ -5373,6 +5705,11 @@ def _build_live_trade_signal(
         "momentum_base_dd": live["momentum_base_dd"],
         "momentum_nav_defense": live["momentum_nav_defense"],
         "momentum_ohlcv_source": live["momentum_ohlcv_source"],
+        "momentum_ohlcv_source_audit": live.get("momentum_ohlcv_source_audit", []),
+        "momentum_ohlcv_source_failures": live.get("momentum_ohlcv_source_failures", []),
+        "momentum_ohlcv_source_volume_scale": live.get(
+            "momentum_ohlcv_source_volume_scale"
+        ),
         "momentum_current_weight": live["momentum_current_weight"],
         "momentum_next_weight": live["momentum_next_weight"],
         "momentum_signal_date": live["momentum_signal_date"],
