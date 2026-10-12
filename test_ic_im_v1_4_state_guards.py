@@ -363,3 +363,146 @@ def test_reject_corrupt_short_state_before_hash_write(changes):
     signal.update(changes)
     with pytest.raises(RuntimeError):
         state.validate_delivery_values(signal, 'IC')
+
+
+def _profit_open_pair(product):
+    """Synthetic execution of an exact prior-close plan; no market claim."""
+    old_contract = '510500P2612M07500' if product == 'IC' else 'MO2612-P-7500'
+    new_contract = '510500P2612M07000' if product == 'IC' else 'MO2612-P-7000'
+    quantity = 5 if product == 'IC' else 1.5
+    anchor = policy.default_extension(product)
+    anchor.update(v14_profit_pending=True, v14_profit_trigger_day=date(2026, 9, 28),
+                  v14_profit_execution_day=date(2026, 9, 29),
+                  v14_profit_old_contract=old_contract, v14_profit_old_qty=quantity,
+                  v14_profit_reentry_contract=new_contract, v14_profit_reentry_qty=quantity,
+                  v14_profit_old_security_id='10012000' if product == 'IC' else None,
+                  v14_profit_reentry_security_id='10012001' if product == 'IC' else None)
+    signal = {**_signals(date(2026, 9, 29))[product], **policy.default_extension(product)}
+    build, rule = policy.identity_for_signal_day(signal['market_date'])
+    signal.update(strategy_version='1.4', strategy_revision='r1',
+                  v14_build_id=build, v14_rule_revision=rule,
+                  v14_action='EXECUTE_CORE_PUT_PROFIT3X_REENTER',
+                  v14_profit_reentry_status='confirmed_open_research_price',
+                  v14_profit_open_price_day=date(2026, 9, 29),
+                  v14_profit_open_old_contract=old_contract, v14_profit_open_old_qty=quantity,
+                  v14_profit_open_executed_contract=new_contract,
+                  v14_profit_open_executed_qty=quantity,
+                  v14_profit_exit_open_price=30.0, v14_profit_reentry_entry_premium=12.0,
+                  v14_profit_open_old_source='dated_open_fixture',
+                  v14_profit_open_new_source='dated_open_fixture')
+    if product == 'IC':
+        signal.update(v14_core_put_contract=new_contract, v14_core_put_security_id='10012001',
+                      v14_core_put_qty=quantity, put_target_core_qty=quantity)
+    else:
+        signal.update(core_put_target_contract=new_contract,
+                      core_put_target_qty_normalized=quantity)
+    return anchor, signal
+
+
+@pytest.mark.parametrize('product', ['IC', 'IM'])
+def test_profit_open_accepts_exact_committed_plan(product):
+    anchor, signal = _profit_open_pair(product)
+    state.validate_v14_new_signal(signal, product)
+    state.validate_profit_open_transition(product, anchor, signal, signal['market_date'])
+
+
+@pytest.mark.parametrize('product', ['IC', 'IM'])
+@pytest.mark.parametrize('field,value', [
+    ('v14_profit_open_old_contract', 'unplanned-old-contract'),
+    ('v14_profit_open_executed_contract', 'unplanned-new-contract'),
+    ('v14_profit_open_old_qty', .5),
+    ('v14_profit_open_executed_qty', .5),
+])
+def test_profit_open_rejects_execution_identity_or_quantity_not_in_plan(product, field, value):
+    anchor, signal = _profit_open_pair(product)
+    signal[field] = value
+    with pytest.raises(RuntimeError, match='前日预选计划'):
+        state.validate_profit_open_transition(product, anchor, signal, signal['market_date'])
+
+
+@pytest.mark.parametrize('product', ['IC', 'IM'])
+@pytest.mark.parametrize('field,value', [
+    ('v14_profit_pending', False),
+    ('v14_profit_execution_day', date(2026, 9, 30)),
+])
+def test_profit_open_rejects_absent_or_wrong_day_prior_plan(product, field, value):
+    anchor, signal = _profit_open_pair(product)
+    anchor[field] = value
+    with pytest.raises(RuntimeError, match='已保存|下一共同交易日'):
+        state.validate_profit_open_transition(product, anchor, signal, signal['market_date'])
+
+
+@pytest.mark.parametrize('product', ['IC', 'IM'])
+@pytest.mark.parametrize('field,value', [
+    ('v14_profit_open_old_source', None),
+    ('v14_profit_open_new_source', ''),
+    ('v14_profit_open_new_source', '  '),
+    ('v14_profit_open_executed_contract', 'unrelated-contract'),
+    ('v14_profit_open_executed_qty', .5),
+])
+def test_profit_open_delivery_rejects_missing_source_or_target_mismatch(product, field, value):
+    _, signal = _profit_open_pair(product)
+    signal[field] = value
+    with pytest.raises(RuntimeError, match='来源|核心Put目标'):
+        state.validate_v14_new_signal(signal, product)
+
+
+def test_ic_profit_open_rejects_unplanned_new_security_id():
+    anchor, signal = _profit_open_pair('IC')
+    signal['v14_core_put_security_id'] = '10019999'
+    with pytest.raises(RuntimeError, match='证券ID与前日预选计划'):
+        state.validate_profit_open_transition('IC', anchor, signal, signal['market_date'])
+
+
+def test_profit_open_guard_keeps_old_close_clock_pending_compatible():
+    anchor, signal = _profit_open_pair('IM')
+    anchor['v14_profit_trigger_day'] = date(2026, 9, 25)
+    state.validate_profit_open_transition('IM', anchor, signal, signal['market_date'])
+
+
+def _ordinary_open_signal(product):
+    anchor, signal = _profit_open_pair(product)
+    signal['v14_action'] = 'HOLD'
+    signal['v14_ordinary_put_open_status'] = 'confirmed_open_research_price'
+    signal['v14_ordinary_put_open_plan'] = {
+        'product': product, 'signal_day': date(2026, 9, 28),
+        'execution_day': signal['market_date'],
+        'legs': {
+            'core': {'old_contract': anchor['v14_profit_old_contract'],
+                     'old_security_id': anchor['v14_profit_old_security_id'],
+                     'old_qty': anchor['v14_profit_old_qty'],
+                     'new_contract': anchor['v14_profit_reentry_contract'],
+                     'new_security_id': anchor['v14_profit_reentry_security_id'],
+                     'new_qty': anchor['v14_profit_reentry_qty'], 'changed': True},
+            'momentum': {'old_contract': None, 'old_security_id': None, 'old_qty': 0,
+                         'new_contract': None, 'new_security_id': None, 'new_qty': 0,
+                         'changed': False},
+        },
+    }
+    leg = signal['v14_ordinary_put_open_plan']['legs']['core']
+    signal['v14_ordinary_put_open_prices'] = [
+        {'contract': leg[f'{side}_contract'], 'security_id': leg[f'{side}_security_id'],
+         'price_day': signal['market_date'], 'openprice': price, 'source': 'dated_open_fixture'}
+        for side, price in [('old', 30.0), ('new', 12.0)]
+    ]
+    return signal
+
+
+@pytest.mark.parametrize('product', ['IC', 'IM'])
+def test_ordinary_open_accepts_unique_dated_sources(product):
+    state.validate_v14_new_signal(_ordinary_open_signal(product), product)
+
+
+@pytest.mark.parametrize('product', ['IC', 'IM'])
+@pytest.mark.parametrize('case', ['missing', 'null', 'empty', 'whitespace', 'duplicate'])
+def test_ordinary_open_rejects_missing_source_or_duplicate_identity(product, case):
+    signal = _ordinary_open_signal(product)
+    prices = signal['v14_ordinary_put_open_prices']
+    if case == 'missing':
+        prices[0].pop('source')
+    elif case == 'duplicate':
+        prices.append({**prices[0], 'openprice': 99.0})
+    else:
+        prices[0]['source'] = {'null': None, 'empty': '', 'whitespace': '  '}[case]
+    with pytest.raises(RuntimeError, match='来源|报价重复'):
+        state.validate_v14_new_signal(signal, product)

@@ -337,7 +337,12 @@ def validate_v14_new_signal(signal: dict[str, Any], product: str) -> None:
                 raise RuntimeError(f"{product}普通Put报价日期不符")
             if _option_number(item.get("openprice"), "普通Put开盘价") <= 0:
                 raise RuntimeError(f"{product}普通Put开盘价无效")
-            observed.add((item.get("contract"), item.get("security_id")))
+            if not isinstance(item.get("source"), str) or not item["source"].strip():
+                raise RuntimeError(f"{product}普通Put开盘报价缺少来源")
+            identity = (item.get("contract"), item.get("security_id"))
+            if identity in observed:
+                raise RuntimeError(f"{product}普通Put同一合约开盘报价重复")
+            observed.add(identity)
         if observed != expected:
             raise RuntimeError(f"{product}普通Put开盘报价合约身份不符")
     if (_as_day(signal["market_date"], f"{product}信号日") >= v14_policy.PROFIT_OPEN_EFFECTIVE_SIGNAL_DATE
@@ -353,6 +358,15 @@ def validate_v14_new_signal(signal: dict[str, Any], product: str) -> None:
             raise RuntimeError(f"{product} 3倍兑现缺少旧/新开盘成交合约身份")
         if _option_number(signal.get("v14_profit_open_old_qty"), f"{product}旧Put开盘卖出数量") <= 0:
             raise RuntimeError(f"{product} 3倍兑现旧Put开盘卖出数量无效")
+        for field in ("v14_profit_open_old_source", "v14_profit_open_new_source"):
+            if not isinstance(signal.get(field), str) or not signal[field].strip():
+                raise RuntimeError(f"{product} 3倍兑现缺少旧/新开盘报价来源")
+        target_contract = signal.get("v14_core_put_contract" if product == "IC" else "core_put_target_contract")
+        target_qty = signal.get("v14_core_put_qty" if product == "IC" else "core_put_target_qty_normalized")
+        if (signal["v14_profit_open_executed_contract"] != target_contract
+                or not math.isclose(_option_number(signal["v14_profit_open_executed_qty"], "3倍兑现新Put数量"),
+                                    _option_number(target_qty, "3倍兑现核心Put目标数量"), rel_tol=0.0, abs_tol=1e-12)):
+            raise RuntimeError(f"{product} 3倍兑现开盘合约/数量与核心Put目标不一致")
     _option_number(signal["v14_recovery_net_pnl"], f"{product}恢复净损益")
     qty = _option_number(signal["v14_short_put_qty_normalized"], f"{product}卖Put数量")
     route = signal["v14_route_state"]
@@ -746,6 +760,39 @@ def validate_ordinary_put_plan(product: str, anchor: dict[str, Any],
                 raise RuntimeError(f"IM普通{name} Put不应包含证券ID")
 
 
+def validate_profit_open_transition(product: str, anchor: dict[str, Any],
+                                    signal: dict[str, Any], signal_day: date) -> None:
+    """Bind a new paper execution to the prior close's exact committed plan."""
+    if (signal_day < v14_policy.PROFIT_OPEN_EFFECTIVE_SIGNAL_DATE
+            or signal.get("v14_action") != "EXECUTE_CORE_PUT_PROFIT3X_REENTER"):
+        return
+    if not anchor.get("v14_profit_pending"):
+        raise RuntimeError(f"{product} 3倍兑现缺少前日已保存的待执行计划")
+    trigger_day = _as_day(anchor.get("v14_profit_trigger_day"), "3倍兑现触发日")
+    if trigger_day < v14_policy.PROFIT_OPEN_EFFECTIVE_SIGNAL_DATE:
+        return  # Older pending events retain their original close-price clock.
+    expected_day = strategy._roll_forward_exchange_day(trigger_day + timedelta(days=1))
+    if (_as_day(anchor.get("v14_profit_execution_day"), "3倍兑现计划执行日") != expected_day
+            or signal_day != expected_day):
+        raise RuntimeError(f"{product} 3倍兑现未按已保存计划的下一共同交易日执行")
+    if signal.get("v14_profit_pending") or signal.get("v14_profit_execution_day") is not None:
+        raise RuntimeError(f"{product} 3倍兑现完成后仍保留待执行计划")
+    for side, executed_contract, executed_qty, planned_contract, planned_qty in (
+        ("旧", "v14_profit_open_old_contract", "v14_profit_open_old_qty",
+         "v14_profit_old_contract", "v14_profit_old_qty"),
+        ("新", "v14_profit_open_executed_contract", "v14_profit_open_executed_qty",
+         "v14_profit_reentry_contract", "v14_profit_reentry_qty"),
+    ):
+        if (signal.get(executed_contract) != anchor.get(planned_contract)
+                or not math.isclose(_option_number(signal.get(executed_qty), f"3倍兑现{side}Put执行数量"),
+                                    _option_number(anchor.get(planned_qty), f"3倍兑现{side}Put预选数量"),
+                                    rel_tol=0.0, abs_tol=1e-12)):
+            raise RuntimeError(f"{product} 3倍兑现{side}Put开盘身份/数量与前日预选计划不一致")
+    if (product == "IC"
+            and signal.get("v14_core_put_security_id") != anchor.get("v14_profit_reentry_security_id")):
+        raise RuntimeError("IC 3倍兑现新Put证券ID与前日预选计划不一致")
+
+
 def derive_next_anchors(
     current: dict[str, Any], signals: dict[str, dict[str, Any]]
 ) -> dict[str, dict[str, Any]]:
@@ -784,6 +831,7 @@ def derive_next_anchors(
     for product in PRODUCTS:
         signal = signals[product]
         validate_delivery_values(signal, product)
+        validate_profit_open_transition(product, current_anchors[product], signal, signal_day)
         opening_plan = current_anchors[product].get("v14_ordinary_put_pending")
         if signal.get("v14_ordinary_put_open_status") == "confirmed_open_research_price":
             if not opening_plan or _jsonable(signal.get("v14_ordinary_put_open_plan")) != _jsonable(opening_plan):
