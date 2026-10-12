@@ -32,7 +32,9 @@
 
 ## 本地累计离线专项与已知边界
 
-本地 `ic-im` 提示词的 IC/IM 专项统一收集以下 23 文件，相同文件只运行一次。使用 `python -B -X utf8 -m pytest -q -p no:cacheprovider`，由测试子进程施加 60 秒硬超时。只在子进程环境副本中将 `ICIM_STATE_DIR` 指向新建临时目录并设置 `ICIM_REQUIRE_MIGRATION=0`；正式 runner 仍使用原状态路径和 `ICIM_REQUIRE_MIGRATION=1`。缺文件、失败或超时只阻塞本策略，保存实际日志；不能用部分清单代替通过。
+2026-10-12 腾讯历史备用源修复已由策略 PR #43 合并。当前正式执行代码提交为 `3b6927743850f76443f20734c2c3835da5473ba7`，本地可用执行文件相同的后续正式提交；此段覆盖此前 408c9b 的当前 pin 表述。fix11 身份和历史链不变，详见 `docs/ic_im_v1_4_tencent_history_repair_20261012.md`。累计专项增加 `test_tencent_ohlcv_pagination_20261012.py`，现为 24 文件；本次实测 415 项、零失败/错误/跳过、13.494 秒，不固定将来测试数量。
+
+本地 `ic-im` 提示词的 IC/IM 专项统一收集以下 24 文件，相同文件只运行一次。使用 `python -B -X utf8 -m pytest -q -p no:cacheprovider`，由测试子进程施加 60 秒硬超时。只在子进程环境副本中将 `ICIM_STATE_DIR` 指向新建临时目录并设置 `ICIM_REQUIRE_MIGRATION=0`；正式 runner 仍使用原状态路径和 `ICIM_REQUIRE_MIGRATION=1`。缺文件、失败或超时只阻塞本策略，保存实际日志；不能用部分清单代替通过。
 
 ```text
 test_delivery_transport_retry.py
@@ -58,6 +60,7 @@ test_adversarial_delivery_20261007.py
 test_adversarial_policy_20261007.py
 test_adversarial_cffex_transport_20261009.py
 test_adversarial_cffex_close_runner_20261009.py
+test_tencent_ohlcv_pagination_20261012.py
 ```
 
 10/09修复后实际为400项全通过，零失败/错误/跳过，外层11.319秒；此数是该次收集结果，不作为将来固定门槛。10/07的369项对应原21文件，233项仅对应13文件，不能冒称当前完整累计专项。

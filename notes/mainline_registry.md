@@ -1,5 +1,11 @@
 # IC / IM 系统主线登记表
 
+## IC / IM v1.4-r1 Tencent 历史备用源交付修复（2026-10-12）
+
+- 用户要求完成日报故障修复；策略 PR [#43](https://github.com/liuruojiang/ic-im-rolling-arbitrage/pull/43) 已合并。正式执行代码提交为 `3b6927743850f76443f20734c2c3835da5473ba7`，合并提交为 `91d6e7c6f83d9e46a1944a2970528a61d1e749e5`。原 `408c9badea5351ae7c0021f9b1e9adfdb804d554` 为此前 CFFEX 修复发布记录；本地 main 已快进，云端固定 pin 按实际工作流另行核对。
+- 仅修复 Tencent 日线历史接口的分页、成交量单位、流式上限、响应关闭和来源审计。fix11 身份、全部策略参数、历史账本和发送去重状态不变。原 23 文件加 `test_tencent_ohlcv_pagination_20261012.py` 共 24 文件、415 项通过，零失败/错误/跳过，外层 13.494 秒。
+- 当日正式收盘报告由修复前的已发布执行代码成功续接至 seq12、2026-10-12；不能把这次成功归因于尚未采用的备用源补丁，也不重复成功 runner。真实原始分页响应、历史精度差异与边界见 `docs/ic_im_v1_4_tencent_history_repair_20261012.md`。
+
 ## IC / IM v1.4-r1 日报脚本修复与发布同步（2026-10-07）
 
 - 策略 PR [#38](https://github.com/liuruojiang/ic-im-rolling-arbitrage/pull/38) 已合并；本地及云端日报执行代码统一为 `739071a201506dd869b9a156e490c3bafd95a334`，云端 PR [#134](https://github.com/liuruojiang/codex-daily-automation-probe/pull/134) 固定该策略提交并新增无发送预检。本地 `ic-im` ACTIVE 工作日14:15任务增加最新版本与回归条款，原配置保持。
