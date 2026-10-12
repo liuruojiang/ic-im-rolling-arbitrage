@@ -37,6 +37,44 @@ def test_stored_close_report_renders_expiry_branches_visibly():
     assert "实际账户操作由用户自行处理" in report
 
 
+def test_real_20261012_ic_im_json_keeps_lifecycle_put_separate_from_protection_put():
+    # Minimal projection of the saved successful close result from readiness run 38236987937.
+    latest = {
+        "verified_day": "2026-10-12",
+        "sequence": 12,
+        "digest": "b46787b277c91d80505c457c5d8cce7b0f6da430c9fccc1ad3be2abb8a4f9c66",
+        "signals": {
+            "IC": {
+                "v14_core_put_contract": "510500P2612M07500",
+                "v14_core_put_qty": 10,
+                "v14_profit_reentry_status": None,
+                "v14_lifecycle_evidence_status": "model_future_route_active",
+                "put_target_contract": "510500P2612M07500",
+                "put_target_core_qty": 10,
+            },
+            "IM": {
+                "v14_core_put_contract": None,
+                "v14_core_put_qty": 0.0,
+                "v14_profit_reentry_status": None,
+                "v14_lifecycle_evidence_status": "model_future_route_active",
+                "core_put_target_contract": "MO2612-P-7600",
+                "core_put_target_qty_normalized": 1.5,
+            },
+        },
+    }
+    report = digest.render_stored_close_report(latest)
+    assert "- v1.4独立生命周期核心Put：510500P2612M07500；数量：10；" in report
+    assert "- v1.4独立生命周期核心Put：N/A（当前无独立生命周期合约）；数量：0.0；" in report
+    assert "- 普通核心保护Put目标：510500P2612M07500；数量：10（普通保护规则，独立于上列生命周期字段）" in report
+    assert "- 普通核心保护Put目标：MO2612-P-7600；数量：1.5（普通保护规则，独立于上列生命周期字段）" in report
+    assert "- v1.4核心Put：MO2612-P-7600；数量：0.0" not in report
+    # Ordinary protection targets remain available in the per-leg JSON under their own fields.
+    assert '"put_target_contract": "510500P2612M07500"' in report
+    assert '"put_target_core_qty": 10' in report
+    assert '"core_put_target_contract": "MO2612-P-7600"' in report
+    assert '"core_put_target_qty_normalized": 1.5' in report
+
+
 def test_fix9_attachment_explains_original_identity_only_plan_without_rewriting_it():
     identity_plan = {
         "product": "IC", "signal_day": "2026-09-29", "execution_day": "2026-09-30",
