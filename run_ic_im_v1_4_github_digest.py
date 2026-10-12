@@ -195,6 +195,20 @@ def _execution_timing_lines(product: str, signal: dict[str, Any]) -> list[str]:
     return lines
 
 
+def _put_contract_display(contract: Any, quantity: Any, *, no_contract: str) -> str:
+    if contract:
+        return str(contract)
+    if quantity in (None, "N/A"):
+        return "N/A（合约或数量字段未记录）"
+    try:
+        quantity_is_zero = float(quantity) == 0.0
+    except (TypeError, ValueError):
+        quantity_is_zero = False
+    if quantity_is_zero:
+        return no_contract
+    return "N/A（数量非零但合约字段缺失）"
+
+
 def render_stored_close_report(latest: dict[str, Any]) -> str:
     signals = latest.get("signals", {})
     signal_day = date.fromisoformat(str(latest["verified_day"])[:10])
@@ -277,6 +291,24 @@ def render_stored_close_report(latest: dict[str, Any]) -> str:
             if isinstance(expiry_branches, dict)
             else ""
         )
+        lifecycle_contract = signal.get("v14_core_put_contract")
+        lifecycle_qty = signal.get("v14_core_put_qty", "N/A")
+        lifecycle_contract_display = _put_contract_display(
+            lifecycle_contract,
+            lifecycle_qty,
+            no_contract="N/A（当前无独立生命周期合约）",
+        )
+        if product == "IC":
+            ordinary_contract = signal.get("put_target_contract")
+            ordinary_qty = signal.get("put_target_core_qty", "N/A")
+        else:
+            ordinary_contract = signal.get("core_put_target_contract")
+            ordinary_qty = signal.get("core_put_target_qty_normalized", "N/A")
+        ordinary_contract_display = _put_contract_display(
+            ordinary_contract,
+            ordinary_qty,
+            no_contract="无（普通核心保护目标数量为0）",
+        )
         lines.extend(
             [
                 "",
@@ -293,7 +325,8 @@ def render_stored_close_report(latest: dict[str, Any]) -> str:
                 f"- 核心动作：`{signal.get('core_action', 'N/A')}`；"
                 f"动量动作：`{signal.get('momentum_action', 'N/A')}`；"
                 f"网格动作：`{signal.get('grid_action', 'N/A')}`",
-                f"- v1.4核心Put：{signal.get('v14_core_put_contract') or signal.get('core_put_target_contract') or 'N/A'}；数量：{signal.get('v14_core_put_qty', 'N/A')}；兑现状态：{signal.get('v14_profit_reentry_status', 'N/A')}；模型生命周期：{signal.get('v14_lifecycle_evidence_status', 'N/A')}",
+                f"- v1.4独立生命周期核心Put：{lifecycle_contract_display}；数量：{lifecycle_qty}；兑现状态：{signal.get('v14_profit_reentry_status', 'N/A')}；模型生命周期：{signal.get('v14_lifecycle_evidence_status', 'N/A')}",
+                f"- 普通核心保护Put目标：{ordinary_contract_display}；数量：{ordinary_qty}（普通保护规则，独立于上列生命周期字段）",
                 "- 买Put时点：3倍兑现自2026-09-28起T收盘预选、T+1开盘核价；普通核心/动量Put自2026-09-29起同样执行。月度维护按原定当日收盘，季度期货展期时钟不变。",
                 *profit_detail,
                 *(
