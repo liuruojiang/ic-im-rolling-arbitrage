@@ -1,0 +1,62 @@
+{
+  "execution_commit": "427cf45fd78710583c8028f7eca1ed88968036ee",
+  "scope": "Five runtime files and three behavior regression files; full repository checkout supplies existing dependencies and fixture.",
+  "files": {
+    "ic_im_v1_4_policy.py": "e658610a4259ac6e00eca9495589e7e78c47ab87437d89090038d7a0b49e202f",
+    "poe_ic_im_mainline_v1_4_bot.py": "6a31e15f28428bae723650478ecd923062a1fdd9206959d797744167337c48cc",
+    "poe_ic_im_v1_4_state.py": "d589d8f651e565cfdc5b8f521f29dfbd44e638b73cde552a2f73dbcf3de64705",
+    "run_ic_im_v1_4_github_digest.py": "f84c1374ecd7bc20d1d3932aeb80dcd9af1f21dfdafbeadb74c408fc06724242",
+    "ic_im_quote_snapshot_guard.py": "ae22b541a1a2a6bc20d5bd23bb1fc3d275a2f3fcfce96b5345c2458cde74b9d5",
+    "test_ic_im_ordinary_put_route_fix_20261013.py": "ff69d0f7e5ce2ca9faa4a1ef9457365bc08cb3b87ba7c913890bcbe7d942d1dd",
+    "test_ic_im_quote_snapshot_guard_20261013.py": "d90640e1bdabd10e00c21e24fe2b18a7dc236b30f84cafafd77ab5e1393af01a",
+    "test_ic_im_split_put_summary_20261013.py": "df8d255710fadd8fd5bec8b21e1151b04b33937d38c9c87ded3d6eb88e71e9f7"
+  },
+  "required_local_tests": [
+    "test_delivery_transport_retry.py",
+    "test_ohlcv_provider_validation.py",
+    "test_ic_im_v1_4_policy.py",
+    "test_poe_ic_im_v1_4_state.py",
+    "test_migrate_ic_im_v1_3_r7_to_v1_4_r1_state.py",
+    "test_ic_im_v1_4_integration_guards.py",
+    "test_run_ic_im_v1_4_github_digest.py",
+    "test_adversarial_icim_delivery.py",
+    "test_im_put_policy.py",
+    "test_adversarial_im_put_execution_20260908.py",
+    "test_adversarial_im_ledger_20260908.py",
+    "test_adversarial_im_report_iv_20260908.py",
+    "test_im_put_price_basis.py",
+    "test_live_mo_put_midpoint_20260908.py",
+    "test_grid_half_release_20260913.py",
+    "test_im_grid160_half_release_20260914.py",
+    "test_ic_im_v1_4_ic_csi500_forward.py",
+    "test_adversarial_market_20261007.py",
+    "test_adversarial_state_20261007.py",
+    "test_adversarial_delivery_20261007.py",
+    "test_adversarial_policy_20261007.py",
+    "test_adversarial_cffex_transport_20261009.py",
+    "test_adversarial_cffex_close_runner_20261009.py",
+    "test_tencent_ohlcv_pagination_20261012.py",
+    "test_ic_im_v1_4_repeat_roll_20260925.py",
+    "test_ic_im_v1_4_market_maker_quotes_20260925.py",
+    "test_ic_im_fear_grid_v1.py",
+    "test_ic_im_daily_valuation.py",
+    "test_ic_im_chinabond.py",
+    "test_ic_im_quarter_roll_v1_3.py",
+    "test_ic_im_ordinary_put_route_fix_20261013.py",
+    "test_ic_im_quote_snapshot_guard_20261013.py",
+    "test_ic_im_split_put_summary_20261013.py"
+  ],
+  "prepublish_result": {
+    "tests": 609,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "seconds": 17.629993199952878
+  },
+  "test_helper_files": [
+    "test_ic_im_v1_4_state_guards.py",
+    "test_poe_ic_im_mainline_v1_3_bot.py",
+    "test_poe_ic_im_v1_3_state.py"
+  ],
+  "fixture_sha256": "85f34cdffc9d55df291752f087772bda4f2f1341d21acd4d9e8f3ee2f8ca2043"
+}
