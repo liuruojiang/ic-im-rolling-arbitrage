@@ -2,6 +2,8 @@
 
 状态：正式研究信号；只发布策略参考路径，不接交易接口，不代表账户实际成交、行权、结算、交割或持仓。
 
+2026-10-13当前执行提交为 `427cf45fd78710583c8028f7eca1ed88968036ee`，包含本次五处脚本修复；必须同时分发 `ic_im_quote_snapshot_guard.py`。本地任务与云端工作流使用该提交或经逐文件哈希证明执行代码相同的后续正式提交。后文10/09、10/12的pin均为历史发布记录，当前发布与投递证据见[同步记录](ic_im_v1_4_script_delivery_sync_20261013.md)。恢复期保险研究仍不进入生产。
+
 ## 正式入口
 
 - 2026-10-08起的正式研究信号构建为`v1.4-20261008-r1-ic-csi500-abs40-fix11`，规则为`ic_im_v1_4_ic_csi500_ma105_w16_abs40_static_20261008_v1`，承接同日恐慌网格。2026-09-29至09-30信号保留fix9；以`notes/mainline_registry.md`逐信号日核验生产者身份。
@@ -36,7 +38,7 @@
 
 2026-10-12 腾讯历史备用源修复已由策略 PR #43 合并。当前正式执行代码提交为 `3b6927743850f76443f20734c2c3835da5473ba7`，本地可用执行文件相同的后续正式提交；此段覆盖此前 408c9b 的当前 pin 表述。fix11 身份和历史链不变，详见 `docs/ic_im_v1_4_tencent_history_repair_20261012.md`。累计专项增加 `test_tencent_ohlcv_pagination_20261012.py`，现为 24 文件；本次实测 415 项、零失败/错误/跳过、13.494 秒，不固定将来测试数量。
 
-本地 `ic-im` 提示词的 IC/IM 专项统一收集以下 24 文件，相同文件只运行一次。使用 `python -B -X utf8 -m pytest -q -p no:cacheprovider`，由测试子进程施加 60 秒硬超时。只在子进程环境副本中将 `ICIM_STATE_DIR` 指向新建临时目录并设置 `ICIM_REQUIRE_MIGRATION=0`；正式 runner 仍使用原状态路径和 `ICIM_REQUIRE_MIGRATION=1`。缺文件、失败或超时只阻塞本策略，保存实际日志；不能用部分清单代替通过。
+本地 `ic-im` 提示词的 IC/IM 专项统一收集以下 33 文件，相同文件只运行一次。使用 `python -B -X utf8 -m pytest -q -p no:cacheprovider`，由测试子进程施加 60 秒硬超时。只在子进程环境副本中将 `ICIM_STATE_DIR` 指向新建临时目录并设置 `ICIM_REQUIRE_MIGRATION=0`；正式 runner 仍使用原状态路径和 `ICIM_REQUIRE_MIGRATION=1`。缺文件、失败或超时只阻塞本策略，保存实际日志；不能用部分清单代替通过。`test_poe_ic_im_v1_4_state.py`会导入`test_ic_im_v1_4_state_guards.py`，后者须随checkout保留，但无需在本地重复列出。
 
 ```text
 test_delivery_transport_retry.py
@@ -63,6 +65,15 @@ test_adversarial_policy_20261007.py
 test_adversarial_cffex_transport_20261009.py
 test_adversarial_cffex_close_runner_20261009.py
 test_tencent_ohlcv_pagination_20261012.py
+test_ic_im_v1_4_repeat_roll_20260925.py
+test_ic_im_v1_4_market_maker_quotes_20260925.py
+test_ic_im_fear_grid_v1.py
+test_ic_im_daily_valuation.py
+test_ic_im_chinabond.py
+test_ic_im_quarter_roll_v1_3.py
+test_ic_im_ordinary_put_route_fix_20261013.py
+test_ic_im_quote_snapshot_guard_20261013.py
+test_ic_im_split_put_summary_20261013.py
 ```
 
 10/09修复后实际为400项全通过，零失败/错误/跳过，外层11.319秒；此数是该次收集结果，不作为将来固定门槛。10/07的369项对应原21文件，233项仅对应13文件，不能冒称当前完整累计专项。

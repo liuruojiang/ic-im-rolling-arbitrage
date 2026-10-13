@@ -165,8 +165,8 @@ def validate_extension(product: str, state: dict[str, Any]) -> None:
         raise RuntimeError(f"{product} profit pending lacks a trigger day")
     plan = state.get("v14_ordinary_put_pending")
     if plan is not None:
-        if route != "future" or bool(state.get("v14_profit_pending")):
-            raise RuntimeError(f"{product} ordinary Put plan conflicts with core route or 3x plan")
+        if bool(state.get("v14_profit_pending")) and route != "future":
+            raise RuntimeError(f"{product} ordinary Put plan conflicts with 3x plan outside future route")
         if not isinstance(plan, dict) or plan.get("product") != product or not isinstance(plan.get("legs"), dict):
             raise RuntimeError(f"{product} ordinary Put plan is malformed")
         trigger = date.fromisoformat(str(plan.get("signal_day"))[:10])
@@ -188,6 +188,25 @@ def validate_extension(product: str, state: dict[str, Any]) -> None:
                     raise RuntimeError(f"{product} ordinary {name} Put {prefix} identity is invalid")
                 if product == "IC" and qty > 0 and not leg.get(f"{prefix}_security_id"):
                     raise RuntimeError("IC ordinary Put plan lacks security id")
+            if route != "future" and name == "core" and (
+                float(leg["old_qty"]) != 0.0 or float(leg["new_qty"]) != 0.0
+                or any(leg.get(f"{side}_{field}") not in (None, "")
+                       for side in ("old", "new") for field in ("contract", "security_id"))
+            ):
+                raise RuntimeError(f"{product} non-future ordinary plan may only change momentum Put")
+        if route != "future" and product == "IC" and float(plan.get("core_delta", 0.0)) != 0.0:
+            raise RuntimeError("IC non-future ordinary plan must not retain core protection Delta")
+        if bool(state.get("v14_profit_pending")):
+            core = plan["legs"]["core"]
+            if core["changed"]:
+                raise RuntimeError(f"{product} ordinary core Put conflicts with 3x plan")
+            if state.get("v14_profit_old_contract"):
+                for side in ("old", "new"):
+                    if (core.get(f"{side}_contract") != state["v14_profit_old_contract"]
+                            or core.get(f"{side}_security_id") != state.get("v14_profit_old_security_id")
+                            or not math.isclose(float(core[f"{side}_qty"]),
+                                                float(state["v14_profit_old_qty"]), rel_tol=0.0, abs_tol=1e-12)):
+                        raise RuntimeError(f"{product} ordinary core identity conflicts with committed 3x plan")
     if state.get("v14_profit_execution_day") is not None:
         trigger = state.get("v14_profit_trigger_day")
         if not state.get("v14_profit_pending") or trigger is None:
@@ -215,7 +234,8 @@ def validate_extension(product: str, state: dict[str, Any]) -> None:
         raise RuntimeError(f"{product} 3x eligibility lacks an entry premium")
 
 
-def project_ordinary_open(product: str, anchor: dict[str, Any], plan: dict[str, Any]) -> dict[str, Any]:
+def project_ordinary_open(product: str, anchor: dict[str, Any], plan: dict[str, Any],
+                          prices: list[dict[str, Any]] | None = None) -> dict[str, Any]:
     """Project a verified opening plan into a transient continuation anchor."""
     result = deepcopy(anchor)
     core, momentum = plan["legs"]["core"], plan["legs"]["momentum"]
@@ -251,7 +271,37 @@ def project_ordinary_open(product: str, anchor: dict[str, Any], plan: dict[str, 
             verified_total_put_qty_normalized=core_qty + momentum_qty,
             verified_parent_puts=int(plan["parent_puts"]),
         )
+    if core.get("changed"):
+        if core_qty > 0:
+            matches = [item for item in (prices or [])
+                       if item.get("contract") == core["new_contract"]
+                       and item.get("security_id") == core.get("new_security_id")]
+            if len(matches) != 1:
+                raise RuntimeError(f"{product} confirmed ordinary core open lacks unique entry-price evidence")
+            premium = float(matches[0]["openprice"])
+            if not math.isfinite(premium) or premium <= 0:
+                raise RuntimeError(f"{product} confirmed ordinary core entry premium is invalid")
+            result["v14_core_put_entry_premium"] = premium
+            result["v14_core_put_profit3x_eligible"] = True
+        else:
+            result["v14_core_put_entry_premium"] = None
+            result["v14_core_put_profit3x_eligible"] = False
     return result
+
+
+def profit_core_reference(product: str, anchor: dict[str, Any],
+                          signal: dict[str, Any]) -> tuple[Any, Any, float] | None:
+    """Core held before/after 3x execution; ordinary plans may change only momentum."""
+    executed = signal.get("v14_action") == "EXECUTE_CORE_PUT_PROFIT3X_REENTER"
+    if not (signal.get("v14_profit_pending") or executed
+            or signal.get("v14_action") == "CORE_PUT_PROFIT3X_REENTER"):
+        return None
+    source = signal if executed else anchor
+    if product == "IC":
+        return (source.get("v14_core_put_contract"), source.get("v14_core_put_security_id"),
+                float(source.get("v14_core_put_qty", 0.0)))
+    return (source.get("core_put_target_contract" if executed else "post_core_put_contract"), None,
+            float(source.get("core_put_target_qty_normalized" if executed else "verified_core_put_qty_normalized", 0.0)))
 
 
 def seller_permission(product: str, signal: dict[str, Any], candidate: dict[str, Any]) -> tuple[bool, str]:
