@@ -48,6 +48,7 @@ import requests
 import ic_im_daily_valuation as daily_valuation
 import ic_im_chinabond as chinabond
 import ic_im_fear_grid_v1 as fear_grid
+import ic_im_quote_snapshot_guard as quote_snapshot_guard
 
 try:
     from fastapi_poe.types import SettingsResponse
@@ -2800,6 +2801,12 @@ def _validate_quote_frame(
         raise RuntimeError(
             f"{source} {product}行情已过期：最新 {source_day}，至少应覆盖 {expected}"
         )
+    snapshot_evidence = {}
+    if source in {"新浪财经", "东方财富"}:
+        snapshot_evidence = quote_snapshot_guard.vendor_snapshot_evidence(
+            result.to_dict("records"), _iv_observation_clock(clock), expected,
+            f"{source} {product}",
+        )
     listing_frame = result[["instrument"]].copy()
     for column in ("lastprice", "volume", "position", "bprice", "sprice"):
         if column in result:
@@ -2853,6 +2860,7 @@ def _validate_quote_frame(
             else []
         ),
     )
+    result.attrs.update(snapshot_evidence)
     return result
 
 
@@ -3012,6 +3020,10 @@ def _fetch_cffex_official_quotes(product: str, clock: datetime) -> pd.DataFrame:
     )
     response.raise_for_status()
     stamp = _http_source_stamp(response, f"中金所官方 {product}")
+    snapshot_evidence = quote_snapshot_guard.official_snapshot_evidence(
+        stamp, _iv_observation_clock(clock), _latest_completed_exchange_day(clock),
+        f"中金所官方 {product}",
+    )
     content = _response_with_size_limit(response, f"中金所官方 {product}")
     lines = content.decode(response.encoding or "utf-8", errors="replace").splitlines()
     header_index = next(
@@ -3033,7 +3045,9 @@ def _fetch_cffex_official_quotes(product: str, clock: datetime) -> pd.DataFrame:
     frame["source_time"] = stamp.strftime("%H:%M:%S")
     if product == "MO":
         frame = _live_mo_put_quote_basis(frame)
-    return _validate_quote_frame(frame, product, clock, "中金所官方")
+    validated = _validate_quote_frame(frame, product, clock, "中金所官方")
+    validated.attrs.update(snapshot_evidence)
+    return validated
 
 
 def _fetch_sina_future_quotes(product: str, clock: datetime) -> pd.DataFrame:
@@ -5326,10 +5340,8 @@ def _v14_schedule_ordinary_put(product: str, signal: dict[str, Any], anchor: dic
     signal["v14_ordinary_put_pending"] = None
     day = signal["market_date"]
     if (day < v14_policy.ORDINARY_PUT_OPEN_EFFECTIVE_SIGNAL_DATE or not signal.get("close_confirmed")
-            or signal.get("option_monthly_reset_due") or signal.get("v14_route_state") != "future"
-            or signal.get("v14_profit_pending") or signal.get("v14_action") in {
-                "CORE_PUT_PROFIT3X_REENTER", "EXECUTE_CORE_PUT_PROFIT3X_REENTER",
-                "HOLD_FAIL_CLOSED"}):
+            or signal.get("option_monthly_reset_due")
+            or (signal.get("v14_action") == "HOLD_FAIL_CLOSED" and not signal.get("v14_profit_pending"))):
         return
     if prior and opening and opening["status"] == "awaiting_execution_day":
         signal["v14_ordinary_put_pending"] = prior
@@ -5367,6 +5379,16 @@ def _v14_schedule_ordinary_put(product: str, signal: dict[str, Any], anchor: dic
                         new_contract=signal.get("momentum_put_target_contract"), new_security_id=None,
                         new_qty=float(signal.get("momentum_put_target_qty_normalized", 0)))
     legs = {"core": core, "momentum": momentum}
+    profit_core = v14_policy.profit_core_reference(product, anchor, signal)
+    if signal.get("v14_route_state") != "future":
+        # The route owns the fixed-core switch. Only the independent momentum
+        # Put uses an ordinary opening plan while that route is active.
+        legs["core"] = dict(old_contract=None, old_security_id=None, old_qty=0.0,
+                            new_contract=None, new_security_id=None, new_qty=0.0)
+    elif profit_core is not None:
+        contract, security_id, qty = profit_core
+        legs["core"] = dict(old_contract=contract, old_security_id=security_id, old_qty=qty,
+                            new_contract=contract, new_security_id=security_id, new_qty=qty)
     for leg in legs.values():
         leg["changed"] = leg["old_contract"] != leg["new_contract"] or not math.isclose(
             leg["old_qty"], leg["new_qty"], abs_tol=1e-12
@@ -5375,12 +5397,16 @@ def _v14_schedule_ordinary_put(product: str, signal: dict[str, Any], anchor: dic
         return
     plan = {"product": product, "signal_day": day, "execution_day": signal["next_trade_date"], "legs": legs}
     if product == "IC":
-        plan.update(core_delta=float(signal["core_put_target_delta"]),
+        core_delta = (anchor["verified_core_put_delta"] if profit_core is not None
+                      and signal.get("v14_action") != "EXECUTE_CORE_PUT_PROFIT3X_REENTER"
+                      else signal["core_put_target_delta"])
+        plan.update(core_delta=float(core_delta),
                     momentum_delta=float(signal["momentum_put_target_delta"]),
                     core_driver=str(signal["core_put_driver"]),
                     momentum_driver=str(signal["momentum_put_driver"]))
     else:
-        plan["parent_puts"] = int(signal["v13_parent_puts_per_full_core"])
+        plan["parent_puts"] = (int(2 * profit_core[2]) if profit_core is not None
+                               else int(signal["v13_parent_puts_per_full_core"]))
     signal["v14_ordinary_put_pending"] = plan
     signal["v14_ordinary_put_plan_status"] = "scheduled_t_plus_1_open"
 
@@ -5494,19 +5520,8 @@ def _build_live_trade_signal(
     opening = _v14_ordinary_open_evidence(product, market_date, clock, quote_cache)
     if opening is not None and opening["status"] == "confirmed_open_research_price":
         LIVE_CONTINUATION_ANCHOR[product] = v14_policy.project_ordinary_open(
-            product, LIVE_CONTINUATION_ANCHOR[product], opening["plan"]
+            product, LIVE_CONTINUATION_ANCHOR[product], opening["plan"], opening["prices"]
         )
-        core_leg = opening["plan"]["legs"]["core"]
-        if core_leg.get("changed") and float(core_leg["new_qty"]) > 0:
-            core_price = next(
-                item["openprice"] for item in opening["prices"]
-                if item["contract"] == core_leg["new_contract"]
-            )
-            LIVE_CONTINUATION_ANCHOR[product]["v14_core_put_entry_premium"] = core_price
-            LIVE_CONTINUATION_ANCHOR[product]["v14_core_put_profit3x_eligible"] = True
-        elif core_leg.get("changed"):
-            LIVE_CONTINUATION_ANCHOR[product]["v14_core_put_entry_premium"] = None
-            LIVE_CONTINUATION_ANCHOR[product]["v14_core_put_profit3x_eligible"] = False
     if bridge_from_anchor:
         live = _apply_next_unverified_session_anchor(product, live)
     elif market_date == LIVE_CONTINUATION_ANCHOR[product]["last_verified_day"]:

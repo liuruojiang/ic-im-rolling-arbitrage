@@ -299,8 +299,14 @@ def render_stored_close_report(latest: dict[str, Any]) -> str:
             no_contract="N/A（当前无独立生命周期合约）",
         )
         if product == "IC":
-            ordinary_contract = signal.get("put_target_contract")
             ordinary_qty = signal.get("put_target_core_qty", "N/A")
+            ordinary_contract = signal.get("v14_core_put_contract") or signal.get("put_target_contract")
+            if ordinary_qty not in (None, "N/A"):
+                # After the IC identity split, put_target_contract can belong
+                # to the momentum leg. Use the ordinary planner's core target;
+                # monthly targets are already updated in the stored signal,
+                # while an unexecuted 3x replacement stays in its separate plan.
+                ordinary_contract, _, _ = strategy._v14_ic_ordinary_core_target(signal)
         else:
             ordinary_contract = signal.get("core_put_target_contract")
             ordinary_qty = signal.get("core_put_target_qty_normalized", "N/A")

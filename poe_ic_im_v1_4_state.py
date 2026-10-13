@@ -696,10 +696,7 @@ def validate_ordinary_put_plan(product: str, anchor: dict[str, Any],
                                signal: dict[str, Any], signal_day: date) -> None:
     """A changed ordinary target cannot be silently booked as a close fill."""
     if (signal_day < v14_policy.ORDINARY_PUT_OPEN_EFFECTIVE_SIGNAL_DATE
-            or signal.get("v14_route_state") != "future"
-            or signal.get("option_monthly_reset_due") or signal.get("v14_profit_pending")
-            or signal.get("v14_action") in {
-                "CORE_PUT_PROFIT3X_REENTER", "EXECUTE_CORE_PUT_PROFIT3X_REENTER"}):
+            or signal.get("option_monthly_reset_due")):
         return
     plan = signal.get("v14_ordinary_put_pending")
     if product == "IC":
@@ -721,6 +718,14 @@ def validate_ordinary_put_plan(product: str, anchor: dict[str, Any],
                          float(anchor.get("verified_momentum_put_qty_normalized", 0)),
                          signal.get("momentum_put_target_contract"), float(signal.get("momentum_put_target_qty_normalized", 0))),
         }
+    profit_core = v14_policy.profit_core_reference(product, anchor, signal)
+    if signal.get("v14_route_state") != "future":
+        expected_legs["core"] = (None, 0.0, None, 0.0)
+    elif profit_core is not None:
+        contract, security_id, qty = profit_core
+        expected_legs["core"] = (contract, qty, contract, qty)
+        if product == "IC":
+            new_core_security = security_id
     changed = any(old_contract != new_contract or not math.isclose(old_qty, new_qty, abs_tol=1e-12)
                   for old_contract, old_qty, new_contract, new_qty in expected_legs.values())
     if changed and signal.get("v14_ordinary_put_plan_status") != "scheduled_t_plus_1_open":
@@ -751,6 +756,8 @@ def validate_ordinary_put_plan(product: str, anchor: dict[str, Any],
             if product == "IC":
                 old_security = (anchor.get("v14_core_put_security_id") if name == "core"
                                 else anchor.get("post_put_security_id")) if old_qty > 0 else None
+                if name == "core" and profit_core is not None:
+                    old_security = profit_core[1]
                 new_security = (new_core_security if name == "core"
                                 else signal.get("put_target_security_id")) if new_qty > 0 else None
                 if (leg.get("old_security_id") != old_security
@@ -838,7 +845,9 @@ def derive_next_anchors(
                 raise RuntimeError(f"{product}普通Put开盘确认与既有待执行计划不一致")
             if _as_day(opening_plan["execution_day"], "普通Put执行日") != signal_day:
                 raise RuntimeError(f"{product}普通Put开盘确认日期不符")
-            result[product] = v14_policy.project_ordinary_open(product, result[product], opening_plan)
+            result[product] = v14_policy.project_ordinary_open(
+                product, result[product], opening_plan, signal["v14_ordinary_put_open_prices"]
+            )
         if str(signal.get("product")) != product:
             raise RuntimeError(f"{product}信号产品标签不一致")
         if not bool(signal.get("close_confirmed")):
@@ -1070,6 +1079,7 @@ def derive_next_anchors(
                 raise RuntimeError(f"{product}普通Put预选状态缺少待执行计划")
             # T close freezes intent, not a fill. Keep option holdings at the
             # last confirmed open/close until the next session's open evidence.
+            executed_core = deepcopy(anchor) if signal.get("v14_action") == "EXECUTE_CORE_PUT_PROFIT3X_REENTER" else None
             held_keys = (
                 ("post_put_contract", "post_put_security_id", "post_put_qty",
                  "verified_put_qty_normalized", "verified_core_put_qty",
@@ -1091,6 +1101,54 @@ def derive_next_anchors(
                     anchor[key] = deepcopy(prior_option_anchor[key])
                 else:
                     anchor.pop(key, None)
+            if signal.get("v14_route_state") != "future":
+                # Ordinary plans defer only the independent momentum leg.
+                # Keep the core exit already owned by the route transition.
+                if product == "IC":
+                    momentum_qty = int(anchor["verified_momentum_put_qty"])
+                    anchor.update(
+                        verified_core_put_qty=0, verified_core_put_delta=0.0,
+                        v14_core_put_contract=None, v14_core_put_security_id=None,
+                        v14_core_put_qty=0.0,
+                        post_put_qty=float(momentum_qty), verified_put_qty_normalized=float(momentum_qty),
+                        verified_total_put_delta=float(anchor["verified_momentum_put_delta"]),
+                    )
+                else:
+                    momentum_qty = float(anchor["verified_momentum_put_qty_normalized"])
+                    anchor.update(
+                        post_put_contract=None, post_core_put_contract=None,
+                        verified_core_put_qty_normalized=0.0,
+                        post_core_put_equivalent_units=0.0,
+                        post_put_equivalent_units=0.5 * momentum_qty,
+                        verified_put_qty_normalized=momentum_qty,
+                        verified_total_put_qty_normalized=momentum_qty,
+                    )
+                anchor["v14_core_put_entry_premium"] = signal["v14_core_put_entry_premium"]
+                anchor["v14_core_put_profit3x_eligible"] = signal["v14_core_put_profit3x_eligible"]
+            elif product == "IM" and prior_option_anchor.get("v14_route_state") != "future":
+                # The route has returned to futures, but its ordinary core Put
+                # remains a next-open intent. Parent counts describe holdings.
+                anchor["verified_parent_puts"] = int(2 * float(anchor["verified_core_put_qty_normalized"]))
+            elif executed_core is not None:
+                # A fresh momentum plan must not undo the independent 3x
+                # core execution confirmed earlier in this same session.
+                core_keys = (
+                    ("verified_core_put_qty", "verified_core_put_delta", "verified_core_put_driver",
+                     "v14_core_put_contract", "v14_core_put_security_id", "v14_core_put_qty")
+                    if product == "IC" else
+                    ("post_put_contract", "post_core_put_contract", "post_core_put_equivalent_units",
+                     "verified_core_put_qty_normalized", "verified_parent_puts")
+                )
+                for key in (*core_keys, "v14_core_put_entry_premium", "v14_core_put_profit3x_eligible"):
+                    anchor[key] = deepcopy(executed_core[key])
+                if product == "IC":
+                    total_qty = int(anchor["verified_core_put_qty"]) + int(anchor["verified_momentum_put_qty"])
+                    anchor.update(post_put_qty=float(total_qty), verified_put_qty_normalized=float(total_qty),
+                                  verified_total_put_delta=float(anchor["verified_core_put_delta"]) + float(anchor["verified_momentum_put_delta"]))
+                else:
+                    total_qty = float(anchor["verified_core_put_qty_normalized"]) + float(anchor["verified_momentum_put_qty_normalized"])
+                    anchor.update(post_put_equivalent_units=.5 * total_qty,
+                                  verified_put_qty_normalized=total_qty, verified_total_put_qty_normalized=total_qty)
         v14_policy.validate_extension(product, anchor)
     return result
 
