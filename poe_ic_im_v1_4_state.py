@@ -235,6 +235,7 @@ def validate_delivery_values(signal: dict[str, Any], product: str, *, historical
     day = signal.get("market_date")
     if day is not None and _as_day(day, "网格信号日") >= strategy.fear_grid.EFFECTIVE_SIGNAL_DATE:
         validate_fear_grid_signal(signal, product)
+    validate_replay_plan_evidence(signal)
     if product == "IM" and day is not None and strategy.im_put_policy.active(day):
         if not historical_record:
             validate_im_execution_fix_revision(signal)
@@ -242,12 +243,26 @@ def validate_delivery_values(signal: dict[str, Any], product: str, *, historical
         validate_im_option_values(signal)
 
 
+def validate_replay_plan_evidence(signal: dict[str, Any]) -> None:
+    plan = signal.get("v14_ordinary_put_pending")
+    if (not isinstance(plan, dict) or signal.get("signal_generation_timing") != "retrospective_replay"
+            or str(plan.get("signal_day"))[:10] != str(signal.get("market_date"))[:10]):
+        return
+    if plan.get("creation_timing") != "retrospective_replay" or plan.get("research_scope") != "retrospective_model_plan":
+        raise RuntimeError("补录普通Put计划缺少真实创建/回放身份")
+    stamps = [datetime.fromisoformat(str(value)) for value in (
+        signal.get("fear_retrieved_at"), plan.get("created_at"), signal.get("signal_generated_at"))]
+    if any(stamp.tzinfo is None for stamp in stamps) or not stamps[0] <= stamps[1] <= stamps[2]:
+        raise RuntimeError("补录普通Put计划创建时间不在真实采集至完成区间内")
+
+
 def validate_fear_grid_signal(signal: dict[str, Any], product: str) -> None:
     day = _as_day(signal.get("market_date"), "网格信号日")
     if signal.get("grid_policy_revision") != strategy.grid_policy_revision(day):
         raise RuntimeError(f"{product}恐慌网格规则身份不一致")
     status = signal.get("fear_data_status")
-    allowed = {"same_day_post_close", "retrospective_replay", "missing_published_history"}
+    allowed = {"same_day_post_close", "retrospective_replay", "missing_published_history",
+               strategy.fear_grid.CLOSE_FALLBACK_STATUS}
     intraday_statuses = {"intraday_provisional", "intraday_unpublished",
                          strategy.fear_grid.INTRADAY_FALLBACK_STATUS}
     if status not in allowed | intraday_statuses:
@@ -283,6 +298,8 @@ def validate_fear_grid_signal(signal: dict[str, Any], product: str) -> None:
             raise RuntimeError(f"{product}恐慌缺值状态与日期不一致")
     elif status == strategy.fear_grid.INTRADAY_FALLBACK_STATUS:
         strategy.fear_grid.validate_intraday_fallback(signal)
+    elif status == strategy.fear_grid.CLOSE_FALLBACK_STATUS:
+        strategy.fear_grid.validate_close_fallback(signal)
     elif _as_day(signal.get("fear_data_date"), "恐慌数据日") != day:
         raise RuntimeError(f"{product}恐慌数据日不是本信号日")
     current = _finite_float(signal.get("grid_current"), f"{product}当前网格")
@@ -824,7 +841,8 @@ def derive_next_anchors(
         shared_fields = ("fear_greed_index", "fear_data_date", "fear_data_status",
                          "fear_page_updated_at", "fear_csv_sha256",
                          "fear_intraday_policy_revision", "fear_fallback_applied",
-                         "fear_previous_exchange_date", "fear_fallback_reason")
+                         "fear_previous_exchange_date", "fear_fallback_reason",
+                         "fear_close_policy_revision", "fear_fallback_timing")
         if any(signals["IC"].get(field) != signals["IM"].get(field) for field in shared_fields):
             raise RuntimeError("IC/IM恐慌数据来自不同版本，禁止共同写账")
     previous_day = current_anchors["IC"]["last_verified_day"]

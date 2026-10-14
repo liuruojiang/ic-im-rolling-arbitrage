@@ -5396,6 +5396,12 @@ def _v14_schedule_ordinary_put(product: str, signal: dict[str, Any], anchor: dic
     if not any(leg["changed"] for leg in legs.values()):
         return
     plan = {"product": product, "signal_day": day, "execution_day": signal["next_trade_date"], "legs": legs}
+    if day >= fear_grid.CLOSE_FALLBACK_EFFECTIVE_DATE and (
+        signal.get("signal_generation_timing") == "retrospective_replay" or datetime.now(BEIJING).date() > day
+    ):
+        plan.update(created_at=datetime.now(BEIJING).isoformat(timespec="seconds"),
+                    creation_timing="retrospective_replay",
+                    research_scope="retrospective_model_plan")
     if product == "IC":
         core_delta = (anchor["verified_core_put_delta"] if profit_core is not None
                       and signal.get("v14_action") != "EXECUTE_CORE_PUT_PROFIT3X_REENTER"
@@ -5762,6 +5768,14 @@ def _build_live_trade_signal(
     }
     if fear_evidence is not None:
         signal.update(fear_evidence)
+        if market_date >= fear_grid.CLOSE_FALLBACK_EFFECTIVE_DATE:
+            actual_generated = datetime.now(BEIJING)
+            signal.update(
+                signal_calculation_started_at=actual_generated.isoformat(timespec="seconds"),
+                signal_generation_timing="retrospective_replay" if
+                _HISTORICAL_REPLAY_DAY.get() is not None or actual_generated.date() > market_date
+                else "intraday_hypothetical_if_now_close" if not close_confirmed else "close_confirmed",
+            )
         signal.update({
             "grid_entry_source_current": live["grid_entry_source_current"],
             "grid_entry_source_target": live["grid_entry_source_target"],
@@ -6534,6 +6548,12 @@ def _build_live_trade_signal(
         mo_quotes=mo_quotes if product == "IM" else None,
     )
     _v14_schedule_ordinary_put(product, signal, LIVE_CONTINUATION_ANCHOR[product], opening)
+    if market_date >= fear_grid.CLOSE_FALLBACK_EFFECTIVE_DATE:
+        finished = datetime.now(BEIJING)
+        signal.update(signal_generated_at=finished.isoformat(timespec="seconds"),
+                      signal_generation_timing="retrospective_replay" if
+                      _HISTORICAL_REPLAY_DAY.get() is not None or finished.date() > market_date else
+                      "intraday_hypothetical_if_now_close" if not close_confirmed else "close_confirmed")
     return signal
 
 
@@ -6663,7 +6683,7 @@ class ICIMMainlinesBot:
                 "不是你的账户持仓；**下一交易日目标**不会自动下单。\n\n"
             )
             msg.write("网格规则：2026-10-08信号日起，估值或恐慌≤25入单个0.5倍网格；按入场来源分别在估值退出线或恐慌≥50退出。此前信号保留当日规则。\n\n")
-            msg.write("盘中恐慌口径：优先合格当日值；当日未发布时沿用正式上一交易日的合格值，保留真实数据日。收盘确认仍要求当日数据。\n\n")
+            msg.write("恐慌口径：盘中及收盘均优先合格当日值；当日未发布时，只沿用正式上一交易日合格值，保留真实数据日。历史补录单列实际生成时间与回放标记。\n\n")
             per_product_budget = _signal_product_network_budget(len(products))
             for product in products:
                 try:
@@ -6728,6 +6748,11 @@ class ICIMMainlinesBot:
                     f"信号日：**{live['market_date']}**；下一交易日：**{live['next_trade_date']}**；"
                     f"状态：**{confirm_text}**。\n\n"
                 )
+                if live.get("signal_generation_timing") == "retrospective_replay":
+                    msg.write(
+                        f"**历史模型补录 retrospective_replay：实际生成 {live.get('signal_generated_at')}；"
+                        "不是原信号日已发布的前瞻目标，亦非账户成交。**\n\n"
+                    )
                 msg.write(
                     f"v1.4固定核心路由：**{live.get('v14_route_state', 'future')}**；"
                     f"动作：**{live.get('v14_action', 'HOLD')}**；"
@@ -6817,6 +6842,9 @@ class ICIMMainlinesBot:
                     fear_basis = (
                         f"沿用上一交易日 {live.get('fear_data_date')}（当日未发布；盘中预估）"
                         if live.get("fear_data_status") == fear_grid.INTRADAY_FALLBACK_STATUS
+                        and grid_confirmed else
+                        f"沿用上一交易日 {live.get('fear_data_date')}（当日未发布；收盘模型）"
+                        if live.get("fear_data_status") == fear_grid.CLOSE_FALLBACK_STATUS
                         and grid_confirmed else
                         "当日读数" if live.get("fear_data_date") == live["market_date"].isoformat()
                         else "以数据日及状态为准"

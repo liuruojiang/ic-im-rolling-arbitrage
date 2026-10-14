@@ -220,10 +220,12 @@ def test_after_close_intraday_fetch_cannot_create_a_fallback(monkeypatch, hour, 
     assert evidence.get("fear_fallback_applied") is not True
 
 
-def test_close_fetch_cannot_carry_previous_session(monkeypatch):
+def test_close_fetch_uses_newly_approved_previous_session(monkeypatch):
     _intraday_feed(monkeypatch, [("2026-10-13", 20)], hour=18)
-    with pytest.raises(RuntimeError, match="尚未发布"):
-        fear_grid.fetch_score(date(2026, 10, 14), "close")
+    evidence = fear_grid.fetch_score(date(2026, 10, 14), "close")
+    assert evidence["fear_data_date"] == "2026-10-13"
+    assert evidence["fear_data_status"] == fear_grid.CLOSE_FALLBACK_STATUS
+    assert evidence["fear_fallback_timing"] == "same_day_post_close"
 
 
 @pytest.mark.parametrize("field,value", [
@@ -310,3 +312,109 @@ def test_previous_session_fear_drives_existing_grid_thresholds_without_changing_
                   grid_target=units, grid_entry_source_target=target_source, grid_transition_reason=reason,
                   grid_action="ADD_GRID" if units > current else "EXIT_GRID" if units < current else "HOLD")
     state.validate_fear_grid_signal(signal, "IC")
+
+
+def _close_fallback_signal(monkeypatch, *, collected_day=date(2026, 10, 15), hour=1):
+    _intraday_feed(monkeypatch, [("2026-10-13", 39.32)], day=collected_day, hour=hour)
+    evidence = fear_grid.fetch_score(date(2026, 10, 14), "close")
+    signal = _saved_unpublished_signal()
+    signal.update(evidence, close_confirmed=True,
+                  signal_generated_at=evidence["fear_retrieved_at"],
+                  signal_generation_timing="retrospective_replay" if collected_day > date(2026,10,14) else "close_confirmed")
+    return signal
+
+
+@pytest.mark.parametrize("collected_day,hour,timing", [
+    (date(2026,10,14), 20, "same_day_post_close"),
+    (date(2026,10,15), 1, "retrospective_replay"),
+])
+def test_approved_close_fallback_is_valid_for_delivery_and_ledger(monkeypatch, collected_day, hour, timing):
+    signal = _close_fallback_signal(monkeypatch, collected_day=collected_day, hour=hour)
+    assert signal["fear_fallback_timing"] == timing
+    state.validate_delivery_values(signal, "IC")
+    assert fear_grid.publication_view(signal) == signal
+
+
+def test_close_still_prefers_qualified_today_value(monkeypatch):
+    _intraday_feed(monkeypatch, [("2026-10-13", 20), ("2026-10-14", 60)], hour=20,
+                   page_updated="2026-10-14 15:01")
+    evidence = fear_grid.fetch_score(date(2026,10,14), "close")
+    assert evidence["fear_greed_index"] == 60 and evidence["fear_data_date"] == "2026-10-14"
+    assert evidence["fear_data_status"] == "same_day_post_close"
+    assert evidence.get("fear_fallback_applied") is not True
+
+
+@pytest.mark.parametrize("day,hour", [(date(2026,10,14),14), (date(2026,10,14),15)])
+def test_close_fallback_cannot_be_confirmed_before_or_at_close(monkeypatch, day, hour):
+    _intraday_feed(monkeypatch, [("2026-10-13",39.32)], day=day, hour=hour, minute=0)
+    with pytest.raises(RuntimeError, match="真实采集证据"):
+        fear_grid.fetch_score(date(2026,10,14), "close")
+
+
+def test_close_never_chains_yesterdays_already_carried_value(monkeypatch):
+    _intraday_feed(monkeypatch, [("2026-10-13",39.32)], day=date(2026,10,15), hour=20)
+    with pytest.raises(RuntimeError, match="无合格上一实际交易日"):
+        fear_grid.fetch_score(date(2026,10,15), "close")
+
+
+@pytest.mark.parametrize("field,value", [
+    ("close_confirmed", False),
+    ("fear_data_date", "2026-10-14"),
+    ("fear_data_date", "2026-10-12"),
+    ("fear_previous_exchange_date", "2026-10-12"),
+    ("fear_latest_available_date", "2026-10-14"),
+    ("fear_page_data_date", "2026-10-12"),
+    ("fear_close_policy_revision", "unapproved"),
+    ("fear_fallback_applied", False),
+    ("fear_fallback_reason", "stale_cache"),
+    ("fear_fallback_timing", "same_day_post_close"),
+    ("signal_generation_timing", "close_confirmed"),
+    ("signal_generated_at", "2026-10-14T20:00:00+08:00"),
+    ("signal_generated_at", "2026-10-15T01:30:00"),
+    ("fear_source_url", "https://example.invalid/fear.csv"),
+    ("fear_csv_sha256", ""),
+    ("fear_greed_index", float("nan")),
+    ("fear_greed_index", True),
+    ("fear_page_updated_at", "2026-10-13T15:00:00+08:00"),
+    ("fear_page_updated_at", "2026-10-15T02:00:00+08:00"),
+    ("fear_retrieved_at", "2026-10-13T20:00:00+08:00"),
+])
+def test_close_fallback_cannot_bypass_state_or_publication_provenance(monkeypatch, field, value):
+    signal = _close_fallback_signal(monkeypatch)
+    signal[field] = value
+    with pytest.raises((RuntimeError, TypeError, ValueError)):
+        state.validate_fear_grid_signal(signal, "IC")
+    assert fear_grid.publication_view(signal)["grid_target"] is None
+
+
+def test_close_fallback_cannot_relabel_itself_as_same_day(monkeypatch):
+    signal = _close_fallback_signal(monkeypatch)
+    signal["fear_data_status"] = "same_day_post_close"
+    with pytest.raises(RuntimeError):
+        state.validate_fear_grid_signal(signal, "IC")
+
+
+@pytest.mark.parametrize("collected_day,hour", [(date(2026,10,14),20), (date(2026,10,15),1)])
+def test_unconfirmed_T_intraday_point_never_becomes_a_close_value_just_by_crossing_midnight(
+    monkeypatch, collected_day, hour
+):
+    _intraday_feed(monkeypatch, [("2026-10-13",60), ("2026-10-14",20)],
+                   day=collected_day, hour=hour, page_updated="2026-10-14 14:30")
+    evidence = fear_grid.fetch_score(date(2026,10,14), "close")
+    assert evidence["fear_greed_index"] == 60 and evidence["fear_data_date"] == "2026-10-13"
+    assert evidence["fear_latest_available_date"] == evidence["fear_page_data_date"] == "2026-10-14"
+    assert evidence["fear_fallback_reason"] == "same_day_not_close_confirmed"
+    signal = _saved_unpublished_signal()
+    signal.update(evidence, close_confirmed=True, signal_generated_at=evidence["fear_retrieved_at"],
+                  signal_generation_timing="retrospective_replay" if collected_day > date(2026,10,14) else "close_confirmed")
+    state.validate_fear_grid_signal(signal,"IC")
+    assert fear_grid.publication_view(signal) == signal
+
+
+@pytest.mark.parametrize("created", [None, "2026-10-14T20:00:00+08:00", "2026-10-15T01:30:00", "2026-10-15T02:00:00+08:00"])
+def test_replayed_plan_creation_cannot_be_removed_or_forged(monkeypatch, created):
+    signal=_close_fallback_signal(monkeypatch)
+    signal["v14_ordinary_put_pending"]={"signal_day":"2026-10-14", "created_at":created,
+        "creation_timing":"retrospective_replay", "research_scope":"retrospective_model_plan"}
+    with pytest.raises((RuntimeError,ValueError)):
+        state.validate_replay_plan_evidence(signal)
