@@ -8,6 +8,7 @@ import contextvars
 import io
 import zipfile
 from datetime import date, datetime
+from math import nextafter
 
 import pandas as pd
 import pytest
@@ -17,7 +18,7 @@ from urllib3.exceptions import DecodeError, ProtocolError, ReadTimeoutError
 import poe_ic_im_mainline_v1_4_bot as bot
 
 
-def _latest_close_fallback_setup(monkeypatch, *, product="IC", source_day=date(2026,10,14), archive_error=None):
+def _latest_close_fallback_setup(monkeypatch, *, product="IC", source_day=date(2026,10,14), archive_error=None, count_override=None):
     class Clock(datetime):
         @classmethod
         def now(cls, tz=None):
@@ -41,7 +42,12 @@ def _latest_close_fallback_setup(monkeypatch, *, product="IC", source_day=date(2
         next(row for row in rows if row["instrument"]=="MO2612-P-7800")["volume"]=0.
         rows.append(dict(instrument="MO2612-P-8200",lastprice=900.,volume=0.,position=20.,
                          source_date=source_day,source_time="15:20:00",bprice=0.,sprice=0.))
-    frame=pd.DataFrame(rows);frame.attrs.update(source="新浪财经" if product!="MO" else "东方财富",source_date=source_day,source_failures=[],source_audit=[])
+    frame=pd.DataFrame(rows)
+    if count_override is not None:
+        field, value = count_override
+        target = frame.index[frame.instrument.eq("MO2612-P-7600")][0] if product == "MO" else frame.index[0]
+        frame.loc[target, field] = value
+    frame.attrs.update(source="新浪财经" if product!="MO" else "东方财富",source_date=source_day,source_failures=[],source_audit=[])
     def vendor(*args):
         calls.append("vendor")
         quotes=bot._live_mo_put_quote_basis(frame) if product=="MO" else frame.copy()
@@ -92,6 +98,50 @@ def test_historical_zero_volume_put_cannot_use_vendor_midpoint_as_official_settl
     assert "MO2612-P-7800" in frame.attrs["listed_instruments"]
     assert "MO2612-P-8200" not in set(frame.instrument)
     assert "MO2612-P-8200" in frame.attrs["listed_instruments"]
+
+
+@pytest.mark.parametrize("product", ["IC", "IM", "MO"])
+@pytest.mark.parametrize("field", ["volume", "position"])
+@pytest.mark.parametrize("value", [0.1, 0.5, nextafter(0.0, 1.0)])
+def test_latest_close_router_rejects_fractional_contract_counts(monkeypatch, product, field, value):
+    """A positive fractional MO volume must not evade the zero-trade Put rule.
+
+    The source adapter invokes the real live-price basis and shared validator
+    before returning to the real latest-completed-session replay fallback.
+    All rows are synthetic transmission counterexamples, never market data.
+    """
+    calls = _latest_close_fallback_setup(
+        monkeypatch, product=product, count_override=(field, value)
+    )
+    with bot.historical_replay(date(2026, 10, 14)):
+        with pytest.raises(RuntimeError, match="整数张数"):
+            bot.fetch_cffex_quotes(product, datetime(2026, 10, 14, 15, 40, tzinfo=bot.BEIJING))
+        assert bot._HISTORICAL_REPLAY_DAY.get() == date(2026, 10, 14)
+    assert calls == ["archive", "vendor"]
+    assert bot._HISTORICAL_REPLAY_DAY.get() is None
+
+
+@pytest.mark.parametrize("product", ["IC", "IM", "MO"])
+@pytest.mark.parametrize("field", ["volume", "position"])
+@pytest.mark.parametrize("value", [0.0, 1.0, 100.0])
+def test_latest_close_router_preserves_integer_valued_float_contract_counts(monkeypatch, product, field, value):
+    _latest_close_fallback_setup(monkeypatch, product=product, count_override=(field, value))
+    with bot.historical_replay(date(2026, 10, 14)):
+        frame = bot.fetch_cffex_quotes(product, datetime(2026, 10, 14, 15, 40, tzinfo=bot.BEIJING))
+    assert frame.attrs["historical_replay_source"] == "latest_completed_close_snapshot"
+    assert set(frame.source_date) == {date(2026, 10, 14)}
+    if product == "MO":
+        assert "MO2612-P-7600" in frame.attrs["listed_instruments"]
+        if field == "volume" and value == 0:
+            assert "MO2612-P-7600" not in set(frame.instrument)
+        else:
+            row = frame.loc[frame.instrument.eq("MO2612-P-7600")].iloc[0]
+            assert row[field] == value
+        for contract in ("MO2612-P-7800", "MO2612-P-8200"):
+            assert contract in frame.attrs["listed_instruments"]
+            assert contract not in set(frame.instrument)
+    else:
+        assert frame.iloc[0][field] == value
 
 
 @pytest.fixture(autouse=True)

@@ -152,6 +152,10 @@ def _intraday_feed(monkeypatch, rows, *, day=date(2026, 10, 14), hour=14, minute
     ).encode()
     monkeypatch.setattr(fear_grid, "datetime", Clock)
     monkeypatch.setattr(fear_grid, "_bounded_get", lambda url, _: raw if url == fear_grid.CSV_URL else page)
+    # The collection clock and independent consumer clock have separate roles.
+    # Synthetic future Monday fixtures must state their validation clock too.
+    monkeypatch.setattr(fear_grid, "_validation_clock", lambda: datetime(
+        day.year, day.month, day.day, hour, minute, tzinfo=fear_grid.BEIJING))
 
 
 def _fallback_signal(monkeypatch, score=39.32):
@@ -417,4 +421,208 @@ def test_replayed_plan_creation_cannot_be_removed_or_forged(monkeypatch, created
     signal["v14_ordinary_put_pending"]={"signal_day":"2026-10-14", "created_at":created,
         "creation_timing":"retrospective_replay", "research_scope":"retrospective_model_plan"}
     with pytest.raises((RuntimeError,ValueError)):
+        state.validate_replay_plan_evidence(signal)
+
+
+# Independent audit regressions: synthetic bytes/clocks, never market data.
+def _adversarial_fear_timeline(monkeypatch, *, rows, started, completed, updated,
+                               validated=None, mode="intraday"):
+    observed = [datetime.fromisoformat(started), datetime.fromisoformat(completed)]
+    class Clock(datetime):
+        calls = 0
+        @classmethod
+        def now(cls, tz=None):
+            value = observed[min(cls.calls, 1)]
+            cls.calls += 1
+            return value.astimezone(tz or fear_grid.BEIJING)
+    latest, score = rows[-1]
+    raw = ("date,fear_greed_index\n" + "".join(f"{day},{value}\n" for day,value in rows)).encode()
+    page = (
+        f'<p class="fg-stat-label">最新日期</p><p class="fg-stat-value">{latest}</p>'
+        f'<p class="fg-stat-label">最新指数值</p><p class="fg-stat-value fg-fear">{score}</p>'
+        f'<p class="fg-update">数据日 {latest} · 更新 {updated}</p>'
+    ).encode()
+    monkeypatch.setattr(fear_grid, "datetime", Clock)
+    monkeypatch.setattr(fear_grid, "_bounded_get", lambda url,_: raw if url==fear_grid.CSV_URL else page)
+    checked = datetime.fromisoformat(validated or completed)
+    monkeypatch.setattr(fear_grid, "_validation_clock", lambda: checked)
+    return fear_grid.fetch_score(date(2026,10,14), mode)
+
+
+def _adversarial_same_day_signal(monkeypatch):
+    evidence = _adversarial_fear_timeline(monkeypatch,
+        rows=[("2026-10-13",60),("2026-10-14",20)],
+        started="2026-10-14T14:59:58+08:00", completed="2026-10-14T14:59:59+08:00",
+        validated="2026-10-14T15:00:02+08:00", updated="2026-10-14 14:59")
+    signal = _saved_unpublished_signal()
+    signal.update(evidence, grid_target=0.5, grid_action="ADD_GRID",
+        grid_entry_source_target="fear_only", grid_transition_reason="enter_fear_only",
+        total_units_target=1.0, total_units_change=0.5,
+        signal_generated_at="2026-10-14T15:00:02+08:00",
+        signal_generation_timing="intraday_hypothetical_if_now_close")
+    return signal
+
+
+def _adversarial_runner_signals(ic_signal):
+    payload=json.loads((Path(__file__).parent/"tests/fixtures/icim_fear_unpublished_20261014.json").read_text(encoding="utf-8"))
+    observed=copy.deepcopy(payload["signals"])
+    observed["IC"]=copy.deepcopy(ic_signal)
+    for field in (
+        "fear_greed_index","fear_data_date","fear_data_status","fear_retrieved_at",
+        "fear_fetch_started_at","fear_page_updated_at","fear_csv_sha256","fear_source_url",
+        "fear_latest_available_date","fear_page_data_date","fear_intraday_policy_revision",
+        "fear_fallback_applied","signal_generated_at","signal_generation_timing",
+        "grid_target","grid_action","grid_entry_source_target","grid_transition_reason",
+        "total_units_target","total_units_change",
+    ):
+        if field in ic_signal: observed["IM"][field]=ic_signal[field]
+    latest={key:payload[key] for key in ("sequence","digest","verified_day")}
+    return observed,latest
+
+
+def test_adversarial_T_value_collection_crossing_1500_is_not_publishable(monkeypatch):
+    evidence=_adversarial_fear_timeline(monkeypatch,
+        rows=[("2026-10-13",60),("2026-10-14",20)],
+        started="2026-10-14T14:59:59+08:00",completed="2026-10-14T15:00:01+08:00",
+        updated="2026-10-14 14:59")
+    assert evidence["fear_fetch_started_at"]=="2026-10-14T14:59:59+08:00"
+    assert evidence["fear_retrieved_at"]=="2026-10-14T15:00:01+08:00"
+    assert evidence["fear_greed_index"] is None and evidence["fear_data_date"] is None
+    signal=_saved_unpublished_signal()
+    signal.update(evidence)
+    view=fear_grid.publication_view(signal)
+    assert view["grid_target"] is None and view["total_units_target"] is None
+
+
+def test_adversarial_runner_rejects_forged_T_evidence_completed_after_1500(monkeypatch):
+    import run_ic_im_v1_4_github_digest as digest
+    signal=_adversarial_same_day_signal(monkeypatch)
+    # Preserve the old vulnerable payload's valid T value and full financial schema.
+    # A producer status change alone cannot protect a consumer of an older payload.
+    signal["fear_retrieved_at"]="2026-10-14T15:00:01+08:00"
+    observed,latest=_adversarial_runner_signals(signal)
+    with pytest.raises(RuntimeError,match="15:00"):
+        digest.validate_realtime_artifact(clock=datetime(2026,10,14,14,59,58,tzinfo=fear_grid.BEIJING),
+            completed_day=date(2026,10,13),before=latest,after=latest,observed=observed)
+    assert fear_grid.publication_view(signal)["grid_target"] is None
+
+
+def test_adversarial_before_1500_observation_can_finish_report_later(monkeypatch):
+    import run_ic_im_v1_4_github_digest as digest
+    signal=_adversarial_same_day_signal(monkeypatch)
+    observed,latest=_adversarial_runner_signals(signal)
+    digest.validate_realtime_artifact(clock=datetime(2026,10,14,14,59,58,tzinfo=fear_grid.BEIJING),
+        completed_day=date(2026,10,13),before=latest,after=latest,observed=observed)
+    assert fear_grid.publication_view(signal)["grid_target"]==0.5
+
+
+@pytest.mark.parametrize("change",["missing","inverted","naive"])
+def test_adversarial_fallback_start_proof_cannot_be_missing_inverted_or_naive(monkeypatch,change):
+    signal=_close_fallback_signal(monkeypatch)
+    if change=="missing":signal.pop("fear_fetch_started_at")
+    elif change=="inverted":signal["fear_fetch_started_at"]="2026-10-15T01:30:01+08:00"
+    else:signal["fear_fetch_started_at"]="2026-10-15T01:30:00"
+    with pytest.raises((RuntimeError,ValueError)):
+        state.validate_delivery_values(signal,"IC")
+    assert fear_grid.publication_view(signal)["grid_target"] is None
+
+
+@pytest.mark.parametrize("generated",["2099-01-01T00:00:00+08:00","2026-10-15T01:29:59+08:00"])
+def test_adversarial_generated_clock_has_trusted_upper_and_collection_lower_bound(monkeypatch,generated):
+    signal=_close_fallback_signal(monkeypatch)
+    signal["signal_generated_at"]=generated
+    with pytest.raises(RuntimeError):state.validate_delivery_values(signal,"IC")
+    assert fear_grid.publication_view(signal)["grid_target"] is None
+
+
+def test_adversarial_equal_completed_generated_validated_clocks_are_legal(monkeypatch):
+    signal=_close_fallback_signal(monkeypatch)
+    assert signal["fear_retrieved_at"]==signal["signal_generated_at"]
+    state.validate_delivery_values(signal,"IC")
+    assert fear_grid.publication_view(signal)==signal
+
+
+def _adversarial_nonfallback_replay_signal(monkeypatch):
+    evidence=_adversarial_fear_timeline(monkeypatch,
+        rows=[("2026-10-13",60),("2026-10-14",20)],
+        started="2026-10-15T01:29:59+08:00",completed="2026-10-15T01:30:00+08:00",
+        updated="2026-10-14 15:01",mode="close")
+    signal=_saved_unpublished_signal()
+    signal.update(evidence,close_confirmed=True,signal_generated_at=evidence["fear_retrieved_at"],
+        signal_generation_timing="retrospective_replay",grid_target=0.5,grid_action="ADD_GRID",
+        grid_entry_source_target="fear_only",grid_transition_reason="enter_fear_only",
+        total_units_target=1.0,total_units_change=0.5)
+    return signal
+
+
+@pytest.mark.parametrize("field,value",[
+    ("fear_fallback_applied",True),("fear_fallback_applied","true"),
+    ("fear_fallback_reason","same_day_not_published"),
+    ("fear_fallback_timing","retrospective_replay"),
+])
+def test_adversarial_nonfallback_cannot_carry_fallback_claim(monkeypatch,field,value):
+    signal=_adversarial_nonfallback_replay_signal(monkeypatch)
+    state.validate_delivery_values(signal,"IC")
+    signal[field]=value
+    with pytest.raises(RuntimeError):state.validate_delivery_values(signal,"IC")
+    assert fear_grid.publication_view(signal)["grid_target"] is None
+
+
+def test_adversarial_deleting_replay_label_does_not_bypass_created_evidence(monkeypatch):
+    signal=_adversarial_nonfallback_replay_signal(monkeypatch)
+    # A real financial fixture surrounds the isolated pending-plan proof challenge.
+    signal["v14_ordinary_put_pending"]={"signal_day":"2026-10-14",
+        "created_at":"2026-10-14T20:00:00+08:00"}
+    signal.pop("signal_generation_timing")
+    with pytest.raises(RuntimeError,match="回放标识"):
+        state.validate_replay_plan_evidence(signal)
+    with pytest.raises(RuntimeError):state.validate_delivery_values(signal,"IC")
+    assert fear_grid.publication_view(signal)["grid_target"] is None
+
+
+@pytest.mark.parametrize("created",["2026-10-15T10:00:00+08:00","2026-10-16T10:00:00+08:00"])
+def test_adversarial_late_retrospective_model_plan_remains_allowed(monkeypatch,created):
+    monkeypatch.setattr(fear_grid,"_validation_clock",lambda: datetime.fromisoformat(created))
+    signal={"market_date":"2026-10-14","fear_retrieved_at":created,
+        "signal_generated_at":created,"signal_generation_timing":"retrospective_replay",
+        "v14_ordinary_put_pending":{"signal_day":"2026-10-14","created_at":created,
+            "creation_timing":"retrospective_replay","research_scope":"retrospective_model_plan"}}
+    state.validate_replay_plan_evidence(signal)
+
+
+@pytest.mark.parametrize("page_updated",[
+    "2099-01-01T00:00:00+08:00",
+    "2026-10-15T01:30:01+08:00",
+    "2026-10-14T15:01:00",
+])
+def test_adversarial_nonfallback_page_clock_cannot_be_future_late_or_naive(monkeypatch,page_updated):
+    signal=_adversarial_nonfallback_replay_signal(monkeypatch)
+    # The baseline is a qualified T value, not a carried T-1 value.
+    assert signal["fear_data_status"]=="retrospective_replay"
+    assert signal.get("fear_fallback_applied") is not True
+    state.validate_delivery_values(signal,"IC")
+    signal["fear_page_updated_at"]=page_updated
+    with pytest.raises((RuntimeError,ValueError)):
+        state.validate_delivery_values(signal,"IC")
+    assert fear_grid.publication_view(signal)["grid_target"] is None
+    assert fear_grid.publication_view(signal)["total_units_target"] is None
+
+
+@pytest.mark.parametrize("generated",[
+    "2026-10-14T23:00:00Z",
+    "2026-10-15T07:00:00+08:00",
+])
+def test_adversarial_utc_generation_boundary_cannot_delete_replay_identity(monkeypatch,generated):
+    # Both strings describe the same actual next-Beijing-day generation instant.
+    signal=_adversarial_nonfallback_replay_signal(monkeypatch)
+    signal.update(fear_data_status="same_day_post_close",
+        fear_fetch_started_at="2026-10-14T15:59:59+08:00",
+        fear_retrieved_at="2026-10-14T16:00:00+08:00",
+        signal_generated_at=generated,
+        v14_ordinary_put_pending={"signal_day":"2026-10-14",
+            "created_at":"2026-10-14T20:00:00+08:00"})
+    signal.pop("signal_generation_timing")
+    monkeypatch.setattr(fear_grid,"_validation_clock",lambda: datetime(
+        2026,10,15,7,0,tzinfo=fear_grid.BEIJING))
+    with pytest.raises(RuntimeError,match="回放"):
         state.validate_replay_plan_evidence(signal)

@@ -20,6 +20,9 @@ def _real_unpublished_result():
 def _apply_previous_session_evidence(signals):
     # Approved re-evaluation of the frozen 14:28 source hash, not a new live quote.
     for signal in signals.values():
+        # Synthetic request interval for this schema/publication regression;
+        # no acquisition start was recorded in the original frozen report.
+        signal["fear_fetch_started_at"] = signal["fear_retrieved_at"]
         signal.update(fear_greed_index=39.32, fear_data_date="2026-10-13",
                       fear_data_status=strategy.fear_grid.INTRADAY_FALLBACK_STATUS,
                       fear_intraday_policy_revision=strategy.fear_grid.INTRADAY_POLICY_REVISION,

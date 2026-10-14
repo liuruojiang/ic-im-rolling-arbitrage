@@ -1,0 +1,14 @@
+{
+  "fixture": "legacy_close_record_20261013.json",
+  "source": "D:\\Codex\\home\\automations\\ic-im\\runs\\20261015\\close_delivery_repair_0057\\canonical_backup_before_close\\latest.json",
+  "sha256": "b18946ed62f202eaf74efdf5b558b679291bce6cffc8f97a6b0fcea7fa4ceca1",
+  "bytes": 29723,
+  "sequence": 13,
+  "verified_day": "2026-10-13",
+  "digest": "d411a56706591228280f4b7d5244d59c9e9be4af276adad8371f539c92a54086",
+  "updated_at": "2026-10-13T19:26:50.674932+08:00",
+  "copied_at": "2026-10-15T07:30:02.188173+08:00",
+  "capture_workspace_head": "ae62d9fede4e79cc7159a37b463615272ce490b1",
+  "original_record_producer_head": null,
+  "description": "Exact saved research record, copied read-only for pure-function temporal regression tests. Not an account position, not a deployable ledger, never used to create a production chain. The legacy record retains its original absent generation fields; no historical rewrite."
+}
