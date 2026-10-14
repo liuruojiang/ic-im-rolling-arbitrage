@@ -7,6 +7,7 @@ are exercised.  No production files are modified and no network is used.
 import contextvars
 import io
 import zipfile
+from datetime import date, datetime
 
 import pandas as pd
 import pytest
@@ -14,6 +15,83 @@ import requests
 from urllib3.exceptions import DecodeError, ProtocolError, ReadTimeoutError
 
 import poe_ic_im_mainline_v1_4_bot as bot
+
+
+def _latest_close_fallback_setup(monkeypatch, *, product="IC", source_day=date(2026,10,14), archive_error=None):
+    class Clock(datetime):
+        @classmethod
+        def now(cls, tz=None):
+            return datetime(2026,10,15,1,40,tzinfo=tz)
+    monkeypatch.setattr(bot,"datetime",Clock)
+    calls=[]
+    error=archive_error or requests.ReadTimeout("synthetic monthly archive timeout")
+    def historical(*args):
+        calls.append("archive")
+        raise error
+    monkeypatch.setattr(bot,"_cffex_historical_quote_frame",historical)
+    monkeypatch.setattr(bot,"_fetch_cffex_official_quotes",lambda *a: (_ for _ in ()).throw(requests.ReadTimeout("synthetic official endpoint timeout")))
+    rows=[dict(instrument=contract,openprice=7000.,highest=7100.,lowest=6900.,lastprice=7000.,
+               volume=10.,position=20.,source_date=source_day,source_time="15:00:00")
+          for contract in sorted(bot._expected_future_contracts(product,date(2026,10,14)))] if product!="MO" else [
+              dict(instrument=f"{month}-{kind}-{strike}",lastprice=800.,volume=10.,position=20.,
+                   source_date=source_day,source_time="15:20:00",bprice=790.,sprice=810.)
+              for month in sorted(bot._expected_mo_months(date(2026,10,14)))
+              for kind in ("C","P") for strike in (7400,7600,7800)]
+    if product=="MO":
+        next(row for row in rows if row["instrument"]=="MO2612-P-7800")["volume"]=0.
+        rows.append(dict(instrument="MO2612-P-8200",lastprice=900.,volume=0.,position=20.,
+                         source_date=source_day,source_time="15:20:00",bprice=0.,sprice=0.))
+    frame=pd.DataFrame(rows);frame.attrs.update(source="新浪财经" if product!="MO" else "东方财富",source_date=source_day,source_failures=[],source_audit=[])
+    def vendor(*args):
+        calls.append("vendor")
+        quotes=bot._live_mo_put_quote_basis(frame) if product=="MO" else frame.copy()
+        return bot._validate_quote_frame(quotes,product,args[-1],frame.attrs["source"])
+    monkeypatch.setattr(bot,"_fetch_sina_future_quotes",vendor)
+    monkeypatch.setattr(bot,"_fetch_eastmoney_mo_quotes",vendor)
+    monkeypatch.setattr(bot,"_fetch_eastmoney_future_quotes",lambda *a: (_ for _ in ()).throw(RuntimeError("synthetic unused second fallback")))
+    return calls
+
+
+def test_recent_completed_replay_can_use_qualified_same_day_close_snapshot_after_transport_failure(monkeypatch):
+    calls=_latest_close_fallback_setup(monkeypatch)
+    with bot.historical_replay(date(2026,10,14)):
+        frame=bot.fetch_cffex_quotes("IC",datetime(2026,10,14,15,40,tzinfo=bot.BEIJING))
+    assert calls==["archive","vendor"]
+    assert frame.attrs["historical_replay_source"]=="latest_completed_close_snapshot"
+    assert set(frame.source_date)=={date(2026,10,14)}
+    assert any("历史包" in text for text in frame.attrs["source_failures"])
+
+
+def test_older_missed_replay_cannot_use_latest_snapshot(monkeypatch):
+    calls=_latest_close_fallback_setup(monkeypatch)
+    with bot.historical_replay(date(2026,10,13)),pytest.raises(requests.ReadTimeout):
+        bot.fetch_cffex_quotes("IC",datetime(2026,10,13,15,40,tzinfo=bot.BEIJING))
+    assert calls==["archive"]
+
+
+@pytest.mark.parametrize("source_day",[date(2026,10,13),date(2026,10,15)])
+def test_latest_completed_replay_rejects_wrong_day_snapshot(monkeypatch,source_day):
+    _latest_close_fallback_setup(monkeypatch,source_day=source_day)
+    with bot.historical_replay(date(2026,10,14)),pytest.raises(RuntimeError,match="同一交易日|过期|晚于"):
+        bot.fetch_cffex_quotes("IC",datetime(2026,10,14,15,40,tzinfo=bot.BEIJING))
+
+
+def test_malformed_historical_archive_cannot_enable_snapshot_fallback(monkeypatch):
+    calls=_latest_close_fallback_setup(monkeypatch,archive_error=RuntimeError("synthetic corrupt ZIP"))
+    with bot.historical_replay(date(2026,10,14)),pytest.raises(RuntimeError,match="corrupt ZIP"):
+        bot.fetch_cffex_quotes("IC",datetime(2026,10,14,15,40,tzinfo=bot.BEIJING))
+    assert calls==["archive"]
+
+
+def test_historical_zero_volume_put_cannot_use_vendor_midpoint_as_official_settlement(monkeypatch):
+    _latest_close_fallback_setup(monkeypatch,product="MO")
+    with bot.historical_replay(date(2026,10,14)):
+        frame=bot.fetch_cffex_quotes("MO",datetime(2026,10,14,15,40,tzinfo=bot.BEIJING))
+    assert "MO2612-P-7600" in set(frame.instrument)
+    assert "MO2612-P-7800" not in set(frame.instrument)
+    assert "MO2612-P-7800" in frame.attrs["listed_instruments"]
+    assert "MO2612-P-8200" not in set(frame.instrument)
+    assert "MO2612-P-8200" in frame.attrs["listed_instruments"]
 
 
 @pytest.fixture(autouse=True)
