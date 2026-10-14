@@ -94,11 +94,68 @@ def previous_exchange_session(signal_day: date) -> date:
     return strategy._roll_backward_exchange_day(prior, require_official=True)
 
 
-def validate_intraday_fallback(signal: dict[str, Any]) -> None:
+def _validation_clock() -> datetime:
+    return datetime.now(BEIJING)
+
+
+def validate_observation_clock(
+    signal: dict[str, Any], *, validation_clock: datetime | None = None,
+) -> None:
+    """Bind new evidence to completed retrieval, never a frozen request clock."""
+    day = date.fromisoformat(str(signal.get("market_date"))[:10])
+    if day < INTRADAY_FALLBACK_EFFECTIVE_DATE:
+        return
+    status = signal.get("fear_data_status")
+    carried = status in {INTRADAY_FALLBACK_STATUS, CLOSE_FALLBACK_STATUS}
+    applied = signal.get("fear_fallback_applied")
+    if applied is not None and type(applied) is not bool:
+        raise RuntimeError("恐慌沿用标识必须是布尔值")
+    if not carried and (applied is True or signal.get("fear_fallback_reason") is not None
+                        or signal.get("fear_fallback_timing") is not None):
+        raise RuntimeError("恐慌非沿用状态夹带矛盾的沿用证明")
+    value = signal.get("fear_greed_index")
+    if value is not None and (isinstance(value, bool) or not math.isfinite(float(value))
+                              or not 0 <= float(value) <= 100):
+        raise RuntimeError("恐慌读数不是合格的有限数值")
+    stamps = {}
+    fields = ["fear_retrieved_at", "fear_page_updated_at"]
+    if carried or signal.get("fear_fetch_started_at") is not None:
+        fields.append("fear_fetch_started_at")
+    if signal.get("signal_generated_at") is not None:
+        fields.append("signal_generated_at")
+    for field in fields:
+        stamp = datetime.fromisoformat(str(signal.get(field)))
+        if stamp.tzinfo is None:
+            raise RuntimeError("恐慌采集与生成时钟必须含时区")
+        stamps[field] = stamp.astimezone(BEIJING)
+    retrieved = stamps["fear_retrieved_at"]
+    if stamps["fear_page_updated_at"] > retrieved:
+        raise RuntimeError("恐慌页面更新晚于实际采集完成")
+    checked = validation_clock or _validation_clock()
+    if checked.tzinfo is None or retrieved > checked.astimezone(BEIJING):
+        raise RuntimeError("恐慌采集时刻晚于独立校验时钟")
+    if "fear_fetch_started_at" in stamps and stamps["fear_fetch_started_at"] > retrieved:
+        raise RuntimeError("恐慌采集开始晚于实际完成")
+    if signal.get("close_confirmed") is False and (
+        retrieved.date() != day or retrieved.time() >= time(15)
+    ):
+        raise RuntimeError("恐慌盘中采集必须在信号日15:00前完成")
+    generated = stamps.get("signal_generated_at")
+    if generated is not None and not retrieved <= generated <= checked.astimezone(BEIJING):
+        raise RuntimeError("恐慌生成时间不在实际采集至独立校验区间")
+    if (retrieved.date() > day or (generated is not None and generated.date() > day)) and (generated is None
+            or signal.get("signal_generation_timing") != "retrospective_replay"):
+        raise RuntimeError("恐慌跨日补录必须保留真实生成时间和回放标识")
+
+
+def validate_intraday_fallback(
+    signal: dict[str, Any], *, validation_clock: datetime | None = None,
+) -> None:
     """Independently bind an intraday carried value to the exact prior session."""
     day = date.fromisoformat(str(signal.get("market_date"))[:10])
     if day < INTRADAY_FALLBACK_EFFECTIVE_DATE or signal.get("close_confirmed") is not False:
         raise RuntimeError("恐慌上一交易日沿用仅限新授权后的盘中预估，不得确认收盘")
+    validate_observation_clock(signal, validation_clock=validation_clock)
     prior = previous_exchange_session(day).isoformat()
     if (
         signal.get("fear_data_status") != INTRADAY_FALLBACK_STATUS
@@ -134,11 +191,14 @@ def validate_intraday_fallback(signal: dict[str, Any]) -> None:
         raise RuntimeError("恐慌沿用值缺少本信号日15:00前的合格采集证据")
 
 
-def validate_close_fallback(signal: dict[str, Any]) -> None:
+def validate_close_fallback(
+    signal: dict[str, Any], *, validation_clock: datetime | None = None,
+) -> None:
     """Verify the approved lagged close input without relabeling its data day."""
     day = date.fromisoformat(str(signal.get("market_date"))[:10])
     if day < CLOSE_FALLBACK_EFFECTIVE_DATE or signal.get("close_confirmed") is not True:
         raise RuntimeError("恐慌收盘沿用仅限新授权后的收盘模型信号")
+    validate_observation_clock(signal, validation_clock=validation_clock)
     prior = previous_exchange_session(day).isoformat()
     reason = signal.get("fear_fallback_reason")
     source_day = prior if reason == "same_day_not_published" else day.isoformat()
@@ -195,6 +255,10 @@ def publication_view(signal: dict[str, Any]) -> dict[str, Any]:
     if day is None or date.fromisoformat(str(day)[:10]) < EFFECTIVE_SIGNAL_DATE:
         return view
     status = signal.get("fear_data_status")
+    try:
+        validate_observation_clock(signal)
+    except (TypeError, ValueError, RuntimeError):
+        status = "invalid_observation_clock"
     if status == INTRADAY_FALLBACK_STATUS:
         try:
             validate_intraday_fallback(signal)
@@ -308,6 +372,8 @@ def fetch_score(signal_day: date, mode: str) -> dict[str, Any]:
         raise RuntimeError("恐贪 CSV 为空")
     page_day, page_score, page_updated = _parse_page(_bounded_get(PAGE_URL, 512 * 1024))
     fetched = datetime.now(BEIJING)
+    if fetched < fetch_started:
+        raise RuntimeError("恐慌实际采集完成早于开始")
     if page_day != latest or not math.isclose(page_score, values[latest], abs_tol=0.005, rel_tol=0.0):
         raise RuntimeError("恐贪网页与 CSV 最新数据不一致，暂停确认信号")
     if latest > fetched.date() or page_updated > fetched or signal_day > fetched.date() or page_updated.date() < page_day:
@@ -385,13 +451,20 @@ def fetch_score(signal_day: date, mode: str) -> dict[str, Any]:
         "fear_page_data_date": page_day.isoformat(),
         **fallback,
     }
+    if mode == "intraday" and signal_day >= INTRADAY_FALLBACK_EFFECTIVE_DATE and (
+        fetched.date() != signal_day or fetched.time() >= time(15)
+    ):
+        evidence.update(fear_greed_index=None, fear_data_date=None,
+                        fear_data_status="intraday_window_closed", fear_fallback_applied=False,
+                        fear_unavailable_reason="真实采集完成不在信号日15:00前；盘中窗口已结束")
+        return evidence
     if status == INTRADAY_FALLBACK_STATUS:
         validate_intraday_fallback({**evidence, "market_date": signal_day,
-                                    "close_confirmed": False})
+                                    "close_confirmed": False}, validation_clock=fetched)
     if status == CLOSE_FALLBACK_STATUS:
         validate_close_fallback({**evidence, "market_date": signal_day,
                                  "close_confirmed": True,
                                  "signal_generated_at": fetched.isoformat(timespec="seconds"),
                                  "signal_generation_timing": "retrospective_replay" if
-                                 fetched.date() > signal_day else "close_confirmed"})
+                                 fetched.date() > signal_day else "close_confirmed"}, validation_clock=fetched)
     return evidence

@@ -96,6 +96,16 @@ def _validate_record(record: dict[str, Any]) -> None:
             raise RuntimeError("Poe账本信号必须同时包含IC和IM")
         for product in PRODUCTS:
             validate_delivery_values(signals[product], product, historical_record=True)
+            signal = signals[product]
+            if (signal.get("market_date") is not None
+                    and _as_day(signal.get("market_date"), "账本信号日") >= strategy.fear_grid.CLOSE_FALLBACK_EFFECTIVE_DATE
+                    and signal.get("signal_generated_at") is not None):
+                generated = datetime.fromisoformat(str(signal["signal_generated_at"]))
+                written = datetime.fromisoformat(str(record.get("updated_at")))
+                checked = strategy.fear_grid._validation_clock()
+                if (generated.tzinfo is None or written.tzinfo is None
+                        or not generated <= written <= checked):
+                    raise RuntimeError("账本写入时间必须位于真实信号生成至独立校验区间")
     days: list[date] = []
     for product in PRODUCTS:
         anchor = _decode_anchor(record["products"][product])
@@ -245,19 +255,34 @@ def validate_delivery_values(signal: dict[str, Any], product: str, *, historical
 
 def validate_replay_plan_evidence(signal: dict[str, Any]) -> None:
     plan = signal.get("v14_ordinary_put_pending")
-    if (not isinstance(plan, dict) or signal.get("signal_generation_timing") != "retrospective_replay"
+    if (not isinstance(plan, dict)
             or str(plan.get("signal_day"))[:10] != str(signal.get("market_date"))[:10]):
         return
+    day = _as_day(signal.get("market_date"), "补录计划信号日")
+    if day < strategy.fear_grid.CLOSE_FALLBACK_EFFECTIVE_DATE:
+        return
+    replay = (signal.get("signal_generation_timing") == "retrospective_replay"
+              or signal.get("fear_data_status") == "retrospective_replay"
+              or signal.get("fear_fallback_timing") == "retrospective_replay"
+              or any(datetime.fromisoformat(str(signal[field])).astimezone(strategy.BEIJING).date() > day
+                     for field in ("fear_retrieved_at", "signal_generated_at")
+                     if signal.get(field) is not None))
+    if not replay:
+        return
+    if signal.get("signal_generation_timing") != "retrospective_replay":
+        raise RuntimeError("补录普通Put计划不得删除真实回放标识")
     if plan.get("creation_timing") != "retrospective_replay" or plan.get("research_scope") != "retrospective_model_plan":
         raise RuntimeError("补录普通Put计划缺少真实创建/回放身份")
     stamps = [datetime.fromisoformat(str(value)) for value in (
         signal.get("fear_retrieved_at"), plan.get("created_at"), signal.get("signal_generated_at"))]
-    if any(stamp.tzinfo is None for stamp in stamps) or not stamps[0] <= stamps[1] <= stamps[2]:
+    if (any(stamp.tzinfo is None for stamp in stamps)
+            or not stamps[0] <= stamps[1] <= stamps[2] <= strategy.fear_grid._validation_clock()):
         raise RuntimeError("补录普通Put计划创建时间不在真实采集至完成区间内")
 
 
 def validate_fear_grid_signal(signal: dict[str, Any], product: str) -> None:
     day = _as_day(signal.get("market_date"), "网格信号日")
+    strategy.fear_grid.validate_observation_clock(signal)
     if signal.get("grid_policy_revision") != strategy.grid_policy_revision(day):
         raise RuntimeError(f"{product}恐慌网格规则身份不一致")
     status = signal.get("fear_data_status")

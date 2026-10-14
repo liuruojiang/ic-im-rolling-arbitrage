@@ -2811,6 +2811,11 @@ def _validate_quote_frame(
     for column in ("lastprice", "volume", "position", "bprice", "sprice"):
         if column in result:
             result[column] = pd.to_numeric(result[column], errors="coerce")
+    for column in ("volume", "position"):
+        counts = result[column].to_numpy(dtype=float)
+        fractional = np.isfinite(counts) & (counts >= 0) & (counts != np.floor(counts))
+        if fractional.any():
+            raise RuntimeError(f"{source} {product} {column}必须为整数张数，拒绝分数成交量/持仓量")
     valid = (
         np.isfinite(result["lastprice"].to_numpy(dtype=float))
         & result["lastprice"].gt(0)

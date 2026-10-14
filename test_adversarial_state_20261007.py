@@ -3,8 +3,11 @@
 These cases test real ledger code and copied existing fixture shapes, not market
 performance. Production state, frozen specs, and published outputs are untouched.
 """
-from datetime import date
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
+import copy
+import hashlib
+import json
 import shutil
 
 import pytest
@@ -123,3 +126,98 @@ def test_stale_writer_cannot_advance_newer_v14_chain(tmp_path):
     with pytest.raises(RuntimeError, match="另一请求"):
         store.append_confirmed_signals(stale, _v14_signals(date(2026, 8, 25)))
     assert store.load_latest() == committed
+
+
+def _saved_clock_record(stem="replay_close_record_20261014"):
+    """One original record fixture, never initialized as a deployment ledger."""
+    root = Path(__file__).resolve().parent / "tests" / "fixtures" / "icim_adversarial"
+    raw = (root / f"{stem}.json").read_bytes()
+    provenance = json.loads((root / f"{stem}.provenance.json").read_text(encoding="utf-8"))
+    assert hashlib.sha256(raw).hexdigest() == provenance["sha256"]
+    assert len(raw) == provenance["bytes"]
+    record = json.loads(raw)
+    assert (record["verified_day"], record["sequence"], record["digest"]) == (
+        provenance["verified_day"], provenance["sequence"], provenance["digest"]
+    )
+    assert state._digest(record) == record["digest"]
+    return record
+
+
+@pytest.fixture
+def real_record_validation_clock(monkeypatch):
+    import requests
+
+    def no_network(*args, **kwargs):
+        pytest.fail("saved-record time audit attempted a real network call")
+
+    monkeypatch.setattr(requests.sessions.Session, "request", no_network)
+    checked = datetime(2026, 10, 15, 7, 10, tzinfo=state.strategy.BEIJING)
+    monkeypatch.setattr(state.strategy.fear_grid, "_validation_clock", lambda: checked)
+    return checked
+
+
+def test_exact_real_retrospective_record_passes_without_rewriting(real_record_validation_clock):
+    record = _saved_clock_record()
+    original = copy.deepcopy(record)
+    state._validate_record(record)
+    assert record == original
+    assert record["verified_day"] == "2026-10-14"
+    assert all(signal["signal_generation_timing"] == "retrospective_replay" for signal in record["signals"].values())
+
+
+@pytest.mark.parametrize("product", ["IC", "IM"])
+@pytest.mark.parametrize("case", ["future_validation_clock", "after_record_before_validation"])
+def test_self_consistent_digest_cannot_hide_late_signal_generation(real_record_validation_clock, product, case):
+    record = _saved_clock_record()
+    written = datetime.fromisoformat(record["updated_at"])
+    if case == "future_validation_clock":
+        generated = real_record_validation_clock + timedelta(days=1)
+    else:
+        # Stronger than merely rejecting tomorrow: this generation lies before
+        # the trusted current clock but after the record claiming to contain it.
+        generated = written + timedelta(seconds=1)
+        assert generated < real_record_validation_clock
+    record["signals"][product]["signal_generated_at"] = generated.isoformat()
+    record["digest"] = state._digest(record)
+    with pytest.raises(RuntimeError):
+        state._validate_record(record)
+
+
+def test_record_write_cannot_be_after_trusted_validation_even_with_valid_signal_times(real_record_validation_clock):
+    record = _saved_clock_record()
+    assert all(datetime.fromisoformat(signal["signal_generated_at"]) < real_record_validation_clock
+               for signal in record["signals"].values())
+    record["updated_at"] = (real_record_validation_clock + timedelta(seconds=1)).isoformat()
+    record["digest"] = state._digest(record)
+    with pytest.raises(RuntimeError, match="账本写入时间"):
+        state._validate_record(record)
+
+
+@pytest.mark.parametrize("field", ["signal_generated_at", "updated_at"])
+@pytest.mark.parametrize("stamp", [None, "2026-10-15T01:48:33", "invalid-time"])
+def test_new_record_time_evidence_must_be_parseable_and_timezone_aware(real_record_validation_clock, field, stamp):
+    record = _saved_clock_record()
+    if field == "signal_generated_at":
+        record["signals"]["IM"][field] = stamp
+    else:
+        record[field] = stamp
+    record["digest"] = state._digest(record)
+    with pytest.raises((RuntimeError, ValueError, TypeError)):
+        state._validate_record(record)
+
+
+def test_equivalent_aware_utc_record_times_remain_valid(real_record_validation_clock):
+    record = _saved_clock_record()
+    for signal in record["signals"].values():
+        signal["signal_generated_at"] = datetime.fromisoformat(signal["signal_generated_at"]).astimezone(timezone.utc).isoformat()
+    record["updated_at"] = datetime.fromisoformat(record["updated_at"]).astimezone(timezone.utc).isoformat()
+    record["digest"] = state._digest(record)
+    state._validate_record(record)
+
+
+def test_exact_legacy_record_without_new_generation_fields_remains_read_compatible(real_record_validation_clock):
+    record = _saved_clock_record("legacy_close_record_20261013")
+    original = copy.deepcopy(record)
+    assert all("signal_generated_at" not in signal for signal in record["signals"].values())
+    state._validate_record(record)
+    assert record == original
