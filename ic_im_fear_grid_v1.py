@@ -75,6 +75,54 @@ def transition(
     return GRID_UNITS, current_source, "hold_grid"
 
 
+def publication_view(signal: dict[str, Any]) -> dict[str, Any]:
+    """Hide unconfirmed targets without changing the calculated model state."""
+    view = dict(signal)
+    day = signal.get("market_date")
+    if day is None or date.fromisoformat(str(day)[:10]) < EFFECTIVE_SIGNAL_DATE:
+        return view
+    status = signal.get("fear_data_status")
+    # A proven hole in published history retains its existing policy semantics.
+    if status == "missing_published_history":
+        try:
+            retrieved_day = date.fromisoformat(str(signal.get("fear_retrieved_at"))[:10])
+            latest_day = date.fromisoformat(
+                str(signal.get("fear_latest_available_date") or retrieved_day)[:10]
+            )
+            if date.fromisoformat(str(day)[:10]) < min(retrieved_day, latest_day):
+                return view
+        except (TypeError, ValueError):
+            pass
+    try:
+        score = float(signal.get("fear_greed_index"))
+        confirmed = (
+            math.isfinite(score) and 0 <= score <= 100
+            and str(signal.get("fear_data_date"))[:10] == str(day)[:10]
+            and status in {
+                "intraday_provisional", "same_day_post_close", "retrospective_replay"
+            }
+        )
+    except (TypeError, ValueError):
+        confirmed = False
+    if confirmed:
+        return view
+    for key in (
+        "grid_target", "grid_action", "grid_entry_source_target",
+        "grid_transition_reason", "total_units_target", "total_units_change",
+    ):
+        view["reference_" + key] = view.get(key)
+        view[key] = None
+    view.update(
+        grid_action="UNCONFIRMED",
+        grid_target_confirmed=False,
+        total_units_target_confirmed=False,
+        signal_completeness="partial",
+        incomplete_components=["grid", "total_futures"],
+        grid_unconfirmed_reason="当日恐慌读数未核验；网格及完整总期货目标未确认",
+    )
+    return view
+
+
 def _bounded_get(url: str, maximum: int) -> bytes:
     response = requests.get(
         url, timeout=8,
@@ -162,4 +210,6 @@ def fetch_score(signal_day: date, mode: str) -> dict[str, Any]:
         "fear_page_updated_at": page_updated.isoformat(timespec="minutes"),
         "fear_csv_sha256": hashlib.sha256(raw_csv).hexdigest(),
         "fear_source_url": CSV_URL,
+        "fear_latest_available_date": latest.isoformat(),
+        "fear_page_data_date": page_day.isoformat(),
     }

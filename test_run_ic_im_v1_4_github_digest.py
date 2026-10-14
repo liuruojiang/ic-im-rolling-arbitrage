@@ -3,9 +3,113 @@ from __future__ import annotations
 from contextlib import contextmanager
 from datetime import date, datetime
 import json
+import copy
+from pathlib import Path
+
+import pytest
 
 import poe_ic_im_mainline_v1_4_bot as strategy
 import run_ic_im_v1_4_github_digest as digest
+
+
+def _real_unpublished_result():
+    fixture = Path(__file__).parent / "tests/fixtures/icim_fear_unpublished_20261014.json"
+    return json.loads(fixture.read_text(encoding="utf-8"))
+
+
+@pytest.mark.parametrize("published_fear", [False, True])
+def test_real_realtime_artifact_distinguishes_partial_from_complete(monkeypatch, tmp_path, published_fear):
+    original = _real_unpublished_result()
+    observed = copy.deepcopy(original["signals"])
+    if published_fear:
+        for signal in observed.values():
+            signal.update(fear_greed_index=40.0, fear_data_date=signal["market_date"],
+                          fear_data_status="intraday_provisional")
+    before_signals = copy.deepcopy(observed)
+    latest = {key: original[key] for key in ["sequence", "digest", "verified_day"]}
+
+    class Store:
+        def __init__(self, *_args):
+            pass
+
+        def load_latest(self):
+            return latest
+
+    class Coordinator:
+        def __init__(self, *_args):
+            pass
+
+        def catch_up_until_current(self, *_args, **_kwargs):
+            return 0
+
+        def health(self, *_args):
+            return {"status": "ok", "verified_day": latest["verified_day"]}
+
+        def execute_query(self, *_args, **_kwargs):
+            return "frozen formal-query fixture", [], observed
+
+    monkeypatch.setattr(digest, "StateStore", Store)
+    monkeypatch.setattr(digest, "LedgerCoordinator", Coordinator)
+    result = digest.build_artifacts(
+        state_dir=tmp_path / "isolated", out_dir=tmp_path / "out",
+        clock=datetime.fromisoformat(original["generated_at"]), max_sessions=1,
+        mode="realtime", expected_market_date=original["market_date"],
+    )
+    assert observed == before_signals
+    if published_fear:
+        assert result["status"] == "ok" and result["signals"] == observed
+    else:
+        assert result["status"] == "partial"
+        assert set(result["incomplete_components"]) == {
+            "IC.grid", "IC.total_futures", "IM.grid", "IM.total_futures"
+        }
+        for product in ("IC", "IM"):
+            signal = result["signals"][product]
+            assert signal["grid_target"] is None and signal["total_units_target"] is None
+            assert signal["grid_action"] == "UNCONFIRMED"
+            assert signal["core_units_target"] == observed[product]["core_units_target"]
+    assert json.loads((tmp_path / "out/result.json").read_text(encoding="utf-8")) == result
+
+
+def test_poe_report_does_not_print_unpublished_grid_as_zero_hold(monkeypatch):
+    original = _real_unpublished_result()
+    chunks = []
+
+    class Capture:
+        @contextmanager
+        def start_message(self):
+            class Message:
+                def write(self, value):
+                    chunks.append(str(value))
+            yield Message()
+
+    def frozen_signal(product, *_args):
+        signal = copy.deepcopy(original["signals"][product])
+        signal["market_date"] = date.fromisoformat(signal["market_date"])
+        return signal
+
+    monkeypatch.setattr(strategy, "poe", Capture())
+    monkeypatch.setattr(strategy, "build_live_signal_with_transport_retry", frozen_signal)
+    monkeypatch.setattr(strategy, "_SIGNAL_OBSERVER", None)
+    strategy.ICIMMainlinesBot()._handle_signal(("IC", "IM"), "intraday")
+    text = "".join(chunks)
+    assert text.count("**部分有效：") == 2
+    assert text.count("| **期货合计** | **0.5倍** | **N/A**") == 2
+    assert "恐贪读数：**None**" not in text
+    assert "下一交易日预估目标：0.5倍" not in text
+    assert "T+1指定日开盘" in text
+
+
+def test_partial_cli_message_cannot_claim_digest_ok(monkeypatch, tmp_path, capsys):
+    monkeypatch.setattr(digest, "build_artifacts", lambda **_kwargs: {
+        "status": "partial", "publication_mode": "realtime",
+        "verified_day": "2026-10-13", "sequence": 13, "build": strategy.BUILD_ID,
+    })
+    monkeypatch.setattr("sys.argv", ["digest", "--state-dir", str(tmp_path / "state"),
+                                   "--out-dir", str(tmp_path / "out"), "--mode", "realtime"])
+    assert digest.main() == 0
+    text = capsys.readouterr().out
+    assert "ic_im_digest_partial:" in text and "ic_im_digest_ok:" not in text
 
 
 def test_stored_close_report_uses_v14_identity():

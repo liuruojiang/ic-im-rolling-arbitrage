@@ -6700,6 +6700,8 @@ class ICIMMainlinesBot:
                         )
                     continue
                 msg.write(f"### {PRODUCT_NAMES[product]}\n\n")
+                published = fear_grid.publication_view(live)
+                grid_confirmed = published.get("grid_target_confirmed", True)
                 msg.write(f"**{live.get('iv_warning', {}).get('text', 'IV预警：N/A（旧记录未包含监测值）')}**\n\n")
                 provisional = not live["close_confirmed"]
                 target_label = "下一交易日预估目标" if provisional else "下一交易日确认目标"
@@ -6708,11 +6710,19 @@ class ICIMMainlinesBot:
                     if provisional
                     else f"{live['market_date']} 收盘已确认"
                 )
-                msg.write(
-                    f"**当前总期货：{live['total_units_current']:g}倍；"
-                    f"{target_label}：{live['total_units_target']:g}倍；"
-                    f"净变化：{live['total_units_change']:+g}倍。**\n\n"
-                )
+                if grid_confirmed:
+                    msg.write(
+                        f"**当前总期货：{live['total_units_current']:g}倍；"
+                        f"{target_label}：{live['total_units_target']:g}倍；"
+                        f"净变化：{live['total_units_change']:+g}倍。**\n\n"
+                    )
+                else:
+                    msg.write(
+                        "**部分有效：核心、动量和Put按下表单列；"
+                        "当日恐慌未核验，网格及完整总期货目标N/A。**\n\n"
+                        f"当前总期货：{live['total_units_current']:g}倍；"
+                        f"{target_label}：N/A；净变化：N/A。\n\n"
+                    )
                 msg.write(
                     f"信号日：**{live['market_date']}**；下一交易日：**{live['next_trade_date']}**；"
                     f"状态：**{confirm_text}**。\n\n"
@@ -6759,7 +6769,11 @@ class ICIMMainlinesBot:
                     else "本交易日开盘纸面确认" if profit_status == "confirmed_open_research_price"
                     else "T收盘预选 → T+1开盘待确认" if live.get("v14_ordinary_put_plan_status") == "scheduled_t_plus_1_open"
                     else "本交易日开盘纸面确认" if ordinary_status == "confirmed_open_research_price"
-                    else "T收盘评估 → T+1收盘"
+                    else (
+                        "持仓维持；新计划按T收盘预选 → T+1指定日开盘"
+                        if live["market_date"] >= v14_policy.ORDINARY_PUT_OPEN_EFFECTIVE_SIGNAL_DATE
+                        else "T收盘评估 → T+1收盘"
+                    )
                 )
                 msg.write(
                     "| 仓位腿 | 当前策略仓位 | 下一交易日目标 | 变化 | 执行语义 |\n"
@@ -6776,14 +6790,20 @@ class ICIMMainlinesBot:
                 )
                 grid_label = ("独立网格（估值/恐慌）" if live["market_date"] >= fear_grid.EFFECTIVE_SIGNAL_DATE
                               else "独立估值网格")
-                msg.write(
-                    f"| {grid_label} | {live['grid_current']}倍 | {live['grid_target']}倍 | "
-                    f"{live['grid_target'] - live['grid_current']:+g}倍 | T收盘信号 → T+1开盘 |\n"
-                )
-                msg.write(
-                    f"| **期货合计** | **{live['total_units_current']:g}倍** | "
-                    f"**{live['total_units_target']:g}倍** | **{live['total_units_change']:+g}倍** | 三条期货腿相加 |\n"
-                )
+                if grid_confirmed:
+                    msg.write(
+                        f"| {grid_label} | {live['grid_current']}倍 | {live['grid_target']}倍 | "
+                        f"{live['grid_target'] - live['grid_current']:+g}倍 | T收盘信号 → T+1开盘 |\n"
+                    )
+                    msg.write(
+                        f"| **期货合计** | **{live['total_units_current']:g}倍** | "
+                        f"**{live['total_units_target']:g}倍** | **{live['total_units_change']:+g}倍** | 三条期货腿相加 |\n"
+                    )
+                else:
+                    msg.write(
+                        f"| {grid_label} | {live['grid_current']}倍 | N/A（当日恐慌未核验） | N/A | 未确认 |\n"
+                        f"| **期货合计** | **{live['total_units_current']:g}倍** | **N/A** | **N/A** | 网格目标未确认 |\n"
+                    )
                 msg.write(
                     f"| Put | {live['put_current']} | {live['put_target']} | "
                     f"{ACTION_CN[live['put_action']]} | {put_timing} |\n"
@@ -6794,11 +6814,11 @@ class ICIMMainlinesBot:
                 )
                 if live["market_date"] >= fear_grid.EFFECTIVE_SIGNAL_DATE:
                     msg.write(
-                        f"- 恐贪读数：**{live.get('fear_greed_index', '缺失')}**；"
+                        f"- 恐贪读数：**{live.get('fear_greed_index') if live.get('fear_greed_index') is not None else 'N/A（未核验/未发布）'}**；"
                         f"数据日 `{live.get('fear_data_date') or '未发布'}`；"
                         f"数据状态 `{live.get('fear_data_status', 'N/A')}`；"
                         f"网格来源 `{live.get('grid_entry_source_current', 'N/A')}` → "
-                        f"`{live.get('grid_entry_source_target', 'N/A')}`。\n\n"
+                        f"`{live.get('grid_entry_source_target', 'N/A') if grid_confirmed else 'N/A（未确认）'}`。\n\n"
                     )
                 if product == "IM":
                     msg.write(
@@ -6886,10 +6906,13 @@ class ICIMMainlinesBot:
                         "动量袖与网格均不卖Call。"
                         "第4张只能由估值第4档产生，MOM120下限本身最多给到每1倍3张。\n"
                     )
-                msg.write(
-                    f"- 注意：表格中的{grid_label} **{live['grid_target']}倍** 是网格仓位，"
-                    "不是估值等级；估值等级以上述档位文字为准。\n"
-                )
+                if grid_confirmed:
+                    msg.write(
+                        f"- 注意：表格中的{grid_label} **{live['grid_target']}倍** 是网格仓位，"
+                        "不是估值等级；估值等级以上述档位文字为准。\n"
+                    )
+                else:
+                    msg.write("- 网格目标N/A：当日恐慌未核验，不能把参考计算值当作已确认目标。\n")
                 msg.write("\n**Put按仓位来源拆分**\n\n")
                 if product == "IC":
                     if live.get("put_target_total_qty") is not None:

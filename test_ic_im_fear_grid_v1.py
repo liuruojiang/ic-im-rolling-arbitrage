@@ -3,6 +3,9 @@
 from datetime import date, datetime
 
 import pytest
+import copy
+import json
+from pathlib import Path
 
 import ic_im_fear_grid_v1 as fear_grid
 import poe_ic_im_v1_4_state as state
@@ -65,3 +68,66 @@ def test_ledger_independently_rejects_false_close_provenance():
     ):
         with pytest.raises(RuntimeError):
             state.validate_fear_grid_signal(_signal(page_updated), "IC")
+
+
+def _saved_unpublished_signal():
+    fixture = Path(__file__).parent / "tests/fixtures/icim_fear_unpublished_20261014.json"
+    return json.loads(fixture.read_text(encoding="utf-8"))["signals"]["IC"]
+
+
+@pytest.mark.parametrize(
+    "score,status,source_day",
+    [
+        (None, "intraday_unpublished", None),
+        (None, "intraday_provisional", "2026-10-14"),
+        (float("nan"), "intraday_provisional", "2026-10-14"),
+        (float("inf"), "intraday_provisional", "2026-10-14"),
+        (40.0, "intraday_provisional", "2026-10-13"),
+        (40.0, "intraday_unpublished", "2026-10-14"),
+        (None, "missing_published_history", None),
+    ],
+)
+def test_unconfirmed_fear_cannot_publish_zero_hold_as_complete(score, status, source_day):
+    signal = _saved_unpublished_signal()
+    signal.update(fear_greed_index=score, fear_data_status=status, fear_data_date=source_day)
+    original = copy.deepcopy(signal)
+    view = fear_grid.publication_view(signal)
+    assert view["signal_completeness"] == "partial"
+    assert view["grid_target"] is None and view["total_units_target"] is None
+    assert view["total_units_change"] is None and view["grid_action"] == "UNCONFIRMED"
+    assert view["reference_grid_target"] == 0 and view["reference_total_units_target"] == 0.5
+    assert view["core_units_target"] == signal["core_units_target"] == 0.5
+    assert view["put_target_core_qty"] == signal["put_target_core_qty"] == 10
+    # NaN does not compare equal to itself; compare the unchanged scalar identity.
+    assert signal["fear_greed_index"] is score
+    assert signal["grid_action"] == original["grid_action"] == "HOLD"
+    assert signal["grid_target"] == original["grid_target"] == 0
+
+
+@pytest.mark.parametrize("score", [0.0, 25.0, 50.0, 100.0])
+def test_valid_same_day_fear_preserves_all_existing_signal_values(score):
+    signal = _saved_unpublished_signal()
+    signal.update(fear_greed_index=score, fear_data_status="intraday_provisional",
+                  fear_data_date=signal["market_date"])
+    assert fear_grid.publication_view(signal) == signal
+
+
+def test_legacy_and_proven_published_history_hole_keep_original_policy():
+    signal = _saved_unpublished_signal()
+    signal["market_date"] = "2026-09-29"
+    assert fear_grid.publication_view(signal) == signal
+    signal.update(market_date="2026-10-08", fear_data_status="missing_published_history",
+                  fear_latest_available_date="2026-10-13")
+    assert fear_grid.publication_view(signal) == signal
+
+
+def test_fetch_reports_data_day_separately_from_page_update_day(monkeypatch):
+    _feed(monkeypatch)
+    evidence = fear_grid.fetch_score(date(2026, 10, 8), "close")
+    assert evidence["fear_latest_available_date"] == evidence["fear_page_data_date"] == "2026-10-08"
+
+
+def test_partial_publication_is_rejected_at_the_ledger_value_boundary():
+    view = fear_grid.publication_view(_saved_unpublished_signal())
+    with pytest.raises(RuntimeError, match="total_units_target.*数值"):
+        state.validate_delivery_values(view, "IC")

@@ -441,8 +441,17 @@ def build_artifacts(
     out_dir.mkdir(parents=True, exist_ok=True)
     report_path = out_dir / report_name
     _atomic_write_text(report_path, report)
+    published = {
+        product: strategy.fear_grid.publication_view(signal)
+        for product, signal in observed.items()
+    }
+    incomplete = [
+        f"{product}.{component}"
+        for product, signal in published.items()
+        for component in signal.get("incomplete_components", [])
+    ]
     result = {
-        "status": "ok",
+        "status": "partial" if incomplete else "ok",
         "delivery_revision": delivery_revision_for_signal_day(signal_day),
         "strategy": "IC/IM research signal 1.4",
         "strategy_revision": state_module.STRATEGY_REVISION,
@@ -475,8 +484,11 @@ def build_artifacts(
         "digest": str(latest["digest"]),
         "report_file": report_path.name,
         "attachments": [str(item.get("name", "")) for item in attachments],
-        "signals": _jsonable(observed),
+        "signals": _jsonable(published),
     }
+    if incomplete:
+        result["signal_completeness"] = "partial"
+        result["incomplete_components"] = incomplete
     _atomic_write_text(
         out_dir / "result.json", json.dumps(result, ensure_ascii=False, indent=2) + "\n"
     )
@@ -587,7 +599,7 @@ def main() -> int:
         print(f"ic_im_digest_failed: {type(exc).__name__}: {exc}", file=sys.stderr)
         return 1
     print(
-        "ic_im_digest_ok: "
+        f"ic_im_digest_{result['status']}: "
         f"mode={result['publication_mode']} "
         f"verified_day={result['verified_day']} sequence={result['sequence']} "
         f"build={result['build']}"
