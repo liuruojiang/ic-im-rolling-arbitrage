@@ -6663,6 +6663,7 @@ class ICIMMainlinesBot:
                 "不是你的账户持仓；**下一交易日目标**不会自动下单。\n\n"
             )
             msg.write("网格规则：2026-10-08信号日起，估值或恐慌≤25入单个0.5倍网格；按入场来源分别在估值退出线或恐慌≥50退出。此前信号保留当日规则。\n\n")
+            msg.write("盘中恐慌口径：优先合格当日值；当日未发布时沿用正式上一交易日的合格值，保留真实数据日。收盘确认仍要求当日数据。\n\n")
             per_product_budget = _signal_product_network_budget(len(products))
             for product in products:
                 try:
@@ -6719,7 +6720,7 @@ class ICIMMainlinesBot:
                 else:
                     msg.write(
                         "**部分有效：核心、动量和Put按下表单列；"
-                        "当日恐慌未核验，网格及完整总期货目标N/A。**\n\n"
+                        "恐慌当日值及上一交易日沿用值未核验，网格及完整总期货目标N/A。**\n\n"
                         f"当前总期货：{live['total_units_current']:g}倍；"
                         f"{target_label}：N/A；净变化：N/A。\n\n"
                     )
@@ -6813,10 +6814,18 @@ class ICIMMainlinesBot:
                     f"{ACTION_CN[live['call_action']]} | T收盘评估 → T+1收盘 |\n\n"
                 )
                 if live["market_date"] >= fear_grid.EFFECTIVE_SIGNAL_DATE:
+                    fear_basis = (
+                        f"沿用上一交易日 {live.get('fear_data_date')}（当日未发布；盘中预估）"
+                        if live.get("fear_data_status") == fear_grid.INTRADAY_FALLBACK_STATUS
+                        and grid_confirmed else
+                        "当日读数" if live.get("fear_data_date") == live["market_date"].isoformat()
+                        else "以数据日及状态为准"
+                    )
                     msg.write(
                         f"- 恐贪读数：**{live.get('fear_greed_index') if live.get('fear_greed_index') is not None else 'N/A（未核验/未发布）'}**；"
                         f"数据日 `{live.get('fear_data_date') or '未发布'}`；"
                         f"数据状态 `{live.get('fear_data_status', 'N/A')}`；"
+                        f"使用口径：**{fear_basis}**；"
                         f"网格来源 `{live.get('grid_entry_source_current', 'N/A')}` → "
                         f"`{live.get('grid_entry_source_target', 'N/A') if grid_confirmed else 'N/A（未确认）'}`。\n\n"
                     )

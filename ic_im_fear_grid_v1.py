@@ -7,7 +7,7 @@ import hashlib
 import io
 import math
 import re
-from datetime import date, datetime, time
+from datetime import date, datetime, time, timedelta
 from html import unescape
 from typing import Any
 from zoneinfo import ZoneInfo
@@ -16,6 +16,9 @@ import requests
 
 
 EFFECTIVE_SIGNAL_DATE = date(2026, 10, 8)
+INTRADAY_FALLBACK_EFFECTIVE_DATE = date(2026, 10, 14)
+INTRADAY_POLICY_REVISION = "ic_im_intraday_fear_previous_session_20261014_v1"
+INTRADAY_FALLBACK_STATUS = "intraday_previous_session"
 ENTRY_MAX = 25.0
 EXIT_MIN = 50.0
 GRID_UNITS = 0.5
@@ -75,6 +78,59 @@ def transition(
     return GRID_UNITS, current_source, "hold_grid"
 
 
+def previous_exchange_session(signal_day: date) -> date:
+    """Reuse the formal calendar, including its fail-closed coverage boundary."""
+    # The strategy imports this module; resolve its calendar only at call time.
+    import poe_ic_im_mainline_v1_4_bot as strategy
+
+    strategy._require_official_exchange_calendar(signal_day, "恐慌盘中沿用日历")
+    if not strategy._is_exchange_trading_day(signal_day):
+        raise RuntimeError("恐慌盘中沿用的信号日不是交易日")
+    prior = signal_day - timedelta(days=1)
+    strategy._require_official_exchange_calendar(prior, "恐慌上一交易日日历")
+    return strategy._roll_backward_exchange_day(prior, require_official=True)
+
+
+def validate_intraday_fallback(signal: dict[str, Any]) -> None:
+    """Independently bind an intraday carried value to the exact prior session."""
+    day = date.fromisoformat(str(signal.get("market_date"))[:10])
+    if day < INTRADAY_FALLBACK_EFFECTIVE_DATE or signal.get("close_confirmed") is not False:
+        raise RuntimeError("恐慌上一交易日沿用仅限新授权后的盘中预估，不得确认收盘")
+    prior = previous_exchange_session(day).isoformat()
+    if (
+        signal.get("fear_data_status") != INTRADAY_FALLBACK_STATUS
+        or signal.get("fear_intraday_policy_revision") != INTRADAY_POLICY_REVISION
+        or signal.get("fear_fallback_applied") is not True
+        or signal.get("fear_fallback_reason") != "same_day_not_published"
+        or any(str(signal.get(field))[:10] != prior for field in (
+            "fear_data_date", "fear_previous_exchange_date",
+            "fear_latest_available_date", "fear_page_data_date",
+        ))
+    ):
+        raise RuntimeError("恐慌沿用值必须绑定正式日历上一交易日及来源日期/修订")
+    value = signal.get("fear_greed_index")
+    if isinstance(value, bool) or value is None or not math.isfinite(float(value)) or not 0 <= float(value) <= 100:
+        raise RuntimeError("恐慌沿用值不是合格的有限读数")
+    if signal.get("fear_source_url") != CSV_URL or re.fullmatch(
+        r"[0-9a-f]{64}", str(signal.get("fear_csv_sha256", ""))
+    ) is None:
+        raise RuntimeError("恐慌沿用值缺少合格来源及哈希")
+    stamps = {}
+    for field in ("fear_retrieved_at", "fear_page_updated_at"):
+        stamp = datetime.fromisoformat(str(signal.get(field)))
+        if stamp.tzinfo is None:
+            raise RuntimeError("恐慌沿用值采集/更新时间必须含时区")
+        stamps[field] = stamp.astimezone(BEIJING)
+    retrieved = stamps["fear_retrieved_at"]
+    updated = stamps["fear_page_updated_at"]
+    if (
+        retrieved.date() != day or retrieved.time() >= time(15, 0)
+        or updated > retrieved
+        or updated <= datetime.combine(date.fromisoformat(prior), time(15, 0), tzinfo=BEIJING)
+    ):
+        raise RuntimeError("恐慌沿用值缺少本信号日15:00前的合格采集证据")
+
+
 def publication_view(signal: dict[str, Any]) -> dict[str, Any]:
     """Hide unconfirmed targets without changing the calculated model state."""
     view = dict(signal)
@@ -82,6 +138,12 @@ def publication_view(signal: dict[str, Any]) -> dict[str, Any]:
     if day is None or date.fromisoformat(str(day)[:10]) < EFFECTIVE_SIGNAL_DATE:
         return view
     status = signal.get("fear_data_status")
+    if status == INTRADAY_FALLBACK_STATUS:
+        try:
+            validate_intraday_fallback(signal)
+            return view
+        except (TypeError, ValueError, RuntimeError):
+            pass
     # A proven hole in published history retains its existing policy semantics.
     if status == "missing_published_history":
         try:
@@ -118,7 +180,8 @@ def publication_view(signal: dict[str, Any]) -> dict[str, Any]:
         total_units_target_confirmed=False,
         signal_completeness="partial",
         incomplete_components=["grid", "total_futures"],
-        grid_unconfirmed_reason="当日恐慌读数未核验；网格及完整总期货目标未确认",
+        grid_unconfirmed_reason=signal.get("fear_unavailable_reason") or
+        "当日恐慌读数及上一交易日沿用值未核验；网格及完整总期货目标未确认",
     )
     return view
 
@@ -160,10 +223,10 @@ def _parse_page(page: bytes) -> tuple[date, float, datetime]:
 
 
 def fetch_score(signal_day: date, mode: str) -> dict[str, Any]:
-    """Read an exact dated row; distinguish missing history from unpublished today."""
+    """Prefer T; intraday may carry exactly T-1 under the approved dated policy."""
     if mode not in {"intraday", "close"}:
         raise ValueError("unsupported Fear fetch mode")
-    fetched = datetime.now(BEIJING)
+    fetch_started = datetime.now(BEIJING)
     raw_csv = _bounded_get(CSV_URL, 1024 * 1024)
     rows = list(csv.DictReader(io.StringIO(raw_csv.decode("utf-8-sig"))))
     if not rows or set(rows[0]) != {"date", "fear_greed_index"}:
@@ -181,6 +244,7 @@ def fetch_score(signal_day: date, mode: str) -> dict[str, Any]:
     if latest is None:
         raise RuntimeError("恐贪 CSV 为空")
     page_day, page_score, page_updated = _parse_page(_bounded_get(PAGE_URL, 512 * 1024))
+    fetched = datetime.now(BEIJING)
     if page_day != latest or not math.isclose(page_score, values[latest], abs_tol=0.005, rel_tol=0.0):
         raise RuntimeError("恐贪网页与 CSV 最新数据不一致，暂停确认信号")
     if latest > fetched.date() or page_updated > fetched or signal_day > fetched.date():
@@ -202,14 +266,41 @@ def fetch_score(signal_day: date, mode: str) -> dict[str, Any]:
         if page_updated.date() != signal_day or page_updated.time() <= time(15, 0):
             raise RuntimeError(f"恐贪 {signal_day} 指标页尚无收盘后更新，暂停确认信号")
         status = "same_day_post_close"
-    return {
+    data_day = signal_day if value is not None else None
+    fallback: dict[str, Any] = {}
+    if (
+        mode == "intraday" and signal_day >= INTRADAY_FALLBACK_EFFECTIVE_DATE
+        and signal_day == fetched.date() and fetched.time() < time(15, 0)
+    ):
+        fallback.update(fear_intraday_policy_revision=INTRADAY_POLICY_REVISION,
+                        fear_fallback_applied=False)
+        if value is None:
+            prior = previous_exchange_session(signal_day)
+            fallback["fear_previous_exchange_date"] = prior.isoformat()
+            if latest == prior and prior in values:
+                value, data_day = values[prior], prior
+                status = INTRADAY_FALLBACK_STATUS
+                fallback.update(fear_fallback_applied=True,
+                                fear_fallback_reason="same_day_not_published")
+            else:
+                fallback["fear_unavailable_reason"] = (
+                    f"当日恐慌未发布；正式上一交易日{prior}无合格值，"
+                    f"来源最新数据日为{latest}，禁止继续沿用更早值"
+                )
+    evidence = {
         "fear_greed_index": value,
-        "fear_data_date": signal_day.isoformat() if value is not None else None,
+        "fear_data_date": data_day.isoformat() if data_day is not None else None,
         "fear_data_status": status,
         "fear_retrieved_at": fetched.isoformat(timespec="seconds"),
+        "fear_fetch_started_at": fetch_started.isoformat(timespec="seconds"),
         "fear_page_updated_at": page_updated.isoformat(timespec="minutes"),
         "fear_csv_sha256": hashlib.sha256(raw_csv).hexdigest(),
         "fear_source_url": CSV_URL,
         "fear_latest_available_date": latest.isoformat(),
         "fear_page_data_date": page_day.isoformat(),
+        **fallback,
     }
+    if status == INTRADAY_FALLBACK_STATUS:
+        validate_intraday_fallback({**evidence, "market_date": signal_day,
+                                    "close_confirmed": False})
+    return evidence

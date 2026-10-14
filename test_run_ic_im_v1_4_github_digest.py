@@ -17,7 +17,18 @@ def _real_unpublished_result():
     return json.loads(fixture.read_text(encoding="utf-8"))
 
 
-@pytest.mark.parametrize("published_fear", [False, True])
+def _apply_previous_session_evidence(signals):
+    # Approved re-evaluation of the frozen 14:28 source hash, not a new live quote.
+    for signal in signals.values():
+        signal.update(fear_greed_index=39.32, fear_data_date="2026-10-13",
+                      fear_data_status=strategy.fear_grid.INTRADAY_FALLBACK_STATUS,
+                      fear_intraday_policy_revision=strategy.fear_grid.INTRADAY_POLICY_REVISION,
+                      fear_fallback_applied=True, fear_fallback_reason="same_day_not_published",
+                      fear_previous_exchange_date="2026-10-13", fear_latest_available_date="2026-10-13",
+                      fear_page_data_date="2026-10-13")
+
+
+@pytest.mark.parametrize("published_fear", [False, True, "previous_session"])
 def test_real_realtime_artifact_distinguishes_partial_from_complete(monkeypatch, tmp_path, published_fear):
     original = _real_unpublished_result()
     observed = copy.deepcopy(original["signals"])
@@ -25,6 +36,8 @@ def test_real_realtime_artifact_distinguishes_partial_from_complete(monkeypatch,
         for signal in observed.values():
             signal.update(fear_greed_index=40.0, fear_data_date=signal["market_date"],
                           fear_data_status="intraday_provisional")
+    if published_fear == "previous_session":
+        _apply_previous_session_evidence(observed)
     before_signals = copy.deepcopy(observed)
     latest = {key: original[key] for key in ["sequence", "digest", "verified_day"]}
 
@@ -71,8 +84,11 @@ def test_real_realtime_artifact_distinguishes_partial_from_complete(monkeypatch,
     assert json.loads((tmp_path / "out/result.json").read_text(encoding="utf-8")) == result
 
 
-def test_poe_report_does_not_print_unpublished_grid_as_zero_hold(monkeypatch):
+@pytest.mark.parametrize("previous_session", [False, True])
+def test_poe_report_does_not_print_unpublished_grid_as_zero_hold(monkeypatch, previous_session):
     original = _real_unpublished_result()
+    if previous_session:
+        _apply_previous_session_evidence(original["signals"])
     chunks = []
 
     class Capture:
@@ -93,10 +109,17 @@ def test_poe_report_does_not_print_unpublished_grid_as_zero_hold(monkeypatch):
     monkeypatch.setattr(strategy, "_SIGNAL_OBSERVER", None)
     strategy.ICIMMainlinesBot()._handle_signal(("IC", "IM"), "intraday")
     text = "".join(chunks)
-    assert text.count("**部分有效：") == 2
-    assert text.count("| **期货合计** | **0.5倍** | **N/A**") == 2
+    if previous_session:
+        assert "**部分有效：" not in text
+        assert text.count("下一交易日预估目标：0.5倍") == 2
+        assert text.count("沿用上一交易日 2026-10-13（当日未发布；盘中预估）") == 2
+        assert text.count("恐贪读数：**39.32**") == 2
+        assert "数据日 `2026-10-14`；数据状态 `intraday_previous_session`" not in text
+    else:
+        assert text.count("**部分有效：") == 2
+        assert text.count("| **期货合计** | **0.5倍** | **N/A**") == 2
+        assert "下一交易日预估目标：0.5倍" not in text
     assert "恐贪读数：**None**" not in text
-    assert "下一交易日预估目标：0.5倍" not in text
     assert "T+1指定日开盘" in text
 
 

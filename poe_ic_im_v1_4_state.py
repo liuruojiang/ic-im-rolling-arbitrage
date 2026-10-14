@@ -248,7 +248,9 @@ def validate_fear_grid_signal(signal: dict[str, Any], product: str) -> None:
         raise RuntimeError(f"{product}恐慌网格规则身份不一致")
     status = signal.get("fear_data_status")
     allowed = {"same_day_post_close", "retrospective_replay", "missing_published_history"}
-    if status not in allowed | {"intraday_provisional", "intraday_unpublished"}:
+    intraday_statuses = {"intraday_provisional", "intraday_unpublished",
+                         strategy.fear_grid.INTRADAY_FALLBACK_STATUS}
+    if status not in allowed | intraday_statuses:
         raise RuntimeError(f"{product}恐慌数据状态非法")
     if signal.get("close_confirmed") and status not in allowed:
         raise RuntimeError(f"{product}未确认的恐慌读数不得进入收盘账本")
@@ -273,12 +275,14 @@ def validate_fear_grid_signal(signal: dict[str, Any], product: str) -> None:
         raise RuntimeError(f"{product}恐慌同日收盘证据不成立")
     if status in {"retrospective_replay", "missing_published_history"} and day >= retrieved.date():
         raise RuntimeError(f"{product}恐慌历史回放状态与获取日期冲突")
-    if status in {"intraday_provisional", "intraday_unpublished"} and day != retrieved.date():
+    if status in intraday_statuses and day != retrieved.date():
         raise RuntimeError(f"{product}恐慌盘中状态与获取日期冲突")
     fear = signal.get("fear_greed_index")
     if fear is None:
         if signal.get("fear_data_date") is not None or status not in {"missing_published_history", "intraday_unpublished"}:
             raise RuntimeError(f"{product}恐慌缺值状态与日期不一致")
+    elif status == strategy.fear_grid.INTRADAY_FALLBACK_STATUS:
+        strategy.fear_grid.validate_intraday_fallback(signal)
     elif _as_day(signal.get("fear_data_date"), "恐慌数据日") != day:
         raise RuntimeError(f"{product}恐慌数据日不是本信号日")
     current = _finite_float(signal.get("grid_current"), f"{product}当前网格")
@@ -818,7 +822,9 @@ def derive_next_anchors(
     )
     if signal_day >= strategy.fear_grid.EFFECTIVE_SIGNAL_DATE:
         shared_fields = ("fear_greed_index", "fear_data_date", "fear_data_status",
-                         "fear_page_updated_at", "fear_csv_sha256")
+                         "fear_page_updated_at", "fear_csv_sha256",
+                         "fear_intraday_policy_revision", "fear_fallback_applied",
+                         "fear_previous_exchange_date", "fear_fallback_reason")
         if any(signals["IC"].get(field) != signals["IM"].get(field) for field in shared_fields):
             raise RuntimeError("IC/IM恐慌数据来自不同版本，禁止共同写账")
     previous_day = current_anchors["IC"]["last_verified_day"]

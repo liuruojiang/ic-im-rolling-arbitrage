@@ -131,3 +131,182 @@ def test_partial_publication_is_rejected_at_the_ledger_value_boundary():
     view = fear_grid.publication_view(_saved_unpublished_signal())
     with pytest.raises(RuntimeError, match="total_units_target.*数值"):
         state.validate_delivery_values(view, "IC")
+
+
+def _intraday_feed(monkeypatch, rows, *, day=date(2026, 10, 14), hour=14, minute=30,
+                   page_day=None, page_score=None, page_updated=None):
+    class Clock(datetime):
+        @classmethod
+        def now(cls, tz=None):
+            return datetime(day.year, day.month, day.day, hour, minute, tzinfo=tz)
+
+    latest, score = rows[-1]
+    page_day = page_day or latest
+    page_score = score if page_score is None else page_score
+    page_updated = page_updated or f"{page_day} 15:03"
+    raw = ("date,fear_greed_index\n" + "".join(f"{d},{s}\n" for d, s in rows)).encode()
+    page = (
+        f'<p class="fg-stat-label">最新日期</p><p class="fg-stat-value">{page_day}</p>'
+        f'<p class="fg-stat-label">最新指数值</p><p class="fg-stat-value fg-fear">{page_score}</p>'
+        f'<p class="fg-update">数据日 {page_day} · 更新 {page_updated}</p>'
+    ).encode()
+    monkeypatch.setattr(fear_grid, "datetime", Clock)
+    monkeypatch.setattr(fear_grid, "_bounded_get", lambda url, _: raw if url == fear_grid.CSV_URL else page)
+
+
+def _fallback_signal(monkeypatch, score=39.32):
+    _intraday_feed(monkeypatch, [("2026-10-13", score)])
+    evidence = fear_grid.fetch_score(date(2026, 10, 14), "intraday")
+    signal = _saved_unpublished_signal()
+    signal.update(evidence)
+    units, source, reason = fear_grid.transition(
+        "IC", signal["grid_current"], signal["grid_entry_source_current"], signal["score"], score
+    )
+    signal.update(grid_target=units, grid_entry_source_target=source, grid_transition_reason=reason,
+                  grid_action="ADD_GRID" if units > signal["grid_current"] else "HOLD",
+                  total_units_target=signal["core_units_target"] + signal["momentum_units_target"] + units)
+    return signal
+
+
+def test_intraday_prefers_today_over_previous_session(monkeypatch):
+    _intraday_feed(monkeypatch, [("2026-10-13", 60), ("2026-10-14", 20)],
+                   page_updated="2026-10-14 14:20")
+    evidence = fear_grid.fetch_score(date(2026, 10, 14), "intraday")
+    assert evidence["fear_greed_index"] == 20
+    assert evidence["fear_data_date"] == "2026-10-14"
+    assert evidence["fear_data_status"] == "intraday_provisional"
+    assert evidence["fear_fallback_applied"] is False
+
+
+def test_previous_session_value_is_usable_by_both_publication_and_state(monkeypatch):
+    signal = _fallback_signal(monkeypatch)
+    assert signal["fear_greed_index"] == 39.32
+    assert signal["fear_data_status"] == fear_grid.INTRADAY_FALLBACK_STATUS
+    assert signal["fear_data_date"] == signal["fear_previous_exchange_date"] == "2026-10-13"
+    assert fear_grid.publication_view(signal) == signal
+    state.validate_delivery_values(signal, "IC")
+
+
+@pytest.mark.parametrize("day,previous", [
+    (date(2026, 10, 19), date(2026, 10, 16)),
+    (date(2026, 10, 8), date(2026, 9, 30)),
+])
+def test_previous_session_uses_official_calendar_across_weekend_and_long_holiday(day, previous):
+    assert fear_grid.previous_exchange_session(day) == previous
+
+
+def test_monday_fallback_uses_friday_not_sunday(monkeypatch):
+    _intraday_feed(monkeypatch, [("2026-10-16", 25)], day=date(2026, 10, 19))
+    evidence = fear_grid.fetch_score(date(2026, 10, 19), "intraday")
+    assert evidence["fear_data_date"] == "2026-10-16"
+    assert evidence["fear_fallback_applied"] is True
+
+
+def test_missing_previous_session_never_carries_an_older_value(monkeypatch):
+    _intraday_feed(monkeypatch, [("2026-10-12", 20)])
+    evidence = fear_grid.fetch_score(date(2026, 10, 14), "intraday")
+    assert evidence["fear_greed_index"] is None and evidence["fear_data_date"] is None
+    assert "2026-10-13" in evidence["fear_unavailable_reason"]
+    signal = _saved_unpublished_signal()
+    signal.update(evidence)
+    assert fear_grid.publication_view(signal)["grid_target"] is None
+
+
+@pytest.mark.parametrize("hour,minute", [(15, 0), (18, 0)])
+def test_after_close_intraday_fetch_cannot_create_a_fallback(monkeypatch, hour, minute):
+    _intraday_feed(monkeypatch, [("2026-10-13", 20)], hour=hour, minute=minute)
+    evidence = fear_grid.fetch_score(date(2026, 10, 14), "intraday")
+    assert evidence["fear_greed_index"] is None
+    assert evidence.get("fear_fallback_applied") is not True
+
+
+def test_close_fetch_cannot_carry_previous_session(monkeypatch):
+    _intraday_feed(monkeypatch, [("2026-10-13", 20)], hour=18)
+    with pytest.raises(RuntimeError, match="尚未发布"):
+        fear_grid.fetch_score(date(2026, 10, 14), "close")
+
+
+@pytest.mark.parametrize("field,value", [
+    ("close_confirmed", True),
+    ("fear_data_date", "2026-10-12"),
+    ("fear_previous_exchange_date", "2026-10-12"),
+    ("fear_latest_available_date", "2026-10-14"),
+    ("fear_page_data_date", "2026-10-14"),
+    ("fear_intraday_policy_revision", "unapproved"),
+    ("fear_fallback_applied", False),
+    ("fear_fallback_reason", "stale_cache"),
+    ("fear_source_url", "https://example.invalid/old.csv"),
+    ("fear_csv_sha256", ""),
+    ("fear_retrieved_at", "2026-10-14T15:00:00+08:00"),
+    ("fear_retrieved_at", "2026-10-13T14:30:00+08:00"),
+    ("fear_retrieved_at", "2026-10-14T14:30:00"),
+    ("fear_page_updated_at", "2026-10-14T14:31:00+08:00"),
+    ("fear_page_updated_at", "2026-10-13T09:00:00+08:00"),
+    ("fear_page_updated_at", "2026-10-13T15:00:00+08:00"),
+    ("fear_greed_index", None),
+    ("fear_greed_index", float("nan")),
+    ("fear_greed_index", float("inf")),
+    ("fear_greed_index", True),
+    ("fear_greed_index", -1),
+    ("fear_greed_index", 101),
+])
+def test_fallback_requires_complete_evidence_at_state_and_publication_boundaries(monkeypatch, field, value):
+    signal = _fallback_signal(monkeypatch)
+    signal[field] = value
+    with pytest.raises((RuntimeError, TypeError, ValueError)):
+        state.validate_fear_grid_signal(signal, "IC")
+    assert fear_grid.publication_view(signal)["grid_target"] is None
+
+
+@pytest.mark.parametrize("day", [date(2027, 1, 4), date(2026, 10, 18)])
+def test_fallback_calendar_does_not_assume_uncovered_year_or_non_session(day):
+    with pytest.raises(RuntimeError):
+        fear_grid.previous_exchange_session(day)
+
+
+@pytest.mark.parametrize("kwargs", [
+    {"page_day": "2026-10-12"},
+    {"page_score": 41},
+    {"page_updated": "2026-10-14 14:31"},
+])
+def test_fallback_does_not_relax_source_pair_or_future_time_guards(monkeypatch, kwargs):
+    _intraday_feed(monkeypatch, [("2026-10-13", 39.32)], **kwargs)
+    with pytest.raises(RuntimeError):
+        fear_grid.fetch_score(date(2026, 10, 14), "intraday")
+
+
+def test_fallback_uses_completed_retrieval_time_when_http_crosses_close(monkeypatch):
+    _intraday_feed(monkeypatch, [("2026-10-13", 39.32)])
+    clocks = iter([
+        datetime(2026, 10, 14, 14, 59, 59, tzinfo=fear_grid.BEIJING),
+        datetime(2026, 10, 14, 15, 0, 1, tzinfo=fear_grid.BEIJING),
+    ])
+    class Clock(datetime):
+        @classmethod
+        def now(cls, tz=None):
+            return next(clocks)
+    monkeypatch.setattr(fear_grid, "datetime", Clock)
+    evidence = fear_grid.fetch_score(date(2026, 10, 14), "intraday")
+    assert evidence["fear_fetch_started_at"].startswith("2026-10-14T14:59:59")
+    assert evidence["fear_retrieved_at"].startswith("2026-10-14T15:00:01")
+    assert evidence["fear_greed_index"] is None
+    assert evidence.get("fear_fallback_applied") is not True
+
+
+@pytest.mark.parametrize("current,source,valuation,score,expected", [
+    (0, "none", 1.575, 25, (0.5, "fear_only", "enter_fear_only")),
+    (0, "none", 0.5, 25, (0.5, "both", "enter_both")),
+    (0.5, "fear_only", 0.1, 50, (0, "none", "exit_fear")),
+    (0.5, "both", 0.1, 50, (0, "none", "exit_fear")),
+    (0.5, "valuation_only", 0.8, 50, (0.5, "valuation_only", "hold_grid")),
+])
+def test_previous_session_fear_drives_existing_grid_thresholds_without_changing_them(
+    monkeypatch, current, source, valuation, score, expected
+):
+    signal = _fallback_signal(monkeypatch, score)
+    units, target_source, reason = fear_grid.transition("IC", current, source, valuation, signal["fear_greed_index"])
+    assert (units, target_source, reason) == expected
+    signal.update(grid_current=current, grid_entry_source_current=source, score=valuation,
+                  grid_target=units, grid_entry_source_target=target_source, grid_transition_reason=reason,
+                  grid_action="ADD_GRID" if units > current else "EXIT_GRID" if units < current else "HOLD")
+    state.validate_fear_grid_signal(signal, "IC")
