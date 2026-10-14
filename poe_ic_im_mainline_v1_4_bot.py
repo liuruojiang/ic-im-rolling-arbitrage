@@ -3284,7 +3284,48 @@ def fetch_cffex_quotes(
             raise RuntimeError(
                 f"{product}历史重放日 {replay_day} 与运行时钟 {now.date()} 不一致"
             )
-        return _cffex_historical_quote_frame(product, replay_day, now)
+        try:
+            return _cffex_historical_quote_frame(product, replay_day, now)
+        except (requests.ConnectionError, requests.Timeout) as archive_error:
+            # Before a new session starts, the ordinary quote endpoints can
+            # still expose the exact previous completed close. Never use this
+            # for an older missed day or substitute the current session's data.
+            actual_clock = datetime.now(BEIJING)
+            if replay_day != _latest_completed_exchange_day(actual_clock):
+                raise
+            token = _HISTORICAL_REPLAY_DAY.set(None)
+            try:
+                frame = fetch_cffex_quotes(product, now).copy()
+            finally:
+                _HISTORICAL_REPLAY_DAY.reset(token)
+            retrieved_clock = datetime.now(BEIJING)
+            if replay_day != _latest_completed_exchange_day(retrieved_clock):
+                raise RuntimeError("补录取数完成后目标已不是最近完成交易日，拒绝快照替代") from archive_error
+            if frame.attrs.get("source_date") != replay_day or any(
+                day != replay_day for day in frame["source_date"]
+            ):
+                raise RuntimeError("补录备用快照必须完整属于最近已完成的同一交易日") from archive_error
+            if product == "MO":
+                # A historical zero-volume Put requires an official settlement;
+                # an old bid/ask midpoint cannot stand in for that evidence.
+                unavailable = frame["instrument"].str.fullmatch(r"MO\d{4}-P-\d+") & frame["volume"].eq(0)
+                if unavailable.any():
+                    # The ordinary router has already validated the entire raw
+                    # listing and its snapshot. Only remove these price rows;
+                    # revalidating a filtered frame would lose listed contracts
+                    # that the first validation correctly kept as unavailable.
+                    frame = frame.loc[~unavailable].copy()
+                    if frame.empty:
+                        raise RuntimeError("MO历史快照没有可核验的非零成交价格") from archive_error
+            frame.attrs.setdefault("source_failures", []).append(
+                _source_failure("中金所历史包", archive_error)
+            )
+            frame.attrs.setdefault("source_audit", []).append(
+                f"retrospective_replay：仅使用最近已完成{replay_day}的合格收盘快照；实际获取{retrieved_clock.isoformat()}"
+            )
+            frame.attrs["historical_replay_source"] = "latest_completed_close_snapshot"
+            frame.attrs["historical_replay_retrieved_at"] = retrieved_clock.isoformat()
+            return frame
     successes: list[pd.DataFrame] = []
     failures: list[str] = []
     causes: list[Exception] = []
