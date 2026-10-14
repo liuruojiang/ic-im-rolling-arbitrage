@@ -1,5 +1,17 @@
 # IC / IM 系统主线登记表
 
+## IC / IM 收盘恐慌沿用授权（2026-10-15）
+
+- 用户明确批准收盘也沿用上一实际交易日，且标明数据日；首个未完成信号日为2026-10-14，不回写已有链。合格T值优先，只允许严格T-1，不串联沿用更早值。
+- 新输入修订 `ic_im_close_fear_previous_session_20261015_v1`，`close_previous_session`状态进入正式研究账本前必须通过独立来源/日期/时点及回放标识校验。fix11参数身份、schema4/r1及其他策略规则不改。
+- 凌晨补录必须显示真实生成/计划创建时间、`retrospective_replay`及参考差异，不称原日已发布目标。规范见 `docs/ic_im_close_fear_previous_session_20261015_spec.md`；此条覆盖旧“收盘不能沿用”的限制。
+
+## IC / IM 盘中恐慌数据口径（2026-10-14 用户授权）
+
+- 盘中有合格当日恐慌数据时优先使用；尚未发布时只沿用正式日历上一实际交易日的合格值，真实数据日与信号日分别展示。收盘确认不沿用。
+- 输入口径修订为 `ic_im_intraday_fear_previous_session_20261014_v1`，不改 fix11 BUILD/RULE/DELIVERY、网格阈值/数量或历史账本。规范见 `docs/ic_im_intraday_fear_previous_session_20261014_spec.md`。
+- 正式源文件、发布提交及实际验证证据以配套 release 记录为准；不把新口径对保存快照的只读复核称为原时点已发布的新信号。
+
 ## IC / IM v1.4-r1 脚本修复发布（2026-10-13）
 
 - 最新修复执行提交为 `427cf45fd78710583c8028f7eca1ed88968036ee`。修复收盘报价时间门禁、非普通核心路线的独立动量Put T+1计划、核心Put入场成本重启保存、三倍兑现与动量计划并存，以及IC双Put合约摘要。新增 `ic_im_quote_snapshot_guard.py` 为正式bot导入依赖，必须随执行代码分发。

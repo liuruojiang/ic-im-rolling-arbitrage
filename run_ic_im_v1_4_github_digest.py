@@ -246,7 +246,8 @@ def render_stored_close_report(latest: dict[str, Any]) -> str:
         profit_detail = []
         if signal.get("v14_profit_reentry_status") == "scheduled_t_plus_1_open":
             profit_detail.append(
-                f"- 3倍兑现次日开盘计划：{signal.get('v14_profit_execution_day')} 卖旧 "
+                ("- 3倍兑现历史模型计划（补录，非原日发布）：" if signal.get("signal_generation_timing") == "retrospective_replay" else "- 3倍兑现次日开盘计划：")
+                + f"{signal.get('v14_profit_execution_day')} 卖旧 "
                 f"{signal.get('v14_profit_old_contract')}、买预选 "
                 f"{signal.get('v14_profit_reentry_contract')}，数量 "
                 f"{signal.get('v14_profit_reentry_qty')}；尚非成交。"
@@ -274,8 +275,11 @@ def render_stored_close_report(latest: dict[str, Any]) -> str:
                 )
             else:
                 profit_detail.append(
-                    f"- 普通核心/动量买Put：{ordinary.get('signal_day')}收盘预选，"
-                    f"{ordinary.get('execution_day')}开盘待确认；尚非纸面成交。"
+                    (f"- 普通核心/动量买Put：按{ordinary.get('signal_day')}收盘口径补录模型计划；"
+                     f"实际创建{ordinary.get('created_at')}；下一模型执行日{ordinary.get('execution_day')}；尚非纸面成交。"
+                     if ordinary.get("creation_timing") == "retrospective_replay" else
+                     f"- 普通核心/动量买Put：{ordinary.get('signal_day')}收盘预选，"
+                     f"{ordinary.get('execution_day')}开盘待确认；尚非纸面成交。")
                 )
         if signal.get("v14_ordinary_put_open_status") == "confirmed_open_research_price":
             profit_detail.append("- 普通核心/动量买Put：按预选合约及当日正开盘价完成纸面确认；非账户成交。")
@@ -319,6 +323,13 @@ def render_stored_close_report(latest: dict[str, Any]) -> str:
             [
                 "",
                 f"## {product}",
+                f"- 实际信号生成：{signal.get('signal_generated_at', 'N/A（历史记录未存）')}；"
+                f"时点语义：{signal.get('signal_generation_timing', '原历史记录')}。",
+                ("- **历史模型补录 retrospective_replay；不是原信号日已发布的前瞻目标。**"
+                 if signal.get("signal_generation_timing") == "retrospective_replay" else ""),
+                f"- 恐慌输入：{signal.get('fear_greed_index', 'N/A')}；真实数据日 "
+                f"{signal.get('fear_data_date', 'N/A')}；状态 {signal.get('fear_data_status', 'N/A')}；"
+                + ("**沿用上一交易日（当日未发布）**。" if signal.get('fear_fallback_applied') else "当日/原历史输入。"),
                 str(signal.get("iv_warning", {}).get("text", "IV预警：N/A（历史记录未保存IV监测值）")),
                 str(signal.get("im_put_policy_description", "")),
                 "",
@@ -441,8 +452,17 @@ def build_artifacts(
     out_dir.mkdir(parents=True, exist_ok=True)
     report_path = out_dir / report_name
     _atomic_write_text(report_path, report)
+    published = {
+        product: strategy.fear_grid.publication_view(signal)
+        for product, signal in observed.items()
+    }
+    incomplete = [
+        f"{product}.{component}"
+        for product, signal in published.items()
+        for component in signal.get("incomplete_components", [])
+    ]
     result = {
-        "status": "ok",
+        "status": "partial" if incomplete else "ok",
         "delivery_revision": delivery_revision_for_signal_day(signal_day),
         "strategy": "IC/IM research signal 1.4",
         "strategy_revision": state_module.STRATEGY_REVISION,
@@ -465,7 +485,12 @@ def build_artifacts(
             "im_put_execution_revision", "historical_before_monthly_correction"
         ),
         "generated_at": clock.isoformat(),
+        "report_generated_at": datetime.now(strategy.BEIJING).isoformat(timespec="seconds"),
         "publication_mode": publication_mode,
+        "signal_timing": "retrospective_replay" if any(
+            signal.get("signal_generation_timing") == "retrospective_replay"
+            for signal in observed.values()
+        ) else "intraday_hypothetical_if_now_close" if mode == "realtime" else "close_confirmed",
         "market_date": signal_day.isoformat(),
         "completed_day": completed_day.isoformat(),
         "next_trade_day": str(observed["IC"].get("next_trade_date")),
@@ -475,8 +500,11 @@ def build_artifacts(
         "digest": str(latest["digest"]),
         "report_file": report_path.name,
         "attachments": [str(item.get("name", "")) for item in attachments],
-        "signals": _jsonable(observed),
+        "signals": _jsonable(published),
     }
+    if incomplete:
+        result["signal_completeness"] = "partial"
+        result["incomplete_components"] = incomplete
     _atomic_write_text(
         out_dir / "result.json", json.dumps(result, ensure_ascii=False, indent=2) + "\n"
     )
@@ -587,7 +615,7 @@ def main() -> int:
         print(f"ic_im_digest_failed: {type(exc).__name__}: {exc}", file=sys.stderr)
         return 1
     print(
-        "ic_im_digest_ok: "
+        f"ic_im_digest_{result['status']}: "
         f"mode={result['publication_mode']} "
         f"verified_day={result['verified_day']} sequence={result['sequence']} "
         f"build={result['build']}"
