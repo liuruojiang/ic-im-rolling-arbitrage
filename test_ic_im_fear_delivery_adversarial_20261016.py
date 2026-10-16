@@ -87,3 +87,23 @@ def test_latest_csv_today_cannot_delete_today_observation(monkeypatch):
                     fear_fallback_timing="same_day_post_close")
     with pytest.raises(RuntimeError, match="观察快照删除"):
         state.validate_fear_grid_signal(signal_for(evidence), "IC")
+
+
+def test_report_batch_shares_snapshot_without_cross_report_staleness(monkeypatch):
+    setup_feed(monkeypatch)
+    get = feed._bounded_get
+    calls = []
+    def changing_page(url, maximum):
+        calls.append(url)
+        return get(url, maximum) + (f"<!-- dynamic {len(calls)} -->".encode() if url == feed.PAGE_URL else b"")
+    monkeypatch.setattr(feed, "_bounded_get", changing_page)
+    with runner.strategy.collection_clock(datetime(2026, 10, 16, 18, 30, tzinfo=feed.BEIJING)):
+        first = feed.fetch_score(DAY, "close")
+        with feed.observation_batch():
+            second = feed.fetch_score(DAY, "close")
+        assert first == second and len(calls) == 2
+        first["fear_csv_observations"][DAY.isoformat()] = 99.
+        assert feed.fetch_score(DAY, "close")["fear_csv_observations"][DAY.isoformat()] == 20.
+    third = feed.fetch_score(DAY, "close")
+    assert len(calls) == 4 and third["fear_page_sha256"] != second["fear_page_sha256"]
+    assert third["fear_greed_index"] == second["fear_greed_index"]

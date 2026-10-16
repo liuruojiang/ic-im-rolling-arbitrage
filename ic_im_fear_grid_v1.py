@@ -3,6 +3,9 @@
 from __future__ import annotations
 
 import csv
+import copy
+import contextvars
+from contextlib import contextmanager
 import hashlib
 import io
 import json
@@ -490,6 +493,30 @@ def _fetch_score_legacy(signal_day: date, mode: str, fetch_started: datetime | N
 
 SOURCE_POLICY_REVISION = "baifenwei_either_source_20261016_v1"
 SOURCE_POLICY_DATE = date(2026, 10, 16)
+_OBSERVATION_BATCH = contextvars.ContextVar("icim_fear_observation_batch", default=None)
+
+
+@contextmanager
+def observation_batch():
+    """One immutable source snapshot per report, never a cross-report cache."""
+    if _OBSERVATION_BATCH.get() is not None:
+        yield
+        return
+    token = _OBSERVATION_BATCH.set({})
+    try:
+        yield
+    finally:
+        _OBSERVATION_BATCH.reset(token)
+
+
+def _batch_observation(key, fetch):
+    batch = _OBSERVATION_BATCH.get()
+    if batch is None:
+        return fetch()
+    if key not in batch:
+        batch[key] = copy.deepcopy(fetch())
+    return copy.deepcopy(batch[key])
+
 JIU_URL = "https://ai2.jiucaishuo.com/api/fear-greed"
 JIU_PAGE_URL = "https://jiucaishuo.com/indicators?tab=fg"
 
@@ -531,6 +558,10 @@ def reference_disclosure(signal: dict[str, Any]) -> str:
 
 
 def fetch_jiu_reference(signal_day: date) -> dict[str, Any]:
+    return _batch_observation(("jiu", signal_day), lambda: _fetch_jiu_reference_uncached(signal_day))
+
+
+def _fetch_jiu_reference_uncached(signal_day: date) -> dict[str, Any]:
     """Reference-only snapshot, never an input to transition or its entry source."""
     result = {"jiu_fear_greed_index": None, "jiu_data_date": None,
               "jiu_reference_only": True, "jiu_source_url": JIU_URL,
@@ -707,6 +738,10 @@ def validate_source_evidence(signal: dict[str, Any], *, validation_clock: dateti
 
 
 def fetch_score(signal_day: date, mode: str) -> dict[str, Any]:
+    return _batch_observation(("baifenwei", signal_day, mode), lambda: _fetch_score_uncached(signal_day, mode))
+
+
+def _fetch_score_uncached(signal_day: date, mode: str) -> dict[str, Any]:
     started = datetime.now(BEIJING)
     if started.date() < SOURCE_POLICY_DATE:
         return _fetch_score_legacy(signal_day, mode, started)

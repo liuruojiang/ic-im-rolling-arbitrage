@@ -151,7 +151,8 @@ def collection_clock(clock: datetime):
         return
     token = _COLLECTION_CLOCK_ANCHOR.set((clock, time_module.monotonic()))
     try:
-        yield
+        with fear_grid.observation_batch():
+            yield
     finally:
         _COLLECTION_CLOCK_ANCHOR.reset(token)
 
@@ -6798,7 +6799,7 @@ class ICIMMainlinesBot:
         self._handle_signal(products, mode="close")
 
     def _handle_signal(self, products: tuple[str, ...], mode: str) -> None:
-        with _sm() as msg:
+        with fear_grid.observation_batch(), _sm() as msg:
             title = "实时信号（联网刷新）" if mode == "intraday" else "信号（收盘确认）"
             report_build_id = _report_build_id(mode)
             msg.write(

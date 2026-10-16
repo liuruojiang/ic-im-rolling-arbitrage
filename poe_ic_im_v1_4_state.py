@@ -940,7 +940,8 @@ def derive_next_anchors(
                          "fear_previous_exchange_date", "fear_fallback_reason",
                          "fear_close_policy_revision", "fear_fallback_timing",
                          "fear_source_policy_revision", "fear_available_sources",
-                         "fear_selected_source", "fear_cross_validation", "fear_page_sha256")
+                         "fear_selected_source", "fear_cross_validation", "fear_page_data_date",
+                         "fear_page_value", "fear_csv_latest_date", "fear_csv_latest_value", "fear_csv_observations")
         if any(signals["IC"].get(field) != signals["IM"].get(field) for field in shared_fields):
             raise RuntimeError("IC/IM恐慌数据来自不同版本，禁止共同写账")
     previous_day = current_anchors["IC"]["last_verified_day"]
