@@ -1,6 +1,6 @@
 from contextlib import contextmanager
 from copy import deepcopy
-from datetime import date
+from datetime import date, datetime
 import json
 from pathlib import Path
 
@@ -146,3 +146,47 @@ def test_poe_notice_precedes_current_and_next_targets(monkeypatch, intraday):
     text = "".join(chunks)
     assert text.count("月度Put展期换仓提醒") == 2
     assert text.index("月度Put展期换仓提醒") < text.index("当前总期货")
+
+
+@pytest.mark.parametrize("product", ["IC", "IM"])
+@pytest.mark.parametrize("maintenance", [True, False])
+def test_raw_poe_put_table_and_audit_bridge_use_monthly_close_candidate(monkeypatch,product,maintenance):
+    fixture = Path(__file__).parent / "tests/fixtures/icim_fear_unpublished_20261014.json"
+    item = json.loads(fixture.read_text(encoding="utf-8"))["signals"][product]
+    item.update(signal(product,intraday=True))
+    day=date(2026,10,16 if maintenance else 19)
+    item.update(market_date=day,next_trade_date=date(2026,10,19 if maintenance else 20),
+                data_notes=["input", "input",f"账本下一交易日桥接：当前腿固定取2026-10-15已核验收盘锚点；{day}行情只形成下一交易日目标"])
+    if not maintenance:
+        item.update(option_monthly_reset_execution_date="2026-11-20",put_monthly_reset_execution_date="2026-11-20")
+    if product=='IC':
+        item.update(put_current_core_qty=10,put_target_core_qty=17,put_target_momentum_qty=0,
+                    put_target_total_qty=17,put_target="共17张 510500P2612M06500")
+    before=deepcopy(item); chunks=[]
+    class Capture:
+        @contextmanager
+        def start_message(self):
+            class Message:
+                def write(self,value):chunks.append(str(value))
+            yield Message()
+    monkeypatch.setattr(strategy,"poe",Capture())
+    monkeypatch.setattr(strategy,"_now_beijing",lambda:datetime(day.year,day.month,day.day,14,tzinfo=strategy.BEIJING))
+    monkeypatch.setattr(strategy,"build_live_signal_with_transport_retry",lambda *args:deepcopy(item))
+    monkeypatch.setattr(strategy,"_SIGNAL_OBSERVER",None)
+    strategy.ICIMMainlinesBot()._handle_signal((product,),"intraday")
+    text="".join(chunks)
+    if maintenance:
+        assert "期货下一交易日：**2026-10-19**" in text
+        assert "目标仓位（时点见执行语义）" in text
+        assert "今日收盘候选" in text and "盘尾复核" in text
+        assert "行情只形成下一交易日目标" not in text
+        assert "下一交易日张数" not in text and "下一交易日规范化张数" not in text
+        assert "所以，下一交易日共" not in text
+        if product=='IC':
+            assert "所以，今日（2026-10-16）收盘候选共 **17张**" in text
+            assert "510500P2612M06500" in text
+    else:
+        assert "| 仓位腿 | 当前策略仓位 | 下一交易日目标 |" in text
+        assert "行情只形成下一交易日目标" in text
+        assert "今日收盘候选" not in text
+    assert item==before
