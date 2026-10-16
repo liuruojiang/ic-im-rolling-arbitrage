@@ -44,7 +44,7 @@ def sanitize(s):
 
 manifest = json.loads((ROOT/'docs/ic_im_v1_4_script_delivery_sync_20261013_source_manifest.json').read_text(encoding='utf-8'))
 tests = sys.argv[1:] or manifest['required_local_tests']+['test_ic_im_put_execution_repairs_20261016.py', 'test_ic_im_option_maintenance_notice_20261016.py', 'test_ic_im_put_delivery_completion_20261016.py']
-tests = tests + (['test_ic_im_fear_source_delivery_20261016.py'] if not sys.argv[1:] else [])
+tests = tests + (['test_ic_im_fear_source_delivery_20261016.py','test_ic_im_fear_delivery_adversarial_20261016.py'] if not sys.argv[1:] else [])
 tests = [str(FORMAL/test) for test in tests]
 capture=io.StringIO()
 with contextlib.redirect_stdout(capture), contextlib.redirect_stderr(capture):

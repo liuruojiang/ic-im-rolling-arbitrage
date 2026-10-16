@@ -1,0 +1,138 @@
+{
+  "status": "verified_ready_no_send",
+  "strategy_sha": "36ef68aa1e96a1d352d67f60eeb36e3e622bd010",
+  "consumer_source_sha": "bcbd91a4714d4b649e3a6b26af90789ef605b848",
+  "automation_request_only_head": "6f0a006cde333e015aa0fe9f372c64345e5c669c",
+  "root_python_files": 420,
+  "consumer_python_files": 14,
+  "local_tests": {
+    "files": 38,
+    "passed": 894,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0,
+    "deadline": {
+      "exit_code": 0,
+      "seconds": 27.575957799999742,
+      "hard_timeout_seconds": 60
+    }
+  },
+  "cloud_ci": {
+    "run_id": 38856549180,
+    "automation_passed": 1107,
+    "icim_passed": 952,
+    "microcap": "success"
+  },
+  "official_ledger": {
+    "source_run": 38731463272,
+    "artifact_id": 11970296521,
+    "sequence": 15,
+    "verified_day": "2026-10-15",
+    "digest": "ea18004690504420ce43a69aad809b005c9663e57a50f6ee78a75b6f631971a3",
+    "full_live_json_byte_equal_to_both_handoffs": true,
+    "original_branch_preserved": true
+  },
+  "handoffs": {
+    "38856549173": {
+      "verification": {
+        "run_id": 38856549173,
+        "source_artifact_id": 11970296521,
+        "zip_sha256": "587a54945617b38cb903bf3fd95ff77ebb9c117f02d8df69ed6ef0f4a140d4db",
+        "status": "ok",
+        "signal_completeness": "complete",
+        "strategy_sha": "36ef68aa1e96a1d352d67f60eeb36e3e622bd010",
+        "digest": "ea18004690504420ce43a69aad809b005c9663e57a50f6ee78a75b6f631971a3",
+        "sequence": 15,
+        "verified_day": "2026-10-15",
+        "market_date": "2026-10-16",
+        "publication_mode": "realtime",
+        "full_chain_and_migration_verified": true,
+        "source": "official production ledger restored in isolated no-send cloud workflow",
+        "installed": false
+      },
+      "generated_at": "2026-10-16T13:36:29.053694+08:00",
+      "report_generated_at": "2026-10-16T13:37:34+08:00",
+      "advanced_sessions": 0,
+      "digest_files": {
+        "ic_im_v1_4_digest.html": "5c77ecdeaeea10c7fe52d6b398bec407f438eb5ed9d2d3b4c666c93ae9181911",
+        "ic_im_v1_4_digest.md": "ca2d7ce824a35462205f8e9f2315618e9e70a8855d299b97c7c7ae86d5000c91",
+        "metadata.json": "f67212d69c2574b37cbfafa1f577a62d50e7fe1fbca465e7e91b0c217d14108b"
+      },
+      "smtp": {
+        "tls_verified": true,
+        "authenticated": true,
+        "recipients_accepted": 1,
+        "envelope_reset": true,
+        "message_sent": false,
+        "DATA_used": false
+      }
+    },
+    "38856968370": {
+      "verification": {
+        "run_id": 38856968370,
+        "source_artifact_id": 11970296521,
+        "zip_sha256": "c128d25ad95f2f288f3f38621eb442b25d514f5c9ab3ad3166099c248555bc13",
+        "status": "ok",
+        "signal_completeness": "complete",
+        "strategy_sha": "36ef68aa1e96a1d352d67f60eeb36e3e622bd010",
+        "digest": "ea18004690504420ce43a69aad809b005c9663e57a50f6ee78a75b6f631971a3",
+        "sequence": 15,
+        "verified_day": "2026-10-15",
+        "market_date": "2026-10-15",
+        "publication_mode": "close_confirmed",
+        "full_chain_and_migration_verified": true,
+        "source": "official production ledger restored in isolated no-send cloud workflow",
+        "installed": false
+      },
+      "generated_at": "2026-10-16T13:41:12.969651+08:00",
+      "report_generated_at": "2026-10-16T13:41:15+08:00",
+      "advanced_sessions": 0,
+      "digest_files": {
+        "ic_im_v1_4_digest.html": "775525e0f70945a034377084d86be5e301da552fc47fe952b54ee20ff6b0fe49",
+        "ic_im_v1_4_digest.md": "0ff7efc8d54fe1e1b65ab3679e11848d1dbe68c04b9bb807e87ad79bca7b2200",
+        "metadata.json": "c533cbea2dcf0d8faaa79a533ddc89d210c834e10ccd79186280c2785c3b5df1"
+      },
+      "smtp": {
+        "tls_verified": true,
+        "authenticated": true,
+        "recipients_accepted": 1,
+        "envelope_reset": true,
+        "message_sent": false,
+        "DATA_used": false
+      }
+    }
+  },
+  "local_task": {
+    "actual_toml_written": false,
+    "reason": "session filesystem write restriction",
+    "effective_override": "mandatory registry -> docs/ic_im_put_delivery_completion_20261016.md",
+    "status": "ACTIVE preserved",
+    "schedule": "weekday 14:15 preserved",
+    "microcap_rules": "preserved"
+  },
+  "normal_delivery": {
+    "schedule": "20:00 Asia/Shanghai preserved",
+    "extra_email_sent": false,
+    "prior_success_resent": false,
+    "intent_and_delivered_markers_untouched": true,
+    "actual_20261016_scheduled_delivery": "not yet observed",
+    "inbox_delivery": "not yet observed"
+  },
+  "immutable_guard": {
+    "guarded": 426,
+    "changed": [
+      "runtime\\ic_im_v1_4_r1\\latest.json",
+      "runtime\\ic_im_v1_4_r1\\journal\\000012-2026-10-12.json",
+      "runtime\\ic_im_v1_4_r1\\journal\\000013-2026-10-13.json",
+      "runtime\\ic_im_v1_4_r1\\journal\\000014-2026-10-14.json"
+    ],
+    "unchanged": 422,
+    "authorized_runtime_branch_restoration": true,
+    "original_bytes_preserved_in_backup": {
+      "runtime\\ic_im_v1_4_r1\\latest.json": true,
+      "runtime\\ic_im_v1_4_r1\\journal\\000012-2026-10-12.json": true,
+      "runtime\\ic_im_v1_4_r1\\journal\\000013-2026-10-13.json": true,
+      "runtime\\ic_im_v1_4_r1\\journal\\000014-2026-10-14.json": true
+    }
+  }
+}
