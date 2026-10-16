@@ -6807,7 +6807,10 @@ class ICIMMainlinesBot:
             )
             msg.write(
                 "本次重新联网取数。**当前仓位**是研究规则从已审计账本续接出的策略仓位，"
-                "不是你的账户持仓；**下一交易日目标**不会自动下单。\n\n"
+                + ("不是你的账户持仓；期货目标对应下一交易日，月度Put维护按今日收盘候选单列；各腿目标不会自动下单。\n\n"
+                   if mode == "intraday" and option_maintenance_notice._valid_maintenance_day(
+                       _now_beijing().date(), _option_maintenance_session)
+                   else "不是你的账户持仓；**下一交易日目标**不会自动下单。\n\n")
             )
             msg.write("网格规则：2026-10-08信号日起，估值或恐慌≤25入单个0.5倍网格；按入场来源分别在估值退出线或恐慌≥50退出。此前信号保留当日规则。\n\n")
             msg.write("恐慌口径：盘中及收盘均优先合格当日值；当日未发布时，只沿用正式上一交易日合格值，保留真实数据日。历史补录单列实际生成时间与回放标记。\n\n")
@@ -6856,6 +6859,13 @@ class ICIMMainlinesBot:
                 grid_confirmed = published.get("grid_target_confirmed", True)
                 msg.write(f"**{live.get('iv_warning', {}).get('text', 'IV预警：N/A（旧记录未包含监测值）')}**\n\n")
                 provisional = not live["close_confirmed"]
+                monthly_put_today = bool(
+                    provisional and monthly_notice
+                    and live.get("signal_generation_timing") != "retrospective_replay"
+                    and str(live.get("put_monthly_reset_execution_date") if product == "IM" else
+                            live.get("option_monthly_reset_execution_date"))[:10] == str(live["market_date"])[:10]
+                )
+                put_target_day = f"今日（{live['market_date']}）收盘候选" if monthly_put_today else "下一交易日"
                 target_label = "下一交易日预估目标" if provisional else "下一交易日确认目标"
                 confirm_text = (
                     "盘中值，必须等待本交易日收盘确认"
@@ -6876,9 +6886,11 @@ class ICIMMainlinesBot:
                         f"{target_label}：N/A；净变化：N/A。\n\n"
                     )
                 msg.write(
-                    f"信号日：**{live['market_date']}**；下一交易日：**{live['next_trade_date']}**；"
+                    f"信号日：**{live['market_date']}**；{'期货下一交易日' if monthly_put_today else '下一交易日'}：**{live['next_trade_date']}**；"
                     f"状态：**{confirm_text}**。\n\n"
                 )
+                if monthly_put_today:
+                    msg.write(f"**月度Put：{put_target_day}，合约与数量均须盘尾自行复核，并在当天收盘完成换仓。**\n\n")
                 if live.get("signal_generation_timing") == "retrospective_replay":
                     msg.write(
                         f"**历史模型补录 retrospective_replay：实际生成 {live.get('signal_generated_at')}；"
@@ -6931,7 +6943,8 @@ class ICIMMainlinesBot:
                               f"新腿{short_pending['new_contract']}、数量{short_pending['new_qty']:g}；"
                               "候选收盘价不作为入场成本，取得开盘证据前不启用衰减展期。\n\n")
                 put_timing = (
-                    "预定维护日收盘模型记录（非T+1）" if live.get("option_monthly_reset_due")
+                    f"{put_target_day}；盘尾复核，当天收盘维护（非T+1）" if monthly_put_today
+                    else "预定维护日收盘模型记录（非T+1）" if live.get("option_monthly_reset_due")
                     else "T收盘预选 → T+1开盘" if profit_status == "scheduled_t_plus_1_open"
                     else "本交易日开盘纸面确认" if profit_status == "confirmed_open_research_price"
                     else "T收盘预选 → T+1开盘待确认" if live.get("v14_ordinary_put_plan_status") == "scheduled_t_plus_1_open"
@@ -6943,7 +6956,7 @@ class ICIMMainlinesBot:
                     )
                 )
                 msg.write(
-                    "| 仓位腿 | 当前策略仓位 | 下一交易日目标 | 变化 | 执行语义 |\n"
+                    f"| 仓位腿 | 当前策略仓位 | {'目标仓位（时点见执行语义）' if monthly_put_today else '下一交易日目标'} | 变化 | 执行语义 |\n"
                     "|---|---|---|---|---|\n"
                 )
                 msg.write(
@@ -6972,7 +6985,7 @@ class ICIMMainlinesBot:
                         f"| **期货合计** | **{live['total_units_current']:g}倍** | **N/A** | **N/A** | 网格目标未确认 |\n"
                     )
                 msg.write(
-                    f"| Put | {live['put_current']} | {live['put_target']} | "
+                    f"| Put | {live['put_current']} | {put_target_day + '：' if monthly_put_today else ''}{live['put_target']} | "
                     f"{ACTION_CN[live['put_action']]} | {put_timing} |\n"
                 )
                 msg.write(
@@ -7097,27 +7110,27 @@ class ICIMMainlinesBot:
                 if product == "IC":
                     if live.get("put_target_total_qty") is not None:
                         msg.write(
-                            "| 来源 | 当前张数 | 下一交易日张数 | 为什么 |\n"
+                            f"| 来源 | 当前张数 | {'今日收盘候选张数' if monthly_put_today else '下一交易日张数'} | 为什么 |\n"
                             "|---|---:|---:|---|\n"
                             f"| 裸滚IC核心袖 | **{live['put_current_core_qty']}张** | "
                             f"**{live['put_target_core_qty']}张** | 当前由"
-                            f"{live['current_core_put_driver']}决定；下一交易日由"
+                            f"{live['current_core_put_driver']}决定；{put_target_day}由"
                             f"{live['core_put_driver']}决定，只覆盖固定0.5倍核心袖 |\n"
                             f"| IC动量指引袖 | **{live['put_current_momentum_qty']}张** | "
                             f"**{live['put_target_momentum_qty']}张** | 当前："
-                            f"{live['current_momentum_put_driver']}；下一交易日："
+                            f"{live['current_momentum_put_driver']}；{put_target_day}："
                             f"{live['momentum_put_driver']} |\n"
                             f"| 独立估值网格 | **0张** | **0张** | 规则明确不配Put |\n"
                             f"| **合计** | **{live['put_current_total_qty']}张** | "
                             f"**{live['put_target_total_qty']}张** | 三部分严格相加 |\n\n"
-                            f"所以，下一交易日共 **{live['put_target_total_qty']}张**："
+                            f"所以，{put_target_day}共 **{live['put_target_total_qty']}张**："
                             f"裸滚核心袖 **{live['put_target_core_qty']}张**，"
                             f"动量指引袖 **{live['put_target_momentum_qty']}张**，"
                             "网格 **0张**。\n"
                         )
                         if live.get("put_sizing_expiry") is not None:
                             msg.write(
-                                f"合约选择：以 {live['put_sizing_signal_date']} 后约3个月为目标，"
+                                f"{'合约候选（盘尾复核）' if monthly_put_today else '合约选择'}：以 {live['put_sizing_signal_date']} 后约3个月为目标，"
                                 "在实际挂牌月份中选最近到期月，并取约95%行权价；本次为"
                                 f" **{live['put_sizing_expiry']}** 到期、行权价"
                                 f" **{live['put_sizing_strike']:.4f}**。\n"
@@ -7135,7 +7148,7 @@ class ICIMMainlinesBot:
                     )
                 else:
                     msg.write(
-                        "| 来源 | 当前规范化张数 | 下一交易日规范化张数 | 为什么 |\n"
+                        f"| 来源 | 当前规范化张数 | {'今日收盘候选规范化张数' if monthly_put_today else '下一交易日规范化张数'} | 为什么 |\n"
                         "|---|---:|---:|---|\n"
                         f"| 裸滚IM核心袖 | **{live['core_put_current_qty_normalized']:g}张** | "
                         f"**{live['core_put_target_qty_normalized']:g}张** | "
@@ -7152,7 +7165,7 @@ class ICIMMainlinesBot:
                     )
                     if live.get("put_sizing_expiry") is not None:
                         msg.write(
-                            f"合约选择：以 {live['put_sizing_signal_date']} 后约3个月为目标，"
+                            f"{'合约候选（盘尾复核）' if monthly_put_today else '合约选择'}：以 {live['put_sizing_signal_date']} 后约3个月为目标，"
                             f"在实际挂牌月份中选最近到期月，并取约{im_put_policy.moneyness(live['market_date']):.0%}行权价；最终选择到期日 "
                             f"**{live['put_sizing_expiry']}**、行权价 "
                             f"**{live['put_sizing_strike']:.0f}** 的MO Put。\n"
@@ -7210,6 +7223,8 @@ class ICIMMainlinesBot:
                     )
                 msg.write("- 数据：中金所及已验证备用行情、上交所510500ETF/期权及指数行情；PE/PB来源见上述披露，MOM120为价格指数口径。\n")
                 for note in live["data_notes"][2:]:
+                    if monthly_put_today and note.startswith("账本下一交易日桥接："):
+                        note = note.replace("行情只形成下一交易日目标", "行情形成期货下一交易日目标；月度Put为今日收盘候选，须盘尾复核")
                     msg.write(f"- 数据审计：{note}\n")
                 msg.write("\n")
 
