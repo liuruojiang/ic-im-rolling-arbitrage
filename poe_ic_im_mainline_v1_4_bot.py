@@ -6833,8 +6833,12 @@ class ICIMMainlinesBot:
                                 f"；数据日 {observed_fear['fear_data_date'] or '未发布'}；"
                                 f"状态 `{observed_fear['fear_data_status']}`（仅独立观察）。\n\n"
                             )
+                            fear_line += "百分位取数提示：" + fear_grid.source_disclosure(observed_fear) + "\n\n"
                         except Exception as fear_exc:  # noqa: BLE001 - warning must still render.
                             fear_line = f"当日恐慌指数：未核验（{fear_exc}）。\n\n"
+                        if _now_beijing().date() >= fear_grid.SOURCE_POLICY_DATE:
+                            reference = fear_grid.fetch_jiu_reference(_now_beijing().date())
+                            fear_line += fear_grid.reference_disclosure(reference) + "\n\n"
                     msg.write(
                         f"### {PRODUCT_NAMES[product]}\n\n⚠️ 当日信号警告：{exc}\n\n"
                         + fear_line

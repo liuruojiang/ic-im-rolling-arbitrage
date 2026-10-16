@@ -568,6 +568,8 @@ def write_failure(
         "fear_warning": "当日恐慌指数尚未取得可核验读数",
     }
     if signal_day >= strategy.v14_policy.FEAR_GRID_EFFECTIVE_SIGNAL_DATE:
+        if clock.date() >= strategy.fear_grid.SOURCE_POLICY_DATE:
+            fear_observation.update(strategy.fear_grid.fetch_jiu_reference(signal_day))
         try:
             observed = strategy.fear_grid.fetch_score(
                 signal_day, "intraday" if mode == "realtime" else "close"

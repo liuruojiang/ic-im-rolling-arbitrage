@@ -592,7 +592,7 @@ def validate_source_evidence(signal: dict[str, Any], *, validation_clock: dateti
     generated = stamps.get("signal_generated_at")
     if generated is not None and not retrieved <= generated <= checked.astimezone(BEIJING):
         raise RuntimeError("恐贪生成时间不在采集与校验之间")
-    if retrieved.date() > day and (generated is None or signal.get("signal_generation_timing") != "retrospective_replay"):
+    if (retrieved.date() > day or (generated is not None and generated.date() > day)) and (generated is None or signal.get("signal_generation_timing") != "retrospective_replay"):
         raise RuntimeError("跨日补录必须标记真实生成时点与retrospective_replay")
     if signal.get("close_confirmed") is False and (retrieved.date() != day or retrieved.time() >= time(15)):
         raise RuntimeError("盘中采集窗口已结束")
@@ -622,6 +622,27 @@ def validate_source_evidence(signal: dict[str, Any], *, validation_clock: dateti
         raise RuntimeError("网页来源缺少真实日期与更新时间")
     if "page" not in available and (signal.get("fear_page_updated_at") is not None or signal.get("fear_page_data_date") is not None):
         raise RuntimeError("不可虚构网页发布时间")
+    observations = signal.get("fear_csv_observations")
+    if "csv" in available:
+        if not isinstance(observations, dict):
+            raise RuntimeError("CSV缺少信号日/上一交易日读数快照")
+        csv_day = date.fromisoformat(str(signal.get("fear_csv_latest_date")))
+        csv_value = signal.get("fear_csv_latest_value")
+        if (isinstance(csv_value, bool) or not math.isfinite(float(csv_value))
+                or not 0 <= float(csv_value) <= 100 or csv_day > retrieved.date()):
+            raise RuntimeError("CSV最新快照非法")
+        for observed_day, observed_value in observations.items():
+            if (date.fromisoformat(observed_day) > csv_day or isinstance(observed_value, bool)
+                    or not math.isfinite(float(observed_value)) or not 0 <= float(observed_value) <= 100):
+                raise RuntimeError("CSV读数快照非法")
+        if csv_day in {day, previous_exchange_session(day)} and csv_day.isoformat() not in observations:
+            raise RuntimeError("CSV最新交易日不可从观察快照删除")
+        if csv_day.isoformat() in observations and not math.isclose(float(observations[csv_day.isoformat()]), float(csv_value), abs_tol=.005, rel_tol=0):
+            raise RuntimeError("CSV最新读数与快照冲突")
+    if "page" in available:
+        page_value = signal.get("fear_page_value")
+        if isinstance(page_value, bool) or not math.isfinite(float(page_value)) or not 0 <= float(page_value) <= 100:
+            raise RuntimeError("网页读数快照非法")
     value = signal.get("fear_greed_index")
     if value is None:
         if signal.get("fear_data_date") is not None or signal.get("fear_data_status") != "unavailable" or not signal.get("fear_unavailable_reason"):
@@ -632,12 +653,29 @@ def validate_source_evidence(signal: dict[str, Any], *, validation_clock: dateti
         raise RuntimeError("恐贪读数或选中来源非法")
     data_day = date.fromisoformat(str(signal.get("fear_data_date")))
     status = signal.get("fear_data_status")
+    observed_value = (observations.get(data_day.isoformat()) if selected == "csv" else signal.get("fear_page_value"))
+    if observed_value is None or not math.isclose(float(observed_value), float(value), abs_tol=.005, rel_tol=0):
+        raise RuntimeError("选中恐贪读数与来源快照不符")
     if signal.get("fear_fallback_applied") is True:
         prior = previous_exchange_session(day)
         if (data_day != prior or signal.get("fear_previous_exchange_date") != prior.isoformat()
                 or status != (CLOSE_FALLBACK_STATUS if signal.get("close_confirmed") else INTRADAY_FALLBACK_STATUS)
                 or signal.get("fear_fallback_reason") not in {"same_day_not_published", "same_day_not_close_confirmed"}):
             raise RuntimeError("恐贪只允许严格上一实际交易日值")
+        today_observed = ("csv" in available and (day.isoformat() in observations or csv_day == day)) or (
+            "page" in available and signal.get("fear_page_data_date") == day.isoformat())
+        if signal.get("fear_fallback_reason") == "same_day_not_published" and today_observed:
+            raise RuntimeError("来源已有当日值，不得伪造当日未发布")
+        if signal.get("fear_fallback_reason") == "same_day_not_close_confirmed" and (
+                not signal.get("close_confirmed") or "page" not in available
+                or signal.get("fear_page_data_date") != day.isoformat()
+                or stamps["fear_page_updated_at"] > datetime.combine(day, time(15), tzinfo=BEIJING)):
+            raise RuntimeError("未确认收盘沿用必须有当日盘中网页证据")
+        expected_timing = ("retrospective_replay" if retrieved.date() > day else
+                           "same_day_post_close" if signal.get("close_confirmed") else "intraday")
+        if signal.get("fear_fallback_timing") != expected_timing:
+            raise RuntimeError("沿用时点标签与真实采集不符")
+
     elif data_day != day or status not in {"same_day_post_close", "same_day_unverified_close", "intraday_provisional", "retrospective_replay"}:
         raise RuntimeError("恐贪数据日或状态非法")
     if signal.get("close_confirmed") and retrieved.date() == day and retrieved.time() <= time(15):
@@ -744,6 +782,9 @@ def fetch_score(signal_day: date, mode: str) -> dict[str, Any]:
         status = "unavailable"
         warnings.append("没有当日或严格上一交易日的合格百分位读数；网格及合计目标未确认。")
     latest = sources[selected]["latest"] if selected else max((s["latest"] for s in sources.values()), default=None)
+    observed_days = {signal_day}
+    if csv_source:
+        observed_days.add(previous_exchange_session(signal_day))
     return {
         "fear_source_policy_revision": SOURCE_POLICY_REVISION,
         "fear_greed_index": value, "fear_data_date": data_day.isoformat() if data_day else None,
@@ -759,6 +800,8 @@ def fetch_score(signal_day: date, mode: str) -> dict[str, Any]:
         "fear_page_value": page["values"][page["latest"]] if page else None,
         "fear_csv_latest_date": csv_source["latest"].isoformat() if csv_source else None,
         "fear_csv_latest_value": csv_source["values"][csv_source["latest"]] if csv_source else None,
+        "fear_csv_observations": {d.isoformat(): v for d, v in csv_source["values"].items()
+                                  if d in observed_days} if csv_source else None,
         "fear_latest_available_date": latest.isoformat() if latest else None,
         "fear_unavailable_reason": " ".join(warnings) if value is None else None, **fallback,
     }
