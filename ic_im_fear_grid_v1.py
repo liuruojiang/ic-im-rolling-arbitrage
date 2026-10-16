@@ -5,6 +5,7 @@ from __future__ import annotations
 import csv
 import hashlib
 import io
+import json
 import math
 import re
 from datetime import date, datetime, time, timedelta
@@ -102,6 +103,11 @@ def validate_observation_clock(
     signal: dict[str, Any], *, validation_clock: datetime | None = None,
 ) -> None:
     """Bind new evidence to completed retrieval, never a frozen request clock."""
+    if signal.get("fear_source_policy_revision") is not None and not flexible_source(signal):
+        raise RuntimeError("恐贪取数修订身份无效")
+    if flexible_source(signal):
+        validate_source_evidence(signal, validation_clock=validation_clock)
+        return
     day = date.fromisoformat(str(signal.get("market_date"))[:10])
     if day < INTRADAY_FALLBACK_EFFECTIVE_DATE:
         return
@@ -152,6 +158,11 @@ def validate_intraday_fallback(
     signal: dict[str, Any], *, validation_clock: datetime | None = None,
 ) -> None:
     """Independently bind an intraday carried value to the exact prior session."""
+    if flexible_source(signal):
+        validate_source_evidence(signal, validation_clock=validation_clock)
+        if signal.get("fear_data_status") != INTRADAY_FALLBACK_STATUS or signal.get("close_confirmed") is not False:
+            raise RuntimeError("盘中沿用状态非法")
+        return
     day = date.fromisoformat(str(signal.get("market_date"))[:10])
     if day < INTRADAY_FALLBACK_EFFECTIVE_DATE or signal.get("close_confirmed") is not False:
         raise RuntimeError("恐慌上一交易日沿用仅限新授权后的盘中预估，不得确认收盘")
@@ -195,6 +206,11 @@ def validate_close_fallback(
     signal: dict[str, Any], *, validation_clock: datetime | None = None,
 ) -> None:
     """Verify the approved lagged close input without relabeling its data day."""
+    if flexible_source(signal):
+        validate_source_evidence(signal, validation_clock=validation_clock)
+        if signal.get("fear_data_status") != CLOSE_FALLBACK_STATUS or signal.get("close_confirmed") is not True:
+            raise RuntimeError("收盘沿用状态非法")
+        return
     day = date.fromisoformat(str(signal.get("market_date"))[:10])
     if day < CLOSE_FALLBACK_EFFECTIVE_DATE or signal.get("close_confirmed") is not True:
         raise RuntimeError("恐慌收盘沿用仅限新授权后的收盘模型信号")
@@ -259,6 +275,8 @@ def publication_view(signal: dict[str, Any]) -> dict[str, Any]:
         validate_observation_clock(signal)
     except (TypeError, ValueError, RuntimeError):
         status = "invalid_observation_clock"
+    if flexible_source(signal) and status != "invalid_observation_clock" and signal.get("fear_greed_index") is not None:
+        return view
     if status == INTRADAY_FALLBACK_STATUS:
         try:
             validate_intraday_fallback(signal)
@@ -349,11 +367,11 @@ def _parse_page(page: bytes) -> tuple[date, float, datetime]:
     return day, score, updated
 
 
-def fetch_score(signal_day: date, mode: str) -> dict[str, Any]:
+def _fetch_score_legacy(signal_day: date, mode: str, fetch_started: datetime | None = None) -> dict[str, Any]:
     """Prefer T; approved intraday/close policies may carry exactly T-1."""
     if mode not in {"intraday", "close"}:
         raise ValueError("unsupported Fear fetch mode")
-    fetch_started = datetime.now(BEIJING)
+    fetch_started = fetch_started or datetime.now(BEIJING)
     raw_csv = _bounded_get(CSV_URL, 1024 * 1024)
     rows = list(csv.DictReader(io.StringIO(raw_csv.decode("utf-8-sig"))))
     if not rows or set(rows[0]) != {"date", "fear_greed_index"}:
@@ -468,3 +486,279 @@ def fetch_score(signal_day: date, mode: str) -> dict[str, Any]:
                                  "signal_generation_timing": "retrospective_replay" if
                                  fetched.date() > signal_day else "close_confirmed"}, validation_clock=fetched)
     return evidence
+
+
+SOURCE_POLICY_REVISION = "baifenwei_either_source_20261016_v1"
+SOURCE_POLICY_DATE = date(2026, 10, 16)
+JIU_URL = "https://ai2.jiucaishuo.com/api/fear-greed"
+JIU_PAGE_URL = "https://jiucaishuo.com/indicators?tab=fg"
+
+
+def flexible_source(signal: dict[str, Any]) -> bool:
+    return signal.get("fear_source_policy_revision") == SOURCE_POLICY_REVISION
+
+
+def _parse_csv(raw: bytes) -> dict[date, float]:
+    rows = list(csv.DictReader(io.StringIO(raw.decode("utf-8-sig"))))
+    if not rows or set(rows[0]) != {"date", "fear_greed_index"}:
+        raise ValueError("恐贪CSV字段不符")
+    values: dict[date, float] = {}
+    previous = None
+    for row in rows:
+        day, value = date.fromisoformat(row["date"]), float(row["fear_greed_index"])
+        if (previous is not None and day <= previous) or not math.isfinite(value) or not 0 <= value <= 100:
+            raise ValueError("恐贪CSV日期顺序或读数非法")
+        values[day] = value
+        previous = day
+    return values
+
+
+def source_disclosure(signal: dict[str, Any]) -> str:
+    return str(signal.get("fear_source_warning") or (
+        "百分位CSV与网页读数一致，已完成双侧验证。"
+        if signal.get("fear_cross_validation") == "matched" else
+        "百分位来源验证状态以原始记录为准。"))
+
+
+def reference_disclosure(signal: dict[str, Any]) -> str:
+    value = signal.get("jiu_fear_greed_index")
+    if value is None:
+        return "9圈恐慌贪婪指数：暂未取得；仅供参考，不参与网格信号。"
+    mismatch = "；与百分位数据日不同" if signal.get("jiu_data_date") != signal.get("fear_data_date") else ""
+    return (f"9圈恐慌贪婪指数：{float(value):g}；数据日 {signal.get('jiu_data_date')}"
+            f"；采集 {signal.get('jiu_retrieved_at')}{mismatch}；"
+            f"仅供参考，不参与网格信号。官网：{JIU_PAGE_URL}")
+
+
+def fetch_jiu_reference(signal_day: date) -> dict[str, Any]:
+    """Reference-only snapshot, never an input to transition or its entry source."""
+    result = {"jiu_fear_greed_index": None, "jiu_data_date": None,
+              "jiu_reference_only": True, "jiu_source_url": JIU_URL,
+              "jiu_page_url": JIU_PAGE_URL, "jiu_sha256": None}
+    try:
+        raw = _bounded_get(JIU_URL, 2 * 1024 * 1024)
+        payload = json.loads(raw)
+        if not isinstance(payload, dict):
+            raise ValueError("9圈响应必须为对象")
+        rows = payload.get("history", [])
+        if not isinstance(rows, list):
+            raise ValueError("9圈历史字段异常")
+        rows = [*rows, {"date": payload.get("date"), "value": payload.get("value")}]
+        values = {}
+        now = datetime.now(BEIJING)
+        for row in rows:
+            if not isinstance(row, dict):
+                raise ValueError("9圈记录字段异常")
+            day = date.fromisoformat(str(row.get("date")))
+            value = row.get("value")
+            if isinstance(value, bool) or value is None or not math.isfinite(float(value)) or not 0 <= float(value) <= 100 or day > now.date():
+                raise ValueError("9圈日期或读数非法")
+            if day in values and values[day] != float(value):
+                raise ValueError("9圈同日记录冲突")
+            values[day] = float(value)
+        eligible = [d for d in values if d <= signal_day]
+        if not eligible:
+            raise ValueError("9圈无不晚于信号日的参考读数")
+        latest = max(eligible)
+        result.update(jiu_fear_greed_index=values[latest], jiu_data_date=latest.isoformat(),
+                      jiu_sha256=hashlib.sha256(raw).hexdigest(), jiu_status="reference_only",
+                      jiu_warning="数据日早于信号日" if latest < signal_day else "")
+    except Exception as exc:
+        result.update(jiu_status="unavailable", jiu_warning=f"9圈参考取数失败：{type(exc).__name__}: {exc}")
+    result["jiu_retrieved_at"] = datetime.now(BEIJING).isoformat(timespec="seconds")
+    return result
+
+
+def validate_source_evidence(signal: dict[str, Any], *, validation_clock: datetime | None = None) -> None:
+    """Independent consumer checks; missing page clocks are never fabricated."""
+    if not flexible_source(signal):
+        raise RuntimeError("恐贪取数修订身份无效")
+    day = date.fromisoformat(str(signal.get("market_date"))[:10])
+    stamps = {}
+    for key in ("fear_fetch_started_at", "fear_retrieved_at", "fear_page_updated_at", "signal_generated_at"):
+        value = signal.get(key)
+        if value is None and key in {"fear_page_updated_at", "signal_generated_at"}:
+            continue
+        stamp = datetime.fromisoformat(str(value))
+        if stamp.tzinfo is None:
+            raise RuntimeError("恐贪证据时间必须含时区")
+        stamps[key] = stamp.astimezone(BEIJING)
+    retrieved = stamps["fear_retrieved_at"]
+    checked = validation_clock or _validation_clock()
+    if (retrieved.date() < SOURCE_POLICY_DATE or day > retrieved.date()
+            or not stamps["fear_fetch_started_at"] <= retrieved <= checked.astimezone(BEIJING)
+            or stamps.get("fear_page_updated_at", retrieved) > retrieved):
+        raise RuntimeError("恐贪取数时间证据非法")
+    generated = stamps.get("signal_generated_at")
+    if generated is not None and not retrieved <= generated <= checked.astimezone(BEIJING):
+        raise RuntimeError("恐贪生成时间不在采集与校验之间")
+    if retrieved.date() > day and (generated is None or signal.get("signal_generation_timing") != "retrospective_replay"):
+        raise RuntimeError("跨日补录必须标记真实生成时点与retrospective_replay")
+    if signal.get("close_confirmed") is False and (retrieved.date() != day or retrieved.time() >= time(15)):
+        raise RuntimeError("盘中采集窗口已结束")
+    available = signal.get("fear_available_sources")
+    if not isinstance(available, list) or len(set(available)) != len(available) or any(x not in {"csv", "page"} for x in available):
+        raise RuntimeError("恐贪来源清单无效")
+    selected = signal.get("fear_selected_source")
+    quality = signal.get("fear_cross_validation")
+    if len(available) == 2:
+        csv_day = date.fromisoformat(str(signal.get("fear_csv_latest_date")))
+        page_day = date.fromisoformat(str(signal.get("fear_page_data_date")))
+        csv_value, page_value = float(signal.get("fear_csv_latest_value")), float(signal.get("fear_page_value"))
+        if (not all(math.isfinite(v) and 0 <= v <= 100 for v in (csv_value, page_value))
+                or max(csv_day, page_day) > retrieved.date()):
+            raise RuntimeError("双侧快照日期或读数非法")
+        agrees = csv_day == page_day and math.isclose(csv_value, page_value, abs_tol=.005, rel_tol=0)
+        if (quality == "matched") != agrees:
+            raise RuntimeError("双侧验证标识与实际快照不符")
+    expected = "unavailable" if not available else "single_source" if len(available) == 1 else None
+    if (expected is not None and quality != expected) or (expected is None and quality not in {"matched", "mismatch"}):
+        raise RuntimeError("恐贪双侧验证状态与来源数量不符")
+    for source in available:
+        digest = signal.get(f"fear_{source}_sha256")
+        if re.fullmatch(r"[0-9a-f]{64}", str(digest)) is None:
+            raise RuntimeError("恐贪可用来源缺少哈希")
+    if "page" in available and ("fear_page_updated_at" not in stamps or signal.get("fear_page_data_date") is None):
+        raise RuntimeError("网页来源缺少真实日期与更新时间")
+    if "page" not in available and (signal.get("fear_page_updated_at") is not None or signal.get("fear_page_data_date") is not None):
+        raise RuntimeError("不可虚构网页发布时间")
+    value = signal.get("fear_greed_index")
+    if value is None:
+        if signal.get("fear_data_date") is not None or signal.get("fear_data_status") != "unavailable" or not signal.get("fear_unavailable_reason"):
+            raise RuntimeError("恐贪缺值状态非法")
+        return
+    if (isinstance(value, bool) or not math.isfinite(float(value)) or not 0 <= float(value) <= 100
+            or selected not in available or signal.get("fear_source_url") != {"csv": CSV_URL, "page": PAGE_URL}[selected]):
+        raise RuntimeError("恐贪读数或选中来源非法")
+    data_day = date.fromisoformat(str(signal.get("fear_data_date")))
+    status = signal.get("fear_data_status")
+    if signal.get("fear_fallback_applied") is True:
+        prior = previous_exchange_session(day)
+        if (data_day != prior or signal.get("fear_previous_exchange_date") != prior.isoformat()
+                or status != (CLOSE_FALLBACK_STATUS if signal.get("close_confirmed") else INTRADAY_FALLBACK_STATUS)
+                or signal.get("fear_fallback_reason") not in {"same_day_not_published", "same_day_not_close_confirmed"}):
+            raise RuntimeError("恐贪只允许严格上一实际交易日值")
+    elif data_day != day or status not in {"same_day_post_close", "same_day_unverified_close", "intraday_provisional", "retrospective_replay"}:
+        raise RuntimeError("恐贪数据日或状态非法")
+    if signal.get("close_confirmed") and retrieved.date() == day and retrieved.time() <= time(15):
+        raise RuntimeError("收盘模式必须在收盘后采集")
+    latest = date.fromisoformat(str(signal.get("fear_latest_available_date")))
+    if not data_day <= latest <= retrieved.date():
+        raise RuntimeError("恐贪来源最新日期非法")
+    if selected == "page" and signal.get("fear_page_data_date") != data_day.isoformat():
+        raise RuntimeError("网页单点数据日与选中值不符")
+    carried = status in {CLOSE_FALLBACK_STATUS, INTRADAY_FALLBACK_STATUS}
+    if type(signal.get("fear_fallback_applied")) is not bool or carried != signal.get("fear_fallback_applied"):
+        raise RuntimeError("恐贪沿用状态与标识矛盾")
+    if not carried and any(signal.get(key) is not None for key in ("fear_fallback_reason", "fear_fallback_timing")):
+        raise RuntimeError("非沿用状态不得附带沿用证据")
+    close = signal.get("close_confirmed") is True
+    if status == "same_day_post_close" and (not close or retrieved.date() != day
+            or "page" not in available or signal.get("fear_page_data_date") != day.isoformat()
+            or not math.isclose(float(signal.get("fear_page_value", float("nan"))), float(value), abs_tol=.005, rel_tol=0)
+            or stamps.get("fear_page_updated_at", retrieved) <= datetime.combine(day, time(15), tzinfo=BEIJING)):
+        raise RuntimeError("收盘后发布证明不足")
+    if status == "same_day_unverified_close" and (not close or retrieved.date() != day or not signal.get("fear_source_warning")):
+        raise RuntimeError("未验证收盘观察值必须披露")
+    if status == "intraday_provisional" and close:
+        raise RuntimeError("盘中观察不得伪装为收盘")
+    if status == "retrospective_replay" and retrieved.date() <= day:
+        raise RuntimeError("回放状态必须保留真实跨日时点")
+    if quality != "matched" and not signal.get("fear_source_warning"):
+        raise RuntimeError("非双侧一致必须披露提示")
+
+
+def fetch_score(signal_day: date, mode: str) -> dict[str, Any]:
+    started = datetime.now(BEIJING)
+    if started.date() < SOURCE_POLICY_DATE:
+        return _fetch_score_legacy(signal_day, mode, started)
+    if mode not in {"intraday", "close"}:
+        raise ValueError("unsupported Fear fetch mode")
+    sources, errors = {}, {}
+    for name, url, limit in (("csv", CSV_URL, 1024 * 1024), ("page", PAGE_URL, 512 * 1024)):
+        try:
+            raw = _bounded_get(url, limit)
+            if name == "csv":
+                values = _parse_csv(raw)
+                updated = None
+            else:
+                page_day, page_value, updated = _parse_page(raw)
+                if not math.isfinite(page_value) or not 0 <= page_value <= 100 or updated.date() < page_day:
+                    raise ValueError("网页日期或读数非法")
+                values = {page_day: page_value}
+            now = datetime.now(BEIJING)
+            if max(values) > now.date() or (updated is not None and updated > now):
+                raise ValueError("来源日期/发布时间在未来")
+            sources[name] = {"values": values, "latest": max(values), "updated": updated,
+                             "sha256": hashlib.sha256(raw).hexdigest()}
+        except Exception as exc:  # independent bounded requests; one failure cannot veto the other.
+            errors[name] = f"{type(exc).__name__}: {exc}"
+    fetched = datetime.now(BEIJING)
+    page, csv_source = sources.get("page"), sources.get("csv")
+    quality = "unavailable" if not sources else "single_source" if len(sources) == 1 else "matched"
+    if len(sources) == 2 and (page["latest"] != csv_source["latest"] or not math.isclose(
+            page["values"][page["latest"]], csv_source["values"][csv_source["latest"]], abs_tol=.005, rel_tol=0)):
+        quality = "mismatch"
+    warnings = []
+    if quality == "single_source":
+        warnings.append(f"仅取得{'CSV' if csv_source else '网页'}单侧数据，未完成双侧验证。")
+    elif quality == "mismatch":
+        warnings.append("CSV与网页不一致；优先可用的当日值，同日冲突采用CSV，未通过双侧验证。")
+    elif quality == "unavailable":
+        warnings.append("百分位CSV与网页均未取得合格数据；网格及合计目标未确认，日报继续。")
+    # Prefer a source containing T. A latest webpage cannot prove a hole in CSV history.
+    selected = next((name for name in ("csv", "page") if name in sources and signal_day in sources[name]["values"]), None)
+    value = sources[selected]["values"][signal_day] if selected else None
+    data_day = signal_day if selected else None
+    fallback = {"fear_fallback_applied": False}
+    status = "intraday_provisional" if mode == "intraday" else "same_day_post_close"
+    if fetched.date() > signal_day:
+        status = "retrospective_replay"
+    close_proven = (page and page["latest"] == signal_day and page["updated"].date() == signal_day
+                    and page["updated"] > datetime.combine(signal_day, time(15), tzinfo=BEIJING)
+                    and value is not None and math.isclose(page["values"][signal_day], value, abs_tol=.005, rel_tol=0))
+    close_unproven = (mode == "close" and value is not None and fetched.date() == signal_day and not close_proven)
+    # Preserve the approved pre-close-page T-1 carry when the CSV contains it.
+    preclose_page = (mode == "close" and page and page["latest"] == signal_day
+                     and page["updated"] <= datetime.combine(signal_day, time(15), tzinfo=BEIJING))
+    if value is None or preclose_page:
+        prior = previous_exchange_session(signal_day)
+        prior_source = next((name for name in ("csv", "page") if name in sources and prior in sources[name]["values"]), None)
+        if prior_source:
+            selected, data_day = prior_source, prior
+            value = sources[selected]["values"][prior]
+            status = CLOSE_FALLBACK_STATUS if mode == "close" else INTRADAY_FALLBACK_STATUS
+            fallback.update(fear_fallback_applied=True, fear_previous_exchange_date=prior.isoformat(),
+                            fear_fallback_reason="same_day_not_close_confirmed" if preclose_page else "same_day_not_published",
+                            fear_fallback_timing="retrospective_replay" if fetched.date() > signal_day else "same_day_post_close" if mode == "close" else "intraday")
+    if close_unproven and not fallback["fear_fallback_applied"]:
+        status = "same_day_unverified_close"
+        warnings.append("未取得该读数的收盘后发布证明；按实际采集的当日观察值用于模型，不声称官网已确认收盘值。")
+    if mode == "intraday" and (fetched.date() != signal_day or fetched.time() >= time(15)):
+        value, data_day = None, None
+        fallback = {"fear_fallback_applied": False}
+        warnings.append("盘中真实采集窗口已结束。")
+    if value is not None and not page and not close_unproven:
+        warnings.append("网页发布时间未取得，未核实收盘后发布证明。")
+    if value is None:
+        status = "unavailable"
+        warnings.append("没有当日或严格上一交易日的合格百分位读数；网格及合计目标未确认。")
+    latest = sources[selected]["latest"] if selected else max((s["latest"] for s in sources.values()), default=None)
+    return {
+        "fear_source_policy_revision": SOURCE_POLICY_REVISION,
+        "fear_greed_index": value, "fear_data_date": data_day.isoformat() if data_day else None,
+        "fear_data_status": status, "fear_retrieved_at": fetched.isoformat(timespec="seconds"),
+        "fear_fetch_started_at": started.isoformat(timespec="seconds"),
+        "fear_available_sources": list(sources), "fear_selected_source": selected,
+        "fear_cross_validation": quality, "fear_source_warning": " ".join(warnings),
+        "fear_source_errors": errors, "fear_source_url": {"csv": CSV_URL, "page": PAGE_URL}.get(selected),
+        "fear_csv_sha256": csv_source["sha256"] if csv_source else None,
+        "fear_page_sha256": page["sha256"] if page else None,
+        "fear_page_updated_at": page["updated"].isoformat(timespec="minutes") if page else None,
+        "fear_page_data_date": page["latest"].isoformat() if page else None,
+        "fear_page_value": page["values"][page["latest"]] if page else None,
+        "fear_csv_latest_date": csv_source["latest"].isoformat() if csv_source else None,
+        "fear_csv_latest_value": csv_source["values"][csv_source["latest"]] if csv_source else None,
+        "fear_latest_available_date": latest.isoformat() if latest else None,
+        "fear_unavailable_reason": " ".join(warnings) if value is None else None, **fallback,
+    }

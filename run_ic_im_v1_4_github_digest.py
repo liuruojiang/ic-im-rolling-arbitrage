@@ -226,7 +226,7 @@ def render_stored_close_report(latest: dict[str, Any]) -> str:
         ("网格新版本：2026-10-08信号日起，估值或恐慌≤25入单个0.5倍网格；按冻结的入场来源分别在估值退出线或恐慌≥50退出。"
          if signal_day >= strategy.v14_policy.FEAR_GRID_EFFECTIVE_SIGNAL_DATE else
          "网格版本：2026-09-15信号日起，IM恢复1.6进入/2.0退出、0.5倍，仅估值；IC保持0.5进入/1.0退出、0.5倍。此前信号保留当日规则。"),
-        "本附件直接来自已通过SHA-256日志链校验的持久账本，不进行第二次联网重算。",
+        "策略字段来自已通过SHA-256日志链校验的持久账本；9圈参考在报告采集时补充，不参与信号重算。",
         "它是研究审计记录，不是账户持仓，也不会自动下单。",
         "",
         f"- 已核验日期：`{latest.get('verified_day', 'N/A')}`",
@@ -234,7 +234,9 @@ def render_stored_close_report(latest: dict[str, Any]) -> str:
         f"- 账本摘要：`{latest.get('digest', 'N/A')}`",
     ]
     for product in PRODUCTS:
-        signal = signals[product]
+        raw_signal = signals[product]
+        signal = (strategy.fear_grid.publication_view(raw_signal)
+                  if strategy.fear_grid.flexible_source(raw_signal) else raw_signal)
         opening_events = signal.get("v14_opening_events", [])
         for event in opening_events:
             title = "三倍兑现" if event.get("kind") == "profit3x" else "卖Put成本"
@@ -253,12 +255,15 @@ def render_stored_close_report(latest: dict[str, Any]) -> str:
         if signal_day >= strategy.v14_policy.FEAR_GRID_EFFECTIVE_SIGNAL_DATE:
             lines.append(
                 f"- {product} 恐贪 {signal.get('fear_greed_index', '缺失')}"
-                f"（{signal.get('fear_data_date') or signal_day.isoformat()}，"
+                f"（{signal.get('fear_data_date') or '缺失'}，"
                 f"{signal.get('fear_data_status', 'N/A')}）；网格来源 "
                 f"`{signal.get('grid_entry_source_current', 'N/A')}` → "
                 f"`{signal.get('grid_entry_source_target', 'N/A')}`；"
                 f"CSV SHA-256 `{signal.get('fear_csv_sha256', 'N/A')}`。"
             )
+        if signal_day >= strategy.fear_grid.EFFECTIVE_SIGNAL_DATE:
+            lines.extend(["- **百分位取数提示：" + strategy.fear_grid.source_disclosure(signal) + "**",
+                          "- " + strategy.fear_grid.reference_disclosure(signal)])
         profit_detail = []
         if signal.get("v14_profit_reentry_status") == "scheduled_t_plus_1_open":
             profit_detail.append(
@@ -354,7 +359,7 @@ def render_stored_close_report(latest: dict[str, Any]) -> str:
                 "- " + strategy.quarter_roll.format_spread(signal.get("quarter_spread")),
                 *_execution_timing_lines(product, signal),
                 f"- 期货总仓：{signal.get('total_units_current', 'N/A')} → "
-                f"{signal.get('total_units_target', 'N/A')}",
+                f"{signal.get('total_units_target') if signal.get('total_units_target') is not None else 'N/A（未确认）'}",
                 f"- 核心动作：`{signal.get('core_action', 'N/A')}`；"
                 f"动量动作：`{signal.get('momentum_action', 'N/A')}`；"
                 f"网格动作：`{signal.get('grid_action', 'N/A')}`",
@@ -464,7 +469,10 @@ def build_artifacts(
             latest=latest,
             observed=observed,
         )
-        report = render_stored_close_report(latest)
+        reference = (strategy.fear_grid.fetch_jiu_reference(completed_day)
+                     if datetime.now(strategy.BEIJING).date() >= strategy.fear_grid.SOURCE_POLICY_DATE else {})
+        report_signals = {product: {**signal, **reference} for product, signal in observed.items()}
+        report = render_stored_close_report({**latest, "signals": report_signals})
         attachments = []
         report_name = "ic_im_v1_4_close_signal.md"
         publication_mode = "close_confirmed"
@@ -522,6 +530,7 @@ def build_artifacts(
         "report_file": report_path.name,
         "attachments": [str(item.get("name", "")) for item in attachments],
         "signals": _jsonable(published),
+        "jiu_reference": reference if mode != "realtime" else {},
         "option_maintenance_notice_revision": option_maintenance_notice.REVISION,
         "option_maintenance_notices": option_maintenance_notice.reminders(
             observed, signal_day=signal_day, is_session=strategy._option_maintenance_session,
@@ -565,7 +574,7 @@ def write_failure(
             )
             fear_observation.update({
                 key: observed.get(key)
-                for key in ("fear_greed_index", "fear_data_date", "fear_data_status")
+                for key in observed if key.startswith(("fear_", "jiu_"))
             })
             fear_observation["fear_warning"] = "信号未确认；恐慌读数仅为独立观察"
         except Exception as fear_exc:

@@ -235,3 +235,10 @@
 - 用户授权修复已复现执行/数据/交付问题，新构建 `v1.3-20260908-r7-mom120-put102-fix1`，新增执行防线 `im_put_execution_guards_20260908_v2`。上述策略参数不变。
 - IM月度Put事件持久去重；零成交Put明确历史结算/实时双边中价估计；无效报价不跳档；新写入前版本、有限数量、Call身份校验；IV缺值/时间校验及采集时钟修正；历史当前数量规则诊断身份纠正。旧链不追写，IC/Call规则不变。
 - 规格 `docs/ic_im_put102_adversarial_fix_20260908_v1_spec.md`；补充及修复说明 `docs/ic_im_put102_adversarial_fix_20260908_release.md`；最终代码、回归、89笔真实适配器复核与两端发布证据 `outputs/im_put102_adversarial_fix_20260908/record.md`。研究发布授权不代表下单授权。
+
+## 恐慌数据可用性与9圈参考（2026-10-16用户授权）
+
+- 新取数证据修订 `baifenwei_either_source_20261016_v1`：百分位CSV/网页任一可用即可用于模型，单侧明确披露未完成双侧验证；两侧不一致继续披露，优先当日、同日冲突采用CSV。
+- 无当日或严格上一实际交易日值时，内部网格保持原状态，发布端隐藏网格与合计目标，其他模块及日报继续；不以9圈替代。
+- 日报网格同时展示9圈读数、数据日、采集时点及来源，仅供参考，不参与信号。报告补充的参考字段置于独立展示元数据，不回写旧账本。
+- 冻结规范：`docs/ic_im_fear_single_source_delivery_20261016_v1_spec.md`；证据：`quant_research_runs/20261016_fear_single_source_delivery_v1/`。策略阈值、fix11身份及Put执行规则保持原版本。

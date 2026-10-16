@@ -5670,10 +5670,15 @@ def _build_live_trade_signal(
             (market_date == today and _market_phase(clock) == "收盘后") else mode
         )
         fear_evidence = fear_grid.fetch_score(market_date, fear_mode)
-        next_units, next_source, grid_reason = fear_grid.transition(
-            product, float(live["grid_current_units"]), current_source,
-            float(live["score"]), fear_evidence["fear_greed_index"],
-        )
+        if fear_grid.flexible_source(fear_evidence) and fear_evidence["fear_greed_index"] is None:
+            next_units, next_source, grid_reason = float(live["grid_current_units"]), current_source, "fear_unavailable"
+        else:
+            next_units, next_source, grid_reason = fear_grid.transition(
+                product, float(live["grid_current_units"]), current_source,
+                float(live["score"]), fear_evidence["fear_greed_index"],
+            )
+        if _now_beijing().date() >= fear_grid.SOURCE_POLICY_DATE:
+            fear_evidence.update(fear_grid.fetch_jiu_reference(market_date))
         live["grid_target_units"] = next_units
         live["grid_entry_source_current"] = current_source
         live["grid_entry_source_target"] = next_source
@@ -5802,6 +5807,7 @@ def _build_live_trade_signal(
             f"{market_date}行情只形成下一交易日目标"
         )
     if fear_evidence is not None:
+        data_notes.extend([fear_grid.source_disclosure(fear_evidence), fear_grid.reference_disclosure(fear_evidence)])
         data_notes.append(
             f"恐贪来源：{fear_evidence['fear_data_status']}，"
             f"数据日 {fear_evidence['fear_data_date'] or '缺失'}，"
@@ -6992,6 +6998,8 @@ class ICIMMainlinesBot:
                         f"网格来源 `{live.get('grid_entry_source_current', 'N/A')}` → "
                         f"`{live.get('grid_entry_source_target', 'N/A') if grid_confirmed else 'N/A（未确认）'}`。\n\n"
                     )
+                    msg.write("- **百分位取数提示：" + fear_grid.source_disclosure(live) + "**\n\n")
+                    msg.write("- " + fear_grid.reference_disclosure(live) + "\n\n")
                 if product == "IM":
                     msg.write(
                         f"- **Call 独立维护**：当前 {live['call_current']}；目标 {live['call_target']}；"

@@ -287,53 +287,60 @@ def validate_fear_grid_signal(signal: dict[str, Any], product: str) -> None:
     if signal.get("grid_policy_revision") != strategy.grid_policy_revision(day):
         raise RuntimeError(f"{product}恐慌网格规则身份不一致")
     status = signal.get("fear_data_status")
-    allowed = {"same_day_post_close", "retrospective_replay", "missing_published_history",
-               strategy.fear_grid.CLOSE_FALLBACK_STATUS}
-    intraday_statuses = {"intraday_provisional", "intraday_unpublished",
-                         strategy.fear_grid.INTRADAY_FALLBACK_STATUS}
-    if status not in allowed | intraday_statuses:
-        raise RuntimeError(f"{product}恐慌数据状态非法")
-    if signal.get("close_confirmed") and status not in allowed:
-        raise RuntimeError(f"{product}未确认的恐慌读数不得进入收盘账本")
-    if signal.get("fear_source_url") != strategy.fear_grid.CSV_URL:
-        raise RuntimeError(f"{product}恐慌来源 URL 不匹配")
-    if re.fullmatch(r"[0-9a-f]{64}", str(signal.get("fear_csv_sha256", ""))) is None:
-        raise RuntimeError(f"{product}恐慌来源哈希无效")
-    stamps = {}
-    for field in ("fear_retrieved_at", "fear_page_updated_at"):
-        stamp = datetime.fromisoformat(str(signal.get(field, "")))
-        if stamp.tzinfo is None:
-            raise RuntimeError(f"{product} {field} 缺少时区")
-        stamps[field] = stamp.astimezone(strategy.fear_grid.BEIJING)
-    retrieved = stamps["fear_retrieved_at"]
-    page_updated = stamps["fear_page_updated_at"]
-    if page_updated > retrieved or day > retrieved.date():
-        raise RuntimeError(f"{product}恐慌来源时间晚于获取时刻")
-    if status == "same_day_post_close" and (
-        day != retrieved.date() or page_updated.date() != day or
-        page_updated.time() <= time(15, 0)
-    ):
-        raise RuntimeError(f"{product}恐慌同日收盘证据不成立")
-    if status in {"retrospective_replay", "missing_published_history"} and day >= retrieved.date():
-        raise RuntimeError(f"{product}恐慌历史回放状态与获取日期冲突")
-    if status in intraday_statuses and day != retrieved.date():
-        raise RuntimeError(f"{product}恐慌盘中状态与获取日期冲突")
+    if strategy.fear_grid.flexible_source(signal):
+        strategy.fear_grid.validate_source_evidence(signal)
+    else:
+        allowed = {"same_day_post_close", "retrospective_replay", "missing_published_history",
+                   strategy.fear_grid.CLOSE_FALLBACK_STATUS}
+        intraday_statuses = {"intraday_provisional", "intraday_unpublished",
+                             strategy.fear_grid.INTRADAY_FALLBACK_STATUS}
+        if status not in allowed | intraday_statuses:
+            raise RuntimeError(f"{product}恐慌数据状态非法")
+        if signal.get("close_confirmed") and status not in allowed:
+            raise RuntimeError(f"{product}未确认的恐慌读数不得进入收盘账本")
+        if signal.get("fear_source_url") != strategy.fear_grid.CSV_URL:
+            raise RuntimeError(f"{product}恐慌来源 URL 不匹配")
+        if re.fullmatch(r"[0-9a-f]{64}", str(signal.get("fear_csv_sha256", ""))) is None:
+            raise RuntimeError(f"{product}恐慌来源哈希无效")
+        stamps = {}
+        for field in ("fear_retrieved_at", "fear_page_updated_at"):
+            stamp = datetime.fromisoformat(str(signal.get(field, "")))
+            if stamp.tzinfo is None:
+                raise RuntimeError(f"{product} {field} 缺少时区")
+            stamps[field] = stamp.astimezone(strategy.fear_grid.BEIJING)
+        retrieved = stamps["fear_retrieved_at"]
+        page_updated = stamps["fear_page_updated_at"]
+        if page_updated > retrieved or day > retrieved.date():
+            raise RuntimeError(f"{product}恐慌来源时间晚于获取时刻")
+        if status == "same_day_post_close" and (
+            day != retrieved.date() or page_updated.date() != day or
+            page_updated.time() <= time(15, 0)
+        ):
+            raise RuntimeError(f"{product}恐慌同日收盘证据不成立")
+        if status in {"retrospective_replay", "missing_published_history"} and day >= retrieved.date():
+            raise RuntimeError(f"{product}恐慌历史回放状态与获取日期冲突")
+        if status in intraday_statuses and day != retrieved.date():
+            raise RuntimeError(f"{product}恐慌盘中状态与获取日期冲突")
+        fear = signal.get("fear_greed_index")
+        if fear is None:
+            if signal.get("fear_data_date") is not None or status not in {"missing_published_history", "intraday_unpublished"}:
+                raise RuntimeError(f"{product}恐慌缺值状态与日期不一致")
+        elif status == strategy.fear_grid.INTRADAY_FALLBACK_STATUS:
+            strategy.fear_grid.validate_intraday_fallback(signal)
+        elif status == strategy.fear_grid.CLOSE_FALLBACK_STATUS:
+            strategy.fear_grid.validate_close_fallback(signal)
+        elif _as_day(signal.get("fear_data_date"), "恐慌数据日") != day:
+            raise RuntimeError(f"{product}恐慌数据日不是本信号日")
     fear = signal.get("fear_greed_index")
-    if fear is None:
-        if signal.get("fear_data_date") is not None or status not in {"missing_published_history", "intraday_unpublished"}:
-            raise RuntimeError(f"{product}恐慌缺值状态与日期不一致")
-    elif status == strategy.fear_grid.INTRADAY_FALLBACK_STATUS:
-        strategy.fear_grid.validate_intraday_fallback(signal)
-    elif status == strategy.fear_grid.CLOSE_FALLBACK_STATUS:
-        strategy.fear_grid.validate_close_fallback(signal)
-    elif _as_day(signal.get("fear_data_date"), "恐慌数据日") != day:
-        raise RuntimeError(f"{product}恐慌数据日不是本信号日")
     current = _finite_float(signal.get("grid_current"), f"{product}当前网格")
     target = _finite_float(signal.get("grid_target"), f"{product}目标网格")
-    units, source, reason = strategy.fear_grid.transition(
-        product, current, signal.get("grid_entry_source_current"),
-        _finite_float(signal.get("score"), f"{product}估值分"), fear,
-    )
+    if strategy.fear_grid.flexible_source(signal) and fear is None:
+        units, source, reason = current, signal.get("grid_entry_source_current"), "fear_unavailable"
+    else:
+        units, source, reason = strategy.fear_grid.transition(
+            product, current, signal.get("grid_entry_source_current"),
+            _finite_float(signal.get("score"), f"{product}估值分"), fear,
+        )
     if target != units or signal.get("grid_entry_source_target") != source:
         raise RuntimeError(f"{product}恐慌网格目标或来源与规则不符")
     if signal.get("grid_transition_reason") != reason:
@@ -931,7 +938,9 @@ def derive_next_anchors(
                          "fear_page_updated_at", "fear_csv_sha256",
                          "fear_intraday_policy_revision", "fear_fallback_applied",
                          "fear_previous_exchange_date", "fear_fallback_reason",
-                         "fear_close_policy_revision", "fear_fallback_timing")
+                         "fear_close_policy_revision", "fear_fallback_timing",
+                         "fear_source_policy_revision", "fear_available_sources",
+                         "fear_selected_source", "fear_cross_validation", "fear_page_sha256")
         if any(signals["IC"].get(field) != signals["IM"].get(field) for field in shared_fields):
             raise RuntimeError("IC/IM恐慌数据来自不同版本，禁止共同写账")
     previous_day = current_anchors["IC"]["last_verified_day"]
