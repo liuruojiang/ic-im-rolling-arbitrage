@@ -149,7 +149,9 @@ def test_jiu_missing_and_date_mismatch_are_visible(monkeypatch):
 def test_archived_real_series_parse_without_modification():
     root = Path(__file__).parent
     csv = root / "quant_research_runs/20260928_csi1000_fear_greed_reproduction/inputs/fear_greed_full.csv"
-    if not csv.exists():
-        pytest.skip("research archive is intentionally outside production checkout")
+    full_archive = csv.exists()
+    if not full_archive:
+        csv = root / "tests/fixtures/baifenwei_real_sample_20260924.csv"
     values = feed._parse_csv(csv.read_bytes())
-    assert len(values) == 8016 and max(values) == date(2026, 9, 24)
+    assert len(values) == (8016 if full_archive else 6)
+    assert max(values) == date(2026, 9, 24)
