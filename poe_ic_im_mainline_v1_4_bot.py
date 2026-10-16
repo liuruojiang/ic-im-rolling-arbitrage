@@ -49,6 +49,7 @@ import ic_im_daily_valuation as daily_valuation
 import ic_im_chinabond as chinabond
 import ic_im_fear_grid_v1 as fear_grid
 import ic_im_quote_snapshot_guard as quote_snapshot_guard
+import ic_im_option_maintenance_notice as option_maintenance_notice
 
 try:
     from fastapi_poe.types import SettingsResponse
@@ -195,6 +196,7 @@ def historical_replay(day: date | None):
 
 import ic_im_quarter_roll_v1_3 as quarter_roll
 import ic_im_v1_4_policy as v14_policy
+import ic_im_put_execution_v1 as put_execution
 import im_put_policy
 
 BUILD_ID = v14_policy.BUILD_ID
@@ -3819,6 +3821,11 @@ def _roll_forward_exchange_day(day: date) -> date:
     return candidate
 
 
+def _option_maintenance_session(day: date) -> bool:
+    _require_official_exchange_calendar(day, "月度Put提醒日历")
+    return _is_exchange_trading_day(day)
+
+
 def _third_friday(year: int, month: int) -> date:
     weeks = month_calendar.monthcalendar(year, month)
     fridays = [
@@ -5530,6 +5537,70 @@ def _apply_v14_live_policy(
         return fallback
 
 
+def _v14_committed_open_prices(product: str, plan: dict[str, Any], day: date,
+                               clock: datetime, quote_cache: dict[str, pd.DataFrame]) -> list[dict[str, Any]]:
+    """Fetch exact dated opening legs, never today's close or a substitute leg."""
+    prices = []
+    for required in plan["required_quotes"]:
+        contract, kind = required["contract"], required.get("kind", "option")
+        security = required.get("security_id")
+        if kind == "option" and product == "IC":
+            price, source = fetch_option_dated_open(str(security), day)
+        else:
+            key = product if kind == "future" else "MO"
+            if key not in quote_cache:
+                quote_cache[key] = fetch_cffex_quotes(key, clock)
+            chain = quote_cache[key]
+            if put_execution.as_day(chain.attrs.get("source_date")) != day:
+                raise RuntimeError(f"{contract} opening chain is not dated {day}")
+            row = _quote_row(chain, contract)
+            if row is None or "openprice" not in row:
+                raise RuntimeError(f"{contract} lacks its specified-day openprice")
+            price, source = float(row["openprice"]), str(chain.attrs.get("source", ""))
+            if key == "MO" and source == "东方财富":
+                verify_sina_option_open(contract, day, price, clock)
+                source = "东方财富（新浪逐合约开盘价复核）"
+        prices.append(dict(contract=contract, security_id=security, kind=kind,
+                           price_day=day, openprice=float(price), source=source))
+    put_execution.checked_prices(plan, prices, day)
+    return prices
+
+
+def _v14_project_committed_opens(product: str, day: date, clock: datetime,
+                                 quote_cache: dict[str, pd.DataFrame]) -> list[dict[str, Any]]:
+    if not put_execution.active(day):
+        return []
+    events = []
+    anchor = LIVE_CONTINUATION_ANCHOR[product]
+    short = anchor.get("v14_short_put_open_pending")
+    if short:
+        execution = put_execution.as_day(short["execution_day"])
+        event = dict(kind="short_put", plan=short, status="awaiting_execution_day")
+        if day > execution:
+            event["status"] = "closed_missed_execution_day"
+        elif day == execution:
+            try:
+                event.update(status="confirmed_open_research_price",
+                             prices=_v14_committed_open_prices(product, short, day, clock, quote_cache))
+            except (RuntimeError, ValueError, KeyError, TypeError, requests.RequestException) as exc:
+                event.update(status="closed_missing_open_price", reason=f"{type(exc).__name__}: {exc}")
+        anchor = put_execution.project_short_open(product, anchor, event, day)
+        events.append(event)
+    plan = put_execution.profit_plan(product, anchor, day)
+    # Monthly priority is calendar-known, unchanged by this repair.
+    if plan and day != _third_friday(day.year, day.month):
+        event = dict(kind="profit3x", plan=plan)
+        try:
+            event.update(status="confirmed_open_research_price",
+                         prices=_v14_committed_open_prices(product, plan, day, clock, quote_cache))
+            anchor = put_execution.project_profit_open(product, anchor, event, day)
+        except (RuntimeError, ValueError, KeyError, TypeError, requests.RequestException) as exc:
+            event.update(status="closed_missing_open_price", reason=f"{type(exc).__name__}: {exc}")
+        events.append(event)
+    LIVE_CONTINUATION_ANCHOR[product] = anchor
+    return events
+
+
 def build_live_trade_signal(
     product: str, now: datetime | None = None, mode: str = "intraday",
 ) -> dict[str, Any]:
@@ -5574,6 +5645,7 @@ def _build_live_trade_signal(
         LIVE_CONTINUATION_ANCHOR[product] = v14_policy.project_ordinary_open(
             product, LIVE_CONTINUATION_ANCHOR[product], opening["plan"], opening["prices"]
         )
+    opening_events = _v14_project_committed_opens(product, market_date, clock, quote_cache)
     if bridge_from_anchor:
         live = _apply_next_unverified_session_anchor(product, live)
     elif market_date == LIVE_CONTINUATION_ANCHOR[product]["last_verified_day"]:
@@ -6593,6 +6665,9 @@ def _build_live_trade_signal(
         signal,
         mo_quotes=mo_quotes if product == "IM" else None,
     )
+    if put_execution.active(market_date):
+        signal["v14_execution_revision"] = put_execution.REVISION
+        signal["v14_opening_events"] = opening_events
     _v14_schedule_ordinary_put(product, signal, LIVE_CONTINUATION_ANCHOR[product], opening)
     if market_date >= fear_grid.CLOSE_FALLBACK_EFFECTIVE_DATE:
         finished = datetime.now(BEIJING)
@@ -6767,6 +6842,10 @@ class ICIMMainlinesBot:
                         )
                     continue
                 msg.write(f"### {PRODUCT_NAMES[product]}\n\n")
+                monthly_notice = option_maintenance_notice.reminder(
+                    product, live, is_session=_option_maintenance_session)
+                if monthly_notice:
+                    msg.write(monthly_notice + "\n\n")
                 published = fear_grid.publication_view(live)
                 grid_confirmed = published.get("grid_target_confirmed", True)
                 msg.write(f"**{live.get('iv_warning', {}).get('text', 'IV预警：N/A（旧记录未包含监测值）')}**\n\n")
@@ -6835,6 +6914,16 @@ class ICIMMainlinesBot:
                 if live.get("v14_ordinary_put_plan_status") == "scheduled_t_plus_1_open":
                     plan = live["v14_ordinary_put_pending"]
                     msg.write(f"普通核心/动量买Put开盘计划：{plan['signal_day']}收盘定目标及合约，{plan['execution_day']}开盘待按预选身份与开盘价确认；尚非纸面或账户成交。\n\n")
+                for event in live.get("v14_opening_events", []):
+                    title = "三倍兑现" if event["kind"] == "profit3x" else "卖Put成本"
+                    msg.write(f"{title}独立开盘事件：{event['plan']['execution_day']}，"
+                              f"{event['status']}。{event.get('reason', '')}"
+                              "已核验开盘事件先于本日收盘新目标；仅研究价格，不是账户成交。\n\n")
+                short_pending = live.get("v14_short_put_open_pending")
+                if short_pending:
+                    msg.write(f"卖Put开盘计划待核验：{short_pending['execution_day']}，"
+                              f"新腿{short_pending['new_contract']}、数量{short_pending['new_qty']:g}；"
+                              "候选收盘价不作为入场成本，取得开盘证据前不启用衰减展期。\n\n")
                 put_timing = (
                     "预定维护日收盘模型记录（非T+1）" if live.get("option_monthly_reset_due")
                     else "T收盘预选 → T+1开盘" if profit_status == "scheduled_t_plus_1_open"

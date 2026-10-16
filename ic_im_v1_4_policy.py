@@ -11,6 +11,8 @@ from copy import deepcopy
 from datetime import date
 from typing import Any
 
+import ic_im_put_execution_v1 as put_execution
+
 
 BUILD_ID = "v1.4-20261008-r1-ic-csi500-abs40-fix11"
 RULE_REVISION = "ic_im_v1_4_ic_csi500_ma105_w16_abs40_static_20261008_v1"
@@ -98,6 +100,9 @@ def default_extension(product: str) -> dict[str, Any]:
         "v14_short_put_security_id": None,
         "v14_short_put_qty_normalized": 0.0,
         "v14_short_put_entry_premium": None,
+        "v14_short_put_open_pending": None,
+        "v14_short_put_entry_price_day": None,
+        "v14_short_put_cost_basis": None,
         "v14_short_put_expiry": None,
         "v14_settlement_pending": False,
         "v14_settlement_trigger_day": None,
@@ -146,13 +151,54 @@ def validate_extension(product: str, state: dict[str, Any]) -> None:
         raise RuntimeError(f"{product} v1.4 short-Put quantity is invalid")
     contract = state.get("v14_short_put_contract")
     premium = state.get("v14_short_put_entry_premium")
+    short_open = state.get("v14_short_put_open_pending")
+    cost_basis = state.get("v14_short_put_cost_basis")
+    if cost_basis not in {None, "pending_dated_open", "confirmed_dated_open"}:
+        raise RuntimeError(f"{product} short-Put cost basis is unknown")
+    if cost_basis == "confirmed_dated_open":
+        if route != "short_put" or short_open is not None or state.get("v14_short_put_entry_price_day") is None:
+            raise RuntimeError(f"{product} confirmed short-Put cost lacks its held leg or price day")
+        put_execution.as_day(state["v14_short_put_entry_price_day"])
     if route == "short_put":
-        if not contract or qty <= 0 or premium is None or not math.isfinite(float(premium)) or float(premium) <= 0:
+        pending_basis = short_open is not None and premium is None
+        if not contract or qty <= 0 or (not pending_basis and (premium is None or not math.isfinite(float(premium)) or float(premium) <= 0)):
             raise RuntimeError(f"{product} active short-Put state is incomplete")
         if product == "IC" and not state.get("v14_short_put_security_id"):
             raise RuntimeError("IC active short-Put state lacks security id")
     elif contract not in (None, "") or qty != 0.0:
         raise RuntimeError(f"{product} inactive short-Put state retains a position")
+    if short_open is not None:
+        if (not isinstance(short_open, dict) or route != "short_put"
+                or short_open.get("product") != product or short_open.get("new_contract") != contract
+                or short_open.get("execution_revision") != put_execution.REVISION
+                or short_open.get("action") not in {"ENTER_SHORT_PUT", "ROLL_SHORT_PUT"}
+                or not math.isclose(float(short_open.get("new_qty", math.nan)), qty, rel_tol=0, abs_tol=1e-12)
+                or not isinstance(short_open.get("previous_anchor"), dict)
+                or not short_open.get("required_quotes")
+                or put_execution.as_day(short_open["execution_day"]) <= put_execution.as_day(short_open["signal_day"])):
+            raise RuntimeError(f"{product} short-Put opening plan is invalid")
+        if (premium is not None or state.get("v14_short_put_entry_price_day") is not None
+                or state.get("v14_short_put_cost_basis") != "pending_dated_open"):
+            raise RuntimeError(f"{product} short-Put candidate quote cannot be an executed cost")
+        previous = short_open["previous_anchor"]
+        if previous.get("v14_short_put_open_pending") is not None:
+            raise RuntimeError("Short-Put opening plans cannot contain another pending plan")
+        validate_extension(product, previous)
+        expected_route = "future" if short_open["action"] == "ENTER_SHORT_PUT" else "short_put"
+        if previous.get("v14_route_state") != expected_route:
+            raise RuntimeError("Short-Put pending plan has the wrong previous route")
+        reference_price = float(short_open.get("signal_premium", math.nan))
+        if not math.isfinite(reference_price) or reference_price <= 0:
+            raise RuntimeError("Short-Put pending plan lacks a positive decision quote")
+        known_close_core = state.get("core_eod_contract")
+        if known_close_core is not None and short_open.get("core_eod_contract") != known_close_core:
+            raise RuntimeError("Short-Put opening plan differs from the known close future")
+        expected = put_execution.short_plan(product,
+            dict(market_date=short_open["signal_day"], next_trade_date=short_open["execution_day"],
+                 core_eod_contract=known_close_core or short_open.get("core_eod_contract")),
+            previous, {**state, "v14_short_put_entry_premium": reference_price}, short_open["action"])
+        if not put_execution.same_plan(expected["required_quotes"], short_open["required_quotes"]):
+            raise RuntimeError("Short-Put pending plan omitted or changed a synchronized opening leg")
     if bool(state.get("v14_roll_pending")):
         if route != "short_put" or not state.get("v14_roll_trigger_day"):
             raise RuntimeError(f"{product} pending roll lacks a persistent trigger")
@@ -361,6 +407,9 @@ def apply_policy(
     day = signal["market_date"]
     if not isinstance(day, date):
         day = date.fromisoformat(str(day)[:10])
+    execution_fixed = put_execution.active(day)
+    if execution_fixed:
+        out["v14_execution_revision"] = put_execution.REVISION
     build_id, rule_revision = identity_for_signal_day(day)
     out.update(
         strategy_version="1.4",
@@ -395,6 +444,12 @@ def apply_policy(
     # can only be confirmed at today's close. Earlier versions keep priority.
     expiry = state.get("v14_short_put_expiry")
     expiry_day = date.fromisoformat(str(expiry)[:10]) if expiry else None
+    if execution_fixed and state.get("v14_short_put_open_pending"):
+        # The adapter must resolve the previously committed opening first.
+        out.update(state)
+        out.update(v14_action="WAIT_SHORT_PUT_OPEN", v14_action_reason="opening_evidence_not_confirmed",
+                   v14_signal_scope="research_model_signal_only", v14_account_execution_status="not_observed_out_of_scope")
+        return out
     if not close_confirmed:
         reason = "close_not_confirmed"
     elif route == "short_put" and expiry_day is not None and day >= expiry_day:
@@ -425,14 +480,19 @@ def apply_policy(
     elif route == "short_put":
         mark = signal.get("v14_short_put_mark")
         entry = float(state["v14_short_put_entry_premium"])
+        cost_verified = not execution_fixed or state.get("v14_short_put_cost_basis") == "confirmed_dated_open"
         decay_hit = (
+            cost_verified
+            and
             mark is not None
             and math.isfinite(float(mark))
             and float(mark) <= entry * (1.0 - float(PRODUCT_RULES[product]["premium_decay"]))
         )
         pending = bool(state["v14_roll_pending"])
         repeat_roll_enabled = day >= REPEAT_ROLL_EFFECTIVE_SIGNAL_DATE
-        if (decay_hit or pending) and (repeat_roll_enabled or not bool(state["v14_early_roll_used"])):
+        if not cost_verified:
+            reason = "legacy_entry_cost_unverified"
+        if cost_verified and (decay_hit or pending) and (repeat_roll_enabled or not bool(state["v14_early_roll_used"])):
             replacement = roll_candidate or candidate
             roll_allowed, roll_reason = seller_permission(product, signal, replacement)
             if roll_allowed:
@@ -501,7 +561,8 @@ def apply_policy(
         for key in ("v14_core_put_contract", "v14_core_put_security_id", "v14_core_put_qty"):
             if key in signal:
                 target[key] = deepcopy(signal[key])
-        if "v14_core_put_qty" in signal and float(target.get("v14_core_put_qty", 0.0)) == 0.0:
+        if ("v14_core_put_qty" in signal and float(target.get("v14_core_put_qty", 0.0)) == 0.0
+                and not (execution_fixed and pending_open_due)):
             target["v14_core_put_entry_premium"] = None
             target["v14_core_put_profit3x_eligible"] = False
             target["v14_profit_pending"] = False
@@ -512,7 +573,8 @@ def apply_policy(
             target["v14_profit_old_qty"] = target["v14_profit_reentry_qty"] = 0.0
 
     monthly_priority = bool(signal.get("option_monthly_reset_due"))
-    if day >= PROFIT_OPEN_EFFECTIVE_SIGNAL_DATE and bool(target.get("v14_profit_pending")):
+    if (day >= PROFIT_OPEN_EFFECTIVE_SIGNAL_DATE and bool(target.get("v14_profit_pending"))
+            and not (execution_fixed and pending_open_due)):
         core_target = (signal.get("put_target_core_qty") if product == "IC"
                        else signal.get("core_put_target_qty_normalized"))
         if core_target is not None and float(core_target) <= 0:
@@ -683,6 +745,23 @@ def apply_policy(
             call_action="CLOSE_CALL" if has_call else "HOLD",
             call_target="目标空仓（fix6停止卖Call）",
         )
+    if execution_fixed and pending_open_due and action == "WAIT_CORE_PUT_PROFIT3X_REENTER":
+        # Missing opening evidence cannot erase the old held core using the
+        # later close's zero/resize target. Independent momentum remains live.
+        if product == "IC":
+            for key in ("v14_core_put_contract", "v14_core_put_security_id", "v14_core_put_qty"):
+                target[key] = deepcopy(state[key])
+            qty = int(state.get("v14_core_put_qty", 0))
+            delta = float(anchor.get("verified_core_put_delta", 0.0))
+            out.update(put_target_core_qty=qty, core_put_target_delta=delta,
+                       put_target_total_qty=qty+int(out.get("put_target_momentum_qty", 0)),
+                       total_put_target_delta=delta+float(out.get("momentum_put_target_delta", 0.0)))
+        else:
+            qty = float(anchor.get("verified_core_put_qty_normalized", 0.0))
+            contract = anchor.get("post_core_put_contract")
+            out.update(core_put_target_qty_normalized=qty, core_put_target_contract=contract,
+                       put_target_contract=contract, v13_parent_puts_per_full_core=int(2*qty),
+                       total_put_target_qty_normalized=qty+float(out.get("momentum_put_target_qty_normalized", 0.0)))
     out.update(target)
     out["v14_action"] = action
     out["v14_action_reason"] = reason
@@ -698,5 +777,13 @@ def apply_policy(
     out["v14_seller_permission"] = allowed
     out["v14_seller_permission_reason"] = permission_reason
     out["v14_short_put_candidate"] = candidate
+    if execution_fixed and action in {"ENTER_SHORT_PUT", "ROLL_SHORT_PUT"}:
+        plan = put_execution.short_plan(product, signal, anchor, target, action)
+        target.update(v14_short_put_open_pending=plan, v14_short_put_entry_premium=None,
+                      v14_short_put_entry_price_day=None, v14_short_put_cost_basis="pending_dated_open")
+        for key in ("v14_short_put_open_pending", "v14_short_put_entry_premium",
+                    "v14_short_put_entry_price_day", "v14_short_put_cost_basis"):
+            out[key] = target[key]
+        out["v14_short_put_open_status"] = "scheduled_t_plus_1_open"
     validate_extension(product, target)
     return out
