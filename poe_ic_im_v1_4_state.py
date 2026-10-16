@@ -24,6 +24,7 @@ import numpy as np
 import pandas as pd
 
 import ic_im_v1_4_policy as v14_policy
+import ic_im_put_execution_v1 as put_execution
 import poe_ic_im_mainline_v1_4_bot as strategy
 
 
@@ -358,12 +359,24 @@ def validate_v14_new_signal(signal: dict[str, Any], product: str) -> None:
             raise RuntimeError(f"{product} v1.4生产器身份不匹配: {field}")
     for field, default in v14_policy.default_extension(product).items():
         if field not in signal:
+            if (not put_execution.active(market_date) and field in {
+                    "v14_short_put_open_pending", "v14_short_put_entry_price_day", "v14_short_put_cost_basis"}):
+                continue
             raise RuntimeError(f"{product} v1.4信号缺少持久字段: {field}")
         if isinstance(default, bool) and type(signal[field]) is not bool:
             raise RuntimeError(f"{product} {field}必须为布尔值")
         if field.endswith("_day") and signal[field] is not None:
             _as_day(signal[field], f"{product} {field}")
     v14_policy.validate_extension(product, signal)
+    if put_execution.active(market_date) and signal.get("v14_execution_revision") != put_execution.REVISION:
+        raise RuntimeError(f"{product} Put执行修订缺失或不一致")
+    short_open = signal.get("v14_short_put_open_pending")
+    if short_open is not None:
+        day = _as_day(market_date, "卖Put信号日")
+        expected_day = strategy._roll_forward_exchange_day(day + timedelta(days=1))
+        if (_as_day(short_open.get("signal_day"), "卖Put计划日") != day
+                or _as_day(short_open.get("execution_day"), "卖Put开盘执行日") != expected_day):
+            raise RuntimeError(f"{product} 卖Put待执行成本计划未指向下一交易日")
     ordinary_status = signal.get("v14_ordinary_put_open_status")
     if ordinary_status == "confirmed_open_research_price":
         plan = signal.get("v14_ordinary_put_open_plan")
@@ -466,8 +479,10 @@ def validate_v14_new_signal(signal: dict[str, Any], product: str) -> None:
             raise RuntimeError(f"{product}卖Put到期日与交易日历不一致")
         if product == "IC" and re.fullmatch(r"\d{8}", str(signal.get("v14_short_put_security_id") or "")) is None:
             raise RuntimeError("IC卖Put证券ID非法")
-        premium = _option_number(signal.get("v14_short_put_entry_premium"), f"{product}卖Put入场权利金")
-        if qty <= 0 or premium <= 0:
+        pending_cost = signal.get("v14_short_put_open_pending") is not None
+        premium = (None if pending_cost else
+                   _option_number(signal.get("v14_short_put_entry_premium"), f"{product}卖Put入场权利金"))
+        if qty <= 0 or (not pending_cost and premium <= 0):
             raise RuntimeError(f"{product}卖Put数量/权利金必须为正")
 
 
@@ -846,6 +861,55 @@ def validate_profit_open_transition(product: str, anchor: dict[str, Any],
         raise RuntimeError("IC 3倍兑现新Put证券ID与前日预选计划不一致")
 
 
+def validate_short_cost_transition(product: str, projected: dict[str, Any],
+                                   signal: dict[str, Any]) -> None:
+    """The independently projected opening owns the held short leg and cost.
+
+    A new close plan may clear cost while awaiting its own next-day opening;
+    an expiry outcome may remove the leg. Neither can certify another cost.
+    """
+    pending = signal.get("v14_short_put_open_pending")
+    if pending is not None:
+        if (signal.get("v14_action") not in {"ENTER_SHORT_PUT", "ROLL_SHORT_PUT"}
+                or pending.get("action") != signal.get("v14_action")):
+            raise RuntimeError(f"{product} 卖Put新成本计划缺少新开或展期动作")
+        expected = put_execution.short_plan(
+            product, signal, projected,
+            {**signal, "v14_short_put_entry_premium": pending["signal_premium"]},
+            pending["action"],
+        )
+        for field in ("core_eod_contract", "required_quotes"):
+            if not put_execution.same_plan(pending.get(field), expected[field]):
+                raise RuntimeError(f"{product} 卖Put开盘计划未绑定当日已确认收盘期货及同步退出腿")
+        return
+    if signal.get("v14_route_state") == "short_put":
+        fields = ("v14_short_put_contract", "v14_short_put_security_id",
+                  "v14_short_put_qty_normalized", "v14_short_put_expiry", "v14_cycle_id",
+                  "v14_short_put_entry_premium", "v14_short_put_entry_price_day",
+                  "v14_short_put_cost_basis")
+        if projected.get("v14_route_state") != "short_put" or any(
+                not put_execution.same_plan(signal.get(k), projected.get(k)) for k in fields):
+            raise RuntimeError(f"{product} 卖Put持仓成本或日期与独立核验开盘投影不符")
+    elif any(signal.get(k) is not None for k in ("v14_short_put_entry_premium",
+             "v14_short_put_entry_price_day", "v14_short_put_cost_basis")):
+        raise RuntimeError(f"{product} 已退出卖Put不能保留已确认成本")
+    elif projected.get("v14_route_state") == "short_put":
+        # Preserve the existing settlement inputs/rules, while requiring an
+        # actual permitted expiry transition before discarding a held cost.
+        outcome = signal.get("v14_model_settlement_outcome", signal.get("v14_settlement_outcome"))
+        confirmed = bool(signal.get("v14_model_settlement_confirmed", signal.get("v14_settlement_confirmed")))
+        expiry = projected.get("v14_short_put_expiry")
+        target_route = ("future" if outcome == "expired_worthless" else
+                        "assigned_etf" if product == "IC" else "cash_wait")
+        target_action = {"expired_worthless": "SHORT_PUT_EXPIRE_WORTHLESS",
+                         "assigned": "SHORT_PUT_ASSIGNED"}.get(outcome)
+        if (not confirmed or expiry is None or target_action is None
+                or _as_day(signal["market_date"], "卖Put信号日") < _as_day(expiry, "卖Put到期日")
+                or signal.get("v14_action") != target_action
+                or signal.get("v14_route_state") != target_route):
+            raise RuntimeError(f"{product} 卖Put成本只能由已确认到期分支清除")
+
+
 def derive_next_anchors(
     current: dict[str, Any], signals: dict[str, dict[str, Any]]
 ) -> dict[str, dict[str, Any]]:
@@ -897,6 +961,34 @@ def derive_next_anchors(
             result[product] = v14_policy.project_ordinary_open(
                 product, result[product], opening_plan, signal["v14_ordinary_put_open_prices"]
             )
+        if put_execution.active(signal_day):
+            events = signal.get("v14_opening_events")
+            if not isinstance(events, list):
+                raise RuntimeError(f"{product} 缺少独立开盘事件列表")
+            observed = set()
+            for event in events:
+                kind = event.get("kind")
+                if kind in observed:
+                    raise RuntimeError(f"{product} 重复开盘事件")
+                observed.add(kind)
+                if kind == "short_put":
+                    result[product] = put_execution.project_short_open(product, result[product], event, signal_day)
+                elif kind == "profit3x":
+                    expected_plan = put_execution.profit_plan(product, result[product], signal_day)
+                    if _jsonable(event.get("plan")) != _jsonable(expected_plan) or expected_plan is None:
+                        raise RuntimeError(f"{product} 三倍开盘事件与前日计划不符")
+                    if event.get("status") == "confirmed_open_research_price":
+                        result[product] = put_execution.project_profit_open(product, result[product], event, signal_day)
+                    elif event.get("status") != "closed_missing_open_price":
+                        raise RuntimeError(f"{product} 三倍开盘事件状态非法")
+                else:
+                    raise RuntimeError(f"{product} 未知开盘事件")
+            if current_anchors[product].get("v14_short_put_open_pending") and "short_put" not in observed:
+                raise RuntimeError(f"{product} 遗漏已承诺卖Put开盘计划")
+            if (put_execution.profit_plan(product, current_anchors[product], signal_day)
+                    and signal_day != strategy._third_friday(signal_day.year, signal_day.month)
+                    and "profit3x" not in observed):
+                raise RuntimeError(f"{product} 遗漏前日已承诺三倍开盘计划")
         if str(signal.get("product")) != product:
             raise RuntimeError(f"{product}信号产品标签不一致")
         if not bool(signal.get("close_confirmed")):
@@ -910,6 +1002,16 @@ def derive_next_anchors(
             raise RuntimeError(f"{product}下一交易日不正确")
         anchor = result[product]
         prior_option_anchor = deepcopy(anchor)
+        short_open = signal.get("v14_short_put_open_pending")
+        if short_open is not None:
+            reference = short_open["previous_anchor"]
+            held_keys = ("v14_route_state", "post_core_contract", "v14_short_put_contract",
+                         "v14_short_put_security_id", "v14_short_put_qty_normalized",
+                         "v14_short_put_entry_premium", "v14_core_put_contract",
+                         "v14_core_put_security_id", "v14_core_put_qty", "post_core_put_contract",
+                         "verified_core_put_qty", "verified_core_put_qty_normalized")
+            if any(not put_execution.same_plan(reference.get(key), anchor.get(key)) for key in held_keys):
+                raise RuntimeError(f"{product} 卖Put待执行计划的旧持仓快照与已核验账本不一致")
         validate_ordinary_put_plan(product, anchor, signal, signal_day)
         if signal_day >= strategy.quarter_roll.EFFECTIVE_DATE:
             held = str(anchor["post_core_contract"])
@@ -923,6 +1025,8 @@ def derive_next_anchors(
                     raise RuntimeError(f"{product}季度换仓状态不一致: {field}")
             if _as_day(signal.get("roll_execution_date"), "roll day") != expected_plan["roll_execution_date"]:
                 raise RuntimeError(f"{product}季度换仓执行日不一致")
+        if put_execution.active(signal_day):
+            validate_short_cost_transition(product, anchor, signal)
         current_weight = _finite_float(signal.get("momentum_current_weight"), f"{product}当前动量权重")
         next_weight = _finite_float(signal.get("momentum_next_weight"), f"{product}下一动量权重")
         allowed = {0.0, 0.25, 0.5, 1.0} if product == "IC" else {0.0, 0.5, 1.0}
@@ -1121,6 +1225,9 @@ def derive_next_anchors(
             )
         for key in v14_policy.default_extension(product):
             if key not in signal:
+                if (not put_execution.active(signal_day) and key in {
+                        "v14_short_put_open_pending", "v14_short_put_entry_price_day", "v14_short_put_cost_basis"}):
+                    continue
                 raise RuntimeError(f"{product} v1.4信号缺少持久字段: {key}")
             anchor[key] = deepcopy(signal[key])
         if signal.get("v14_ordinary_put_plan_status") == "scheduled_t_plus_1_open":

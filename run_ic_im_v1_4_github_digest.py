@@ -21,6 +21,7 @@ from typing import Any
 
 import poe_ic_im_mainline_v1_4_bot as strategy
 import poe_ic_im_v1_4_state as state_module
+import ic_im_option_maintenance_notice as option_maintenance_notice
 from poe_ic_im_v1_4_server import LedgerCoordinator
 from poe_ic_im_v1_4_state import StateStore, _jsonable
 
@@ -234,6 +235,21 @@ def render_stored_close_report(latest: dict[str, Any]) -> str:
     ]
     for product in PRODUCTS:
         signal = signals[product]
+        opening_events = signal.get("v14_opening_events", [])
+        for event in opening_events:
+            title = "三倍兑现" if event.get("kind") == "profit3x" else "卖Put成本"
+            plan = event.get("plan", {})
+            lines.append(f"- {product} {title}独立开盘事件：{plan.get('execution_day')}；"
+                         f"{event.get('status')}；{event.get('reason', '')}；仅研究价格核验。")
+            if event.get("status") == "confirmed_open_research_price":
+                for item in event.get("prices", []):
+                    lines.append(f"  - {item.get('contract')} 开盘价 {item.get('openprice')}；"
+                                 f"日期 {item.get('price_day')}；来源 {item.get('source')}。")
+        short_pending = signal.get("v14_short_put_open_pending")
+        if short_pending:
+            lines.append(f"- {product} 卖Put待执行：{short_pending.get('execution_day')} 开盘，"
+                         f"新腿 {short_pending.get('new_contract')}，数量 {short_pending.get('new_qty')}；"
+                         "候选收盘报价不是入场成本，开盘证据未齐前不启用衰减展期。")
         if signal_day >= strategy.v14_policy.FEAR_GRID_EFFECTIVE_SIGNAL_DATE:
             lines.append(
                 f"- {product} 恐贪 {signal.get('fear_greed_index', '缺失')}"
@@ -366,6 +382,11 @@ def render_stored_close_report(latest: dict[str, Any]) -> str:
                 "</details>",
             ]
         )
+    notices = option_maintenance_notice.reminders(
+        signals, signal_day=signal_day, is_session=strategy._option_maintenance_session,
+        historical=latest.get("signal_timing") == "retrospective_replay")
+    if notices:
+        lines[2:2] = ["## ⚠️ 月度Put维护日历提醒", "", *[n + "\n" for n in notices]]
     return "\n".join(lines) + "\n"
 
 
@@ -501,6 +522,10 @@ def build_artifacts(
         "report_file": report_path.name,
         "attachments": [str(item.get("name", "")) for item in attachments],
         "signals": _jsonable(published),
+        "option_maintenance_notice_revision": option_maintenance_notice.REVISION,
+        "option_maintenance_notices": option_maintenance_notice.reminders(
+            observed, signal_day=signal_day, is_session=strategy._option_maintenance_session,
+            historical=any(s.get("signal_generation_timing") == "retrospective_replay" for s in observed.values())),
     }
     if incomplete:
         result["signal_completeness"] = "partial"
