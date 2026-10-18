@@ -1,0 +1,176 @@
+{
+  "IC": {
+    "source_sha256": "4e02b889747112459125999382c3ff2fe89017aaea30df05e91bb2a7bc1e2104",
+    "source_date": "2026-08-14",
+    "values": {
+      "month_next_spread": {
+        "status": "ok",
+        "convention": "near_minus_far",
+        "label": "当月－次月",
+        "source": "saved official CFFEX close (historical verification)",
+        "source_date": "2026-08-14",
+        "price_type": "same_snapshot_lastprice",
+        "near_contract": "IC2608",
+        "far_contract": "IC2609",
+        "near_price": 7939.8,
+        "far_price": 7861.2,
+        "points": 78.60000000000036,
+        "ratio": 0.009899493690017426,
+        "annualized": 0.12904697131629858,
+        "same_contract": false,
+        "expiry_gap_days": 28,
+        "near_expiry": "2026-08-21",
+        "far_expiry": "2026-09-18"
+      },
+      "month_quarter_spread": {
+        "status": "ok",
+        "convention": "near_minus_far",
+        "label": "当月－当季",
+        "source": "saved official CFFEX close (historical verification)",
+        "source_date": "2026-08-14",
+        "price_type": "same_snapshot_lastprice",
+        "near_contract": "IC2608",
+        "far_contract": "IC2609",
+        "near_price": 7939.8,
+        "far_price": 7861.2,
+        "points": 78.60000000000036,
+        "ratio": 0.009899493690017426,
+        "annualized": 0.12904697131629858,
+        "same_contract": false,
+        "expiry_gap_days": 28,
+        "near_expiry": "2026-08-21",
+        "far_expiry": "2026-09-18"
+      }
+    },
+    "distinct_tenor_example": {
+      "source_date": "2026-07-10",
+      "values": {
+        "month_next_spread": {
+          "status": "ok",
+          "convention": "near_minus_far",
+          "label": "当月－次月",
+          "source": "saved official CFFEX close (historical verification)",
+          "source_date": "2026-07-10",
+          "price_type": "same_snapshot_lastprice",
+          "near_contract": "IC2607",
+          "far_contract": "IC2608",
+          "near_price": 8470.2,
+          "far_price": 8390.0,
+          "points": 80.20000000000073,
+          "ratio": 0.009468489527992341,
+          "annualized": 0.0987428193633487,
+          "same_contract": false,
+          "expiry_gap_days": 35,
+          "near_expiry": "2026-07-17",
+          "far_expiry": "2026-08-21"
+        },
+        "month_quarter_spread": {
+          "status": "ok",
+          "convention": "near_minus_far",
+          "label": "当月－当季",
+          "source": "saved official CFFEX close (historical verification)",
+          "source_date": "2026-07-10",
+          "price_type": "same_snapshot_lastprice",
+          "near_contract": "IC2607",
+          "far_contract": "IC2609",
+          "near_price": 8470.2,
+          "far_price": 8333.0,
+          "points": 137.20000000000073,
+          "ratio": 0.016197964628934466,
+          "annualized": 0.09384535062795364,
+          "same_contract": false,
+          "expiry_gap_days": 63,
+          "near_expiry": "2026-07-17",
+          "far_expiry": "2026-09-18"
+        }
+      }
+    }
+  },
+  "IM": {
+    "source_sha256": "6f19f04824026e3cf7e4fc7ebfeb20f60637e53bfc3caebc616fae47794f3cc0",
+    "source_date": "2026-08-14",
+    "values": {
+      "month_next_spread": {
+        "status": "ok",
+        "convention": "near_minus_far",
+        "label": "当月－次月",
+        "source": "saved official CFFEX close (historical verification)",
+        "source_date": "2026-08-14",
+        "price_type": "same_snapshot_lastprice",
+        "near_contract": "IM2608",
+        "far_contract": "IM2609",
+        "near_price": 7730.8,
+        "far_price": 7650.2,
+        "points": 80.60000000000036,
+        "ratio": 0.0104258291509288,
+        "annualized": 0.135908130003179,
+        "same_contract": false,
+        "expiry_gap_days": 28,
+        "near_expiry": "2026-08-21",
+        "far_expiry": "2026-09-18"
+      },
+      "month_quarter_spread": {
+        "status": "ok",
+        "convention": "near_minus_far",
+        "label": "当月－当季",
+        "source": "saved official CFFEX close (historical verification)",
+        "source_date": "2026-08-14",
+        "price_type": "same_snapshot_lastprice",
+        "near_contract": "IM2608",
+        "far_contract": "IM2609",
+        "near_price": 7730.8,
+        "far_price": 7650.2,
+        "points": 80.60000000000036,
+        "ratio": 0.0104258291509288,
+        "annualized": 0.135908130003179,
+        "same_contract": false,
+        "expiry_gap_days": 28,
+        "near_expiry": "2026-08-21",
+        "far_expiry": "2026-09-18"
+      }
+    },
+    "distinct_tenor_example": {
+      "source_date": "2026-07-10",
+      "values": {
+        "month_next_spread": {
+          "status": "ok",
+          "convention": "near_minus_far",
+          "label": "当月－次月",
+          "source": "saved official CFFEX close (historical verification)",
+          "source_date": "2026-07-10",
+          "price_type": "same_snapshot_lastprice",
+          "near_contract": "IM2607",
+          "far_contract": "IM2608",
+          "near_price": 8186.2,
+          "far_price": 8099.2,
+          "points": 87.0,
+          "ratio": 0.010627641640810145,
+          "annualized": 0.11083111996844866,
+          "same_contract": false,
+          "expiry_gap_days": 35,
+          "near_expiry": "2026-07-17",
+          "far_expiry": "2026-08-21"
+        },
+        "month_quarter_spread": {
+          "status": "ok",
+          "convention": "near_minus_far",
+          "label": "当月－当季",
+          "source": "saved official CFFEX close (historical verification)",
+          "source_date": "2026-07-10",
+          "price_type": "same_snapshot_lastprice",
+          "near_contract": "IM2607",
+          "far_contract": "IM2609",
+          "near_price": 8186.2,
+          "far_price": 8019.4,
+          "points": 166.80000000000018,
+          "ratio": 0.020375754318242918,
+          "annualized": 0.11805000517712168,
+          "same_contract": false,
+          "expiry_gap_days": 63,
+          "near_expiry": "2026-07-17",
+          "far_expiry": "2026-09-18"
+        }
+      }
+    }
+  }
+}
