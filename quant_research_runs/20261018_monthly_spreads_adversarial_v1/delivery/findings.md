@@ -33,3 +33,9 @@
 - 3742 个真实产品交易日继续零模板差异、输入信号不变；Oct09 三个完整 SHA-256 继续保持。
 - 新修复源码相对旧 release manifest 发生预期变化，故新结果的 manifest_match=false 不作为缺陷；修复前旧 9 文件的哈希一致结论保存在基线证据。
 - 修复过程一度捕获新云端脚本 line1098 的 IndentationError（局部重复 import 被置于顶格）；修正后重新完成上述验证。这是未发布草稿过程问题，不是原正式版本问题。
+
+## 补审：formatter 实际读取字段完整性
+
+主审补查发现第一轮边界修复仍未验证 `source` 字段。随后独立通过 GitHub connector 固定取回策略 `b82c29d` 与自动化 `0480d446207966b3e3cc358a90b8c70953b982cf` 原始源码复现：删除 source 两端均 KeyError，source 为 null/对象/空文本时仍展示。基线源码与结果为 `baseline_b82c29d_quarter_roll.py`、`baseline_0480d446_cloud_build.py`、`source_guard_pre_b82c29d.json`。该反例属于可选元数据防御补审，未声称生产上游已出现缺 source 的合法输出。
+
+补齐必需字段与 source 非空文本校验后，独立完成 1434 项矩阵：IC/IM、当月次月/当月当季/同一季度合约三类，14 个实际读取键逐个删除或替换为 JSON 常见值，以及整组值类型替换。无异常、删除必需键全部降级 N/A、非法 source 全部降级 N/A、两端判定零差异。原始 1248 项矩阵保留在 `formatter_keys_types_post.json`，扩展完整结果为 `formatter_all_read_keys_post.json`。
