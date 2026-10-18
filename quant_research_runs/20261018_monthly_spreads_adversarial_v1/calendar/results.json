@@ -1,0 +1,710 @@
+{
+  "counts": {
+    "synthetic_product_days": 484,
+    "real_product_days": 298,
+    "real_pairs": 596,
+    "front_missing_guard_cases": 484,
+    "expiry_calendar_months": 12
+  },
+  "failures": [],
+  "boundary_examples": [
+    {
+      "product": "IC",
+      "date": "2026-02-24",
+      "pairs": {
+        "month_next_spread": {
+          "status": "ok",
+          "convention": "near_minus_far",
+          "label": "当月－次月",
+          "source": "synthetic oracle",
+          "source_date": "2026-02-24",
+          "price_type": "same_snapshot_lastprice",
+          "near_contract": "IC2602",
+          "far_contract": "IC2603",
+          "near_price": 6100.0,
+          "far_price": 6075.0,
+          "points": 25.0,
+          "ratio": 0.004098360655737705,
+          "annualized": 0.062329234972677595,
+          "same_contract": false,
+          "expiry_gap_days": 24,
+          "near_expiry": "2026-02-24",
+          "far_expiry": "2026-03-20"
+        },
+        "month_quarter_spread": {
+          "status": "ok",
+          "convention": "near_minus_far",
+          "label": "当月－当季",
+          "source": "synthetic oracle",
+          "source_date": "2026-02-24",
+          "price_type": "same_snapshot_lastprice",
+          "near_contract": "IC2602",
+          "far_contract": "IC2603",
+          "near_price": 6100.0,
+          "far_price": 6075.0,
+          "points": 25.0,
+          "ratio": 0.004098360655737705,
+          "annualized": 0.062329234972677595,
+          "same_contract": false,
+          "expiry_gap_days": 24,
+          "near_expiry": "2026-02-24",
+          "far_expiry": "2026-03-20"
+        }
+      }
+    },
+    {
+      "product": "IM",
+      "date": "2026-02-24",
+      "pairs": {
+        "month_next_spread": {
+          "status": "ok",
+          "convention": "near_minus_far",
+          "label": "当月－次月",
+          "source": "synthetic oracle",
+          "source_date": "2026-02-24",
+          "price_type": "same_snapshot_lastprice",
+          "near_contract": "IM2602",
+          "far_contract": "IM2603",
+          "near_price": 6100.0,
+          "far_price": 6075.0,
+          "points": 25.0,
+          "ratio": 0.004098360655737705,
+          "annualized": 0.062329234972677595,
+          "same_contract": false,
+          "expiry_gap_days": 24,
+          "near_expiry": "2026-02-24",
+          "far_expiry": "2026-03-20"
+        },
+        "month_quarter_spread": {
+          "status": "ok",
+          "convention": "near_minus_far",
+          "label": "当月－当季",
+          "source": "synthetic oracle",
+          "source_date": "2026-02-24",
+          "price_type": "same_snapshot_lastprice",
+          "near_contract": "IM2602",
+          "far_contract": "IM2603",
+          "near_price": 6100.0,
+          "far_price": 6075.0,
+          "points": 25.0,
+          "ratio": 0.004098360655737705,
+          "annualized": 0.062329234972677595,
+          "same_contract": false,
+          "expiry_gap_days": 24,
+          "near_expiry": "2026-02-24",
+          "far_expiry": "2026-03-20"
+        }
+      }
+    },
+    {
+      "product": "IC",
+      "date": "2026-02-25",
+      "pairs": {
+        "month_next_spread": {
+          "status": "ok",
+          "convention": "near_minus_far",
+          "label": "当月－次月",
+          "source": "synthetic oracle",
+          "source_date": "2026-02-25",
+          "price_type": "same_snapshot_lastprice",
+          "near_contract": "IC2603",
+          "far_contract": "IC2604",
+          "near_price": 6100.0,
+          "far_price": 6075.0,
+          "points": 25.0,
+          "ratio": 0.004098360655737705,
+          "annualized": 0.05342505854800937,
+          "same_contract": false,
+          "expiry_gap_days": 28,
+          "near_expiry": "2026-03-20",
+          "far_expiry": "2026-04-17"
+        },
+        "month_quarter_spread": {
+          "status": "ok",
+          "convention": "near_minus_far",
+          "label": "当月－当季",
+          "source": "synthetic oracle",
+          "source_date": "2026-02-25",
+          "price_type": "same_snapshot_lastprice",
+          "near_contract": "IC2603",
+          "far_contract": "IC2603",
+          "near_price": 6100.0,
+          "far_price": 6100.0,
+          "points": 0.0,
+          "ratio": 0.0,
+          "annualized": null,
+          "same_contract": true,
+          "expiry_gap_days": 0,
+          "near_expiry": "2026-03-20",
+          "far_expiry": "2026-03-20"
+        }
+      }
+    },
+    {
+      "product": "IM",
+      "date": "2026-02-25",
+      "pairs": {
+        "month_next_spread": {
+          "status": "ok",
+          "convention": "near_minus_far",
+          "label": "当月－次月",
+          "source": "synthetic oracle",
+          "source_date": "2026-02-25",
+          "price_type": "same_snapshot_lastprice",
+          "near_contract": "IM2603",
+          "far_contract": "IM2604",
+          "near_price": 6100.0,
+          "far_price": 6075.0,
+          "points": 25.0,
+          "ratio": 0.004098360655737705,
+          "annualized": 0.05342505854800937,
+          "same_contract": false,
+          "expiry_gap_days": 28,
+          "near_expiry": "2026-03-20",
+          "far_expiry": "2026-04-17"
+        },
+        "month_quarter_spread": {
+          "status": "ok",
+          "convention": "near_minus_far",
+          "label": "当月－当季",
+          "source": "synthetic oracle",
+          "source_date": "2026-02-25",
+          "price_type": "same_snapshot_lastprice",
+          "near_contract": "IM2603",
+          "far_contract": "IM2603",
+          "near_price": 6100.0,
+          "far_price": 6100.0,
+          "points": 0.0,
+          "ratio": 0.0,
+          "annualized": null,
+          "same_contract": true,
+          "expiry_gap_days": 0,
+          "near_expiry": "2026-03-20",
+          "far_expiry": "2026-03-20"
+        }
+      }
+    },
+    {
+      "product": "IC",
+      "date": "2026-06-18",
+      "pairs": {
+        "month_next_spread": {
+          "status": "ok",
+          "convention": "near_minus_far",
+          "label": "当月－次月",
+          "source": "synthetic oracle",
+          "source_date": "2026-06-18",
+          "price_type": "same_snapshot_lastprice",
+          "near_contract": "IC2606",
+          "far_contract": "IC2607",
+          "near_price": 6100.0,
+          "far_price": 6075.0,
+          "points": 25.0,
+          "ratio": 0.004098360655737705,
+          "annualized": 0.0598360655737705,
+          "same_contract": false,
+          "expiry_gap_days": 25,
+          "near_expiry": "2026-06-22",
+          "far_expiry": "2026-07-17"
+        },
+        "month_quarter_spread": {
+          "status": "ok",
+          "convention": "near_minus_far",
+          "label": "当月－当季",
+          "source": "synthetic oracle",
+          "source_date": "2026-06-18",
+          "price_type": "same_snapshot_lastprice",
+          "near_contract": "IC2606",
+          "far_contract": "IC2606",
+          "near_price": 6100.0,
+          "far_price": 6100.0,
+          "points": 0.0,
+          "ratio": 0.0,
+          "annualized": null,
+          "same_contract": true,
+          "expiry_gap_days": 0,
+          "near_expiry": "2026-06-22",
+          "far_expiry": "2026-06-22"
+        }
+      }
+    },
+    {
+      "product": "IM",
+      "date": "2026-06-18",
+      "pairs": {
+        "month_next_spread": {
+          "status": "ok",
+          "convention": "near_minus_far",
+          "label": "当月－次月",
+          "source": "synthetic oracle",
+          "source_date": "2026-06-18",
+          "price_type": "same_snapshot_lastprice",
+          "near_contract": "IM2606",
+          "far_contract": "IM2607",
+          "near_price": 6100.0,
+          "far_price": 6075.0,
+          "points": 25.0,
+          "ratio": 0.004098360655737705,
+          "annualized": 0.0598360655737705,
+          "same_contract": false,
+          "expiry_gap_days": 25,
+          "near_expiry": "2026-06-22",
+          "far_expiry": "2026-07-17"
+        },
+        "month_quarter_spread": {
+          "status": "ok",
+          "convention": "near_minus_far",
+          "label": "当月－当季",
+          "source": "synthetic oracle",
+          "source_date": "2026-06-18",
+          "price_type": "same_snapshot_lastprice",
+          "near_contract": "IM2606",
+          "far_contract": "IM2606",
+          "near_price": 6100.0,
+          "far_price": 6100.0,
+          "points": 0.0,
+          "ratio": 0.0,
+          "annualized": null,
+          "same_contract": true,
+          "expiry_gap_days": 0,
+          "near_expiry": "2026-06-22",
+          "far_expiry": "2026-06-22"
+        }
+      }
+    },
+    {
+      "product": "IC",
+      "date": "2026-06-22",
+      "pairs": {
+        "month_next_spread": {
+          "status": "ok",
+          "convention": "near_minus_far",
+          "label": "当月－次月",
+          "source": "synthetic oracle",
+          "source_date": "2026-06-22",
+          "price_type": "same_snapshot_lastprice",
+          "near_contract": "IC2606",
+          "far_contract": "IC2607",
+          "near_price": 6100.0,
+          "far_price": 6075.0,
+          "points": 25.0,
+          "ratio": 0.004098360655737705,
+          "annualized": 0.0598360655737705,
+          "same_contract": false,
+          "expiry_gap_days": 25,
+          "near_expiry": "2026-06-22",
+          "far_expiry": "2026-07-17"
+        },
+        "month_quarter_spread": {
+          "status": "ok",
+          "convention": "near_minus_far",
+          "label": "当月－当季",
+          "source": "synthetic oracle",
+          "source_date": "2026-06-22",
+          "price_type": "same_snapshot_lastprice",
+          "near_contract": "IC2606",
+          "far_contract": "IC2606",
+          "near_price": 6100.0,
+          "far_price": 6100.0,
+          "points": 0.0,
+          "ratio": 0.0,
+          "annualized": null,
+          "same_contract": true,
+          "expiry_gap_days": 0,
+          "near_expiry": "2026-06-22",
+          "far_expiry": "2026-06-22"
+        }
+      }
+    },
+    {
+      "product": "IM",
+      "date": "2026-06-22",
+      "pairs": {
+        "month_next_spread": {
+          "status": "ok",
+          "convention": "near_minus_far",
+          "label": "当月－次月",
+          "source": "synthetic oracle",
+          "source_date": "2026-06-22",
+          "price_type": "same_snapshot_lastprice",
+          "near_contract": "IM2606",
+          "far_contract": "IM2607",
+          "near_price": 6100.0,
+          "far_price": 6075.0,
+          "points": 25.0,
+          "ratio": 0.004098360655737705,
+          "annualized": 0.0598360655737705,
+          "same_contract": false,
+          "expiry_gap_days": 25,
+          "near_expiry": "2026-06-22",
+          "far_expiry": "2026-07-17"
+        },
+        "month_quarter_spread": {
+          "status": "ok",
+          "convention": "near_minus_far",
+          "label": "当月－当季",
+          "source": "synthetic oracle",
+          "source_date": "2026-06-22",
+          "price_type": "same_snapshot_lastprice",
+          "near_contract": "IM2606",
+          "far_contract": "IM2606",
+          "near_price": 6100.0,
+          "far_price": 6100.0,
+          "points": 0.0,
+          "ratio": 0.0,
+          "annualized": null,
+          "same_contract": true,
+          "expiry_gap_days": 0,
+          "near_expiry": "2026-06-22",
+          "far_expiry": "2026-06-22"
+        }
+      }
+    },
+    {
+      "product": "IC",
+      "date": "2026-06-23",
+      "pairs": {
+        "month_next_spread": {
+          "status": "ok",
+          "convention": "near_minus_far",
+          "label": "当月－次月",
+          "source": "synthetic oracle",
+          "source_date": "2026-06-23",
+          "price_type": "same_snapshot_lastprice",
+          "near_contract": "IC2607",
+          "far_contract": "IC2608",
+          "near_price": 6100.0,
+          "far_price": 6075.0,
+          "points": 25.0,
+          "ratio": 0.004098360655737705,
+          "annualized": 0.04274004683840749,
+          "same_contract": false,
+          "expiry_gap_days": 35,
+          "near_expiry": "2026-07-17",
+          "far_expiry": "2026-08-21"
+        },
+        "month_quarter_spread": {
+          "status": "ok",
+          "convention": "near_minus_far",
+          "label": "当月－当季",
+          "source": "synthetic oracle",
+          "source_date": "2026-06-23",
+          "price_type": "same_snapshot_lastprice",
+          "near_contract": "IC2607",
+          "far_contract": "IC2609",
+          "near_price": 6100.0,
+          "far_price": 6000.0,
+          "points": 100.0,
+          "ratio": 0.01639344262295082,
+          "annualized": 0.09497788186312776,
+          "same_contract": false,
+          "expiry_gap_days": 63,
+          "near_expiry": "2026-07-17",
+          "far_expiry": "2026-09-18"
+        }
+      }
+    },
+    {
+      "product": "IM",
+      "date": "2026-06-23",
+      "pairs": {
+        "month_next_spread": {
+          "status": "ok",
+          "convention": "near_minus_far",
+          "label": "当月－次月",
+          "source": "synthetic oracle",
+          "source_date": "2026-06-23",
+          "price_type": "same_snapshot_lastprice",
+          "near_contract": "IM2607",
+          "far_contract": "IM2608",
+          "near_price": 6100.0,
+          "far_price": 6075.0,
+          "points": 25.0,
+          "ratio": 0.004098360655737705,
+          "annualized": 0.04274004683840749,
+          "same_contract": false,
+          "expiry_gap_days": 35,
+          "near_expiry": "2026-07-17",
+          "far_expiry": "2026-08-21"
+        },
+        "month_quarter_spread": {
+          "status": "ok",
+          "convention": "near_minus_far",
+          "label": "当月－当季",
+          "source": "synthetic oracle",
+          "source_date": "2026-06-23",
+          "price_type": "same_snapshot_lastprice",
+          "near_contract": "IM2607",
+          "far_contract": "IM2609",
+          "near_price": 6100.0,
+          "far_price": 6000.0,
+          "points": 100.0,
+          "ratio": 0.01639344262295082,
+          "annualized": 0.09497788186312776,
+          "same_contract": false,
+          "expiry_gap_days": 63,
+          "near_expiry": "2026-07-17",
+          "far_expiry": "2026-09-18"
+        }
+      }
+    },
+    {
+      "product": "IC",
+      "date": "2026-12-18",
+      "pairs": {
+        "month_next_spread": {
+          "status": "ok",
+          "convention": "near_minus_far",
+          "label": "当月－次月",
+          "source": "synthetic oracle",
+          "source_date": "2026-12-18",
+          "price_type": "same_snapshot_lastprice",
+          "near_contract": "IC2612",
+          "far_contract": "IC2701",
+          "near_price": 6100.0,
+          "far_price": 6075.0,
+          "points": 25.0,
+          "ratio": 0.004098360655737705,
+          "annualized": 0.05342505854800937,
+          "same_contract": false,
+          "expiry_gap_days": 28,
+          "near_expiry": "2026-12-18",
+          "far_expiry": "2027-01-15"
+        },
+        "month_quarter_spread": {
+          "status": "ok",
+          "convention": "near_minus_far",
+          "label": "当月－当季",
+          "source": "synthetic oracle",
+          "source_date": "2026-12-18",
+          "price_type": "same_snapshot_lastprice",
+          "near_contract": "IC2612",
+          "far_contract": "IC2612",
+          "near_price": 6100.0,
+          "far_price": 6100.0,
+          "points": 0.0,
+          "ratio": 0.0,
+          "annualized": null,
+          "same_contract": true,
+          "expiry_gap_days": 0,
+          "near_expiry": "2026-12-18",
+          "far_expiry": "2026-12-18"
+        }
+      }
+    },
+    {
+      "product": "IM",
+      "date": "2026-12-18",
+      "pairs": {
+        "month_next_spread": {
+          "status": "ok",
+          "convention": "near_minus_far",
+          "label": "当月－次月",
+          "source": "synthetic oracle",
+          "source_date": "2026-12-18",
+          "price_type": "same_snapshot_lastprice",
+          "near_contract": "IM2612",
+          "far_contract": "IM2701",
+          "near_price": 6100.0,
+          "far_price": 6075.0,
+          "points": 25.0,
+          "ratio": 0.004098360655737705,
+          "annualized": 0.05342505854800937,
+          "same_contract": false,
+          "expiry_gap_days": 28,
+          "near_expiry": "2026-12-18",
+          "far_expiry": "2027-01-15"
+        },
+        "month_quarter_spread": {
+          "status": "ok",
+          "convention": "near_minus_far",
+          "label": "当月－当季",
+          "source": "synthetic oracle",
+          "source_date": "2026-12-18",
+          "price_type": "same_snapshot_lastprice",
+          "near_contract": "IM2612",
+          "far_contract": "IM2612",
+          "near_price": 6100.0,
+          "far_price": 6100.0,
+          "points": 0.0,
+          "ratio": 0.0,
+          "annualized": null,
+          "same_contract": true,
+          "expiry_gap_days": 0,
+          "near_expiry": "2026-12-18",
+          "far_expiry": "2026-12-18"
+        }
+      }
+    },
+    {
+      "product": "IC",
+      "date": "2026-12-21",
+      "pairs": {
+        "month_next_spread": {
+          "status": "ok",
+          "convention": "near_minus_far",
+          "label": "当月－次月",
+          "source": "synthetic oracle",
+          "source_date": "2026-12-21",
+          "price_type": "same_snapshot_lastprice",
+          "near_contract": "IC2701",
+          "far_contract": "IC2702",
+          "near_price": 6100.0,
+          "far_price": 6075.0,
+          "points": 25.0,
+          "ratio": 0.004098360655737705,
+          "annualized": 0.04274004683840749,
+          "same_contract": false,
+          "expiry_gap_days": 35,
+          "near_expiry": "2027-01-15",
+          "far_expiry": "2027-02-19"
+        },
+        "month_quarter_spread": {
+          "status": "ok",
+          "convention": "near_minus_far",
+          "label": "当月－当季",
+          "source": "synthetic oracle",
+          "source_date": "2026-12-21",
+          "price_type": "same_snapshot_lastprice",
+          "near_contract": "IC2701",
+          "far_contract": "IC2703",
+          "near_price": 6100.0,
+          "far_price": 6000.0,
+          "points": 100.0,
+          "ratio": 0.01639344262295082,
+          "annualized": 0.09497788186312776,
+          "same_contract": false,
+          "expiry_gap_days": 63,
+          "near_expiry": "2027-01-15",
+          "far_expiry": "2027-03-19"
+        }
+      }
+    },
+    {
+      "product": "IM",
+      "date": "2026-12-21",
+      "pairs": {
+        "month_next_spread": {
+          "status": "ok",
+          "convention": "near_minus_far",
+          "label": "当月－次月",
+          "source": "synthetic oracle",
+          "source_date": "2026-12-21",
+          "price_type": "same_snapshot_lastprice",
+          "near_contract": "IM2701",
+          "far_contract": "IM2702",
+          "near_price": 6100.0,
+          "far_price": 6075.0,
+          "points": 25.0,
+          "ratio": 0.004098360655737705,
+          "annualized": 0.04274004683840749,
+          "same_contract": false,
+          "expiry_gap_days": 35,
+          "near_expiry": "2027-01-15",
+          "far_expiry": "2027-02-19"
+        },
+        "month_quarter_spread": {
+          "status": "ok",
+          "convention": "near_minus_far",
+          "label": "当月－当季",
+          "source": "synthetic oracle",
+          "source_date": "2026-12-21",
+          "price_type": "same_snapshot_lastprice",
+          "near_contract": "IM2701",
+          "far_contract": "IM2703",
+          "near_price": 6100.0,
+          "far_price": 6000.0,
+          "points": 100.0,
+          "ratio": 0.01639344262295082,
+          "annualized": 0.09497788186312776,
+          "same_contract": false,
+          "expiry_gap_days": 63,
+          "near_expiry": "2027-01-15",
+          "far_expiry": "2027-03-19"
+        }
+      }
+    }
+  ],
+  "fixtures": [
+    {
+      "path": "data/ic_monthly_discount_roll_v1/cffex_ic_contracts.csv",
+      "sha256": "4e02b889747112459125999382c3ff2fe89017aaea30df05e91bb2a7bc1e2104",
+      "dates": [
+        "2026-01-05",
+        "2026-08-14"
+      ],
+      "rows": 596
+    },
+    {
+      "path": "data/im_monthly_roll_3m_lowest_put_v1/cffex_im_contracts.csv",
+      "sha256": "6f19f04824026e3cf7e4fc7ebfeb20f60637e53bfc3caebc616fae47794f3cc0",
+      "dates": [
+        "2026-01-05",
+        "2026-08-14"
+      ],
+      "rows": 596
+    }
+  ],
+  "limitations": [
+    {
+      "kind": "helper_requires_production_listing_guard",
+      "input": [
+        "IM2611",
+        "IM2612",
+        "IM2703"
+      ],
+      "date": "2026-10-15",
+      "actual": {
+        "month_next_spread": {
+          "status": "ok",
+          "convention": "near_minus_far",
+          "label": "当月－次月",
+          "source": "deliberately incomplete standalone frame",
+          "source_date": "2026-10-15",
+          "price_type": "same_snapshot_lastprice",
+          "near_contract": "IM2611",
+          "far_contract": "IM2612",
+          "near_price": 6075.0,
+          "far_price": 6000.0,
+          "points": 75.0,
+          "ratio": 0.012345679012345678,
+          "annualized": 0.16093474426807758,
+          "same_contract": false,
+          "expiry_gap_days": 28,
+          "near_expiry": "2026-11-20",
+          "far_expiry": "2026-12-18"
+        },
+        "month_quarter_spread": {
+          "status": "ok",
+          "convention": "near_minus_far",
+          "label": "当月－当季",
+          "source": "deliberately incomplete standalone frame",
+          "source_date": "2026-10-15",
+          "price_type": "same_snapshot_lastprice",
+          "near_contract": "IM2611",
+          "far_contract": "IM2612",
+          "near_price": 6075.0,
+          "far_price": 6000.0,
+          "points": 75.0,
+          "ratio": 0.012345679012345678,
+          "annualized": 0.16093474426807758,
+          "same_contract": false,
+          "expiry_gap_days": 28,
+          "near_expiry": "2026-11-20",
+          "far_expiry": "2026-12-18"
+        }
+      },
+      "production_guard": "_validate_complete_future_structure rejects missing IM2610 before helper call",
+      "classification": "hardening opportunity only, not reachable production defect"
+    },
+    {
+      "kind": "future_calendar_coverage",
+      "covered_official_years": [
+        2026
+      ],
+      "note": "2027 expiries use weekday fallback already disclosed by _calendar_coverage_note; no verified 2027 closure oracle available; not claiming future holiday accuracy"
+    }
+  ],
+  "official_rule": "https://www.cffex.com.cn/u/cms/www/202003/27165856gzzt.pdf",
+  "official_2026_june_closure": "https://www.sse.com.cn/disclosure/announcement/general/c/c_20260611_10821419.shtml"
+}

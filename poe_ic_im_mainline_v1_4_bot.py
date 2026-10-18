@@ -7199,7 +7199,7 @@ class ICIMMainlinesBot:
                     f"{_format_quote_number(live['future_bid'])}/"
                     f"{_format_quote_number(live['future_ask'])}\n"
                 )
-                for spread_line in quarter_roll.format_spreads(live):
+                for spread_line in quarter_roll.format_spreads(live, product=product):
                     msg.write("- " + spread_line + "\n")
                 if live["scheduled_roll_completed"]:
                     msg.write("- 本日期货展期已收盘确认；期权维护日程独立。\n")

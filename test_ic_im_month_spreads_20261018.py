@@ -100,3 +100,49 @@ def test_month_spreads_independently_match_real_official_closes(product, source)
         prices = raw.set_index("contract")["close"]
         assert v["points"] == pytest.approx(prices[v["near_contract"]] - prices[v["far_contract"]])
     pd.testing.assert_frame_equal(f, before)
+
+
+@pytest.mark.parametrize("bad", [True, float("inf"), 10**400])
+def test_bad_quote_is_local_to_its_spread_group(bad):
+    f = pd.DataFrame({"instrument": ["IM2610", "IM2611", "IM2612", "IM2703"],
+                      "lastprice": pd.Series([6100., bad, 6000., 5900.], dtype=object)})
+    f.attrs.update(source_date="2026-10-15")
+    values = q.monthly_spreads("IM", f, date(2026, 10, 15), expiry)
+    assert values["month_next_spread"]["status"] == "unavailable"
+    assert values["month_quarter_spread"]["status"] == "ok"
+
+
+def test_finite_quote_overflow_does_not_block_stored_report():
+    import poe_ic_im_v1_4_state as state
+    import run_ic_im_v1_4_github_digest as digest
+    f = pd.DataFrame({"instrument": ["IM2610", "IM2611", "IM2612", "IM2703"],
+                      "lastprice": [1., 1e308, 6000., 5900.]})
+    f.attrs.update(source_date="2026-10-15")
+    values = q.monthly_spreads("IM", f, date(2026, 10, 15), expiry)
+    assert values["month_next_spread"]["status"] == "unavailable"
+    assert values["month_quarter_spread"]["status"] == "ok"
+    report = digest.render_stored_close_report({"verified_day": "2026-10-15", "sequence": 0,
+        "digest": "isolated-diagnostic-test", "signals": {"IC": {}, "IM": state._jsonable(values)}})
+    assert "N/A" in report and "当月－次月" in report and "当月－当季" in report
+
+
+@pytest.mark.parametrize("field,bad", [("source_date", "2026-10-14"), ("far_contract", "IM2612"),
+    ("near_contract", "IC2610"), ("ratio", .9), ("points", None), ("annualized", None),
+    ("same_contract", True), ("expiry_gap_days", 0)])
+def test_stored_display_metadata_is_checked_without_mutating_it(field, bad):
+    import copy
+    f = pd.DataFrame({"instrument": ["IM2610", "IM2611", "IM2612", "IM2703"],
+                      "lastprice": [6100., 6075., 6000., 5900.]})
+    f.attrs.update(source_date="2026-10-15")
+    signal = {"market_date": "2026-10-15", **q.monthly_spreads("IM", f, date(2026, 10, 15), expiry)}
+    signal["month_next_spread"][field] = bad
+    before = copy.deepcopy(signal)
+    lines = q.format_spreads(signal, product="IM")
+    assert "N/A" in lines[1] and "+100.00点" in lines[2]
+    assert signal == before
+
+
+def test_quarter_spread_rejects_nonfinite_derived_value():
+    f = pd.DataFrame({"instrument": ["IM2612", "IM2703"], "lastprice": [1., 1e308]})
+    f.attrs.update(source_date="2026-10-15")
+    assert q.quarter_spread("IM", f, date(2026, 10, 15), expiry)["status"] == "unavailable"

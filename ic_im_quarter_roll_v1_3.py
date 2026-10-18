@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import math
 import re
+from numbers import Real
 from datetime import date, timedelta
 
 REVISION = "r7"
@@ -83,18 +84,22 @@ def quarter_spread(product, quotes, day, expiry):
             rows = quotes.loc[quotes.instrument.eq(c)]
             if len(rows) != 1:
                 raise ValueError(f"missing or duplicate quote: {c}")
-            p = float(rows.iloc[0].lastprice)
-            if not math.isfinite(p) or p <= 0:
+            p = _spread_number(rows.iloc[0].lastprice, f"quote: {c}")
+            if p <= 0:
                 raise ValueError(f"invalid quote: {c}")
             prices.append(p)
         gap = (expiry(far)-expiry(near)).days
         spread = prices[0]-prices[1]
+        ratio = spread/prices[0]
+        annualized = ratio*365/gap
+        if not all(math.isfinite(x) for x in (spread, ratio, annualized)):
+            raise ValueError("nonfinite derived spread")
         result.update(status="ok", near_contract=near, far_contract=far,
                       near_price=prices[0], far_price=prices[1], points=spread,
-                      ratio=spread/prices[0], annualized=spread/prices[0]*365/gap,
+                      ratio=ratio, annualized=annualized,
                       expiry_gap_days=gap, near_expiry=expiry(near).isoformat(),
                       far_expiry=expiry(far).isoformat())
-    except (ValueError, TypeError, KeyError, AttributeError) as exc:
+    except (ValueError, TypeError, KeyError, AttributeError, OverflowError, ZeroDivisionError) as exc:
         result["reason"] = str(exc)
     return result
 
@@ -112,6 +117,66 @@ MONTH_SPREAD_LABELS = {
     "month_next_spread": "当月－次月",
     "month_quarter_spread": "当月－当季",
 }
+
+
+def _spread_number(value, label):
+    if isinstance(value, bool) or not isinstance(value, Real):
+        raise ValueError(f"{label} must be a real number, not boolean/text")
+    number = float(value)
+    if not math.isfinite(number):
+        raise ValueError(f"{label} must be finite")
+    return number
+
+
+def _validated_month_spread(value, label, product=None, day=None):
+    """Validate optional display metadata without mutating a persisted signal."""
+    if not isinstance(value, dict) or value.get("status") != "ok":
+        raise ValueError(str((value if isinstance(value, dict) else {}).get("reason", "未提供同日完整报价")))
+    near = re.fullmatch(r"(IC|IM)(\d{2})(\d{2})", str(value.get("near_contract", "")))
+    far = re.fullmatch(r"(IC|IM)(\d{2})(\d{2})", str(value.get("far_contract", "")))
+    if not near or not far or near[1] != far[1] or (product and near[1] != product):
+        raise ValueError("spread contract product mismatch")
+    near_month = (2000 + int(near[2])) * 12 + int(near[3]) - 1
+    far_month = (2000 + int(far[2])) * 12 + int(far[3]) - 1
+    if not (1 <= int(near[3]) <= 12 and 1 <= int(far[3]) <= 12):
+        raise ValueError("invalid contract month")
+    expected_far = near_month + 1 if label == "当月－次月" else near_month + (3 - int(near[3]) % 3) % 3
+    if far_month != expected_far:
+        raise ValueError("spread tenor mismatch")
+    source_day = date.fromisoformat(str(value["source_date"]))
+    if day is not None and source_day != date.fromisoformat(str(day)[:10]):
+        raise ValueError("spread source date mismatch")
+    near_expiry = date.fromisoformat(str(value["near_expiry"]))
+    far_expiry = date.fromisoformat(str(value["far_expiry"]))
+    gap = (far_expiry - near_expiry).days
+    if (near_expiry < source_day or near_expiry.year * 12 + near_expiry.month - 1 != near_month
+            or far_expiry.year * 12 + far_expiry.month - 1 != far_month or gap < 0
+            or type(value.get("expiry_gap_days")) is not int or value["expiry_gap_days"] != gap):
+        raise ValueError("spread expiry interval mismatch")
+    numbers = {key: _spread_number(value[key], key)
+               for key in ("near_price", "far_price", "points", "ratio")}
+    if min(numbers["near_price"], numbers["far_price"]) <= 0:
+        raise ValueError("spread prices must be positive")
+    points = numbers["near_price"] - numbers["far_price"]
+    ratio = points / numbers["near_price"]
+    if (not math.isfinite(ratio)
+            or not math.isclose(numbers["points"], points, rel_tol=1e-10, abs_tol=1e-9)
+            or not math.isclose(numbers["ratio"], ratio, rel_tol=1e-10, abs_tol=1e-12)):
+        raise ValueError("spread arithmetic mismatch")
+    same = value["near_contract"] == value["far_contract"]
+    if type(value.get("same_contract")) is not bool or value["same_contract"] != same:
+        raise ValueError("spread same-contract flag mismatch")
+    if same:
+        if gap != 0 or value.get("annualized") is not None or points != 0:
+            raise ValueError("same contract cannot have an annualized spread")
+    else:
+        if gap <= 0:
+            raise ValueError("different contracts require a positive expiry interval")
+        annualized = _spread_number(value["annualized"], "annualized")
+        expected = ratio * 365 / gap
+        if not math.isfinite(expected) or not math.isclose(annualized, expected, rel_tol=1e-10, abs_tol=1e-12):
+            raise ValueError("spread annualized arithmetic mismatch")
+    return value
 
 
 def monthly_spreads(product, quotes, day, expiry):
@@ -157,26 +222,31 @@ def monthly_spreads(product, quotes, day, expiry):
                 rows = quotes.loc[quotes.instrument.eq(contract)]
                 if len(rows) != 1:
                     raise ValueError(f"missing or duplicate quote: {contract}")
-                price = float(rows.iloc[0].lastprice)
-                if not math.isfinite(price) or price <= 0:
+                price = _spread_number(rows.iloc[0].lastprice, f"quote: {contract}")
+                if price <= 0:
                     raise ValueError(f"invalid quote: {contract}")
                 prices.append(price)
             gap = (expiry(far) - expiry(near)).days
             spread = prices[0] - prices[1]
+            ratio = spread / prices[0]
+            annualized = ratio * 365 / gap if gap else None
+            if not all(math.isfinite(x) for x in (spread, ratio)) or (annualized is not None and not math.isfinite(annualized)):
+                raise ValueError("nonfinite derived spread")
             value.update(status="ok", near_price=prices[0], far_price=prices[1],
-                         points=spread, ratio=spread / prices[0],
-                         annualized=spread / prices[0] * 365 / gap if gap else None,
+                         points=spread, ratio=ratio, annualized=annualized,
                          same_contract=near == far, expiry_gap_days=gap,
                          near_expiry=expiry(near).isoformat(), far_expiry=expiry(far).isoformat())
-        except (ValueError, TypeError, KeyError, AttributeError) as exc:
+        except (ValueError, TypeError, KeyError, AttributeError, OverflowError, ZeroDivisionError) as exc:
             value["reason"] = str(exc)
         results[key] = value
     return results
 
 
-def format_month_spread(value, label):
-    if not value or value.get("status") != "ok":
-        return f"月度价差（{label}）：N/A（" + str((value or {}).get("reason", "未提供同日完整报价")) + "）"
+def format_month_spread(value, label, *, product=None, day=None):
+    try:
+        value = _validated_month_spread(value, label, product, day)
+    except (ValueError, TypeError, KeyError, AttributeError, OverflowError, ZeroDivisionError) as exc:
+        return f"月度价差（{label}）：N/A（{exc}）"
     annual = ("同一合约，年化不适用" if value.get("same_contract") else
               f"按到期间隔折算{value['annualized']:+.2%}/年，非保证收益")
     return (f"月度价差（{label}）：{value['near_contract']} {value['near_price']:.2f}"
@@ -184,9 +254,10 @@ def format_month_spread(value, label):
             f"（{value['ratio']:+.2%}；{annual}）；行情 {value['source_date']}，{value['source']}")
 
 
-def format_spreads(signal):
+def format_spreads(signal, *, product=None):
     lines = [format_spread(signal.get("quarter_spread"))]
     # Archived signals without these diagnostics retain their exact old render.
     if any(key in signal for key in MONTH_SPREAD_LABELS) or str(signal.get("market_date", ""))[:10] >= "2026-10-18":
-        lines.extend(format_month_spread(signal.get(key), label) for key, label in MONTH_SPREAD_LABELS.items())
+        lines.extend(format_month_spread(signal.get(key), label, product=product or signal.get("product"),
+                                        day=signal.get("market_date")) for key, label in MONTH_SPREAD_LABELS.items())
     return lines
