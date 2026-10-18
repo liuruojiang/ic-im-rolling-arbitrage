@@ -4,6 +4,7 @@
 
 - 保留当季－下季价差，新增当月－次月、当月－当季，同日两腿价格、点数、比例、折算年化和来源一并披露；当月为最近未到期挂牌月，到期日当日包含旧月，到期后顺延。季度重合显示同一合约、零差值及年化不适用；缺源N/A，不替代期限。
 - 只增加行情诊断及日报展示，fix11策略、schema4/r1、执行与仓位规则不改，历史账本不回写。发布状态和验证见 `docs/ic_im_month_spread_delivery_20261018.md` 及 `quant_research_runs/20261018_monthly_spreads_v1/record.md`；正式运行pin以远端workflow为准。
+- 同日三独立角色对抗审计确认派生数溢出可阻断整份日报，已做按组N/A及消费校验加固；旧归档保持。跨覆盖历史日历4个错腿日及既有上游布尔转换局限独立保留，不冒称已修复全历史/全部数据门禁。审计、独立反例与最终发布见 `docs/ic_im_month_spread_adversarial_20261018.md` 及 `quant_research_runs/20261018_monthly_spreads_adversarial_v1/record.md`。
 
 ## Put执行与日报交付闭环（2026-10-16 用户授权）
 

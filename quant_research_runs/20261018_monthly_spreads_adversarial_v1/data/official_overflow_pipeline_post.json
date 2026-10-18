@@ -1,0 +1,104 @@
+{
+  "prices": [
+    {
+      "instrument": "IM2610",
+      "lastprice": 1.0
+    },
+    {
+      "instrument": "IM2611",
+      "lastprice": 1e+308
+    },
+    {
+      "instrument": "IM2612",
+      "lastprice": 6000.0
+    },
+    {
+      "instrument": "IM2703",
+      "lastprice": 5900.0
+    }
+  ],
+  "attrs": {
+    "source": "中金所官方",
+    "source_date": "2026-10-15",
+    "source_failures": [
+      "新浪财经: ConnectionError: offline probe",
+      "东方财富: ConnectionError: offline probe"
+    ],
+    "source_audit": [],
+    "listed_instruments": [
+      "IM2610",
+      "IM2611",
+      "IM2612",
+      "IM2703"
+    ],
+    "listed_mo_months": [],
+    "source_snapshot_at": "2026-10-15T15:15:00+08:00",
+    "source_snapshot_kind": "http_last_modified_whole_frame"
+  },
+  "values": {
+    "month_next_spread": {
+      "status": "unavailable",
+      "convention": "near_minus_far",
+      "label": "当月－次月",
+      "source": "中金所官方",
+      "source_date": "2026-10-15",
+      "price_type": "same_snapshot_lastprice",
+      "near_contract": "IM2610",
+      "far_contract": "IM2611",
+      "reason": "nonfinite derived spread"
+    },
+    "month_quarter_spread": {
+      "status": "ok",
+      "convention": "near_minus_far",
+      "label": "当月－当季",
+      "source": "中金所官方",
+      "source_date": "2026-10-15",
+      "price_type": "same_snapshot_lastprice",
+      "near_contract": "IM2610",
+      "far_contract": "IM2612",
+      "near_price": 1.0,
+      "far_price": 6000.0,
+      "points": -5999.0,
+      "ratio": -5999.0,
+      "annualized": -34756.11111111111,
+      "same_contract": false,
+      "expiry_gap_days": 63,
+      "near_expiry": "2026-10-16",
+      "far_expiry": "2026-12-18"
+    }
+  },
+  "saved": {
+    "month_next_spread": {
+      "status": "unavailable",
+      "convention": "near_minus_far",
+      "label": "当月－次月",
+      "source": "中金所官方",
+      "source_date": "2026-10-15",
+      "price_type": "same_snapshot_lastprice",
+      "near_contract": "IM2610",
+      "far_contract": "IM2611",
+      "reason": "nonfinite derived spread"
+    },
+    "month_quarter_spread": {
+      "status": "ok",
+      "convention": "near_minus_far",
+      "label": "当月－当季",
+      "source": "中金所官方",
+      "source_date": "2026-10-15",
+      "price_type": "same_snapshot_lastprice",
+      "near_contract": "IM2610",
+      "far_contract": "IM2612",
+      "near_price": 1.0,
+      "far_price": 6000.0,
+      "points": -5999.0,
+      "ratio": -5999.0,
+      "annualized": -34756.11111111111,
+      "same_contract": false,
+      "expiry_gap_days": 63,
+      "near_expiry": "2026-10-16",
+      "far_expiry": "2026-12-18"
+    }
+  },
+  "stored_report": "# IC / IM 1.4 收盘确认账本\n\n本记录信号构建：`N/A`；当前程序构建：`v1.4-20261008-r1-ic-csi500-abs40-fix11`；网格参数版本：`ic_im_or_fear25_paired_exit50_20261008_v1`；IC动量版本：`ic_csi500_ma105_mom24_w16_abs40_static_navdd6_20261008_v1`；IM/MOM120防抖版本：`ic_im_mom120_abs20_2d_plus1_20260915_v1`。\n卖Put展期规则：2026-09-25及以前信号最多成功展期一次；2026-09-26及以后信号每次满足条件可继续展期。本记录以逐腿信号版本为准。\nIM卖Call规则：2026-09-25及以前信号保留旧版；2026-09-26及以后信号目标为空仓，若模型账本有旧仓只输出平仓目标。本记录以逐腿信号版本为准。\n自2026-09-16信号日起，IC与IM的核心Put在MOM120<0时立即保护，连续两日均>+1%才解除；IM Abs20恢复仍须连续两日均>+1%；Score不变。\nIC动量自2026-10-08信号日起用MA105/Mom24/W1.6、Abs40>0即时恢复；Abs两日恢复防抖关闭，6%基础NAV回撤门沿单条旧新拼接路径承接。\n网格新版本：2026-10-08信号日起，估值或恐慌≤25入单个0.5倍网格；按冻结的入场来源分别在估值退出线或恐慌≥50退出。\n策略字段来自已通过SHA-256日志链校验的持久账本；9圈参考在报告采集时补充，不参与信号重算。\n它是研究审计记录，不是账户持仓，也不会自动下单。\n\n- 已核验日期：`2026-10-15`\n- 账本序号：`0`\n- 账本摘要：`audit`\n- IC 恐贪 缺失（缺失，N/A）；网格来源 `N/A` → `N/A`；CSV SHA-256 `N/A`。\n- **百分位取数提示：百分位来源验证状态以原始记录为准。**\n- 9圈恐慌贪婪指数：暂未取得；仅供参考，不参与网格信号。\n\n## IC\n- 实际信号生成：N/A（历史记录未存）；时点语义：原历史记录。\n\n- 恐慌输入：N/A；真实数据日 N/A；状态 N/A；当日/原历史输入。\nIV预警：N/A（历史记录未保存IV监测值）\n\n\n**代理估值／非当日真实PE、PB：旧账本未记录VIP接入，保留原代理结果；可用真实数据日期 未收到/未通过校验；代理锚点 2026-08-14，按指数价格比例推算。国债收益率、股息和相对估值阈值沿用原冻结口径。**\n\n- 季月价差：N/A（未提供同日完整报价）\n- 常规仓位（动量／网格）：今日收盘形成目标；仅在目标变化时，于 N/A 开盘执行。\n- 季度期货展期：本记录早于 r7 生效日；2026-09-04 起才采用 IM T-1／IC T-3 收盘展期。\n- 期货总仓：N/A → N/A（未确认）\n- 核心动作：`N/A`；动量动作：`N/A`；网格动作：`N/A`\n- v1.4独立生命周期核心Put：N/A（合约或数量字段未记录）；数量：N/A；兑现状态：N/A；模型生命周期：N/A\n- 普通核心保护Put目标：N/A（合约或数量字段未记录）；数量：N/A（普通保护规则，独立于上列生命周期字段）\n- 买Put时点：3倍兑现自2026-09-28起T收盘预选、T+1开盘核价；普通核心/动量Put自2026-09-29起同样执行。月度维护按原定当日收盘，季度期货展期时钟不变。\n- 信号边界：本报告只发布策略参考信号；实际成交、行权、结算、交割和账户持仓由用户自行处理。\n\n- Put动作：`N/A`；Call动作：`N/A`\n\n<details><summary>完整逐腿JSON</summary>\n\n```json\n{}\n```\n\n</details>\n- IM 恐贪 缺失（缺失，N/A）；网格来源 `N/A` → `N/A`；CSV SHA-256 `N/A`。\n- **百分位取数提示：百分位来源验证状态以原始记录为准。**\n- 9圈恐慌贪婪指数：暂未取得；仅供参考，不参与网格信号。\n\n## IM\n- 实际信号生成：N/A（历史记录未存）；时点语义：原历史记录。\n\n- 恐慌输入：N/A；真实数据日 N/A；状态 N/A；当日/原历史输入。\nIV预警：N/A（历史记录未保存IV监测值）\n\n\n**代理估值／非当日真实PE、PB：旧账本未记录VIP接入，保留原代理结果；可用真实数据日期 未收到/未通过校验；代理锚点 2026-08-14，按指数价格比例推算。国债收益率、股息和相对估值阈值沿用原冻结口径。**\n\n- 季月价差：N/A（未提供同日完整报价）\n- 月度价差（当月－次月）：N/A（nonfinite derived spread）\n- 月度价差（当月－当季）：IM2610 1.00 − IM2612 6000.00 = -5999.00点（-599900.00%；按到期间隔折算-3475611.11%/年，非保证收益）；行情 2026-10-15，中金所官方\n- 常规仓位（动量／网格）：今日收盘形成目标；仅在目标变化时，于 N/A 开盘执行。\n- 季度期货展期：本记录早于 r7 生效日；2026-09-04 起才采用 IM T-1／IC T-3 收盘展期。\n- 期货总仓：N/A → N/A（未确认）\n- 核心动作：`N/A`；动量动作：`N/A`；网格动作：`N/A`\n- v1.4独立生命周期核心Put：N/A（合约或数量字段未记录）；数量：N/A；兑现状态：N/A；模型生命周期：N/A\n- 普通核心保护Put目标：N/A（合约或数量字段未记录）；数量：N/A（普通保护规则，独立于上列生命周期字段）\n- 买Put时点：3倍兑现自2026-09-28起T收盘预选、T+1开盘核价；普通核心/动量Put自2026-09-29起同样执行。月度维护按原定当日收盘，季度期货展期时钟不变。\n- 信号边界：本报告只发布策略参考信号；实际成交、行权、结算、交割和账户持仓由用户自行处理。\n\n- Put动作：`N/A`；Call动作：`N/A`\n\n<details><summary>完整逐腿JSON</summary>\n\n```json\n{\n  \"market_date\": \"2026-10-15\",\n  \"month_next_spread\": {\n    \"status\": \"unavailable\",\n    \"convention\": \"near_minus_far\",\n    \"label\": \"当月－次月\",\n    \"source\": \"中金所官方\",\n    \"source_date\": \"2026-10-15\",\n    \"price_type\": \"same_snapshot_lastprice\",\n    \"near_contract\": \"IM2610\",\n    \"far_contract\": \"IM2611\",\n    \"reason\": \"nonfinite derived spread\"\n  },\n  \"month_quarter_spread\": {\n    \"status\": \"ok\",\n    \"convention\": \"near_minus_far\",\n    \"label\": \"当月－当季\",\n    \"source\": \"中金所官方\",\n    \"source_date\": \"2026-10-15\",\n    \"price_type\": \"same_snapshot_lastprice\",\n    \"near_contract\": \"IM2610\",\n    \"far_contract\": \"IM2612\",\n    \"near_price\": 1.0,\n    \"far_price\": 6000.0,\n    \"points\": -5999.0,\n    \"ratio\": -5999.0,\n    \"annualized\": -34756.11111111111,\n    \"same_contract\": false,\n    \"expiry_gap_days\": 63,\n    \"near_expiry\": \"2026-10-16\",\n    \"far_expiry\": \"2026-12-18\"\n  }\n}\n```\n\n</details>\n",
+  "renderer": "PASS"
+}

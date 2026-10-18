@@ -1,0 +1,68 @@
+FFFFFF                                                                   [100%]
+================================== FAILURES ===================================
+____ test_bad_month_next_input_must_not_block_month_quarter[boolean-price] ____
+quant_research_runs\20261018_monthly_spreads_adversarial_v1\data\test_independent_numeric_isolation.py:29: in test_bad_month_next_input_must_not_block_month_quarter
+    assert v['month_next_spread']['status']=='unavailable'
+E   AssertionError: assert 'ok' == 'unavailable'
+E     
+E     - unavailable
+E     + ok
+_ test_bad_month_next_input_must_not_block_month_quarter[numpy-boolean-price] _
+quant_research_runs\20261018_monthly_spreads_adversarial_v1\data\test_independent_numeric_isolation.py:29: in test_bad_month_next_input_must_not_block_month_quarter
+    assert v['month_next_spread']['status']=='unavailable'
+E   AssertionError: assert 'ok' == 'unavailable'
+E     
+E     - unavailable
+E     + ok
+_ test_bad_month_next_input_must_not_block_month_quarter[overflow-int-price] __
+quant_research_runs\20261018_monthly_spreads_adversarial_v1\data\test_independent_numeric_isolation.py:28: in test_bad_month_next_input_must_not_block_month_quarter
+    v=values(f)
+      ^^^^^^^^^
+quant_research_runs\20261018_monthly_spreads_adversarial_v1\data\test_independent_numeric_isolation.py:22: in values
+    return q.monthly_spreads('IM',f,date(2026,10,15),lambda c:bot._third_friday(*bot._contract_month(c)))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ic_im_quarter_roll_v1_3.py:160: in monthly_spreads
+    price = float(rows.iloc[0].lastprice)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   OverflowError: int too large to convert to float
+____ test_finite_positive_prices_with_annual_overflow_fail_one_group_only _____
+quant_research_runs\20261018_monthly_spreads_adversarial_v1\data\test_independent_numeric_isolation.py:38: in test_finite_positive_prices_with_annual_overflow_fail_one_group_only
+    assert v['month_next_spread']['status']=='unavailable'
+E   AssertionError: assert 'ok' == 'unavailable'
+E     
+E     - unavailable
+E     + ok
+______ test_finite_positive_prices_with_ratio_overflow_fail_both_groups _______
+quant_research_runs\20261018_monthly_spreads_adversarial_v1\data\test_independent_numeric_isolation.py:45: in test_finite_positive_prices_with_ratio_overflow_fail_both_groups
+    assert all(r['status']=='unavailable' for r in values(f).values())
+E   assert False
+E    +  where False = all(<generator object test_finite_positive_prices_with_ratio_overflow_fail_both_groups.<locals>.<genexpr> at 0x00000207EE6076B0>)
+___ test_overflow_diagnostics_survive_json_normalization_and_stored_report ____
+quant_research_runs\20261018_monthly_spreads_adversarial_v1\data\test_independent_numeric_isolation.py:52: in test_overflow_diagnostics_survive_json_normalization_and_stored_report
+    report=digest.render_stored_close_report(dict(verified_day='2026-10-15',sequence=0,digest='independent-test',
+run_ic_im_v1_4_github_digest.py:359: in render_stored_close_report
+    *["- " + line for line in strategy.quarter_roll.format_spreads(signal)],
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ic_im_quarter_roll_v1_3.py:191: in format_spreads
+    lines.extend(format_month_spread(signal.get(key), label) for key, label in MONTH_SPREAD_LABELS.items())
+ic_im_quarter_roll_v1_3.py:191: in <genexpr>
+    lines.extend(format_month_spread(signal.get(key), label) for key, label in MONTH_SPREAD_LABELS.items())
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ic_im_quarter_roll_v1_3.py:181: in format_month_spread
+    f"按到期间隔折算{value['annualized']:+.2%}/年，非保证收益")
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   TypeError: unsupported format string passed to NoneType.__format__
+============================== warnings summary ===============================
+C:\Python314\Lib\site-packages\fastapi_poe\types.py:171
+  C:\Python314\Lib\site-packages\fastapi_poe\types.py:171: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    class RequestContext(BaseModel):
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED quant_research_runs/20261018_monthly_spreads_adversarial_v1/data/test_independent_numeric_isolation.py::test_bad_month_next_input_must_not_block_month_quarter[boolean-price]
+FAILED quant_research_runs/20261018_monthly_spreads_adversarial_v1/data/test_independent_numeric_isolation.py::test_bad_month_next_input_must_not_block_month_quarter[numpy-boolean-price]
+FAILED quant_research_runs/20261018_monthly_spreads_adversarial_v1/data/test_independent_numeric_isolation.py::test_bad_month_next_input_must_not_block_month_quarter[overflow-int-price]
+FAILED quant_research_runs/20261018_monthly_spreads_adversarial_v1/data/test_independent_numeric_isolation.py::test_finite_positive_prices_with_annual_overflow_fail_one_group_only
+FAILED quant_research_runs/20261018_monthly_spreads_adversarial_v1/data/test_independent_numeric_isolation.py::test_finite_positive_prices_with_ratio_overflow_fail_both_groups
+FAILED quant_research_runs/20261018_monthly_spreads_adversarial_v1/data/test_independent_numeric_isolation.py::test_overflow_diagnostics_survive_json_normalization_and_stored_report
+6 failed, 1 warning in 2.30s

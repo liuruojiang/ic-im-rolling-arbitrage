@@ -1,0 +1,586 @@
+{
+  "classification": "historical dates outside official coverage; not a 2026 monthly feature regression",
+  "official_calendar_years": [
+    2026
+  ],
+  "cases": [
+    {
+      "product": "IC",
+      "date": "2016-09-19",
+      "front_contract": "IC1609",
+      "fallback_expiry": "2016-09-16",
+      "last_actual_official_trading_date": "2016-09-19",
+      "all_input_contract_last_dates": {
+        "IC1609": "2016-09-19",
+        "IC1610": "2016-10-21",
+        "IC1612": "2016-12-16",
+        "IC1703": "2017-03-17"
+      },
+      "input_quotes": [
+        {
+          "contract": "IC1609",
+          "date": "2016-09-19",
+          "close": 6330.8
+        },
+        {
+          "contract": "IC1610",
+          "date": "2016-09-19",
+          "close": 6223.8
+        },
+        {
+          "contract": "IC1612",
+          "date": "2016-09-19",
+          "close": 6036.8
+        },
+        {
+          "contract": "IC1703",
+          "date": "2016-09-19",
+          "close": 5836.6
+        }
+      ],
+      "actual_weekday_fallback": {
+        "quarter_spread": {
+          "status": "ok",
+          "convention": "near_minus_far",
+          "source": "saved official CFFEX close",
+          "source_date": "2016-09-19",
+          "price_type": "same_snapshot_lastprice",
+          "near_contract": "IC1612",
+          "far_contract": "IC1703",
+          "near_price": 6036.8,
+          "far_price": 5836.6,
+          "points": 200.19999999999982,
+          "ratio": 0.033163265306122416,
+          "annualized": 0.13301749271137014,
+          "expiry_gap_days": 91,
+          "near_expiry": "2016-12-16",
+          "far_expiry": "2017-03-17"
+        },
+        "month_next_spread": {
+          "status": "unavailable",
+          "convention": "near_minus_far",
+          "label": "当月－次月",
+          "source": "saved official CFFEX close",
+          "source_date": "2016-09-19",
+          "price_type": "same_snapshot_lastprice",
+          "near_contract": "IC1610",
+          "far_contract": "IC1611",
+          "reason": "intended listed leg missing: IC1611"
+        },
+        "month_quarter_spread": {
+          "status": "ok",
+          "convention": "near_minus_far",
+          "label": "当月－当季",
+          "source": "saved official CFFEX close",
+          "source_date": "2016-09-19",
+          "price_type": "same_snapshot_lastprice",
+          "near_contract": "IC1610",
+          "far_contract": "IC1612",
+          "near_price": 6223.8,
+          "far_price": 6036.8,
+          "points": 187.0,
+          "ratio": 0.030045952633439378,
+          "annualized": 0.1958352269858102,
+          "same_contract": false,
+          "expiry_gap_days": 56,
+          "near_expiry": "2016-10-21",
+          "far_expiry": "2016-12-16"
+        }
+      },
+      "ex_post_actual_expiry_oracle": {
+        "quarter_spread": {
+          "status": "ok",
+          "convention": "near_minus_far",
+          "source": "saved official CFFEX close",
+          "source_date": "2016-09-19",
+          "price_type": "same_snapshot_lastprice",
+          "near_contract": "IC1609",
+          "far_contract": "IC1612",
+          "near_price": 6330.8,
+          "far_price": 6036.8,
+          "points": 294.0,
+          "ratio": 0.04643962848297214,
+          "annualized": 0.1926189135941458,
+          "expiry_gap_days": 88,
+          "near_expiry": "2016-09-19",
+          "far_expiry": "2016-12-16"
+        },
+        "month_next_spread": {
+          "status": "ok",
+          "convention": "near_minus_far",
+          "label": "当月－次月",
+          "source": "saved official CFFEX close",
+          "source_date": "2016-09-19",
+          "price_type": "same_snapshot_lastprice",
+          "near_contract": "IC1609",
+          "far_contract": "IC1610",
+          "near_price": 6330.8,
+          "far_price": 6223.8,
+          "points": 107.0,
+          "ratio": 0.016901497441081697,
+          "annualized": 0.19278270518733812,
+          "same_contract": false,
+          "expiry_gap_days": 32,
+          "near_expiry": "2016-09-19",
+          "far_expiry": "2016-10-21"
+        },
+        "month_quarter_spread": {
+          "status": "ok",
+          "convention": "near_minus_far",
+          "label": "当月－当季",
+          "source": "saved official CFFEX close",
+          "source_date": "2016-09-19",
+          "price_type": "same_snapshot_lastprice",
+          "near_contract": "IC1609",
+          "far_contract": "IC1609",
+          "near_price": 6330.8,
+          "far_price": 6330.8,
+          "points": 0.0,
+          "ratio": 0.0,
+          "annualized": null,
+          "same_contract": true,
+          "expiry_gap_days": 0,
+          "near_expiry": "2016-09-19",
+          "far_expiry": "2016-09-19"
+        }
+      },
+      "coverage_note": "挂牌合约包含2016年到期日，但脚本尚未载入该年度官方休市表；这些到期日暂按周一至周五回退，须在交易所发布年度休市安排后更新"
+    },
+    {
+      "product": "IC",
+      "date": "2018-02-22",
+      "front_contract": "IC1802",
+      "fallback_expiry": "2018-02-16",
+      "last_actual_official_trading_date": "2018-02-22",
+      "all_input_contract_last_dates": {
+        "IC1802": "2018-02-22",
+        "IC1803": "2018-03-16",
+        "IC1806": "2018-06-15",
+        "IC1809": "2018-09-21"
+      },
+      "input_quotes": [
+        {
+          "contract": "IC1802",
+          "date": "2018-02-22",
+          "close": 5866.0
+        },
+        {
+          "contract": "IC1803",
+          "date": "2018-02-22",
+          "close": 5825.0
+        },
+        {
+          "contract": "IC1806",
+          "date": "2018-02-22",
+          "close": 5739.2
+        },
+        {
+          "contract": "IC1809",
+          "date": "2018-02-22",
+          "close": 5695.0
+        }
+      ],
+      "actual_weekday_fallback": {
+        "quarter_spread": {
+          "status": "ok",
+          "convention": "near_minus_far",
+          "source": "saved official CFFEX close",
+          "source_date": "2018-02-22",
+          "price_type": "same_snapshot_lastprice",
+          "near_contract": "IC1803",
+          "far_contract": "IC1806",
+          "near_price": 5825.0,
+          "far_price": 5739.2,
+          "points": 85.80000000000018,
+          "ratio": 0.01472961373390561,
+          "annualized": 0.05908031882280822,
+          "expiry_gap_days": 91,
+          "near_expiry": "2018-03-16",
+          "far_expiry": "2018-06-15"
+        },
+        "month_next_spread": {
+          "status": "unavailable",
+          "convention": "near_minus_far",
+          "label": "当月－次月",
+          "source": "saved official CFFEX close",
+          "source_date": "2018-02-22",
+          "price_type": "same_snapshot_lastprice",
+          "near_contract": "IC1803",
+          "far_contract": "IC1804",
+          "reason": "intended listed leg missing: IC1804"
+        },
+        "month_quarter_spread": {
+          "status": "ok",
+          "convention": "near_minus_far",
+          "label": "当月－当季",
+          "source": "saved official CFFEX close",
+          "source_date": "2018-02-22",
+          "price_type": "same_snapshot_lastprice",
+          "near_contract": "IC1803",
+          "far_contract": "IC1803",
+          "near_price": 5825.0,
+          "far_price": 5825.0,
+          "points": 0.0,
+          "ratio": 0.0,
+          "annualized": null,
+          "same_contract": true,
+          "expiry_gap_days": 0,
+          "near_expiry": "2018-03-16",
+          "far_expiry": "2018-03-16"
+        }
+      },
+      "ex_post_actual_expiry_oracle": {
+        "quarter_spread": {
+          "status": "ok",
+          "convention": "near_minus_far",
+          "source": "saved official CFFEX close",
+          "source_date": "2018-02-22",
+          "price_type": "same_snapshot_lastprice",
+          "near_contract": "IC1803",
+          "far_contract": "IC1806",
+          "near_price": 5825.0,
+          "far_price": 5739.2,
+          "points": 85.80000000000018,
+          "ratio": 0.01472961373390561,
+          "annualized": 0.05908031882280822,
+          "expiry_gap_days": 91,
+          "near_expiry": "2018-03-16",
+          "far_expiry": "2018-06-15"
+        },
+        "month_next_spread": {
+          "status": "ok",
+          "convention": "near_minus_far",
+          "label": "当月－次月",
+          "source": "saved official CFFEX close",
+          "source_date": "2018-02-22",
+          "price_type": "same_snapshot_lastprice",
+          "near_contract": "IC1802",
+          "far_contract": "IC1803",
+          "near_price": 5866.0,
+          "far_price": 5825.0,
+          "points": 41.0,
+          "ratio": 0.006989430617115581,
+          "annualized": 0.11596100796578122,
+          "same_contract": false,
+          "expiry_gap_days": 22,
+          "near_expiry": "2018-02-22",
+          "far_expiry": "2018-03-16"
+        },
+        "month_quarter_spread": {
+          "status": "ok",
+          "convention": "near_minus_far",
+          "label": "当月－当季",
+          "source": "saved official CFFEX close",
+          "source_date": "2018-02-22",
+          "price_type": "same_snapshot_lastprice",
+          "near_contract": "IC1802",
+          "far_contract": "IC1803",
+          "near_price": 5866.0,
+          "far_price": 5825.0,
+          "points": 41.0,
+          "ratio": 0.006989430617115581,
+          "annualized": 0.11596100796578122,
+          "same_contract": false,
+          "expiry_gap_days": 22,
+          "near_expiry": "2018-02-22",
+          "far_expiry": "2018-03-16"
+        }
+      },
+      "coverage_note": "挂牌合约包含2018年到期日，但脚本尚未载入该年度官方休市表；这些到期日暂按周一至周五回退，须在交易所发布年度休市安排后更新"
+    },
+    {
+      "product": "IC",
+      "date": "2024-02-19",
+      "front_contract": "IC2402",
+      "fallback_expiry": "2024-02-16",
+      "last_actual_official_trading_date": "2024-02-19",
+      "all_input_contract_last_dates": {
+        "IC2402": "2024-02-19",
+        "IC2403": "2024-03-15",
+        "IC2406": "2024-06-21",
+        "IC2409": "2024-09-20"
+      },
+      "input_quotes": [
+        {
+          "contract": "IC2402",
+          "date": "2024-02-19",
+          "close": 5105.6
+        },
+        {
+          "contract": "IC2403",
+          "date": "2024-02-19",
+          "close": 5083.4
+        },
+        {
+          "contract": "IC2406",
+          "date": "2024-02-19",
+          "close": 4998.8
+        },
+        {
+          "contract": "IC2409",
+          "date": "2024-02-19",
+          "close": 4934.4
+        }
+      ],
+      "actual_weekday_fallback": {
+        "quarter_spread": {
+          "status": "ok",
+          "convention": "near_minus_far",
+          "source": "saved official CFFEX close",
+          "source_date": "2024-02-19",
+          "price_type": "same_snapshot_lastprice",
+          "near_contract": "IC2403",
+          "far_contract": "IC2406",
+          "near_price": 5083.4,
+          "far_price": 4998.8,
+          "points": 84.59999999999945,
+          "ratio": 0.016642404689774456,
+          "annualized": 0.061984466446608946,
+          "expiry_gap_days": 98,
+          "near_expiry": "2024-03-15",
+          "far_expiry": "2024-06-21"
+        },
+        "month_next_spread": {
+          "status": "unavailable",
+          "convention": "near_minus_far",
+          "label": "当月－次月",
+          "source": "saved official CFFEX close",
+          "source_date": "2024-02-19",
+          "price_type": "same_snapshot_lastprice",
+          "near_contract": "IC2403",
+          "far_contract": "IC2404",
+          "reason": "intended listed leg missing: IC2404"
+        },
+        "month_quarter_spread": {
+          "status": "ok",
+          "convention": "near_minus_far",
+          "label": "当月－当季",
+          "source": "saved official CFFEX close",
+          "source_date": "2024-02-19",
+          "price_type": "same_snapshot_lastprice",
+          "near_contract": "IC2403",
+          "far_contract": "IC2403",
+          "near_price": 5083.4,
+          "far_price": 5083.4,
+          "points": 0.0,
+          "ratio": 0.0,
+          "annualized": null,
+          "same_contract": true,
+          "expiry_gap_days": 0,
+          "near_expiry": "2024-03-15",
+          "far_expiry": "2024-03-15"
+        }
+      },
+      "ex_post_actual_expiry_oracle": {
+        "quarter_spread": {
+          "status": "ok",
+          "convention": "near_minus_far",
+          "source": "saved official CFFEX close",
+          "source_date": "2024-02-19",
+          "price_type": "same_snapshot_lastprice",
+          "near_contract": "IC2403",
+          "far_contract": "IC2406",
+          "near_price": 5083.4,
+          "far_price": 4998.8,
+          "points": 84.59999999999945,
+          "ratio": 0.016642404689774456,
+          "annualized": 0.061984466446608946,
+          "expiry_gap_days": 98,
+          "near_expiry": "2024-03-15",
+          "far_expiry": "2024-06-21"
+        },
+        "month_next_spread": {
+          "status": "ok",
+          "convention": "near_minus_far",
+          "label": "当月－次月",
+          "source": "saved official CFFEX close",
+          "source_date": "2024-02-19",
+          "price_type": "same_snapshot_lastprice",
+          "near_contract": "IC2402",
+          "far_contract": "IC2403",
+          "near_price": 5105.6,
+          "far_price": 5083.4,
+          "points": 22.200000000000728,
+          "ratio": 0.00434816671889704,
+          "annualized": 0.06348323409589679,
+          "same_contract": false,
+          "expiry_gap_days": 25,
+          "near_expiry": "2024-02-19",
+          "far_expiry": "2024-03-15"
+        },
+        "month_quarter_spread": {
+          "status": "ok",
+          "convention": "near_minus_far",
+          "label": "当月－当季",
+          "source": "saved official CFFEX close",
+          "source_date": "2024-02-19",
+          "price_type": "same_snapshot_lastprice",
+          "near_contract": "IC2402",
+          "far_contract": "IC2403",
+          "near_price": 5105.6,
+          "far_price": 5083.4,
+          "points": 22.200000000000728,
+          "ratio": 0.00434816671889704,
+          "annualized": 0.06348323409589679,
+          "same_contract": false,
+          "expiry_gap_days": 25,
+          "near_expiry": "2024-02-19",
+          "far_expiry": "2024-03-15"
+        }
+      },
+      "coverage_note": "挂牌合约包含2024年到期日，但脚本尚未载入该年度官方休市表；这些到期日暂按周一至周五回退，须在交易所发布年度休市安排后更新"
+    },
+    {
+      "product": "IM",
+      "date": "2024-02-19",
+      "front_contract": "IM2402",
+      "fallback_expiry": "2024-02-16",
+      "last_actual_official_trading_date": "2024-02-19",
+      "all_input_contract_last_dates": {
+        "IM2402": "2024-02-19",
+        "IM2403": "2024-03-15",
+        "IM2406": "2024-06-21",
+        "IM2409": "2024-09-20"
+      },
+      "input_quotes": [
+        {
+          "contract": "IM2402",
+          "date": "2024-02-19",
+          "close": 4985.4
+        },
+        {
+          "contract": "IM2403",
+          "date": "2024-02-19",
+          "close": 4954.6
+        },
+        {
+          "contract": "IM2406",
+          "date": "2024-02-19",
+          "close": 4842.8
+        },
+        {
+          "contract": "IM2409",
+          "date": "2024-02-19",
+          "close": 4753.8
+        }
+      ],
+      "actual_weekday_fallback": {
+        "quarter_spread": {
+          "status": "ok",
+          "convention": "near_minus_far",
+          "source": "saved official CFFEX close",
+          "source_date": "2024-02-19",
+          "price_type": "same_snapshot_lastprice",
+          "near_contract": "IM2403",
+          "far_contract": "IM2406",
+          "near_price": 4954.6,
+          "far_price": 4842.8,
+          "points": 111.80000000000018,
+          "ratio": 0.02256488919388047,
+          "annualized": 0.08404269954863644,
+          "expiry_gap_days": 98,
+          "near_expiry": "2024-03-15",
+          "far_expiry": "2024-06-21"
+        },
+        "month_next_spread": {
+          "status": "unavailable",
+          "convention": "near_minus_far",
+          "label": "当月－次月",
+          "source": "saved official CFFEX close",
+          "source_date": "2024-02-19",
+          "price_type": "same_snapshot_lastprice",
+          "near_contract": "IM2403",
+          "far_contract": "IM2404",
+          "reason": "intended listed leg missing: IM2404"
+        },
+        "month_quarter_spread": {
+          "status": "ok",
+          "convention": "near_minus_far",
+          "label": "当月－当季",
+          "source": "saved official CFFEX close",
+          "source_date": "2024-02-19",
+          "price_type": "same_snapshot_lastprice",
+          "near_contract": "IM2403",
+          "far_contract": "IM2403",
+          "near_price": 4954.6,
+          "far_price": 4954.6,
+          "points": 0.0,
+          "ratio": 0.0,
+          "annualized": null,
+          "same_contract": true,
+          "expiry_gap_days": 0,
+          "near_expiry": "2024-03-15",
+          "far_expiry": "2024-03-15"
+        }
+      },
+      "ex_post_actual_expiry_oracle": {
+        "quarter_spread": {
+          "status": "ok",
+          "convention": "near_minus_far",
+          "source": "saved official CFFEX close",
+          "source_date": "2024-02-19",
+          "price_type": "same_snapshot_lastprice",
+          "near_contract": "IM2403",
+          "far_contract": "IM2406",
+          "near_price": 4954.6,
+          "far_price": 4842.8,
+          "points": 111.80000000000018,
+          "ratio": 0.02256488919388047,
+          "annualized": 0.08404269954863644,
+          "expiry_gap_days": 98,
+          "near_expiry": "2024-03-15",
+          "far_expiry": "2024-06-21"
+        },
+        "month_next_spread": {
+          "status": "ok",
+          "convention": "near_minus_far",
+          "label": "当月－次月",
+          "source": "saved official CFFEX close",
+          "source_date": "2024-02-19",
+          "price_type": "same_snapshot_lastprice",
+          "near_contract": "IM2402",
+          "far_contract": "IM2403",
+          "near_price": 4985.4,
+          "far_price": 4954.6,
+          "points": 30.799999999999272,
+          "ratio": 0.006178039876439057,
+          "annualized": 0.09019938219601023,
+          "same_contract": false,
+          "expiry_gap_days": 25,
+          "near_expiry": "2024-02-19",
+          "far_expiry": "2024-03-15"
+        },
+        "month_quarter_spread": {
+          "status": "ok",
+          "convention": "near_minus_far",
+          "label": "当月－当季",
+          "source": "saved official CFFEX close",
+          "source_date": "2024-02-19",
+          "price_type": "same_snapshot_lastprice",
+          "near_contract": "IM2402",
+          "far_contract": "IM2403",
+          "near_price": 4985.4,
+          "far_price": 4954.6,
+          "points": 30.799999999999272,
+          "ratio": 0.006178039876439057,
+          "annualized": 0.09019938219601023,
+          "same_contract": false,
+          "expiry_gap_days": 25,
+          "near_expiry": "2024-02-19",
+          "far_expiry": "2024-03-15"
+        }
+      },
+      "coverage_note": "挂牌合约包含2024年到期日，但脚本尚未载入该年度官方休市表；这些到期日暂按周一至周五回退，须在交易所发布年度休市安排后更新"
+    }
+  ],
+  "fixtures": [
+    {
+      "path": "data/ic_monthly_discount_roll_v1/cffex_ic_contracts.csv",
+      "sha256": "4e02b889747112459125999382c3ff2fe89017aaea30df05e91bb2a7bc1e2104"
+    },
+    {
+      "path": "data/im_monthly_roll_3m_lowest_put_v1/cffex_im_contracts.csv",
+      "sha256": "6f19f04824026e3cf7e4fc7ebfeb20f60637e53bfc3caebc616fae47794f3cc0"
+    }
+  ]
+}

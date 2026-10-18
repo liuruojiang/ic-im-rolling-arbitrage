@@ -1,0 +1,6 @@
+{
+  "note": "Existing upstream normalization converts boolean True to 1.0 before helper; outside scoped diagnostic repair.",
+  "normalized_far_price": 1.0,
+  "month_next_status": "ok",
+  "points": 6099.0
+}
