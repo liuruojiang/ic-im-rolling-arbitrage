@@ -126,6 +126,13 @@ Thumbs.db
 /research_reports/20261013_script_repair/tracked_source_changes.patch
 
 # Disposable test ledgers and lock files
+/quant_research_runs/20261016*/**/pytest*/
+/quant_research_runs/20261016*/**/permission_probe/
+/research_reports/20261013*/**/temp/
+/research_reports/20261013*/**/pytest*/
+/research_reports/20261013*/**/cloud_gate_tmp/
+/research_reports/20261013*/**/real_parity_baseline_*/
+/research_reports/20261013*/**/real_parity_current_*/
 /quant_research_runs/20261016_fear_delivery_adversarial_v2/feed_ledger/test_temp_69146083/
 /quant_research_runs/20261016_fear_delivery_adversarial_v2/feed_ledger/test_temp_a7b95f0a/
 /quant_research_runs/20261016_fear_delivery_adversarial_v2/feed_ledger/test_temp_c268e33e/
