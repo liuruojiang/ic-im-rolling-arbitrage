@@ -1,0 +1,62 @@
+{
+  "audited_at": "2026-10-16T12:10:21.575813+08:00",
+  "sources": {
+    "jiu": {
+      "rows": 1502,
+      "first": "2020-08-03",
+      "last": "2026-10-15",
+      "duplicate_dates": 0,
+      "invalid_dates": 0,
+      "missing_values": 0,
+      "nonfinite_or_out_of_range": 0,
+      "date_ordered": true
+    },
+    "baifenwei": {
+      "rows": 8016,
+      "first": "1993-08-27",
+      "last": "2026-09-24",
+      "duplicate_dates": 0,
+      "invalid_dates": 0,
+      "missing_values": 0,
+      "nonfinite_or_out_of_range": 0,
+      "date_ordered": true
+    }
+  },
+  "matched_snapshot_window": {
+    "start": "2020-08-03",
+    "end": "2026-09-24",
+    "jiu_rows": 1493,
+    "baifenwei_rows": 1492,
+    "dates_in_jiu_not_baifenwei": [
+      "2026-07-27"
+    ],
+    "dates_in_baifenwei_not_jiu": [],
+    "scope": "different retrieval times; set comparison is not independent exchange-calendar certification or current website completeness"
+  },
+  "live_observations": {
+    "checked_at": "2026-10-16T12:10:21.575813+08:00",
+    "baifenwei_page": {
+      "url": "https://baifenwei.com/indicator/fear-greed/",
+      "data_date": "2026-10-16",
+      "index_value": 48.33,
+      "displayed_update": "2026-10-16 11:00",
+      "method": "live web-page retrieval; CSV was not retrievable through this tool"
+    },
+    "baifenwei_methodology": {
+      "url": "https://baifenwei.com/methodology/",
+      "publisher_statement": "Static pages built about hourly; data may lag about one hour; not a guaranteed closing-index release SLA"
+    },
+    "jiu_last_successful_capture": {
+      "capture_time": "2026-10-16T10:33:51.092201+08:00",
+      "latest_data_date": "2026-10-15",
+      "value": 2.28,
+      "url": "https://ai2.jiucaishuo.com/api/fear-greed"
+    },
+    "limitations": [
+      "Current shell requests to both hosts failed at the configured local proxy; these are environment failures and excluded from site-availability inference.",
+      "The web retrieval tool could read the Baifenwei page, could not parse CSV, and could not access Jiu indicator/API. These tool limits are not website uptime measurements.",
+      "No matched continuous timestamped availability logs exist for Jiu and Baifenwei; no relative uptime percentage or guaranteed Jiu release time can be established."
+    ]
+  },
+  "publication_log_scope": "saved successful ledger records only; failed attempts and unpublished rows are not an uptime denominator"
+}

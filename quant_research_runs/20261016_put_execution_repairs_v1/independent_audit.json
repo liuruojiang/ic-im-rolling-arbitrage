@@ -1,0 +1,230 @@
+{
+  "saved_output_checks": [
+    {
+      "product": "IC",
+      "arm": "baseline",
+      "nav_error": 7.016609515630989e-14,
+      "fee_error": 2.3283064365386963e-09,
+      "rows": 945
+    },
+    {
+      "product": "IC",
+      "arm": "timing_only",
+      "nav_error": 7.016609515630989e-14,
+      "fee_error": 2.3283064365386963e-09,
+      "rows": 945
+    },
+    {
+      "product": "IC",
+      "arm": "cost_only",
+      "nav_error": 8.304468224196171e-14,
+      "fee_error": 9.313225746154785e-10,
+      "rows": 945
+    },
+    {
+      "product": "IC",
+      "arm": "both",
+      "nav_error": 8.304468224196171e-14,
+      "fee_error": 9.313225746154785e-10,
+      "rows": 945
+    },
+    {
+      "product": "IM",
+      "arm": "baseline",
+      "nav_error": 7.327471962526033e-14,
+      "fee_error": 9.313225746154785e-10,
+      "rows": 986
+    },
+    {
+      "product": "IM",
+      "arm": "timing_only",
+      "nav_error": 7.327471962526033e-14,
+      "fee_error": 9.313225746154785e-10,
+      "rows": 986
+    },
+    {
+      "product": "IM",
+      "arm": "cost_only",
+      "nav_error": 6.394884621840902e-14,
+      "fee_error": 9.313225746154785e-10,
+      "rows": 986
+    },
+    {
+      "product": "IM",
+      "arm": "both",
+      "nav_error": 6.394884621840902e-14,
+      "fee_error": 9.313225746154785e-10,
+      "rows": 986
+    }
+  ],
+  "production_adapter_real_quote_checks": [
+    {
+      "product": "IC",
+      "signal_day": "2024-09-30",
+      "execution_day": "2024-10-08",
+      "contract": "510500P2411M05750",
+      "actual_open": 0.1253,
+      "required_legs": 2,
+      "status": "PASS"
+    },
+    {
+      "product": "IC",
+      "signal_day": "2024-11-05",
+      "execution_day": "2024-11-06",
+      "contract": "510500P2412M06000",
+      "actual_open": 0.2075,
+      "required_legs": 2,
+      "status": "PASS"
+    },
+    {
+      "product": "IC",
+      "signal_day": "2024-12-04",
+      "execution_day": "2024-12-05",
+      "contract": "510500P2501M05750",
+      "actual_open": 0.164,
+      "required_legs": 2,
+      "status": "PASS"
+    },
+    {
+      "product": "IC",
+      "signal_day": "2026-02-02",
+      "execution_day": "2026-02-03",
+      "contract": "510500P2603M07750",
+      "actual_open": 0.2152,
+      "required_legs": 2,
+      "status": "PASS"
+    },
+    {
+      "product": "IC",
+      "signal_day": "2026-03-19",
+      "execution_day": "2026-03-20",
+      "contract": "510500P2604M07500",
+      "actual_open": 0.115,
+      "required_legs": 2,
+      "status": "PASS"
+    },
+    {
+      "product": "IM",
+      "signal_day": "2024-09-30",
+      "execution_day": "2024-10-08",
+      "contract": "MO2411-P-5400",
+      "actual_open": 80.0,
+      "required_legs": 2,
+      "status": "PASS"
+    },
+    {
+      "product": "IM",
+      "signal_day": "2024-10-25",
+      "execution_day": "2024-10-28",
+      "contract": "MO2412-P-5700",
+      "actual_open": 201.4,
+      "required_legs": 2,
+      "status": "PASS"
+    },
+    {
+      "product": "IM",
+      "signal_day": "2024-11-07",
+      "execution_day": "2024-11-08",
+      "contract": "MO2501-P-6100",
+      "actual_open": 217.2,
+      "required_legs": 2,
+      "status": "PASS"
+    },
+    {
+      "product": "IM",
+      "signal_day": "2025-04-09",
+      "execution_day": "2025-04-10",
+      "contract": "MO2505-P-5400",
+      "actual_open": 130.6,
+      "required_legs": 2,
+      "status": "PASS"
+    },
+    {
+      "product": "IM",
+      "signal_day": "2026-02-02",
+      "execution_day": "2026-02-03",
+      "contract": "MO2603-P-7600",
+      "actual_open": 193.4,
+      "required_legs": 2,
+      "status": "PASS"
+    },
+    {
+      "product": "IM",
+      "signal_day": "2026-03-30",
+      "execution_day": "2026-03-31",
+      "contract": "MO2604-P-7400",
+      "actual_open": 95.8,
+      "required_legs": 2,
+      "status": "PASS"
+    }
+  ],
+  "immutable_guarded_files": 426,
+  "changed_guarded_files": [],
+  "regression": {
+    "tests": 807,
+    "failures_or_errors": 0
+  },
+  "input_sha256": {
+    "data\\ic_510500_put_proxy_validation_v1\\sse_510500_standard_put_snapshots.csv.gz": "6ccf9890d1ad8b354d083905ce1879380a6353ae0ff6171fc6d7d94bce2d965e",
+    "data\\ic_510500_put_proxy_validation_v1\\sina_510500_put_histories.csv.gz": "c9b2cf0430864d3f2004e892d6bffa3bcee09b1f0c5b0e67269349019e7d5e10",
+    "data\\ic_510500_put_proxy_validation_v1\\sina_510500_etf.csv": "e08cc63fcfd5ad5d6cdbab1d0d2f729ed76b5ba0afd655806f817a16ad82597d",
+    "data\\ic_monthly_discount_roll_v1\\cffex_ic_contracts.csv": "4e02b889747112459125999382c3ff2fe89017aaea30df05e91bb2a7bc1e2104",
+    "data\\im_roll_momentum_blend_v1\\upstream_im_roll_data\\cffex_im_contracts.csv": "51f46516d3c97ff90f11c5e193d531aafd007022aba2a826f6ed6a000762ef8e",
+    "data\\im_roll_momentum_blend_v1\\upstream_im_roll_data\\cffex_raw\\202207.zip": "2a23b7baf87fa932beafdd182066534ab6a455c1b9f7656445af0f25def2c18e",
+    "data\\im_roll_momentum_blend_v1\\upstream_im_roll_data\\cffex_raw\\202208.zip": "109890fc5c265d4c07f937e5832e9f3b3510d22a6c4439e3e50586f54f2c75ce",
+    "data\\im_roll_momentum_blend_v1\\upstream_im_roll_data\\cffex_raw\\202209.zip": "5a852db7f1ddbb39221e8474dabb00c9478f2cf99c07c1def7d04f7cd3a27e8e",
+    "data\\im_roll_momentum_blend_v1\\upstream_im_roll_data\\cffex_raw\\202210.zip": "d020681a139b57bfbde6bdd68113204652e5484df6e4363cd72e19914a9aca6d",
+    "data\\im_roll_momentum_blend_v1\\upstream_im_roll_data\\cffex_raw\\202211.zip": "0768bdac35ab80e21e0e351383c767d2c42964e872afe0329d06ef31296ffe25",
+    "data\\im_roll_momentum_blend_v1\\upstream_im_roll_data\\cffex_raw\\202212.zip": "59b3aca862139a16910d2bc732df7849ea67e530b151a30aac9c3f33fbe98ddd",
+    "data\\im_roll_momentum_blend_v1\\upstream_im_roll_data\\cffex_raw\\202301.zip": "d4275b11d25ff0fbec59626e22267d7a36ee6ff6077caac84bb2d4e45434be79",
+    "data\\im_roll_momentum_blend_v1\\upstream_im_roll_data\\cffex_raw\\202302.zip": "219ca2430e2d00cda639c48cd3f247a02946a51158e76851f0c9398df56dfa94",
+    "data\\im_roll_momentum_blend_v1\\upstream_im_roll_data\\cffex_raw\\202303.zip": "bc216b566a913bea589dbf50bb877240e3140ff488c398aa33b75fb0d96e5750",
+    "data\\im_roll_momentum_blend_v1\\upstream_im_roll_data\\cffex_raw\\202304.zip": "7a841185707f4dd696c3028af3563e551048d3d63a643c2d2a427e341a8cae6e",
+    "data\\im_roll_momentum_blend_v1\\upstream_im_roll_data\\cffex_raw\\202305.zip": "6d22bf5dc77153c114ed1c661cd8ea0ee61266b65fce67c3f705b567bedc8326",
+    "data\\im_roll_momentum_blend_v1\\upstream_im_roll_data\\cffex_raw\\202306.zip": "8a77a961125389be845eb1398c9dede591a7a7c0e2fdc47636b05162591f95ee",
+    "data\\im_roll_momentum_blend_v1\\upstream_im_roll_data\\cffex_raw\\202307.zip": "9ec8ce24a47406599701655264aee9728138a04fdd345918746072908cebee25",
+    "data\\im_roll_momentum_blend_v1\\upstream_im_roll_data\\cffex_raw\\202308.zip": "9df1a0bb03b9c7bd4d1ba28d9d0ae18998788068000ed42ed3946fdae95597ca",
+    "data\\im_roll_momentum_blend_v1\\upstream_im_roll_data\\cffex_raw\\202309.zip": "f9d6d232a48ab5c4721862f963a7608999694b1cbc5f0ca87ba29e4734052f7e",
+    "data\\im_roll_momentum_blend_v1\\upstream_im_roll_data\\cffex_raw\\202310.zip": "f47461f0bcb617eabe1c787508251c5b1f1a8b8de802cf32e2834d8abfe6c978",
+    "data\\im_roll_momentum_blend_v1\\upstream_im_roll_data\\cffex_raw\\202311.zip": "447cbd9d3b97a8addfc404c1bd2b994b36280bc9c0735c4aa63d61cd4d76287b",
+    "data\\im_roll_momentum_blend_v1\\upstream_im_roll_data\\cffex_raw\\202312.zip": "39881e480fdd5589a2cf9a92f9f6b191114b84bcaedbe342610b5deda3569022",
+    "data\\im_roll_momentum_blend_v1\\upstream_im_roll_data\\cffex_raw\\202401.zip": "1b6ffec1ac852f01656af5ff18c0a6cb309f7caa0cd134e139bfe8fee5b9a371",
+    "data\\im_roll_momentum_blend_v1\\upstream_im_roll_data\\cffex_raw\\202402.zip": "3d27b22880d26bd42bd99e56e9395dadf9af78dc28351bee290d1dedd11ce8d4",
+    "data\\im_roll_momentum_blend_v1\\upstream_im_roll_data\\cffex_raw\\202403.zip": "5bf6291462d1aab31a1d803501e60f6b9fd3bd7e283c325f72b644be79862617",
+    "data\\im_roll_momentum_blend_v1\\upstream_im_roll_data\\cffex_raw\\202404.zip": "39d61738e7fc5c497e32dcc18efdac1b8de426775908323209c644d4ba4ab196",
+    "data\\im_roll_momentum_blend_v1\\upstream_im_roll_data\\cffex_raw\\202405.zip": "0de71610570dd7849439e81871c336141b00d7d629698f952f8b931715971fa2",
+    "data\\im_roll_momentum_blend_v1\\upstream_im_roll_data\\cffex_raw\\202406.zip": "25045c26e0f52ac450eff73e35ccbea61efae3d91adc34e98ec0d522355ba953",
+    "data\\im_roll_momentum_blend_v1\\upstream_im_roll_data\\cffex_raw\\202407.zip": "b6f542bf35d115e7c7ebbb553025086ae5c23b66a925033dcc7a415d4b6f5e1c",
+    "data\\im_roll_momentum_blend_v1\\upstream_im_roll_data\\cffex_raw\\202408.zip": "cedcbfeea91732ec2e58f760a5973a5aea2ad906e915b9cd30be2ecf51bfd838",
+    "data\\im_roll_momentum_blend_v1\\upstream_im_roll_data\\cffex_raw\\202409.zip": "f3e0223c5c7def172e39b47fd5b6f252936522218786b9b4b5ee62698ed99367",
+    "data\\im_roll_momentum_blend_v1\\upstream_im_roll_data\\cffex_raw\\202410.zip": "d898052baa2fc1cb24681e28be21bf51093b2359175773c4608d295f06905fea",
+    "data\\im_roll_momentum_blend_v1\\upstream_im_roll_data\\cffex_raw\\202411.zip": "b39bd8b9c70d4c18beb59022f4b4441bd897e9ad53327d02f60af8f6ed52735e",
+    "data\\im_roll_momentum_blend_v1\\upstream_im_roll_data\\cffex_raw\\202412.zip": "b10da45825849d6f5c749fa83923d389d4cbbecb2fe958f9c2288cd8e032f19e",
+    "data\\im_roll_momentum_blend_v1\\upstream_im_roll_data\\cffex_raw\\202501.zip": "512324c72d833e1d45a036dbeaa133aa943163e8973623b5e5d87674b28318d5",
+    "data\\im_roll_momentum_blend_v1\\upstream_im_roll_data\\cffex_raw\\202502.zip": "2a2e25828029b0fc834e750d282f4461302b0f34d1a84ea33aecd74cf639a657",
+    "data\\im_roll_momentum_blend_v1\\upstream_im_roll_data\\cffex_raw\\202503.zip": "06414ede4a513531967b647eb21834fc859fd2ac3edcd7fd71fc46d26ff8325c",
+    "data\\im_roll_momentum_blend_v1\\upstream_im_roll_data\\cffex_raw\\202504.zip": "d278bda3cf19a7093cc0196be33c9425cc53d6814f7d799e309cd50546a52cc6",
+    "data\\im_roll_momentum_blend_v1\\upstream_im_roll_data\\cffex_raw\\202505.zip": "f223d85b9c542e52991a6da478084d81dd080e2dca306b22b7f15a2687d0cc6a",
+    "data\\im_roll_momentum_blend_v1\\upstream_im_roll_data\\cffex_raw\\202506.zip": "27b31853299215c45fd624da2ca4d4508fe76e91187846e1dbf5fe1b8d4b7d90",
+    "data\\im_roll_momentum_blend_v1\\upstream_im_roll_data\\cffex_raw\\202507.zip": "5d1d84707042318eb0edaf86f932d7d876570dc187dad3270abf6f640485b307",
+    "data\\im_roll_momentum_blend_v1\\upstream_im_roll_data\\cffex_raw\\202508.zip": "676d391001d90d0f36c065bccd807e94b96d76e42b300f7e1c0f12a542179758",
+    "data\\im_roll_momentum_blend_v1\\upstream_im_roll_data\\cffex_raw\\202509.zip": "74fa916d7c5d0b1330da0050f47468c76541f9a8ac9ed11dfe253455910ffca3",
+    "data\\im_roll_momentum_blend_v1\\upstream_im_roll_data\\cffex_raw\\202510.zip": "f89a692ccea05183e73cf4a2012235adba8aac8962aa94cb2040781f58c59a00",
+    "data\\im_roll_momentum_blend_v1\\upstream_im_roll_data\\cffex_raw\\202511.zip": "6126b8ba26c0f15b779ba6846b27c62356d2310d1726c61e50491b4801d7fa6a",
+    "data\\im_roll_momentum_blend_v1\\upstream_im_roll_data\\cffex_raw\\202512.zip": "ab425e58fedad5611810d4630bc6fa0c2515a340ef3f34b0ebc46a2d65183bad",
+    "data\\im_roll_momentum_blend_v1\\upstream_im_roll_data\\cffex_raw\\202601.zip": "2ae568fe1052125e9e0ec4fddc6bd1b7be398b5b50dbe2b7c4ea9c2b2abc21a2",
+    "data\\im_roll_momentum_blend_v1\\upstream_im_roll_data\\cffex_raw\\202602.zip": "d941d98346893fb6d89294cca8020fd9ce7c31ea2613c5ac1342942ac3c91b6e",
+    "data\\im_roll_momentum_blend_v1\\upstream_im_roll_data\\cffex_raw\\202603.zip": "21d7019143ce71b050f5a4078b9fdcc7025f085b91e4c8f7901e86bfc11afc14",
+    "data\\im_roll_momentum_blend_v1\\upstream_im_roll_data\\cffex_raw\\202604.zip": "9bb1cb86c5b3731da2f1d014bce280bf7702718528fdc7a9fa900acc01e1294a",
+    "data\\im_roll_momentum_blend_v1\\upstream_im_roll_data\\cffex_raw\\202605.zip": "66b7425b6cb0e1fe120d1f437e7c6e6c9a77af763f45a3989db91ae8aa488e90",
+    "data\\im_roll_momentum_blend_v1\\upstream_im_roll_data\\cffex_raw\\202606.zip": "de56df1e96fe12f837985ffbd793b8996ab0ae10d28773b2df3f1ef428bd9fdb",
+    "data\\im_roll_momentum_blend_v1\\upstream_im_roll_data\\cffex_raw\\202607.zip": "abeff1a696ab0f717bead36a736b77bb1346b4a0ee8abbd11b433b4c5ffe98f7",
+    "data\\im_roll_momentum_blend_v1\\upstream_im_roll_data\\cffex_raw\\202608.zip": "71f76f450fafa97a9a3457094edcaccf62393214e8111bb4f796bea302ec8ccd"
+  },
+  "corrected_lifecycle_label": "The inherited lifecycle summary entry_basis label is stale; numeric entry_premium_state_after equals fill_new_t1 for all 11 entries/rolls.",
+  "limitations": [
+    "Ordinary IM buyer open uses 4 inherited sticky-IV proxy fills per arm; seller cost repair does not introduce proxy fills.",
+    "Historical IC contract membership is reconstructed; daily OHLC does not establish executable bid/ask or capacity.",
+    "The historical account engine already handles 3x at open; timing-only is a verified parity control, not an artificially altered strategy."
+  ]
+}

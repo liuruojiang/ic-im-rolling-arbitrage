@@ -1,0 +1,27 @@
+{
+  "started_at": "2026-10-13T19:26:05.587704+08:00",
+  "command": [
+    "C:\\Python314\\python.exe",
+    "-B",
+    "-X",
+    "utf8",
+    "-u",
+    "D:\\动量策略\\IC和IM滚动套利\\run_ic_im_v1_4_github_digest.py",
+    "--state-dir",
+    "D:\\动量策略\\IC和IM滚动套利\\runtime\\ic_im_v1_4_r1",
+    "--out-dir",
+    "D:\\动量策略\\IC和IM滚动套利\\research_reports\\20261013_release_sync\\local_close",
+    "--mode",
+    "close",
+    "--max-sessions",
+    "20",
+    "--network-budget-per-product",
+    "180",
+    "--expected-market-date",
+    "2026-10-13"
+  ],
+  "classification": "official_local_close_producer; may append new confirmed session, no SMTP",
+  "execution_pin": "427cf45fd78710583c8028f7eca1ed88968036ee",
+  "exit_code": 0,
+  "seconds": 45.49262269993778
+}

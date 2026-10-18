@@ -1,0 +1,51 @@
+{
+  "panel": "listed",
+  "source_class": "native_fix4_historical_sources_v2.DatedSources",
+  "inputs": [
+    {
+      "path": "D:\\动量策略\\IC和IM滚动套利\\outputs\\re_certification\\icim_v14_fix4_recert_20260924\\l5_native_signal_reconstruction_20260925\\native_fix4_seller_candidates_v1.csv.gz",
+      "sha256": "31efbf4cd9985552618cba0125f3f9720a6db1bf471e91d743cab4feb5917b01"
+    },
+    {
+      "path": "D:\\动量策略\\IC和IM滚动套利\\quant_param_scan_runs\\20260926_icim_fix8_momentum_transfer_robustness\\input_variants\\im\\formal\\native_fix4_im_noseller_targets_v3.csv.gz",
+      "sha256": "b80e8e93a316d9bc4ff4c4260f8f2677e01f3280060f57328a1f82f464c5bd83"
+    },
+    {
+      "path": "D:\\动量策略\\IC和IM滚动套利\\quant_param_scan_runs\\20260926_icim_fix8_momentum_transfer_robustness\\input_variants\\im\\formal\\native_fix4_im_risk_signals_v1.csv.gz",
+      "sha256": "80adb115e4f489e28ad7bda9f8da279cbc282f54221eb0ff10a99d8ff5db7c9d"
+    },
+    {
+      "path": "D:\\动量策略\\IC和IM滚动套利\\quant_param_scan_runs\\20260926_icim_fix8_momentum_transfer_robustness\\input_variants\\im\\formal\\native_fix4_seller_lifecycle_v4.csv.gz",
+      "sha256": "7e6f71ff82134fa6e843835160bf1157e87bd328f7b262e907c8dd7e8f624769"
+    },
+    {
+      "path": "D:\\动量策略\\IC和IM滚动套利\\quant_param_scan_runs\\20260928_fear_entry_paired_exit_fix9_certified_v2\\outputs\\fix9_full_account_daily_nav.csv.gz",
+      "sha256": "bfadedc03c935848947f90a79c3ab080c87ef191fbb05e664bdd69eafa12cf18"
+    },
+    {
+      "path": "D:\\动量策略\\IC和IM滚动套利\\quant_param_scan_runs\\20260928_fear_entry_paired_exit_fix9_certified_v2\\outputs\\full_account_events.csv.gz",
+      "sha256": "2f22016f2a661919ef84e857ba4e2e06c9c17bcbe706c24aa9031e32c614855e"
+    },
+    {
+      "path": "D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20260928_csi1000_fear_greed_reproduction\\inputs\\fear_greed_full.csv",
+      "sha256": "1b209c9166250ef4d320503386a94d6e3b868595d38fd687a03d7acea7cb7de9"
+    },
+    {
+      "path": "D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261002_fix10_vs_fix11_full_history\\account_daily_paths.csv.gz",
+      "sha256": "244f2dba987ef63737f602de7efd43416c2a76baf1759364259b7789474c93e0"
+    },
+    {
+      "path": "D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261002_fix10_vs_fix11_full_history\\account_events.csv.gz",
+      "sha256": "6f02d66f5020fc466d8a6ec110359355497ac1911c971fc71e206a92b71d75c5"
+    },
+    {
+      "path": "D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261002_fix10_vs_fix11_full_history\\account_inputs\\FIX11_full\\native_fix4_ic_noseller_targets_v2.csv.gz",
+      "sha256": "b62e1b41ccb761577499cc0804888bbeaaae38058e18206f953455732d172100"
+    },
+    {
+      "path": "D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261002_fix10_vs_fix11_full_history\\account_inputs\\FIX11_full\\native_fix4_ic_risk_signals_v1.csv.gz",
+      "sha256": "6e851122d86a23d82cf5a4b4d79a77e20f926fceda2c2961218ecd47bf991795"
+    }
+  ],
+  "known_scope": "Frozen latest-rule as-if-current history; listed theoretical fills or prelisting model, not live acceptance"
+}

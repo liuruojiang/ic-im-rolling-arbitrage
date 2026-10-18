@@ -1,0 +1,10 @@
+{
+  "status": 0,
+  "test_files": [
+    "test_ic_im_fear_grid_v1.py",
+    "test_ic_im_fear_source_delivery_20261016.py",
+    "test_ic_im_fear_delivery_adversarial_20261016.py"
+  ],
+  "test_only_mkdir_mode_adjustment": true,
+  "state_dir": "D:\\\u52a8\u91cf\u7b56\u7565\\IC\u548cIM\u6eda\u52a8\u5957\u5229\\quant_research_runs\\20261016_fear_delivery_adversarial_v2\\feed_ledger\\test_temp_69146083\\state"
+}

@@ -1,0 +1,15 @@
+{
+  "ic_im_put_execution_v1.py": "4c6eb60c35e590cf983186cdb84c72e08cdfe64ecf9ed0da4b62f0d219528d2b",
+  "ic_im_v1_4_policy.py": "a09292fd738b527bb08f944687ec5ac04d9a2349d2272fbe324dda7860d2df3d",
+  "poe_ic_im_mainline_v1_4_bot.py": "a13ce536e0c238200d7ecb275af62690d4c43c2fdee3243e8e445821f259e115",
+  "poe_ic_im_v1_4_state.py": "67a5aa082ff22675b17ed6a2964863f00ed53973766fd302b48844bbeb7377ae",
+  "run_ic_im_v1_4_github_digest.py": "a2e7d419d41e7f12db01e32c8cb7d7e515b4ead80a9ece9c4aeecd927a589751",
+  "test_ic_im_put_execution_repairs_20261016.py": "b012da82915f492ee5a02c224ee7a1038a3dc8d0c58197e6ecd6a0c23f704bbf",
+  "docs/ic_im_put_execution_repairs_20261016_v1_spec.md": "439f954c1d8233a1874f52a44697e64b23429518359f19188bf95e9a76fca541",
+  "docs/ic_im_put_execution_repairs_20261016_v1_spec.md.sha256": "cf967d4e0cfd70771c4876e49bed5495fb106f329346627d8b0fde4cc5e05f93",
+  "notes/mainline_registry.md": "eec384196f2f686fdd8cdb0a8f7d6c348ca88049e171d97730e71a9191860c08",
+  "quant_research_runs\\20261016_put_execution_repairs_v1\\audit_outputs.py": "95b867783751332aad3815821b9ae178b82434bc14e274f5b3eb27e4d9f03e4d",
+  "quant_research_runs\\20261016_put_execution_repairs_v1\\run_checks.py": "615d3f77d56aad9e263f926b4a65d5bd963b71bc48d805505db98dc53f459601",
+  "quant_research_runs\\20261016_put_execution_repairs_v1\\run_history.py": "0983c73d10834e520916172965bfbed19b5b186af1eab78611df0670d0e177f7",
+  "quant_research_runs\\20261016_put_execution_repairs_v1\\seller_lifecycle_execution_cost.py": "18ea575cf14176e72ad598bbcdc3668370794c18b9c70fc66f16bde457920e31"
+}

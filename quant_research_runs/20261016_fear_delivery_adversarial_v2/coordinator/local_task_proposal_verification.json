@@ -1,0 +1,17 @@
+{
+  "target": "D:/Codex/home/automations/ic-im/automation.toml",
+  "before_sha256": "b7417e9746e7a8202284a3823e22ca671cd24a2bb950da5905fd309f7bd24e43",
+  "proposed_sha256": "7ef3825e1b688af52841df4b23951ee54aad898e8f8f45f7160d1aac1b9391a9",
+  "current_external_sha256": "b7417e9746e7a8202284a3823e22ca671cd24a2bb950da5905fd309f7bd24e43",
+  "actual_config_written": false,
+  "original_prompt_preserved": true,
+  "other_fields_preserved": true,
+  "required_present": {
+    "test_ic_im_fear_delivery_adversarial_20261016.py": true,
+    "test_ic_im_fear_source_delivery_20261016.py": true,
+    "test_ic_im_put_execution_repairs_20261016.py": true,
+    "test_ic_im_option_maintenance_notice_20261016.py": true,
+    "test_ic_im_put_delivery_completion_20261016.py": true,
+    "baifenwei_either_source_20261016_v1": true
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "guarded_files_unchanged": 426,
+  "changed_definitions": {
+    "poe_ic_im_mainline_v1_4_bot.py": [
+      "_handle_signal"
+    ],
+    "run_ic_im_v1_4_github_digest.py": [
+      "build_artifacts",
+      "render_stored_close_report"
+    ]
+  },
+  "real_saved_report_plain_html_byte_equal": true,
+  "real_saved_fixture": "quant_research_runs\\20261016_option_maintenance_notice_v1\\cloud\\tests\\fixtures\\icim\\readiness_20261009\\result.json",
+  "helper_identical_local_cloud": true,
+  "previous_research_files": {
+    "quant_research_runs\\20261016_put_execution_repairs_v1\\audit_outputs.py": "95b867783751332aad3815821b9ae178b82434bc14e274f5b3eb27e4d9f03e4d",
+    "quant_research_runs\\20261016_put_execution_repairs_v1\\backup_manifest.json": "36688bfb8d9096dea931a0db5be843e2d7418130d9bcca29153343595362e7be",
+    "quant_research_runs\\20261016_put_execution_repairs_v1\\daily_paths.csv.gz": "2d99e2fcb67c06e2ee12bc2cff39dc42810c43968ae509d73bd1d51c8fcd6a74",
+    "quant_research_runs\\20261016_put_execution_repairs_v1\\documentation_backup.json": "f331266f13fbd211d4f0e54e1b6e03c564dfa739d9a61e6b825a1e7971c87b01",
+    "quant_research_runs\\20261016_put_execution_repairs_v1\\events.csv.gz": "4280d0eda975d2b2ae19129c2990463661b0b079ee1373af2d629a30416eb4e2",
+    "quant_research_runs\\20261016_put_execution_repairs_v1\\history_manifest.json": "21351e7e6f279ec857bf466eb16887baa18e7c0b6ca1f0da0bb0fee698bd37a9",
+    "quant_research_runs\\20261016_put_execution_repairs_v1\\ic_audit.json": "31ebb3bf6e92a44671d1bcb652b1a66b3a99f1d5e89fe7ef541161e0c64f091b",
+    "quant_research_runs\\20261016_put_execution_repairs_v1\\ic_seller_lifecycle_baseline.csv.gz": "f9eedd0a58727cf4f6b0e05f8e37889749621445997d792aff9704dd1378d009",
+    "quant_research_runs\\20261016_put_execution_repairs_v1\\ic_seller_lifecycle_fixed.csv.gz": "670dff45bb5adbd81be2b33d68e242045b6170bd9a167ddf92814e013abc5094",
+    "quant_research_runs\\20261016_put_execution_repairs_v1\\im_audit.json": "7802ac9257e57fea061cbb48245af9b7ccb8543c237a3868eaa482bceec173a9",
+    "quant_research_runs\\20261016_put_execution_repairs_v1\\im_seller_lifecycle_baseline.csv.gz": "178f005ec84c459b9001a5198b98ca8b766cf9d34dad89a2e73cb8c946f03c26",
+    "quant_research_runs\\20261016_put_execution_repairs_v1\\im_seller_lifecycle_fixed.csv.gz": "6b8bf1eeac4376dee0c00b96d21cecc9e76b79f43bdad98198bbaa16326786df",
+    "quant_research_runs\\20261016_put_execution_repairs_v1\\independent_audit.json": "29ff2a6372a0d8c324cc0a4b86d165ccfa81d6533835a0b2be9838c8de5778c8",
+    "quant_research_runs\\20261016_put_execution_repairs_v1\\record.md": "c1c45fdf4aff891610f52b3371e5a53517d69b0a1a49215a3c9e4a29def96ac3",
+    "quant_research_runs\\20261016_put_execution_repairs_v1\\regression.txt": "177cf4e1b7d7b3a805fd0bbf7af4016d4f78d4af1c78185ddbf986863c0687b7",
+    "quant_research_runs\\20261016_put_execution_repairs_v1\\regression.xml": "917367d385c4fa74a72dde18046c7632148c0ef9a3a240ef5883350dcf66dd58",
+    "quant_research_runs\\20261016_put_execution_repairs_v1\\run_checks.py": "615d3f77d56aad9e263f926b4a65d5bd963b71bc48d805505db98dc53f459601",
+    "quant_research_runs\\20261016_put_execution_repairs_v1\\run_history.py": "0983c73d10834e520916172965bfbed19b5b186af1eab78611df0670d0e177f7",
+    "quant_research_runs\\20261016_put_execution_repairs_v1\\seller_lifecycle_execution_cost.py": "18ea575cf14176e72ad598bbcdc3668370794c18b9c70fc66f16bde457920e31",
+    "quant_research_runs\\20261016_put_execution_repairs_v1\\seller_state_changes.csv": "68ea3d91691c5c7528530dc82664087f713f3b88b5777f95a1fd6eeb6f9275a6",
+    "quant_research_runs\\20261016_put_execution_repairs_v1\\source_manifest.json": "2a2aeb4654e4497b6b3f953bf6f0d2a912a5991eb1292c939c8a996b106e7259",
+    "quant_research_runs\\20261016_put_execution_repairs_v1\\test_run.json": "90b2b8904993889297f9ef4cd148ab145a8ba3cc616cf5cd4544fc3e8ddcf178",
+    "quant_research_runs\\20261016_put_execution_repairs_v1\\window_metrics.csv": "289d7620e999f5234a5823c5178dadaeb512f8058f5ecb47431c431927c7c81c"
+  },
+  "source_sha256": {
+    "ic_im_option_maintenance_notice.py": "ba92ad55926cfe36992adcfba76752a80d788a4e786c1329cdde15cc0fc4b556",
+    "poe_ic_im_mainline_v1_4_bot.py": "f756c0d0c752ec777185f1b0c6c6093449a3003c5ee310f0268e90e45827463f",
+    "run_ic_im_v1_4_github_digest.py": "015d066ef963c7298f07aa2b68e07701a8c54e15c0c831d628ad26f1b12930f8",
+    "test_ic_im_option_maintenance_notice_20261016.py": "8cc4ef14f2c4ed6683b64766ad033273c4e22c501af19d2cced42ebec88f30e2",
+    "quant_research_runs\\20261016_option_maintenance_notice_v1\\cloud\\scripts\\build_ic_im_v1_4_digest.py": "8df88691013f3886c23d340a71ee99b6d10e1eb7c428d228ce3d7fd164cd2477",
+    "quant_research_runs\\20261016_option_maintenance_notice_v1\\cloud\\tests\\test_ic_im_v1_4_monthly_maintenance_notice.py": "ad83c2a05281498945adbd81eeeb4ee77cedf10b48f0b4f6fa013511a8e70743"
+  }
+}

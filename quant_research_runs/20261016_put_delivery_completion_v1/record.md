@@ -24,3 +24,11 @@
 426项保护对象中422项未变；4项为授权整体恢复后更换的运行账本分支文件，原字节均在备份中。冻结规范、SHA-256及首次正式研究输出未改写。
 
 详见 `final_delivery_receipt.json`、`formal_verification/`、`handoff-38856549173/verification.json`、`handoff-38856968370/verification.json`。最终本地日报为 `local_daily_final/local_research_daily.md`；最终前日收盘复核稿在 `local_close_final_current/`。此前失败run与旧模板产物仅保留审计历史，不能当作最终验收。
+
+## 接手复核补记（2026-10-16）
+
+独立核对远端现行workflow固定策略、上述三次run全部job成功、420个策略及14个消费者文件SHA匹配、894项回归XML零失败/错误/跳过，以及本地18份账本JSON与两份最终handoff逐字节一致。旧来源快照不一致阻塞已有成功后继run；原对话界面停顿的内部原因无法由这些证据确定。
+
+实际automation.toml已由后续用户操作更新，当前SHA-256为eb9e0060670d4a2e6309655a1bfdcfc944b3c63d035056b0563e30047b73e031，与来源任务实际回执一致；包含本闭环文档及最新对抗测试，ACTIVE、工作日14:15保持。上文未写入及原final_delivery_receipt.json的false为前阶段状态，当前以本补记及来源任务local_task_actual_verification.json为准。无需重复运行旧哈希应用脚本。
+
+未重部署、未续账、未发信。待实际发生后验收本地14:15执行、云端20:00邮件及INBOX投递。详见发布文档“接手复核补记”；修改前原文已备份。

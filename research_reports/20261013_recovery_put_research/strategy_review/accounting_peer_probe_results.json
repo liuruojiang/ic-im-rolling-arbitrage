@@ -1,0 +1,125 @@
+{
+  "scope": "synthetic invariants on actual controller and Account; not historical returns or complete replay",
+  "hashes": {
+    "recovery_account.py": "0de72ba6be1fb840643d0c5f9aace0e4602156c9f83349798e17481cb2cb4e1b",
+    "recovery_cycle_controller.py": "7e582f6760614b4cfc1691db47633cb443dbd626833dfec115f2889ced222f76",
+    "preregistered_spec.txt": "2cad383b63052a5036b141ab0f0fce46a0be910198bd12dba07ca85c8e38d1ca"
+  },
+  "probes": [
+    {
+      "name": "check_b_ic_assignment",
+      "status": "PASS",
+      "evidence": {
+        "signal_date": "2025-01-22",
+        "execution_date": "2025-01-23",
+        "route_after_execution": "assigned_etf",
+        "contract": "510500P2504M04750",
+        "quantity_normalized": 1.0,
+        "core_target_base_quantity": 1.0,
+        "target_absolute_delta": 0.125,
+        "refresh": true,
+        "selection_reason": "first_entry_or_zero_to_positive",
+        "selection_rule": "IC 95% ETF / IM 102% confirmed quarterly future; T+3 nearest listed maturity",
+        "three_x_enabled": false
+      }
+    },
+    {
+      "name": "check_fresh_identity",
+      "status": "PASS",
+      "evidence": {
+        "signal_date": "2025-01-22",
+        "execution_date": "2025-01-23",
+        "route_after_execution": "recovery_future",
+        "contract": "510500P2504M04750",
+        "quantity_normalized": 1.0,
+        "core_target_base_quantity": 1.0,
+        "target_absolute_delta": 0.125,
+        "refresh": true,
+        "selection_reason": "first_entry_or_zero_to_positive",
+        "selection_rule": "IC 95% ETF / IM 102% confirmed quarterly future; T+3 nearest listed maturity",
+        "three_x_enabled": false
+      }
+    },
+    {
+      "name": "check_single_monthly_event",
+      "status": "PASS",
+      "evidence": {
+        "fresh_selection_dates": [
+          "2025-01-15",
+          "2025-01-17"
+        ]
+      }
+    },
+    {
+      "name": "check_im_current_102_and_t_only",
+      "status": "PASS",
+      "evidence": {
+        "plan": {
+          "signal_date": "2025-01-20",
+          "execution_date": "2025-01-21",
+          "route_after_execution": "recovery_future",
+          "contract": "MO2504-P-5100",
+          "quantity_normalized": 1.5,
+          "core_target_base_quantity": 0.0,
+          "target_absolute_delta": null,
+          "refresh": true,
+          "selection_reason": "first_entry_or_zero_to_positive",
+          "selection_rule": "IC 95% ETF / IM 102% confirmed quarterly future; T+3 nearest listed maturity",
+          "three_x_enabled": false
+        },
+        "market_accesses": [
+          [
+            "quote",
+            "2025-01-20",
+            "IM2503",
+            "future"
+          ],
+          [
+            "chain",
+            "2025-01-20"
+          ]
+        ]
+      }
+    },
+    {
+      "name": "check_premium_asset_bookkeeping",
+      "status": "PASS",
+      "evidence": {
+        "final_net_pnl": 190.0,
+        "fees": 10,
+        "final_cash": 1000190.0
+      }
+    },
+    {
+      "name": "check_ic_assignment_no_duplicate_loss",
+      "status": "PASS",
+      "evidence": {
+        "final_net_pnl": -30005.0,
+        "by_sleeve": {
+          "seller": -20005.0,
+          "assigned_etf": -10000.0,
+          "recovery_core": 0.0,
+          "recovery_put": 0.0
+        }
+      }
+    },
+    {
+      "name": "check_excluded_sleeves_and_cashwait",
+      "status": "PASS",
+      "evidence": {
+        "cycle_pnl": -100,
+        "account_equity": 1020090.0
+      }
+    },
+    {
+      "name": "check_exit_fee_gate_public_close",
+      "status": "PASS",
+      "evidence": {
+        "action": "EXIT_RECOVERY_AT_BREAKEVEN",
+        "decision_net_pnl": 1.0,
+        "estimated_exit_protection_fee": 500.0
+      }
+    }
+  ],
+  "status": "PASS"
+}

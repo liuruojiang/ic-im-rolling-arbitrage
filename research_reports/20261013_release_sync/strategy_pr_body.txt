@@ -1,0 +1,5 @@
+Fix five confirmed runtime defects in quote freshness and independent Put execution, including persistent core entry cost and IC split-contract summaries. The new quote guard module and three behavior regression files are tracked together.
+
+Validation: the full cumulative 33-file isolated suite passes 609 tests with zero failures/errors/skips; saved real OHLCV momentum parity and three fix11 ledger continuations match the pre-repair source. Formal fix11 parameters, schema, and frozen historical outputs are unchanged. Recovery-insurance experiments remain research-only.
+
+Daily-delivery documentation now identifies execution commit 427cf45fd78710583c8028f7eca1ed88968036ee and the exact test/dependency manifest; local scheduler and cloud production pin/delivery acceptance are synchronized separately.

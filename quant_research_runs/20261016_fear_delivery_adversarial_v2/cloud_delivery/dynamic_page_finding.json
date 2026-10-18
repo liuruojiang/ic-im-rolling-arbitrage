@@ -1,0 +1,15 @@
+{
+  "id": "CLOUD-P1-003",
+  "severity": "P1",
+  "description": "Cross-product equality on raw dynamic HTML hashes rejects semantically identical Fear observations.",
+  "baseline": "Immutable db84 consumer: identical parsed date/value/update but different script nonce/raw SHA is rejected; differing update clocks were not compared.",
+  "baseline_result": "2 failed, 1 passed against original db84 implementation",
+  "repair_result": "3 passed against parent-repaired mirror",
+  "cases": [
+    "Two actual synthetic raw HTML byte strings differ only by script nonce, production parser gives equal semantic tuples, raw SHA differs: accepted",
+    "Each product has internally valid page/value evidence but selected Fear values differ: rejected",
+    "Page publication clocks differ while date/value equal: rejected"
+  ],
+  "evidence": ["test_dynamic_fear_page_snapshot.py", "dynamic_page_db84_baseline.xml", "dynamic_page_final.xml", "dynamic_page_final.txt"],
+  "boundary": "These tests cover cloud consumer semantics. Parent must independently verify per-report snapshot reuse and the new remote readiness run. Raw hashes remain per-observation audit evidence. No production code was modified by this auditor."
+}

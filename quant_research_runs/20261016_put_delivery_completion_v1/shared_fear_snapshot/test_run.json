@@ -1,0 +1,9 @@
+{
+  "exit_code": 0,
+  "files": [
+    "quant_research_runs/20261016_put_delivery_completion_v1/formal_runtime/test_ic_im_fear_source_delivery_20261016.py",
+    "quant_research_runs/20261016_put_delivery_completion_v1/formal_runtime/test_ic_im_option_maintenance_notice_20261016.py"
+  ],
+  "state_dir": "C:\\Users\\ADMINI~1.DES\\AppData\\Local\\Temp\\icim_put_8d5cd5bc\\state",
+  "test_only_windows_mkdir_mode_adjustment": true
+}

@@ -1,0 +1,11 @@
+{
+  "quant_research_runs\\20261016_jiu_fear_grid_threshold_v1\\inputs\\jiu_fear_greed.csv": "f511173a66478654a3ef4ffdd3185b5ae71928a58e5afeb84ea92b0c622d154b",
+  "quant_research_runs\\20260928_csi1000_fear_greed_reproduction\\inputs\\fear_greed_full.csv": "1b209c9166250ef4d320503386a94d6e3b868595d38fd687a03d7acea7cb7de9",
+  "quant_research_runs\\20261016_jiu_fear_grid_threshold_v1\\inputs\\source_manifest.json": "059c27e5d8d89f1c2c3dd4387ffd637e5bcbe545bdc6ef13bef938be568dc5e3",
+  "ic_im_fear_grid_v1.py": "37bdb446f0315358da7b97890c8604b996869ba6bf3b830f98117cee4b773713",
+  "runtime\\ic_im_v1_4_r1\\journal\\000010-2026-10-08.json": "5210a2e8c04c23577a1baa444effa41f072f34d48d19bc28e751ae62064e614d",
+  "runtime\\ic_im_v1_4_r1\\journal\\000011-2026-10-09.json": "e7368caec1bd52580ae618afb703ed858b8ade4b280af5daac134448339aaaae",
+  "runtime\\ic_im_v1_4_r1\\journal\\000012-2026-10-12.json": "2a5193bef219094cf57b6b52fa7778b3fb19526a0bf938ab5e3c97a545b89da3",
+  "runtime\\ic_im_v1_4_r1\\journal\\000013-2026-10-13.json": "b18946ed62f202eaf74efdf5b558b679291bce6cffc8f97a6b0fcea7fa4ceca1",
+  "runtime\\ic_im_v1_4_r1\\journal\\000014-2026-10-14.json": "38f06166652dbe8a14836f041d0ca6fe2b1a918e9d7a528ffa39e99d3af96e03"
+}

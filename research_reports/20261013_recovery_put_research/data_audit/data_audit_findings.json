@@ -1,0 +1,35 @@
+{
+  "status": "READY_FOR_FROZEN_DATA_RESEARCH_WITH_STATED_LIMITS",
+  "most_material_fact": "Both saved IC/IM actual recovery windows have ordinary core Put target quantity zero. Removing only the recovery route prohibition cannot test positive protection in this sample.",
+  "execution_boundary": [
+    "IC is assigned at expiry close on 2025-01-22, although saved daily route still says short_put. It holds ETF through 01-23 close and converts at 01-24 open. A T=01-22 post-settlement decision can first protect at 01-23 open; a decision delayed until assigned_etf appears at 01-23 close first fills at conversion open 01-24 and misses the ETF holding day.",
+    "IM cash settlement occurs 2025-01-17; cash_wait route is 01-20 and has no fixed-core long asset. Recovery future begins 01-21 open; a 01-20 close decision can protect from that same entry open. Waiting until 01-21 close first buys on 01-22 when the special recovery state has already ended.",
+    "The short special state does not mean the long future is liquidated on exit. The position can continue in ordinary future; candidate hedge closure/continuation and full-cycle PnL effects need explicit research rules.",
+    "native_account.Market.buyer_open_quote first uses exact T+1 raw open, then T-close sticky-IV/T+1 underlying-open proxy. Market.quote can use prior close for missing open marks when prior_day is provided. Keep raw-open and proxy counts separate.",
+    "Ordinary buyer adjustments and 3x resets use T+1 open; scheduled monthly maintenance is same-day settlement close; quarterly roll uses signal close. Do not apply a universal open clock to all event classes."
+  ],
+  "selection": {
+    "IC": "nearest listed expiry to T+3 calendar months, earlier expiry tie; 95% of ETF close strike nearest with contract-name tie; security_id and dated standard contract master join",
+    "IM": "nearest listed expiry to T+3 calendar months, later expiry tie; 102% of held IM quarterly reference under as-if-current policy; exact listed target may not jump strike/month when quote unavailable"
+  },
+  "costs": {
+    "future_one_way_rate_of_notional": 0.0001,
+    "option_one_way_rate_of_underlying_notional": 0.0005,
+    "IC_option_multiplier": 10000,
+    "MO_multiplier": 100,
+    "future_multiplier": 200,
+    "ETF_one_way_rate_of_trade_value": 0.0001,
+    "cash_annual_rate": 0.03,
+    "not_included_proof": "Observed spreads, market impact, actual broker fees, margin financing and guaranteed fill liquidity are not established by daily source data."
+  },
+  "loader": "Insert STUDY then NATIVE on sys.path, import DatedSources from native_fix4_historical_sources_v2; use source.ic_on(date), source.im_mo_on(date), source.futures_on(product,date), and native_account.Market(source,product). Do not call any producer main or reuse target_for_arm cached producer SHA assertion against changed production source.",
+  "full_replay_loader": "run_account.listed.load_account_inputs() additionally rebuilds IC fix9 seller lifecycle in memory. Do not replace it with the raw fix8 IC formal lifecycle. run_account.replay continues through the listed adapter and native account engine.",
+  "limitations": [
+    "IC dated membership is a later historical reconstruction, not exchange publication-time PIT certification.",
+    "Fear history is a later downloaded snapshot and retains prior PIT limitations.",
+    "Current MO parser substitutes official settlement estimate for zero-volume Put close; preserve raw_lastprice/pricing_basis in comparisons with the older frozen account.",
+    "Saved lifecycle recovery_pnl_reference uses spot-reference PnL and does not itself demonstrate cost-complete cycle breakeven. Adding protection without re-evaluating exit produces a frozen-route conditional study, not a newly validated full-cycle exit policy.",
+    "Actual recovery observations are only one short window per product; no long bear-market recovery evidence.",
+    "No future data was fetched or appended; account endpoints remain IC 2026-08-13, IM 2026-08-14."
+  ]
+}

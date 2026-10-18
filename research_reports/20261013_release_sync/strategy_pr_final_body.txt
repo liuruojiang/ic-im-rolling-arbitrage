@@ -1,0 +1,9 @@
+Fix five confirmed runtime defects in quote freshness and independent Put execution, including persistent core entry cost and IC split-contract summaries. The new quote guard module and three behavior regression files are tracked together.
+
+Validation: the full cumulative 33-file isolated suite passes 609 tests with zero failures/errors/skips; saved real OHLCV momentum parity and three fix11 ledger continuations match the pre-repair source. Formal fix11 parameters, schema, and frozen historical outputs are unchanged. Recovery-insurance experiments remain research-only.
+
+Daily-delivery documentation now identifies execution commit 427cf45fd78710583c8028f7eca1ed88968036ee and the exact test/dependency manifest; local scheduler and cloud production pin/delivery acceptance are synchronized separately.
+
+Completed delivery synchronization: local main43cbc5e36179425d99e2c9447f9745109215339b and cloud PR#145/main0f0fec83f549f2db942fa5633593af48dc90476a both use execution pin427cf45fd78710583c8028f7eca1ed88968036ee. The local official close producer continued its own valid chain to2026-10-13 seq13;14 prior history/migration JSON files remain unchanged. No cloud fork was adopted over it.
+
+Cloud no-send readiness38392179386 and normal delivery38392612084 passed. Independent Gmail readback confirmed the single2026-10-13 INBOX message and matched its contents and attachment to the same run. Three post-sync adversarial reviews found no new blocking issue.

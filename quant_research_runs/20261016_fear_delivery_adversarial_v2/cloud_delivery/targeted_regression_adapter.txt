@@ -1,0 +1,190 @@
+..........................FF.......................... [ 54%]
+.............................................                            [100%]
+================================== FAILURES ===================================
+____________ test_one_source_and_jiu_survive_mail_and_marker[csv] _____________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001CAE5233820>
+source = 'csv'
+
+    @pytest.mark.parametrize("source", ["csv", "page"])
+    def test_one_source_and_jiu_survive_mail_and_marker(monkeypatch, source):
+        data = payload(monkeypatch, source)
+        original = copy.deepcopy(data)
+>       subject, text, _ = digest.build_success(data, "", "")
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+quant_research_runs\20261016_fear_single_source_delivery_v1\cloud\tests\test_ic_im_v1_4_fear_sources.py:56: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+quant_research_runs\20261016_fear_single_source_delivery_v1\cloud\scripts\build_ic_im_v1_4_digest.py:1166: in build_success
+    validate_success_payload(payload)
+quant_research_runs\20261016_fear_single_source_delivery_v1\cloud\scripts\build_ic_im_v1_4_digest.py:1123: in validate_success_payload
+    validate_fear_clock(signal, days["market_date"], payload["publication_mode"])
+quant_research_runs\20261016_fear_single_source_delivery_v1\cloud\scripts\ic_im_v1_4_delivery_contract.py:60: in validate_fear_clock
+    validate_source_evidence(signal)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+signal = {'call_action': 'HOLD', 'call_current': '无', 'call_current_contract': None, 'call_target': '无（IC 1.3明确禁止Call）', ...}
+
+    def validate_source_evidence(signal: dict[str, Any], *, validation_clock: datetime | None = None) -> None:
+        """Independent consumer checks; missing page clocks are never fabricated."""
+        if not flexible_source(signal):
+            raise RuntimeError("恐贪取数修订身份无效")
+        day = date.fromisoformat(str(signal.get("market_date"))[:10])
+        stamps = {}
+        for key in ("fear_fetch_started_at", "fear_retrieved_at", "fear_page_updated_at", "signal_generated_at"):
+            value = signal.get(key)
+            if value is None and key in {"fear_page_updated_at", "signal_generated_at"}:
+                continue
+            stamp = datetime.fromisoformat(str(value))
+            if stamp.tzinfo is None:
+                raise RuntimeError("恐贪证据时间必须含时区")
+            stamps[key] = stamp.astimezone(BEIJING)
+        retrieved = stamps["fear_retrieved_at"]
+        checked = validation_clock or _validation_clock()
+        if (retrieved.date() < SOURCE_POLICY_DATE or day > retrieved.date()
+                or not stamps["fear_fetch_started_at"] <= retrieved <= checked.astimezone(BEIJING)
+                or stamps.get("fear_page_updated_at", retrieved) > retrieved):
+            raise RuntimeError("恐贪取数时间证据非法")
+        generated = stamps.get("signal_generated_at")
+        if generated is not None and not retrieved <= generated <= checked.astimezone(BEIJING):
+            raise RuntimeError("恐贪生成时间不在采集与校验之间")
+        if (retrieved.date() > day or (generated is not None and generated.date() > day)) and (generated is None or signal.get("signal_generation_timing") != "retrospective_replay"):
+            raise RuntimeError("跨日补录必须标记真实生成时点与retrospective_replay")
+        if signal.get("close_confirmed") is False and (retrieved.date() != day or retrieved.time() >= time(15)):
+            raise RuntimeError("盘中采集窗口已结束")
+        available = signal.get("fear_available_sources")
+        if not isinstance(available, list) or len(set(available)) != len(available) or any(x not in {"csv", "page"} for x in available):
+            raise RuntimeError("恐贪来源清单无效")
+        selected = signal.get("fear_selected_source")
+        quality = signal.get("fear_cross_validation")
+        if len(available) == 2:
+            csv_day = date.fromisoformat(str(signal.get("fear_csv_latest_date")))
+            page_day = date.fromisoformat(str(signal.get("fear_page_data_date")))
+            csv_value, page_value = float(signal.get("fear_csv_latest_value")), float(signal.get("fear_page_value"))
+            if (not all(math.isfinite(v) and 0 <= v <= 100 for v in (csv_value, page_value))
+                    or max(csv_day, page_day) > retrieved.date()):
+                raise RuntimeError("双侧快照日期或读数非法")
+            agrees = csv_day == page_day and math.isclose(csv_value, page_value, abs_tol=.005, rel_tol=0)
+            if (quality == "matched") != agrees:
+                raise RuntimeError("双侧验证标识与实际快照不符")
+        expected = "unavailable" if not available else "single_source" if len(available) == 1 else None
+        if (expected is not None and quality != expected) or (expected is None and quality not in {"matched", "mismatch"}):
+            raise RuntimeError("恐贪双侧验证状态与来源数量不符")
+        for source in available:
+            digest = signal.get(f"fear_{source}_sha256")
+            if re.fullmatch(r"[0-9a-f]{64}", str(digest)) is None:
+                raise RuntimeError("恐贪可用来源缺少哈希")
+        if "page" in available and ("fear_page_updated_at" not in stamps or signal.get("fear_page_data_date") is None):
+            raise RuntimeError("网页来源缺少真实日期与更新时间")
+        if "page" not in available and (signal.get("fear_page_updated_at") is not None or signal.get("fear_page_data_date") is not None):
+            raise RuntimeError("不可虚构网页发布时间")
+        observations = signal.get("fear_csv_observations")
+        if "csv" in available:
+            if not isinstance(observations, dict):
+>               raise RuntimeError("CSV缺少信号日/上一交易日读数快照")
+E               RuntimeError: CSV缺少信号日/上一交易日读数快照
+
+quant_research_runs\20261016_fear_single_source_delivery_v1\cloud\scripts\ic_im_v1_4_delivery_contract.py:409: RuntimeError
+____________ test_one_source_and_jiu_survive_mail_and_marker[page] ____________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001CAE583EB10>
+source = 'page'
+
+    @pytest.mark.parametrize("source", ["csv", "page"])
+    def test_one_source_and_jiu_survive_mail_and_marker(monkeypatch, source):
+        data = payload(monkeypatch, source)
+        original = copy.deepcopy(data)
+>       subject, text, _ = digest.build_success(data, "", "")
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+quant_research_runs\20261016_fear_single_source_delivery_v1\cloud\tests\test_ic_im_v1_4_fear_sources.py:56: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+quant_research_runs\20261016_fear_single_source_delivery_v1\cloud\scripts\build_ic_im_v1_4_digest.py:1166: in build_success
+    validate_success_payload(payload)
+quant_research_runs\20261016_fear_single_source_delivery_v1\cloud\scripts\build_ic_im_v1_4_digest.py:1123: in validate_success_payload
+    validate_fear_clock(signal, days["market_date"], payload["publication_mode"])
+quant_research_runs\20261016_fear_single_source_delivery_v1\cloud\scripts\ic_im_v1_4_delivery_contract.py:60: in validate_fear_clock
+    validate_source_evidence(signal)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+signal = {'call_action': 'HOLD', 'call_current': '无', 'call_current_contract': None, 'call_target': '无（IC 1.3明确禁止Call）', ...}
+
+    def validate_source_evidence(signal: dict[str, Any], *, validation_clock: datetime | None = None) -> None:
+        """Independent consumer checks; missing page clocks are never fabricated."""
+        if not flexible_source(signal):
+            raise RuntimeError("恐贪取数修订身份无效")
+        day = date.fromisoformat(str(signal.get("market_date"))[:10])
+        stamps = {}
+        for key in ("fear_fetch_started_at", "fear_retrieved_at", "fear_page_updated_at", "signal_generated_at"):
+            value = signal.get(key)
+            if value is None and key in {"fear_page_updated_at", "signal_generated_at"}:
+                continue
+            stamp = datetime.fromisoformat(str(value))
+            if stamp.tzinfo is None:
+                raise RuntimeError("恐贪证据时间必须含时区")
+            stamps[key] = stamp.astimezone(BEIJING)
+        retrieved = stamps["fear_retrieved_at"]
+        checked = validation_clock or _validation_clock()
+        if (retrieved.date() < SOURCE_POLICY_DATE or day > retrieved.date()
+                or not stamps["fear_fetch_started_at"] <= retrieved <= checked.astimezone(BEIJING)
+                or stamps.get("fear_page_updated_at", retrieved) > retrieved):
+            raise RuntimeError("恐贪取数时间证据非法")
+        generated = stamps.get("signal_generated_at")
+        if generated is not None and not retrieved <= generated <= checked.astimezone(BEIJING):
+            raise RuntimeError("恐贪生成时间不在采集与校验之间")
+        if (retrieved.date() > day or (generated is not None and generated.date() > day)) and (generated is None or signal.get("signal_generation_timing") != "retrospective_replay"):
+            raise RuntimeError("跨日补录必须标记真实生成时点与retrospective_replay")
+        if signal.get("close_confirmed") is False and (retrieved.date() != day or retrieved.time() >= time(15)):
+            raise RuntimeError("盘中采集窗口已结束")
+        available = signal.get("fear_available_sources")
+        if not isinstance(available, list) or len(set(available)) != len(available) or any(x not in {"csv", "page"} for x in available):
+            raise RuntimeError("恐贪来源清单无效")
+        selected = signal.get("fear_selected_source")
+        quality = signal.get("fear_cross_validation")
+        if len(available) == 2:
+            csv_day = date.fromisoformat(str(signal.get("fear_csv_latest_date")))
+            page_day = date.fromisoformat(str(signal.get("fear_page_data_date")))
+            csv_value, page_value = float(signal.get("fear_csv_latest_value")), float(signal.get("fear_page_value"))
+            if (not all(math.isfinite(v) and 0 <= v <= 100 for v in (csv_value, page_value))
+                    or max(csv_day, page_day) > retrieved.date()):
+                raise RuntimeError("双侧快照日期或读数非法")
+            agrees = csv_day == page_day and math.isclose(csv_value, page_value, abs_tol=.005, rel_tol=0)
+            if (quality == "matched") != agrees:
+                raise RuntimeError("双侧验证标识与实际快照不符")
+        expected = "unavailable" if not available else "single_source" if len(available) == 1 else None
+        if (expected is not None and quality != expected) or (expected is None and quality not in {"matched", "mismatch"}):
+            raise RuntimeError("恐贪双侧验证状态与来源数量不符")
+        for source in available:
+            digest = signal.get(f"fear_{source}_sha256")
+            if re.fullmatch(r"[0-9a-f]{64}", str(digest)) is None:
+                raise RuntimeError("恐贪可用来源缺少哈希")
+        if "page" in available and ("fear_page_updated_at" not in stamps or signal.get("fear_page_data_date") is None):
+            raise RuntimeError("网页来源缺少真实日期与更新时间")
+        if "page" not in available and (signal.get("fear_page_updated_at") is not None or signal.get("fear_page_data_date") is not None):
+            raise RuntimeError("不可虚构网页发布时间")
+        observations = signal.get("fear_csv_observations")
+        if "csv" in available:
+            if not isinstance(observations, dict):
+                raise RuntimeError("CSV缺少信号日/上一交易日读数快照")
+            csv_day = date.fromisoformat(str(signal.get("fear_csv_latest_date")))
+            csv_value = signal.get("fear_csv_latest_value")
+            if (isinstance(csv_value, bool) or not math.isfinite(float(csv_value))
+                    or not 0 <= float(csv_value) <= 100 or csv_day > retrieved.date()):
+                raise RuntimeError("CSV最新快照非法")
+            for observed_day, observed_value in observations.items():
+                if (date.fromisoformat(observed_day) > csv_day or isinstance(observed_value, bool)
+                        or not math.isfinite(float(observed_value)) or not 0 <= float(observed_value) <= 100):
+                    raise RuntimeError("CSV读数快照非法")
+            if csv_day.isoformat() in observations and not math.isclose(float(observations[csv_day.isoformat()]), float(csv_value), abs_tol=.005, rel_tol=0):
+                raise RuntimeError("CSV最新读数与快照冲突")
+        if "page" in available:
+            page_value = signal.get("fear_page_value")
+>           if isinstance(page_value, bool) or not math.isfinite(float(page_value)) or not 0 <= float(page_value) <= 100:
+                                                                 ^^^^^^^^^^^^^^^^^
+E           TypeError: float() argument must be a string or a real number, not 'NoneType'
+
+quant_research_runs\20261016_fear_single_source_delivery_v1\cloud\scripts\ic_im_v1_4_delivery_contract.py:423: TypeError
+=========================== short test summary info ===========================
+FAILED quant_research_runs/20261016_fear_single_source_delivery_v1/cloud/tests/test_ic_im_v1_4_fear_sources.py::test_one_source_and_jiu_survive_mail_and_marker[csv]
+FAILED quant_research_runs/20261016_fear_single_source_delivery_v1/cloud/tests/test_ic_im_v1_4_fear_sources.py::test_one_source_and_jiu_survive_mail_and_marker[page]
+2 failed, 97 passed, 18 subtests passed in 7.34s

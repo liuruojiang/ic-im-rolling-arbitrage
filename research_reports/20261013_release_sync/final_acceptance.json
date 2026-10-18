@@ -1,0 +1,78 @@
+{
+  "status": "COMPLETE_VERIFIED",
+  "sealed_at": "2026-10-13T20:06:14.273869+08:00",
+  "refs": {
+    "strategy": {
+      "repository": "liuruojiang/ic-im-rolling-arbitrage",
+      "main": "43cbc5e36179425d99e2c9447f9745109215339b"
+    },
+    "cloud": {
+      "repository": "liuruojiang/codex-daily-automation-probe",
+      "main": "0f0fec83f549f2db942fa5633593af48dc90476a"
+    }
+  },
+  "execution_pin": "427cf45fd78710583c8028f7eca1ed88968036ee",
+  "strategy_pr": 46,
+  "cloud_pr": 145,
+  "program_build": "v1.4-20261008-r1-ic-csi500-abs40-fix11",
+  "local_automation": "ACTIVE; original schedule/model/project/settings preserved; complete 33-file suite",
+  "local_official_close": {
+    "day": "2026-10-13",
+    "sequence": 13,
+    "digest": "d411a56706591228280f4b7d5244d59c9e9be4af276adad8371f539c92a54086",
+    "history_json_preserved": 14,
+    "canonical_json_preserved_after_close": 16
+  },
+  "cloud_normal_close": {
+    "run": 38392612084,
+    "day": "2026-10-13",
+    "next_trade_day": "2026-10-14",
+    "sequence": 13,
+    "digest": "4878c7b2bfdea824330aa43031e3675ee0fefbecd8790bb2cdbb811cf57685d7",
+    "smtp_step_success": true,
+    "standalone_smtp_receipt_file": false
+  },
+  "readiness_run": 38392179386,
+  "remote_full_ci_runs": [
+    38391946774,
+    38392172404
+  ],
+  "ci_tests": {
+    "local_cumulative": 609,
+    "cloud_full_automation": 893,
+    "cloud_icim_strategy": 667,
+    "cloud_shared_microcap": 527,
+    "same_send_automation_icim": 324
+  },
+  "all_acceptance_suites_zero_failure_error_skip": true,
+  "post_sync_review_sha256": {
+    "post_sync_policy_audit.json": "72aac855eb47769a02523fb1243a1f20a73e771fa5f0312e42bc0c8bd7278747",
+    "post_sync_market_delivery_audit.json": "9346ee0a4f9ae41dd93b555e3750f608262036c765dec9b1e1b693c0390de81c",
+    "post_sync_local_inbox_audit.json": "f35ddd9aa5c5175dca0d7ffe7de6627b92606bdfca16928721e5eb426f5cc033"
+  },
+  "inbox": {
+    "message_id": "1a13518aea7ab3f0",
+    "received_at": "2026-10-13T19:49:31+08:00",
+    "observed_at": "2026-10-13T19:55:27+08:00",
+    "exact_day_message_count": 1,
+    "labels": [
+      "UNREAD",
+      "SENT",
+      "INBOX"
+    ],
+    "same_run_bound": true,
+    "attachment_bytes": 28280,
+    "attachment_sha256": "197ea40209286d03a84aa54554d0b6bb26434674ff59a5bbadd6cecdaa219cac"
+  },
+  "dedupe": {
+    "actual_complete_artifact_inventory_pages": 15,
+    "actual_artifact_count": 1467,
+    "should_send": false,
+    "normal_send_repeated": false,
+    "actual_followup_run": 38394236932,
+    "actual_followup_created_at": "2026-10-13T12:01:01Z",
+    "actual_followup_smtp_skipped": true
+  },
+  "trade_execution": false,
+  "recovery_insurance_research_promoted": false
+}

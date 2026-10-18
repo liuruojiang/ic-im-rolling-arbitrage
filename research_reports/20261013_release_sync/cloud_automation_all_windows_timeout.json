@@ -1,0 +1,7 @@
+{
+  "status": "TIMEOUT",
+  "scope": "broader all-family Windows exploratory run, beyond production icim selection",
+  "timeout_seconds": 60,
+  "log": "cloud_automation_premerge.log",
+  "error": "subprocess.TimeoutExpired; no test failure observed before termination; full all-family remote CI remains required"
+}

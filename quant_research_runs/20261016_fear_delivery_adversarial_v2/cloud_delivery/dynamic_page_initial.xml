@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="3" time="0.417" timestamp="2026-10-16T13:32:20.078792+08:00" hostname="DESKTOP-95I7VVU"><testcase classname="quant_research_runs.20261016_fear_delivery_adversarial_v2.cloud_delivery.test_dynamic_fear_page_snapshot" name="test_dynamic_page_only_raw_hash_may_differ" time="0.003" /><testcase classname="quant_research_runs.20261016_fear_delivery_adversarial_v2.cloud_delivery.test_dynamic_fear_page_snapshot" name="test_different_selected_fear_readings_must_be_rejected" time="0.001" /><testcase classname="quant_research_runs.20261016_fear_delivery_adversarial_v2.cloud_delivery.test_dynamic_fear_page_snapshot" name="test_different_page_publication_clocks_must_be_rejected" time="0.001"><failure message="Failed: DID NOT RAISE &lt;class 'ValueError'&gt;">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000001E42D422570&gt;
+
+    def test_different_page_publication_clocks_must_be_rejected(monkeypatch):
+        payload=sourcefixture.payload(monkeypatch,source='page')
+        payload['signals']['IM']['fear_page_updated_at']='2026-10-09T15:04:00+08:00'
+&gt;       with pytest.raises(ValueError,match='Fear source snapshots disagree'):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'ValueError'&gt;
+
+quant_research_runs\20261016_fear_delivery_adversarial_v2\cloud_delivery\test_dynamic_fear_page_snapshot.py:36: Failed</failure></testcase></testsuite></testsuites>

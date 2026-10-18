@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="3" time="0.448" timestamp="2026-10-16T13:32:43.216979+08:00" hostname="DESKTOP-95I7VVU"><testcase classname="quant_research_runs.20261016_fear_delivery_adversarial_v2.cloud_delivery.test_dynamic_fear_page_snapshot" name="test_dynamic_page_only_raw_hash_may_differ" time="0.002"><failure message="ValueError: IC/IM Fear source snapshots disagree">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x0000025DB39CD940&gt;
+
+    def test_dynamic_page_only_raw_hash_may_differ(monkeypatch):
+        payload=sourcefixture.payload(monkeypatch,source='page')
+        # Two valid archived raw HTML documents can include different nonce/telemetry data.
+        payload['signals']['IC']['fear_page_sha256']='c'*64
+        payload['signals']['IM']['fear_page_sha256']='d'*64
+        before=copy.deepcopy(payload)
+&gt;       digest.validate_success_payload(payload)
+
+quant_research_runs\20261016_fear_delivery_adversarial_v2\cloud_delivery\test_dynamic_fear_page_snapshot.py:25: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+payload = {'advanced_sessions': 1, 'attachments': [], 'build': 'v1.4-20261008-r1-ic-csi500-abs40-fix11', 'completed_day': '2026-10-09', ...}
+
+    def validate_success_payload(payload: dict[str, Any]) -&gt; None:
+        import math
+        from check_ic_im_v1_4_delivery import expected_identity_for_day
+        from prepare_ic_im_v1_4_marker import marker_name
+    
+        expected_build, expected_delivery = expected_identity_for_day(date.fromisoformat(str(payload.get("market_date", ""))))
+        if str(payload.get("build", "")) != expected_build or str(payload.get("delivery_revision", "")) != expected_delivery:
+            raise ValueError("digest build/revision does not match signal-day identity")
+    
+        marker_name(payload)
+        if payload.get("status") == "partial":
+            import copy
+            payload = copy.deepcopy(payload)
+            for signal in payload["signals"].values():
+                if signal.get("grid_action") != "UNCONFIRMED":
+                    continue
+                if (not delivery_contract.flexible_source(signal) or signal.get("fear_greed_index") is not None
+                        or signal.get("grid_target") is not None or signal.get("total_units_target") is not None
+                        or signal.get("signal_completeness") != "partial"
+                        or signal.get("reference_grid_target") != signal.get("grid_current")):
+                    raise ValueError("partial Fear report must hide targets and preserve grid state")
+                for field in ("grid_target", "grid_action", "grid_entry_source_target", "grid_transition_reason", "total_units_target", "total_units_change"):
+                    signal[field] = signal.get("reference_" + field)
+        days = {}
+        for field in ("market_date", "completed_day", "verified_day", "next_trade_day"):
+            value = payload.get(field)
+            if not isinstance(value, str) or len(value) != 10:
+                raise ValueError(f"successful digest requires ISO {field}")
+            days[field] = date.fromisoformat(value)
+        if days["verified_day"] != days["completed_day"]:
+            raise ValueError("verified ledger day must equal completed day")
+        if payload["publication_mode"] == "close_confirmed":
+            if days["market_date"] != days["completed_day"]:
+                raise ValueError("close-confirmed market and ledger dates must match")
+        elif days["completed_day"] &gt;= days["market_date"]:
+            raise ValueError("realtime digest must retain prior completed ledger day")
+        if days["next_trade_day"] &lt;= days["market_date"]:
+            raise ValueError("next trade day must follow market day")
+        strict_identity = days["market_date"] &gt;= STRICT_SIGNAL_IDENTITY_DATE
+        if strict_identity:
+            from ic_im_v1_4_delivery_contract import validate_session_dates
+            validate_session_dates(days, payload["publication_mode"])
+        expected_rule = expected_rule_revision_for_day(days["market_date"])
+        if strict_identity and payload.get("signal_build") != expected_build:
+            raise ValueError("signal build must match the authoritative signal-day identity")
+        if strict_identity and payload.get("signal_rule_revision") != expected_rule:
+            raise ValueError("signal rule must match the authoritative signal-day identity")
+        signals = payload.get("signals")
+        if not isinstance(signals, dict) or set(signals) != {"IC", "IM"}:
+            raise ValueError("result must contain IC and IM signals")
+        from ic_im_v1_4_delivery_contract import validate_report_clock
+        validate_report_clock(payload, days["market_date"])
+        if days["market_date"] &gt;= date(2026, 10, 8):
+            if payload.get("grid_policy_revision") != "ic_im_or_fear25_paired_exit50_20261008_v1":
+                raise ValueError("fix10 grid policy identity mismatch")
+            shared = ("fear_greed_index", "fear_data_date", "fear_data_status", "fear_csv_sha256",
+                      "fear_intraday_policy_revision", "fear_close_policy_revision", "fear_fallback_applied",
+                      "fear_previous_exchange_date", "fear_fallback_reason", "fear_fallback_timing",
+                      "fear_source_policy_revision", "fear_available_sources", "fear_selected_source",
+                      "fear_cross_validation", "fear_page_sha256")
+            if any(signals["IC"].get(field) != signals["IM"].get(field) for field in shared):
+&gt;               raise ValueError("IC/IM Fear source snapshots disagree")
+E               ValueError: IC/IM Fear source snapshots disagree
+
+quant_research_runs\20261016_fear_delivery_adversarial_v2\cloud_delivery\original_db84_build_digest.py:1069: ValueError</failure></testcase><testcase classname="quant_research_runs.20261016_fear_delivery_adversarial_v2.cloud_delivery.test_dynamic_fear_page_snapshot" name="test_different_selected_fear_readings_must_be_rejected" time="0.001" /><testcase classname="quant_research_runs.20261016_fear_delivery_adversarial_v2.cloud_delivery.test_dynamic_fear_page_snapshot" name="test_different_page_publication_clocks_must_be_rejected" time="0.001"><failure message="Failed: DID NOT RAISE &lt;class 'ValueError'&gt;">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x0000025DB3775A30&gt;
+
+    def test_different_page_publication_clocks_must_be_rejected(monkeypatch):
+        payload=sourcefixture.payload(monkeypatch,source='page')
+        payload['signals']['IM']['fear_page_updated_at']='2026-10-09T15:04:00+08:00'
+&gt;       with pytest.raises(ValueError,match='Fear source snapshots disagree'):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'ValueError'&gt;
+
+quant_research_runs\20261016_fear_delivery_adversarial_v2\cloud_delivery\test_dynamic_fear_page_snapshot.py:40: Failed</failure></testcase></testsuite></testsuites>

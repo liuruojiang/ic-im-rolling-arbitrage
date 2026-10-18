@@ -1,0 +1,49 @@
+IC/IM 最新脚本远端同步与日报发送验收 — 2026-10-13
+
+结果：已完成策略远端、本地日报和远端日报同步；发布后三路多智能体对抗验收通过。今天正常日报已进入Gmail INBOX，精确主题检索仅1封，正文/HTML及附件与同次发送工件匹配，正式去重门禁已返回should_send=false。
+
+执行代码：427cf45fd78710583c8028f7eca1ed88968036ee。
+策略PR #46已合并，main=43cbc5e36179425d99e2c9447f9745109215339b。
+https://github.com/liuruojiang/ic-im-rolling-arbitrage/pull/46
+云端PR #145已合并，main=0f0fec83f549f2db942fa5633593af48dc90476a。
+https://github.com/liuruojiang/codex-daily-automation-probe/pull/145
+上述main已在封存前从GitHub API重新读回；本地执行文件逐份SHA-256匹配已修复版本，跟踪文件无未提交改动。
+
+此次发布包含五处已确认修复：收盘报价时点门禁；非普通核心路线的独立动量Put T+1计划；核心入场成本/3x资格跨新计划及重启保存；3x核心与动量计划按腿独立执行；IC核心与动量Put合约/数量分开显示。新增ic_im_quote_snapshot_guard.py随完整checkout分发。
+云端独立邮件排版器同步分腿身份，并修复旧普通计划门禁误拒绝合法非future及3x执行后动量计划的问题；伪造合约、数量、证券代码或开盘凭据仍拒绝。七份完整真实迁移/换仓/日历数据作为1,834,809字节离线fixture提供，哈希核验后只安装进隔离测试checkout，没有裁剪测试或把缺数据改成跳过。
+
+本地：ic-im任务ACTIVE，工作日14:15、原模型/项目/目录及其余设置保留；原提示词完整保留，新增最高优先级修复版本及33文件清单。正式close producer已按真实行情正常续接10/13至seq13，digest=d411a56706591228280f4b7d5244d59c9e9be4af276adad8371f539c92a54086；14份原历史/迁移JSON逐字节未变。本地当前16份JSON在全部后续测试和远端发送期间保持不变。没有采用云端合法分叉覆盖本地。
+本地收盘报告：local_close/ic_im_v1_4_close_signal.md；真实结果：local_close/result.json。
+
+远端：生产、无发送readiness和CI解析同一不可变策略pin。原20:00正常调度及并发/去重规则保留；本次用户授权的实际验收通过正常工作流触发当日唯一邮件，correction=false，未从本地另起SMTP或绕过去重。
+完整CI：893自动化、667 IC/IM策略、527共享微盘策略，零失败/错误/跳过；PR CI38391946774及合并main CI38392172404均成功。共享微盘检查仅为既有CI，不改其策略或配置。
+https://github.com/liuruojiang/codex-daily-automation-probe/actions/runs/38391946774
+https://github.com/liuruojiang/codex-daily-automation-probe/actions/runs/38392172404
+本地33文件609项、云36文件667项均通过；正常发送同次324/667项均零失败/错误/跳过。最初更宽的Windows全族探索超过临时60秒上限，原日志保留；最终以正式Linux全量CI及实际发送同次门禁完成验收，没有把该探索称为通过。
+
+无发送预检38392179386：恢复官方云端10/12完整链，隔离续到10/13；真实报告/marker打包及TLS、SMTP认证、收发信封、RSET通过，message_sent=false，不上传正式发送intent/marker/ledger。
+https://github.com/liuruojiang/codex-daily-automation-probe/actions/runs/38392179386
+
+正常发送38392612084：cloud main0f0fec83，实际策略pin427cf45；status=ok、close_confirmed、10/13→10/14、seq13，digest=4878c7b2bfdea824330aa43031e3675ee0fefbecd8790bb2cdbb811cf57685d7。
+https://github.com/liuruojiang/codex-daily-automation-probe/actions/runs/38392612084
+发送前intent与实际metadata逐字节同SHA；SMTP步骤和完成marker成功，云端14条journal记录哈希链及迁移链接有效。此workflow没有独立SMTP receipt文件，不能声称有该文件；本次由SMTP成功步骤、durable intent/完成marker及Gmail回读共同验收实际投递。
+
+Gmail：主题“[收盘确认][无需调整] IC/IM 1.4-r1 日报 - 2026-10-13”；北京时间19:49:31收到；19:55:27精确当日检索完整结束仅1封，具INBOX/SENT标签。message_id=1a13518aea7ab3f0，正文运行链接精确绑定38392612084。纯文本/HTML仅规范SMTP换行及末尾换行后内容一致；附件ic_im_v1_4_close_signal.md为28,280字节，完整UTF-8内容逐字节同SHA-256=197ea40209286d03a84aa54554d0b6bb26434674ff59a5bbadd6cecdaa219cac。
+
+去重：19:57读取完整15页/1467件真实工件，以正式should_send_for_result对本次结果计算，should_send=false；匹配intent11811156135及完成marker11810546370均属正常run38392612084。没有额外dispatch测试重发，没有删除intent/marker。此证据说明当前完成标记会抑制同日再发，不冒称已观察到未来触发。
+
+发布后多智能体验收：
+1. policy/state：从精确已发布提交重新导出隔离源码，策略103项、云端130项及10子测试通过；核心/动量/3x缺价、重启、报价、分腿及真实换仓检查覆盖，28冻结规格未变。
+2. market/delivery：213项独立回归、8项传输故障反例通过；DATA接受后QUIT断连、部分拒收、可选receipt落盘失败均不自动二次SMTP；intent缺marker阻断重发，分页失败不放行不完整工件集；真实marker、发送内容和Gmail匹配通过。
+3. local/inbox：独立核本地任务、canonical及真实结果打包；独立读回唯一INBOX，与同次报告文本/HTML/附件匹配；本地与云端各自合法链保留。
+三份最终审计：post_sync_policy_audit.json、post_sync_market_delivery_audit.json、post_sync_local_inbox_audit.json。
+
+恢复点：原代码修复前副本.codex_backups/20261013_105427与20261013_110847保留；本次本地任务/日报文档、云renderer/门禁及正式续账前完整链副本在backups/。代码可按已有Git提交回退，账本不降级或回写。
+正式BUILD/RULE/DELIVERY仍为fix11，schema4/r1及策略参数保持；恢复期Put保险研究未晋级，没有下单或实际账户交易。验收仅覆盖本次代码与当次发送，未来行情和投递仍走原门禁。
+
+复现证据：final_acceptance.json、release_manifest.json、source_manifest及各*_command.json、JUnit/XML、原始日志、remote_ci_pr/、remote_readiness/、remote_normal/及三份独立审计；本目录均为本次发布证据，不覆盖上午修复或恢复保险研究的原输出。
+封存：2026-10-13T20:04:30.070987+08:00
+
+补充自然调度验收：北京时间20:01:01现有外部定时触发了同日第二次正常workflow，run38394236932（并非本次Agent新增dispatch）。当次同一main成功结束，Check delivery marker成功；正式producer、intent、SMTP及marker全部skipped，没有再次发信。这是对实际后续触发的去重验证，补充前述只读gate评估。
+https://github.com/liuruojiang/codex-daily-automation-probe/actions/runs/38394236932
+补充封存：2026-10-13T20:06:14.273869+08:00

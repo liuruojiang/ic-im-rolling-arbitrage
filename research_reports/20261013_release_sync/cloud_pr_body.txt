@@ -1,0 +1,5 @@
+The cloud daily report must consume the repaired ICIM runtime and preserve independent core/momentum Put identities. Pin strategy execution to 427cf45fd78710583c8028f7eca1ed88968036ee, fix the separate mail renderer, and align ordinary-plan packaging with legitimate non-future and 3x/momentum coexistence while retaining forged-identity rejection.
+
+Include all current mandatory strategy checks without alias double-counting. Seven byte-matched original quarter-roll inputs make the existing real-data audits executable in CI; fixture hashes are verified before installing into a disposable checkout.
+
+Validation: 36 cloud strategy files / 667 tests, zero failures/errors/skips; the actual ICIM automation selection passes 324 tests and 12 subtests, zero failures/errors/skips. The official local 2026-10-13 close result passes normal digest and marker packaging. No SMTP DATA was submitted by these checks; production/readiness/sent-mail/inbox acceptance is recorded separately after merge. Formal fix11 parameters, historical state, schedules, and Microcap configuration are unchanged.

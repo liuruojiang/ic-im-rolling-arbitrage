@@ -1,0 +1,1236 @@
+{
+  "artifact": "independent_final_results_review",
+  "created_at": "2026-10-13T16:36:23.257682+08:00",
+  "status": "ACCEPT_RESEARCH_RESULT_ARITHMETIC_AND_QUALIFIED_INTERPRETATION",
+  "unresolved_result_errors": [],
+  "production_promotion": "NOT_AUTHORIZED_AND_NOT_RECOMMENDED_FROM_THIS_EVIDENCE",
+  "scope": "独立读取并核算8份model保存结果、旧模型基准、源lifecycle；不重跑16臂、不改任何输入/回放输出。listed结论已在final_accounting_peer_review.json复核。",
+  "current_source_hashes": {
+    "engine_sha256": "0de72ba6be1fb840643d0c5f9aace0e4602156c9f83349798e17481cb2cb4e1b",
+    "controller_sha256": "7e582f6760614b4cfc1691db47633cb443dbd626833dfec115f2889ced222f76",
+    "preregistered_spec_sha256": "2cad383b63052a5036b141ab0f0fce46a0be910198bd12dba07ca85c8e38d1ca"
+  },
+  "baseline_source_hashes": {
+    "quant_research_runs\\20261003_mom120_core_only_annual\\model_latest_full_daily.csv.gz": "a27737a2d08ebf4f496aa0d2fde727e39c3b182d8a0a7db26b857964d51f878b",
+    "quant_research_runs\\20261003_mom120_core_only_annual\\model_latest_full_events.csv.gz": "01458c3892fc55264c39a5acc77ccfb74ac34cbccc5ed93dd5a8ad4bc54766c3",
+    "quant_research_runs\\20261003_mom120_core_only_annual\\latest_model_inputs\\native_fix4_seller_lifecycle_v4.csv.gz": "aa5c4fd384c56f19c937ea63ecbc7076694de5c8ea9fa5fb91d48c42d293918d"
+  },
+  "A0_independent_parity": {
+    "IC": {
+      "daily": {
+        "status": "PASS",
+        "rows": 1770,
+        "columns": [
+          "date",
+          "equity_close",
+          "cash_close",
+          "margin_reserved",
+          "option_value",
+          "etf_value",
+          "seller_buffer",
+          "call_buffer",
+          "fees_cumulative",
+          "seller_route",
+          "profit3x_resets_to_date",
+          "nav",
+          "return_net"
+        ],
+        "max_abs_errors": {
+          "equity_close": 0.0,
+          "cash_close": 0.0,
+          "margin_reserved": 0.0,
+          "option_value": 0.0,
+          "etf_value": 0.0,
+          "seller_buffer": 0.0,
+          "call_buffer": 0.0,
+          "fees_cumulative": 0.0,
+          "profit3x_resets_to_date": 0.0,
+          "nav": 0.0,
+          "return_net": 0.0
+        }
+      },
+      "events": {
+        "status": "PASS",
+        "rows": 12030,
+        "columns": [
+          "date",
+          "event",
+          "cash_change",
+          "equity_change",
+          "quantity_change",
+          "symbol",
+          "signal_date",
+          "order_id",
+          "phase",
+          "kind",
+          "price",
+          "fee",
+          "model_fill_only",
+          "price_basis",
+          "quarter_roll",
+          "underlying",
+          "shares_received"
+        ],
+        "max_abs_errors": {
+          "cash_change": 0.0,
+          "equity_change": 0.0,
+          "quantity_change": 0.0,
+          "price": 0.0,
+          "fee": 0.0,
+          "shares_received": 0.0
+        }
+      }
+    },
+    "IM": {
+      "daily": {
+        "status": "PASS",
+        "rows": 1770,
+        "columns": [
+          "date",
+          "equity_close",
+          "cash_close",
+          "margin_reserved",
+          "option_value",
+          "etf_value",
+          "seller_buffer",
+          "call_buffer",
+          "fees_cumulative",
+          "seller_route",
+          "profit3x_resets_to_date",
+          "nav",
+          "return_net"
+        ],
+        "max_abs_errors": {
+          "equity_close": 0.0,
+          "cash_close": 0.0,
+          "margin_reserved": 0.0,
+          "option_value": 0.0,
+          "etf_value": 0.0,
+          "seller_buffer": 0.0,
+          "call_buffer": 0.0,
+          "fees_cumulative": 0.0,
+          "profit3x_resets_to_date": 0.0,
+          "nav": 0.0,
+          "return_net": 0.0
+        }
+      },
+      "events": {
+        "status": "PASS",
+        "rows": 12775,
+        "columns": [
+          "date",
+          "event",
+          "cash_change",
+          "equity_change",
+          "quantity_change",
+          "symbol",
+          "signal_date",
+          "order_id",
+          "phase",
+          "kind",
+          "price",
+          "fee",
+          "model_fill_only",
+          "price_basis",
+          "quarter_roll"
+        ],
+        "max_abs_errors": {
+          "cash_change": 0.0,
+          "equity_change": 0.0,
+          "quantity_change": 0.0,
+          "price": 0.0,
+          "fee": 0.0
+        }
+      }
+    }
+  },
+  "metrics_recomputed": [
+    {
+      "product": "IC",
+      "arm": "A0",
+      "rows": 1770,
+      "cagr_252": 0.1293908114602882,
+      "final_nav": 2.3505416277939664,
+      "max_drawdown": -0.23972154756233355,
+      "worst_day": -0.0759732864626971,
+      "worst_5pct_mean": -0.029597105001914398,
+      "fees_cumulative": 5489367.779125007,
+      "min_free_cash": 14368365.024794895,
+      "saved_metrics_max_error": 1.4832579608992091e-13,
+      "tail_definition": "worst 89 of 1770 daily returns (ceil 5%)",
+      "worst_day_date": "2020-02-03",
+      "worst_day_csv_line": 1170,
+      "drawdown_peak_date": "2022-01-04",
+      "drawdown_trough_date": "2022-04-26",
+      "drawdown_trough_csv_line": 1713,
+      "route_counts": {
+        "future": 942,
+        "recovery_future": 744,
+        "short_put": 82,
+        "assigned_etf": 1
+      },
+      "route_missing_rows": 1
+    },
+    {
+      "product": "IC",
+      "arm": "A",
+      "rows": 1770,
+      "cagr_252": 0.13544399139709462,
+      "final_nav": 2.4404700621556477,
+      "max_drawdown": -0.22899727737248476,
+      "worst_day": -0.0758363408661402,
+      "worst_5pct_mean": -0.02651877641523401,
+      "fees_cumulative": 6909679.058821026,
+      "min_free_cash": 9485197.750810854,
+      "saved_metrics_max_error": 1.567634910770721e-13,
+      "tail_definition": "worst 89 of 1770 daily returns (ceil 5%)",
+      "worst_day_date": "2020-02-03",
+      "worst_day_csv_line": 1170,
+      "drawdown_peak_date": "2015-06-02",
+      "drawdown_trough_date": "2015-09-02",
+      "drawdown_trough_csv_line": 99,
+      "route_counts": {
+        "future": 1513,
+        "short_put": 252,
+        "recovery_future": 3,
+        "assigned_etf": 2
+      },
+      "route_missing_rows": 0
+    },
+    {
+      "product": "IC",
+      "arm": "B",
+      "rows": 1770,
+      "cagr_252": 0.13544399139709462,
+      "final_nav": 2.4404700621556477,
+      "max_drawdown": -0.22899727737248476,
+      "worst_day": -0.0758363408661402,
+      "worst_5pct_mean": -0.02651877641523401,
+      "fees_cumulative": 6909679.058821026,
+      "min_free_cash": 9485197.750810854,
+      "saved_metrics_max_error": 1.567634910770721e-13,
+      "tail_definition": "worst 89 of 1770 daily returns (ceil 5%)",
+      "worst_day_date": "2020-02-03",
+      "worst_day_csv_line": 1170,
+      "drawdown_peak_date": "2015-06-02",
+      "drawdown_trough_date": "2015-09-02",
+      "drawdown_trough_csv_line": 99,
+      "route_counts": {
+        "future": 1513,
+        "short_put": 252,
+        "recovery_future": 3,
+        "assigned_etf": 2
+      },
+      "route_missing_rows": 0
+    },
+    {
+      "product": "IC",
+      "arm": "C",
+      "rows": 1770,
+      "cagr_252": 0.13538492305737737,
+      "final_nav": 2.4395784680057204,
+      "max_drawdown": -0.22899727737248476,
+      "worst_day": -0.0758363408701171,
+      "worst_5pct_mean": -0.026518823915524403,
+      "fees_cumulative": 6945645.623824652,
+      "min_free_cash": 8949395.202428717,
+      "saved_metrics_max_error": 1.532107773982716e-13,
+      "tail_definition": "worst 89 of 1770 daily returns (ceil 5%)",
+      "worst_day_date": "2020-02-03",
+      "worst_day_csv_line": 1170,
+      "drawdown_peak_date": "2015-06-02",
+      "drawdown_trough_date": "2015-09-02",
+      "drawdown_trough_csv_line": 99,
+      "route_counts": {
+        "future": 1513,
+        "short_put": 252,
+        "recovery_future": 3,
+        "assigned_etf": 2
+      },
+      "route_missing_rows": 0
+    },
+    {
+      "product": "IM",
+      "arm": "A0",
+      "rows": 1770,
+      "cagr_252": 0.14944330947332296,
+      "final_nav": 2.659825082005753,
+      "max_drawdown": -0.21266604668877875,
+      "worst_day": -0.0833809284313579,
+      "worst_5pct_mean": -0.022208371761191375,
+      "fees_cumulative": 7530711.473198014,
+      "min_free_cash": 17357733.457494974,
+      "saved_metrics_max_error": 1.425526363618701e-13,
+      "tail_definition": "worst 89 of 1770 daily returns (ceil 5%)",
+      "worst_day_date": "2020-02-03",
+      "worst_day_csv_line": 1170,
+      "drawdown_peak_date": "2015-06-12",
+      "drawdown_trough_date": "2015-09-29",
+      "drawdown_trough_csv_line": 116,
+      "route_counts": {
+        "future": 1500,
+        "recovery_future": 167,
+        "short_put": 101,
+        "cash_wait": 1
+      },
+      "route_missing_rows": 1
+    },
+    {
+      "product": "IM",
+      "arm": "A",
+      "rows": 1770,
+      "cagr_252": 0.14881805922031432,
+      "final_nav": 2.6496794137029056,
+      "max_drawdown": -0.21266604668877875,
+      "worst_day": -0.0836669723588475,
+      "worst_5pct_mean": -0.022213400728696323,
+      "fees_cumulative": 7572400.503256015,
+      "min_free_cash": 17357733.457494974,
+      "saved_metrics_max_error": 9.313225746154785e-10,
+      "tail_definition": "worst 89 of 1770 daily returns (ceil 5%)",
+      "worst_day_date": "2020-02-03",
+      "worst_day_csv_line": 1170,
+      "drawdown_peak_date": "2015-06-12",
+      "drawdown_trough_date": "2015-09-29",
+      "drawdown_trough_csv_line": 116,
+      "route_counts": {
+        "future": 1522,
+        "recovery_future": 146,
+        "short_put": 101,
+        "cash_wait": 1
+      },
+      "route_missing_rows": 0
+    },
+    {
+      "product": "IM",
+      "arm": "B",
+      "rows": 1770,
+      "cagr_252": 0.15306108375864214,
+      "final_nav": 2.7191857626149765,
+      "max_drawdown": -0.21266604668877875,
+      "worst_day": -0.0851587593950359,
+      "worst_5pct_mean": -0.02289096708722686,
+      "fees_cumulative": 7912757.415909767,
+      "min_free_cash": 17357733.457494974,
+      "saved_metrics_max_error": 1.4344081478157023e-13,
+      "tail_definition": "worst 89 of 1770 daily returns (ceil 5%)",
+      "worst_day_date": "2020-02-03",
+      "worst_day_csv_line": 1170,
+      "drawdown_peak_date": "2015-06-12",
+      "drawdown_trough_date": "2015-09-29",
+      "drawdown_trough_csv_line": 116,
+      "route_counts": {
+        "future": 1512,
+        "recovery_future": 181,
+        "short_put": 76,
+        "cash_wait": 1
+      },
+      "route_missing_rows": 0
+    },
+    {
+      "product": "IM",
+      "arm": "C",
+      "rows": 1770,
+      "cagr_252": 0.14978861280709355,
+      "final_nav": 2.665442438526933,
+      "max_drawdown": -0.21266604668877875,
+      "worst_day": -0.0536028843771163,
+      "worst_5pct_mean": -0.02046641910236434,
+      "fees_cumulative": 8064278.513051514,
+      "min_free_cash": 17357733.457494974,
+      "saved_metrics_max_error": 9.313225746154785e-10,
+      "tail_definition": "worst 89 of 1770 daily returns (ceil 5%)",
+      "worst_day_date": "2015-07-27",
+      "worst_day_csv_line": 72,
+      "drawdown_peak_date": "2015-06-12",
+      "drawdown_trough_date": "2015-09-29",
+      "drawdown_trough_csv_line": 116,
+      "route_counts": {
+        "future": 1481,
+        "recovery_future": 200,
+        "short_put": 88,
+        "cash_wait": 1
+      },
+      "route_missing_rows": 0
+    }
+  ],
+  "model_insurance_clock_checks": [
+    {
+      "product": "IC",
+      "arm": "A",
+      "plan_count": 0,
+      "insurance_trade_count": 0,
+      "T_to_next_session_open": "PASS",
+      "new_sleeve_no_3x": "PASS",
+      "C_minimum_scale": "not_applicable",
+      "price_basis_counts": {}
+    },
+    {
+      "product": "IC",
+      "arm": "B",
+      "plan_count": 0,
+      "insurance_trade_count": 0,
+      "T_to_next_session_open": "PASS",
+      "new_sleeve_no_3x": "PASS",
+      "C_minimum_scale": "not_applicable",
+      "price_basis_counts": {}
+    },
+    {
+      "product": "IC",
+      "arm": "C",
+      "plan_count": 5,
+      "insurance_trade_count": 4,
+      "T_to_next_session_open": "PASS",
+      "new_sleeve_no_3x": "PASS",
+      "C_minimum_scale": "PASS",
+      "price_basis_counts": {
+        "T_plus_1_dated_open_market_maker": 4
+      }
+    },
+    {
+      "product": "IM",
+      "arm": "A",
+      "plan_count": 0,
+      "insurance_trade_count": 0,
+      "T_to_next_session_open": "PASS",
+      "new_sleeve_no_3x": "PASS",
+      "C_minimum_scale": "not_applicable",
+      "price_basis_counts": {}
+    },
+    {
+      "product": "IM",
+      "arm": "B",
+      "plan_count": 81,
+      "insurance_trade_count": 14,
+      "T_to_next_session_open": "PASS",
+      "new_sleeve_no_3x": "PASS",
+      "C_minimum_scale": "not_applicable",
+      "price_basis_counts": {
+        "T_plus_1_dated_open_market_maker": 14
+      }
+    },
+    {
+      "product": "IM",
+      "arm": "C",
+      "plan_count": 200,
+      "insurance_trade_count": 20,
+      "T_to_next_session_open": "PASS",
+      "new_sleeve_no_3x": "PASS",
+      "C_minimum_scale": "PASS",
+      "price_basis_counts": {
+        "T_plus_1_dated_open_market_maker": 20
+      }
+    }
+  ],
+  "recovery_cycles": [
+    {
+      "product": "IC",
+      "arm": "A",
+      "cycle_id": "IC-1-2019-02-26",
+      "start_execution_date": "2019-02-26",
+      "assigned_start": "2019-06-27",
+      "recovery_start": "2019-06-28",
+      "exit_signal_date": "2019-07-01",
+      "exit_execution_date": "2019-07-02",
+      "recovery_holding_rows": 2,
+      "closed": true,
+      "right_censored": false,
+      "recovery_min_net_pnl": -322232.082614569,
+      "recovery_min_date": "2019-06-28",
+      "cycle_final_net_pnl": 247012.90033285506,
+      "insurance_net_pnl": 0.0,
+      "insurance_fees": 0.0,
+      "negative_pnl_after_next_open": false,
+      "recovery_min_net_pnl_scope": "仅恢复持有日日末；不含次日开盘退出记账。",
+      "recovery_min_net_pnl_including_exit": -322232.082614569
+    },
+    {
+      "product": "IC",
+      "arm": "A",
+      "cycle_id": "IC-3-2020-02-04",
+      "start_execution_date": "2020-02-04",
+      "assigned_start": "2020-04-23",
+      "recovery_start": "2020-04-24",
+      "exit_signal_date": "2020-04-24",
+      "exit_execution_date": "2020-04-27",
+      "recovery_holding_rows": 1,
+      "closed": true,
+      "right_censored": false,
+      "recovery_min_net_pnl": 1220868.1724778907,
+      "recovery_min_date": "2020-04-24",
+      "cycle_final_net_pnl": 1203521.7388954284,
+      "insurance_net_pnl": 0.0,
+      "insurance_fees": 0.0,
+      "negative_pnl_after_next_open": false,
+      "recovery_min_net_pnl_scope": "仅恢复持有日日末；不含次日开盘退出记账。",
+      "recovery_min_net_pnl_including_exit": 1203521.7388954284
+    },
+    {
+      "product": "IC",
+      "arm": "B",
+      "cycle_id": "IC-1-2019-02-26",
+      "start_execution_date": "2019-02-26",
+      "assigned_start": "2019-06-27",
+      "recovery_start": "2019-06-28",
+      "exit_signal_date": "2019-07-01",
+      "exit_execution_date": "2019-07-02",
+      "recovery_holding_rows": 2,
+      "closed": true,
+      "right_censored": false,
+      "recovery_min_net_pnl": -322232.082614569,
+      "recovery_min_date": "2019-06-28",
+      "cycle_final_net_pnl": 247012.90033285506,
+      "insurance_net_pnl": 0.0,
+      "insurance_fees": 0.0,
+      "negative_pnl_after_next_open": false,
+      "recovery_min_net_pnl_scope": "仅恢复持有日日末；不含次日开盘退出记账。",
+      "recovery_min_net_pnl_including_exit": -322232.082614569
+    },
+    {
+      "product": "IC",
+      "arm": "B",
+      "cycle_id": "IC-3-2020-02-04",
+      "start_execution_date": "2020-02-04",
+      "assigned_start": "2020-04-23",
+      "recovery_start": "2020-04-24",
+      "exit_signal_date": "2020-04-24",
+      "exit_execution_date": "2020-04-27",
+      "recovery_holding_rows": 1,
+      "closed": true,
+      "right_censored": false,
+      "recovery_min_net_pnl": 1220868.1724778907,
+      "recovery_min_date": "2020-04-24",
+      "cycle_final_net_pnl": 1203521.7388954284,
+      "insurance_net_pnl": 0.0,
+      "insurance_fees": 0.0,
+      "negative_pnl_after_next_open": false,
+      "recovery_min_net_pnl_scope": "仅恢复持有日日末；不含次日开盘退出记账。",
+      "recovery_min_net_pnl_including_exit": 1203521.7388954284
+    },
+    {
+      "product": "IC",
+      "arm": "C",
+      "cycle_id": "IC-1-2019-02-26",
+      "start_execution_date": "2019-02-26",
+      "assigned_start": "2019-06-27",
+      "recovery_start": "2019-06-28",
+      "exit_signal_date": "2019-07-01",
+      "exit_execution_date": "2019-07-02",
+      "recovery_holding_rows": 2,
+      "closed": true,
+      "right_censored": false,
+      "recovery_min_net_pnl": -165593.26358463004,
+      "recovery_min_date": "2019-06-28",
+      "cycle_final_net_pnl": 129697.24813614297,
+      "insurance_net_pnl": -117650.56029788879,
+      "insurance_fees": 16714.19816273926,
+      "negative_pnl_after_next_open": false,
+      "recovery_min_net_pnl_scope": "仅恢复持有日日末；不含次日开盘退出记账。",
+      "recovery_min_net_pnl_including_exit": -165593.26358463004
+    },
+    {
+      "product": "IC",
+      "arm": "C",
+      "cycle_id": "IC-3-2020-02-04",
+      "start_execution_date": "2020-02-04",
+      "assigned_start": "2020-04-23",
+      "recovery_start": "2020-04-24",
+      "exit_signal_date": "2020-04-24",
+      "exit_execution_date": "2020-04-27",
+      "recovery_holding_rows": 1,
+      "closed": true,
+      "right_censored": false,
+      "recovery_min_net_pnl": 1328574.4389804762,
+      "recovery_min_date": "2020-04-24",
+      "cycle_final_net_pnl": 1321127.3551756523,
+      "insurance_net_pnl": 120753.05668978156,
+      "insurance_fees": 20503.237217845894,
+      "negative_pnl_after_next_open": false,
+      "recovery_min_net_pnl_scope": "仅恢复持有日日末；不含次日开盘退出记账。",
+      "recovery_min_net_pnl_including_exit": 1321127.3551756523
+    },
+    {
+      "product": "IM",
+      "arm": "A",
+      "cycle_id": "IM-2-2019-04-09",
+      "start_execution_date": "2019-04-09",
+      "assigned_start": null,
+      "recovery_start": "2019-05-21",
+      "exit_signal_date": "2019-12-19",
+      "exit_execution_date": "2019-12-20",
+      "recovery_holding_rows": 146,
+      "closed": true,
+      "right_censored": false,
+      "recovery_min_net_pnl": -5674221.962133789,
+      "recovery_min_date": "2019-08-09",
+      "cycle_final_net_pnl": 34353.178535418956,
+      "insurance_net_pnl": 0.0,
+      "insurance_fees": 0.0,
+      "negative_pnl_after_next_open": false,
+      "recovery_min_net_pnl_scope": "仅恢复持有日日末；不含次日开盘退出记账。",
+      "recovery_min_net_pnl_including_exit": -5674221.962133789
+    },
+    {
+      "product": "IM",
+      "arm": "B",
+      "cycle_id": "IM-2-2019-04-09",
+      "start_execution_date": "2019-04-09",
+      "assigned_start": null,
+      "recovery_start": "2019-05-21",
+      "exit_signal_date": "2020-02-17",
+      "exit_execution_date": "2020-02-18",
+      "recovery_holding_rows": 181,
+      "closed": true,
+      "right_censored": false,
+      "recovery_min_net_pnl": -5674221.962133789,
+      "recovery_min_date": "2019-08-09",
+      "cycle_final_net_pnl": 91019.25393642765,
+      "insurance_net_pnl": -2914083.9467942403,
+      "insurance_fees": 361816.06191115646,
+      "negative_pnl_after_next_open": false,
+      "recovery_min_net_pnl_scope": "仅恢复持有日日末；不含次日开盘退出记账。",
+      "recovery_min_net_pnl_including_exit": -5674221.962133789
+    },
+    {
+      "product": "IM",
+      "arm": "C",
+      "cycle_id": "IM-2-2019-04-09",
+      "start_execution_date": "2019-04-09",
+      "assigned_start": null,
+      "recovery_start": "2019-05-21",
+      "exit_signal_date": "2020-03-13",
+      "exit_execution_date": "2020-03-16",
+      "recovery_holding_rows": 200,
+      "closed": true,
+      "right_censored": false,
+      "recovery_min_net_pnl": -4768957.920429767,
+      "recovery_min_date": "2019-08-30",
+      "cycle_final_net_pnl": 704092.522420544,
+      "insurance_net_pnl": -2904184.9788031946,
+      "insurance_fees": 529903.603618734,
+      "negative_pnl_after_next_open": false,
+      "recovery_min_net_pnl_scope": "仅恢复持有日日末；不含次日开盘退出记账。",
+      "recovery_min_net_pnl_including_exit": -4768957.920429767
+    }
+  ],
+  "IC_A_B_identical_check": {
+    "status": "PASS",
+    "rows": 1770,
+    "columns": [
+      "date",
+      "equity_close",
+      "cash_close",
+      "margin_reserved",
+      "option_value",
+      "etf_value",
+      "fees_cumulative",
+      "nav",
+      "return_net",
+      "seller_route",
+      "recovery_cycle_net_pnl",
+      "recovery_put_held_quantity"
+    ],
+    "max_abs_errors": {
+      "equity_close": 0.0,
+      "cash_close": 0.0,
+      "margin_reserved": 0.0,
+      "option_value": 0.0,
+      "etf_value": 0.0,
+      "fees_cumulative": 0.0,
+      "nav": 0.0,
+      "return_net": 0.0,
+      "recovery_cycle_net_pnl": 0.0,
+      "recovery_put_held_quantity": 0.0
+    }
+  },
+  "IM_same_day_20200203": [
+    {
+      "arm": "A",
+      "date": "2020-02-03",
+      "csv_line": 1170,
+      "daily_return": -0.0836669723588475,
+      "route": "future",
+      "recovery_put_quantity": 0.0
+    },
+    {
+      "arm": "B",
+      "date": "2020-02-03",
+      "csv_line": 1170,
+      "daily_return": -0.0851587593950359,
+      "route": "recovery_future",
+      "recovery_put_quantity": 0.0
+    },
+    {
+      "arm": "C",
+      "date": "2020-02-03",
+      "csv_line": 1170,
+      "daily_return": -0.0261681967530521,
+      "route": "recovery_future",
+      "recovery_put_quantity": 94.60889434918758
+    }
+  ],
+  "IC_legacy_reference_rows": [
+    {
+      "csv_line": 2794,
+      "signal_date": "2019-06-26",
+      "execution_date": "2019-06-27",
+      "route_before": "short_put",
+      "route_after_execution": "assigned_etf",
+      "action": "SHORT_PUT_ASSIGNED",
+      "cycle_pnl_reference": 68413.9318292854,
+      "recovery_pnl_reference": -7400.421868756
+    },
+    {
+      "csv_line": 2795,
+      "signal_date": "2019-06-27",
+      "execution_date": "2019-06-28",
+      "route_before": "assigned_etf",
+      "route_after_execution": "recovery_future",
+      "action": "ENTER_RECOVERY_FUTURE",
+      "cycle_pnl_reference": 68413.9318292854,
+      "recovery_pnl_reference": -7395.932868756
+    },
+    {
+      "csv_line": 2796,
+      "signal_date": "2019-06-28",
+      "execution_date": "2019-07-01",
+      "route_before": "recovery_future",
+      "route_after_execution": "recovery_future",
+      "action": "HOLD_RECOVERY",
+      "cycle_pnl_reference": 68413.9318292854,
+      "recovery_pnl_reference": -7401.632868756
+    },
+    {
+      "csv_line": 2797,
+      "signal_date": "2019-07-01",
+      "execution_date": "2019-07-02",
+      "route_before": "recovery_future",
+      "route_after_execution": "recovery_future",
+      "action": "HOLD_RECOVERY",
+      "cycle_pnl_reference": 68413.9318292854,
+      "recovery_pnl_reference": -7386.654868756
+    },
+    {
+      "csv_line": 2798,
+      "signal_date": "2019-07-02",
+      "execution_date": "2019-07-03",
+      "route_before": "recovery_future",
+      "route_after_execution": "recovery_future",
+      "action": "HOLD_RECOVERY",
+      "cycle_pnl_reference": 68413.9318292854,
+      "recovery_pnl_reference": -7388.239868756
+    },
+    {
+      "csv_line": 3539,
+      "signal_date": "2022-07-20",
+      "execution_date": "2022-07-21",
+      "route_before": "recovery_future",
+      "route_after_execution": "recovery_future",
+      "action": "HOLD_RECOVERY",
+      "cycle_pnl_reference": 68413.9318292854,
+      "recovery_pnl_reference": -7255.609868756
+    }
+  ],
+  "attribution_verdicts": [
+    {
+      "claim": "IC A0长恢复被保护显著缩短",
+      "verdict": "REJECT",
+      "reason": "新A已在无保险时把旧长恢复改为2019年2个恢复持有行、2020年1行；变化来自净循环会计/真实ETF与期货曝险/后续状态重跑。A0→A差异不能计给保险。B/C须对新A。"
+    },
+    {
+      "claim": "IC A0恢复持续744天后结束",
+      "verdict": "QUALIFY",
+      "reason": "744是旧日线明确标recovery_future的行数，2019-06-28至2022-07-20；2022-07-21旧日线路由缺失但源lifecycle前日仍计划HOLD_RECOVERY到07-21。应视为样本末仍恢复，不把缺失标签当退出。"
+    },
+    {
+      "claim": "IC现有模型尚未证明加保险能改善完整账户",
+      "verdict": "ACCEPT_WITH_SAMPLE_LIMIT",
+      "reason": "A/B完整关键路径一致；C两轮保险净损益一负一正，退出日不变，CAGR略低、完整账户MaxDD不变。只有两轮很短恢复，不能推断长恢复尾险。"
+    },
+    {
+      "claim": "IM C减少本次长恢复最低净亏损但延长回本",
+      "verdict": "ACCEPT_WITH_MODEL_LIMIT",
+      "reason": "恢复持有行数A146、B181、C200；C最低净循环值约-4.769m，对照A/B约-5.674m，但保险该轮净贡献仍约-2.904m。回本退出A2019-12-20、B2020-02-18、C2020-03-16，分别来自前一个交易日信号。"
+    },
+    {
+      "claim": "IM C把同一天亏损从-8.37%变为-5.36%",
+      "verdict": "REJECT_AND_RESTATE",
+      "reason": "-8.3667%为A在2020-02-03的最低日收益；C同日为-2.6168%。C自己的全样本最差日是2015-07-27的-5.3603%。可报告各自最差日改善，但必须分清日期。"
+    },
+    {
+      "claim": "MaxDD不改善说明恢复保险没有尾部效果",
+      "verdict": "REJECT",
+      "reason": "IM A/B/C的最大回撤都发生于2015-06-12到2015-09-29（约-21.2666%），早于本恢复保险介入。该全局指标不检验2019-2020恢复期局部风险；需同时报告恢复净循环最小值和同日冲击。"
+    },
+    {
+      "claim": "IM B/C全账户CAGR略升等于保险直接赚钱",
+      "verdict": "REJECT",
+      "reason": "两臂保险整轮净贡献均约-2.9m；较晚退出改变核心暴露时长、普通Put状态、未来卖Put进入日期及NAV规模。全账户增益是动态策略总效应，不能全部归给保险单腿收益。"
+    },
+    {
+      "claim": "较长模型面板可代替真实期权历史业绩",
+      "verdict": "REJECT",
+      "reason": "2015-2022模型MO链由ListedCorrectedModelSources按合成挂牌梯度和Black-Scholes价格生成，price_basis中的dated_open在该面板仍是模型价格。必须与挂牌面板分开，不拼接NAV或作实盘获利预测。"
+    },
+    {
+      "claim": "2020-02-03 A与C同日收益差就是恢复Put的纯因果收益",
+      "verdict": "REJECT_AND_RESTATE",
+      "reason": "A于2019-12-20已退出恢复，2020-02-03为普通future；B/C当日仍在recovery_future，B保险数量为0、C为94.608894。-8.3667%/-8.5159%/-2.6168%是A/B/C内生完整账户路径比较，混合保险、较晚退出、普通保护与未来路线、NAV规模效应，不能把差额全部归给单腿Put。"
+    },
+    {
+      "claim": "共同恢复窗口支持C有局部尾险缓冲迹象",
+      "verdict": "ACCEPT_WITH_SINGLE_EPISODE_AND_PATH_LIMIT",
+      "reason": "[2019-05-21,2019-12-20)内三臂均处恢复状态且各146个交易行。各自最差日A/B为2019-06-06的-2.4521%，C为2019-09-17的-1.7415%；2019-06-06同日C为-1.2516%。这是同一轮模型恢复的账户风险描述，不是独立样本统计显著性，也不是锁定其他仓位/净值路径后的纯Put反事实。"
+    }
+  ],
+  "reporting_boundaries": [
+    "所有金额为保存连续规范化模型账户计价单位，非用户账户账单或实际手数。",
+    "CAGR按252/1770日收益行计算；尾部均值取ceil(1770*5%)=89个最差日。独立复算与metrics.json一致。",
+    "新A/B/C本模型已记录的恢复循环均关闭，无右删失；此事实不消除A0旧长恢复样本末状态的删失边界。",
+    "IC最低正档.125不是负动量底线.25，也不是承接ETF固定25%覆盖；IM1.5不是与IC相同Delta风险。",
+    "上市前IM长恢复只1轮；A/B/C为同一行情上的配对反事实，不能当3个独立尾部样本或算统计显著胜率。",
+    "既有Fear/估值来源PIT限制、理论成交、隐含波动模型、流动性/滑点/整数规模/融资与保证金不足验证边界保留。",
+    "完整账户MaxDD、最差日、恢复期间最低净循环亏损是不同统计量，应分别报出，避免互相替代。",
+    "2020-02-03的同日冲击比较属于内生完整策略路径：A此前退出恢复，B/C仍在恢复。收益差不能全部称为恢复Put因果收益。",
+    "共同恢复窗的各自最差日仍可能发生在不同日期；可描述局部尾险统计差异，但只观察到1轮IM模型长恢复。",
+    "quote回退计数是调用次数，包含开盘持仓盯市及潜在成交，不等于独立订单数；模型面板为0不代表报价真实或无模型风险。",
+    "recovery_cycles.recovery_min_net_pnl沿用恢复持有日日末定义；新增recovery_min_net_pnl_including_exit与总表一致，包含实际退出净损益。"
+  ],
+  "recommended_user_conclusion": "暂不据此晋级恢复保险到生产。挂牌期真实报价样本太少；较长模型中，IM强制最低保护展现局部尾险缓冲，但付出较大净保费与更长恢复时间，IC尚无足够增益证据。保持现行规则，保留C为需要更多真实恢复证据的研究候选。",
+  "output_file_hashes": {
+    "research_reports\\20261013_recovery_put_research\\runs\\model\\IC\\A0\\daily.csv.gz": "aa34ac0474641165e6bb7125ebb6b0d15410f4ad81b7f2e5b204352a0c77246c",
+    "research_reports\\20261013_recovery_put_research\\runs\\model\\IC\\A0\\events.csv.gz": "688ce7b22e2e0156a6d8c359c3fe5c4b92168b668792ea2f0e3e5aee675bf552",
+    "research_reports\\20261013_recovery_put_research\\runs\\model\\IC\\A0\\metrics.json": "150e4c19fa68015682e3f9420473c0a671ad1351506edb6947271574a436f448",
+    "research_reports\\20261013_recovery_put_research\\runs\\model\\IC\\A0\\audit.json": "b0cafbca933d1a7d06171fa712b25cd5be0f4d81024a58ff4cd24f3112be0c42",
+    "research_reports\\20261013_recovery_put_research\\runs\\model\\IC\\A\\daily.csv.gz": "5f7fabe26a193087ec6491f174bcd87a33f81c198983c33003328a99f2d8afa6",
+    "research_reports\\20261013_recovery_put_research\\runs\\model\\IC\\A\\events.csv.gz": "00c72a675c3ea4812f3c39bbbd1ec280a87ec22b6f662a11dee62ccfdfed66af",
+    "research_reports\\20261013_recovery_put_research\\runs\\model\\IC\\A\\metrics.json": "edbfe661250dbe1ffa3fc00c607d81fac7cf728cae50a102763176ac0af56aee",
+    "research_reports\\20261013_recovery_put_research\\runs\\model\\IC\\A\\audit.json": "e564f80a0eb66f658cd5ee192f57b368047793e54d2194f81bac320a6469afb9",
+    "research_reports\\20261013_recovery_put_research\\runs\\model\\IC\\B\\daily.csv.gz": "558d01f0801e3cd3fa76bcc2665de8e309f4aaebc633dbcc322ba9356326b80c",
+    "research_reports\\20261013_recovery_put_research\\runs\\model\\IC\\B\\events.csv.gz": "3ee7fff8ae7f1c61f8348825f66f4e3e6cd70c3c0c136b4c2fb861606d54e1d1",
+    "research_reports\\20261013_recovery_put_research\\runs\\model\\IC\\B\\metrics.json": "31cce4e1fd3517d659ce34009a0cd5297efa08ba42268ca50eaabb1dd51904c3",
+    "research_reports\\20261013_recovery_put_research\\runs\\model\\IC\\B\\audit.json": "609451ff29bc40117e16bc7bfca5860292e1a8dec3ab979cd292b6d6952f6d9b",
+    "research_reports\\20261013_recovery_put_research\\runs\\model\\IC\\C\\daily.csv.gz": "03cff7a0f47a4fdb5303f2237905bd83706026df50d212b373a128b937e1ad15",
+    "research_reports\\20261013_recovery_put_research\\runs\\model\\IC\\C\\events.csv.gz": "063a00ba1c9218a28e4212d1a4203eb67ff79fd49cd545576ee84d28963b404a",
+    "research_reports\\20261013_recovery_put_research\\runs\\model\\IC\\C\\metrics.json": "ab6a3a5d586430f1c1a8a1a1b525ea611e65970566bf3b47e065b207846a1e5d",
+    "research_reports\\20261013_recovery_put_research\\runs\\model\\IC\\C\\audit.json": "6696555a2ea615c5dd3b2a383fc1e3affc79be2b7801e460768e0fe679886cb5",
+    "research_reports\\20261013_recovery_put_research\\runs\\model\\IM\\A0\\daily.csv.gz": "91c38ef654750439c97f5f8c9b7d0061212af15959f5b5ad78975a903ddb9df1",
+    "research_reports\\20261013_recovery_put_research\\runs\\model\\IM\\A0\\events.csv.gz": "fd27bebaedf2e088d952412ac1407e7b1f947abd1e34367bb0f67c06701560d6",
+    "research_reports\\20261013_recovery_put_research\\runs\\model\\IM\\A0\\metrics.json": "0dcb92df42ad49c4d34c2a8dd6b6afe18ba9cf265efb1c2560f8fb99b6216948",
+    "research_reports\\20261013_recovery_put_research\\runs\\model\\IM\\A0\\audit.json": "fc97f2f52ad8967cdf8a64685d694621c2490e815a8afc52196d1d519c7cb6da",
+    "research_reports\\20261013_recovery_put_research\\runs\\model\\IM\\A\\daily.csv.gz": "5380e22d8fe8355288c62be01a420f6773acf19ea2ba301618d3d9544a0e8baa",
+    "research_reports\\20261013_recovery_put_research\\runs\\model\\IM\\A\\events.csv.gz": "92d0b36960ed59049e123173f0b5b5410cb810c1e7e23c626999ad8dd0d5ace4",
+    "research_reports\\20261013_recovery_put_research\\runs\\model\\IM\\A\\metrics.json": "dabc943937c9d0044737b1c26427a043340b405da6a6098f608f3b66e9ace281",
+    "research_reports\\20261013_recovery_put_research\\runs\\model\\IM\\A\\audit.json": "643aec20f30615debc0fd458af59a4e83ce4b72909d7fe21339859e803ca7e33",
+    "research_reports\\20261013_recovery_put_research\\runs\\model\\IM\\B\\daily.csv.gz": "5463dc0838c902ed75e7557c3a998b0d435928bb2447a180e0ea9154d0e7d217",
+    "research_reports\\20261013_recovery_put_research\\runs\\model\\IM\\B\\events.csv.gz": "b72fdea3cff386252107d12e866de3a08dac596a9cd60746f9f93d7c23e209b0",
+    "research_reports\\20261013_recovery_put_research\\runs\\model\\IM\\B\\metrics.json": "f8b6a6f38160f59739ded16d99176cc209d238ddc5332d74485766dd8ba83e68",
+    "research_reports\\20261013_recovery_put_research\\runs\\model\\IM\\B\\audit.json": "29c5b11d60edfd5f9773c2c355567fca9a0c405fc1a64ec712a1b7cecc04482c",
+    "research_reports\\20261013_recovery_put_research\\runs\\model\\IM\\C\\daily.csv.gz": "86404ecea5ddadc306f9a569a9dd61fe9d7b657740a78d7a07214efc39c9a020",
+    "research_reports\\20261013_recovery_put_research\\runs\\model\\IM\\C\\events.csv.gz": "df419cdf33112c8f8bba07993e15be75e9ce42cf815c85ceb4c82a36eb80ed99",
+    "research_reports\\20261013_recovery_put_research\\runs\\model\\IM\\C\\metrics.json": "88f3529e7b1064c56619faa19abb1c560492cd89a328438fa8754cf0daf82a1b",
+    "research_reports\\20261013_recovery_put_research\\runs\\model\\IM\\C\\audit.json": "cd468047e48ebcc9ff143796373908b012a257f9e8d3042869e67a461265f228"
+  },
+  "IM_common_recovery_window": [
+    {
+      "arm": "A",
+      "window_start_inclusive": "2019-05-21",
+      "window_end_exclusive": "2019-12-20",
+      "daily_rows": 146,
+      "all_rows_recovery_future": true,
+      "own_window_worst_date": "2019-06-06",
+      "own_window_worst_return": -0.0245206856959763,
+      "calendar_matched_window_extremes": [
+        {
+          "date": "2019-06-06",
+          "return_net": -0.0245206856959763,
+          "seller_route": "recovery_future",
+          "recovery_put_held_quantity": 0
+        },
+        {
+          "date": "2019-09-17",
+          "return_net": -0.0183466353294434,
+          "seller_route": "recovery_future",
+          "recovery_put_held_quantity": 0
+        }
+      ]
+    },
+    {
+      "arm": "B",
+      "window_start_inclusive": "2019-05-21",
+      "window_end_exclusive": "2019-12-20",
+      "daily_rows": 146,
+      "all_rows_recovery_future": true,
+      "own_window_worst_date": "2019-06-06",
+      "own_window_worst_return": -0.0245206856959763,
+      "calendar_matched_window_extremes": [
+        {
+          "date": "2019-06-06",
+          "return_net": -0.0245206856959763,
+          "seller_route": "recovery_future",
+          "recovery_put_held_quantity": 0.0
+        },
+        {
+          "date": "2019-09-17",
+          "return_net": -0.0174385656486834,
+          "seller_route": "recovery_future",
+          "recovery_put_held_quantity": 100.18252507051024
+        }
+      ]
+    },
+    {
+      "arm": "C",
+      "window_start_inclusive": "2019-05-21",
+      "window_end_exclusive": "2019-12-20",
+      "daily_rows": 146,
+      "all_rows_recovery_future": true,
+      "own_window_worst_date": "2019-09-17",
+      "own_window_worst_return": -0.0174150476273877,
+      "calendar_matched_window_extremes": [
+        {
+          "date": "2019-06-06",
+          "return_net": -0.0125162815301772,
+          "seller_route": "recovery_future",
+          "recovery_put_held_quantity": 96.3582614238118
+        },
+        {
+          "date": "2019-09-17",
+          "return_net": -0.0174150476273877,
+          "seller_route": "recovery_future",
+          "recovery_put_held_quantity": 100.6377006739958
+        }
+      ]
+    }
+  ],
+  "final_output_refresh": {
+    "reviewed_at": "2026-10-13T16:44:53.938001+08:00",
+    "status": "PASS_FINAL_OUTPUT_REFRESH",
+    "prior_review_sha256": "c1d976098a9966335355f4407329dde2f3be1628922043c647f561140e90c9cf",
+    "source_engine_controller_spec_unchanged": true,
+    "method": "只读重算最新保存CSV、读取已保存会计审计并核对其全部16臂文件哈希；本审阅者未重新跑16臂引擎。",
+    "model_saved_metric_parity": [
+      {
+        "product": "IC",
+        "arm": "A0",
+        "status": "PASS",
+        "metrics_file_sha256_identical_to_prior_review": true,
+        "saved_daily_recomputed_vs_prior_max_abs_error": 0.0,
+        "rows": 1770
+      },
+      {
+        "product": "IC",
+        "arm": "A",
+        "status": "PASS",
+        "metrics_file_sha256_identical_to_prior_review": true,
+        "saved_daily_recomputed_vs_prior_max_abs_error": 0.0,
+        "rows": 1770
+      },
+      {
+        "product": "IC",
+        "arm": "B",
+        "status": "PASS",
+        "metrics_file_sha256_identical_to_prior_review": true,
+        "saved_daily_recomputed_vs_prior_max_abs_error": 0.0,
+        "rows": 1770
+      },
+      {
+        "product": "IC",
+        "arm": "C",
+        "status": "PASS",
+        "metrics_file_sha256_identical_to_prior_review": true,
+        "saved_daily_recomputed_vs_prior_max_abs_error": 0.0,
+        "rows": 1770
+      },
+      {
+        "product": "IM",
+        "arm": "A0",
+        "status": "PASS",
+        "metrics_file_sha256_identical_to_prior_review": true,
+        "saved_daily_recomputed_vs_prior_max_abs_error": 0.0,
+        "rows": 1770
+      },
+      {
+        "product": "IM",
+        "arm": "A",
+        "status": "PASS",
+        "metrics_file_sha256_identical_to_prior_review": true,
+        "saved_daily_recomputed_vs_prior_max_abs_error": 0.0,
+        "rows": 1770
+      },
+      {
+        "product": "IM",
+        "arm": "B",
+        "status": "PASS",
+        "metrics_file_sha256_identical_to_prior_review": true,
+        "saved_daily_recomputed_vs_prior_max_abs_error": 0.0,
+        "rows": 1770
+      },
+      {
+        "product": "IM",
+        "arm": "C",
+        "status": "PASS",
+        "metrics_file_sha256_identical_to_prior_review": true,
+        "saved_daily_recomputed_vs_prior_max_abs_error": 0.0,
+        "rows": 1770
+      }
+    ],
+    "a0_independently_rechecked_saved_baseline_parity": [
+      {
+        "product": "IC",
+        "kind": "daily",
+        "rows": 1770,
+        "status": "PASS"
+      },
+      {
+        "product": "IC",
+        "kind": "events",
+        "rows": 12030,
+        "status": "PASS"
+      },
+      {
+        "product": "IM",
+        "kind": "daily",
+        "rows": 1770,
+        "status": "PASS"
+      },
+      {
+        "product": "IM",
+        "kind": "events",
+        "rows": 12775,
+        "status": "PASS"
+      }
+    ],
+    "all_16_summary_metrics_match_run_metrics": [
+      {
+        "panel": "listed",
+        "product": "IC",
+        "arm": "A0",
+        "status": "PASS"
+      },
+      {
+        "panel": "listed",
+        "product": "IC",
+        "arm": "A",
+        "status": "PASS"
+      },
+      {
+        "panel": "listed",
+        "product": "IC",
+        "arm": "B",
+        "status": "PASS"
+      },
+      {
+        "panel": "listed",
+        "product": "IC",
+        "arm": "C",
+        "status": "PASS"
+      },
+      {
+        "panel": "listed",
+        "product": "IM",
+        "arm": "A0",
+        "status": "PASS"
+      },
+      {
+        "panel": "listed",
+        "product": "IM",
+        "arm": "A",
+        "status": "PASS"
+      },
+      {
+        "panel": "listed",
+        "product": "IM",
+        "arm": "B",
+        "status": "PASS"
+      },
+      {
+        "panel": "listed",
+        "product": "IM",
+        "arm": "C",
+        "status": "PASS"
+      },
+      {
+        "panel": "model",
+        "product": "IC",
+        "arm": "A0",
+        "status": "PASS"
+      },
+      {
+        "panel": "model",
+        "product": "IC",
+        "arm": "A",
+        "status": "PASS"
+      },
+      {
+        "panel": "model",
+        "product": "IC",
+        "arm": "B",
+        "status": "PASS"
+      },
+      {
+        "panel": "model",
+        "product": "IC",
+        "arm": "C",
+        "status": "PASS"
+      },
+      {
+        "panel": "model",
+        "product": "IM",
+        "arm": "A0",
+        "status": "PASS"
+      },
+      {
+        "panel": "model",
+        "product": "IM",
+        "arm": "A",
+        "status": "PASS"
+      },
+      {
+        "panel": "model",
+        "product": "IM",
+        "arm": "B",
+        "status": "PASS"
+      },
+      {
+        "panel": "model",
+        "product": "IM",
+        "arm": "C",
+        "status": "PASS"
+      }
+    ],
+    "root_accounting_audit": "PASS;16臂审计保存文件的哈希均匹配当前输出，不冒称为本审阅者重跑该验证器。",
+    "quote_observer_review": {
+      "source": "run_research.py:179-199",
+      "native_source": "recovery_account.py:101-112",
+      "verdict": "仅增加观测，条件与原生open缺失回退相同，返回原生quote调用，不修改报价；8个model指标文件哈希不变。",
+      "count_unit": "Market.quote调用次数；含开盘持仓盯市，不等同成交数。",
+      "counts": [
+        {
+          "panel": "listed",
+          "product": "IC",
+          "arm": "A0",
+          "native_prior_close_open_fallback_call_count": 2,
+          "buyer_open_proxy_count": 0
+        },
+        {
+          "panel": "listed",
+          "product": "IC",
+          "arm": "A",
+          "native_prior_close_open_fallback_call_count": 2,
+          "buyer_open_proxy_count": 0
+        },
+        {
+          "panel": "listed",
+          "product": "IC",
+          "arm": "B",
+          "native_prior_close_open_fallback_call_count": 2,
+          "buyer_open_proxy_count": 0
+        },
+        {
+          "panel": "listed",
+          "product": "IC",
+          "arm": "C",
+          "native_prior_close_open_fallback_call_count": 2,
+          "buyer_open_proxy_count": 0
+        },
+        {
+          "panel": "listed",
+          "product": "IM",
+          "arm": "A0",
+          "native_prior_close_open_fallback_call_count": 17,
+          "buyer_open_proxy_count": 4
+        },
+        {
+          "panel": "listed",
+          "product": "IM",
+          "arm": "A",
+          "native_prior_close_open_fallback_call_count": 17,
+          "buyer_open_proxy_count": 4
+        },
+        {
+          "panel": "listed",
+          "product": "IM",
+          "arm": "B",
+          "native_prior_close_open_fallback_call_count": 17,
+          "buyer_open_proxy_count": 4
+        },
+        {
+          "panel": "listed",
+          "product": "IM",
+          "arm": "C",
+          "native_prior_close_open_fallback_call_count": 17,
+          "buyer_open_proxy_count": 4
+        },
+        {
+          "panel": "model",
+          "product": "IC",
+          "arm": "A0",
+          "native_prior_close_open_fallback_call_count": 0,
+          "buyer_open_proxy_count": 0
+        },
+        {
+          "panel": "model",
+          "product": "IC",
+          "arm": "A",
+          "native_prior_close_open_fallback_call_count": 0,
+          "buyer_open_proxy_count": 0
+        },
+        {
+          "panel": "model",
+          "product": "IC",
+          "arm": "B",
+          "native_prior_close_open_fallback_call_count": 0,
+          "buyer_open_proxy_count": 0
+        },
+        {
+          "panel": "model",
+          "product": "IC",
+          "arm": "C",
+          "native_prior_close_open_fallback_call_count": 0,
+          "buyer_open_proxy_count": 0
+        },
+        {
+          "panel": "model",
+          "product": "IM",
+          "arm": "A0",
+          "native_prior_close_open_fallback_call_count": 0,
+          "buyer_open_proxy_count": 0
+        },
+        {
+          "panel": "model",
+          "product": "IM",
+          "arm": "A",
+          "native_prior_close_open_fallback_call_count": 0,
+          "buyer_open_proxy_count": 0
+        },
+        {
+          "panel": "model",
+          "product": "IM",
+          "arm": "B",
+          "native_prior_close_open_fallback_call_count": 0,
+          "buyer_open_proxy_count": 0
+        },
+        {
+          "panel": "model",
+          "product": "IM",
+          "arm": "C",
+          "native_prior_close_open_fallback_call_count": 0,
+          "buyer_open_proxy_count": 0
+        }
+      ]
+    }
+  },
+  "final_summary_file_hashes": {
+    "research_reports\\20261013_recovery_put_research\\run_research.py": "b8b5b5b34caa859a3388d6174bcbd7648d2997e33db5baa8366918d23114a78e",
+    "research_reports\\20261013_recovery_put_research\\summarize_research.py": "b13599dac3c15a723f98fa36be0816c0f0ddd4a83ab6657b01f04d32350df1af",
+    "research_reports\\20261013_recovery_put_research\\summary_metrics.csv": "12f9c4da1ebb5d359f58aae37dc6df56dbe28bc0e7db665514c919fb4c7bd1cf",
+    "research_reports\\20261013_recovery_put_research\\recovery_episodes.csv": "3a204a2e1ee7ead9ed6f729edca65c42b6146e2b859b6e63ffeb37907af8393e",
+    "research_reports\\20261013_recovery_put_research\\im_model_stress_comparison.csv": "4ed5a2565c41e4c949917473b69f0f69d187eceb8fec380a356a8b763c3e3516",
+    "research_reports\\20261013_recovery_put_research\\results_summary.json": "005e72f283f4c456888f7202c3e50f05419f66c8b06080deec85409a3ef51daf",
+    "research_reports\\20261013_recovery_put_research\\input_manifest_listed.json": "e098fa2b05ea6cd4c0f070d8131b1b59cb6a97f47c12d8499c5ace8bb74a19ca",
+    "research_reports\\20261013_recovery_put_research\\input_manifest_model.json": "f403247f5b50f86a5ec84f74caa70e239670e96961835ea405195caf80d61729",
+    "research_reports\\20261013_recovery_put_research\\last_run_listed.json": "1797c72e9bd608bd44173a515f1c4e40f1089df36ad48c2ddf38598e6edd938f",
+    "research_reports\\20261013_recovery_put_research\\last_run_model.json": "6c4734338298754e18eb0e4163bd87a97650ba1f5b882136c97414cf6fe2f142",
+    "research_reports\\20261013_recovery_put_research\\accounting_audit\\replayed_listed_model_account_audit.json": "c55aa7457d26601a7624020dbb6f96f0c06fd01e2c9f3714b68db005b8c22fb5"
+  }
+}

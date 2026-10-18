@@ -1,0 +1,297 @@
+[
+  {
+    "case": "csv_only",
+    "accepted": true,
+    "grid": "HOLD",
+    "status": "ok",
+    "subject": "[历史模型补录][模型持仓维持] IC/IM 1.4-r1 日报 - 2026-10-09",
+    "has_unconfirmed_warning": false,
+    "expected_reject": false
+  },
+  {
+    "case": "page_only",
+    "accepted": true,
+    "grid": "HOLD",
+    "status": "ok",
+    "subject": "[历史模型补录][模型持仓维持] IC/IM 1.4-r1 日报 - 2026-10-09",
+    "has_unconfirmed_warning": false,
+    "expected_reject": false
+  },
+  {
+    "case": "honest_partial",
+    "accepted": true,
+    "grid": "UNCONFIRMED",
+    "status": "partial",
+    "subject": "[历史模型补录][部分数据缺失/网格未确认] IC/IM 1.4-r1 日报 - 2026-10-09",
+    "has_unconfirmed_warning": true,
+    "expected_reject": false
+  },
+  {
+    "case": "missing_fear_disguised_complete",
+    "accepted": false,
+    "error": "ValueError: missing Fear must hide grid/total targets and publish UNCONFIRMED",
+    "expected_reject": true
+  },
+  {
+    "case": "leaked_grid_source",
+    "accepted": false,
+    "error": "ValueError: missing Fear must hide grid/total targets and publish UNCONFIRMED",
+    "expected_reject": true
+  },
+  {
+    "case": "leaked_grid_reason",
+    "accepted": false,
+    "error": "ValueError: missing Fear must hide grid/total targets and publish UNCONFIRMED",
+    "expected_reject": true
+  },
+  {
+    "case": "leaked_total_change",
+    "accepted": false,
+    "error": "ValueError: missing Fear must hide grid/total targets and publish UNCONFIRMED",
+    "expected_reject": true
+  },
+  {
+    "case": "missing_product_in_manifest",
+    "accepted": false,
+    "error": "ValueError: missing Fear requires an exact partial publication manifest",
+    "expected_reject": true
+  },
+  {
+    "case": "marker_disguised_complete",
+    "accepted": false,
+    "error": "ValueError: missing Fear must hide grid/total targets and publish UNCONFIRMED"
+  },
+  {
+    "case": "marker_honest_partial",
+    "accepted": true,
+    "marker": "ic-im-v1-4-r1-707295aeaa67-close_confirmed-digest-delivered-2026-10-09-b1568e9bd590"
+  },
+  {
+    "case": "partial_then_complete_dedupe",
+    "partial_marker": "ic-im-v1-4-r1-707295aeaa67-close_confirmed-digest-delivered-2026-10-09-b1568e9bd590",
+    "complete_marker": "ic-im-v1-4-r1-707295aeaa67-close_confirmed-digest-delivered-2026-10-09-b1568e9bd590",
+    "should_send_complete": false,
+    "should_send_explicit_correction": true
+  },
+  {
+    "case": "remote_mirror_file_integrity",
+    "files": [
+      {
+        "path": "scripts/build_ic_im_v1_4_digest.py",
+        "match": false,
+        "normalized_match": true,
+        "normalized_trailing_blank_match": false,
+        "local_git_blob": "12443b287963876ab2ed16180625aacec853dc55",
+        "remote_git_blob": "767fe245442a45103ca32a51c84ed8f32b2d1afe"
+      },
+      {
+        "path": "scripts/check_ic_im_v1_4_delivery.py",
+        "match": false,
+        "normalized_match": false,
+        "normalized_trailing_blank_match": true,
+        "local_git_blob": "55e26ee0dceeb9e7039855eb5b113b065137db3d",
+        "remote_git_blob": "40e6d08b172ddfc572f8cbc694ae5db0d02ebf31"
+      },
+      {
+        "path": "scripts/check_mail_transport.py",
+        "match": false,
+        "normalized_match": false,
+        "normalized_trailing_blank_match": true,
+        "local_git_blob": "808725fbce7d1b14effb0ee8f7441f3093cce221",
+        "remote_git_blob": "ed53279a2b702a690f3faa1b3696ddb2e71411e0"
+      },
+      {
+        "path": "scripts/ic_im_option_maintenance_notice.py",
+        "match": true,
+        "normalized_match": true,
+        "normalized_trailing_blank_match": true,
+        "local_git_blob": "b4cc1d9036325acaa63adfcc0917504f19e1cd60",
+        "remote_git_blob": "b4cc1d9036325acaa63adfcc0917504f19e1cd60"
+      },
+      {
+        "path": "scripts/ic_im_put_execution_contract.py",
+        "match": true,
+        "normalized_match": true,
+        "normalized_trailing_blank_match": true,
+        "local_git_blob": "5b9c1d49dee93cf2992e16c21ce5e3c605a62600",
+        "remote_git_blob": "5b9c1d49dee93cf2992e16c21ce5e3c605a62600"
+      },
+      {
+        "path": "scripts/ic_im_readiness_handoff.py",
+        "match": true,
+        "normalized_match": true,
+        "normalized_trailing_blank_match": true,
+        "local_git_blob": "ab0e3f0bdd18af31e247c0e9b7d8f9c4dad729c0",
+        "remote_git_blob": "ab0e3f0bdd18af31e247c0e9b7d8f9c4dad729c0"
+      },
+      {
+        "path": "scripts/ic_im_v1_4_delivery_contract.py",
+        "match": false,
+        "normalized_match": false,
+        "normalized_trailing_blank_match": false,
+        "local_git_blob": "efd54a9e3fec0407f7708f07b4ff7f4c32e82ac3",
+        "remote_git_blob": "87e0215125ed563de14e6e561e436b8968eed28f"
+      },
+      {
+        "path": "scripts/ic_im_v1_4_put_display.py",
+        "match": false,
+        "normalized_match": false,
+        "normalized_trailing_blank_match": true,
+        "local_git_blob": "3d3198dce023247225d9727cb7b9fb490d6a7f7b",
+        "remote_git_blob": "84a9437a832e2b32afda38f363f9b86e09582111"
+      },
+      {
+        "path": "scripts/prepare_ic_im_v1_3_marker.py",
+        "match": false,
+        "normalized_match": false,
+        "normalized_trailing_blank_match": true,
+        "local_git_blob": "11f2c9c7fd2a7f7695631488bce506772921c711",
+        "remote_git_blob": "d4695a3c040fc4258587f2eaac444b3d2fe2174b"
+      },
+      {
+        "path": "scripts/prepare_ic_im_v1_4_marker.py",
+        "match": false,
+        "normalized_match": false,
+        "normalized_trailing_blank_match": false,
+        "local_git_blob": "101aa1d7aa633777448100071ddbe4e0b61ff0ab",
+        "remote_git_blob": "bd6e27afe5db7100442987506040dc275660ecfb"
+      },
+      {
+        "path": "scripts/resolve_cn_publication_mode.py",
+        "match": false,
+        "normalized_match": false,
+        "normalized_trailing_blank_match": true,
+        "local_git_blob": "0aaaec1d5f14383ed6dcb46f5ea318456f66c24a",
+        "remote_git_blob": "b2e73e8ae99a6aacf4bccf5cd69c4f2bcd4d5517"
+      },
+      {
+        "path": "scripts/resolve_ic_im_v1_4_attempt.py",
+        "match": false,
+        "normalized_match": false,
+        "normalized_trailing_blank_match": true,
+        "local_git_blob": "3def73254f50e175d3f7f059a07fafee20fed360",
+        "remote_git_blob": "6d8d84867f8bf6dc69c49c821924c75c5fc7a97a"
+      },
+      {
+        "path": "scripts/restore_ic_im_v1_3_ledger.py",
+        "match": false,
+        "normalized_match": false,
+        "normalized_trailing_blank_match": true,
+        "local_git_blob": "76c210c87bfb1f7b64260c7d63358ebd8bfde247",
+        "remote_git_blob": "52f819a5dc606d39559844eae37fd5807dc6c557"
+      },
+      {
+        "path": "scripts/restore_ic_im_v1_4_ledger.py",
+        "match": false,
+        "normalized_match": false,
+        "normalized_trailing_blank_match": true,
+        "local_git_blob": "51560997f307046d29877010789997885efc5398",
+        "remote_git_blob": "be5d8afbe042fd6fde2fffdeff04122eb0334add"
+      },
+      {
+        "path": "tests/test_delivery_regression_contract.py",
+        "match": false,
+        "normalized_match": false,
+        "normalized_trailing_blank_match": true,
+        "local_git_blob": "d74d44e81a880123ab869fb6d98731bf5e216c0e",
+        "remote_git_blob": "b361ebd12a57996908cb6c2451e07a1837f0a3b3"
+      },
+      {
+        "path": "tests/test_ic_im_v1_4_daily_digest.py",
+        "match": false,
+        "normalized_match": false,
+        "normalized_trailing_blank_match": true,
+        "local_git_blob": "78b86e6e3915135276d866c4e5852926a49326d0",
+        "remote_git_blob": "888c6d55935078eee2e2f8a2844c5c131748241a"
+      },
+      {
+        "path": "tests/test_ic_im_v1_4_fear_sources.py",
+        "match": false,
+        "normalized_match": false,
+        "normalized_trailing_blank_match": false,
+        "local_git_blob": "8614b77eeee34ab0cb79f6fd90c8410a49599657",
+        "remote_git_blob": "cbabe385e714620f88342b1175918d18b9055740"
+      },
+      {
+        "path": "tests/test_ic_im_v1_4_monthly_maintenance_notice.py",
+        "match": true,
+        "normalized_match": true,
+        "normalized_trailing_blank_match": true,
+        "local_git_blob": "c581db0025b48440307a8cdf1ea15b29af11feb1",
+        "remote_git_blob": "c581db0025b48440307a8cdf1ea15b29af11feb1"
+      },
+      {
+        "path": "tests/test_ic_im_v1_4_put_execution_contract.py",
+        "match": true,
+        "normalized_match": true,
+        "normalized_trailing_blank_match": true,
+        "local_git_blob": "933597860b1c623ec8875938b3ec3cef8b8cd065",
+        "remote_git_blob": "933597860b1c623ec8875938b3ec3cef8b8cd065"
+      },
+      {
+        "path": "tests/test_ic_im_v1_4_readiness.py",
+        "match": false,
+        "normalized_match": false,
+        "normalized_trailing_blank_match": true,
+        "local_git_blob": "f791b45c65b486f7ebe1c8552d470cfe39c35d30",
+        "remote_git_blob": "8fb930ca90e17a63dd3cc06769ca9093a65094fa"
+      },
+      {
+        "path": "tests/test_ic_im_v1_4_readiness_handoff.py",
+        "match": true,
+        "normalized_match": true,
+        "normalized_trailing_blank_match": true,
+        "local_git_blob": "69e12ea8d0c06e7730a4faa9986013f423561604",
+        "remote_git_blob": "69e12ea8d0c06e7730a4faa9986013f423561604"
+      },
+      {
+        "path": "tests/test_ic_im_v1_4_workflow.py",
+        "match": true,
+        "normalized_match": true,
+        "normalized_trailing_blank_match": false,
+        "local_git_blob": "e706477045fa8f386da0ecea0815f4bc6d440e0a",
+        "remote_git_blob": "e706477045fa8f386da0ecea0815f4bc6d440e0a"
+      },
+      {
+        "path": "tests/fixtures/icim/readiness_20261009/result.json",
+        "match": false,
+        "normalized_match": false,
+        "normalized_trailing_blank_match": true,
+        "local_git_blob": "a6011d0cff38a0269d357272609509e2f2ce6937",
+        "remote_git_blob": "a22c3aec06ba073a6ba3ec69b582953b0546e237"
+      },
+      {
+        "path": "docs/icim-readiness-requests/current.json",
+        "match": true,
+        "normalized_match": true,
+        "normalized_trailing_blank_match": true,
+        "local_git_blob": "d2360c653745d1acb6c6a0e47f89d0a0f7ec707c",
+        "remote_git_blob": "d2360c653745d1acb6c6a0e47f89d0a0f7ec707c"
+      },
+      {
+        "path": ".github/workflows/delivery-regression.yml",
+        "match": true,
+        "normalized_match": true,
+        "normalized_trailing_blank_match": false,
+        "local_git_blob": "cf373435cc66e6a953c763644136567d345a821e",
+        "remote_git_blob": "cf373435cc66e6a953c763644136567d345a821e"
+      },
+      {
+        "path": ".github/workflows/ic-im-v1-4-daily-digest.yml",
+        "match": true,
+        "normalized_match": true,
+        "normalized_trailing_blank_match": false,
+        "local_git_blob": "0ab0f6c11f098fa131728a9d03b020c5295ee201",
+        "remote_git_blob": "0ab0f6c11f098fa131728a9d03b020c5295ee201"
+      },
+      {
+        "path": ".github/workflows/ic-im-v1-4-delivery-readiness.yml",
+        "match": true,
+        "normalized_match": true,
+        "normalized_trailing_blank_match": false,
+        "local_git_blob": "05d65c124f3896c06480cc0bbb6bb4447941db92",
+        "remote_git_blob": "05d65c124f3896c06480cc0bbb6bb4447941db92"
+      }
+    ]
+  }
+]

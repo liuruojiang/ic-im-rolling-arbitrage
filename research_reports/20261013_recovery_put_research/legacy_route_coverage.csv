@@ -1,0 +1,5 @@
+panel,product,labelled_recovery_days,first_labelled_day,last_labelled_day,final_route_missing,exit_not_inferred_from_missing_label
+listed,IC,1,2025-01-24,2025-01-24,True,True
+listed,IM,1,2025-01-21,2025-01-21,True,True
+model,IC,744,2019-06-28,2022-07-20,True,True
+model,IM,167,2019-05-21,2020-01-20,True,True

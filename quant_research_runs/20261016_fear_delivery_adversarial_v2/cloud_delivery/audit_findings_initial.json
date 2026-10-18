@@ -1,0 +1,39 @@
+{
+  "audited_automation_sha": "db84b6e056f55fc68c8b63a06afd852c04e279c4",
+  "strategy_pin": "be4173440daace20ee698103d05bc75838316a30",
+  "scope": "Read-only cloud delivery audit; no SMTP DATA, send-intent, delivered marker or production ledger writes.",
+  "findings": [
+    {
+      "id": "CLOUD-P1-001",
+      "severity": "P1",
+      "title": "Missing Fear can be relabeled complete by the publication consumer",
+      "reproduction": "Start with honest partial payload; restore reference_* grid/total values into public targets; set status ok and completeness complete. validate_success_payload, build_success and marker_name accepted it.",
+      "evidence": [
+        "results_initial_failure.json",
+        "missing_fear_disguised_complete.txt",
+        "missing_fear_disguised_complete.html"
+      ],
+      "locations": [
+        "scripts/build_ic_im_v1_4_digest.py:1018",
+        "scripts/ic_im_v1_4_delivery_contract.py:406-410"
+      ],
+      "recommendation": "Derive publication incompleteness from per-signal usable Fear, require partial and null/UNCONFIRMED public target fields independently at marker and publication boundaries."
+    }
+  ],
+  "verified": [
+    "Remote main exactly matches audited automation SHA.",
+    "27 mirrored files match remote Git blobs after CRLF/trailing-blank normalization.",
+    "CSV-only, page-only and honest partial render/marker paths pass original source tests.",
+    "Remote readiness run 38854223720 and regression run 38854223686 both succeeded on audited SHA.",
+    "Remote readiness SMTP check was successful without DATA.",
+    "Remote readiness handoff export step skipped; do not call this run handoff-tested.",
+    "Production workflow persists send-intent before SMTP and delivered marker only after successful send.",
+    "Ledger-only path does not enable SMTP and revalidates whole chain/publication view before promotion."
+  ],
+  "boundaries": [
+    "A partial delivered marker also blocks subsequent same-day complete delivery under ordinary dedupe; explicit correction can resend. This is an operational policy boundary, not classified as a defect absent automatic-upgrade requirement.",
+    "Passing SMTP envelope checks does not prove actual message DATA delivery or inbox receipt.",
+    "Current audit initial failure is preserved while parent repairs publication guards.",
+    "A wider local suite initially encountered Python 3.14 Windows mode700 temp directory ACL errors; adapted runner changes mode only within audit temp directories. After concurrent source-validation edits it had 97 passes/2 outdated-source-fixture failures, awaiting final stable rerun."
+  ]
+}

@@ -1,0 +1,60 @@
+{
+  "status": "PASS_REPRODUCED_FOUR_UNFIXED_SCRIPT_FINDINGS",
+  "scripts": [
+    {
+      "script": "policy_state/repro_policy_state.py",
+      "command": [
+        "C:\\Python314\\python.exe",
+        "-B",
+        "-X",
+        "utf8",
+        "D:\\动量策略\\IC和IM滚动套利\\research_reports\\20261013_latest_adversarial_review\\policy_state\\repro_policy_state.py"
+      ],
+      "exit_code": 0,
+      "wall_seconds": 3.426
+    },
+    {
+      "script": "market_delivery/repro_market_delivery.py",
+      "command": [
+        "C:\\Python314\\python.exe",
+        "-B",
+        "-X",
+        "utf8",
+        "D:\\动量策略\\IC和IM滚动套利\\research_reports\\20261013_latest_adversarial_review\\market_delivery\\repro_market_delivery.py"
+      ],
+      "exit_code": 0,
+      "wall_seconds": 5.899
+    },
+    {
+      "script": "strategy/verify_strategy_evidence.py",
+      "command": [
+        "C:\\Python314\\python.exe",
+        "-B",
+        "-X",
+        "utf8",
+        "D:\\动量策略\\IC和IM滚动套利\\research_reports\\20261013_latest_adversarial_review\\strategy\\verify_strategy_evidence.py"
+      ],
+      "exit_code": 0,
+      "wall_seconds": 1.574
+    }
+  ],
+  "findings_reproduced": [
+    "PS-01",
+    "PS-02",
+    "MARKET-P1-01",
+    "REPORT-P2-01"
+  ],
+  "controls_confirmed": [
+    "saved_real_ledger_products",
+    "new_core_without_new_plan",
+    "future_route_preserves_pending",
+    "normal_close_snapshot"
+  ],
+  "strategy_saved_input_hash_count": 9,
+  "strategy_saved_metric_rows": 6,
+  "synthetic_recovery_probes": 4,
+  "protected_files_unchanged": true,
+  "protected_file_count": 816,
+  "unfixed_defects": true,
+  "scope": "Review only. Synthetic fault injection is not an observed production incident or a new strategy backtest."
+}

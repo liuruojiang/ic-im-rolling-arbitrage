@@ -1,0 +1,101 @@
+{
+  "scope": "Critical replay/account/model/runtime sources; root Python and frozen files additionally covered by protected_before.json. This is not a claim of complete transitive dependency capture.",
+  "sources": [
+    {
+      "path": "D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261002_fix10_vs_fix11_full_history\\run_account.py",
+      "sha256": "7e4a5b5f334f3fa2bf92d3cd9d4e405e60c65c3e74ebb2a48dbc4b9c837acdcc"
+    },
+    {
+      "path": "D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261003_mom120_core_only_annual\\run_full_model.py",
+      "sha256": "c6dcd77d1a2611b564a6e93e308b54388714d13335a14c8448bbf23488b6444a"
+    },
+    {
+      "path": "D:\\动量策略\\IC和IM滚动套利\\quant_param_scan_runs\\20260926_icim_fix8_momentum_transfer_robustness\\native_account.py",
+      "sha256": "23bcc16adeb21a8fbc2efdba6bf204a5ae271534792746bbf9e060404241ce93"
+    },
+    {
+      "path": "D:\\动量策略\\IC和IM滚动套利\\quant_param_scan_runs\\20260928_momentum_future_breakeven_fix9_asifcurrent_full_v2\\run_candidate.py",
+      "sha256": "3a457787df1d0180e3b4a5bf67de62c8fc868e2e58fe1144ee7b7e316e4ff598"
+    },
+    {
+      "path": "D:\\动量策略\\IC和IM滚动套利\\quant_param_scan_runs\\20260927_fix9_model_fullaccount_corrected_input\\model_source_v3.py",
+      "sha256": "65cd0a23cabd393544a577e051887f6b3fad380850d872ba054772734946aff1"
+    },
+    {
+      "path": "D:\\动量策略\\IC和IM滚动套利\\quant_param_scan_runs\\20260927_fix9_model_fullaccount_corrected_input\\model_source_v2.py",
+      "sha256": "5b03446ed0342180b84b221024406026649f3631393d4684d28f03286492f435"
+    },
+    {
+      "path": "D:\\动量策略\\IC和IM滚动套利\\quant_param_scan_runs\\20260927_fix9_model_fullaccount\\model_source.py",
+      "sha256": "e53dae4b15c00ba3f0287d1ed2269543d2c7471292d41b0cb2fbbc8b6712621e"
+    },
+    {
+      "path": "D:\\动量策略\\IC和IM滚动套利\\outputs\\re_certification\\icim_v14_fix4_recert_20260924\\l5_native_signal_reconstruction_20260925\\native_fix4_historical_sources_v2.py",
+      "sha256": "24d1c745c9e777464904c958b61ff3e3f7d82fb7b16c237de88d0532a012ad4c"
+    },
+    {
+      "path": "D:\\动量策略\\IC和IM滚动套利\\outputs\\re_certification\\icim_v14_fix4_recert_20260924\\l2_account_ledger_repair_20260925\\trade_account.py",
+      "sha256": "3e19334225105ed49c9ae5468e6b195b2ea24ed98ee9176686b9fbb0509b6033"
+    },
+    {
+      "path": "D:\\动量策略\\IC和IM滚动套利\\research_ic_short95_put_to_ic_recovery_full_model_v1.py",
+      "sha256": "7ee58ff1f590d0fb9a594b5f37bdded9d58fc323f8e168e6ab0d0af0b278e891"
+    },
+    {
+      "path": "D:\\动量策略\\IC和IM滚动套利\\research_im_v13_full_short95_profit3x_joint_v1.py",
+      "sha256": "3efd0b45b1f9d14c168fd82cc48791a61557fbb2b38279f2fe42c37975047b7d"
+    },
+    {
+      "path": "D:\\动量策略\\IC和IM滚动套利\\im_mo_csi1000_put_protection_battery_v6.py",
+      "sha256": "7a1043bc5add7bb7d7f09e448dd715715befe08e2ce42dbcf36af849f7999f3d"
+    },
+    {
+      "path": "D:\\动量策略\\IC和IM滚动套利\\ic_im_v1_4_policy.py",
+      "sha256": "e658610a4259ac6e00eca9495589e7e78c47ab87437d89090038d7a0b49e202f"
+    },
+    {
+      "path": "D:\\动量策略\\IC和IM滚动套利\\poe_ic_im_mainline_v1_4_bot.py",
+      "sha256": "6a31e15f28428bae723650478ecd923062a1fdd9206959d797744167337c48cc"
+    },
+    {
+      "path": "D:\\动量策略\\IC和IM滚动套利\\poe_ic_im_v1_4_state.py",
+      "sha256": "d589d8f651e565cfdc5b8f521f29dfbd44e638b73cde552a2f73dbcf3de64705"
+    },
+    {
+      "path": "D:\\动量策略\\IC和IM滚动套利\\run_ic_im_v1_4_github_digest.py",
+      "sha256": "f84c1374ecd7bc20d1d3932aeb80dcd9af1f21dfdafbeadb74c408fc06724242"
+    },
+    {
+      "path": "D:\\动量策略\\IC和IM滚动套利\\notes\\mainline_registry.md",
+      "sha256": "ee9cce7574671857613abf6ee009a1c49832cb634268173fd6e9423c9a0b134d"
+    },
+    {
+      "path": "D:\\动量策略\\IC和IM滚动套利\\docs\\ic_im_system_mainlines_v1_spec.md",
+      "sha256": "a7ed851fdae45a16cd14d05449730221a8a2c804fb2be56efaedafb7ab0eb2fc"
+    },
+    {
+      "path": "D:\\动量策略\\IC和IM滚动套利\\outputs\\ic_im_system_mainlines_v1\\record.md",
+      "sha256": "977607e0438fc3a32a4eab9aedf081fa421df25d00e96c1b6993a6f147328a55"
+    }
+  ],
+  "python_and_commands": {
+    "listed": [
+      "C:\\Python314\\python.exe",
+      "-B",
+      "-X",
+      "utf8",
+      "research_reports/20261013_recovery_put_research/run_research.py",
+      "--panel",
+      "listed"
+    ],
+    "model": [
+      "C:\\Python314\\python.exe",
+      "-B",
+      "-X",
+      "utf8",
+      "research_reports/20261013_recovery_put_research/run_research.py",
+      "--panel",
+      "model"
+    ]
+  }
+}

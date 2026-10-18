@@ -1,0 +1,9 @@
+{
+  "changes": {
+    "quant_research_runs\\20261016_dual_fear_grid_and_or_v1\\run_joint.py": {
+      "original": "e43e011fefd27e1dad19eff4dc7468c5e4f1b2e57f4a89b09304e362d558a6c6",
+      "current": "079e8110c0d462e6b7d231b09011ff46ff158e2f9af7c670759dbd5c0e46ea23"
+    }
+  },
+  "reason": "Count terminal open positions from executed holdings, not a pending last-day target; original driver retained in frozen_inputs and backups"
+}

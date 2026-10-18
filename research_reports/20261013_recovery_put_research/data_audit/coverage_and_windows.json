@@ -1,0 +1,156 @@
+{
+  "coverage": {
+    "IC_master": {
+      "rows": 45485,
+      "distinct_days": 946,
+      "start": "2022-09-19 00:00:00",
+      "end": "2026-08-14 00:00:00",
+      "columns": [
+        "date",
+        "security_id",
+        "contract_id",
+        "contract_month",
+        "strike",
+        "delta",
+        "implied_volatility"
+      ]
+    },
+    "IC_option_OHLCV": {
+      "rows": 53745,
+      "distinct_days": 946,
+      "start": "2022-09-19 00:00:00",
+      "end": "2026-08-14 00:00:00",
+      "columns": [
+        "security_id",
+        "date",
+        "open",
+        "high",
+        "low",
+        "close",
+        "volume"
+      ]
+    },
+    "IC_ETF": {
+      "rows": 3259,
+      "distinct_days": 3259,
+      "start": "2013-03-15 00:00:00",
+      "end": "2026-08-14 00:00:00",
+      "columns": [
+        "date",
+        "open",
+        "high",
+        "low",
+        "close",
+        "volume",
+        "amount",
+        "postVol",
+        "postAmt"
+      ]
+    },
+    "IC_futures": {
+      "rows": 11024,
+      "distinct_days": 2756,
+      "start": "2015-04-16 00:00:00",
+      "end": "2026-08-14 00:00:00",
+      "columns": [
+        "contract",
+        "date",
+        "open",
+        "high",
+        "low",
+        "volume",
+        "turnover",
+        "open_interest",
+        "close",
+        "settle",
+        "pre_settle"
+      ]
+    },
+    "IM_futures": {
+      "rows": 3964,
+      "distinct_days": 991,
+      "start": "2022-07-22 00:00:00",
+      "end": "2026-08-21 00:00:00",
+      "columns": [
+        "contract",
+        "date",
+        "open",
+        "high",
+        "low",
+        "volume",
+        "turnover",
+        "open_interest",
+        "close",
+        "settle",
+        "pre_settle"
+      ]
+    },
+    "IM_archive_inventory": {
+      "archives": 50,
+      "first_file": "202207.zip",
+      "last_file": "202608.zip",
+      "dated_csv_members": 1006,
+      "first_member_day": "2022-07-01",
+      "last_member_day": "2026-08-21",
+      "boundary": "Archive member inventory only; recovery-window MO chains are fully parsed below. This is not all-history per-row price certification.",
+      "missing_saved_account_days": []
+    }
+  },
+  "actual_windows": {
+    "IC": {
+      "account_start": "2022-09-19",
+      "account_end": "2026-08-13",
+      "account_days": 945,
+      "route_counts": {
+        "future": 816,
+        "short_put": 126,
+        "assigned_etf": 1,
+        "recovery_future": 1
+      },
+      "actual_recovery_or_assigned_asset_days": [
+        {
+          "date": "2025-01-22",
+          "seller_route": "short_put",
+          "etf_value": 25258394.708965536
+        },
+        {
+          "date": "2025-01-23",
+          "seller_route": "assigned_etf",
+          "etf_value": 25154784.386456847
+        },
+        {
+          "date": "2025-01-24",
+          "seller_route": "recovery_future",
+          "etf_value": 0.0
+        }
+      ],
+      "ordinary_put_zero_over_probed_window": true
+    },
+    "IM": {
+      "account_start": "2022-07-22",
+      "account_end": "2026-08-14",
+      "account_days": 986,
+      "route_counts": {
+        "future": 845,
+        "short_put": 138,
+        "cash_wait": 1,
+        "recovery_future": 1
+      },
+      "actual_recovery_or_assigned_asset_days": [
+        {
+          "date": "2025-01-20",
+          "seller_route": "cash_wait",
+          "etf_value": 0.0
+        },
+        {
+          "date": "2025-01-21",
+          "seller_route": "recovery_future",
+          "etf_value": 0.0
+        }
+      ],
+      "ordinary_put_zero_over_probed_window": true
+    }
+  },
+  "missing": [],
+  "classification": "real frozen inputs; reference-only selector identities are not signal targets or fills"
+}

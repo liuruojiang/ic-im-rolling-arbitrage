@@ -1,0 +1,49 @@
+{
+  "pr": 152,
+  "url": "https://github.com/liuruojiang/codex-daily-automation-probe/pull/152",
+  "head": "1ff34a121fbdab7b89af18c7e75ff3e2283c003b",
+  "merge": "5520fce411f0a3815287f38747b67e0e5eb789cd",
+  "ci_run": 38845218869,
+  "checks": [
+    {
+      "name": "strategy-tests (microcap)",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/liuruojiang/codex-daily-automation-probe/actions/runs/38845218869/job/116794100375"
+    },
+    {
+      "name": "automation-tests",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/liuruojiang/codex-daily-automation-probe/actions/runs/38845218869/job/116794100305"
+    },
+    {
+      "name": "strategy-tests (icim)",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/liuruojiang/codex-daily-automation-probe/actions/runs/38845218869/job/116794100080"
+    }
+  ],
+  "readback": [
+    {
+      "path": "scripts/ic_im_option_maintenance_notice.py",
+      "git_blob_sha": "5e39e6c4e131803ad947574b80e35fb272e2c7d6"
+    },
+    {
+      "path": "docs/ic-im-monthly-put-notice-20261016.md",
+      "git_blob_sha": "e102b1c8445d1e1259f6384f1962e34c221482e7"
+    },
+    {
+      "path": "scripts/build_ic_im_v1_4_digest.py",
+      "git_blob_sha": "f0d8492778fa120252cb9265d12d63c7c2075a91"
+    },
+    {
+      "path": "tests/test_ic_im_v1_4_monthly_maintenance_notice.py",
+      "git_blob_sha": "4dbf688bfd7b21287c9bce25d25750516aa4bbd5"
+    }
+  ],
+  "workflow_git_blob_unchanged": "f43f9abb2454b4abdd48dcc948ef085ea9d8a9de",
+  "production_rerun": false,
+  "smtp_send": false,
+  "ledger_mutated": false
+}

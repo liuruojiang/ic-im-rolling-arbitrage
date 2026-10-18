@@ -1,0 +1,64 @@
+{
+  "strategy_sha": "36ef68aa1e96a1d352d67f60eeb36e3e622bd010",
+  "automation_sha": "bcbd91a4714d4b649e3a6b26af90789ef605b848",
+  "run": 38856549173,
+  "report_generated_at": "2026-10-16T13:37:34+08:00",
+  "shared_fear_fields_count": 23,
+  "shared_fear_differences": {},
+  "zip_sha256": "587a54945617b38cb903bf3fd95ff77ebb9c117f02d8df69ed6ef0f4a140d4db",
+  "zip_files_verified": 21,
+  "render_checks": {
+    "ic_im_v1_4_digest.md": {
+      "合计16张（核心16张 510500P2612M06500": true,
+      "Put：2026-10-16收盘维护候选（盘尾复核）": true,
+      "期货：下一交易日2026-10-19研究目标": true,
+      "9圈恐慌贪婪指数：2.280": true,
+      "数据日 2026-10-15": true,
+      "与百分位数据日不同": true,
+      "仅供参考，不参与网格信号": true
+    },
+    "ic_im_v1_4_digest.html": {
+      "合计16张（核心16张 510500P2612M06500": true,
+      "Put：2026-10-16收盘维护候选（盘尾复核）": true,
+      "期货：下一交易日2026-10-19研究目标": true,
+      "9圈恐慌贪婪指数：2.280": true,
+      "数据日 2026-10-15": true,
+      "与百分位数据日不同": true,
+      "仅供参考，不参与网格信号": true
+    }
+  },
+  "transitions": {
+    "IC": {
+      "primary_percentile": [
+        0.0,
+        "none",
+        "hold_flat"
+      ],
+      "unused_jiu_counterfactual": [
+        0.5,
+        "fear_only",
+        "enter_fear_only"
+      ],
+      "published_target": 0.0
+    },
+    "IM": {
+      "primary_percentile": [
+        0.5,
+        "valuation_only",
+        "hold_grid"
+      ],
+      "unused_jiu_counterfactual": [
+        0.5,
+        "valuation_only",
+        "hold_grid"
+      ],
+      "published_target": 0.5
+    }
+  },
+  "ic_monthly_candidate": "510500P2612M06500",
+  "ic_monthly_candidate_qty": 16,
+  "source_jiu_date": "2026-10-15",
+  "source_jiu_value": 2.28,
+  "message_sent": false,
+  "scope": "Read-only final artifact inspection. SMTP envelope check succeeded without DATA; no inbox receipt claimed."
+}

@@ -1,0 +1,212 @@
+{
+  "head": "68dcc8d978ae5dae4a60c5fbd4a5c8c3c2a2d300",
+  "exit_code": 0,
+  "counts": {
+    "cumulative_24": {
+      "tests": 454,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "additional_6": {
+      "tests": 68,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "new_repair_cases": {
+      "tests": 61,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  "total_cases": 583,
+  "wall_seconds": 55.642,
+  "canonical_ledger": {
+    "sequence": 12,
+    "verified_day": "2026-10-12",
+    "digest": "6bfb74ddb3d43b783e3cde7e9ee61119619f1d4369509a8384e42bad107b0bf4",
+    "strategy_revision": "r1"
+  },
+  "canonical_json_files": 15,
+  "canonical_unchanged_from_original_review": true,
+  "protected_files_unchanged_during_tests": true,
+  "changed_existing_paths_since_review": [
+    "ic_im_v1_4_policy.py",
+    "poe_ic_im_mainline_v1_4_bot.py",
+    "poe_ic_im_v1_4_state.py",
+    "run_ic_im_v1_4_github_digest.py"
+  ],
+  "frozen_spec_hashes": [
+    {
+      "path": "docs\\ic_im_fix6_profit3x_t1_open_vs_close_research_v1_spec.md",
+      "expected": "1e34d10fa7e93087881cb015043ca3226430a01a3d7a3496eeee2d3a7c77f734",
+      "actual": "1e34d10fa7e93087881cb015043ca3226430a01a3d7a3496eeee2d3a7c77f734",
+      "match": true
+    },
+    {
+      "path": "docs\\ic_im_im_grid160_half_20260914_v1_spec.md",
+      "expected": "35ae2bbf425b6d954a9fcc9e7884eb7b62f70c00ee230aa5b7cff544294db3de",
+      "actual": "35ae2bbf425b6d954a9fcc9e7884eb7b62f70c00ee230aa5b7cff544294db3de",
+      "match": true
+    },
+    {
+      "path": "docs\\ic_im_im_mom120_put102_20260908_v1_spec.md",
+      "expected": "485323354b1f1885266590746be88c9fcacee0ac3ebb39dcdbc2072658af8d0b",
+      "actual": "485323354b1f1885266590746be88c9fcacee0ac3ebb39dcdbc2072658af8d0b",
+      "match": true
+    },
+    {
+      "path": "docs\\ic_im_mainline_v1_2_spec.md",
+      "expected": "f84e3d672806da22e6c54c9178a68e554ecbcc1f5d40bd57dd8b05a42dd7eb53",
+      "actual": "f84e3d672806da22e6c54c9178a68e554ecbcc1f5d40bd57dd8b05a42dd7eb53",
+      "match": true
+    },
+    {
+      "path": "docs\\ic_im_mainline_v1_3_fixed_performance_v4_spec.md",
+      "expected": "03706fe017a64fdff9164351d6ce96bedbfe0efb024d55f16df403dd8a3d2819",
+      "actual": "03706fe017a64fdff9164351d6ce96bedbfe0efb024d55f16df403dd8a3d2819",
+      "match": true
+    },
+    {
+      "path": "docs\\ic_im_mainline_v1_3_fixed_performance_v5_spec.md",
+      "expected": "a0133e7bee0a0f6d9757fc0f40d198154d7746a15262c4106100c59989a5e9f1",
+      "actual": "a0133e7bee0a0f6d9757fc0f40d198154d7746a15262c4106100c59989a5e9f1",
+      "match": true
+    },
+    {
+      "path": "docs\\ic_im_mainline_v1_3_r2_spec.md",
+      "expected": "dde368ec0b348cdd52c8ad7cd638f094ee8fa24a9d2439710479d6efcddf55c0",
+      "actual": "dde368ec0b348cdd52c8ad7cd638f094ee8fa24a9d2439710479d6efcddf55c0",
+      "match": true
+    },
+    {
+      "path": "docs\\ic_im_mainline_v1_3_r3_spec.md",
+      "expected": "74656916cefe308913b2d826a2c24332c755635dccf73d9ba1561f2e9f9e4752",
+      "actual": "74656916cefe308913b2d826a2c24332c755635dccf73d9ba1561f2e9f9e4752",
+      "match": true
+    },
+    {
+      "path": "docs\\ic_im_mainline_v1_3_r4_spec.md",
+      "expected": "a6c801c0576a19f15b2200cc63d4c0741111d4572314b12b4bebfc80c71f341f",
+      "actual": "a6c801c0576a19f15b2200cc63d4c0741111d4572314b12b4bebfc80c71f341f",
+      "match": true
+    },
+    {
+      "path": "docs\\ic_im_mainline_v1_3_r5_spec.md",
+      "expected": "66202cfa93cf50c4173390643eb45cec4145ebd4cb20a786aaab5a70c1f20c30",
+      "actual": "66202cfa93cf50c4173390643eb45cec4145ebd4cb20a786aaab5a70c1f20c30",
+      "match": true
+    },
+    {
+      "path": "docs\\ic_im_mainline_v1_3_r6_spec.md",
+      "expected": "24c718a938534362aa6c6c5bd283bf610baf91a852bff210268f5270a790fefa",
+      "actual": "24c718a938534362aa6c6c5bd283bf610baf91a852bff210268f5270a790fefa",
+      "match": true
+    },
+    {
+      "path": "docs\\ic_im_mainline_v1_3_r7_spec.md",
+      "expected": "82e9fffe6d905c173f2f7c29dd29a385c7f0ec9caf28f5ed5b394236eb737a89",
+      "actual": "82e9fffe6d905c173f2f7c29dd29a385c7f0ec9caf28f5ed5b394236eb737a89",
+      "match": true
+    },
+    {
+      "path": "docs\\ic_im_mainline_v1_3_spec.md",
+      "expected": "96258c00944e9b181b0c905660ed6effa395d32b3deb3d15ae3c32e16d9119e6",
+      "actual": "96258c00944e9b181b0c905660ed6effa395d32b3deb3d15ae3c32e16d9119e6",
+      "match": true
+    },
+    {
+      "path": "docs\\ic_im_mainline_v1_4_r1_spec.md",
+      "expected": "d891854db7984be516962df755ac5f07406ec3f1178ad5c6a4eaaaf3155f26f2",
+      "actual": "d891854db7984be516962df755ac5f07406ec3f1178ad5c6a4eaaaf3155f26f2",
+      "match": true
+    },
+    {
+      "path": "docs\\ic_im_mom120_abs20_debounce_20260915_v1_spec.md",
+      "expected": "ee72a2da59b0951e79296ca60aceb515a1d5831f834e84841128eb79e727c67d",
+      "actual": "ee72a2da59b0951e79296ca60aceb515a1d5831f834e84841128eb79e727c67d",
+      "match": true
+    },
+    {
+      "path": "docs\\ic_im_put102_adversarial_fix_20260908_v1_spec.md",
+      "expected": "a427127d996e79cac33ddfda083f8107b5a53fc3b91f29b5b3308ad7b7405ff5",
+      "actual": "a427127d996e79cac33ddfda083f8107b5a53fc3b91f29b5b3308ad7b7405ff5",
+      "match": true
+    },
+    {
+      "path": "docs\\ic_im_put_max_protection_scan_v1_spec.md",
+      "expected": "91833fb24069e8367eb295a671e0b1b6b903e6ea4da3a2d355baa44b31adac97",
+      "actual": "91833fb24069e8367eb295a671e0b1b6b903e6ea4da3a2d355baa44b31adac97",
+      "match": true
+    },
+    {
+      "path": "docs\\ic_im_system_mainlines_v1_spec.md",
+      "expected": "a7ed851fdae45a16cd14d05449730221a8a2c804fb2be56efaedafb7ab0eb2fc",
+      "actual": "a7ed851fdae45a16cd14d05449730221a8a2c804fb2be56efaedafb7ab0eb2fc",
+      "match": true
+    },
+    {
+      "path": "docs\\ic_im_system_mainlines_v2_spec.md",
+      "expected": "244dc8774d099433f125ebdb4940c8fc26c70368f4818f7e81f29240ed6ecc7d",
+      "actual": "244dc8774d099433f125ebdb4940c8fc26c70368f4818f7e81f29240ed6ecc7d",
+      "match": true
+    },
+    {
+      "path": "docs\\ic_im_v1_3_put_monthly_correction_v1_spec.md",
+      "expected": "88d810dc5de63138dc5e611c71a5c83be9c966933a851e6a8bf660004ddbc2b7",
+      "actual": "88d810dc5de63138dc5e611c71a5c83be9c966933a851e6a8bf660004ddbc2b7",
+      "match": true
+    },
+    {
+      "path": "docs\\ic_im_v1_4_r1_adversarial_fix1_spec.md",
+      "expected": "448d21c4fefc3a34ff50e38af3f45e642ba0d0636b66190221949b6c1f67cb9a",
+      "actual": "448d21c4fefc3a34ff50e38af3f45e642ba0d0636b66190221949b6c1f67cb9a",
+      "match": true
+    },
+    {
+      "path": "docs\\ic_im_v1_4_r1_fix10_fear_grid25_50_20261008_spec.md",
+      "expected": "f8a0279ce862edc5b48bf41c1f6402a326f80e01e8c52e3e1eeb2cd33085f86f",
+      "actual": "f8a0279ce862edc5b48bf41c1f6402a326f80e01e8c52e3e1eeb2cd33085f86f",
+      "match": true
+    },
+    {
+      "path": "docs\\ic_im_v1_4_r1_fix11_ic_csi500_abs40_20261008_spec.md",
+      "expected": "fd0a2429fba12d9f83017186a364b0f89c80261577e6ab1cedd8962bc891e717",
+      "actual": "fd0a2429fba12d9f83017186a364b0f89c80261577e6ab1cedd8962bc891e717",
+      "match": true
+    },
+    {
+      "path": "docs\\ic_im_v1_4_r1_fix4_integrated_20260924_spec.md",
+      "expected": "94c064c4d6c400bb40930c1bf4bc9f50e5a6c1407f9f2af7aaead82b71d88cbf",
+      "actual": "94c064c4d6c400bb40930c1bf4bc9f50e5a6c1407f9f2af7aaead82b71d88cbf",
+      "match": true
+    },
+    {
+      "path": "docs\\ic_im_v1_4_r1_fix7_profit3x_t1_open_20260928_spec.md",
+      "expected": "80a2de2e7321a6c07795fd9a98258eeac913126c6293393360c1496951150945",
+      "actual": "80a2de2e7321a6c07795fd9a98258eeac913126c6293393360c1496951150945",
+      "match": true
+    },
+    {
+      "path": "docs\\ic_im_v1_4_r1_fix8_ordinary_put_t1_open_20260929_spec.md",
+      "expected": "33c659946de8c5730b41d11be51ea88ad7339de4a155fe8bf6a6d2c625247364",
+      "actual": "33c659946de8c5730b41d11be51ea88ad7339de4a155fe8bf6a6d2c625247364",
+      "match": true
+    },
+    {
+      "path": "docs\\ic_im_v1_4_r1_fix9_ic_seller_mom120_20260929_spec.md",
+      "expected": "b28efe860bd2d8552ff65df9a9aa84cc721c06efc856e33025a380a1e24b08db",
+      "actual": "b28efe860bd2d8552ff65df9a9aa84cc721c06efc856e33025a380a1e24b08db",
+      "match": true
+    },
+    {
+      "path": "docs\\ic_im_v1_4_r1_signal_scope_fix2_spec.md",
+      "expected": "5cb06b020e3a7f6386cbef940aabd382a3881a63869c7f51382370e97d8bcc41",
+      "actual": "5cb06b020e3a7f6386cbef940aabd382a3881a63869c7f51382370e97d8bcc41",
+      "match": true
+    }
+  ],
+  "scope": "Local repair regression; no live fetch, performance certification, mail or deployment."
+}

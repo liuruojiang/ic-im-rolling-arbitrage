@@ -1,0 +1,117 @@
+[
+  {
+    "path": "D:\\动量策略\\IC和IM滚动套利\\data\\ic_510500_put_proxy_validation_v1\\sse_510500_standard_put_snapshots.csv.gz",
+    "bytes": 317476,
+    "sha256": "6ccf9890d1ad8b354d083905ce1879380a6353ae0ff6171fc6d7d94bce2d965e"
+  },
+  {
+    "path": "D:\\动量策略\\IC和IM滚动套利\\data\\ic_510500_put_proxy_validation_v1\\sina_510500_put_histories.csv.gz",
+    "bytes": 855740,
+    "sha256": "c9b2cf0430864d3f2004e892d6bffa3bcee09b1f0c5b0e67269349019e7d5e10"
+  },
+  {
+    "path": "D:\\动量策略\\IC和IM滚动套利\\data\\ic_510500_put_proxy_validation_v1\\sina_510500_etf.csv",
+    "bytes": 186381,
+    "sha256": "e08cc63fcfd5ad5d6cdbab1d0d2f729ed76b5ba0afd655806f817a16ad82597d"
+  },
+  {
+    "path": "D:\\动量策略\\IC和IM滚动套利\\data\\ic_monthly_discount_roll_v1\\cffex_ic_contracts.csv",
+    "bytes": 918156,
+    "sha256": "4e02b889747112459125999382c3ff2fe89017aaea30df05e91bb2a7bc1e2104"
+  },
+  {
+    "path": "D:\\动量策略\\IC和IM滚动套利\\data\\im_roll_momentum_blend_v1\\upstream_im_roll_data\\cffex_im_contracts.csv",
+    "bytes": 335615,
+    "sha256": "51f46516d3c97ff90f11c5e193d531aafd007022aba2a826f6ed6a000762ef8e"
+  },
+  {
+    "path": "D:\\动量策略\\IC和IM滚动套利\\data\\im_roll_momentum_blend_v1\\upstream_im_roll_data\\cffex_raw\\202501.zip",
+    "bytes": 451440,
+    "sha256": "512324c72d833e1d45a036dbeaa133aa943163e8973623b5e5d87674b28318d5"
+  },
+  {
+    "path": "D:\\动量策略\\IC和IM滚动套利\\data\\ic_510500_put_proxy_validation_v1\\sina_000905_index.csv",
+    "bytes": 307853,
+    "sha256": "bbee1ef41f0fe0445398a0f51ff98375c766af22f0b0f92f5409dd6ef8456c35"
+  },
+  {
+    "path": "D:\\动量策略\\IC和IM滚动套利\\quant_param_scan_runs\\20260912_ic_im_v13_r7_r2_current_f_base_width_scan\\im_ohlcv_frozen_plus_fresh.csv.gz",
+    "bytes": 71205,
+    "sha256": "2d363962a1316ecb6e48c83124fa96a82ab13982b6e211a9287aea1e753feee5"
+  },
+  {
+    "path": "D:\\动量策略\\IC和IM滚动套利\\data\\ic_im_valuation_risk_premium_forecast_v4\\chinabond_government_10y.csv",
+    "bytes": 115749,
+    "sha256": "84ac6df41432c850ab29748f3bb36eb5c7fd99c40872bd7cb472d2f851d40661"
+  },
+  {
+    "path": "D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261002_fix10_vs_fix11_full_history\\account_daily_paths.csv.gz",
+    "bytes": 115233,
+    "sha256": "244f2dba987ef63737f602de7efd43416c2a76baf1759364259b7789474c93e0"
+  },
+  {
+    "path": "D:\\动量策略\\IC和IM滚动套利\\quant_param_scan_runs\\20260928_fear_entry_paired_exit_fix9_certified_v2\\outputs\\fix9_full_account_daily_nav.csv.gz",
+    "bytes": 1198635,
+    "sha256": "bfadedc03c935848947f90a79c3ab080c87ef191fbb05e664bdd69eafa12cf18"
+  },
+  {
+    "path": "D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261002_fix10_vs_fix11_full_history\\account_events.csv.gz",
+    "bytes": 196242,
+    "sha256": "6f02d66f5020fc466d8a6ec110359355497ac1911c971fc71e206a92b71d75c5"
+  },
+  {
+    "path": "D:\\动量策略\\IC和IM滚动套利\\quant_param_scan_runs\\20260928_fear_entry_paired_exit_fix9_certified_v2\\outputs\\full_account_events.csv.gz",
+    "bytes": 1805478,
+    "sha256": "2f22016f2a661919ef84e857ba4e2e06c9c17bcbe706c24aa9031e32c614855e"
+  },
+  {
+    "path": "D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261002_fix10_vs_fix11_full_history\\account_inputs\\FIX11_full\\native_fix4_ic_noseller_targets_v2.csv.gz",
+    "bytes": 15667,
+    "sha256": "b62e1b41ccb761577499cc0804888bbeaaae38058e18206f953455732d172100"
+  },
+  {
+    "path": "D:\\动量策略\\IC和IM滚动套利\\quant_param_scan_runs\\20260926_icim_fix8_momentum_transfer_robustness\\input_variants\\im\\formal\\native_fix4_im_noseller_targets_v3.csv.gz",
+    "bytes": 17290,
+    "sha256": "b80e8e93a316d9bc4ff4c4260f8f2677e01f3280060f57328a1f82f464c5bd83"
+  },
+  {
+    "path": "D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261002_fix10_vs_fix11_full_history\\account_inputs\\FIX11_full\\native_fix4_ic_risk_signals_v1.csv.gz",
+    "bytes": 29444,
+    "sha256": "6e851122d86a23d82cf5a4b4d79a77e20f926fceda2c2961218ecd47bf991795"
+  },
+  {
+    "path": "D:\\动量策略\\IC和IM滚动套利\\quant_param_scan_runs\\20260926_icim_fix8_momentum_transfer_robustness\\input_variants\\im\\formal\\native_fix4_im_risk_signals_v1.csv.gz",
+    "bytes": 31404,
+    "sha256": "80adb115e4f489e28ad7bda9f8da279cbc282f54221eb0ff10a99d8ff5db7c9d"
+  },
+  {
+    "path": "D:\\动量策略\\IC和IM滚动套利\\outputs\\re_certification\\icim_v14_fix4_recert_20260924\\l5_native_signal_reconstruction_20260925\\native_fix4_historical_sources_v1.py",
+    "bytes": 5580,
+    "sha256": "c1054ea5f7de6a22facc463c8c3b4e0b2dbbc9a1ad383b6d63d70616a631af8a"
+  },
+  {
+    "path": "D:\\动量策略\\IC和IM滚动套利\\outputs\\re_certification\\icim_v14_fix4_recert_20260924\\l5_native_signal_reconstruction_20260925\\native_fix4_historical_sources_v2.py",
+    "bytes": 1024,
+    "sha256": "24d1c745c9e777464904c958b61ff3e3f7d82fb7b16c237de88d0532a012ad4c"
+  },
+  {
+    "path": "D:\\动量策略\\IC和IM滚动套利\\quant_param_scan_runs\\20260926_icim_fix8_momentum_transfer_robustness\\native_account.py",
+    "bytes": 50494,
+    "sha256": "23bcc16adeb21a8fbc2efdba6bf204a5ae271534792746bbf9e060404241ce93"
+  },
+  {
+    "path": "D:\\动量策略\\IC和IM滚动套利\\quant_param_scan_runs\\20260926_icim_fix8_momentum_transfer_robustness\\input_variants\\im\\formal\\native_fix4_seller_lifecycle_v4.csv.gz",
+    "bytes": 24102,
+    "sha256": "7e6f71ff82134fa6e843835160bf1157e87bd328f7b262e907c8dd7e8f624769"
+  },
+  {
+    "path": "D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261002_fix10_vs_fix11_full_history\\run_account.py",
+    "bytes": 8790,
+    "sha256": "7e4a5b5f334f3fa2bf92d3cd9d4e405e60c65c3e74ebb2a48dbc4b9c837acdcc"
+  },
+  {
+    "path": "D:\\动量策略\\IC和IM滚动套利\\poe_ic_im_mainline_v1_4_bot.py",
+    "bytes": 407790,
+    "sha256": "6a31e15f28428bae723650478ecd923062a1fdd9206959d797744167337c48cc"
+  }
+]

@@ -1,0 +1,332 @@
+{
+  "status": "READ_ONLY_PREFLIGHT_COMPLETE_ACTIONS_REQUIRED_AT_SNAPSHOT",
+  "started_at_beijing": "2026-10-13T19:25:53.708901+08:00",
+  "completed_at_beijing": "2026-10-13T19:26:14.985786+08:00",
+  "repository": "liuruojiang/codex-daily-automation-probe",
+  "default_branch": "main",
+  "main_sha_at_read": "cf6b6734333e1e315c4fe6b6e9cba43f7bc6ca15",
+  "cloud_checkout": "D:\\Codex\\tmp\\icim_release_20261013\\cloud",
+  "calendar": {
+    "completed_day": "2026-10-13",
+    "verified_by": "root at19:12 Beijing; no market fetch by this preflight"
+  },
+  "strategy_pin_at_snapshot": "68dcc8d978ae5dae4a60c5fbd4a5c8c3c2a2d300",
+  "repair_code_commit_reported_by_root": "427cf45fd78710583c8028f7eca1ed88968036ee",
+  "unchanged_identity": "fix11 BUILD/RULE/DELIVERY; recovery Put research excluded",
+  "workflow_hashes": {
+    ".github/workflows/ic-im-v1-4-daily-digest.yml": {
+      "git_blob_sha": "7354366f5c4b81f08d5904dc1ac73fdee6eebc22",
+      "sha256": "6b8c60171e9fd91c67e6bd08d5f9d57dffff6070a2b7618925a975224f0c51cc"
+    },
+    ".github/workflows/ic-im-v1-4-delivery-readiness.yml": {
+      "git_blob_sha": "1abb27be1a602334d1f163e5b92f63a61389ba88",
+      "sha256": "f0d4beb1c41268a6c93113aa5dc73ca3df9263438ec00c355c529fa32751c996"
+    },
+    ".github/workflows/delivery-regression.yml": {
+      "git_blob_sha": "98ecca5a95c17ba7f757ff57cb180b8b5e3bedc1",
+      "sha256": "10c60c6a867619c6c72960b95cf92d5c053e9fea88a485dad41191e14f37fd37"
+    },
+    ".github/workflows/icim-valuation-smoke.yml": {
+      "git_blob_sha": "9512858c2cd49395a99ab009e08fe55c9e216586",
+      "sha256": "9ba046da743a359fc75ca9105d3a16dccc1f2d19aa9426761e6b9768c1fc5122"
+    }
+  },
+  "pin_resolution": {
+    "literal_pin_path": ".github/workflows/ic-im-v1-4-daily-digest.yml:102",
+    "literal_pin_assertion": "tests/test_ic_im_v1_4_workflow.py:40",
+    "readiness_and_regression_and_valuation_smoke": "All resolve the immutable strategy SHA from daily workflow; no additional pin needs manual update",
+    "download_allowlist": "Cloud uses full strategy checkout, no per-script download allowlist; ic_im_quote_snapshot_guard.py is automatically included"
+  },
+  "schedule": {
+    "external": "weekday12:00UTC /20:00Beijing; Cloudflare workflow_dispatch correction=false external_schedule=true publication_mode=close_confirmed",
+    "github_fallback": "0 12 * * *; may be delayed",
+    "concurrency": "ic-im-v1-4-r1-post-close-digest, cancel-in-progress=false",
+    "early_gate": "Scheduled attempts before20:00Beijing return should_send=false"
+  },
+  "today_runs": {
+    "query_start_utc": "2026-10-12T16:00:00Z",
+    "total_count": 1,
+    "runs": [
+      {
+        "id": 38304934312,
+        "name": "IC IM v1.4-r1 Post-Close Digest",
+        "head_sha": "8ad219c01d878826172979b43a86914be47a2ed6",
+        "event": "schedule",
+        "status": "completed",
+        "conclusion": "success",
+        "created_at": "2026-10-12T20:32:54Z",
+        "updated_at": "2026-10-12T20:33:42Z",
+        "html_url": "https://github.com/liuruojiang/codex-daily-automation-probe/actions/runs/38304934312"
+      }
+    ],
+    "early_run_log_verified": {
+      "run_id": 38304934312,
+      "message": "Scheduled ICIM delivery is not due before20:00Asia/Shanghai",
+      "meaning": "success is gate skip, not send"
+    }
+  },
+  "today_markers_and_intents": {
+    "pages_fetched": 15,
+    "all_repository_artifacts_observed": 1452,
+    "api_total_count": 1452,
+    "matching_unexpired": [],
+    "normal_send_observed": false,
+    "scope": "No matching date-scoped normal-send intent/marker in paginated API at snapshot; recheck immediately before dispatch"
+  },
+  "last_confirmed_normal_send": {
+    "run_id": 38246251785,
+    "signal_day": "2026-10-12",
+    "send_step": "success2026-10-12T12:02:31Z–12:02:37Z",
+    "artifacts": [
+      {
+        "id": 11745797475,
+        "name": "ic-im-v1-4-r1-707295aeaa67-close_confirmed-digest-delivered-2026-10-12-06f14b267ad5",
+        "created_at": "2026-10-12T12:02:38Z",
+        "expired": false,
+        "size_in_bytes": 400,
+        "run_id": 38246251785,
+        "head_sha": "453fb5319660768be7a91950f60de6e80bcd2454"
+      },
+      {
+        "id": 11745742440,
+        "name": "ic-im-v1-4-r1-ledger",
+        "created_at": "2026-10-12T12:02:37Z",
+        "expired": false,
+        "size_in_bytes": 80778,
+        "run_id": 38246251785,
+        "head_sha": "453fb5319660768be7a91950f60de6e80bcd2454"
+      },
+      {
+        "id": 11745487655,
+        "name": "ic-im-v1-4-r1-post-close-digest",
+        "created_at": "2026-10-12T12:02:39Z",
+        "expired": false,
+        "size_in_bytes": 30593,
+        "run_id": 38246251785,
+        "head_sha": "453fb5319660768be7a91950f60de6e80bcd2454"
+      },
+      {
+        "id": 11745437567,
+        "name": "ic-im-v1-4-r1-707295aeaa67-close_confirmed-digest-delivered-2026-10-12-06f14b267ad5-send-intent",
+        "created_at": "2026-10-12T12:02:31Z",
+        "expired": false,
+        "size_in_bytes": 6615,
+        "run_id": 38246251785,
+        "head_sha": "453fb5319660768be7a91950f60de6e80bcd2454"
+      }
+    ],
+    "inbox": "not independently checked in this preflight"
+  },
+  "readiness": {
+    "latest_runs": [
+      {
+        "id": 38319994390,
+        "name": "IC IM v1.4-r1 Delivery Readiness (no send)",
+        "head_sha": "3da86394d9b34ee8df4f021d1a381061d238d72b",
+        "event": "workflow_dispatch",
+        "status": "completed",
+        "conclusion": "success",
+        "created_at": "2026-10-12T23:02:12Z",
+        "updated_at": "2026-10-12T23:03:37Z",
+        "html_url": "https://github.com/liuruojiang/codex-daily-automation-probe/actions/runs/38319994390"
+      },
+      {
+        "id": 38236987937,
+        "name": "IC IM v1.4-r1 Delivery Readiness (no send)",
+        "head_sha": "dfc5c34422507a3ebb9b57d4faa465ebf0c9d1d0",
+        "event": "workflow_dispatch",
+        "status": "completed",
+        "conclusion": "success",
+        "created_at": "2026-10-12T10:32:38Z",
+        "updated_at": "2026-10-12T10:34:50Z",
+        "html_url": "https://github.com/liuruojiang/codex-daily-automation-probe/actions/runs/38236987937"
+      },
+      {
+        "id": 37911491710,
+        "name": "IC IM v1.4-r1 Delivery Readiness (no send)",
+        "head_sha": "06767dbb1d61cdc6f25f0cbededef52db155eae4",
+        "event": "workflow_dispatch",
+        "status": "completed",
+        "conclusion": "success",
+        "created_at": "2026-10-09T09:28:26Z",
+        "updated_at": "2026-10-09T09:30:40Z",
+        "html_url": "https://github.com/liuruojiang/codex-daily-automation-probe/actions/runs/37911491710"
+      },
+      {
+        "id": 37580482043,
+        "name": "IC IM v1.4-r1 Delivery Readiness (no send)",
+        "head_sha": "a89e9099f33ce291830a1415893a6e7cec5eb4cd",
+        "event": "workflow_dispatch",
+        "status": "completed",
+        "conclusion": "success",
+        "created_at": "2026-10-07T06:14:58Z",
+        "updated_at": "2026-10-07T06:16:15Z",
+        "html_url": "https://github.com/liuruojiang/codex-daily-automation-probe/actions/runs/37580482043"
+      },
+      {
+        "id": 37579216117,
+        "name": "IC IM v1.4-r1 Delivery Readiness (no send)",
+        "head_sha": "a026828a942081de515bef4763c08995d9b1a09f",
+        "event": "workflow_dispatch",
+        "status": "completed",
+        "conclusion": "success",
+        "created_at": "2026-10-07T06:00:52Z",
+        "updated_at": "2026-10-07T06:01:56Z",
+        "html_url": "https://github.com/liuruojiang/codex-daily-automation-probe/actions/runs/37579216117"
+      }
+    ],
+    "meaning": "Isolated-ledger producer, normal digest, SMTP auth/envelope without DATA; not sending, normal marker or Gmail INBOX"
+  },
+  "dedupe": {
+    "date_gate": "scripts/check_ic_im_v1_4_delivery.py",
+    "result_day_gate": "scripts/check_ic_im_v1_4_result_day_delivery.py",
+    "prefix_20261013": "ic-im-v1-4-r1-707295aeaa67-close_confirmed-digest-delivered-2026-10-13-",
+    "completed_marker": "blocks same-mode/date/build normal resend across digest suffixes",
+    "intent_without_marker": "fails closed; reconcile original run and Gmail before explicit correction",
+    "intent_persisted_before_SMTP": true,
+    "marker_after_SMTP_success": true
+  },
+  "regression": {
+    "local_files": [
+      "test_delivery_transport_retry.py",
+      "test_ohlcv_provider_validation.py",
+      "test_ic_im_v1_4_policy.py",
+      "test_poe_ic_im_v1_4_state.py",
+      "test_migrate_ic_im_v1_3_r7_to_v1_4_r1_state.py",
+      "test_ic_im_v1_4_integration_guards.py",
+      "test_run_ic_im_v1_4_github_digest.py",
+      "test_adversarial_icim_delivery.py",
+      "test_im_put_policy.py",
+      "test_adversarial_im_put_execution_20260908.py",
+      "test_adversarial_im_ledger_20260908.py",
+      "test_adversarial_im_report_iv_20260908.py",
+      "test_im_put_price_basis.py",
+      "test_live_mo_put_midpoint_20260908.py",
+      "test_grid_half_release_20260913.py",
+      "test_im_grid160_half_release_20260914.py",
+      "test_ic_im_v1_4_ic_csi500_forward.py",
+      "test_adversarial_market_20261007.py",
+      "test_adversarial_state_20261007.py",
+      "test_adversarial_delivery_20261007.py",
+      "test_adversarial_policy_20261007.py",
+      "test_adversarial_cffex_transport_20261009.py",
+      "test_adversarial_cffex_close_runner_20261009.py",
+      "test_tencent_ohlcv_pagination_20261012.py",
+      "test_ic_im_v1_4_repeat_roll_20260925.py",
+      "test_ic_im_v1_4_market_maker_quotes_20260925.py",
+      "test_ic_im_fear_grid_v1.py",
+      "test_ic_im_daily_valuation.py",
+      "test_ic_im_chinabond.py",
+      "test_ic_im_quarter_roll_v1_3.py",
+      "test_ic_im_ordinary_put_route_fix_20261013.py",
+      "test_ic_im_quote_snapshot_guard_20261013.py",
+      "test_ic_im_split_put_summary_20261013.py"
+    ],
+    "local_file_count": 33,
+    "local_junit": {
+      "name": "pytest",
+      "errors": "0",
+      "failures": "0",
+      "skipped": "0",
+      "tests": "609",
+      "time": "16.889",
+      "timestamp": "2026-10-13T11:21:26.306462+08:00",
+      "hostname": "DESKTOP-95I7VVU"
+    },
+    "cloud_files_at_snapshot": [
+      "test_delivery_transport_retry.py",
+      "test_ohlcv_provider_validation.py",
+      "test_poe_ic_im_v1_3_state.py",
+      "test_run_ic_im_v1_3_github_digest.py",
+      "test_ic_im_v1_4_policy.py",
+      "test_ic_im_v1_4_state_guards.py",
+      "test_poe_ic_im_v1_4_state.py",
+      "test_ic_im_v1_4_ic_csi500_forward.py",
+      "test_ic_im_fear_grid_v1.py",
+      "test_ic_im_v1_4_integration_guards.py",
+      "test_run_ic_im_v1_4_github_digest.py",
+      "test_migrate_ic_im_v1_3_r7_to_v1_4_r1_state.py",
+      "test_ic_im_daily_valuation.py",
+      "test_im_put_policy.py",
+      "test_adversarial_im_ledger_20260908.py",
+      "test_adversarial_im_report_iv_20260908.py",
+      "test_adversarial_im_put_execution_20260908.py",
+      "test_im_put_price_basis.py",
+      "test_live_mo_put_midpoint_20260908.py",
+      "test_external_review_fixes_20260911.py",
+      "test_ic_im_chinabond.py",
+      "test_grid_half_release_20260913.py",
+      "test_im_grid160_half_release_20260914.py",
+      "test_adversarial_icim_delivery.py",
+      "test_adversarial_market_20261007.py",
+      "test_adversarial_state_20261007.py",
+      "test_adversarial_delivery_20261007.py",
+      "test_adversarial_policy_20261007.py",
+      "test_adversarial_cffex_transport_20261009.py",
+      "test_adversarial_cffex_close_runner_20261009.py",
+      "test_tencent_ohlcv_pagination_20261012.py"
+    ],
+    "cloud_file_count": 31,
+    "missing_local_files": [
+      "test_ic_im_ordinary_put_route_fix_20261013.py",
+      "test_ic_im_quarter_roll_v1_3.py",
+      "test_ic_im_quote_snapshot_guard_20261013.py",
+      "test_ic_im_split_put_summary_20261013.py",
+      "test_ic_im_v1_4_market_maker_quotes_20260925.py",
+      "test_ic_im_v1_4_repeat_roll_20260925.py"
+    ],
+    "extra_cloud_files": [
+      "test_external_review_fixes_20260911.py",
+      "test_ic_im_v1_4_state_guards.py",
+      "test_poe_ic_im_v1_3_state.py",
+      "test_run_ic_im_v1_3_github_digest.py"
+    ],
+    "recommendation": "Add six missing files to delivery-regression.yml and required tuple in tests/test_delivery_regression_contract.py. Cloud retains4 extra files/alias; expected total is wider than609, not exactly609."
+  },
+  "cloud_renderer": {
+    "issue": "Compact IC summary and table formerly assigned shared momentum identity to independent core",
+    "owned_files": [
+      "scripts/build_ic_im_v1_4_digest.py",
+      "scripts/ic_im_v1_4_put_display.py",
+      "tests/test_ic_im_v1_4_daily_digest.py",
+      "tests/test_ic_im_v1_4_put_display.py"
+    ],
+    "backup_manifest": "research_reports/20261013_release_sync/backups/cloud_renderer/manifest.json",
+    "local_repair_tests": {
+      "name": "pytest",
+      "errors": "0",
+      "failures": "0",
+      "skipped": "0",
+      "tests": "56",
+      "time": "0.938",
+      "timestamp": "2026-10-13T19:21:32.382941+08:00",
+      "hostname": "DESKTOP-95I7VVU"
+    },
+    "source_editing_stopped": true,
+    "rules": {
+      "current_core": "v14_core_put_current_contract; absent staysN/A",
+      "ordinary_target_core": "qty>0 => v14_core_put_contract or first-opening put_target_contract",
+      "momentum": "put_current_contract /put_target_contract with own quantities",
+      "zero_quantity": "no stale identity",
+      "3x_pending": "separate lifecycle plan; never substituted into ordinary/current identity"
+    },
+    "remaining_validator_compatibility": "policy agent owns ordinary-plan gate repair for legal nonfuture and confirmed3x momentum plans",
+    "split_evidence": "research_reports/20261013_release_sync/cloud_renderer_split_evidence.json",
+    "split_full_mail_formats": "PASS: corrected compact summary occurs in complete Markdown and HTML; input result unchanged"
+  },
+  "suggested_commands": [
+    "gh api repos/liuruojiang/codex-daily-automation-probe/commits/main --jq .sha",
+    "gh run list --repo liuruojiang/codex-daily-automation-probe --workflow ic-im-v1-4-daily-digest.yml --limit 10",
+    "gh api repos/liuruojiang/codex-daily-automation-probe/actions/artifacts?per_page=100 --paginate --slurp",
+    "gh run view RUN_ID --repo liuruojiang/codex-daily-automation-probe --json status,conclusion,headSha,jobs"
+  ],
+  "send_recommendation": "After release+renderer+validator gates, root coordinates one normal close_confirmed send with correction=false. Recheck20:00external run/intent/marker first; no separate localSMTP. Acceptance needs exactstrategy-sha,resultdate,ledger,intent,SMTPstep,marker and separate GmailINBOX evidence.",
+  "actions_not_performed": [
+    "remote write",
+    "workflow dispatch",
+    "SMTP/send",
+    "canonical ledger write",
+    "microcap configuration change"
+  ],
+  "failed_read_attempt": "First artifactpagination used--jq at wrong slurp nesting and failed before writing report; corrected with rawpaginated JSON, no remote mutation."
+}

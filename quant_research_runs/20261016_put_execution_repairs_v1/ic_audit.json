@@ -1,0 +1,90 @@
+{
+  "lifecycle": {
+    "product": "IC",
+    "arm": "repeat_roll",
+    "rows": 944,
+    "actions": {
+      "HOLD": 854,
+      "WAIT_SHORT_PUT_ROLL": 81,
+      "ROLL_SHORT_PUT": 3,
+      "ENTER_SHORT_PUT": 2,
+      "SHORT_PUT_ASSIGNED": 1,
+      "ENTER_RECOVERY_FUTURE": 1,
+      "EXIT_RECOVERY_AT_BREAKEVEN": 1,
+      "SHORT_PUT_EXPIRE_WORTHLESS": 1
+    },
+    "model_fill_assumption": "T+1 dated positive open with market maker; no daily volume limit",
+    "entry_basis": "T close premium for formal decay; T+1 open for cash",
+    "scope": "formal seller lifecycle state events only, not 3x or account NAV",
+    "formal_sha256": "9f3044120388ebdedaa5056e5a7b79bf27d27e941a5780b619efa5dfaea9d9fd"
+  },
+  "changed_seller_state_days": 29,
+  "original_seller_actions": {
+    "HOLD": 850,
+    "WAIT_SHORT_PUT_ROLL": 85,
+    "ROLL_SHORT_PUT": 3,
+    "ENTER_SHORT_PUT": 2,
+    "SHORT_PUT_ASSIGNED": 1,
+    "ENTER_RECOVERY_FUTURE": 1,
+    "EXIT_RECOVERY_AT_BREAKEVEN": 1,
+    "SHORT_PUT_EXPIRE_WORTHLESS": 1
+  },
+  "repaired_seller_actions": {
+    "HOLD": 854,
+    "WAIT_SHORT_PUT_ROLL": 81,
+    "ROLL_SHORT_PUT": 3,
+    "ENTER_SHORT_PUT": 2,
+    "SHORT_PUT_ASSIGNED": 1,
+    "ENTER_RECOVERY_FUTURE": 1,
+    "EXIT_RECOVERY_AT_BREAKEVEN": 1,
+    "SHORT_PUT_EXPIRE_WORTHLESS": 1
+  },
+  "entry_open_basis_checks": 5,
+  "target_sha256": "b62e1b41ccb761577499cc0804888bbeaaae38058e18206f953455732d172100",
+  "risk_sha256": "b6e73b2f011e36d33de3adbc8c662285117a7cb332af215ee593b1ca957bde45",
+  "baseline_saved_parity": {
+    "nav": 4.440892098500626e-16,
+    "return_net": 9.8879238130678e-17,
+    "equity_close": 7.450580596923828e-09,
+    "cash_close": 7.450580596923828e-09,
+    "fees_cumulative": 4.656612873077393e-10
+  },
+  "baseline": {
+    "profit3x_resets": 3,
+    "trades": 270,
+    "buyer_open_proxy_count": 0,
+    "min_free_cash": 11854767.684239505
+  },
+  "timing_only_daily_parity": {
+    "nav": 0.0,
+    "return_net": 0.0,
+    "equity_close": 0.0,
+    "cash_close": 0.0,
+    "fees_cumulative": 0.0
+  },
+  "timing_only": {
+    "profit3x_resets": 3,
+    "trades": 270,
+    "buyer_open_proxy_count": 0,
+    "min_free_cash": 11854767.684239505
+  },
+  "cost_only": {
+    "profit3x_resets": 3,
+    "trades": 270,
+    "buyer_open_proxy_count": 0,
+    "min_free_cash": 11828354.608961359
+  },
+  "both_vs_cost_only_parity": {
+    "nav": 0.0,
+    "return_net": 0.0,
+    "equity_close": 0.0,
+    "cash_close": 0.0,
+    "fees_cumulative": 0.0
+  },
+  "both": {
+    "profit3x_resets": 3,
+    "trades": 270,
+    "buyer_open_proxy_count": 0,
+    "min_free_cash": 11828354.608961359
+  }
+}

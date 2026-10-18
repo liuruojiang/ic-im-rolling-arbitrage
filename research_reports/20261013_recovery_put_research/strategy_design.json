@@ -1,0 +1,534 @@
+{
+  "artifact_type": "read_only_research_design_and_adversarial_review",
+  "created_at": "2026-10-13T16:06:10.410431+08:00",
+  "status": "design_recommendation_for_new_preregistration_not_strategy_promotion",
+  "scope": "最新fix11完整挂牌期理论账户；新研究仅测试卖Put行权/现金结算后的承接及恢复保险。未修改生产、冻结规范、账本或已有评审。",
+  "main_conclusion": "现有保存模型IC/IM各只有1轮且各1个recovery_future日，普通核心保护目标当时均为0。三臂足以区分无保护、普通尺度和强制最低保护；但固定历史route只能比较同窗保险增量，不能判断成本后回本时长。回答恢复时长必须用真实逐笔现金/持仓损益驱动新研究状态机，并用同一引擎重跑A。",
+  "identity": {
+    "current_rule": "v1.4-20261008-r1-ic-csi500-abs40-fix11",
+    "scope_warning": "forward生效日期不是本次as-if-current历史研究拼接点；旧v1/冻结V2/代码HEAD/执行pin分别识别。IM在fix11中未改，沿用已认证Fear50完整账户。",
+    "ic_wrapper": "run_account.py:106-148 读取listed完整账户输入并独立重建FIX11风险和Put目标，底层replay共享native_account；不能把2007年以来动量袖当完整账户。",
+    "im_wrapper": "run_certified_scan.py锁定运行输入和源码，调用run_scan.py；只取IM_OR_ENTRY_PAIRED_FEAR_EXIT_50_LISTED_FIX9，不能把扫描全部候选拼为一条路径。",
+    "ic_lifecycle_source": "quant_param_scan_runs/20260928_momentum_future_breakeven_fix9_asifcurrent_full_v2/run_candidate.py:314-342 build_fix9_ic_lifecycle在内存重建fix9 IC卖方许可；不得用原fix8 IC lifecycle替代。",
+    "baseline_outputs": [
+      {
+        "product": "IC",
+        "entrypoint": "quant_research_runs/20261002_fix10_vs_fix11_full_history/run_account.py",
+        "saved_daily": "quant_research_runs/20261002_fix10_vs_fix11_full_history/account_daily_paths.csv.gz",
+        "label_column": "arm",
+        "label": "FIX11_full",
+        "sha256": "244f2dba987ef63737f602de7efd43416c2a76baf1759364259b7789474c93e0",
+        "rows": 945,
+        "start": "2022-09-19",
+        "end": "2026-08-13",
+        "route_counts": {
+          "future": 816,
+          "short_put": 126,
+          "assigned_etf": 1,
+          "recovery_future": 1
+        },
+        "recovery_dates": [
+          "2025-01-24"
+        ],
+        "transition_dates": [
+          "2025-01-23"
+        ],
+        "saved_model_only": true
+      },
+      {
+        "product": "IM",
+        "entrypoint": "quant_param_scan_runs/20260928_fear_entry_paired_exit_fix9_certified_v2/run_certified_scan.py",
+        "saved_daily": "quant_param_scan_runs/20260928_fear_entry_paired_exit_fix9_certified_v2/outputs/fix9_full_account_daily_nav.csv.gz",
+        "label_column": "candidate",
+        "label": "IM_OR_ENTRY_PAIRED_FEAR_EXIT_50_LISTED_FIX9",
+        "sha256": "bfadedc03c935848947f90a79c3ab080c87ef191fbb05e664bdd69eafa12cf18",
+        "rows": 986,
+        "start": "2022-07-22",
+        "end": "2026-08-14",
+        "route_counts": {
+          "future": 845,
+          "short_put": 138,
+          "cash_wait": 1,
+          "recovery_future": 1
+        },
+        "recovery_dates": [
+          "2025-01-21"
+        ],
+        "transition_dates": [
+          "2025-01-20"
+        ],
+        "saved_model_only": true
+      }
+    ],
+    "source_current_hash": {
+      "poe_ic_im_mainline_v1_4_bot.py": "6a31e15f28428bae723650478ecd923062a1fdd9206959d797744167337c48cc",
+      "quant_param_scan_runs/20260926_icim_fix8_momentum_transfer_robustness/native_account.py": "23bcc16adeb21a8fbc2efdba6bf204a5ae271534792746bbf9e060404241ce93",
+      "outputs/re_certification/icim_v14_fix4_recert_20260924/l5_native_signal_reconstruction_20260925/native_fix4_seller_lifecycle_v1.py": "9178b8fd9c05ae7087b8ada8eb51cd29a687442a405420d43af0cb0bf731dca6",
+      "im_put_policy.py": "ff9c9b1d52e4b1aa25fcb3c85e61665a4acf0a4de68272d8ddc9caaf2d4a9a9c",
+      "quant_research_runs/20261002_fix10_vs_fix11_full_history/account_inputs/FIX11_full/native_fix4_ic_risk_signals_v1.csv.gz": "6e851122d86a23d82cf5a4b4d79a77e20f926fceda2c2961218ecd47bf991795",
+      "quant_param_scan_runs/20260926_icim_fix8_momentum_transfer_robustness/input_variants/im/formal/native_fix4_im_risk_signals_v1.csv.gz": "80adb115e4f489e28ad7bda9f8da279cbc282f54221eb0ff10a99d8ff5db7c9d",
+      "quant_param_scan_runs/20260926_icim_fix8_momentum_transfer_robustness/input_variants/im/formal/native_fix4_seller_lifecycle_v4.csv.gz": "7e6f71ff82134fa6e843835160bf1157e87bd328f7b262e907c8dd7e8f624769"
+    },
+    "cache_warning": "现有run_account.py:66-69对缓存target的生产源码hash硬校验。生产脚本已获授权修复后，应在新任务目录重建/独立核对基线，保留旧manifest与输出原状，不能为通过旧断言改写冻结hash。"
+  },
+  "sample_evidence": {
+    "IC_account_window": [
+      {
+        "csv_line": 1515,
+        "date": "2025-01-22",
+        "seller_route": "short_put",
+        "equity_close": 37113162.39320504,
+        "cash_close": 11854767.684239505,
+        "etf_value": 25258394.708965536
+      },
+      {
+        "csv_line": 1516,
+        "date": "2025-01-23",
+        "seller_route": "assigned_etf",
+        "equity_close": 37010942.67897236,
+        "cash_close": 11856158.29251551,
+        "etf_value": 25154784.386456847
+      },
+      {
+        "csv_line": 1517,
+        "date": "2025-01-24",
+        "seller_route": "recovery_future",
+        "equity_close": 37255361.15058967,
+        "cash_close": 37255361.15058967,
+        "etf_value": 0.0
+      },
+      {
+        "csv_line": 1518,
+        "date": "2025-01-27",
+        "seller_route": "future",
+        "equity_close": 36905644.55004145,
+        "cash_close": 36905644.55004145,
+        "etf_value": 0.0
+      }
+    ],
+    "IM_account_window": [
+      {
+        "csv_line": 12111,
+        "date": "2025-01-17",
+        "seller_route": "short_put",
+        "equity_close": 43435485.46004403,
+        "cash_close": 43435485.46004403,
+        "etf_value": 0.0
+      },
+      {
+        "csv_line": 12112,
+        "date": "2025-01-20",
+        "seller_route": "cash_wait",
+        "equity_close": 43547584.4090688,
+        "cash_close": 43547584.4090688,
+        "etf_value": 0.0
+      },
+      {
+        "csv_line": 12113,
+        "date": "2025-01-21",
+        "seller_route": "recovery_future",
+        "equity_close": 43595764.56958115,
+        "cash_close": 43595764.56958115,
+        "etf_value": 0.0
+      },
+      {
+        "csv_line": 12114,
+        "date": "2025-01-22",
+        "seller_route": "future",
+        "equity_close": 43323410.3964167,
+        "cash_close": 43323410.3964167,
+        "etf_value": 0.0
+      }
+    ],
+    "IC_risk_window": [
+      {
+        "csv_line": 570,
+        "signal_date": "2025-01-22",
+        "execution_date": "2025-01-23",
+        "score": 1.0103454405,
+        "momentum_120": 0.1838286944,
+        "mom120_floor_active": false,
+        "core_put_target_delta": 0.0
+      },
+      {
+        "csv_line": 571,
+        "signal_date": "2025-01-23",
+        "execution_date": "2025-01-24",
+        "score": 1.003111836,
+        "momentum_120": 0.1859078364,
+        "mom120_floor_active": false,
+        "core_put_target_delta": 0.0
+      },
+      {
+        "csv_line": 572,
+        "signal_date": "2025-01-24",
+        "execution_date": "2025-01-27",
+        "score": 1.0321367127,
+        "momentum_120": 0.2023006919,
+        "mom120_floor_active": false,
+        "core_put_target_delta": 0.0
+      }
+    ],
+    "IM_risk_window": [
+      {
+        "csv_line": 607,
+        "signal_date": "2025-01-17",
+        "execution_date": "2025-01-20",
+        "score": 1.3604559033,
+        "momentum_120": 0.2442237441,
+        "mom120_floor_active": false,
+        "core_put_target_qty_normalized": 0.0
+      },
+      {
+        "csv_line": 608,
+        "signal_date": "2025-01-20",
+        "execution_date": "2025-01-21",
+        "score": 1.3886979815,
+        "momentum_120": 0.2695176064,
+        "mom120_floor_active": false,
+        "core_put_target_qty_normalized": 0.0
+      },
+      {
+        "csv_line": 609,
+        "signal_date": "2025-01-21",
+        "execution_date": "2025-01-22",
+        "score": 1.388604148,
+        "momentum_120": 0.2753238108,
+        "mom120_floor_active": false,
+        "core_put_target_qty_normalized": 0.0
+      }
+    ],
+    "IM_lifecycle_window": [
+      {
+        "csv_line": 607,
+        "signal_date": "2025-01-17",
+        "execution_date": "2025-01-20",
+        "route_before": "short_put",
+        "route_after_execution": "cash_wait",
+        "action": "SHORT_PUT_ASSIGNED",
+        "cycle_pnl_reference": 65040.0,
+        "recovery_pnl_reference": 42840.0,
+        "settlement_value": 148.0
+      },
+      {
+        "csv_line": 608,
+        "signal_date": "2025-01-20",
+        "execution_date": "2025-01-21",
+        "route_before": "cash_wait",
+        "route_after_execution": "recovery_future",
+        "action": "ENTER_RECOVERY_FUTURE",
+        "cycle_pnl_reference": 65040.0,
+        "recovery_pnl_reference": 46597.8,
+        "settlement_value": null
+      },
+      {
+        "csv_line": 609,
+        "signal_date": "2025-01-21",
+        "execution_date": "2025-01-22",
+        "route_before": "recovery_future",
+        "route_after_execution": "future",
+        "action": "EXIT_RECOVERY_AT_BREAKEVEN",
+        "cycle_pnl_reference": 0.0,
+        "recovery_pnl_reference": 0.0,
+        "settlement_value": null
+      }
+    ],
+    "IC_assignment_and_conversion_events": [
+      {
+        "csv_line": 9368,
+        "date": "2025-01-22",
+        "event": "assign_short_put",
+        "cash_change": -25902580.62717172,
+        "equity_change": 0.0,
+        "quantity_change": 450.4796630812,
+        "symbol": "option|seller|510500P2501M05750",
+        "signal_date": null,
+        "order_id": null,
+        "phase": null,
+        "kind": null,
+        "price": null,
+        "fee": null,
+        "model_fill_only": null,
+        "price_basis": null,
+        "quarter_roll": null,
+        "underlying": "etf|assigned|510500",
+        "shares_received": 4504796.630812473,
+        "arm": "FIX11_full"
+      },
+      {
+        "csv_line": 9376,
+        "date": "2025-01-24",
+        "event": "trade",
+        "cash_change": 25084703.71575096,
+        "equity_change": -2508.7212436995,
+        "quantity_change": -4504796.630812473,
+        "symbol": "etf|assigned|510500",
+        "signal_date": "2025-01-23",
+        "order_id": "2025-01-24-1",
+        "phase": "open",
+        "kind": "etf",
+        "price": 5.569,
+        "fee": 2508.7212436995,
+        "model_fill_only": true,
+        "price_basis": "T_plus_1_dated_open_market_maker",
+        "quarter_roll": null,
+        "underlying": null,
+        "shares_received": null,
+        "arm": "FIX11_full"
+      },
+      {
+        "csv_line": 9378,
+        "date": "2025-01-24",
+        "event": "trade",
+        "cash_change": -1852.1504382053,
+        "equity_change": -1852.1504382053,
+        "quantity_change": 16.7010860073,
+        "symbol": "future|core|IC2503",
+        "signal_date": "2025-01-23",
+        "order_id": "2025-01-24-2",
+        "phase": "open",
+        "kind": "future",
+        "price": 5545.0,
+        "fee": 1852.1504382053,
+        "model_fill_only": true,
+        "price_basis": "T_plus_1_dated_open_market_maker",
+        "quarter_roll": null,
+        "underlying": null,
+        "shares_received": null,
+        "arm": "FIX11_full"
+      }
+    ]
+  },
+  "sample_interpretation": [
+    "IC实际模型交割在2025-01-22收盘；日线仍标short_put。2025-01-23为assigned_etf；当日信号到2025-01-24开盘卖ETF、买恢复IC。2025-01-24收盘退出信号对应2025-01-27普通future。",
+    "IM实际模型现金结算在2025-01-17；2025-01-20为cash_wait；当日信号到2025-01-21开盘建立恢复IM；2025-01-21信号到2025-01-22恢复普通future。",
+    "IM旧lifecycle在结算后参考值已+42840，并非亏损待多年修复的案例；cash_wait次日参考又因现货代理上涨增至+46597.8。不能把这视为账户净收益，也不能由其1日恢复推断长恢复安全。",
+    "IC/IM普通核心Put目标在上述全部恢复/承接信号日为0，B很可能与A完全重合。这只能说明普通规则在这两例不开保险，不能说明恢复保险无效。",
+    "两个事件集中2025年1月且产品相关，不能视为两个充分独立的尾险样本。",
+    "IC承接ETF数量来自卖Put交割；不是自动0.5倍账户名义。以2025-01-23保存值计算约0.680倍NAV，随后才换0.5核心期货。固定.125Delta最低保险不是承接ETF总Delta的25%。"
+  ],
+  "minimum_discriminating_arms": [
+    {
+      "id": "A",
+      "name": "现行恢复无保护",
+      "recovery_put_target": 0,
+      "purpose": "同一新净循环会计引擎的对照；保留全部既有核心/动量/网格参数。旧冻结A只用于基线parity与路由差异归因。"
+    },
+    {
+      "id": "B",
+      "name": "恢复独立保险袖采用普通核心保护尺度",
+      "IC": "D_B(T)=0.5*max(valuation_delta(T), MOM120_debounced_floor(T)); valuation_delta∈{0,.25,.5,.75,1}, MOM底线∈{0,.5}。",
+      "IM": "Q_B(T)=0.5*min(4,max(absolute_relative_valuation_count(T),MOM120_debounced_count(T))); MOM底线∈{0,3}。",
+      "scope": "与C使用相同受保状态集合和执行时钟，避免比较同时改变状态范围。"
+    },
+    {
+      "id": "C",
+      "name": "恢复独立保险袖强制最低保护",
+      "IC": "D_C(T)=max(D_B(T),0.125)，不是把所有档固定为.125；.125为最低正估值档，不是负动量.25下限。",
+      "IM": "Q_C(T)=max(Q_B(T),1.5)规范化MO；普通估值触发2.0仍保留。",
+      "interpretation": "新保险假设，IC/IM风险规模不等价；不是两种产品使用同一Delta预算。禁止在样本结果出来后扫描或选择下限。"
+    }
+  ],
+  "proposed_shared_contract": {
+    "protected_states": {
+      "IC": [
+        "assigned_etf",
+        "recovery_future"
+      ],
+      "IM": [
+        "recovery_future"
+      ]
+    },
+    "excluded_states": [
+      "short_put期间无新增保护",
+      "IM cash_wait期间无新增保护",
+      "普通future继续既有规则"
+    ],
+    "IC_instrument": "510500ETF标准Put，T已挂牌且有效报价，行权价最接近0.95*T日510500ETF收盘，期限按既有规则接近T+3日历月；合约点值10000。",
+    "IC_sizing": "沿用完整账户连续规范化Delta数量换算，取T可得期货/ETF价格、IV、Delta、账户规模；不得直接把.125当张数、四舍五入为实盘指令或使用T+1的Delta决定T目标。承接期也以完整1倍账户名义定义最低Delta预算，并另报真实ETF受保比例。",
+    "IM_instrument": "MO Put，当前/恢复目标IM期货价格的102%附近；接近T+3日历月的实际挂牌到期，等距依既有选择取较晚；点值100。95%仅卖方选约及IV监控参考，不能用于本保险。",
+    "as_if_current": "研究锁定IM102%和fix11既有信号参数；不能直接用历史日期触发im_put_policy.moneyness的95%旧分支。期限是最接近3个月的挂牌到期，并非保证存在M+3合约。",
+    "signal_execution": "T收盘形成下一状态与保险目标，冻结具体合约和数量参考；下一共同交易日T+1开盘只按该合约有效open模型成交。缺价不换到事后更优合约，不拿T+1收盘推断T目标。",
+    "entry": "IC在确认交割的T才知需保护，最早T+1开盘，可覆盖assigned_etf过渡日但不保护已发生的到期亏损。IM在T确认下一日recovery_future时一并排T+1保险，避免状态切换后一日才检测导致额外裸露。",
+    "monthly": "持有保险沿用已注册月维护日和T收盘维护时钟，计划与事件必须标识same-day maintenance。此钟是既有理论模型假设，不升级为现实可保证成交。入场、状态退出、月维护冲突必须一套净目标避免双买。",
+    "profit3x_recommendation": "B/C新recovery_put袖均关闭3x。B名称明确是普通核心保护尺度而非完整照搬普通核心生命周期；现有普通future核心3x保持。这样三臂差异只在保险有无/尺度，不引入第四个再定行权价维度。若主研究决定完整复用3x，则B/C必须同时启用同一规则、真实填单成本锚与月维护优先级，不能只开一臂；在运行前写进规范。",
+    "exit": "T净循环达到退出门槛，T+1开盘转普通future并清理不再需要的recovery_put。最低保险不得因为MOM转正提前消失；仅B按普通目标可能归零。若普通核心同日需要相同合约，推荐按已知T目标净额接管可重用部分、超额卖出，单独记录经济归属的市值转移和真实交易费用；不可同时保留两袖双倍保护。若采用全卖全买更简单模型，三臂统一实际双边费用并明确是保守执行约定。",
+    "independence": "不因恢复保险关闭动量期货/动量Put/网格；禁止把动量或网格利润计入该卖方循环回本门槛。组合资金约束仍须联合核对。"
+  },
+  "sizing_evidence": [
+    {
+      "source": "poe_ic_im_mainline_v1_4_bot.py",
+      "lines": [
+        1513,
+        1519
+      ],
+      "fact": "IC估值完整1倍Delta档0/.25/.5/.75/1，MOM底线.50。"
+    },
+    {
+      "source": "poe_ic_im_mainline_v1_4_bot.py",
+      "lines": [
+        2599,
+        2606
+      ],
+      "fact": "核心贡献乘0.5，因此最低正档.125、MOM底线.25。"
+    },
+    {
+      "source": "poe_ic_im_mainline_v1_4_bot.py",
+      "lines": [
+        1547,
+        1569
+      ],
+      "fact": "IM估值与MOM3取高，最高4。"
+    },
+    {
+      "source": "poe_ic_im_mainline_v1_4_bot.py",
+      "lines": [
+        2648,
+        2653
+      ],
+      "fact": "IM固定核心数量乘0.5，MOM底线1.5、最高2。"
+    },
+    {
+      "source": "im_put_policy.py",
+      "lines": [
+        5,
+        16
+      ],
+      "fact": "TARGET_MONEYNESS=1.02，历史生效日前函数返回.95，as-if-current必须处理。"
+    },
+    {
+      "source": "poe_ic_im_mainline_v1_4_bot.py",
+      "lines": [
+        4235,
+        4255
+      ],
+      "fact": "IC实际挂牌接近3个月，95%ETF价格选行权价。"
+    },
+    {
+      "source": "poe_ic_im_mainline_v1_4_bot.py",
+      "lines": [
+        4364,
+        4399
+      ],
+      "fact": "IM接近3个月挂牌期、等距较晚、按目标moneyness选定合约后不得跳约补价。"
+    }
+  ],
+  "fixed_route_trap": {
+    "classification": "已核对代码与保存值；是当前研究的证据适用范围限制，不把已知模型假设新增报告为生产脚本bug。",
+    "evidence": [
+      {
+        "source": "outputs/re_certification/icim_v14_fix4_recert_20260924/l5_native_signal_reconstruction_20260925/native_fix4_seller_lifecycle_v1.py",
+        "lines": [
+          150,
+          161
+        ],
+        "fact": "结算后reference=累计卖方现金权利金-结算损失；恢复含cash_wait以现货价格变化*100更新，而非账户实际持有期货/ETF逐笔净损益。"
+      },
+      {
+        "source": "outputs/re_certification/icim_v14_fix4_recert_20260924/l5_native_signal_reconstruction_20260925/native_fix4_seller_lifecycle_v1.py",
+        "lines": [
+          169,
+          183
+        ],
+        "fact": "cycle_pnl累加T+1权利金与展期现金差，未扣交易费用。"
+      },
+      {
+        "source": "outputs/re_certification/icim_v14_fix4_recert_20260924/l5_native_signal_reconstruction_20260925/native_fix4_seller_lifecycle_v1.py",
+        "lines": [
+          186,
+          189
+        ],
+        "fact": "输出退出行之前参考重置为0；这个0不是退出经济损益。"
+      },
+      {
+        "source": "quant_param_scan_runs/20260926_icim_fix8_momentum_transfer_robustness/native_account.py",
+        "lines": [
+          339,
+          347
+        ],
+        "fact": "完整账户直接采用前日life.route_after_execution，不由账户内净循环损益重新决定route。"
+      },
+      {
+        "source": "quant_param_scan_runs/20260926_icim_fix8_momentum_transfer_robustness/native_account.py",
+        "lines": [
+          397,
+          420
+        ],
+        "fact": "恢复路由核心期货存在但core_put只在future非零；新保险不能只改每日target而继续非future门禁。"
+      },
+      {
+        "source": "quant_param_scan_runs/20260926_icim_fix8_momentum_transfer_robustness/native_account.py",
+        "lines": [
+          560,
+          621
+        ],
+        "fact": "原月维护及3x也按普通future门禁，新增恢复保险须明确独立处理。"
+      }
+    ],
+    "valid_fixed_route_claim": "在冻结进入/退出日与既有持仓路径条件下，增加保险的现金流、MTM损益、费用、资本占用及最差日差值。",
+    "invalid_fixed_route_claims": [
+      "恢复时间缩短或延长",
+      "回本概率/净循环成功率提高",
+      "保护改变后仍沿用旧路由即代表完整新策略",
+      "从费用前现货代理reference减新Put成本得到账户真实净循环"
+    ],
+    "necessary_dynamic_test": "新研究循环ledger从实际卖Put模型成交建立，真实持有量下含旧/新腿交易现金流和费用、官方到期结算或IC实际ETF交割转换、恢复期货逐日变动保证金和换季费用、新保险MTM/交易/到期损益。每日净循环损益决定次日退出；A/B/C均采用它，不能新B/C对旧A。"
+  },
+  "net_cycle_and_capital_contract": {
+    "pnl": "seller累计卖出收入-历次买回支出-现金结算损失，或与ETF交割/市值账完整一致的交割损益；+承接ETF真实持有期损益+恢复期货累计损益+recovery_put已实现与未实现损益-本循环全部真实/模型已发生费用。不得同时扣IC内在损失又将ETF以行权价入账而重复算损失。",
+    "option_purchase": "买Put权利金支出同时形成期权资产，买入瞬间净损益仅费用/成交价相对估值差，不能把整笔权利金当立即亏损后又重复记MTM。现金可行性须扣整笔权利金。",
+    "cash_wait": "IM没有核心期货/ETF时不计现货涨跌。现金利息建议留在完整账户收益中，不计循环回本门槛；若选择计入必须固定分配原则且A/B/C同样适用。",
+    "exit_gate": "用T收盘可得可变现净值减预计必要退出费用达到0决定T+1；禁止用T+1实际卖出价回写T是否退出。另报T+1实际落袋/市值转移后的循环值可能再次负数，不能以触发日非负假称必然盈亏平衡退出。",
+    "core_future_after_exit": "回普通future若相同核心期货继续持有，只做经济归属转移；不凭空平再开或者把后续普通核心利润归给结束循环。",
+    "whole_account": "循环ledger必须与完整账户现金/期权资产/ETF资产/期货逐日结算/费用逐日对账；保留现金3%、期货30%缓冲和卖方15%NAV模型约束，新增保险付费同时检查日初/成交后/日末现金，不能只看期末余额。",
+    "sizing_feedback": "A/B/C保险支出和盈亏改变NAV及以后持仓尺度，动态测试必须完整重跑后续路径与卖方准入；固定route或固定account sizing只归类诊断。",
+    "missing_quote": "所选合约缺价保留缺证据事件，不能默认为成交0费用。事先固定fail-closed/延迟成交处置，报告未受保时间与受影响案例。"
+  },
+  "real_data_pressure_test_proposal": {
+    "objective": "真实恢复只有2例，采用真实历史行情的条件恢复起点检验是否存在尾险改善及其成本；明确人工注入恢复状态/亏损，不作为实际发生的交易或正式历史绩效。",
+    "minimal_start_rule": "事先固定每季度第一个具有同产品合格期货、ETF/指数、期权链和估值记录的共同交易日为信号起点；取全部可用季度，不根据后续下跌筛选。样本不足时只扩大统一月度起点，不按结果挑日期。",
+    "single_debt_assumption": "最小默认仅1个预注册亏损：恢复核心0.5名义的5%亏损，即初始完整NAV的2.5%；量纲写明。这不是拟合卖Put实际损失，也不扫描最优亏损或保护量。父研究可在看到收益前改用另一固定负值并解释。",
+    "execution": "人工恢复起点与债务属于研究假设；其后必须用该时点实际已挂牌期权、真实T/T+1开盘/收盘及官方结算，不用历史IV拼Black-Scholes价格替代有缺口的真实保险收益。IC强制ETF承接单独标注，不能与期货恢复合并归因。",
+    "horizon": "持有到净循环退出或252个共同交易日/数据终点；未退出记right-censored，不剔除、不填0天、不能把回本日放到样本尾后。",
+    "coverage_checks": [
+      "核对季度锚的后续窗口是否实际覆盖2024年初下跌、2024年9-10月急涨与波动回落、2025年4月跳空等，未覆盖只报告边界。",
+      "这些已知事件可作有标记的展示案例，不在看完结果后单独挑选成统计样本。",
+      "分别汇报低/高估值与MOM正负、B目标0/正目标的先验状态；阈值使用现行规则，不按结果选分组。"
+    ],
+    "outputs": [
+      "每例从起点的最深净循环亏损与尾部亏损分位数",
+      "退出等待天数/删失数及退出后实际净循环值",
+      "保险纯增量、费用和最大现金支出",
+      "短期上行反弹中的保费损耗与延长恢复天数",
+      "最大权益回撤、保证金/现金最小裕量及缺价/未受保天数",
+      "同起点A/B/C逐日配对差异，完整账户与恢复袖分别列示"
+    ],
+    "independent_observation_warning": "重叠252日窗口高度相关，不能把季度/月度锚数当独立样本量；只作条件压力分布，不能报显著胜率或未来概率。"
+  },
+  "adversarial_acceptance_questions": [
+    "B目标为0时A/B逐日持仓、现金、费用、路由是否完全一致？",
+    "C是否把更高普通保护错误压回最低档？",
+    "同一保险合约同一open价买卖时是否仅损失双边费用，而非损失整笔权利金？",
+    "现金等待无核心资产时，现货上涨是否错误推进IM回本？",
+    "选择后次日价格变化/缺失是否只影响填单而不影响T合约？",
+    "IC交割损失是否重复扣除；真实承接股数是否保留到转换？",
+    "回本门槛是否漏掉保险费用/未实现亏损/必要退出成本？",
+    "恢复退出与月维护同日是否重复开平，留下保险孤儿腿或2倍Put？",
+    "IC .125是否被误当负动量最低保护或实际张数？IM102%是否因历史生效门返回95%？",
+    "新循环净会计A若与旧A路由不一致，是否单独归因并不把差异算给保险？",
+    "保险盈利加快退出后，未来普通核心/卖方重新准入和账户规模是否重新运行？",
+    "压力案例未回本是否按删失保留，样本终点是否存在幸存者偏差？"
+  ],
+  "decision_rule": "仅2个历史短恢复事件的正负增量均不足以选择生产规则。若C在真实条件压力中稳定降低严重净循环亏损且现金/费用可承受，才形成后续新版本候选；若主要增加保费而尾部无可辨识改善，则维持现行规则并说明证据不足。不得以全历史CAGR极小变化独立否定尾险保险或以单个暴跌获利宣布优越。",
+  "verification_performed": [
+    "当前研究只读复核最新完整模型入口、保存日线与风险/IM生命周期及IC模型账户事件。",
+    "用Python读取保存gzip逐行抽取，保留csv_line与SHA256；未从所有原始行情重跑完整回测。",
+    "直接核查现行代码的目标数量/期限/行权价、旧循环reference会计和账户外生route处理。",
+    "未执行任何新A/B/C收益回测，未采集实时行情，未访问真实账户或修改现行策略参数。"
+  ],
+  "remaining_for_parent": [
+    "在收益计算前冻结最终新规范，尤其IC承接期范围、B/C是否无3x、接管还是全卖全买。",
+    "从新净循环会计重跑A基线与B/C，保留旧A与新A差异说明。",
+    "由独立Agent对研究代码和真实行情覆盖/成本/时钟反驳复核后再作结论。"
+  ]
+}

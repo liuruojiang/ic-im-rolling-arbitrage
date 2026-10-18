@@ -54,6 +54,16 @@
 
 ## 证据与历史问题保留
 
+### 接手复核补记（2026-10-16）
+
+用户要求接手原“期指交割日展仓说明”任务后，独立读取远端现行workflow及run38856549180、38856549173、38856968370的job状态，均已成功；现行正式workflow仍固定策略36ef68aa1e96a1d352d67f60eeb36e3e622bd010。420个策略根Python文件、14个消费者模块重新核对SHA-256全部匹配，38文件894项回归XML为零失败/错误/跳过；本地18份账本JSON与两份最终handoff逐字节相同。
+
+此前阻塞为两产品独立采集导致恐慌来源快照不一致，被消费者拒绝；下载/日志传输问题亦有失败历史。最终共享observation_batch及A–P传输已通过上述预检。原对话界面停顿的内部原因无法从仓库或Actions状态确定，不能将旧失败run当作当前仍阻塞。
+
+本轮补查实际任务D:/Codex/home/automations/ic-im/automation.toml，SHA-256为eb9e0060670d4a2e6309655a1bfdcfc944b3c63d035056b0563e30047b73e031，与并行来源任务的用户执行回执及local_task_actual_verification.json一致；实际配置包含本闭环文档、登记表及最新对抗测试，ACTIVE及工作日14:15保持。因此上文“原TOML未写入”仅记录此前阶段，当前配置已由后续操作实际更新，无需再次执行旧哈希限定的应用脚本。final_delivery_receipt.json保留原阶段事实，以本补记与后续实际配置回执解释当前状态。
+
+本次接手仅做只读独立核验并补齐交接状态，没有再次部署、续账或发送邮件。14:15实际本地任务、20:00正式邮件及INBOX投递仍需各自发生后的证据；无发送预检仅证明当时就绪。
+
 本轮目录 `quant_research_runs/20261016_put_delivery_completion_v1/`，最终摘要 `record.md`，机器回执 `final_delivery_receipt.json`，本地日报 `local_daily_final/local_research_daily.md`，前日收盘复核稿 `local_close_final_current/`，两次最终hand off各自verification.json及formal_verification回归输出。冻结预注册为 `docs/ic_im_put_delivery_completion_20261016_v1_spec.md` 及其原SHA文件。
 
 策略PR50/51、自动化PR153/154/155构成本轮前序正式修复；并行来源任务随后推进至上述最终版本。初次base64日志传输遭短值脱敏破坏已由A–P传输替代，SHA拒收时未改本地链；run38855821169因两产品来源快照不一致被消费者拒绝、未进入SMTP/handoff。旧local_daily_verified、local_close_final及旧阶段回执只保留历史，不作为最终验收。原始保护备份、未发布备选方案和签名传输URL不得随整目录公开。

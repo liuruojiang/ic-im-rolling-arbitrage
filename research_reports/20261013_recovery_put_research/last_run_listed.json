@@ -1,0 +1,18 @@
+{
+  "arms": [
+    "A0",
+    "A",
+    "B",
+    "C"
+  ],
+  "seconds": 125.19776999996975,
+  "command": [
+    "C:\\Python314\\python.exe",
+    "-B",
+    "-X",
+    "utf8",
+    "research_reports/20261013_recovery_put_research/run_research.py",
+    "--panel",
+    "listed"
+  ]
+}

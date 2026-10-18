@@ -1,0 +1,111 @@
+"""Seal the final local repair evidence after regression and independent review."""
+from __future__ import annotations
+
+import hashlib
+import json
+from pathlib import Path
+import subprocess
+
+ROOT = Path(__file__).resolve().parents[2]
+OUT = Path(__file__).resolve().parent
+
+
+def sha(path):
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def load(name):
+    return json.loads((OUT / name).read_text(encoding="utf-8"))
+
+
+def main():
+    checks = load("repair_checks.json")
+    parity = load("real_data_parity.json")
+    review = load("strategy/final_code_fix_review.json")
+    assert review["decision"] == "accept_final_repair_for_reviewed_scope"
+    assert not review["new_reproducible_findings"]
+    assert all(sha(ROOT / name) == digest for name, digest in review["code_hashes"].items())
+    assert checks["exit_code"] == 0 and checks["canonical_unchanged_from_original_review"]
+    assert checks["protected_files_unchanged_during_tests"]
+    assert all(row["match"] for row in checks["frozen_spec_hashes"])
+    assert all(not row[key] for row in checks["counts"].values() for key in ("failures", "errors", "skipped"))
+    assert parity["market_equal"] and parity["saved_ledger_steps_equal"] and parity["all_products_equal_canonical"]
+    snapshot = load("protected_after_tests.json")
+    mismatches = [name for name, digest in snapshot.items() if not (ROOT / name).is_file() or sha(ROOT / name) != digest]
+    assert not mismatches, f"Protected code/evidence changed after tests: {mismatches}"
+    subprocess.run(["git", "diff", "--check"], cwd=ROOT, check=True)
+    production = ["ic_im_v1_4_policy.py", "poe_ic_im_mainline_v1_4_bot.py", "poe_ic_im_v1_4_state.py",
+                  "run_ic_im_v1_4_github_digest.py", "ic_im_quote_snapshot_guard.py"]
+    source_hashes = {name: sha(ROOT / name) for name in production}
+    source_changes = []
+    for name in production:
+        previous = ROOT / ".codex_backups/20261013_105427" / name
+        source_changes.append({"file": name, "before_sha256": sha(previous) if previous.is_file() else None,
+                               "after_sha256": source_hashes[name], "new_file": not previous.is_file()})
+    diff = subprocess.check_output(["git", "diff", "--", *production], cwd=ROOT)
+    (OUT / "tracked_source_changes.patch").write_bytes(diff)
+    (OUT / "source_changes.json").write_text(json.dumps(source_changes, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    total = checks["total_cases"]
+    new_cases = checks["counts"]["new_repair_cases"]["tests"]
+    report = f"""IC/IM 最新版本脚本修复与恢复期说明（2026-10-13）
+
+本次已完成本地脚本修复：原评审确认的4处问题，以及独立复核追加发现的1处同类T+1时点遗漏。修复基于HEAD {checks['head']}；正式规则仍为v1.4-r1 fix11，未调整策略参数、冻结规格、schema或既有账本。远端发布、云端部署、邮件与账户交易不在本次交付中。
+
+五处问题及修复后的行为：
+1. MARKET-P1-01：收盘时不再接受当天上午的官方整帧报价，未来时间也被拒绝。官方失败仍按现有路径回退，但备用报价链必须有可证明已更新至收盘的时间。缺失/陈旧的全部来源会停止确认信号。盘中和历史归档按各自原有日期边界处理。
+2. PS-02：固定核心处于卖Put、ETF承接、现金等待或恢复期时，独立动量Put变化仍生成T+1计划；没有指定日开盘证据，已核验持仓保持原值。
+3. PS-01：当天已确认开仓后，若收盘又产生新计划，核心Put入场成本与三倍兑现资格随已持仓保存，重启后不会退回空值。
+4. REPORT-P2-01：IC核心Put与动量Put使用不同合约时，日报普通核心目标使用核心腿自己的身份，不再把动量合约与核心数量拼接。
+5. 独立复核追加的3x/动量并存缺口：核心三倍兑现不能让独立动量Put提前入账。两腿按自己的开盘证据执行，普通计划不得覆盖核心三倍计划；某腿缺价不伪造该腿成交，新的动量计划也不得回退已确认的核心新成本。
+
+验证结果：
+- 完整累计33个测试文件：{total}项通过，零失败、错误或跳过。其中既有24文件454项、额外6文件68项、新增3文件{new_cases}项。保留既有Pydantic弃用警告1条。
+- 主Agent独立执行累计套件；各专业Agent保存实际生产入口→隔离StateStore→重启读回的反例和正常控制。没有把人工构造事件当成真实市场成交或策略收益。
+- 最后独立复核已接受本次范围：原3x/动量重叠反例修复；次日双腿开盘完整、缺旧核心开盘、缺共用新合约开盘三条公开入口路径均按各自证据保存或保留持仓，重启一致；未发现新的可复现问题。
+- 保存的真实行情截至2026-10-12：IC 5,285行、IM 2,912行，合计8,197行。分别用修复前备份与修复后代码重放，完整动量计算输出一致；fix11生效后的3次真实保存信号续接，持仓与正式账本逐值一致。更早版本只验证可读哈希链，不拿当前新信号门禁改写旧载荷。此次未重跑完整期权账户历史绩效。
+- 2026-10-13 11:15的只读真实盘中检查：IC/IM新浪各4合约、MO东财270条有效行通过新时间解析。官方源超时或TLS失败，未获得真实官方Last-Modified；因此真实数据检查仅为盘中备用源证明，不能声称官方收盘验证通过。MO源时间约滞后15分钟，盘中通过不代表每份合约实时。
+- 28份冻结规格哈希保持一致；正式账本15份JSON保持原样，仍为2026-10-12、seq12，digest={checks['canonical_ledger']['digest']}。原评审证据保持原样。
+- 回退副本：.codex_backups/20261013_105427；追加边界修复前副本：.codex_backups/20261013_110847。首轮583项证据保留于round1_583_passed。
+
+行情证据的边界：官方Last-Modified代表整份报价文件更新时间；备用源仅检查链内最大有效合约更新时间，明确标识为latest_available_contract_update。这能挡住整链停留上午或时间来自未来的情况，不能证明每个不活跃合约在收盘都有新成交。后续原有正价、合约结构与选约门禁继续生效。
+
+“恢复期”在本策略中是什么意思：
+它是一轮固定核心卖Put在到期价内结算或交割后，承接标的风险、等待该轮损益达到退出门槛的状态。进入条件不是账户净值跌破高点，也不要求该轮已经亏损；即使累计权利金已覆盖结算损失，状态机仍先经过承接/恢复阶段，再判断退出。
+
+IC路径：普通固定核心 → 卖510500 Put → 确认交割后承接ETF → 转为0.5倍IC恢复核心期货 → 回普通固定核心。
+IM路径：普通固定核心 → 卖MO Put → 确认现金结算后等待 → 建立0.5倍IM恢复核心期货 → 回普通固定核心。
+如果Put价外失效，则直接结束该轮卖Put并回普通核心，不走价内承接路径。这里的0.5倍是研究模型暴露，不是可直接下单的半张期货。
+
+恢复期间，固定核心不配置核心保护Put；动量期货、独立动量Put和网格继续各自规则。因此全组合并非只剩0.5倍，也并非全账户空仓等待。MOM120转负不会在恢复分支自动补回核心Put。当前没有独立的最长恢复期限或亏损退出线，继续下跌时，该轮可能长期无法达到回本门槛。
+
+退出看的是“这一轮”的累计净损益：累计净权利金（含展期）－结算损失＋ETF承接/恢复期货损益－同轮采用的交易费用。它不是从恢复期货买入价起单独算盈亏，也不是用动量/网格利润抵补或等账户NAV创新高。T收盘确认该轮净损益非负后，计划于下一共同交易日回到普通核心规则；回普通状态不一定要平掉仍需持有的0.5倍期货，且T+1价格会影响最终经济结果。
+
+说明例（纯假设，非历史收益）：首次净权利金收入1,000，展期净收入200，结算损失1,500，已发生同轮费用100，则该轮仍为-400。若恢复持仓盈利500、新增及预计结束费用50，该轮为+50，才满足非负门槛。
+
+当前实现边界：正式适配器尚未自动生产期权结算及整轮含成本恢复凭据；策略只消费外部模型参考。到期缺结算依据时发布条件分支，已有恢复状态也不能被理解为自动核算了当日整轮净损益。保存的生命周期CSV里42840、46597.8等数值是未扣费的参考量，不能充当经核验的整轮净利润。故该生命周期尚不能宣称自动闭环。这是原有记录已明确的边界，本次没有以近似行情或虚构账户凭据补齐。
+
+截至保存账本2026-10-12，IC与IM均为普通future状态，cycle_id为空；目前保存的正式模型账本并不处于恢复期。
+
+主要复现入口与证据：
+run_repair_checks.py / regression_command.json / regression.log / regression.xml / repair_checks.json
+verify_real_data_parity.py / real_data_parity.json / real_parity_baseline.json / real_parity_current.json
+policy_state/ 与 policy_state/profit_momentum/：公开入口及逐腿持久化反例
+market_delivery/public_builder_verification.json：报价门禁反例与正常收盘控制
+market_delivery/real_quote_check/real_quote_check_results.json：真实盘中备用源证据
+strategy/recovery_explanation.json：恢复期语义、原始代码引用及保存历史事件
+strategy/：独立反驳复核、3x/动量追加反例与修复后复核
+source_changes.json / tracked_source_changes.patch / repair_manifest.json：修改与证据哈希
+"""
+    (OUT / "repair_and_recovery_report.txt").write_text(report, encoding="utf-8")
+    paths = [path for path in OUT.rglob("*") if path.is_file() and path.name != "repair_manifest.json"
+             and path.suffix != ".lock"]
+    manifest = {"source_sha256": source_hashes, "artifacts": [
+        {"path": str(path.relative_to(OUT)), "sha256": sha(path), "bytes": path.stat().st_size}
+        for path in sorted(paths)]}
+    (OUT / "repair_manifest.json").write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    print(json.dumps({"report": str(OUT / "repair_and_recovery_report.txt"),
+                      "artifacts": len(paths), "source_files": len(source_hashes), "tests": total}, ensure_ascii=False))
+
+
+if __name__ == "__main__":
+    main()

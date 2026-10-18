@@ -1,0 +1,271 @@
+{
+  "artifact": "local_delivery_read_only_preflight",
+  "created_at": "2026-10-13T19:20:24.487229+08:00",
+  "status": "LOCAL_PRIOR_SUCCESS_VERIFIED_RELEASE_SYNCHRONIZATION_REQUIRED",
+  "scope": "只读本地自动化、当日保存产物、canonical与已保存官方分支、Gmail；不触发producer、工作流或SMTP，不改源码/自动化/账本。",
+  "calendar_gate": {
+    "source": "parent current official-calendar gate",
+    "parent_reported_beijing_time": "2026-10-13T19:12:00+08:00",
+    "latest_completed_day": "2026-10-13",
+    "independent_requery_by_this_reviewer": false,
+    "note": "不把14:19盘中D=10/12当作当前收盘D；本次未重新触发取数。"
+  },
+  "automation": {
+    "path": "D:\\Codex\\home\\automations\\ic-im\\automation.toml",
+    "sha256": "e5774736ac97e2bcfc6ad55a617d2e4835bf2c02b8d3b28c066abd95a35db074",
+    "id": "ic-im",
+    "name": "微盘股与 IC/IM 每日实时信号（独立）",
+    "status": "ACTIVE",
+    "kind": "cron",
+    "execution_environment": "local",
+    "rrule": "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR;BYHOUR=14;BYMINUTE=15;BYSECOND=0",
+    "model": "gpt-6.1-sol",
+    "reasoning_effort": "max",
+    "cwds": [
+      "D:\\动量策略\\IC和IM滚动套利"
+    ],
+    "prompt_chars": 34829,
+    "declared_current_icim_pin": "68dcc8d978ae5dae4a60c5fbd4a5c8c3c2a2d300",
+    "declared_cumulative_local_test_files": 24,
+    "declared_historical_pass_count": 454,
+    "actual_next_run_not_verified": true
+  },
+  "current_local_code": {
+    "git_head": "427cf45fd78710583c8028f7eca1ed88968036ee",
+    "reviewed_source_hashes": {
+      "ic_im_v1_4_policy.py": "e658610a4259ac6e00eca9495589e7e78c47ab87437d89090038d7a0b49e202f",
+      "poe_ic_im_v1_4_state.py": "d589d8f651e565cfdc5b8f521f29dfbd44e638b73cde552a2f73dbcf3de64705",
+      "poe_ic_im_mainline_v1_4_bot.py": "6a31e15f28428bae723650478ecd923062a1fdd9206959d797744167337c48cc",
+      "run_ic_im_v1_4_github_digest.py": "f84c1374ecd7bc20d1d3932aeb80dcd9af1f21dfdafbeadb74c408fc06724242",
+      "ic_im_quote_snapshot_guard.py": "ae22b541a1a2a6bc20d5bd23bb1fc3d275a2f3fcfce96b5345c2458cde74b9d5"
+    },
+    "source_changes_pending_release": true,
+    "preserve_rule_identity": "v1.4-20261008-r1-ic-csi500-abs40-fix11",
+    "latest_saved_repair_gate": {
+      "manifest": "D:\\动量策略\\IC和IM滚动套利\\research_reports\\20261013_script_repair\\regression_command.json",
+      "files": 33,
+      "junit_counts": {
+        "tests": 609,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "missing_from_automation_prompt": [
+        "test_ic_im_chinabond.py",
+        "test_ic_im_daily_valuation.py",
+        "test_ic_im_fear_grid_v1.py",
+        "test_ic_im_ordinary_put_route_fix_20261013.py",
+        "test_ic_im_quarter_roll_v1_3.py",
+        "test_ic_im_quote_snapshot_guard_20261013.py",
+        "test_ic_im_split_put_summary_20261013.py",
+        "test_ic_im_v1_4_market_maker_quotes_20260925.py",
+        "test_ic_im_v1_4_repeat_roll_20260925.py"
+      ],
+      "rerun_by_this_reviewer": false
+    }
+  },
+  "canonical": {
+    "path": "D:\\动量策略\\IC和IM滚动套利\\runtime\\ic_im_v1_4_r1",
+    "full_chain_read_only_load": "PASS",
+    "schema_version": 4,
+    "strategy_revision": "r1",
+    "sequence": 12,
+    "verified_day": "2026-10-12",
+    "digest": "6bfb74ddb3d43b783e3cde7e9ee61119619f1d4369509a8384e42bad107b0bf4",
+    "journal_records": 13,
+    "json_files": 15,
+    "unchanged_during_this_review": true,
+    "unchanged_since_today_realtime": true,
+    "file_hashes": {
+      "latest.json": "2a5193bef219094cf57b6b52fa7778b3fb19526a0bf938ab5e3c97a545b89da3",
+      "migration_record.json": "bae64e783e57e87227b54b463d8046638df5e27adbdd2c61b1d5ff0af90cf53d",
+      "journal\\000000-2026-09-16.json": "57827b22c2f31cb1319fa7504f2fdbdcf08acafa24d26202c272ec9bef813384",
+      "journal\\000001-2026-09-17.json": "800143c188e86de97585edddc949d0fbd0d2cdc958ced8e79397dbf9bce210d2",
+      "journal\\000002-2026-09-18.json": "877c633301a7429a7cf1f7f6e96e17f6723500dad4fbcc870f600b3600ed43b8",
+      "journal\\000003-2026-09-21.json": "e17f5919c1b4eb44374ebcd3a170f10ee1daeaa719d817c9c40a5ca0ab204c8b",
+      "journal\\000004-2026-09-22.json": "0d4d1dfa206f65f5e774a185b03e8b7de0aba4b73a0953b22276287dfdfa2665",
+      "journal\\000005-2026-09-23.json": "7906d585439c83700a6182763d90d28e2ec5b1a8768fb935c7aa2ce31028de27",
+      "journal\\000006-2026-09-24.json": "ad1d6e7f475e65650e5c04a5291045264088ec69139bea6e63c91c12824bf808",
+      "journal\\000007-2026-09-28.json": "962e610468dc895decbe6881f9b786572910444c26f24c33c7591f18833e2ccc",
+      "journal\\000008-2026-09-29.json": "cd2a85ba963589450511d43fb6915011680c099a416ecb8803dda846eb643386",
+      "journal\\000009-2026-09-30.json": "cbec96a645d691822a85c640330a45502629529fdc6c46af69d26f02c53d710d",
+      "journal\\000010-2026-10-08.json": "5210a2e8c04c23577a1baa444effa41f072f34d48d19bc28e751ae62064e614d",
+      "journal\\000011-2026-10-09.json": "e7368caec1bd52580ae618afb703ed858b8ade4b280af5daac134448339aaaae",
+      "journal\\000012-2026-10-12.json": "2a5193bef219094cf57b6b52fa7778b3fb19526a0bf938ab5e3c97a545b89da3"
+    },
+    "latest_13_record_exists": false
+  },
+  "saved_official_branch": {
+    "source_kind": "previously_saved_official_artifact_independently_read_now",
+    "run_id": 38246251785,
+    "run_url": "https://github.com/liuruojiang/codex-daily-automation-probe/actions/runs/38246251785",
+    "archive_path": "D:\\Codex\\home\\automations\\ic-im\\runs\\20261012\\recovery_review\\cloud_run_38246251785\\ledger.zip",
+    "archive_sha256": "31b3a61d58565c547199ba39cd7b2e2710abe1bafbc3354effac330ce91b427c",
+    "full_chain_read_only_load": "PASS",
+    "sequence": 12,
+    "verified_day": "2026-10-12",
+    "digest": "06f14b267ad55d307145cd47c273d359095eb49bbd466bd4980d06f2b7c47d32",
+    "same_journal_0_11": true,
+    "same_previous_digest": true,
+    "same_migration": true,
+    "same_products": true,
+    "seq12_different_top_keys": [
+      "digest",
+      "signals",
+      "updated_at"
+    ],
+    "decision": "保留本地有效分支。云端seq12或沿此分支的seq13不是本地严格后继，不可直接覆盖或拼接。"
+  },
+  "today_existing_success": {
+    "signal_day": "2026-10-13",
+    "publication_mode": "realtime",
+    "source_pin": "68dcc8d978ae5dae4a60c5fbd4a5c8c3c2a2d300",
+    "runner_start": "2026-10-13T14:26:58.880326+08:00",
+    "runner_end": "2026-10-13T14:27:49.724484+08:00",
+    "runner_exit_code": 0,
+    "advanced_sessions": 0,
+    "ledger_anchor": "2026-10-12",
+    "sequence": 12,
+    "digest": "6bfb74ddb3d43b783e3cde7e9ee61119619f1d4369509a8384e42bad107b0bf4",
+    "next_trade_day": "2026-10-14",
+    "result_path": "D:\\Codex\\home\\automations\\ic-im\\runs\\20261013\\icim\\realtime_attempt1\\result.json",
+    "result_sha256": "724263260bd0f63185f13bc709874722e08e5c6061b5947af0cc14d055f71953",
+    "independent_result_gate_path": "D:\\Codex\\home\\automations\\ic-im\\runs\\20261013\\icim\\independent_result_gate.json",
+    "result_gate_hash_matches": true,
+    "joint_report": "D:\\Codex\\home\\automations\\ic-im\\runs\\20261013\\joint_report.md",
+    "joint_report_sha256": "c65d9582a357aa13766d2513ba5ec2befe51b699d630daa53e457d26d77eead0",
+    "completion_at": "2026-10-13T14:53:20.818346+08:00",
+    "saved_coordinator_all_five_passed": true,
+    "saved_icim_gate": {
+      "tests": 454,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "smtp_authorized_in_morning_run": false,
+    "smtp_or_workflow_triggered": false,
+    "today_close_producer_not_seen": true
+  },
+  "entrypoints": {
+    "formal_digest": "D:\\动量策略\\IC和IM滚动套利\\run_ic_im_v1_4_github_digest.py",
+    "formal_server": "D:\\动量策略\\IC和IM滚动套利\\poe_ic_im_v1_4_server.py",
+    "morning_actual_pinned_entry": "D:\\Codex\\home\\automations\\ic-im\\runs\\20261013\\icim\\pinned_source_68dcc8d\\run_ic_im_v1_4_github_digest.py",
+    "morning_frozen_report_formatter": "D:\\Codex\\home\\automations\\ic-im\\runs\\20261013\\icim\\render_icim_report.py",
+    "morning_frozen_joint_formatter": "D:\\Codex\\home\\automations\\ic-im\\runs\\20261013\\build_joint_report.py",
+    "formatter_boundary": "当日一次性格式器包含10/13日期、报价、14:27结果及seq12断言，不是长期服务；留存历史，后续报告由新pin和真实新结果生成，不跨日套用。"
+  },
+  "deduplication": {
+    "local_runner_sends_email": false,
+    "local_runtime_marker_or_send_intent_found": false,
+    "prior_official_day": "2026-10-12",
+    "delivered_marker": {
+      "strategy_revision": "r1",
+      "build": "v1.4-20261008-r1-ic-csi500-abs40-fix11",
+      "delivery_revision": "20261008-v14-ic-csi500-abs40-fix11",
+      "publication_mode": "close_confirmed",
+      "market_date": "2026-10-12",
+      "digest": "06f14b267ad55d307145cd47c273d359095eb49bbd466bd4980d06f2b7c47d32",
+      "github_run_url": "https://github.com/liuruojiang/codex-daily-automation-probe/actions/runs/38246251785"
+    },
+    "send_intent_subject": "[收盘确认][无需调整] IC/IM 1.4-r1 日报 - 2026-10-12",
+    "send_intent_payload_digest_prefix_present": true,
+    "preserve_existing_marker_and_intent": true,
+    "fresh_remote_10_13_intent_marker_status": "需远端Agent以当前正式run/工件另核；本次仅核实保存10/12工件，不因Gmail暂无新邮件断言当前无send intent。"
+  },
+  "clauses_to_sync": [
+    "发布验证完成后把本地自动化执行pin更新为最终远端正式提交，并核对本地实际执行源码hash与云端固定pin；fix11策略参数、按信号日历史身份、恢复保险未晋级边界保留。",
+    "累计IC/IM专项由24文件精确扩至regression_command.json的33文件，保留原24及新增9；稳定alias不重复收集底层state_guards，计数609只是本轮证据，不硬编码未来断言。继续-B、no:cacheprovider、60秒硬限、隔离状态/TEMP/关闭测试迁移；正式生产使用迁移1。",
+    "同步非future核心腿不普通开仓、不提前记账；独立动量T+1；普通open成本与3x资格按腿继承；月维护/3x/当前腿各自字段不得混同；完整行情帧日期时间门禁及来源类型区分。",
+    "本地报告核心/动量Put分别使用各自当前和待执行合约/数量，区分普通目标、月维护和3x目标；使用正式producer新字段，不复用历史格式器硬编码报价/日期。",
+    "保留ACTIVE工作日14:15本地任务、15:00盘中快照边界、失败组件分次重试、成功组件不重跑；本次同步不改微盘任务/既有20:00远端邮件调度。",
+    "保留本地/云端seq12合法分叉规则，只接受本地严格后继；不能因云端更高序号直接覆盖。当前收盘D为10/13，本地若需收盘报告，应在发布/测试后独立正常续接一次，不伪装为盘中重跑。",
+    "当日发送通过现有正式工作流和intent/marker去重；不另调SMTP、不删旧intent或marker、不重发10/08、10/09、10/12成功日报；SMTP发送、已投递INBOX、报告有效性分别验收。"
+  ],
+  "reuse_and_avoid_repeat": [
+    "保留今天14:27成功盘中正式结果和14:53联合报告；不为更新代码重取历史盘中行情、不改旧result及其hash。",
+    "保留canonical现有0–12链及迁移记录，不再次迁移、bootstrap或覆盖已有分支。",
+    "10/12正式邮件marker/intent/账本和收件箱证据已成功，禁止作为本次发布验收重复发送。",
+    "本次609专项和真实数据parity可作为已保存证据，但发布后接受实际远端pin/新工作流测试结果，不混用旧454或旧pin no-send结果。"
+  ],
+  "source_artifact_hashes": {
+    "D:\\Codex\\home\\automations\\ic-im\\runs\\20261013\\icim\\phase2_state_gate.json": "939b9dc217e2dfa6606555a79aee35807cbd88076dae1e6d0bd27ce5d1cdd2b2",
+    "D:\\Codex\\home\\automations\\ic-im\\runs\\20261013\\icim\\phase2_runner.json": "061592028ef18bb46e6ba33d7eb9da743e26cd8033c7565a6683bbbf374251de",
+    "D:\\Codex\\home\\automations\\ic-im\\runs\\20261013\\icim\\independent_result_gate.json": "c6f1d93959d33444e9f407b768450fd35280d6c31e6baa2f2c9a50c6ec72f956",
+    "D:\\Codex\\home\\automations\\ic-im\\runs\\20261013\\completion.json": "b8e18276141e6020a5241b01a6f0f2c0ac3cd6fd530a7a12cd77759112a20137",
+    "D:\\Codex\\home\\automations\\ic-im\\runs\\20261013\\coordinator_readback.json": "8439e21235e6105427635db8fe237b9193f4e9b9e765d91359f6939a500af673",
+    "D:\\动量策略\\IC和IM滚动套利\\research_reports\\20261013_script_repair\\regression_command.json": "5008ff33c614ff815ccc9bc2069edfc9e866ff1555c4f5100a91e92a75cc4213",
+    "D:\\动量策略\\IC和IM滚动套利\\research_reports\\20261013_script_repair\\regression.xml": "d0cc3f091bf7e4b825c89471b933e601516a31c5c77cb9933e20f44b09c546c1",
+    "D:\\Codex\\home\\automations\\ic-im\\runs\\20261012\\recovery_review\\cloud_run_38246251785\\delivery-marker\\delivery.json": "98ae65b93b91b35e6747b41e1b51c39326a2a5536ed83a9a86a3e127b82955d3",
+    "D:\\Codex\\home\\automations\\ic-im\\runs\\20261012\\recovery_review\\cloud_run_38246251785\\send-intent\\metadata.json": "26a63f48e27e12205031721a6851d5415d9feebfe9ba0bba9254d1a53254bf82"
+  },
+  "untouched": [
+    "automation.toml",
+    "生产源码",
+    "canonical账本",
+    "历史日报",
+    "发送intent/marker",
+    "远端状态"
+  ],
+  "not_claimed": [
+    "今日10/13新版已发布",
+    "今日10/13收盘邮件已发送或送达",
+    "Poe部署或实际下单",
+    "Gmail搜索无新邮件等同远端没有发送中intent"
+  ],
+  "gmail": {
+    "checked_read_only": true,
+    "recent_delivered_messages": [
+      {
+        "message_id": "1a12ffe3dd490299",
+        "thread_id": "1a12ffe3dd490299",
+        "labels": [
+          "SENT",
+          "INBOX"
+        ],
+        "subject": "[收盘确认][无需调整] IC/IM 1.4-r1 日报 - 2026-10-12",
+        "date_header": "Mon, 12 Oct 2026 12:02:31 +0000",
+        "message_id_header": "<179180655146.2367.12574647726616579200@gmail.com>",
+        "internal_date_ms": "1791806551000",
+        "internal_date_utc": "2026-10-12T12:02:31.000Z",
+        "inbox_confirmed": true
+      },
+      {
+        "message_id": "1a1208c408d58ee4",
+        "thread_id": "1a1208c408d58ee4",
+        "labels": [
+          "SENT",
+          "INBOX"
+        ],
+        "subject": "[收盘确认][无需调整] IC/IM 1.4-r1 日报 - 2026-10-09",
+        "date_header": "Fri, 09 Oct 2026 12:03:43 +0000",
+        "message_id_header": "<179154742366.2354.13687145112937020689@gmail.com>",
+        "internal_date_ms": "1791547423000",
+        "internal_date_utc": "2026-10-09T12:03:43.000Z",
+        "inbox_confirmed": true
+      },
+      {
+        "message_id": "1a11b651c7e600db",
+        "thread_id": "1a11b651c7e600db",
+        "labels": [
+          "SENT",
+          "INBOX"
+        ],
+        "subject": "[收盘确认][无需调整] IC/IM 1.4-r1 日报 - 2026-10-08",
+        "date_header": "Thu, 08 Oct 2026 12:02:51 +0000",
+        "message_id_header": "<179146097122.2349.2093695363726458200@gmail.com>",
+        "internal_date_ms": "1791460971000",
+        "internal_date_utc": "2026-10-08T12:02:51.000Z",
+        "inbox_confirmed": true
+      }
+    ],
+    "latest_daily_full_body_read": "1a12ffe3dd490299",
+    "latest_body_signal_day": "2026-10-12",
+    "latest_body_next_trade_day": "2026-10-13",
+    "latest_body_sequence": 12,
+    "latest_body_digest_prefix": "06f14b267ad5",
+    "latest_body_matches_saved_official_branch": true,
+    "date_specific_query": "in:anywhere after:2026/10/12 before:2026/10/15 subject:日报 subject:\"2026-10-13\" subject:\"IC/IM\"",
+    "date_specific_message_ids": [],
+    "query_boundary": "当前搜索未发现信号日10/13主题日报；10/12邮件正文的下一交易日10/13不能当作10/13已发送。搜索快照不能替代后续发送验收。"
+  }
+}

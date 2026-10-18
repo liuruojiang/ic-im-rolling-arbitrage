@@ -1,0 +1,23 @@
+{
+  "verified_at": "2026-10-16T13:42:19.405321+08:00",
+  "status": "PASS",
+  "prior_gap_closed": true,
+  "strategy": {
+    "commit": "36ef68aa1e96a1d352d67f60eeb36e3e622bd010",
+    "files": 437,
+    "git_blob_errors": [],
+    "sha256_errors": [],
+    "tree_artifact": "quant_research_runs\\20261016_fear_delivery_adversarial_v2\\coordinator\\strategy_tree_final.json",
+    "tree_artifact_sha256": "dcc98d54f51d190ba915db4a7f80c006f1591a2f76cce4b33fc0428aec316247"
+  },
+  "consumer": {
+    "commit": "bcbd91a4714d4b649e3a6b26af90789ef605b848",
+    "files": 14,
+    "git_blob_errors": [],
+    "sha256_errors": [],
+    "tree_artifact": "quant_research_runs\\20261016_fear_delivery_adversarial_v2\\coordinator\\consumer_tree_final.json",
+    "tree_artifact_sha256": "6911feb163793449191b7669596dd26579890eb148b217f3c44a2975d6f9d913"
+  },
+  "external_config_unchanged": true,
+  "remaining_warning": "Actual external automation prompt remains unchanged; proposed 38-test update is not installed."
+}

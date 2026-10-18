@@ -1,0 +1,13 @@
+{
+  "mode": "repaired",
+  "source_run": 38853603565,
+  "market_date": "2026-10-16",
+  "producer_held": "510500P2612M07500",
+  "producer_lifecycle_target": "510500P2612M07500",
+  "producer_monthly_candidate": "510500P2612M06500",
+  "displayed_core_target": "510500P2612M06500",
+  "target_summary": "2026-10-16收盘维护候选，盘尾复核：合计17张（核心17张 510500P2612M06500；动量0张 无）",
+  "has_today_put_label": true,
+  "has_old_combined_next_day_label": false,
+  "subject": "[盘中实时][月度Put需维护/需调整] IC/IM 1.4-r1 日报 - 2026-10-16"
+}

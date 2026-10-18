@@ -1,0 +1,33 @@
+{
+  "source_url": "https://ai2.jiucaishuo.com/api/fear-greed",
+  "page_url": "https://jiucaishuo.com/indicators?tab=fg",
+  "method": "observed Network.responseReceived + Network.getResponseBody; lossless date/value extract",
+  "extraction_timestamp": "2026-10-16T10:33:51.092201+08:00",
+  "response_character_count": 139451,
+  "full_response_archived": false,
+  "rows": 1502,
+  "first": {
+    "date": "2020-08-03",
+    "fear_greed_index": 65.44
+  },
+  "last": {
+    "date": "2026-10-15",
+    "fear_greed_index": 2.28
+  },
+  "transport_crc32": 1227626056,
+  "point_in_time_certified": false,
+  "decimal_precision": 2,
+  "current_factor_names": [
+    "50ETF期权波动率",
+    "股债回报差",
+    "沪深300股指期货升贴水",
+    "两市成交额",
+    "创新高个股占比"
+  ],
+  "sha256": {
+    "jiu_fear_greed.csv": "f511173a66478654a3ef4ffdd3185b5ae71928a58e5afeb84ea92b0c622d154b",
+    "jiu_history_extracted.json": "e2e9b65c19e47c6794b7312a9d68efb7ff2481a05ca4532534347edfdc127ec9",
+    "preregistered_spec.md": "0e67da58000f3c350b7b4b8f12c91ec981a21258e2e27320db58d4247fe4d10d"
+  },
+  "scope": "research_only; extracted history is not the complete raw HTTP response"
+}

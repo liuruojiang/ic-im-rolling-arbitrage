@@ -1,0 +1,40 @@
+{
+  "command": [
+    "C:\\Python314\\python.exe",
+    "-B",
+    "-X",
+    "utf8",
+    "-m",
+    "pytest",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "tests\\test_adversarial_delivery.py",
+    "tests\\test_cloudflare_dispatch_retry.py",
+    "tests\\test_cn_publication_mode.py",
+    "tests\\test_delivery_regression_contract.py",
+    "tests\\test_ic_im_r7_spread.py",
+    "tests\\test_ic_im_v1_3_daily_digest.py",
+    "tests\\test_ic_im_v1_3_put102_alerts.py",
+    "tests\\test_ic_im_v1_3_valuation_disclosure.py",
+    "tests\\test_ic_im_v1_4_contract_adversarial_20261009.py",
+    "tests\\test_ic_im_v1_4_daily_digest.py",
+    "tests\\test_ic_im_v1_4_ordinary_route_sync_20261013.py",
+    "tests\\test_ic_im_v1_4_policy_acceptance_20261007.py",
+    "tests\\test_ic_im_v1_4_put_display.py",
+    "tests\\test_ic_im_v1_4_readiness.py",
+    "tests\\test_ic_im_v1_4_result_day_delivery.py",
+    "tests\\test_ic_im_v1_4_valuation_disclosure.py",
+    "tests\\test_ic_im_v1_4_workflow.py",
+    "--junitxml=D:\\动量策略\\IC和IM滚动套利\\research_reports\\20261013_release_sync\\cloud_automation_icim_premerge.xml"
+  ],
+  "exit_code": 0,
+  "seconds": 5.104603499989025,
+  "counts": {
+    "testcase": 324,
+    "failure": 0,
+    "error": 0,
+    "skipped": 0
+  },
+  "scope": "exact actual workflow family=icim automation selection, final staged source; no send"
+}

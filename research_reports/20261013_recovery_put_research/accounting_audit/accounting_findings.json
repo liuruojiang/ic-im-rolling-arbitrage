@@ -1,0 +1,69 @@
+{
+  "scope": "2026-10-13 恢复期 Put 研究的会计与执行审计；生产、正式账本与既有研究首次输出只读",
+  "production_promotion": false,
+  "reusable_entries": {
+    "latest_listed_ic": "quant_research_runs/20261002_fix10_vs_fix11_full_history/run_account.py",
+    "latest_prelisting_model": "quant_research_runs/20261003_mom120_core_only_annual/run_full_model.py",
+    "shared_native_engine": "quant_param_scan_runs/20260926_icim_fix8_momentum_transfer_robustness/native_account.py:233",
+    "shared_ledger": "outputs/re_certification/icim_v14_fix4_recert_20260924/l2_account_ledger_repair_20260925/trade_account.py:56",
+    "isolated_candidate": "research_reports/20261013_recovery_put_research/recovery_account.py",
+    "candidate_controller": "research_reports/20261013_recovery_put_research/recovery_cycle_controller.py"
+  },
+  "findings": [
+    {
+      "id": "RA-01",
+      "severity": "high_for_recovery_research",
+      "title": "旧 lifecycle 的回本参考不是账户含费净 PnL",
+      "source": "outputs/re_certification/icim_v14_fix4_recert_20260924/l5_native_signal_reconstruction_20260925/native_fix4_seller_lifecycle_v1.py:152",
+      "observation": "旧生命周期先累计规范化卖 Put 权利金，再减最终结算；未计账户手续费。恢复阶段直接用 IC ETF 或 IM 指数价差乘固定 0.5*200，未使用实际持仓合约、实际数量和真实账户事件。IM cash_wait 同样进入该价差分支；IC ETF 价差与期货名义的换算也不等价。",
+      "additional_source": "outputs/re_certification/icim_v14_fix4_recert_20260924/l5_native_signal_reconstruction_20260925/native_fix4_seller_lifecycle_v1.py:155",
+      "impact": "不能把保险权利金从这个旧参考值直接相减后声称得到全轮含费回本；旧保存账户的 NAV 账本可以自洽，但外生退出路线仍基于不同口径。此结论不表示生产 canonical 账本曾触发该历史研究路径。",
+      "resolution_in_this_study": "保留 A0 完全 parity；A/B/C 全部切到同一新 Account equity_change 周期口径并重新决定退出及后续卖方周期，避免只改变 B/C 的退出标准。"
+    },
+    {
+      "id": "RA-02",
+      "severity": "critical_accounting_invariant",
+      "title": "买 Put 权利金是现金与资产的转换，不可再次全额扣 NAV",
+      "source": "outputs/re_certification/icim_v14_fix4_recert_20260924/l2_account_ledger_repair_20260925/trade_account.py:68",
+      "observation": "Account.trade 在买入时减少现金、建立等值期权资产，交易当刻 equity_change 仅为手续费；随后价格变化由 mark 记入权益。期权结算/IC 实物承接先确认损益，再转移现金与资产，不重复记整笔交割本金为损失。",
+      "resolution_in_this_study": "新增保险正常进入 Account；周期仅累计事件 equity_change。已完成保险的净现金流与净 PnL 相等，由独立输出复核脚本检验。"
+    },
+    {
+      "id": "RA-03",
+      "severity": "material_evidence_limit",
+      "title": "挂牌保存基线仅各一轮一天恢复，长恢复只存在独立模型面板",
+      "evidence": "accounting_audit/saved_account_audit.json",
+      "listed": {"IC_recovery_sessions": 1, "IM_recovery_sessions": 1},
+      "prelisting_model": {"IC_recovery_sessions": 744, "IC_right_censored": true, "IM_recovery_sessions": 167},
+      "impact": "挂牌数据可核对单次保护成本与执行，但不足以估计长期尾部效果；模型结果不得与挂牌 NAV 拼接，也不能称为真实可成交历史证据。"
+    }
+  ],
+  "implemented_contract": {
+    "A0": "共享原引擎的隔离复制，controller 关闭；保持外生 lifecycle，逐日和事件与保存基线 parity。",
+    "A_B_C": "同一账户事件驱动 FSM；首次卖 Put 转换开盘起累加，在退出下一开盘实际交易完成后终止。",
+    "cycle_included": ["option|seller|", "etf|assigned|", "future|core|", "option|recovery_put|"],
+    "cycle_excluded": ["独立 momentum/grid", "现金利息", "普通 option|core_put| 的损益与费用"],
+    "cycle_boundary_note": "包含首次切换时核心期货平仓费、恢复核心开仓/换月及重新进入普通期货相关费用；退出不虚构实际未发生的核心期货平仓。所有被排除周期归因的费用仍进入完整账户 NAV。这里的回本是所定义四袖周期回本，不是所有组合模块回本。",
+    "B": "IC 使用普通核心绝对 Delta 尺度，IM 使用普通核心规范化数量；零目标不买。",
+    "C": "IC max(B,0.125) 绝对 Delta；IM max(B,1.5) 规范化数量，保留更高 2。IC 0.125 不是 MOM120 下限。",
+    "eligibility": "B/C 同时覆盖 IC 已确认承接 ETF 与 recovery_future；IM 仅 recovery_future，不在 cash_wait 买保险。",
+    "identity": "保险有独立 held identity。首次/0转正/真实月维护/目标尺度变化，在 T 链 fresh 选约；目标不变沿自己的保险合约；绝不借普通 core Put/3x 历史 held 合约作为新保险身份。",
+    "selection": "IC 95% ETF，IM 102% 已确认季度期货；近 T+3 月实际挂牌到期。IM 历史有效日覆盖仅在局部上下文，结束还原。",
+    "execution": "T 收盘预选，T+1 开盘成交；真实月维护也用相同钟。IC 前日 maintenance preview 不引起第二次刷新。",
+    "three_x": false,
+    "exit": "T 收盘周期净 PnL 扣预计保险退出费达到非负，T+1 实际开盘退出；下一开盘价差和手续费仍属该轮，允许最终净 PnL 因跳空为负并明确报告。"
+  },
+  "execution_limitations": [
+    "原始正开盘与既有 sticky-IV 开盘代理分开记录；代理属于理论模型，不能称为实际成交。",
+    "共享引擎其他历史开盘回退、普通 core 月维护时钟及模型成本保留以维持 baseline parity；其局限并未因本研究被消除。",
+    "保险无法取得可用价格或有效合约时回放报错，不能默默把缺价保护填成零。",
+    "每倍期货 30% 保证金/缓冲用于绩效模型；15% 卖方缓冲只是既有模型，不是经纪商资金可行性认证。"
+  ],
+  "verification": {
+    "synthetic_invariants": "accounting_audit/tests.log：11 项通过，只检验真实代码不变量，不是收益证据。",
+    "saved_evidence_reconciliation": "accounting_audit/saved_account_audit.json：四个保存面板日权益、事件及累计费用对账通过。",
+    "new_run_reconciliation_command": "python -B -X utf8 research_reports/20261013_recovery_put_research/accounting_audit/validate_research_outputs.py --panels listed model",
+    "new_run_coverage": "脚本只审计已经完整落盘的 runs，每次结果列出确切臂数、日期、文件哈希；不存在的候选不算通过。",
+    "baseline_parity_owner": "独立 root runner 负责 A0 逐列/逐事件 parity，controller 专项不能替代此项。"
+  }
+}

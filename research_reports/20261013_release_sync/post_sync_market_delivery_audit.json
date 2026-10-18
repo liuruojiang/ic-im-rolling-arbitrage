@@ -1,0 +1,376 @@
+{
+  "audit": "Post-sync independent market/report/gate/transport acceptance",
+  "status": "PASS",
+  "sealed_at_utc": "2026-10-13T11:59:27.202004+00:00",
+  "reviewer": "market_delivery_redteam",
+  "cloud_sha": "0f0fec83f549f2db942fa5633593af48dc90476a",
+  "strategy_sha": "427cf45fd78710583c8028f7eca1ed88968036ee",
+  "scope": "Read-only audit of final cloud gate/renderer, independent synthetic transport failure probes, real workflow artifacts, Gmail readback, and actual marker suppression. No dispatch, SMTP, remote mutation, marker deletion or canonical ledger mutation by this reviewer.",
+  "blocking_findings": [],
+  "code_review": [
+    {
+      "classification": "verified_code_and_executable_tests",
+      "area": "ordinary Put gate",
+      "conclusion": "Final gate accepts legitimate non-future lifecycle-owned core transitions and executed 3x core transitions; ordinary momentum uses its own identity and quantity. Pending 3x retains prior current-core identity until execution. Independent rerun includes all 84 route-sync counterexamples."
+    },
+    {
+      "classification": "verified_code_and_executable_tests",
+      "area": "IC split-leg renderer",
+      "conclusion": "Current core uses v14_core_put_current_contract and current core quantity; ordinary target core uses v14_core_put_contract (or first-open target fallback) and target core quantity. Momentum retains put_current_contract/put_target_contract. Pending 3x plan target is not substituted for current or ordinary target. Month-maintenance target and current contracts retain their different time meanings. Zero quantities suppress stale contract strings."
+    },
+    {
+      "classification": "verified_code_and_executable_tests",
+      "area": "date/mode/version dedupe",
+      "conclusion": "Completed marker wins over matching intent and blocks the same date/mode/build even if digest differs; dangling intent fails closed. Result-day gate uses actual validated signal date. API pagination failure does not treat a partial collection as no marker."
+    },
+    {
+      "classification": "synthetic_script_fault_injection",
+      "area": "SMTP ambiguous failure",
+      "conclusion": "SSL and STARTTLS probes for QUIT disconnect after send, partial recipient refusal, and optional receipt persistence failure each perform one SMTP send call and do not automatically retry; existing intent blocks replay. ICIM normal workflow does not request the optional receipt path."
+    }
+  ],
+  "independent_tests": {
+    "files": 8,
+    "tests": 213,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "new_transport_probes": 8,
+    "new_transport_passed": 8,
+    "evidence": "post_sync_market_delivery_tests.json",
+    "new_transport_evidence": "post_sync_market_delivery/transport_counterexamples.json",
+    "market_data_claim": false
+  },
+  "workflow_runs": {
+    "pull_request_ci": 38391946774,
+    "main_ci": 38392172404,
+    "readiness": 38392179386,
+    "normal": 38392612084,
+    "conclusion": "All four independently read as success; main/readiness/normal head matches cloud_sha; PR CI uses PR merge head e0b9f3b66e9dd60f32fd41de89dc25bdbeb04963. Readiness and normal strategy tested-sha both match strategy_sha.",
+    "artifact_regression_counts": {
+      "38392612084": {
+        "automation": {
+          "tests": 324,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "strategy": {
+          "tests": 667,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        }
+      },
+      "38392179386": {
+        "automation": {
+          "tests": 324,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "strategy": {
+          "tests": 667,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        }
+      }
+    },
+    "evidence": "post_sync_market_delivery/verified_workflow_runs.json"
+  },
+  "readiness": {
+    "status": "PASS",
+    "transport": {
+      "status": "ok",
+      "tls_verified": true,
+      "authenticated": true,
+      "sender_envelope_accepted": true,
+      "recipients_accepted": 1,
+      "envelope_reset": true,
+      "message_sent": false
+    },
+    "preflight": {
+      "strategy_sha": "427cf45fd78710583c8028f7eca1ed88968036ee",
+      "program_build": "v1.4-20261008-r1-ic-csi500-abs40-fix11",
+      "generated_at": "2026-10-13T19:44:30.519960+08:00",
+      "completed_day": "2026-10-13",
+      "restored_verified_day": "2026-10-12",
+      "restored_digest": "06f14b267ad55d307145cd47c273d359095eb49bbd466bd4980d06f2b7c47d32",
+      "today_is_trade_day": true,
+      "signal_build_expected": "v1.4-20261008-r1-ic-csi500-abs40-fix11",
+      "prospective_fix11_signal_observed": false
+    },
+    "result_identity": {
+      "status": "ok",
+      "delivery_revision": "20261008-v14-ic-csi500-abs40-fix11",
+      "build": "v1.4-20261008-r1-ic-csi500-abs40-fix11",
+      "generated_at": "2026-10-13T19:44:32.943203+08:00",
+      "publication_mode": "close_confirmed",
+      "market_date": "2026-10-13",
+      "completed_day": "2026-10-13",
+      "next_trade_day": "2026-10-14",
+      "verified_day": "2026-10-13",
+      "sequence": 13,
+      "digest": "a2ce79b0c52d55b800a92bb93dc5dbfbbb2696f51879b3b11edce5dd022f8c8d"
+    },
+    "boundary": "Envelope/TLS/authenticated readiness explicitly reports message_sent=false; it is not SMTP delivery acceptance."
+  },
+  "normal_delivery": {
+    "status": "PASS",
+    "started_at_utc": "2026-10-13T11:57:30.450769+00:00",
+    "finished_at_utc": "2026-10-13T11:57:48.107786+00:00",
+    "cloud_sha": "0f0fec83f549f2db942fa5633593af48dc90476a",
+    "strategy_sha": "427cf45fd78710583c8028f7eca1ed88968036ee",
+    "normal_run_id": 38392612084,
+    "readiness_run_id": 38392179386,
+    "result": {
+      "status": "ok",
+      "build": "v1.4-20261008-r1-ic-csi500-abs40-fix11",
+      "delivery_revision": "20261008-v14-ic-csi500-abs40-fix11",
+      "generated_at": "2026-10-13T19:48:24.748915+08:00",
+      "publication_mode": "close_confirmed",
+      "market_date": "2026-10-13",
+      "completed_day": "2026-10-13",
+      "next_trade_day": "2026-10-14",
+      "verified_day": "2026-10-13",
+      "sequence": 13,
+      "advanced_sessions": 1,
+      "digest": "4878c7b2bfdea824330aa43031e3675ee0fefbecd8790bb2cdbb811cf57685d7"
+    },
+    "intent_metadata_byte_identical_to_report": true,
+    "intent_metadata_sha256": "9ed1304d1a58d83fe38aca7489136dc8096a72cea3d75a068fdd3e197b55275c",
+    "marker": {
+      "strategy_revision": "r1",
+      "build": "v1.4-20261008-r1-ic-csi500-abs40-fix11",
+      "delivery_revision": "20261008-v14-ic-csi500-abs40-fix11",
+      "publication_mode": "close_confirmed",
+      "market_date": "2026-10-13",
+      "digest": "4878c7b2bfdea824330aa43031e3675ee0fefbecd8790bb2cdbb811cf57685d7",
+      "github_run_url": "https://github.com/liuruojiang/codex-daily-automation-probe/actions/runs/38392612084"
+    },
+    "marker_sha256": "1e5d940a5258afe68ffe35e86f615a5d132ef6986a68186ca0e86e3e954d96b7",
+    "ledger": {
+      "records": 14,
+      "sequence": 13,
+      "verified_day": "2026-10-13",
+      "latest_equals_last_journal": true,
+      "all_hashes_and_previous_links_valid": true,
+      "migration_seed_link_valid": true,
+      "result_signals_equal_latest": true
+    },
+    "dedupe": {
+      "status": "PASS",
+      "source": "https://api.github.com/repos/liuruojiang/codex-daily-automation-probe/actions/artifacts?per_page=100",
+      "read_at_utc": "2026-10-13T11:57:39.886227+00:00",
+      "pages": 15,
+      "all_artifact_count": 1467,
+      "raw_api_pages_sha256": "ff3578fd602614bf1d9748b05000c6039264e6415872206bdce65d30072269c4",
+      "marker_prefix": "ic-im-v1-4-r1-707295aeaa67-close_confirmed-digest-delivered-2026-10-13-",
+      "formal_function": "check_ic_im_v1_4_result_day_delivery.should_send_for_result",
+      "correction": false,
+      "should_send": false,
+      "marker_exists": true,
+      "pending_intent_exists": true,
+      "method": "Original production function evaluated on freshly read repository artifacts and the downloaded actual result; no workflow rerun or SMTP."
+    },
+    "gmail": {
+      "id": "1a13518aea7ab3f0",
+      "message_id": "<179189217161.2590.15549648156351712906@gmail.com>",
+      "date": "Tue, 13 Oct 2026 11:49:31 +0000",
+      "subject": "[收盘确认][无需调整] IC/IM 1.4-r1 日报 - 2026-10-13",
+      "labels": [
+        "UNREAD",
+        "SENT",
+        "INBOX"
+      ],
+      "matching_search_count": 1,
+      "search_query": "in:anywhere after:2026/10/12 subject:\"IC/IM 1.4-r1 日报 - 2026-10-13\"",
+      "body_comparison_normalization": "CRLF to LF and trailing newlines only",
+      "body_matches": {
+        "text/plain": true,
+        "text/html": true
+      },
+      "attachment_byte_identical": true,
+      "attachment_bytes": 28280,
+      "attachment_sha256": "197ea40209286d03a84aa54554d0b6bb26434674ff59a5bbadd6cecdaa219cac",
+      "run_url_in_body": true,
+      "digest_prefix_in_body": true
+    },
+    "regression": {
+      "38392612084": {
+        "automation": {
+          "tests": 324,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "strategy": {
+          "tests": 667,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        }
+      },
+      "38392179386": {
+        "automation": {
+          "tests": 324,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "strategy": {
+          "tests": 667,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        }
+      }
+    },
+    "smtp": {
+      "workflow_step": {
+        "name": "Send Gmail",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 22,
+        "started_at": "2026-10-13T11:49:31Z",
+        "completed_at": "2026-10-13T11:49:33Z"
+      },
+      "run_attempt": 1,
+      "independent_receipt_file": false,
+      "evidence": "SMTP step success + actual send intent + actual completion marker + unique Gmail INBOX/SENT readback; this workflow does not produce a separate SMTP receipt file."
+    },
+    "network_actions_in_this_script": "Read-only GitHub API only. Gmail readback and artifact downloads were performed read-only beforehand. No SMTP, workflow dispatch, ledger writes or marker deletion."
+  },
+  "real_signal_content_review": {
+    "classification": "actual_downloaded_normal_result_and_email",
+    "date": "2026-10-13",
+    "next_trade_date": "2026-10-14",
+    "publication_mode": "close_confirmed",
+    "state_anchor_day": "2026-10-12",
+    "IC": {
+      "action": "HOLD",
+      "core_put_contract": "510500P2612M07500",
+      "core_put_qty": 10,
+      "momentum_put_qty": 0,
+      "grid": 0,
+      "no_call": true
+    },
+    "IM": {
+      "action": "HOLD",
+      "ordinary_core_put_contract": "MO2612-P-7600",
+      "ordinary_core_put_qty": 1.5,
+      "momentum_put_qty": 0,
+      "grid": 0
+    },
+    "fear": {
+      "value": 39.32,
+      "date": "2026-10-13",
+      "time_basis": "same_day_post_close",
+      "source_csv_sha256": "89215e8fc59acf5128622fd7eaed2537586a1880fcc4bf7899cb9defb7934a7c"
+    },
+    "valuation_snapshot_sha256": "a7020b021c74bb96c0f88008c2526af2c65929c7033d5f425fd32a90e3c9297d",
+    "chinabond_date": "2026-10-13",
+    "chinabond_yield": 0.016654,
+    "no_3x_action_today": true
+  },
+  "actual_duplicate_suppression": {
+    "read_at_utc": "2026-10-13T11:57:39.886227+00:00",
+    "pages": 15,
+    "all_artifact_count": 1467,
+    "raw_api_pages_sha256": "ff3578fd602614bf1d9748b05000c6039264e6415872206bdce65d30072269c4",
+    "formal_function": "check_ic_im_v1_4_result_day_delivery.should_send_for_result",
+    "should_send": false,
+    "marker_exists": true,
+    "pending_intent_exists": true,
+    "actual_matching_artifacts": [
+      {
+        "id": 11811156135,
+        "name": "ic-im-v1-4-r1-707295aeaa67-close_confirmed-digest-delivered-2026-10-13-4878c7b2bfde-send-intent",
+        "source_run_id": 38392612084,
+        "created_at": "2026-10-13T11:49:31Z",
+        "expired": false
+      },
+      {
+        "id": 11810546370,
+        "name": "ic-im-v1-4-r1-707295aeaa67-close_confirmed-digest-delivered-2026-10-13-4878c7b2bfde",
+        "source_run_id": 38392612084,
+        "created_at": "2026-10-13T11:49:34Z",
+        "expired": false
+      }
+    ],
+    "gate_evidence": "post_sync_market_delivery/actual_marker_gate.json",
+    "raw_api_evidence": "post_sync_market_delivery/fresh_repository_artifact_pages.json"
+  },
+  "limits": [
+    "This workflow has no standalone SMTP receipt file. Delivery acceptance is bound to the successful SMTP step, dated intent and completion marker, plus unique Gmail INBOX/SENT readback and exact message content/attachment comparison.",
+    "One matching Gmail message was observed as of this audit; no statement is made about future scheduled runs. The existing 20:00 schedule remains; actual current marker suppression was verified without dispatching a duplicate run.",
+    "Today has no active 3x transaction and no positive momentum Put leg; these branches are covered by synthetic script counterexamples and existing fixtures, not represented as live traded market outcomes.",
+    "The normal report explicitly displays IV as unavailable with a stale/missing IV snapshot warning. The warning is not rewritten as valid current IV and does not change the close signal position.",
+    "Fallback quote latest-update evidence does not guarantee freshness of every inactive contract; no such claim is made.",
+    "Signals remain research/audit evidence; no actual trading or order authorization is inferred from delivery."
+  ],
+  "source_sha256": {
+    "scripts/build_ic_im_v1_4_digest.py": "edf55e4828ddca28ddb29f5d35a01e8c9840a02156d922657055619a543c1b7f",
+    "scripts/ic_im_v1_4_put_display.py": "c94e942c7bcf80b9d537025b4fa2f0762f285c3823264027c85e55c7f71ca447",
+    "scripts/check_ic_im_v1_4_delivery.py": "178b47c6ee4e1d44e0e3818c4215467427a5a526fa639eba740db59efebd1d1a",
+    "scripts/check_ic_im_v1_4_result_day_delivery.py": "7be7d56891a2c7614ec4445c91edda20b9de0defa0f01a870c06016b66bbd0c5",
+    "scripts/prepare_ic_im_v1_4_marker.py": "f653f79d365924d61bc4d9087d6f7eeadc5aa80b770a9840a7794538cf5dbe41",
+    "scripts/send_report.py": "8dfa3a47bf4302e191caaac08e80ad3829539fdba5a36eb6326880217949b07f",
+    "scripts/mail_utils.py": "9b7079f9bf2ec469b02529f6d52e205c24dc01933c88a8655e45a19ad8d23c1b"
+  },
+  "evidence_sha256": {
+    "post_sync_market_delivery/actual_delivery_verification.json": "840767250e31863d80bceccf252a605782e5fa40b7810652e1fe32b7c2bb08bd",
+    "post_sync_market_delivery/actual_marker_gate.json": "602ff0226e4b51cbf8d0ee7f5457481f58b7b4f8512b207f3e0b40e087d7247f",
+    "post_sync_market_delivery/fresh_repository_artifact_pages.json": "ff3578fd602614bf1d9748b05000c6039264e6415872206bdce65d30072269c4",
+    "post_sync_market_delivery/gmail_attachment_extracted.md": "197ea40209286d03a84aa54554d0b6bb26434674ff59a5bbadd6cecdaa219cac",
+    "post_sync_market_delivery/gmail_readback.json": "40243fbe75f659b99a8538ff6e346d389f47820c23e192f50e89d7bbcf71ca80",
+    "post_sync_market_delivery/normal_38392612084/automation-regression-38392612084/automation-tests.xml": "c1f7713d2f983c7f31dd1219fd98f5e72058a75a24bf3967268d06284f849fc0",
+    "post_sync_market_delivery/normal_38392612084/ic-im-v1-4-r1-707295aeaa67-close_confirmed-digest-delivered-2026-10-13-4878c7b2bfde/delivery.json": "1e5d940a5258afe68ffe35e86f615a5d132ef6986a68186ca0e86e3e954d96b7",
+    "post_sync_market_delivery/normal_38392612084/ic-im-v1-4-r1-707295aeaa67-close_confirmed-digest-delivered-2026-10-13-4878c7b2bfde-send-intent/metadata.json": "9ed1304d1a58d83fe38aca7489136dc8096a72cea3d75a068fdd3e197b55275c",
+    "post_sync_market_delivery/normal_38392612084/ic-im-v1-4-r1-ledger/journal/000000-2026-09-16.json": "57827b22c2f31cb1319fa7504f2fdbdcf08acafa24d26202c272ec9bef813384",
+    "post_sync_market_delivery/normal_38392612084/ic-im-v1-4-r1-ledger/journal/000001-2026-09-17.json": "800143c188e86de97585edddc949d0fbd0d2cdc958ced8e79397dbf9bce210d2",
+    "post_sync_market_delivery/normal_38392612084/ic-im-v1-4-r1-ledger/journal/000002-2026-09-18.json": "877c633301a7429a7cf1f7f6e96e17f6723500dad4fbcc870f600b3600ed43b8",
+    "post_sync_market_delivery/normal_38392612084/ic-im-v1-4-r1-ledger/journal/000003-2026-09-21.json": "e17f5919c1b4eb44374ebcd3a170f10ee1daeaa719d817c9c40a5ca0ab204c8b",
+    "post_sync_market_delivery/normal_38392612084/ic-im-v1-4-r1-ledger/journal/000004-2026-09-22.json": "0d4d1dfa206f65f5e774a185b03e8b7de0aba4b73a0953b22276287dfdfa2665",
+    "post_sync_market_delivery/normal_38392612084/ic-im-v1-4-r1-ledger/journal/000005-2026-09-23.json": "7906d585439c83700a6182763d90d28e2ec5b1a8768fb935c7aa2ce31028de27",
+    "post_sync_market_delivery/normal_38392612084/ic-im-v1-4-r1-ledger/journal/000006-2026-09-24.json": "ad1d6e7f475e65650e5c04a5291045264088ec69139bea6e63c91c12824bf808",
+    "post_sync_market_delivery/normal_38392612084/ic-im-v1-4-r1-ledger/journal/000007-2026-09-28.json": "962e610468dc895decbe6881f9b786572910444c26f24c33c7591f18833e2ccc",
+    "post_sync_market_delivery/normal_38392612084/ic-im-v1-4-r1-ledger/journal/000008-2026-09-29.json": "cd2a85ba963589450511d43fb6915011680c099a416ecb8803dda846eb643386",
+    "post_sync_market_delivery/normal_38392612084/ic-im-v1-4-r1-ledger/journal/000009-2026-09-30.json": "cbec96a645d691822a85c640330a45502629529fdc6c46af69d26f02c53d710d",
+    "post_sync_market_delivery/normal_38392612084/ic-im-v1-4-r1-ledger/journal/000010-2026-10-08.json": "5210a2e8c04c23577a1baa444effa41f072f34d48d19bc28e751ae62064e614d",
+    "post_sync_market_delivery/normal_38392612084/ic-im-v1-4-r1-ledger/journal/000011-2026-10-09.json": "e7368caec1bd52580ae618afb703ed858b8ade4b280af5daac134448339aaaae",
+    "post_sync_market_delivery/normal_38392612084/ic-im-v1-4-r1-ledger/journal/000012-2026-10-12.json": "0541e10a66f334be3f5b6c5cac144e42a50b0755b0e05aad33793d908f9a5913",
+    "post_sync_market_delivery/normal_38392612084/ic-im-v1-4-r1-ledger/journal/000013-2026-10-13.json": "e1398eca76bb891fdc5c27c185ce02a162e02313e0db22f1336d540877fd8e5b",
+    "post_sync_market_delivery/normal_38392612084/ic-im-v1-4-r1-ledger/latest.json": "e1398eca76bb891fdc5c27c185ce02a162e02313e0db22f1336d540877fd8e5b",
+    "post_sync_market_delivery/normal_38392612084/ic-im-v1-4-r1-ledger/migration_record.json": "bae64e783e57e87227b54b463d8046638df5e27adbdd2c61b1d5ff0af90cf53d",
+    "post_sync_market_delivery/normal_38392612084/ic-im-v1-4-r1-post-close-digest/mail-artifacts/ic_im_v1_4_digest.html": "ab8aa136c827387622aefcceab28ad3e37b7f32798402ee70ff32008d480a76c",
+    "post_sync_market_delivery/normal_38392612084/ic-im-v1-4-r1-post-close-digest/mail-artifacts/ic_im_v1_4_digest.md": "5fe85e63fbdfe73a61cc42a1e3888f3029cf89527dab91d7f35721dff6045116",
+    "post_sync_market_delivery/normal_38392612084/ic-im-v1-4-r1-post-close-digest/mail-artifacts/metadata.json": "9ed1304d1a58d83fe38aca7489136dc8096a72cea3d75a068fdd3e197b55275c",
+    "post_sync_market_delivery/normal_38392612084/ic-im-v1-4-r1-post-close-digest/strategy-artifacts/chinabond.json": "e87e3e549cfd8664b1f99405bcac1b716c4dfaace753a7f2897445e2f6c555cc",
+    "post_sync_market_delivery/normal_38392612084/ic-im-v1-4-r1-post-close-digest/strategy-artifacts/ic_im_v1_4_close_signal.md": "197ea40209286d03a84aa54554d0b6bb26434674ff59a5bbadd6cecdaa219cac",
+    "post_sync_market_delivery/normal_38392612084/ic-im-v1-4-r1-post-close-digest/strategy-artifacts/result.json": "d63f1f9b93653fe3769f77237c4768376439f2a3fd9533e695c84cfa431ba039",
+    "post_sync_market_delivery/normal_38392612084/ic-im-v1-4-r1-post-close-digest/strategy-artifacts/strategy-sha.txt": "9240da6510157382765893f5e1e94d9ab8d02ffb402d4bd847f29420e18b11cd",
+    "post_sync_market_delivery/normal_38392612084/strategy-regression-icim-38392612084/regression.xml": "64216332fa72721a57a31491a2801e50478c48eb0486ad0a3df5fed2718fa351",
+    "post_sync_market_delivery/normal_38392612084/strategy-regression-icim-38392612084/tested-sha.txt": "9240da6510157382765893f5e1e94d9ab8d02ffb402d4bd847f29420e18b11cd",
+    "post_sync_market_delivery/readiness_38392179386/automation-regression-38392179386/automation-tests.xml": "16714806c3dbf49050c5a08efd3b299ec4688248f4aa1390eb42bc164b9bebd5",
+    "post_sync_market_delivery/readiness_38392179386/ic-im-v1-4-r1-readiness-38392179386/readiness-artifacts/chinabond.json": "b7abb486fd19811990e8714073373c405e167d995359d1db9d1121dffe30b0b3",
+    "post_sync_market_delivery/readiness_38392179386/ic-im-v1-4-r1-readiness-38392179386/readiness-artifacts/ic_im_v1_4_close_signal.md": "12415b1d2310c436c0154ebcac74dc7ecd00b3ee16459c91664bc878a00018ae",
+    "post_sync_market_delivery/readiness_38392179386/ic-im-v1-4-r1-readiness-38392179386/readiness-artifacts/mail-transport.json": "c358b40ffb62e3851877cf679cf33b3f550755db2a50543121ba6ec061b7c738",
+    "post_sync_market_delivery/readiness_38392179386/ic-im-v1-4-r1-readiness-38392179386/readiness-artifacts/preflight.json": "5d371983634368f0459b9a46fcddd78dcbfdd7a6e9d43e7fb7bdd8537c442ea1",
+    "post_sync_market_delivery/readiness_38392179386/ic-im-v1-4-r1-readiness-38392179386/readiness-artifacts/result.json": "e0da97029dfb0661b71e6aa69247f419bd23e85842785ce99320c8f300c5b9f5",
+    "post_sync_market_delivery/readiness_38392179386/ic-im-v1-4-r1-readiness-38392179386/readiness-mail/ic_im_v1_4_digest.html": "bbc01066a4723948f42c9231ab7c64810d6944af84940f1bedd23a569546c2ef",
+    "post_sync_market_delivery/readiness_38392179386/ic-im-v1-4-r1-readiness-38392179386/readiness-mail/ic_im_v1_4_digest.md": "6c8a304f937f4274b61f27eb9b4bcfaefa57565e560de7b7e355ed55c12226dc",
+    "post_sync_market_delivery/readiness_38392179386/ic-im-v1-4-r1-readiness-38392179386/readiness-mail/metadata.json": "9507d8b05857b8637781410760331114ba9b9f3ea9e1e46f6d37cd037b5279f5",
+    "post_sync_market_delivery/readiness_38392179386/strategy-regression-icim-38392179386/regression.xml": "0991e93e3083c3fd1073d9def38778955a9b767cec1a3cacd0f4e17a5f75d446",
+    "post_sync_market_delivery/readiness_38392179386/strategy-regression-icim-38392179386/tested-sha.txt": "9240da6510157382765893f5e1e94d9ab8d02ffb402d4bd847f29420e18b11cd",
+    "post_sync_market_delivery/synthetic_mail_metadata.json": "3ed9c4c8c571bc01585f0e611d8d9620dc7b30cc29ede23815c14b70bf4621a4",
+    "post_sync_market_delivery/transport_counterexamples.json": "eb5e01924570b558187e1134fcefa59500f874ce4af5be4d365b6a364ee493c2",
+    "post_sync_market_delivery/transport_counterexamples.py": "e9583f8f1554c1be334af3ccd850aa2d148cb36016a782f8cbd4a3e9e8555bbb",
+    "post_sync_market_delivery/verified_workflow_runs.json": "e0b8b3e0e7ec6bbcfb4c786db4425c1fbe731b4d3f252e50b8569b16acacee47",
+    "post_sync_market_delivery/verify_actual_delivery.py": "a938b16acafc7df939dcc33c74d72848489fd1cac58059924a2f6dcc1d433083",
+    "post_sync_market_delivery_tests.json": "89a309fc9f415ca1be11953989bff30141da51aae0e3b31e6a72ea348a99ccfa",
+    "post_sync_market_delivery_tests.xml": "cb7fc196a8ff3ad1d827d8e9d7de3e7910c2c2a7d3f12afbb9a2f2c499fdb45b",
+    "post_sync_market_delivery_tests.log": "e7cfb10367b8dd4500350dbb8fe8bce405ba4c98c029b1014df025ab5f1d36b1"
+  }
+}

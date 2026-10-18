@@ -1,0 +1,37 @@
+{
+  "status": "PASS",
+  "normal_run": 38392612084,
+  "normal_run_url": "https://github.com/liuruojiang/codex-daily-automation-probe/actions/runs/38392612084",
+  "cloud_main": "0f0fec83f549f2db942fa5633593af48dc90476a",
+  "strategy_execution_pin": "427cf45fd78710583c8028f7eca1ed88968036ee",
+  "publication_mode": "close_confirmed",
+  "market_date": "2026-10-13",
+  "next_trade_day": "2026-10-14",
+  "sequence": 13,
+  "digest": "4878c7b2bfdea824330aa43031e3675ee0fefbecd8790bb2cdbb811cf57685d7",
+  "subject": "[收盘确认][无需调整] IC/IM 1.4-r1 日报 - 2026-10-13",
+  "result_file": "remote_normal\\ic-im-v1-4-r1-post-close-digest\\strategy-artifacts\\result.json",
+  "metadata_sha256": "9ed1304d1a58d83fe38aca7489136dc8096a72cea3d75a068fdd3e197b55275c",
+  "intent_metadata_sha256": "9ed1304d1a58d83fe38aca7489136dc8096a72cea3d75a068fdd3e197b55275c",
+  "marker_file": "remote_normal\\ic-im-v1-4-r1-707295aeaa67-close_confirmed-digest-delivered-2026-10-13-4878c7b2bfde\\delivery.json",
+  "smtp_step_success": true,
+  "standalone_smtp_receipt_file": false,
+  "local_canonical_files_unchanged_during_remote_send": 16,
+  "same_run_regressions": [
+    {
+      "path": "automation-regression-38392612084\\automation-tests.xml",
+      "testcase": 324,
+      "failure": 0,
+      "error": 0,
+      "skipped": 0
+    },
+    {
+      "path": "strategy-regression-icim-38392612084\\regression.xml",
+      "testcase": 667,
+      "failure": 0,
+      "error": 0,
+      "skipped": 0
+    }
+  ],
+  "actual_delivery_confirmation": "PASS: independent Gmail INBOX readback, single exact-day message, body/HTML and attachment bound to the same normal run"
+}

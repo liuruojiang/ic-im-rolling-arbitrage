@@ -1,0 +1,924 @@
+{
+  "scope": "Cloud renderer read-only review plus authorized minimal ordinary plan boundary repair; no production strategy/ledger or send changes",
+  "status": "LOCAL_REPAIR_VERIFIED_WAITING_FINAL_REMOTE_PIN",
+  "cloud_source_sha256": {
+    "scripts\\build_ic_im_v1_4_digest.py": "368b418c3c673199f0a30c63089b73752ba07db028f3656b0442d1e4c669fef4",
+    "scripts\\ic_im_v1_4_put_display.py": "c94e942c7bcf80b9d537025b4fa2f0762f285c3823264027c85e55c7f71ca447"
+  },
+  "additional_cloud_gate_repro": [
+    {
+      "saved_source": "research_reports\\20261013_script_repair\\policy_state\\profit_momentum\\pytest-of-Administrator\\pytest-1\\test_enter_short_route_does_no0\\latest.json",
+      "source_sha256": "4aa18e97c89d7fc0ebb0bc3f4175b8a94ab85f33da1b610602abf311d03ca7f6",
+      "product": "IC",
+      "action": "ENTER_SHORT_PUT",
+      "market_date": "2026-09-30",
+      "cloud_status": "REJECTED",
+      "error": "ValueError: IC ordinary Put core positive quantity lacks contract",
+      "signal_current_core_contract": null,
+      "signal_target_core_contract": null,
+      "signal_current_core_qty": 14.0,
+      "plan_core": {
+        "changed": false,
+        "new_contract": null,
+        "new_qty": 0.0,
+        "new_security_id": null,
+        "old_contract": null,
+        "old_qty": 0.0,
+        "old_security_id": null
+      }
+    },
+    {
+      "saved_source": "research_reports\\20261013_script_repair\\policy_state\\profit_momentum\\pytest-of-Administrator\\pytest-1\\test_enter_short_route_does_no1\\latest.json",
+      "source_sha256": "1ee11c4d0bd2eb6396c0f89646b61b6dc0f80bfbf1fe471c090a2cda46d56a17",
+      "product": "IM",
+      "action": "ENTER_SHORT_PUT",
+      "market_date": "2026-09-30",
+      "cloud_status": "REJECTED",
+      "error": "ValueError: IM ordinary Put core leg differs from signal identity/quantity",
+      "signal_current_core_contract": "MO2612-P-7200",
+      "signal_target_core_contract": null,
+      "signal_current_core_qty": 1.5,
+      "plan_core": {
+        "changed": false,
+        "new_contract": null,
+        "new_qty": 0.0,
+        "new_security_id": null,
+        "old_contract": null,
+        "old_qty": 0.0,
+        "old_security_id": null
+      }
+    },
+    {
+      "saved_source": "research_reports\\20261013_script_repair\\policy_state\\profit_momentum\\pytest-of-Administrator\\pytest-1\\test_enter_short_route_does_nocurrent\\latest.json",
+      "source_sha256": "1ee11c4d0bd2eb6396c0f89646b61b6dc0f80bfbf1fe471c090a2cda46d56a17",
+      "product": "IM",
+      "action": "ENTER_SHORT_PUT",
+      "market_date": "2026-09-30",
+      "cloud_status": "REJECTED",
+      "error": "ValueError: IM ordinary Put core leg differs from signal identity/quantity",
+      "signal_current_core_contract": "MO2612-P-7200",
+      "signal_target_core_contract": null,
+      "signal_current_core_qty": 1.5,
+      "plan_core": {
+        "changed": false,
+        "new_contract": null,
+        "new_qty": 0.0,
+        "new_security_id": null,
+        "old_contract": null,
+        "old_qty": 0.0,
+        "old_security_id": null
+      }
+    },
+    {
+      "saved_source": "research_reports\\20261013_script_repair\\policy_state\\profit_momentum\\pytest-of-Administrator\\pytest-1\\test_profit_execution_day_new_1\\journal\\000002-2026-10-08.json",
+      "source_sha256": "b7c5942a0bfd60a0a6f602736441de6af023c763be483f67f28da9b8ac0eb97f",
+      "product": "IM",
+      "action": "EXECUTE_CORE_PUT_PROFIT3X_REENTER",
+      "market_date": "2026-10-08",
+      "cloud_status": "REJECTED",
+      "error": "ValueError: IM ordinary Put core leg differs from signal identity/quantity",
+      "signal_current_core_contract": "MO2612-P-7200",
+      "signal_target_core_contract": "MO2612-P-7000",
+      "signal_current_core_qty": 1.5,
+      "plan_core": {
+        "changed": false,
+        "new_contract": "MO2612-P-7000",
+        "new_qty": 1.5,
+        "new_security_id": null,
+        "old_contract": "MO2612-P-7000",
+        "old_qty": 1.5,
+        "old_security_id": null
+      }
+    },
+    {
+      "saved_source": "research_reports\\20261013_script_repair\\policy_state\\profit_momentum\\pytest-of-Administrator\\pytest-1\\test_profit_execution_day_new_3\\journal\\000002-2026-10-08.json",
+      "source_sha256": "77869265b5a5c66fcd57a76315a7ab48359ddc8c409c4b792043abf4d5d89b8c",
+      "product": "IM",
+      "action": "EXECUTE_CORE_PUT_PROFIT3X_REENTER",
+      "market_date": "2026-10-08",
+      "cloud_status": "REJECTED",
+      "error": "ValueError: IM ordinary Put core leg differs from signal identity/quantity",
+      "signal_current_core_contract": "MO2612-P-7200",
+      "signal_target_core_contract": "MO2612-P-7000",
+      "signal_current_core_qty": 1.5,
+      "plan_core": {
+        "changed": false,
+        "new_contract": "MO2612-P-7000",
+        "new_qty": 1.5,
+        "new_security_id": null,
+        "old_contract": "MO2612-P-7000",
+        "old_qty": 1.5,
+        "old_security_id": null
+      }
+    },
+    {
+      "saved_source": "research_reports\\20261013_script_repair\\policy_state\\profit_momentum\\pytest-of-Administrator\\pytest-1\\test_profit_execution_day_new_current\\journal\\000002-2026-10-08.json",
+      "source_sha256": "77869265b5a5c66fcd57a76315a7ab48359ddc8c409c4b792043abf4d5d89b8c",
+      "product": "IM",
+      "action": "EXECUTE_CORE_PUT_PROFIT3X_REENTER",
+      "market_date": "2026-10-08",
+      "cloud_status": "REJECTED",
+      "error": "ValueError: IM ordinary Put core leg differs from signal identity/quantity",
+      "signal_current_core_contract": "MO2612-P-7200",
+      "signal_target_core_contract": "MO2612-P-7000",
+      "signal_current_core_qty": 1.5,
+      "plan_core": {
+        "changed": false,
+        "new_contract": "MO2612-P-7000",
+        "new_qty": 1.5,
+        "new_security_id": null,
+        "old_contract": "MO2612-P-7000",
+        "old_qty": 1.5,
+        "old_security_id": null
+      }
+    },
+    {
+      "saved_source": "research_reports\\20261013_script_repair\\policy_state\\profit_momentum\\pytest-of-Administrator\\pytest-2\\test_enter_short_route_does_no0\\latest.json",
+      "source_sha256": "dba61e88741031accf5f0e6aa03ea5f8e852c166a19a058119710404abe14d80",
+      "product": "IC",
+      "action": "ENTER_SHORT_PUT",
+      "market_date": "2026-09-30",
+      "cloud_status": "REJECTED",
+      "error": "ValueError: IC ordinary Put core positive quantity lacks contract",
+      "signal_current_core_contract": null,
+      "signal_target_core_contract": null,
+      "signal_current_core_qty": 14.0,
+      "plan_core": {
+        "changed": false,
+        "new_contract": null,
+        "new_qty": 0.0,
+        "new_security_id": null,
+        "old_contract": null,
+        "old_qty": 0.0,
+        "old_security_id": null
+      }
+    },
+    {
+      "saved_source": "research_reports\\20261013_script_repair\\policy_state\\profit_momentum\\pytest-of-Administrator\\pytest-2\\test_enter_short_route_does_no1\\latest.json",
+      "source_sha256": "d1849a1034a521cafb29e3f80174b51c917051c2845af9f6b947cb0ab085c9be",
+      "product": "IM",
+      "action": "ENTER_SHORT_PUT",
+      "market_date": "2026-09-30",
+      "cloud_status": "REJECTED",
+      "error": "ValueError: IM ordinary Put core leg differs from signal identity/quantity",
+      "signal_current_core_contract": "MO2612-P-7200",
+      "signal_target_core_contract": null,
+      "signal_current_core_qty": 1.5,
+      "plan_core": {
+        "changed": false,
+        "new_contract": null,
+        "new_qty": 0.0,
+        "new_security_id": null,
+        "old_contract": null,
+        "old_qty": 0.0,
+        "old_security_id": null
+      }
+    },
+    {
+      "saved_source": "research_reports\\20261013_script_repair\\policy_state\\profit_momentum\\pytest-of-Administrator\\pytest-2\\test_enter_short_route_does_nocurrent\\latest.json",
+      "source_sha256": "d1849a1034a521cafb29e3f80174b51c917051c2845af9f6b947cb0ab085c9be",
+      "product": "IM",
+      "action": "ENTER_SHORT_PUT",
+      "market_date": "2026-09-30",
+      "cloud_status": "REJECTED",
+      "error": "ValueError: IM ordinary Put core leg differs from signal identity/quantity",
+      "signal_current_core_contract": "MO2612-P-7200",
+      "signal_target_core_contract": null,
+      "signal_current_core_qty": 1.5,
+      "plan_core": {
+        "changed": false,
+        "new_contract": null,
+        "new_qty": 0.0,
+        "new_security_id": null,
+        "old_contract": null,
+        "old_qty": 0.0,
+        "old_security_id": null
+      }
+    },
+    {
+      "saved_source": "research_reports\\20261013_script_repair\\policy_state\\profit_momentum\\pytest-of-Administrator\\pytest-2\\test_profit_execution_day_new_0\\journal\\000002-2026-10-08.json",
+      "source_sha256": "80ad6023b1fc696a5c86db89ecfd2f355dd3865d0c844326b6e58683dd4bffee",
+      "product": "IC",
+      "action": "EXECUTE_CORE_PUT_PROFIT3X_REENTER",
+      "market_date": "2026-10-08",
+      "cloud_status": "REJECTED",
+      "error": "ValueError: IC ordinary Put core positive quantity lacks contract",
+      "signal_current_core_contract": null,
+      "signal_target_core_contract": "510500P2612M07000",
+      "signal_current_core_qty": 14.0,
+      "plan_core": {
+        "changed": false,
+        "new_contract": "510500P2612M07000",
+        "new_qty": 14.0,
+        "new_security_id": "10012100",
+        "old_contract": "510500P2612M07000",
+        "old_qty": 14.0,
+        "old_security_id": "10012100"
+      }
+    },
+    {
+      "saved_source": "research_reports\\20261013_script_repair\\policy_state\\profit_momentum\\pytest-of-Administrator\\pytest-2\\test_profit_execution_day_new_1\\journal\\000002-2026-10-08.json",
+      "source_sha256": "3f4b899cfe85ff26210d8752df286241eaccf5dcbdfe436344d1db83c954fb27",
+      "product": "IM",
+      "action": "EXECUTE_CORE_PUT_PROFIT3X_REENTER",
+      "market_date": "2026-10-08",
+      "cloud_status": "REJECTED",
+      "error": "ValueError: IM ordinary Put core leg differs from signal identity/quantity",
+      "signal_current_core_contract": "MO2612-P-7200",
+      "signal_target_core_contract": "MO2612-P-7000",
+      "signal_current_core_qty": 1.5,
+      "plan_core": {
+        "changed": false,
+        "new_contract": "MO2612-P-7000",
+        "new_qty": 1.5,
+        "new_security_id": null,
+        "old_contract": "MO2612-P-7000",
+        "old_qty": 1.5,
+        "old_security_id": null
+      }
+    },
+    {
+      "saved_source": "research_reports\\20261013_script_repair\\policy_state\\profit_momentum\\pytest-of-Administrator\\pytest-2\\test_profit_execution_day_new_2\\journal\\000002-2026-10-08.json",
+      "source_sha256": "d4fdae447e1e0a2c8710b2c6a29bda75e8378c6318935acf871e467c20a643f2",
+      "product": "IC",
+      "action": "EXECUTE_CORE_PUT_PROFIT3X_REENTER",
+      "market_date": "2026-10-08",
+      "cloud_status": "REJECTED",
+      "error": "ValueError: IC ordinary Put core positive quantity lacks contract",
+      "signal_current_core_contract": null,
+      "signal_target_core_contract": "510500P2612M07000",
+      "signal_current_core_qty": 14.0,
+      "plan_core": {
+        "changed": false,
+        "new_contract": "510500P2612M07000",
+        "new_qty": 14.0,
+        "new_security_id": "10012100",
+        "old_contract": "510500P2612M07000",
+        "old_qty": 14.0,
+        "old_security_id": "10012100"
+      }
+    },
+    {
+      "saved_source": "research_reports\\20261013_script_repair\\policy_state\\profit_momentum\\pytest-of-Administrator\\pytest-2\\test_profit_execution_day_new_3\\journal\\000002-2026-10-08.json",
+      "source_sha256": "5eea1ceb9c0b2efffd82cf8996ea307d0d41ad66f0c51ed0fc563ca6d7da717b",
+      "product": "IM",
+      "action": "EXECUTE_CORE_PUT_PROFIT3X_REENTER",
+      "market_date": "2026-10-08",
+      "cloud_status": "REJECTED",
+      "error": "ValueError: IM ordinary Put core leg differs from signal identity/quantity",
+      "signal_current_core_contract": "MO2612-P-7200",
+      "signal_target_core_contract": "MO2612-P-7000",
+      "signal_current_core_qty": 1.5,
+      "plan_core": {
+        "changed": false,
+        "new_contract": "MO2612-P-7000",
+        "new_qty": 1.5,
+        "new_security_id": null,
+        "old_contract": "MO2612-P-7000",
+        "old_qty": 1.5,
+        "old_security_id": null
+      }
+    },
+    {
+      "saved_source": "research_reports\\20261013_script_repair\\policy_state\\profit_momentum\\pytest-of-Administrator\\pytest-2\\test_profit_execution_day_new_current\\journal\\000002-2026-10-08.json",
+      "source_sha256": "5eea1ceb9c0b2efffd82cf8996ea307d0d41ad66f0c51ed0fc563ca6d7da717b",
+      "product": "IM",
+      "action": "EXECUTE_CORE_PUT_PROFIT3X_REENTER",
+      "market_date": "2026-10-08",
+      "cloud_status": "REJECTED",
+      "error": "ValueError: IM ordinary Put core leg differs from signal identity/quantity",
+      "signal_current_core_contract": "MO2612-P-7200",
+      "signal_target_core_contract": "MO2612-P-7000",
+      "signal_current_core_qty": 1.5,
+      "plan_core": {
+        "changed": false,
+        "new_contract": "MO2612-P-7000",
+        "new_qty": 1.5,
+        "new_security_id": null,
+        "old_contract": "MO2612-P-7000",
+        "old_qty": 1.5,
+        "old_security_id": null
+      }
+    },
+    {
+      "saved_source": "research_reports\\20261013_script_repair\\policy_state\\profit_momentum\\pytest-of-Administrator\\pytest-3\\test_enter_short_route_does_no0\\latest.json",
+      "source_sha256": "b842f46b363936ac61ad5aa2b5b0ea23cef9d917750c7e867f2d55989c0a986b",
+      "product": "IC",
+      "action": "ENTER_SHORT_PUT",
+      "market_date": "2026-09-30",
+      "cloud_status": "REJECTED",
+      "error": "ValueError: IC ordinary Put core positive quantity lacks contract",
+      "signal_current_core_contract": null,
+      "signal_target_core_contract": null,
+      "signal_current_core_qty": 14.0,
+      "plan_core": {
+        "changed": false,
+        "new_contract": null,
+        "new_qty": 0.0,
+        "new_security_id": null,
+        "old_contract": null,
+        "old_qty": 0.0,
+        "old_security_id": null
+      }
+    },
+    {
+      "saved_source": "research_reports\\20261013_script_repair\\policy_state\\profit_momentum\\pytest-of-Administrator\\pytest-3\\test_enter_short_route_does_no1\\latest.json",
+      "source_sha256": "381c794b9a5a5426796ecffe4a960c926103f5a72891fc2d9e1aab72a50a95ba",
+      "product": "IM",
+      "action": "ENTER_SHORT_PUT",
+      "market_date": "2026-09-30",
+      "cloud_status": "REJECTED",
+      "error": "ValueError: IM ordinary Put core leg differs from signal identity/quantity",
+      "signal_current_core_contract": "MO2612-P-7200",
+      "signal_target_core_contract": null,
+      "signal_current_core_qty": 1.5,
+      "plan_core": {
+        "changed": false,
+        "new_contract": null,
+        "new_qty": 0.0,
+        "new_security_id": null,
+        "old_contract": null,
+        "old_qty": 0.0,
+        "old_security_id": null
+      }
+    },
+    {
+      "saved_source": "research_reports\\20261013_script_repair\\policy_state\\profit_momentum\\pytest-of-Administrator\\pytest-3\\test_enter_short_route_does_nocurrent\\latest.json",
+      "source_sha256": "381c794b9a5a5426796ecffe4a960c926103f5a72891fc2d9e1aab72a50a95ba",
+      "product": "IM",
+      "action": "ENTER_SHORT_PUT",
+      "market_date": "2026-09-30",
+      "cloud_status": "REJECTED",
+      "error": "ValueError: IM ordinary Put core leg differs from signal identity/quantity",
+      "signal_current_core_contract": "MO2612-P-7200",
+      "signal_target_core_contract": null,
+      "signal_current_core_qty": 1.5,
+      "plan_core": {
+        "changed": false,
+        "new_contract": null,
+        "new_qty": 0.0,
+        "new_security_id": null,
+        "old_contract": null,
+        "old_qty": 0.0,
+        "old_security_id": null
+      }
+    },
+    {
+      "saved_source": "research_reports\\20261013_script_repair\\policy_state\\profit_momentum\\pytest-of-Administrator\\pytest-3\\test_profit_execution_day_new_0\\journal\\000002-2026-10-08.json",
+      "source_sha256": "bf52b6da488eaed06d8bae28008233314fc09401138252c4ef167ccf1cf92deb",
+      "product": "IC",
+      "action": "EXECUTE_CORE_PUT_PROFIT3X_REENTER",
+      "market_date": "2026-10-08",
+      "cloud_status": "REJECTED",
+      "error": "ValueError: IC ordinary Put core positive quantity lacks contract",
+      "signal_current_core_contract": null,
+      "signal_target_core_contract": "510500P2612M07000",
+      "signal_current_core_qty": 14.0,
+      "plan_core": {
+        "changed": false,
+        "new_contract": "510500P2612M07000",
+        "new_qty": 14.0,
+        "new_security_id": "10012100",
+        "old_contract": "510500P2612M07000",
+        "old_qty": 14.0,
+        "old_security_id": "10012100"
+      }
+    },
+    {
+      "saved_source": "research_reports\\20261013_script_repair\\policy_state\\profit_momentum\\pytest-of-Administrator\\pytest-3\\test_profit_execution_day_new_1\\journal\\000002-2026-10-08.json",
+      "source_sha256": "861123f3b4d5d872bb409c03f9be08e17356fb4b150619dfac591229e8784b42",
+      "product": "IM",
+      "action": "EXECUTE_CORE_PUT_PROFIT3X_REENTER",
+      "market_date": "2026-10-08",
+      "cloud_status": "REJECTED",
+      "error": "ValueError: IM ordinary Put core leg differs from signal identity/quantity",
+      "signal_current_core_contract": "MO2612-P-7200",
+      "signal_target_core_contract": "MO2612-P-7000",
+      "signal_current_core_qty": 1.5,
+      "plan_core": {
+        "changed": false,
+        "new_contract": "MO2612-P-7000",
+        "new_qty": 1.5,
+        "new_security_id": null,
+        "old_contract": "MO2612-P-7000",
+        "old_qty": 1.5,
+        "old_security_id": null
+      }
+    },
+    {
+      "saved_source": "research_reports\\20261013_script_repair\\policy_state\\profit_momentum\\pytest-of-Administrator\\pytest-3\\test_profit_execution_day_new_2\\journal\\000002-2026-10-08.json",
+      "source_sha256": "16ba13b98bb691acd82ea2e11268ffd0bc036677c4a501623cb4ef89e95e93bd",
+      "product": "IC",
+      "action": "EXECUTE_CORE_PUT_PROFIT3X_REENTER",
+      "market_date": "2026-10-08",
+      "cloud_status": "REJECTED",
+      "error": "ValueError: IC ordinary Put core positive quantity lacks contract",
+      "signal_current_core_contract": null,
+      "signal_target_core_contract": "510500P2612M07000",
+      "signal_current_core_qty": 14.0,
+      "plan_core": {
+        "changed": false,
+        "new_contract": "510500P2612M07000",
+        "new_qty": 14.0,
+        "new_security_id": "10012100",
+        "old_contract": "510500P2612M07000",
+        "old_qty": 14.0,
+        "old_security_id": "10012100"
+      }
+    },
+    {
+      "saved_source": "research_reports\\20261013_script_repair\\policy_state\\profit_momentum\\pytest-of-Administrator\\pytest-3\\test_profit_execution_day_new_3\\journal\\000002-2026-10-08.json",
+      "source_sha256": "63e26f8250e088a63c8fac7addcf056c18cb2aaa37949b594dacd58c20bfdb4e",
+      "product": "IM",
+      "action": "EXECUTE_CORE_PUT_PROFIT3X_REENTER",
+      "market_date": "2026-10-08",
+      "cloud_status": "REJECTED",
+      "error": "ValueError: IM ordinary Put core leg differs from signal identity/quantity",
+      "signal_current_core_contract": "MO2612-P-7200",
+      "signal_target_core_contract": "MO2612-P-7000",
+      "signal_current_core_qty": 1.5,
+      "plan_core": {
+        "changed": false,
+        "new_contract": "MO2612-P-7000",
+        "new_qty": 1.5,
+        "new_security_id": null,
+        "old_contract": "MO2612-P-7000",
+        "old_qty": 1.5,
+        "old_security_id": null
+      }
+    },
+    {
+      "saved_source": "research_reports\\20261013_script_repair\\policy_state\\profit_momentum\\pytest-of-Administrator\\pytest-3\\test_profit_execution_day_new_current\\journal\\000002-2026-10-08.json",
+      "source_sha256": "63e26f8250e088a63c8fac7addcf056c18cb2aaa37949b594dacd58c20bfdb4e",
+      "product": "IM",
+      "action": "EXECUTE_CORE_PUT_PROFIT3X_REENTER",
+      "market_date": "2026-10-08",
+      "cloud_status": "REJECTED",
+      "error": "ValueError: IM ordinary Put core leg differs from signal identity/quantity",
+      "signal_current_core_contract": "MO2612-P-7200",
+      "signal_target_core_contract": "MO2612-P-7000",
+      "signal_current_core_qty": 1.5,
+      "plan_core": {
+        "changed": false,
+        "new_contract": "MO2612-P-7000",
+        "new_qty": 1.5,
+        "new_security_id": null,
+        "old_contract": "MO2612-P-7000",
+        "old_qty": 1.5,
+        "old_security_id": null
+      }
+    },
+    {
+      "saved_source": "research_reports\\20261013_script_repair\\policy_state\\temp\\pytest-of-Administrator\\pytest-0\\test_enter_short_route_does_no0\\latest.json",
+      "source_sha256": "06d9843cc0941bc14cc5683054dc7fd898fcb89a1486b56ceec10725a5a28f49",
+      "product": "IC",
+      "action": "ENTER_SHORT_PUT",
+      "market_date": "2026-09-30",
+      "cloud_status": "REJECTED",
+      "error": "ValueError: IC ordinary Put core positive quantity lacks contract",
+      "signal_current_core_contract": null,
+      "signal_target_core_contract": null,
+      "signal_current_core_qty": 14.0,
+      "plan_core": {
+        "changed": false,
+        "new_contract": null,
+        "new_qty": 0.0,
+        "new_security_id": null,
+        "old_contract": null,
+        "old_qty": 0.0,
+        "old_security_id": null
+      }
+    },
+    {
+      "saved_source": "research_reports\\20261013_script_repair\\policy_state\\temp\\pytest-of-Administrator\\pytest-0\\test_enter_short_route_does_no1\\latest.json",
+      "source_sha256": "4905f7481dc0dfa5b9d2cf4560d147dbdd6664cdf551bfd03ebd26ac0dcad47d",
+      "product": "IM",
+      "action": "ENTER_SHORT_PUT",
+      "market_date": "2026-09-30",
+      "cloud_status": "REJECTED",
+      "error": "ValueError: IM ordinary Put core leg differs from signal identity/quantity",
+      "signal_current_core_contract": "MO2612-P-7200",
+      "signal_target_core_contract": null,
+      "signal_current_core_qty": 1.5,
+      "plan_core": {
+        "changed": false,
+        "new_contract": null,
+        "new_qty": 0.0,
+        "new_security_id": null,
+        "old_contract": null,
+        "old_qty": 0.0,
+        "old_security_id": null
+      }
+    },
+    {
+      "saved_source": "research_reports\\20261013_script_repair\\policy_state\\temp\\pytest-of-Administrator\\pytest-0\\test_enter_short_route_does_nocurrent\\latest.json",
+      "source_sha256": "4905f7481dc0dfa5b9d2cf4560d147dbdd6664cdf551bfd03ebd26ac0dcad47d",
+      "product": "IM",
+      "action": "ENTER_SHORT_PUT",
+      "market_date": "2026-09-30",
+      "cloud_status": "REJECTED",
+      "error": "ValueError: IM ordinary Put core leg differs from signal identity/quantity",
+      "signal_current_core_contract": "MO2612-P-7200",
+      "signal_target_core_contract": null,
+      "signal_current_core_qty": 1.5,
+      "plan_core": {
+        "changed": false,
+        "new_contract": null,
+        "new_qty": 0.0,
+        "new_security_id": null,
+        "old_contract": null,
+        "old_qty": 0.0,
+        "old_security_id": null
+      }
+    },
+    {
+      "saved_source": "research_reports\\20261013_script_repair\\policy_state\\temp\\pytest-of-Administrator\\pytest-1\\test_enter_short_route_does_no0\\latest.json",
+      "source_sha256": "9ec7e7b2e3164af833f36ad3a4a946ce1f1bfb6d5f8d24679bf1934d8b35ae6a",
+      "product": "IC",
+      "action": "ENTER_SHORT_PUT",
+      "market_date": "2026-09-30",
+      "cloud_status": "REJECTED",
+      "error": "ValueError: IC ordinary Put core positive quantity lacks contract",
+      "signal_current_core_contract": null,
+      "signal_target_core_contract": null,
+      "signal_current_core_qty": 14.0,
+      "plan_core": {
+        "changed": false,
+        "new_contract": null,
+        "new_qty": 0.0,
+        "new_security_id": null,
+        "old_contract": null,
+        "old_qty": 0.0,
+        "old_security_id": null
+      }
+    },
+    {
+      "saved_source": "research_reports\\20261013_script_repair\\policy_state\\temp\\pytest-of-Administrator\\pytest-1\\test_enter_short_route_does_no1\\latest.json",
+      "source_sha256": "4dc0c867020d20c87d5a47fe548907420655314cb69d77d2c148ed237bee3f05",
+      "product": "IM",
+      "action": "ENTER_SHORT_PUT",
+      "market_date": "2026-09-30",
+      "cloud_status": "REJECTED",
+      "error": "ValueError: IM ordinary Put core leg differs from signal identity/quantity",
+      "signal_current_core_contract": "MO2612-P-7200",
+      "signal_target_core_contract": null,
+      "signal_current_core_qty": 1.5,
+      "plan_core": {
+        "changed": false,
+        "new_contract": null,
+        "new_qty": 0.0,
+        "new_security_id": null,
+        "old_contract": null,
+        "old_qty": 0.0,
+        "old_security_id": null
+      }
+    },
+    {
+      "saved_source": "research_reports\\20261013_script_repair\\policy_state\\temp\\pytest-of-Administrator\\pytest-1\\test_enter_short_route_does_nocurrent\\latest.json",
+      "source_sha256": "4dc0c867020d20c87d5a47fe548907420655314cb69d77d2c148ed237bee3f05",
+      "product": "IM",
+      "action": "ENTER_SHORT_PUT",
+      "market_date": "2026-09-30",
+      "cloud_status": "REJECTED",
+      "error": "ValueError: IM ordinary Put core leg differs from signal identity/quantity",
+      "signal_current_core_contract": "MO2612-P-7200",
+      "signal_target_core_contract": null,
+      "signal_current_core_qty": 1.5,
+      "plan_core": {
+        "changed": false,
+        "new_contract": null,
+        "new_qty": 0.0,
+        "new_security_id": null,
+        "old_contract": null,
+        "old_qty": 0.0,
+        "old_security_id": null
+      }
+    }
+  ],
+  "field_mapping": {
+    "IC_current_core": "put_current_core_qty + v14_core_put_current_contract from continuation anchor",
+    "IC_target_core": "put_target_core_qty + v14_core_put_contract/security_id; first opening falls back to put_target_contract/security_id",
+    "IC_momentum": "put_{current,target}_momentum_qty + shared put_{current,target}_contract",
+    "3x_pending_ordinary_core": "Both sides locked to v14_profit_old_contract/security_id/qty, before execution; never to planned reentry",
+    "3x_executed_ordinary_core": "Both sides locked to post-execution dedicated core fields, matched to confirmed dated opening old/new evidence",
+    "v14_profit_new_contract": "Not emitted by actual producer, never used",
+    "monthly": "Dedicated old current core remains distinct from selected target core; no ordinary T+1 pending plan on maintenance day"
+  },
+  "authorized_changed_files": [
+    "scripts/build_ic_im_v1_4_digest.py::validate_ordinary_put_plan",
+    "scripts/ic_im_v1_4_delivery_contract.py::validate_pending_plans",
+    "tests/test_ic_im_v1_4_ordinary_route_sync_20261013.py"
+  ],
+  "backup_sha256": {
+    "build_ic_im_v1_4_digest.py": "368b418c3c673199f0a30c63089b73752ba07db028f3656b0442d1e4c669fef4",
+    "ic_im_v1_4_delivery_contract.py": "b106a08bd485cc55d998294f189c81018b8281d69008cf37cd449785a710efe2"
+  },
+  "current_sha256": {
+    "scripts/build_ic_im_v1_4_digest.py": "edf55e4828ddca28ddb29f5d35a01e8c9840a02156d922657055619a543c1b7f",
+    "scripts/ic_im_v1_4_delivery_contract.py": "a5b7385b7bb5dd3729e58cc5f3352ea4a774594c959b6db7ab21e5ce5d8eb976",
+    "scripts/ic_im_v1_4_put_display.py": "c94e942c7bcf80b9d537025b4fa2f0762f285c3823264027c85e55c7f71ca447",
+    "tests/test_ic_im_v1_4_ordinary_route_sync_20261013.py": "1ca91215ac60c1388f5d0dc46d25fe4cd64016e7c69bf8d743460d060f76032c"
+  },
+  "all_other_top_level_nodes_preserved_vs_backups": {
+    "build_ic_im_v1_4_digest.py": true,
+    "ic_im_v1_4_delivery_contract.py": true
+  },
+  "public_builder_before_after": [
+    {
+      "product": "IC",
+      "stage": "future",
+      "before": {
+        "status": "PASS"
+      },
+      "after": {
+        "status": "PASS"
+      }
+    },
+    {
+      "product": "IC",
+      "stage": "short_put",
+      "before": {
+        "status": "REJECTED",
+        "error": "ValueError: IC ordinary Put plan conflicts with core route, 3x plan or monthly maintenance"
+      },
+      "after": {
+        "status": "PASS"
+      }
+    },
+    {
+      "product": "IC",
+      "stage": "assigned_etf",
+      "before": {
+        "status": "REJECTED",
+        "error": "ValueError: IC ordinary Put plan conflicts with core route, 3x plan or monthly maintenance"
+      },
+      "after": {
+        "status": "PASS"
+      }
+    },
+    {
+      "product": "IC",
+      "stage": "cash_wait",
+      "before": {
+        "status": "REJECTED",
+        "error": "ValueError: IC ordinary Put plan conflicts with core route, 3x plan or monthly maintenance"
+      },
+      "after": {
+        "status": "PASS"
+      }
+    },
+    {
+      "product": "IC",
+      "stage": "recovery_future",
+      "before": {
+        "status": "REJECTED",
+        "error": "ValueError: IC ordinary Put plan conflicts with core route, 3x plan or monthly maintenance"
+      },
+      "after": {
+        "status": "PASS"
+      }
+    },
+    {
+      "product": "IC",
+      "stage": "pending",
+      "before": {
+        "status": "REJECTED",
+        "error": "ValueError: IC ordinary Put plan conflicts with core route, 3x plan or monthly maintenance"
+      },
+      "after": {
+        "status": "PASS"
+      }
+    },
+    {
+      "product": "IC",
+      "stage": "waiting",
+      "before": {
+        "status": "REJECTED",
+        "error": "ValueError: IC ordinary Put plan conflicts with core route, 3x plan or monthly maintenance"
+      },
+      "after": {
+        "status": "PASS"
+      }
+    },
+    {
+      "product": "IC",
+      "stage": "executed",
+      "before": {
+        "status": "REJECTED",
+        "error": "ValueError: IC ordinary Put core leg differs from signal identity/quantity"
+      },
+      "after": {
+        "status": "PASS"
+      }
+    },
+    {
+      "product": "IM",
+      "stage": "future",
+      "before": {
+        "status": "PASS"
+      },
+      "after": {
+        "status": "PASS"
+      }
+    },
+    {
+      "product": "IM",
+      "stage": "short_put",
+      "before": {
+        "status": "REJECTED",
+        "error": "ValueError: IM ordinary Put plan conflicts with core route, 3x plan or monthly maintenance"
+      },
+      "after": {
+        "status": "PASS"
+      }
+    },
+    {
+      "product": "IM",
+      "stage": "assigned_etf",
+      "before": {
+        "status": "REJECTED",
+        "error": "ValueError: IM ordinary Put plan conflicts with core route, 3x plan or monthly maintenance"
+      },
+      "after": {
+        "status": "PASS"
+      }
+    },
+    {
+      "product": "IM",
+      "stage": "cash_wait",
+      "before": {
+        "status": "REJECTED",
+        "error": "ValueError: IM ordinary Put plan conflicts with core route, 3x plan or monthly maintenance"
+      },
+      "after": {
+        "status": "PASS"
+      }
+    },
+    {
+      "product": "IM",
+      "stage": "recovery_future",
+      "before": {
+        "status": "REJECTED",
+        "error": "ValueError: IM ordinary Put plan conflicts with core route, 3x plan or monthly maintenance"
+      },
+      "after": {
+        "status": "PASS"
+      }
+    },
+    {
+      "product": "IM",
+      "stage": "pending",
+      "before": {
+        "status": "REJECTED",
+        "error": "ValueError: IM ordinary Put plan conflicts with core route, 3x plan or monthly maintenance"
+      },
+      "after": {
+        "status": "PASS"
+      }
+    },
+    {
+      "product": "IM",
+      "stage": "waiting",
+      "before": {
+        "status": "REJECTED",
+        "error": "ValueError: IM ordinary Put plan conflicts with core route, 3x plan or monthly maintenance"
+      },
+      "after": {
+        "status": "PASS"
+      }
+    },
+    {
+      "product": "IM",
+      "stage": "executed",
+      "before": {
+        "status": "REJECTED",
+        "error": "ValueError: IM ordinary Put core leg differs from signal identity/quantity"
+      },
+      "after": {
+        "status": "PASS"
+      }
+    }
+  ],
+  "saved_source_regression": [
+    {
+      "saved_source": "research_reports/20261013_script_repair/policy_state/profit_momentum/pytest-of-Administrator/pytest-3/test_enter_short_route_does_no1/latest.json",
+      "source_sha256": "381c794b9a5a5426796ecffe4a960c926103f5a72891fc2d9e1aab72a50a95ba",
+      "synthetic_exception_injection": true,
+      "product": "IM",
+      "action": "ENTER_SHORT_PUT",
+      "day": "2026-09-30",
+      "ordinary_status": "scheduled_t_plus_1_open",
+      "before_ordinary_gate": {
+        "status": "REJECTED",
+        "error": "ValueError: IM ordinary Put core leg differs from signal identity/quantity"
+      },
+      "after_ordinary_gate": {
+        "status": "PASS"
+      },
+      "before_pending_gate": {
+        "status": "REJECTED",
+        "error": "ValueError: IM ordinary Put plan conflicts with core route, 3x plan or monthly maintenance"
+      },
+      "after_pending_gate": {
+        "status": "PASS"
+      }
+    },
+    {
+      "saved_source": "research_reports/20261013_script_repair/policy_state/profit_momentum/pytest-of-Administrator/pytest-3/test_profit_execution_day_new_1/journal/000002-2026-10-08.json",
+      "source_sha256": "861123f3b4d5d872bb409c03f9be08e17356fb4b150619dfac591229e8784b42",
+      "synthetic_exception_injection": true,
+      "product": "IM",
+      "action": "EXECUTE_CORE_PUT_PROFIT3X_REENTER",
+      "day": "2026-10-08",
+      "ordinary_status": "scheduled_t_plus_1_open",
+      "before_ordinary_gate": {
+        "status": "REJECTED",
+        "error": "ValueError: IM ordinary Put core leg differs from signal identity/quantity"
+      },
+      "after_ordinary_gate": {
+        "status": "PASS"
+      },
+      "before_pending_gate": {
+        "status": "PASS"
+      },
+      "after_pending_gate": {
+        "status": "PASS"
+      }
+    },
+    {
+      "saved_source": "research_reports/20261013_script_repair/strategy/after_profit_fix/public_probe/trigger_e1ds13sw/synthetic_signal.json",
+      "source_sha256": "d44e6232969f3e774e452e13d89ab91b85910255470894614761a3d85f2c1ccc",
+      "synthetic_exception_injection": true,
+      "product": "IM",
+      "action": "CORE_PUT_PROFIT3X_REENTER",
+      "day": "2026-10-12",
+      "ordinary_status": "scheduled_t_plus_1_open",
+      "before_ordinary_gate": {
+        "status": "PASS"
+      },
+      "after_ordinary_gate": {
+        "status": "PASS"
+      },
+      "before_pending_gate": {
+        "status": "REJECTED",
+        "error": "ValueError: IM ordinary Put plan conflicts with core route, 3x plan or monthly maintenance"
+      },
+      "after_pending_gate": {
+        "status": "PASS"
+      },
+      "public_builder_wrapper": "Unmodified saved public producer IM signal plus explicitly synthetic valid IC peer/metadata aligned to its date; no historical market performance claim",
+      "before_public_builder": {
+        "status": "REJECTED",
+        "error": "ValueError: IM ordinary Put plan conflicts with core route, 3x plan or monthly maintenance"
+      },
+      "after_public_builder": {
+        "status": "PASS"
+      }
+    },
+    {
+      "saved_source": "research_reports/20261013_script_repair/strategy/after_profit_fix/public_next_session/complete_mwi2z26n/synthetic_signal.json",
+      "source_sha256": "fc5c57e87ac7d95fe7d8e330b5005a1ac9776a42e15f7727a339146f65f06ee9",
+      "synthetic_exception_injection": true,
+      "product": "IM",
+      "action": "EXECUTE_CORE_PUT_PROFIT3X_REENTER",
+      "day": "2026-10-13",
+      "ordinary_status": null,
+      "before_ordinary_gate": {
+        "status": "PASS"
+      },
+      "after_ordinary_gate": {
+        "status": "PASS"
+      },
+      "before_pending_gate": {
+        "status": "PASS"
+      },
+      "after_pending_gate": {
+        "status": "PASS"
+      },
+      "public_builder_wrapper": "Unmodified saved public producer IM signal plus explicitly synthetic valid IC peer/metadata aligned to its date; no historical market performance claim",
+      "before_public_builder": {
+        "status": "PASS"
+      },
+      "after_public_builder": {
+        "status": "PASS"
+      }
+    }
+  ],
+  "verification": {
+    "passed": 225,
+    "new_gate_cases": 84,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "subtests_passed": 10,
+    "log": "policy_cloud_gate_tests.log",
+    "xml": "policy_cloud_gate_tests.xml",
+    "command": "C:/Python314/python.exe -B -X utf8 -m pytest -p no:cacheprovider tests/test_ic_im_v1_4_ordinary_route_sync_20261013.py tests/test_ic_im_v1_4_contract_adversarial_20261009.py tests/test_ic_im_v1_4_daily_digest.py tests/test_ic_im_v1_4_policy_acceptance_20261007.py tests/test_ic_im_v1_4_put_display.py -q (isolated TEMP/TMP and basetemp)"
+  },
+  "limitations": [
+    "Saved old test IC helper lacked current core identity; that omission was not counted as a separate production bug. Exact retained IM examples establish both original ordinary identity failures.",
+    "Synthetic public builder cases verify reporting behavior, not actual fills or account status.",
+    "This task did not commit, push, alter workflow, send mail or mutate a canonical ledger.",
+    "Final release acceptance still requires parent-provided immutable remote strategy/cloud commit and actual delivery artifacts."
+  ]
+}

@@ -1,0 +1,124 @@
+{
+  "strategy_sha": "94a34d7552f52fc06e58ad26ee560969097658d3",
+  "automation_sha": "23d0a4241c68a7f2c0b02dc659dabd434f686a18",
+  "strategy_pr": 50,
+  "automation_pr": 153,
+  "strategy_runtime": [
+    {
+      "path": "ic_im_put_execution_v1.py",
+      "sha": "74438e27eca512bb536c2d98b9473d71098aaa56",
+      "content_equal": true
+    },
+    {
+      "path": "ic_im_option_maintenance_notice.py",
+      "sha": "b4cc1d9036325acaa63adfcc0917504f19e1cd60",
+      "content_equal": true
+    },
+    {
+      "path": "ic_im_v1_4_policy.py",
+      "sha": "ae07c7c94aa49fc7717756c0c59ef283ef9168e7",
+      "content_equal": true
+    },
+    {
+      "path": "poe_ic_im_mainline_v1_4_bot.py",
+      "sha": "c504eb60a81becc04119a6c75bb5ab49e2819251",
+      "content_equal": true
+    },
+    {
+      "path": "poe_ic_im_v1_4_state.py",
+      "sha": "c2bf40acc03cfe95c0393d36e6206d2ae48db632",
+      "content_equal": true
+    },
+    {
+      "path": "run_ic_im_v1_4_github_digest.py",
+      "sha": "3b22d90f845659e78a64528b1c16d02904a229dd",
+      "content_equal": true
+    }
+  ],
+  "automation_files": [
+    {
+      "path": "scripts/build_ic_im_v1_4_digest.py",
+      "sha": "372aee4c45f0b964a19c6079c52c1a63c32292fa",
+      "content_equal": true
+    },
+    {
+      "path": "scripts/ic_im_put_execution_contract.py",
+      "sha": "5b9c1d49dee93cf2992e16c21ce5e3c605a62600",
+      "content_equal": true
+    },
+    {
+      "path": "scripts/ic_im_option_maintenance_notice.py",
+      "sha": "b4cc1d9036325acaa63adfcc0917504f19e1cd60",
+      "content_equal": true
+    },
+    {
+      "path": "tests/test_ic_im_v1_4_monthly_maintenance_notice.py",
+      "sha": "c581db0025b48440307a8cdf1ea15b29af11feb1",
+      "content_equal": true
+    },
+    {
+      "path": "tests/test_ic_im_v1_4_put_execution_contract.py",
+      "sha": "933597860b1c623ec8875938b3ec3cef8b8cd065",
+      "content_equal": true
+    },
+    {
+      "path": ".github/workflows/ic-im-v1-4-daily-digest.yml",
+      "sha": "5118ff008f7d67b0376c1278c683b905ad6a9ae7",
+      "content_equal": true
+    },
+    {
+      "path": ".github/workflows/delivery-regression.yml",
+      "sha": "eea8a7788e9973fddca2f2ceda2827804c9ab9a1",
+      "content_equal": true
+    },
+    {
+      "path": ".github/workflows/ic-im-v1-4-delivery-readiness.yml",
+      "sha": "0253985db140daea43f1be3ada791ef8490e6b22",
+      "content_equal": true
+    },
+    {
+      "path": "docs/icim-readiness-requests/current.json",
+      "sha": "9f40726f47b83a7809f801ffb3e4e080efd2a884",
+      "content_equal": true
+    },
+    {
+      "path": "scripts/ic_im_readiness_handoff.py",
+      "sha": "15d687351004a386db857d01c3b948d25d75cb79",
+      "content_equal": true
+    },
+    {
+      "path": "tests/test_ic_im_v1_4_workflow.py",
+      "sha": "24d2ce4aae3394aea2fc3b780fa53f33be866aed",
+      "content_equal": true
+    },
+    {
+      "path": "tests/test_ic_im_v1_4_readiness_handoff.py",
+      "sha": "928b11d17c860e2ced9ad94ac84ac73813454b4e",
+      "content_equal": true
+    }
+  ],
+  "ci_run": 38852858831,
+  "ci": {
+    "automation_passed": 1093,
+    "icim_strategy_passed": 923,
+    "microcap_status": "success"
+  },
+  "local": {
+    "strategy_passed": 865,
+    "consumer_workflow_passed": 144,
+    "subtests_passed": 18
+  },
+  "normal_schedule": "20:00 Asia/Shanghai",
+  "no_extra_email": true,
+  "transport_pr": 154,
+  "transport_ci_run": 38853412143,
+  "transport_ci_status": "success",
+  "close_readiness_run": 38853077598,
+  "close_readiness_status": "success",
+  "realtime_readiness_run": 38853603565,
+  "realtime_readiness_status": "producer_ledger_smtp_passed_but_semantic_display_bug_found",
+  "unresolved_display_at_first_real_review": [
+    "IC monthly Put candidate summary prefers old core contract",
+    "quantity table labels maintenance-day close under next-session target"
+  ]
+}

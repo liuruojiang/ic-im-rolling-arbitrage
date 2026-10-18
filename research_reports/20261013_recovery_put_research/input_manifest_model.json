@@ -1,0 +1,43 @@
+{
+  "panel": "model",
+  "source_class": "model_source_v3.ListedCorrectedModelSources",
+  "inputs": [
+    {
+      "path": "D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261003_mom120_core_only_annual\\latest_model_inputs\\native_fix4_ic_noseller_targets_v2.csv.gz",
+      "sha256": "6be6ce4344292eb7cbfb89498aa44d1a3eb3aab4f36607ad1c2a93694aea420b"
+    },
+    {
+      "path": "D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261003_mom120_core_only_annual\\latest_model_inputs\\native_fix4_ic_risk_signals_v1.csv.gz",
+      "sha256": "1d8dd185035196e98bccdac7a2069b0ae70bb09b2b5f713f2fd54bf15191d016"
+    },
+    {
+      "path": "D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261003_mom120_core_only_annual\\latest_model_inputs\\native_fix4_im_noseller_targets_v3.csv.gz",
+      "sha256": "d0062275ff1df784af125396061a3a145fcf70bd267d8fcda58daddc54e75753"
+    },
+    {
+      "path": "D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261003_mom120_core_only_annual\\latest_model_inputs\\native_fix4_im_risk_signals_v1.csv.gz",
+      "sha256": "10e4210f2be76dd6820befd17f7d0aaf43be08cd0f8cd02b1f31bd6f55935049"
+    },
+    {
+      "path": "D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261003_mom120_core_only_annual\\latest_model_inputs\\native_fix4_seller_candidates_v1.csv.gz",
+      "sha256": "0a7707c8fb8303bdf5f45ce79ab3d36b33a1a0dfdd3180d58422eff517dcafeb"
+    },
+    {
+      "path": "D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261003_mom120_core_only_annual\\latest_model_inputs\\native_fix4_seller_lifecycle_v4.csv.gz",
+      "sha256": "aa5c4fd384c56f19c937ea63ecbc7076694de5c8ea9fa5fb91d48c42d293918d"
+    },
+    {
+      "path": "D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261003_mom120_core_only_annual\\model_latest_full_audit.json",
+      "sha256": "9a811758efaf5a89fcd66df7beccd507b1c3b1e6cb6377c0357f7064d8baf6fb"
+    },
+    {
+      "path": "D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261003_mom120_core_only_annual\\model_latest_full_daily.csv.gz",
+      "sha256": "a27737a2d08ebf4f496aa0d2fde727e39c3b182d8a0a7db26b857964d51f878b"
+    },
+    {
+      "path": "D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261003_mom120_core_only_annual\\model_latest_full_events.csv.gz",
+      "sha256": "01458c3892fc55264c39a5acc77ccfb74ac34cbccc5ed93dd5a8ad4bc54766c3"
+    }
+  ],
+  "known_scope": "Frozen latest-rule as-if-current history; listed theoretical fills or prelisting model, not live acceptance"
+}

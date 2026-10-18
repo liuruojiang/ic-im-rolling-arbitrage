@@ -1,0 +1,189 @@
+[
+  {
+    "name": "zero",
+    "ok": true,
+    "reference": {
+      "jiu_fear_greed_index": 0.0,
+      "jiu_data_date": "2026-10-16",
+      "jiu_reference_only": true,
+      "jiu_source_url": "https://ai2.jiucaishuo.com/api/fear-greed",
+      "jiu_page_url": "https://jiucaishuo.com/indicators?tab=fg",
+      "jiu_sha256": "109a5dc64e27e2a18b5fb00e1a467a249f1d617e6a818796121d1e906f2928c9",
+      "jiu_status": "reference_only",
+      "jiu_warning": "",
+      "jiu_retrieved_at": "2026-10-16T18:30:00+08:00"
+    },
+    "rendered": "9圈恐慌贪婪指数：0；数据日 2026-10-16；采集 2026-10-16T18:30:00+08:00；仅供参考，不参与网格信号。官网：https://jiucaishuo.com/indicators?tab=fg",
+    "grid_target": 0.5
+  },
+  {
+    "name": "hundred",
+    "ok": true,
+    "reference": {
+      "jiu_fear_greed_index": 100.0,
+      "jiu_data_date": "2026-10-16",
+      "jiu_reference_only": true,
+      "jiu_source_url": "https://ai2.jiucaishuo.com/api/fear-greed",
+      "jiu_page_url": "https://jiucaishuo.com/indicators?tab=fg",
+      "jiu_sha256": "c92c7f63b3168a764bd5c5d26f320473af2ad3f2f8ac3891f9ee1eebf27d3744",
+      "jiu_status": "reference_only",
+      "jiu_warning": "",
+      "jiu_retrieved_at": "2026-10-16T18:30:00+08:00"
+    },
+    "rendered": "9圈恐慌贪婪指数：100；数据日 2026-10-16；采集 2026-10-16T18:30:00+08:00；仅供参考，不参与网格信号。官网：https://jiucaishuo.com/indicators?tab=fg",
+    "grid_target": 0.5
+  },
+  {
+    "name": "previous",
+    "ok": true,
+    "reference": {
+      "jiu_fear_greed_index": 2.28,
+      "jiu_data_date": "2026-10-15",
+      "jiu_reference_only": true,
+      "jiu_source_url": "https://ai2.jiucaishuo.com/api/fear-greed",
+      "jiu_page_url": "https://jiucaishuo.com/indicators?tab=fg",
+      "jiu_sha256": "fb98147e4940cee44f65d47383e8478dd8ff2178cd8395279b70bbe495b5a4d3",
+      "jiu_status": "reference_only",
+      "jiu_warning": "数据日早于信号日",
+      "jiu_retrieved_at": "2026-10-16T18:30:00+08:00"
+    },
+    "rendered": "9圈恐慌贪婪指数：2.28；数据日 2026-10-15；采集 2026-10-16T18:30:00+08:00；与百分位数据日不同；仅供参考，不参与网格信号。官网：https://jiucaishuo.com/indicators?tab=fg",
+    "grid_target": 0.5
+  },
+  {
+    "name": "negative",
+    "ok": true,
+    "reference": {
+      "jiu_fear_greed_index": null,
+      "jiu_data_date": null,
+      "jiu_reference_only": true,
+      "jiu_source_url": "https://ai2.jiucaishuo.com/api/fear-greed",
+      "jiu_page_url": "https://jiucaishuo.com/indicators?tab=fg",
+      "jiu_sha256": null,
+      "jiu_status": "unavailable",
+      "jiu_warning": "9圈参考取数失败：ValueError: 9圈日期或读数非法",
+      "jiu_retrieved_at": "2026-10-16T18:30:00+08:00"
+    },
+    "rendered": "9圈恐慌贪婪指数：暂未取得；仅供参考，不参与网格信号。",
+    "grid_target": 0.5
+  },
+  {
+    "name": "over_100",
+    "ok": true,
+    "reference": {
+      "jiu_fear_greed_index": null,
+      "jiu_data_date": null,
+      "jiu_reference_only": true,
+      "jiu_source_url": "https://ai2.jiucaishuo.com/api/fear-greed",
+      "jiu_page_url": "https://jiucaishuo.com/indicators?tab=fg",
+      "jiu_sha256": null,
+      "jiu_status": "unavailable",
+      "jiu_warning": "9圈参考取数失败：ValueError: 9圈日期或读数非法",
+      "jiu_retrieved_at": "2026-10-16T18:30:00+08:00"
+    },
+    "rendered": "9圈恐慌贪婪指数：暂未取得；仅供参考，不参与网格信号。",
+    "grid_target": 0.5
+  },
+  {
+    "name": "bool",
+    "ok": true,
+    "reference": {
+      "jiu_fear_greed_index": null,
+      "jiu_data_date": null,
+      "jiu_reference_only": true,
+      "jiu_source_url": "https://ai2.jiucaishuo.com/api/fear-greed",
+      "jiu_page_url": "https://jiucaishuo.com/indicators?tab=fg",
+      "jiu_sha256": null,
+      "jiu_status": "unavailable",
+      "jiu_warning": "9圈参考取数失败：ValueError: 9圈日期或读数非法",
+      "jiu_retrieved_at": "2026-10-16T18:30:00+08:00"
+    },
+    "rendered": "9圈恐慌贪婪指数：暂未取得；仅供参考，不参与网格信号。",
+    "grid_target": 0.5
+  },
+  {
+    "name": "nan",
+    "ok": true,
+    "reference": {
+      "jiu_fear_greed_index": null,
+      "jiu_data_date": null,
+      "jiu_reference_only": true,
+      "jiu_source_url": "https://ai2.jiucaishuo.com/api/fear-greed",
+      "jiu_page_url": "https://jiucaishuo.com/indicators?tab=fg",
+      "jiu_sha256": null,
+      "jiu_status": "unavailable",
+      "jiu_warning": "9圈参考取数失败：ValueError: 9圈日期或读数非法",
+      "jiu_retrieved_at": "2026-10-16T18:30:00+08:00"
+    },
+    "rendered": "9圈恐慌贪婪指数：暂未取得；仅供参考，不参与网格信号。",
+    "grid_target": 0.5
+  },
+  {
+    "name": "future",
+    "ok": true,
+    "reference": {
+      "jiu_fear_greed_index": null,
+      "jiu_data_date": null,
+      "jiu_reference_only": true,
+      "jiu_source_url": "https://ai2.jiucaishuo.com/api/fear-greed",
+      "jiu_page_url": "https://jiucaishuo.com/indicators?tab=fg",
+      "jiu_sha256": null,
+      "jiu_status": "unavailable",
+      "jiu_warning": "9圈参考取数失败：ValueError: 9圈日期或读数非法",
+      "jiu_retrieved_at": "2026-10-16T18:30:00+08:00"
+    },
+    "rendered": "9圈恐慌贪婪指数：暂未取得；仅供参考，不参与网格信号。",
+    "grid_target": 0.5
+  },
+  {
+    "name": "duplicate_conflict",
+    "ok": true,
+    "reference": {
+      "jiu_fear_greed_index": null,
+      "jiu_data_date": null,
+      "jiu_reference_only": true,
+      "jiu_source_url": "https://ai2.jiucaishuo.com/api/fear-greed",
+      "jiu_page_url": "https://jiucaishuo.com/indicators?tab=fg",
+      "jiu_sha256": null,
+      "jiu_status": "unavailable",
+      "jiu_warning": "9圈参考取数失败：ValueError: 9圈同日记录冲突",
+      "jiu_retrieved_at": "2026-10-16T18:30:00+08:00"
+    },
+    "rendered": "9圈恐慌贪婪指数：暂未取得；仅供参考，不参与网格信号。",
+    "grid_target": 0.5
+  },
+  {
+    "name": "invalid_history",
+    "ok": true,
+    "reference": {
+      "jiu_fear_greed_index": null,
+      "jiu_data_date": null,
+      "jiu_reference_only": true,
+      "jiu_source_url": "https://ai2.jiucaishuo.com/api/fear-greed",
+      "jiu_page_url": "https://jiucaishuo.com/indicators?tab=fg",
+      "jiu_sha256": null,
+      "jiu_status": "unavailable",
+      "jiu_warning": "9圈参考取数失败：ValueError: 9圈历史字段异常",
+      "jiu_retrieved_at": "2026-10-16T18:30:00+08:00"
+    },
+    "rendered": "9圈恐慌贪婪指数：暂未取得；仅供参考，不参与网格信号。",
+    "grid_target": 0.5
+  },
+  {
+    "name": "empty",
+    "ok": true,
+    "reference": {
+      "jiu_fear_greed_index": null,
+      "jiu_data_date": null,
+      "jiu_reference_only": true,
+      "jiu_source_url": "https://ai2.jiucaishuo.com/api/fear-greed",
+      "jiu_page_url": "https://jiucaishuo.com/indicators?tab=fg",
+      "jiu_sha256": null,
+      "jiu_status": "unavailable",
+      "jiu_warning": "9圈参考取数失败：ValueError: Invalid isoformat string: 'None'",
+      "jiu_retrieved_at": "2026-10-16T18:30:00+08:00"
+    },
+    "rendered": "9圈恐慌贪婪指数：暂未取得；仅供参考，不参与网格信号。",
+    "grid_target": 0.5
+  }
+]

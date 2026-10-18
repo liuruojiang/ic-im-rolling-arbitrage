@@ -1,0 +1,375 @@
+{
+  "artifact": "post_sync_independent_local_and_gmail_acceptance",
+  "created_at": "2026-10-13T19:50:23.659095+08:00",
+  "status": "PASS_LOCAL_CLOUD_NORMAL_GMAIL_INBOX_ACCEPTED",
+  "scope": "只读核配置/refs/源hash/本地结果和账本；隔离渲染同一真实result；指定normal云run的收件箱验收待完成。",
+  "source_release": {
+    "execution_pin": "427cf45fd78710583c8028f7eca1ed88968036ee",
+    "strategy_main": "43cbc5e36179425d99e2c9447f9745109215339b",
+    "cloud_main": "0f0fec83f549f2db942fa5633593af48dc90476a",
+    "fresh_remote_refs": {
+      "strategy": "43cbc5e36179425d99e2c9447f9745109215339b",
+      "cloud": "0f0fec83f549f2db942fa5633593af48dc90476a"
+    },
+    "strategy_source_checks": {
+      "ic_im_v1_4_policy.py": {
+        "sha256": "e658610a4259ac6e00eca9495589e7e78c47ab87437d89090038d7a0b49e202f",
+        "pin_main_local_byte_identical": true
+      },
+      "poe_ic_im_v1_4_state.py": {
+        "sha256": "d589d8f651e565cfdc5b8f521f29dfbd44e638b73cde552a2f73dbcf3de64705",
+        "pin_main_local_byte_identical": true
+      },
+      "poe_ic_im_mainline_v1_4_bot.py": {
+        "sha256": "6a31e15f28428bae723650478ecd923062a1fdd9206959d797744167337c48cc",
+        "pin_main_local_byte_identical": true
+      },
+      "run_ic_im_v1_4_github_digest.py": {
+        "sha256": "f84c1374ecd7bc20d1d3932aeb80dcd9af1f21dfdafbeadb74c408fc06724242",
+        "pin_main_local_byte_identical": true
+      },
+      "ic_im_quote_snapshot_guard.py": {
+        "sha256": "ae22b541a1a2a6bc20d5bd23bb1fc3d275a2f3fcfce96b5345c2458cde74b9d5",
+        "pin_main_local_byte_identical": true
+      }
+    },
+    "cloud_source_checks": {
+      "scripts/build_ic_im_v1_4_digest.py": {
+        "worktree_sha256": "edf55e4828ddca28ddb29f5d35a01e8c9840a02156d922657055619a543c1b7f",
+        "git_blob_sha256": "0e4a0b288784214e6617355588321862ca2d29292da6c2f281cb22dabc8a1b47",
+        "byte_equal": false,
+        "normalized_LF_equal": true,
+        "difference_if_any": "Git Windows CRLF checkout only"
+      },
+      "scripts/ic_im_v1_4_put_display.py": {
+        "worktree_sha256": "c94e942c7bcf80b9d537025b4fa2f0762f285c3823264027c85e55c7f71ca447",
+        "git_blob_sha256": "37ca656692c69fc0e116f26f5e64c1980e6a6d6c36d4aac93f7607fd8d0e35cb",
+        "byte_equal": false,
+        "normalized_LF_equal": true,
+        "difference_if_any": "Git Windows CRLF checkout only"
+      },
+      ".github/workflows/ic-im-v1-4-daily-digest.yml": {
+        "worktree_sha256": "4971b2e5b48ad5ed6f297556a386c1a4d051364b79be5d8d723c394d16c302a8",
+        "git_blob_sha256": "e02be2b7dd4219cd266728b82e4569d1c31bc68082297ce6b45b765242fb7c49",
+        "byte_equal": false,
+        "normalized_LF_equal": true,
+        "difference_if_any": "Git Windows CRLF checkout only"
+      },
+      ".github/workflows/delivery-regression.yml": {
+        "worktree_sha256": "f4c358b51b43121b1bdcb1fe5686326772a9fa6ff075171d7d4660735774519c",
+        "git_blob_sha256": "6d2d6ee9fa48e0d0151537ccb435fbc6e3157a9ff290ed95345bf82e35dc3a5e",
+        "byte_equal": false,
+        "normalized_LF_equal": true,
+        "difference_if_any": "Git Windows CRLF checkout only"
+      },
+      "tests/fixtures/icim/quarter_roll_20261013/prepare_fixture.py": {
+        "worktree_sha256": "a43f5c5bf48b60a7cd480157b0d69e33a24b9aaa6b791ef62594b92c4c67aef6",
+        "git_blob_sha256": "a43f5c5bf48b60a7cd480157b0d69e33a24b9aaa6b791ef62594b92c4c67aef6",
+        "byte_equal": true,
+        "normalized_LF_equal": true,
+        "difference_if_any": "Git Windows CRLF checkout only"
+      }
+    }
+  },
+  "local_automation": {
+    "path": "D:\\Codex\\home\\automations\\ic-im\\automation.toml",
+    "sha256": "69c06e09f8797efc00b870e9b59f00ce7d0526d3f05489cb705a953e5dd732b3",
+    "preserved_non_prompt_fields": {
+      "version": true,
+      "id": true,
+      "kind": true,
+      "name": true,
+      "status": true,
+      "rrule": true,
+      "model": true,
+      "reasoning_effort": true,
+      "execution_environment": true,
+      "target": true,
+      "cwds": true,
+      "created_at": true
+    },
+    "original_prompt_prefix_preserved": true,
+    "execution_pin_added": "427cf45fd78710583c8028f7eca1ed88968036ee",
+    "appended_unique_test_files": [
+      "test_delivery_transport_retry.py",
+      "test_ohlcv_provider_validation.py",
+      "test_ic_im_v1_4_policy.py",
+      "test_poe_ic_im_v1_4_state.py",
+      "test_migrate_ic_im_v1_3_r7_to_v1_4_r1_state.py",
+      "test_ic_im_v1_4_integration_guards.py",
+      "test_run_ic_im_v1_4_github_digest.py",
+      "test_adversarial_icim_delivery.py",
+      "test_im_put_policy.py",
+      "test_adversarial_im_put_execution_20260908.py",
+      "test_adversarial_im_ledger_20260908.py",
+      "test_adversarial_im_report_iv_20260908.py",
+      "test_im_put_price_basis.py",
+      "test_live_mo_put_midpoint_20260908.py",
+      "test_grid_half_release_20260913.py",
+      "test_im_grid160_half_release_20260914.py",
+      "test_ic_im_v1_4_ic_csi500_forward.py",
+      "test_adversarial_market_20261007.py",
+      "test_adversarial_state_20261007.py",
+      "test_adversarial_delivery_20261007.py",
+      "test_adversarial_policy_20261007.py",
+      "test_adversarial_cffex_transport_20261009.py",
+      "test_adversarial_cffex_close_runner_20261009.py",
+      "test_tencent_ohlcv_pagination_20261012.py",
+      "test_ic_im_v1_4_repeat_roll_20260925.py",
+      "test_ic_im_v1_4_market_maker_quotes_20260925.py",
+      "test_ic_im_fear_grid_v1.py",
+      "test_ic_im_daily_valuation.py",
+      "test_ic_im_chinabond.py",
+      "test_ic_im_quarter_roll_v1_3.py",
+      "test_ic_im_ordinary_put_route_fix_20261013.py",
+      "test_ic_im_quote_snapshot_guard_20261013.py",
+      "test_ic_im_split_put_summary_20261013.py"
+    ],
+    "status": "ACTIVE",
+    "rrule": "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR;BYHOUR=14;BYMINUTE=15;BYSECOND=0",
+    "actual_next_scheduler_run_not_checked": true
+  },
+  "local_close": {
+    "status": "ok",
+    "publication_mode": "close_confirmed",
+    "market_date": "2026-10-13",
+    "next_trade_day": "2026-10-14",
+    "sequence": 13,
+    "digest": "d411a56706591228280f4b7d5244d59c9e9be4af276adad8371f539c92a54086",
+    "build": "v1.4-20261008-r1-ic-csi500-abs40-fix11",
+    "delivery_revision": "20261008-v14-ic-csi500-abs40-fix11",
+    "advanced_sessions": 1,
+    "result_sha256": "6cc0921d851f3a27727ded5674a346859404ee207afa4003ff372f684da7e2e7",
+    "report_sha256": "ad7c68d24faf3736d9a8720ce69bb812f7591b53c12fccea0079be6a50f8d467",
+    "signals_exactly_equal_to_committed_ledger": true
+  },
+  "canonical": {
+    "full_chain_readonly_load": "PASS",
+    "json_count": 16,
+    "journal_count": 14,
+    "current_snapshot_matches_canonical_after_close": true,
+    "sequence": 13,
+    "verified_day": "2026-10-13",
+    "digest": "d411a56706591228280f4b7d5244d59c9e9be4af276adad8371f539c92a54086",
+    "previous_digest": "6bfb74ddb3d43b783e3cde7e9ee61119619f1d4369509a8384e42bad107b0bf4",
+    "previous_local_digest": "6bfb74ddb3d43b783e3cde7e9ee61119619f1d4369509a8384e42bad107b0bf4",
+    "strict_local_successor": true,
+    "original_history_json_preserved": 14,
+    "not_replaced_by_cloud_branch": true,
+    "file_sha256": {
+      "runtime\\ic_im_v1_4_r1\\latest.json": "b18946ed62f202eaf74efdf5b558b679291bce6cffc8f97a6b0fcea7fa4ceca1",
+      "runtime\\ic_im_v1_4_r1\\migration_record.json": "bae64e783e57e87227b54b463d8046638df5e27adbdd2c61b1d5ff0af90cf53d",
+      "runtime\\ic_im_v1_4_r1\\journal\\000000-2026-09-16.json": "57827b22c2f31cb1319fa7504f2fdbdcf08acafa24d26202c272ec9bef813384",
+      "runtime\\ic_im_v1_4_r1\\journal\\000001-2026-09-17.json": "800143c188e86de97585edddc949d0fbd0d2cdc958ced8e79397dbf9bce210d2",
+      "runtime\\ic_im_v1_4_r1\\journal\\000002-2026-09-18.json": "877c633301a7429a7cf1f7f6e96e17f6723500dad4fbcc870f600b3600ed43b8",
+      "runtime\\ic_im_v1_4_r1\\journal\\000003-2026-09-21.json": "e17f5919c1b4eb44374ebcd3a170f10ee1daeaa719d817c9c40a5ca0ab204c8b",
+      "runtime\\ic_im_v1_4_r1\\journal\\000004-2026-09-22.json": "0d4d1dfa206f65f5e774a185b03e8b7de0aba4b73a0953b22276287dfdfa2665",
+      "runtime\\ic_im_v1_4_r1\\journal\\000005-2026-09-23.json": "7906d585439c83700a6182763d90d28e2ec5b1a8768fb935c7aa2ce31028de27",
+      "runtime\\ic_im_v1_4_r1\\journal\\000006-2026-09-24.json": "ad1d6e7f475e65650e5c04a5291045264088ec69139bea6e63c91c12824bf808",
+      "runtime\\ic_im_v1_4_r1\\journal\\000007-2026-09-28.json": "962e610468dc895decbe6881f9b786572910444c26f24c33c7591f18833e2ccc",
+      "runtime\\ic_im_v1_4_r1\\journal\\000008-2026-09-29.json": "cd2a85ba963589450511d43fb6915011680c099a416ecb8803dda846eb643386",
+      "runtime\\ic_im_v1_4_r1\\journal\\000009-2026-09-30.json": "cbec96a645d691822a85c640330a45502629529fdc6c46af69d26f02c53d710d",
+      "runtime\\ic_im_v1_4_r1\\journal\\000010-2026-10-08.json": "5210a2e8c04c23577a1baa444effa41f072f34d48d19bc28e751ae62064e614d",
+      "runtime\\ic_im_v1_4_r1\\journal\\000011-2026-10-09.json": "e7368caec1bd52580ae618afb703ed858b8ade4b280af5daac134448339aaaae",
+      "runtime\\ic_im_v1_4_r1\\journal\\000012-2026-10-12.json": "2a5193bef219094cf57b6b52fa7778b3fb19526a0bf938ab5e3c97a545b89da3",
+      "runtime\\ic_im_v1_4_r1\\journal\\000013-2026-10-13.json": "b18946ed62f202eaf74efdf5b558b679291bce6cffc8f97a6b0fcea7fa4ceca1"
+    },
+    "post_cloud_send_recheck_at": "2026-10-13T19:57:45+08:00",
+    "post_cloud_send_16_json_exact_snapshot_match": true,
+    "post_cloud_send_digest": "d411a56706591228280f4b7d5244d59c9e9be4af276adad8371f539c92a54086",
+    "cloud_digest_is_separate_legitimate_branch": "4878c7b2bfdea824330aa43031e3675ee0fefbecd8790bb2cdbb811cf57685d7"
+  },
+  "local_result_packaged_by_normal_cloud_renderer": {
+    "status": "PASS",
+    "checked_at": "2026-10-13T19:47:16.234477+08:00",
+    "cloud_commit": "0f0fec83f549f2db942fa5633593af48dc90476a",
+    "command": [
+      "C:\\Python314\\python.exe",
+      "-B",
+      "-X",
+      "utf8",
+      "scripts/build_ic_im_v1_4_digest.py",
+      "--result",
+      "D:\\动量策略\\IC和IM滚动套利\\research_reports\\20261013_release_sync\\local_close\\result.json",
+      "--out-dir",
+      "D:\\动量策略\\IC和IM滚动套利\\research_reports\\20261013_release_sync\\independent_local_mail_package"
+    ],
+    "seconds": 0.20065029989928007,
+    "result_sha256": "6cc0921d851f3a27727ded5674a346859404ee207afa4003ff372f684da7e2e7",
+    "subject": "[收盘确认][无需调整] IC/IM 1.4-r1 日报 - 2026-10-13",
+    "date": "2026-10-13",
+    "next_trade_day": "2026-10-14",
+    "sequence": 13,
+    "digest": "d411a56706591228280f4b7d5244d59c9e9be4af276adad8371f539c92a54086",
+    "md_html_identity_and_independent_leg_checks": "PASS",
+    "attachment_path": "D:\\动量策略\\IC和IM滚动套利\\research_reports\\20261013_release_sync\\local_close\\ic_im_v1_4_close_signal.md",
+    "attachment_sha256": "ad7c68d24faf3736d9a8720ce69bb812f7591b53c12fccea0079be6a50f8d467",
+    "package_files": {
+      "D:\\动量策略\\IC和IM滚动套利\\research_reports\\20261013_release_sync\\independent_local_mail_package\\ic_im_v1_4_digest.html": "442817375c48eff5b0c492aca68952fd6fc51febbc9b3882e2bc96399c2e05f7",
+      "D:\\动量策略\\IC和IM滚动套利\\research_reports\\20261013_release_sync\\independent_local_mail_package\\ic_im_v1_4_digest.md": "5825ac3bd181b60d7c08a2b7f3129d413e6077dc07466ad5fb09f0af570ac661",
+      "D:\\动量策略\\IC和IM滚动套利\\research_reports\\20261013_release_sync\\independent_local_mail_package\\metadata.json": "86a52975d35d1759621a6c4684cf56074760efbd3a09ab10d91a38c08856ca37"
+    },
+    "put_display_tests": {
+      "command": [
+        "C:\\Python314\\python.exe",
+        "-B",
+        "-X",
+        "utf8",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "tests/test_ic_im_v1_4_put_display.py",
+        "--junitxml",
+        "D:\\动量策略\\IC和IM滚动套利\\research_reports\\20261013_release_sync\\independent_cloud_put_display.xml"
+      ],
+      "seconds": 1.0354569000191987,
+      "counts": {
+        "tests": 20,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "xml": "D:\\动量策略\\IC和IM滚动套利\\research_reports\\20261013_release_sync\\independent_cloud_put_display.xml",
+      "xml_sha256": "281480505571760b7a575a0b64b36a47feab26fa8724d8b75657b8c38b5ad8d5",
+      "log": "D:\\动量策略\\IC和IM滚动套利\\research_reports\\20261013_release_sync\\independent_cloud_put_display.log"
+    },
+    "original_result_unchanged": true,
+    "canonical_unchanged": true,
+    "smtp_or_dispatch_invoked": false,
+    "limit": "This is a local rendering check using the merged cloud builder and the local branch result, not the normal cloud run output or sent mail."
+  },
+  "normal_cloud_delivery": {
+    "status": "PASS",
+    "run_id": 38392612084,
+    "run_url": "https://github.com/liuruojiang/codex-daily-automation-probe/actions/runs/38392612084",
+    "run_conclusion": "success",
+    "run_completed_at_utc": "2026-10-13T11:49:38Z",
+    "cloud_main": "0f0fec83f549f2db942fa5633593af48dc90476a",
+    "execution_pin": "427cf45fd78710583c8028f7eca1ed88968036ee",
+    "publication_mode": "close_confirmed",
+    "build": "v1.4-20261008-r1-ic-csi500-abs40-fix11",
+    "market_date": "2026-10-13",
+    "next_trade_day": "2026-10-14",
+    "sequence": 13,
+    "digest": "4878c7b2bfdea824330aa43031e3675ee0fefbecd8790bb2cdbb811cf57685d7",
+    "previous_digest": "06f14b267ad55d307145cd47c273d359095eb49bbd466bd4980d06f2b7c47d32",
+    "full_cloud_chain_readonly_load": "PASS",
+    "result_signals_equal_cloud_ledger_signals": true,
+    "intent_metadata_byte_identical_to_rendered_metadata": true,
+    "marker_identity_matches_result": true,
+    "steps": [
+      {
+        "job": "send",
+        "name": "Persist normal-send intent before SMTP",
+        "conclusion": "success",
+        "startedAt": "2026-10-13T11:49:30Z",
+        "completedAt": "2026-10-13T11:49:31Z"
+      },
+      {
+        "job": "send",
+        "name": "Send Gmail",
+        "conclusion": "success",
+        "startedAt": "2026-10-13T11:49:31Z",
+        "completedAt": "2026-10-13T11:49:33Z"
+      },
+      {
+        "job": "send",
+        "name": "Mark digest delivered",
+        "conclusion": "success",
+        "startedAt": "2026-10-13T11:49:33Z",
+        "completedAt": "2026-10-13T11:49:34Z"
+      }
+    ],
+    "workflow_tests": {
+      "remote_normal\\automation-regression-38392612084\\automation-tests.xml": {
+        "tests": 324,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "sha256": "c1f7713d2f983c7f31dd1219fd98f5e72058a75a24bf3967268d06284f849fc0"
+      },
+      "remote_normal\\strategy-regression-icim-38392612084\\regression.xml": {
+        "tests": 667,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "sha256": "64216332fa72721a57a31491a2801e50478c48eb0486ad0a3df5fed2718fa351"
+      }
+    },
+    "file_sha256": {
+      "remote_normal\\ic-im-v1-4-r1-post-close-digest\\mail-artifacts\\metadata.json": "9ed1304d1a58d83fe38aca7489136dc8096a72cea3d75a068fdd3e197b55275c",
+      "remote_normal\\ic-im-v1-4-r1-post-close-digest\\mail-artifacts\\ic_im_v1_4_digest.md": "5fe85e63fbdfe73a61cc42a1e3888f3029cf89527dab91d7f35721dff6045116",
+      "remote_normal\\ic-im-v1-4-r1-post-close-digest\\mail-artifacts\\ic_im_v1_4_digest.html": "ab8aa136c827387622aefcceab28ad3e37b7f32798402ee70ff32008d480a76c",
+      "remote_normal\\ic-im-v1-4-r1-post-close-digest\\strategy-artifacts\\ic_im_v1_4_close_signal.md": "197ea40209286d03a84aa54554d0b6bb26434674ff59a5bbadd6cecdaa219cac",
+      "remote_normal\\ic-im-v1-4-r1-post-close-digest\\strategy-artifacts\\result.json": "d63f1f9b93653fe3769f77237c4768376439f2a3fd9533e695c84cfa431ba039",
+      "remote_normal\\ic-im-v1-4-r1-post-close-digest\\strategy-artifacts\\strategy-sha.txt": "9240da6510157382765893f5e1e94d9ab8d02ffb402d4bd847f29420e18b11cd",
+      "remote_normal\\ic-im-v1-4-r1-707295aeaa67-close_confirmed-digest-delivered-2026-10-13-4878c7b2bfde-send-intent\\metadata.json": "9ed1304d1a58d83fe38aca7489136dc8096a72cea3d75a068fdd3e197b55275c",
+      "remote_normal\\ic-im-v1-4-r1-707295aeaa67-close_confirmed-digest-delivered-2026-10-13-4878c7b2bfde\\delivery.json": "1e5d940a5258afe68ffe35e86f615a5d132ef6986a68186ca0e86e3e954d96b7",
+      "remote_normal\\ic-im-v1-4-r1-ledger\\latest.json": "e1398eca76bb891fdc5c27c185ce02a162e02313e0db22f1336d540877fd8e5b",
+      "remote_normal_workflow.log": "fb39f312880fbf0fb6da422668d0e62a6457085ea8f0200628653f8d5e472069"
+    },
+    "scope_boundary": "Normal dispatch 38392612084 only. Readiness 38392179386 and local digest d411a567 are not mail baselines. No extra workflow dispatch or send performed by this auditor."
+  },
+  "gmail": {
+    "status": "PASS_INBOX_SINGLE_EXACT_DAY_MESSAGE",
+    "observation_at_beijing": "2026-10-13T19:55:27+08:00",
+    "query": "in:anywhere after:2026/10/12 before:2026/10/15 subject:日报 subject:\"2026-10-13\" subject:\"IC/IM\"",
+    "matching_message_count": 1,
+    "search_exhausted": true,
+    "message_id": "1a13518aea7ab3f0",
+    "thread_id": "1a13518aea7ab3f0",
+    "label_ids_at_final_read": [
+      "UNREAD",
+      "SENT",
+      "INBOX"
+    ],
+    "date_header": "Tue, 13 Oct 2026 11:49:31 +0000",
+    "internal_date": "1791892171000",
+    "received_at_beijing": "2026-10-13T19:49:31+08:00",
+    "rfc_message_id": "<179189217161.2590.15549648156351712906@gmail.com>",
+    "subject": "[收盘确认][无需调整] IC/IM 1.4-r1 日报 - 2026-10-13",
+    "same_run_id": 38392612084,
+    "same_run_url_in_body": true,
+    "date_version_next_day_sequence_digest_checks": "PASS",
+    "body_and_attachment_comparison": {
+      "plain": {
+        "content_equal_after_CRLF_to_LF_and_one_SMTP_terminal_newline": true,
+        "gmail_decoded_content_sha256": "aee9f628e1c13421856e843f3bf64b0b2cd6b860ac5ed7d2cd76ae898e52b8c3",
+        "cloud_artifact_sha256": "5fe85e63fbdfe73a61cc42a1e3888f3029cf89527dab91d7f35721dff6045116",
+        "gmail_chars": 6001,
+        "cloud_chars": 6000
+      },
+      "html": {
+        "content_equal_after_CRLF_to_LF_and_one_SMTP_terminal_newline": true,
+        "gmail_decoded_content_sha256": "f7b99d78ddad2b6f88fef281ae1a9a4885808d6f1c8e72ca77756b1236d644ab",
+        "cloud_artifact_sha256": "ab8aa136c827387622aefcceab28ad3e37b7f32798402ee70ff32008d480a76c",
+        "gmail_chars": 27257,
+        "cloud_chars": 27114
+      },
+      "attachment": {
+        "filename": "ic_im_v1_4_close_signal.md",
+        "size_bytes": 28280,
+        "gmail_complete_extracted_utf8_payload_exactly_equals_cloud_bytes": true,
+        "sha256": "197ea40209286d03a84aa54554d0b6bb26434674ff59a5bbadd6cecdaa219cac",
+        "gmail_extraction_truncated": false
+      }
+    },
+    "evidence_files": {
+      "post_sync_inbox/gmail_normal_message_sanitized.json": "7b3750ccaf63b2609aabc41f08d93c1c06a7e27ab483899eddc54e6ed5a0e515",
+      "post_sync_inbox/gmail_final_count.json": "457b001129f460eb995590d6e2ade0a089161d3a237f19fd2e1e5d2c3391fc32"
+    },
+    "boundary": "Count is the exhausted Gmail exact-day query at the stated observation time, not a guarantee about future scheduled runs. Inbox reading does not imply an actual trade."
+  },
+  "side_effects": {
+    "producer_invoked_by_this_reviewer": false,
+    "smtp_called": false,
+    "workflow_dispatched": false,
+    "automation_modified": false,
+    "canonical_modified": false,
+    "only_written_paths": "own release_sync audit, isolated mail package, test logs and temp test state"
+  },
+  "findings": [],
+  "updated_at": "2026-10-13T19:57:45+08:00"
+}

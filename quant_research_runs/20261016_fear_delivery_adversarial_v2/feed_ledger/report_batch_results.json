@@ -1,0 +1,115 @@
+{
+  "cases": [
+    {
+      "name": "no_cache_outside_report",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "name": "nested_batch_reuses",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "name": "deepcopy_prevents_pollution",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "name": "mode_and_date_are_distinct_keys",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "name": "jiu_cached_per_report",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "name": "outer_exit_releases_snapshot",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "name": "exception_releases_context",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "name": "nested_collection_clock_and_poe_batch_reuse",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "name": "collection_exit_releases_context",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "name": "separate_async_reports_isolated",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "name": "real_handoff_all_fear_and_jiu_evidence_equal",
+      "ok": true,
+      "detail": {}
+    },
+    {
+      "name": "real_handoff_consumer_IC",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "name": "real_handoff_consumer_IM",
+      "ok": true,
+      "detail": null
+    }
+  ],
+  "source_sha256": {
+    "ic_im_fear_grid_v1.py": "f876595216f2822eb585e11cbb8c8564f4ffd9ca33f1ef2820e0c828758430c2",
+    "poe_ic_im_mainline_v1_4_bot.py": "0f7947f3f7826222507a048f2042dba39f229440b2cdc8a0fdc9999e057e37b5",
+    "poe_ic_im_v1_4_state.py": "e2b26ae717cc27ab3b692dbbfe3bc1089b4d46e1cf6a8af57e04d6da215c88d6"
+  },
+  "real_handoff_sha256": "f64e1dac2a36253d58e1a49d72f18b38135677871e3bc634a680d33615cd6fa6",
+  "real_handoff_fields": {
+    "fear_source_policy_revision": "baifenwei_either_source_20261016_v1",
+    "fear_greed_index": 51.36,
+    "fear_data_date": "2026-10-16",
+    "fear_data_status": "intraday_provisional",
+    "fear_retrieved_at": "2026-10-16T13:36:33+08:00",
+    "fear_fetch_started_at": "2026-10-16T13:36:33+08:00",
+    "fear_available_sources": [
+      "csv",
+      "page"
+    ],
+    "fear_selected_source": "csv",
+    "fear_cross_validation": "matched",
+    "fear_source_warning": "",
+    "fear_source_errors": {},
+    "fear_source_url": "https://baifenwei.com/data/fear-greed/fear-greed-full.csv",
+    "fear_csv_sha256": "b6a087906de17de5200b43c420e82386536cc5cff048d7fcfac34032cba8983f",
+    "fear_page_sha256": "dd78acf6207c3ee459d967707b4778212093f672a13ec1edfa76285131a606d4",
+    "fear_page_updated_at": "2026-10-16T13:00+08:00",
+    "fear_page_data_date": "2026-10-16",
+    "fear_page_value": 51.36,
+    "fear_csv_latest_date": "2026-10-16",
+    "fear_csv_latest_value": 51.36,
+    "fear_csv_observations": {
+      "2026-10-15": 24.71,
+      "2026-10-16": 51.36
+    },
+    "fear_latest_available_date": "2026-10-16",
+    "fear_unavailable_reason": null,
+    "fear_fallback_applied": false,
+    "jiu_fear_greed_index": 2.28,
+    "jiu_data_date": "2026-10-15",
+    "jiu_reference_only": true,
+    "jiu_source_url": "https://ai2.jiucaishuo.com/api/fear-greed",
+    "jiu_page_url": "https://jiucaishuo.com/indicators?tab=fg",
+    "jiu_sha256": "9ec718920193366630690aa69c52e2a8afd684c0f4d1a51792f7eb248e84954a",
+    "jiu_status": "reference_only",
+    "jiu_warning": "数据日早于信号日",
+    "jiu_retrieved_at": "2026-10-16T13:36:35+08:00"
+  }
+}

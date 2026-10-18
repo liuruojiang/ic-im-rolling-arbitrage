@@ -1,0 +1,15 @@
+{
+  "run_id": 38853077598,
+  "strategy_sha": "94a34d7552f52fc06e58ad26ee560969097658d3",
+  "automation_sha": "289ba1501bd58cc314fe33b2d6d39fd6f076d87d",
+  "status": "success",
+  "publication_mode": "close_confirmed",
+  "verified_day": "2026-10-15",
+  "sequence": 15,
+  "source_artifact_id": 11970296521,
+  "smtp_no_data": "success",
+  "message_sent": false,
+  "transfer_received": false,
+  "transfer_reason": "ZIP SHA and size mismatch after short-value log masking; rejected before any ledger write",
+  "local_ledger_unchanged": true
+}

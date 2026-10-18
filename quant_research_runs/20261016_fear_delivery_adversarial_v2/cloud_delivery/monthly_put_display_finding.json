@@ -1,0 +1,43 @@
+{
+  "id": "CLOUD-P1-002",
+  "severity": "P1",
+  "status": "Reproduced against immutable db84 production consumer; independently verified completion repair",
+  "source_run": 38853603565,
+  "real_snapshot": "quant_research_runs/20261016_put_delivery_completion_v1/handoff-38853603565/report/result.json",
+  "observed": {
+    "producer_monthly_candidate": "510500P2612M06500",
+    "held_contract": "510500P2612M07500",
+    "normalized_qty": 17,
+    "production_display_wrong": "510500P2612M07500",
+    "production_timing_wrong": "下一交易日2026-10-19研究目标 期货 / Put"
+  },
+  "repair": {
+    "core_candidate": "510500P2612M06500",
+    "summary": "2026-10-16收盘维护候选，盘尾复核：合计17张（核心17张 510500P2612M06500；动量0张 无）",
+    "futures_and_put_timing_separate": true
+  },
+  "production_files_to_merge": [
+    "scripts/build_ic_im_v1_4_digest.py",
+    "scripts/ic_im_v1_4_put_display.py"
+  ],
+  "tests_to_include": [
+    "tests/test_ic_im_v1_4_maintenance_display_20261016.py",
+    "tests/fixtures/icim/maintenance_20261016/result.json",
+    "tests/fixtures/icim/maintenance_20261016/provenance.json"
+  ],
+  "test_result": "5 passed in 0.63s",
+  "regression_coverage": [
+    "Real fixture provenance, hash and contract/quantity selection",
+    "Normal plain/HTML display and preservation of producer input",
+    "Unexecuted synthetic 3x replacement stays separate",
+    "Wrong official monthly node cannot select monthly candidate",
+    "2026-10-09 historical subject/plain/HTML hashes unchanged"
+  ],
+  "merge_note": "Do not overwrite repaired source/publication contract or marker files with completion cloud directory's older copies.",
+  "evidence": [
+    "original_monthly_real_result.json",
+    "repaired_monthly_real_result.json",
+    "monthly_real_snapshot_regression.xml",
+    "probe_monthly_put_display.py"
+  ]
+}

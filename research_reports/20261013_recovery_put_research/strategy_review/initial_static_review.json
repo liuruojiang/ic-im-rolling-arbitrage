@@ -1,0 +1,51 @@
+{
+  "artifact": "independent_initial_static_review",
+  "created_at": "2026-10-13T16:19:14.154701+08:00",
+  "scope": "Only new research modules and frozen preregistration; no production edits or historical replay run. Waiting for stable-candidate notice before execution.",
+  "spec_sha256": "2cad383b63052a5036b141ab0f0fce46a0be910198bd12dba07ca85c8e38d1ca",
+  "findings": [
+    {
+      "id": "R1",
+      "severity": "P2",
+      "classification": "code_inference_with_concrete_trigger",
+      "title": "B skipped IC assigned_etf even with positive ordinary target",
+      "source": "recovery_cycle_controller.py::_protection_plan",
+      "trigger": "mode=B, product=IC, next route=assigned_etf, ordinary core delta>0",
+      "initial_behavior": "The eligible expression required mode C for assigned_etf; result was no recovery insurance.",
+      "spec": "B/C both cover IC assigned_etf and recovery_future.",
+      "status": "reported_to_root; condition corrected on reread; independent execution pending"
+    },
+    {
+      "id": "R2",
+      "severity": "P2",
+      "classification": "saved_input_fact_plus_code_inference",
+      "title": "IC monthly preview and reference day could both refresh insurance",
+      "source": "recovery_cycle_controller.py::_protection_plan refresh assignment",
+      "trigger": "Saved targets for 2025-01-16 and 2025-01-17 both monthly_reset_due=True with reference_day=2025-01-17; a held C recovery sleeve is present.",
+      "initial_behavior": "Both signals would trigger a new selection/scale on 2025-01-17 and 2025-01-20 open.",
+      "spec": "One monthly insurance maintenance event, T selection/T+1 open.",
+      "status": "reported_to_root; reference_day==T condition corrected on reread; independent execution pending"
+    },
+    {
+      "id": "R3",
+      "severity": "P1",
+      "classification": "code_inference_with_concrete_trigger",
+      "title": "Fresh recovery insurance could inherit ordinary no-seller sleeve old contract",
+      "source": "recovery_cycle_controller.py::_protection_plan base_contract reuse",
+      "trigger": "B, or C whose ordinary base is already positive; enter a protected state with valid unexpired target.core_put_contract_target selected at an earlier ordinary month.",
+      "initial_behavior": "Existing base_contract/base_qty accepted without invoking the T-date fresh selector. C minimum-only case used fresh selector, so arms were asymmetric.",
+      "spec": "Recovery insurance is an independent sleeve; fresh entry selects IC95%/IM102% near T+3m using T inputs.",
+      "status": "reported_to_root; awaiting implementation resolution and stable notice"
+    }
+  ],
+  "accounting_read_checks": {
+    "premium": "Account.trade adjusts cash and option asset symmetrically; equity_change is fee only. Subsequent mark/settlement contributes economic option PnL once.",
+    "assignment": "Account.assign_short_put marks seller at intrinsic, replaces liability with ETF and strike cash outflow at unchanged equity; subsequent ETF mark captures the held-share exposure.",
+    "cash_wait": "Controller observes no invented spot return; independent momentum/grid/cash-interest symbols are excluded.",
+    "cycle_boundary": "consume starts before switch trades but after the prior ordinary exposure opening marks; after_open_trades observes insurance exit/gap before closing cycle.",
+    "exit_fee": "close subtracts current insurance sale fee at T; T+1 actual fills remain in cycle.",
+    "remaining_qualification": "future|core| switch fees at start/restart are included by symbol category; ordinary core Put switch events excluded. Report this attribution boundary consistently and do not call cycle PnL total account PnL."
+  },
+  "prepared_probes": "strategy_review/accounting_peer_probes.py",
+  "runtime_status": "NOT_RUN_PENDING_STABLE_CANDIDATE"
+}

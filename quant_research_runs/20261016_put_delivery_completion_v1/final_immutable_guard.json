@@ -1,0 +1,17 @@
+{
+  "guarded": 426,
+  "changed": [
+    "runtime\\ic_im_v1_4_r1\\latest.json",
+    "runtime\\ic_im_v1_4_r1\\journal\\000012-2026-10-12.json",
+    "runtime\\ic_im_v1_4_r1\\journal\\000013-2026-10-13.json",
+    "runtime\\ic_im_v1_4_r1\\journal\\000014-2026-10-14.json"
+  ],
+  "unchanged": 422,
+  "authorized_runtime_branch_restoration": true,
+  "original_bytes_preserved_in_backup": {
+    "runtime\\ic_im_v1_4_r1\\latest.json": true,
+    "runtime\\ic_im_v1_4_r1\\journal\\000012-2026-10-12.json": true,
+    "runtime\\ic_im_v1_4_r1\\journal\\000013-2026-10-13.json": true,
+    "runtime\\ic_im_v1_4_r1\\journal\\000014-2026-10-14.json": true
+  }
+}

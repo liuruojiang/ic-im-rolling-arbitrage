@@ -1,0 +1,44 @@
+{
+  "audit_scope": "Cloud delivery consumer, partial publication, marker/dedupe, workflow SMTP/ledger conditions, readiness and handoff evidence. No real email was sent and no production marker or ledger was changed by this auditor.",
+  "production_revision_read": "db84b6e056f55fc68c8b63a06afd852c04e279c4",
+  "production_strategy_pin": "be4173440daace20ee698103d05bc75838316a30",
+  "finding": {
+    "id": "CLOUD-P1-001",
+    "severity": "P1",
+    "initial_status": "reproduced",
+    "initial_evidence": "results_initial_failure.json",
+    "description": "Unavailable Fear could be relabeled complete with numeric reference targets and pass the consumer and marker helpers.",
+    "repair_status": "repaired in parent-modified local cloud mirror; deployment must be independently checked against the parent's final release SHA",
+    "retest": "Original forged-complete payload rejected by the dedicated missing-Fear publication guard; explicit marker call rejected too. Source/transition/total-delta leaks and incomplete product manifest rejected. Honest CSV-only/page-only/partial accepted.",
+    "retest_evidence": "results.json"
+  },
+  "tests": {
+    "cloud_targeted_regression": "101 passed, 18 subtests passed",
+    "evidence": [
+      "targeted_regression_adapter_final.txt",
+      "targeted_regression_adapter.xml"
+    ],
+    "environment_note": "Python 3.14 Windows mode700 creates inaccessible sandbox temp directories. A test-only adapter changes mode to 0777 only within this audit directory. Original unadapted permission failures are retained and were not classified as strategy failures."
+  },
+  "production_readonly_evidence": {
+    "main_sha_verified": true,
+    "mirror_before_repairs": "27/27 mirrored files match immutable remote blobs after CRLF/trailing-blank normalization",
+    "readiness_run": 38854223720,
+    "regression_run": 38854223686,
+    "readiness_conclusion": "success",
+    "smtp_probe": "TLS/authentication/sender+recipient envelope accepted, RSET confirmed; message_sent=false",
+    "normal_report_expected_market_day": "2026-10-15",
+    "live_feed_probe": "2026-10-16T13:09:31+08:00 Baifenwei51.36 date2026-10-16 CSV+page matched; Jiu2.28 date2026-10-15 reference_only",
+    "handoff_export": "skipped in this readiness run; separate passing local handoff regressions cover invalid data and preserved-ledger export",
+    "evidence": [
+      "remote_readonly_evidence.json",
+      "readiness_runtime_excerpts.txt"
+    ]
+  },
+  "boundaries": [
+    "Production remote initially read here still contained CLOUD-P1-001. Passing local repair tests alone does not prove the repair is published. Parent must verify final strategy/automation SHAs and associated CI/readiness.",
+    "No actual SMTP DATA, mailbox delivery or user receipt was tested or claimed.",
+    "Existing ordinary dedupe permits one delivery per actual signal day/mode, including a partial report. A later complete report requires explicit correction; this is recorded as a policy boundary rather than a defect.",
+    "Jiu is displayed only for reference. Normal CSV/page-only rendering keeps the primary Fear unchanged and does not mutate the input payload."
+  ]
+}

@@ -1,0 +1,61 @@
+{
+  "status": "PASS",
+  "checked_at": "2026-10-13T19:47:16.234477+08:00",
+  "cloud_commit": "0f0fec83f549f2db942fa5633593af48dc90476a",
+  "command": [
+    "C:\\Python314\\python.exe",
+    "-B",
+    "-X",
+    "utf8",
+    "scripts/build_ic_im_v1_4_digest.py",
+    "--result",
+    "D:\\动量策略\\IC和IM滚动套利\\research_reports\\20261013_release_sync\\local_close\\result.json",
+    "--out-dir",
+    "D:\\动量策略\\IC和IM滚动套利\\research_reports\\20261013_release_sync\\independent_local_mail_package"
+  ],
+  "seconds": 0.20065029989928007,
+  "result_sha256": "6cc0921d851f3a27727ded5674a346859404ee207afa4003ff372f684da7e2e7",
+  "subject": "[收盘确认][无需调整] IC/IM 1.4-r1 日报 - 2026-10-13",
+  "date": "2026-10-13",
+  "next_trade_day": "2026-10-14",
+  "sequence": 13,
+  "digest": "d411a56706591228280f4b7d5244d59c9e9be4af276adad8371f539c92a54086",
+  "md_html_identity_and_independent_leg_checks": "PASS",
+  "attachment_path": "D:\\动量策略\\IC和IM滚动套利\\research_reports\\20261013_release_sync\\local_close\\ic_im_v1_4_close_signal.md",
+  "attachment_sha256": "ad7c68d24faf3736d9a8720ce69bb812f7591b53c12fccea0079be6a50f8d467",
+  "package_files": {
+    "D:\\动量策略\\IC和IM滚动套利\\research_reports\\20261013_release_sync\\independent_local_mail_package\\ic_im_v1_4_digest.html": "442817375c48eff5b0c492aca68952fd6fc51febbc9b3882e2bc96399c2e05f7",
+    "D:\\动量策略\\IC和IM滚动套利\\research_reports\\20261013_release_sync\\independent_local_mail_package\\ic_im_v1_4_digest.md": "5825ac3bd181b60d7c08a2b7f3129d413e6077dc07466ad5fb09f0af570ac661",
+    "D:\\动量策略\\IC和IM滚动套利\\research_reports\\20261013_release_sync\\independent_local_mail_package\\metadata.json": "86a52975d35d1759621a6c4684cf56074760efbd3a09ab10d91a38c08856ca37"
+  },
+  "put_display_tests": {
+    "command": [
+      "C:\\Python314\\python.exe",
+      "-B",
+      "-X",
+      "utf8",
+      "-m",
+      "pytest",
+      "-q",
+      "-p",
+      "no:cacheprovider",
+      "tests/test_ic_im_v1_4_put_display.py",
+      "--junitxml",
+      "D:\\动量策略\\IC和IM滚动套利\\research_reports\\20261013_release_sync\\independent_cloud_put_display.xml"
+    ],
+    "seconds": 1.0354569000191987,
+    "counts": {
+      "tests": 20,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "xml": "D:\\动量策略\\IC和IM滚动套利\\research_reports\\20261013_release_sync\\independent_cloud_put_display.xml",
+    "xml_sha256": "281480505571760b7a575a0b64b36a47feab26fa8724d8b75657b8c38b5ad8d5",
+    "log": "D:\\动量策略\\IC和IM滚动套利\\research_reports\\20261013_release_sync\\independent_cloud_put_display.log"
+  },
+  "original_result_unchanged": true,
+  "canonical_unchanged": true,
+  "smtp_or_dispatch_invoked": false,
+  "limit": "This is a local rendering check using the merged cloud builder and the local branch result, not the normal cloud run output or sent mail."
+}

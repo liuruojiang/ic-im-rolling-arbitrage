@@ -1,0 +1,85 @@
+{
+  "scope": "Synthetic split-identity script counterexample based on a hash-verified saved real result; not new market data/backtest",
+  "fixture": "D:\\Codex\\tmp\\icim_release_20261013\\cloud\\tests\\fixtures\\icim\\readiness_20261009\\result.json",
+  "fixture_sha256": "f1aefa507640bed818ddd367f809b5b6ce206d54db5ab63c448db4e9d59c3f6c",
+  "synthetic_changes": "nonzero10 core +3 momentum, distinct contracts; current and target quantities summed13",
+  "old_compact": "13张 510500P2612M07300",
+  "new_compact": "合计13张（核心10张 510500P2612M07500；动量3张 510500P2612M07300）",
+  "old_contract_rows": [
+    [
+      "当前 核心",
+      "10",
+      "510500P2612M07300",
+      "2026-12 / 7.3（按合约编码）",
+      "`510500P2612M07300` latest 0.25；买/卖价N/A（result未保存）",
+      "N/A（result未保存该合约独立的报价日期、时间及来源字段；不借用IV参考合约）"
+    ],
+    [
+      "当前 动量",
+      "3",
+      "510500P2612M07300",
+      "2026-12 / 7.3（按合约编码）",
+      "`510500P2612M07300` latest 0.25；买/卖价N/A（result未保存）",
+      "N/A（result未保存该合约独立的报价日期、时间及来源字段；不借用IV参考合约）"
+    ],
+    [
+      "下一目标 核心",
+      "10",
+      "510500P2612M07300",
+      "2026-12 / 7.3（按合约编码）",
+      "`510500P2612M07300` latest 0.25；买/卖价N/A（result未保存）",
+      "N/A（result未保存该合约独立的报价日期、时间及来源字段；不借用IV参考合约）"
+    ],
+    [
+      "下一目标 动量",
+      "3",
+      "510500P2612M07300",
+      "2026-12 / 7.3（按合约编码）",
+      "`510500P2612M07300` latest 0.25；买/卖价N/A（result未保存）",
+      "N/A（result未保存该合约独立的报价日期、时间及来源字段；不借用IV参考合约）"
+    ]
+  ],
+  "new_contract_rows": [
+    [
+      "当前 核心",
+      "10",
+      "510500P2612M07500",
+      "2026-12 / 7.5（按合约编码）",
+      "N/A（result未保存该合约报价原文）；买/卖价N/A（result未保存）",
+      "N/A（result未保存该合约独立的报价日期、时间及来源字段；不借用IV参考合约）"
+    ],
+    [
+      "当前 动量",
+      "3",
+      "510500P2612M07300",
+      "2026-12 / 7.3（按合约编码）",
+      "`510500P2612M07300` latest 0.25；买/卖价N/A（result未保存）",
+      "N/A（result未保存该合约独立的报价日期、时间及来源字段；不借用IV参考合约）"
+    ],
+    [
+      "下一目标 核心",
+      "10",
+      "510500P2612M07500",
+      "2026-12 / 7.5（按合约编码）",
+      "N/A（result未保存该合约报价原文）；买/卖价N/A（result未保存）",
+      "N/A（result未保存该合约独立的报价日期、时间及来源字段；不借用IV参考合约）"
+    ],
+    [
+      "下一目标 动量",
+      "3",
+      "510500P2612M07300",
+      "2026-12 / 7.3（按合约编码）",
+      "`510500P2612M07300` latest 0.25；买/卖价N/A（result未保存）",
+      "N/A（result未保存该合约独立的报价日期、时间及来源字段；不借用IV参考合约）"
+    ]
+  ],
+  "full_success_validator_passed": true,
+  "markdown_and_html_include_correct_split": true,
+  "input_unchanged": true,
+  "source_hashes_observed": {
+    "scripts\\build_ic_im_v1_4_digest.py": "368b418c3c673199f0a30c63089b73752ba07db028f3656b0442d1e4c669fef4",
+    "scripts\\ic_im_v1_4_put_display.py": "c94e942c7bcf80b9d537025b4fa2f0762f285c3823264027c85e55c7f71ca447"
+  },
+  "mail_sent": false,
+  "state_written": false
+}

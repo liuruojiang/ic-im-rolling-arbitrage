@@ -1,0 +1,32 @@
+[
+  {
+    "file": "ic_im_v1_4_policy.py",
+    "before_sha256": "4b679aceaf71f0d9c62f840a70851a446be4d26466054f1e6b10a7405ffb5428",
+    "after_sha256": "e658610a4259ac6e00eca9495589e7e78c47ab87437d89090038d7a0b49e202f",
+    "new_file": false
+  },
+  {
+    "file": "poe_ic_im_mainline_v1_4_bot.py",
+    "before_sha256": "cd6e93d188fd7bc8b9ce290a0d604b0d11383c002757f4f3d52f5816ddc4f580",
+    "after_sha256": "6a31e15f28428bae723650478ecd923062a1fdd9206959d797744167337c48cc",
+    "new_file": false
+  },
+  {
+    "file": "poe_ic_im_v1_4_state.py",
+    "before_sha256": "802be0a6a95c4e7c592f624af6795978f4e824d2155a24281236ffc18e5a1415",
+    "after_sha256": "d589d8f651e565cfdc5b8f521f29dfbd44e638b73cde552a2f73dbcf3de64705",
+    "new_file": false
+  },
+  {
+    "file": "run_ic_im_v1_4_github_digest.py",
+    "before_sha256": "99c50c35b2bc51fe15b50fc5bb8784b5db4657b97b3f94fc18b2c986ee133b7e",
+    "after_sha256": "f84c1374ecd7bc20d1d3932aeb80dcd9af1f21dfdafbeadb74c408fc06724242",
+    "new_file": false
+  },
+  {
+    "file": "ic_im_quote_snapshot_guard.py",
+    "before_sha256": null,
+    "after_sha256": "ae22b541a1a2a6bc20d5bd23bb1fc3d275a2f3fcfce96b5345c2458cde74b9d5",
+    "new_file": true
+  }
+]

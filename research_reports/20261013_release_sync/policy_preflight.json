@@ -1,0 +1,888 @@
+{
+  "status": "PREPARED_NOT_RELEASE_ACCEPTED",
+  "scope": "Read-only preparatory review of current workspace; no new regression run, no ledger mutation, no git mutation, no external delivery",
+  "head": "68dcc8d978ae5dae4a60c5fbd4a5c8c3c2a2d300",
+  "calendar_gate": "Parent reports official gate passed at 2026-10-13 19:12 Asia/Shanghai; no independent remote data call by this agent",
+  "source_files": [
+    {
+      "path": "ic_im_v1_4_policy.py",
+      "sha256": "e658610a4259ac6e00eca9495589e7e78c47ab87437d89090038d7a0b49e202f",
+      "matches_final_repair_manifest": true
+    },
+    {
+      "path": "poe_ic_im_mainline_v1_4_bot.py",
+      "sha256": "6a31e15f28428bae723650478ecd923062a1fdd9206959d797744167337c48cc",
+      "matches_final_repair_manifest": true
+    },
+    {
+      "path": "poe_ic_im_v1_4_state.py",
+      "sha256": "d589d8f651e565cfdc5b8f521f29dfbd44e638b73cde552a2f73dbcf3de64705",
+      "matches_final_repair_manifest": true
+    },
+    {
+      "path": "run_ic_im_v1_4_github_digest.py",
+      "sha256": "f84c1374ecd7bc20d1d3932aeb80dcd9af1f21dfdafbeadb74c408fc06724242",
+      "matches_final_repair_manifest": true
+    },
+    {
+      "path": "ic_im_quote_snapshot_guard.py",
+      "sha256": "ae22b541a1a2a6bc20d5bd23bb1fc3d275a2f3fcfce96b5345c2458cde74b9d5",
+      "matches_final_repair_manifest": true
+    }
+  ],
+  "repair_integrity": {
+    "all_five_files_match_final_tested_manifest": true,
+    "five_repairs": {
+      "MARKET-P1-01": [
+        "ic_im_quote_snapshot_guard.py:38",
+        "ic_im_quote_snapshot_guard.py:48",
+        "poe_ic_im_mainline_v1_4_bot.py:2806",
+        "poe_ic_im_mainline_v1_4_bot.py:3023"
+      ],
+      "PS-02": [
+        "ic_im_v1_4_policy.py:188",
+        "poe_ic_im_mainline_v1_4_bot.py:5383",
+        "poe_ic_im_v1_4_state.py:722",
+        "poe_ic_im_v1_4_state.py:1104"
+      ],
+      "PS-01": [
+        "ic_im_v1_4_policy.py:237",
+        "ic_im_v1_4_policy.py:274",
+        "poe_ic_im_mainline_v1_4_bot.py:5522",
+        "poe_ic_im_v1_4_state.py:848"
+      ],
+      "REPORT-P2-01": [
+        "run_ic_im_v1_4_github_digest.py:309"
+      ],
+      "PS-02-3X-MOMENTUM": [
+        "ic_im_v1_4_policy.py:202",
+        "ic_im_v1_4_policy.py:292",
+        "poe_ic_im_mainline_v1_4_bot.py:5388",
+        "poe_ic_im_v1_4_state.py:1082",
+        "poe_ic_im_v1_4_state.py:1132"
+      ]
+    },
+    "frozen_specs": [
+      {
+        "path": "docs\\ic_im_fix6_profit3x_t1_open_vs_close_research_v1_spec.md",
+        "matches_expected": true
+      },
+      {
+        "path": "docs\\ic_im_im_grid160_half_20260914_v1_spec.md",
+        "matches_expected": true
+      },
+      {
+        "path": "docs\\ic_im_im_mom120_put102_20260908_v1_spec.md",
+        "matches_expected": true
+      },
+      {
+        "path": "docs\\ic_im_mainline_v1_2_spec.md",
+        "matches_expected": true
+      },
+      {
+        "path": "docs\\ic_im_mainline_v1_3_fixed_performance_v4_spec.md",
+        "matches_expected": true
+      },
+      {
+        "path": "docs\\ic_im_mainline_v1_3_fixed_performance_v5_spec.md",
+        "matches_expected": true
+      },
+      {
+        "path": "docs\\ic_im_mainline_v1_3_r2_spec.md",
+        "matches_expected": true
+      },
+      {
+        "path": "docs\\ic_im_mainline_v1_3_r3_spec.md",
+        "matches_expected": true
+      },
+      {
+        "path": "docs\\ic_im_mainline_v1_3_r4_spec.md",
+        "matches_expected": true
+      },
+      {
+        "path": "docs\\ic_im_mainline_v1_3_r5_spec.md",
+        "matches_expected": true
+      },
+      {
+        "path": "docs\\ic_im_mainline_v1_3_r6_spec.md",
+        "matches_expected": true
+      },
+      {
+        "path": "docs\\ic_im_mainline_v1_3_r7_spec.md",
+        "matches_expected": true
+      },
+      {
+        "path": "docs\\ic_im_mainline_v1_3_spec.md",
+        "matches_expected": true
+      },
+      {
+        "path": "docs\\ic_im_mainline_v1_4_r1_spec.md",
+        "matches_expected": true
+      },
+      {
+        "path": "docs\\ic_im_mom120_abs20_debounce_20260915_v1_spec.md",
+        "matches_expected": true
+      },
+      {
+        "path": "docs\\ic_im_put102_adversarial_fix_20260908_v1_spec.md",
+        "matches_expected": true
+      },
+      {
+        "path": "docs\\ic_im_put_max_protection_scan_v1_spec.md",
+        "matches_expected": true
+      },
+      {
+        "path": "docs\\ic_im_system_mainlines_v1_spec.md",
+        "matches_expected": true
+      },
+      {
+        "path": "docs\\ic_im_system_mainlines_v2_spec.md",
+        "matches_expected": true
+      },
+      {
+        "path": "docs\\ic_im_v1_3_put_monthly_correction_v1_spec.md",
+        "matches_expected": true
+      },
+      {
+        "path": "docs\\ic_im_v1_4_r1_adversarial_fix1_spec.md",
+        "matches_expected": true
+      },
+      {
+        "path": "docs\\ic_im_v1_4_r1_fix10_fear_grid25_50_20261008_spec.md",
+        "matches_expected": true
+      },
+      {
+        "path": "docs\\ic_im_v1_4_r1_fix11_ic_csi500_abs40_20261008_spec.md",
+        "matches_expected": true
+      },
+      {
+        "path": "docs\\ic_im_v1_4_r1_fix4_integrated_20260924_spec.md",
+        "matches_expected": true
+      },
+      {
+        "path": "docs\\ic_im_v1_4_r1_fix7_profit3x_t1_open_20260928_spec.md",
+        "matches_expected": true
+      },
+      {
+        "path": "docs\\ic_im_v1_4_r1_fix8_ordinary_put_t1_open_20260929_spec.md",
+        "matches_expected": true
+      },
+      {
+        "path": "docs\\ic_im_v1_4_r1_fix9_ic_seller_mom120_20260929_spec.md",
+        "matches_expected": true
+      },
+      {
+        "path": "docs\\ic_im_v1_4_r1_signal_scope_fix2_spec.md",
+        "matches_expected": true
+      }
+    ],
+    "policy_schema_parameter_status": "Tracked source diff retains build/rule/schema/effective-date/strategy parameter constants; no recovery insurance imports"
+  },
+  "release_minimum_changed_files": [
+    "ic_im_v1_4_policy.py",
+    "poe_ic_im_mainline_v1_4_bot.py",
+    "poe_ic_im_v1_4_state.py",
+    "run_ic_im_v1_4_github_digest.py",
+    "ic_im_quote_snapshot_guard.py",
+    "test_ic_im_ordinary_put_route_fix_20261013.py",
+    "test_ic_im_quote_snapshot_guard_20261013.py",
+    "test_ic_im_split_put_summary_20261013.py"
+  ],
+  "must_bundle_new_runtime_dependency": {
+    "path": "ic_im_quote_snapshot_guard.py",
+    "importer": "poe_ic_im_mainline_v1_4_bot.py:51",
+    "reason": "Unconditional top-level import; omitting it prevents strategy/report/state imports",
+    "third_party_dependencies_added": [],
+    "cloud_allowlist_status": "Verified complete strategy repository checkout; committed guard is automatically present. Final remote checkout verification still pending."
+  },
+  "cumulative_suite": {
+    "selected_files": [
+      "test_delivery_transport_retry.py",
+      "test_ohlcv_provider_validation.py",
+      "test_ic_im_v1_4_policy.py",
+      "test_poe_ic_im_v1_4_state.py",
+      "test_migrate_ic_im_v1_3_r7_to_v1_4_r1_state.py",
+      "test_ic_im_v1_4_integration_guards.py",
+      "test_run_ic_im_v1_4_github_digest.py",
+      "test_adversarial_icim_delivery.py",
+      "test_im_put_policy.py",
+      "test_adversarial_im_put_execution_20260908.py",
+      "test_adversarial_im_ledger_20260908.py",
+      "test_adversarial_im_report_iv_20260908.py",
+      "test_im_put_price_basis.py",
+      "test_live_mo_put_midpoint_20260908.py",
+      "test_grid_half_release_20260913.py",
+      "test_im_grid160_half_release_20260914.py",
+      "test_ic_im_v1_4_ic_csi500_forward.py",
+      "test_adversarial_market_20261007.py",
+      "test_adversarial_state_20261007.py",
+      "test_adversarial_delivery_20261007.py",
+      "test_adversarial_policy_20261007.py",
+      "test_adversarial_cffex_transport_20261009.py",
+      "test_adversarial_cffex_close_runner_20261009.py",
+      "test_tencent_ohlcv_pagination_20261012.py",
+      "test_ic_im_v1_4_repeat_roll_20260925.py",
+      "test_ic_im_v1_4_market_maker_quotes_20260925.py",
+      "test_ic_im_fear_grid_v1.py",
+      "test_ic_im_daily_valuation.py",
+      "test_ic_im_chinabond.py",
+      "test_ic_im_quarter_roll_v1_3.py",
+      "test_ic_im_ordinary_put_route_fix_20261013.py",
+      "test_ic_im_quote_snapshot_guard_20261013.py",
+      "test_ic_im_split_put_summary_20261013.py"
+    ],
+    "selected_file_count": 33,
+    "historical_actual_xml_counts": {
+      "tests": 609,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "historical_reported_groups": {
+      "cumulative_24": {
+        "tests": 454,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "additional_6": {
+        "tests": 68,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "new_repair_cases": {
+        "tests": 87,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    },
+    "historical_xml_timestamp": "2026-10-13T11:21:26.306462+08:00",
+    "per_imported_module_counts": {
+      "test_delivery_transport_retry.py": 9,
+      "test_ohlcv_provider_validation.py": 5,
+      "test_ic_im_v1_4_policy.py": 57,
+      "test_poe_ic_im_v1_4_state.py": 71,
+      "test_migrate_ic_im_v1_3_r7_to_v1_4_r1_state.py": 3,
+      "test_ic_im_v1_4_integration_guards.py": 47,
+      "test_run_ic_im_v1_4_github_digest.py": 9,
+      "test_adversarial_icim_delivery.py": 39,
+      "test_im_put_policy.py": 14,
+      "test_adversarial_im_put_execution_20260908.py": 8,
+      "test_adversarial_im_ledger_20260908.py": 21,
+      "test_adversarial_im_report_iv_20260908.py": 48,
+      "test_im_put_price_basis.py": 20,
+      "test_live_mo_put_midpoint_20260908.py": 16,
+      "test_grid_half_release_20260913.py": 3,
+      "test_im_grid160_half_release_20260914.py": 6,
+      "test_ic_im_v1_4_ic_csi500_forward.py": 1,
+      "test_adversarial_market_20261007.py": 4,
+      "test_adversarial_state_20261007.py": 10,
+      "test_adversarial_delivery_20261007.py": 12,
+      "test_adversarial_policy_20261007.py": 7,
+      "test_adversarial_cffex_transport_20261009.py": 19,
+      "test_adversarial_cffex_close_runner_20261009.py": 10,
+      "test_tencent_ohlcv_pagination_20261012.py": 15,
+      "test_ic_im_v1_4_repeat_roll_20260925.py": 6,
+      "test_ic_im_v1_4_market_maker_quotes_20260925.py": 6,
+      "test_ic_im_fear_grid_v1.py": 3,
+      "test_ic_im_daily_valuation.py": 13,
+      "test_ic_im_chinabond.py": 24,
+      "test_ic_im_quarter_roll_v1_3.py": 16,
+      "test_ic_im_ordinary_put_route_fix_20261013.py": 50,
+      "test_ic_im_quote_snapshot_guard_20261013.py": 29,
+      "test_ic_im_split_put_summary_20261013.py": 8
+    },
+    "new_test_current_sha256": {
+      "test_ic_im_ordinary_put_route_fix_20261013.py": "ff69d0f7e5ce2ca9faa4a1ef9457365bc08cb3b87ba7c913890bcbe7d942d1dd",
+      "test_ic_im_quote_snapshot_guard_20261013.py": "d90640e1bdabd10e00c21e24fe2b18a7dc236b30f84cafafd77ab5e1393af01a",
+      "test_ic_im_split_put_summary_20261013.py": "df8d255710fadd8fd5bec8b21e1151b04b33937d38c9c87ded3d6eb88e71e9f7"
+    },
+    "note": "609 is prior actual execution. No preparatory fresh pass claimed. Run exact cumulative list after synchronization."
+  },
+  "test_import_dependencies": {
+    "local_closure_count": 95,
+    "extra_test_helpers": [
+      "test_ic_im_v1_4_state_guards.py",
+      "test_poe_ic_im_mainline_v1_3_bot.py",
+      "test_poe_ic_im_v1_3_state.py"
+    ],
+    "closure_sha256": {
+      "ic_510500_put_absolute_momentum_protection_tool_v11.py": "2149d52637304bf09a2d1be674ff3c761d8d56033a9391a2ed46f3387ed3d4f7",
+      "ic_510500_put_absolute_momentum_protection_tool_v12.py": "bffc76685c04eb2f7fe944a8a07d21373b45668d226ef8d9a8dffc7b3daf1f76",
+      "ic_510500_put_absolute_momentum_protection_tool_v13.py": "8e8514e9c9d2985b2b77b35ec7469e6ea243be1a477e40e052e0a852216ae058",
+      "ic_510500_put_absolute_valuation_stress_v5.py": "842affa33e9f7bc08d7ba85c5031fb8c26a160a2c7bbbb11f29c288d6d0e7d33",
+      "ic_510500_put_close_execution_full_retest_v17.py": "24c1702082e08f6cdf1538a879586ac684480dba8890d9ea3649c34a36150629",
+      "ic_510500_put_extreme_valuation_absolute_momentum_v10.py": "026edd9ae292fad3fb6ccaba2d31bd1400920ae91f5c6013f3cdd01fbfc737f4",
+      "ic_510500_put_extreme_valuation_gate_v9.py": "c871e72343bca8996fdcc285d9b50970b8c74dc4f8fd2fc29407a7a0abc4025d",
+      "ic_510500_put_full_cycle_valuation_v2.py": "b422cfa2cac9bc2db5ab3a1d9be3c6a8aee16d7469a710a618f999cb6e9319e7",
+      "ic_510500_put_persistent_stress_hold3m_v7.py": "467f7e8993cab2f4b7ab5ddd7e9253b1b515b63550d324f79104d08ff380bee0",
+      "ic_510500_put_proxy_validation_v1.py": "5836849ca4c0e42ab4a04e2c82d81f049b5f2fb2799333c67177209b8fc2a7a3",
+      "ic_510500_put_rolling_continuous_valuation_v3.py": "7b05088caa2ae40358ade307be6fac9728e34c276f04fba97fb110964fc4ebd9",
+      "ic_510500_put_rolling_continuous_valuation_v4.py": "ad4df8f5a1adcb8d193514083135f4b2d0551686172e41878c2e95b5337339c4",
+      "ic_510500_put_tiered_notional_delta_v20.py": "52349adf6fc62a15e0412f655e190890917c7a93b05171571d4653453857c556",
+      "ic_510500_put_unbounded_valuation_gate_v18.py": "f7a9b7ccc8812bf448d36170e75bf7a661aec15c2af1ded99cd9162d6845d121",
+      "ic_510500_put_unbounded_valuation_or_mom120_v19.py": "43b19a7f0a229d06627fede7615c61c2eb7032f359eafdf250e2b8168d16c7a1",
+      "ic_510500_put_v4_monthly_tenor_rerun_v6.py": "16c488da8b0c1255758036a57549476521cce2e8004dbc5660ad298161a8fee2",
+      "ic_fixed_valuation_raw_economic_score_v5.py": "b4a58f5212f05e850e526352712a0a66489df34659f23f7572fe0d5f386a0414",
+      "ic_fixed_valuation_unbounded_score_v6.py": "f0b615d097fde668bb6896a9dd0b884f7bcf164091d332f9d9b44c4993e9a825",
+      "ic_im_chinabond.py": "4e1098b2f4c253d9950c084eafcc655ea8e5e820478a01a29393d638e6d40ab9",
+      "ic_im_daily_valuation.py": "b389a81475836fb3e4e96dbc92216a54afeb199029d524f51efbb8d029e4257c",
+      "ic_im_fear_grid_v1.py": "adaa179107c49bcea4b3bdb198c82c67f638233b158760a9377b1ec9f53bee23",
+      "ic_im_put_max_protection_scan_v1.py": "151b201bc9258a864cb725aec666133d3e4fcf2f0876ee98062103ce62cd1c1d",
+      "ic_im_quarter_roll_v1_3.py": "5ad7f7500b1408b57a6089658dfd5c9d5524af4ab4220d27f5c6712a8caf21c1",
+      "ic_im_quote_snapshot_guard.py": "ae22b541a1a2a6bc20d5bd23bb1fc3d275a2f3fcfce96b5345c2458cde74b9d5",
+      "ic_im_v1_4_policy.py": "e658610a4259ac6e00eca9495589e7e78c47ab87437d89090038d7a0b49e202f",
+      "ic_mainline_v1_2.py": "8f16a0db3186a961abc0df5481a8fff5df08a8405775c0d7e983a16703c8cec8",
+      "ic_mainline_v1_3.py": "b3bb1010fe9ab27d47454149c7f51a2eee5cf99fe779042e4afb57327625d7cd",
+      "ic_monthly_discount_roll_v1.py": "7c0cc4e01b53ab6f71447a2003208b1ff4a3d72ce1f01f777a3da0914d1a34fc",
+      "ic_roll_momentum_stage3_grid_v1.py": "428ec8e9bae7e360962b852b235d461563bafa28e5981c4cde415465a7ded84c",
+      "im_finite_window_valuation_v6.py": "f952892f2b1553d84340a059e8237809536040a15a05eab493d51fa04d901e07",
+      "im_fixed_valuation_tier_relationship_v3.py": "4e5c36ab2dcc5ec9d8e6d3ba3c8dd4ee9e2bf705c54c620390326efab967fe4d",
+      "im_mainline_v1_1.py": "e9ee72e50f2193531e8dd296b19e252985d9d08673de177b85456d7e32bcaeba",
+      "im_mainline_v1_2.py": "815e8e65fa77a4b376abccb0da69d6cc67aa20bdf585200ea29014a584e7fdc7",
+      "im_mainline_v1_3.py": "2debba32e729538658d28496947e81332e5d5e9041d5371037fc0fa227024855",
+      "im_mo_adaptive_valuation_mom120_floor_v12.py": "4690d00d05751c321ad84096939511f3aeb1846c786bcd146b75815b9cfabee0",
+      "im_mo_adaptive_valuation_tier_put_v10.py": "4d13b669a73a3782e089d6d35e0a3b7be68e11b61c8f66895cc62a1911e7a894",
+      "im_mo_close_execution_v8.py": "4ac38a47dac471bcaea77e817f6d74a5fe8ccb65484aa79a4844c80b2226eace",
+      "im_mo_csi1000_put_protection_battery_v6.py": "7a1043bc5add7bb7d7f09e448dd715715befe08e2ce42dbcf36af849f7999f3d",
+      "im_mo_front95_fixed_dynamic_momentum_validation_v5.py": "b4e77f6f1691f18dba7a517f4f024bb2eec9e8feadb46782e74a0ac63b18ab4b",
+      "im_monthly_roll_valuation_gated_put_v1.py": "5a629bbdcdac9c14b8277f5952dc206cd263a304a4931869fb987f937762ac25",
+      "im_monthly_roll_valuation_gated_put_v2.py": "dab0ee9ed0ccf68c7ecffbc20153ad208264bdcdc14d76ad373ab6b7116a805c",
+      "im_put_four_valuation_tier_scan_v2.py": "fb10311a1fcfedd3e067940ca518477c62a6d78ae27293612d166aa6b3c63b22",
+      "im_put_maturity_valuation_tiers_v3.py": "609d88f65d987a14eefcd7c6952f228db35cefc5f15146d0064022b21761bcab",
+      "im_put_policy.py": "ff9c9b1d52e4b1aa25fcb3c85e61665a4acf0a4de68272d8ddc9caaf2d4a9a9c",
+      "im_regime_aware_valuation_v5.py": "c2e50861e9adb113b131ae495c338bc524275ea6db5ce1343977da2892297476",
+      "im_roll50_momentum50_fullcycle_put_v1.py": "3abd5857edd771aec04dfdab321672bceef7dc46581d0bffb7e4989bae182f9b",
+      "im_valuation_frequency_tenor_scan_v4.py": "c654aa7c30c4a89954f8c7db7d352664ab3ac0c5455c2b26248c5aca75476461",
+      "im_valuation_window_ladder_scan_v7.py": "29d54597690115710020cdcc1bd0d84d57e1bdbb3f281d88f5b90912b6015d1a",
+      "migrate_ic_im_v1_3_r5_to_r6_state.py": "619fb2cb0d4326615a63b503e779078d97a95368f09528a76520649fbc8cfece",
+      "migrate_ic_im_v1_3_r6_to_r7_state.py": "0720be69b0e0c5f76ebe1c98c5661a367d3973618cb120f1a029632fa4c42aeb",
+      "migrate_ic_im_v1_3_r7_to_v1_4_r1_state.py": "47c735757ddf6c6663c0ff2f0b2a17d0f61fb4587836016eb25ed7ae435d7d9f",
+      "poe_ic_im_mainline_v1_3_bot.py": "fd3c7df2b68255fda618ca9267a00f38ab3f8c2ce66ff99b53e1fb0be2a284fa",
+      "poe_ic_im_mainline_v1_4_bot.py": "6a31e15f28428bae723650478ecd923062a1fdd9206959d797744167337c48cc",
+      "poe_ic_im_v1_3_server.py": "bb4a482557e406e161ded843567903532eb0f38649b3dd61bce934584e464260",
+      "poe_ic_im_v1_3_state.py": "3ab7a9feb038e4139d63655d416459d6afa2f5d416903965e8e13ed657ec938c",
+      "poe_ic_im_v1_4_server.py": "5dae05b9427cf2597134e1cb5f0753ea23ac617cbd24c916ddda077a51aff480",
+      "poe_ic_im_v1_4_state.py": "d589d8f651e565cfdc5b8f521f29dfbd44e638b73cde552a2f73dbcf3de64705",
+      "run_ic_im_v1_3_github_digest.py": "138f8b0a40445d1805c77584c2d333d10120ab931ef73d3b8955682f44e32522",
+      "run_ic_im_v1_4_github_digest.py": "f84c1374ecd7bc20d1d3932aeb80dcd9af1f21dfdafbeadb74c408fc06724242",
+      "test_adversarial_cffex_close_runner_20261009.py": "95b53c6290812457449aa209f2786d208f9b85a46d63e152cca32067ad8b4cba",
+      "test_adversarial_cffex_transport_20261009.py": "2502a8bd99ddeb9c10f009ef550a3060315fcca085d09b5ebeeae097a41ea3d6",
+      "test_adversarial_delivery_20261007.py": "6d2d5911a2519f38e7bc963ded9e279c9a2590a05eb6cfcf4755035f5f7698de",
+      "test_adversarial_icim_delivery.py": "22219dc2e7ca2e8f9df60e105ae8ccda0c1f399e3f738c9c2e5824d6c4032648",
+      "test_adversarial_im_ledger_20260908.py": "e64742b032c44dcf17ca9383dce2b6a1bd0189cf1eafdfba12714b46e262dc82",
+      "test_adversarial_im_put_execution_20260908.py": "2af285aaa15f73735eda24a89224a12ca699c7d9ab268e57b5b70ae2aaa8e34e",
+      "test_adversarial_im_report_iv_20260908.py": "2932352d2a59e87febd1f54a4f32029f4bf139a5da4a8e439f6e53a059a82bc3",
+      "test_adversarial_market_20261007.py": "cb7ed277945d901527adad52ab86b3afa40b1e6116138d87e52b02099489c6bb",
+      "test_adversarial_policy_20261007.py": "f8d58959d6633943ce9b2481d448fd6ee0e784be3a7effa5f70c3dd92aec69a5",
+      "test_adversarial_state_20261007.py": "a3c389b6d0d81a3b564eec1306ffd2bf91e54fa3f54920d0f8d6a6d52f36d738",
+      "test_delivery_transport_retry.py": "82a3bab3b535256eab04be7cd477aba3fb50a6b2dd6e80a87482e58013a7e89e",
+      "test_grid_half_release_20260913.py": "30c8f1d7e6e39ed47db849c16e9e9a734e45046c166f8d1035d2173b32e95a91",
+      "test_ic_im_chinabond.py": "34a84804eeb577de67097a6335cdb8a4e09dc3cf329ce3ea39999b6c420d6563",
+      "test_ic_im_daily_valuation.py": "fe0409d25230652f48027cd13ac3a38ae51407962eb69ec49ad1e69fdac1b61b",
+      "test_ic_im_fear_grid_v1.py": "c700ee63d85bfda35985db8de52e5a4ee7a343301ae1a53a07dfd41b6feae08c",
+      "test_ic_im_ordinary_put_route_fix_20261013.py": "ff69d0f7e5ce2ca9faa4a1ef9457365bc08cb3b87ba7c913890bcbe7d942d1dd",
+      "test_ic_im_quarter_roll_v1_3.py": "f66b6470fba985618a94e3dddb50f7d0a368e6c3e1ae46411e3b44e74004ffc3",
+      "test_ic_im_quote_snapshot_guard_20261013.py": "d90640e1bdabd10e00c21e24fe2b18a7dc236b30f84cafafd77ab5e1393af01a",
+      "test_ic_im_split_put_summary_20261013.py": "df8d255710fadd8fd5bec8b21e1151b04b33937d38c9c87ded3d6eb88e71e9f7",
+      "test_ic_im_v1_4_ic_csi500_forward.py": "777aa1e1ec49e557a5cf98e49a5002b73794ffa015a1e7dc2c710924c82ea402",
+      "test_ic_im_v1_4_integration_guards.py": "848ee5e201bec0c5e5b0da8e04543d0b06dfdcf0e909145c88eb5ecc4814267d",
+      "test_ic_im_v1_4_market_maker_quotes_20260925.py": "74a98549cb827e2b02a8f74b737ce99d29f09438d24fb697051c4d04a899fc9f",
+      "test_ic_im_v1_4_policy.py": "3f6b4bc5828be1cc6aa4a73c5f5c631ce45cfe006ad1499feec8059b53bf59ac",
+      "test_ic_im_v1_4_repeat_roll_20260925.py": "d6454848a3fa17fa5039391ed5d0e6af1f73baa4e3c8a0bce357eff3a96645ea",
+      "test_ic_im_v1_4_state_guards.py": "11d8bbe1d0e44e7f2f16f1e30a3a51b502f5088b1fcfd80ecd52fb0baae94c81",
+      "test_im_grid160_half_release_20260914.py": "cd9cd6dbeae82f9401b7fe9f8fcef08165bd8049098f79fc27f5c33a3b3ecab7",
+      "test_im_put_policy.py": "1dc7083bc3ab2dde22a21cb4e16b9ad8aab66308b3116b23758e4db4a5f7e22c",
+      "test_im_put_price_basis.py": "565e19359829c02579f8f187044b415be1cb3bd3a1e3171aec4a6f8491f79d39",
+      "test_live_mo_put_midpoint_20260908.py": "9e7749541c1e8072f7217f22529aa924735e54743712a6330fd4d796eb64207a",
+      "test_migrate_ic_im_v1_3_r7_to_v1_4_r1_state.py": "284a0a05908a53acce60ef05e8e0d8d813cc39656858a48b6f45d3e76ceec88c",
+      "test_ohlcv_provider_validation.py": "00bf19e9756de014b242e70338487dda892b5b8435c0067dc8aef9f1aaf71fcf",
+      "test_poe_ic_im_mainline_v1_3_bot.py": "a32248b35576eb2bb946b12354b68f5ebc8018d4d65246b5ff998b816558b563",
+      "test_poe_ic_im_v1_3_state.py": "d1b38d7f25380ddefd1e842e2c6280faf8d3d5125eb77823f823405e86b8a511",
+      "test_poe_ic_im_v1_4_state.py": "473ef8fedddb61fdf50d7b4a79fdb2db274b59e489268b461ecfcabf8dc7034d",
+      "test_run_ic_im_v1_4_github_digest.py": "2a54822f7911d50a5c9998ed3049336a2708724169a68893ba904ebc7edbd7d7",
+      "test_tencent_ohlcv_pagination_20261012.py": "38f0ab8e119318d7e982dd4c7f66978d3897e1131e6b5f0932861a1c1dad5562"
+    },
+    "direct_local_imports": {
+      "test_delivery_transport_retry.py": [
+        "poe_ic_im_mainline_v1_3_bot.py",
+        "poe_ic_im_mainline_v1_4_bot.py",
+        "run_ic_im_v1_3_github_digest.py"
+      ],
+      "poe_ic_im_mainline_v1_3_bot.py": [
+        "ic_im_chinabond.py",
+        "ic_im_daily_valuation.py",
+        "ic_im_quarter_roll_v1_3.py",
+        "im_put_policy.py"
+      ],
+      "ic_im_chinabond.py": [],
+      "ic_im_daily_valuation.py": [
+        "ic_im_chinabond.py"
+      ],
+      "ic_im_quarter_roll_v1_3.py": [],
+      "im_put_policy.py": [],
+      "poe_ic_im_mainline_v1_4_bot.py": [
+        "ic_im_chinabond.py",
+        "ic_im_daily_valuation.py",
+        "ic_im_fear_grid_v1.py",
+        "ic_im_quarter_roll_v1_3.py",
+        "ic_im_quote_snapshot_guard.py",
+        "ic_im_v1_4_policy.py",
+        "im_put_policy.py"
+      ],
+      "ic_im_fear_grid_v1.py": [],
+      "ic_im_quote_snapshot_guard.py": [],
+      "ic_im_v1_4_policy.py": [],
+      "run_ic_im_v1_3_github_digest.py": [
+        "poe_ic_im_mainline_v1_3_bot.py",
+        "poe_ic_im_v1_3_server.py",
+        "poe_ic_im_v1_3_state.py"
+      ],
+      "poe_ic_im_v1_3_server.py": [
+        "poe_ic_im_mainline_v1_3_bot.py",
+        "poe_ic_im_v1_3_state.py"
+      ],
+      "poe_ic_im_v1_3_state.py": [
+        "poe_ic_im_mainline_v1_3_bot.py"
+      ],
+      "test_ohlcv_provider_validation.py": [
+        "poe_ic_im_mainline_v1_3_bot.py"
+      ],
+      "test_ic_im_v1_4_policy.py": [
+        "ic_im_v1_4_policy.py"
+      ],
+      "test_poe_ic_im_v1_4_state.py": [
+        "test_ic_im_v1_4_state_guards.py"
+      ],
+      "test_ic_im_v1_4_state_guards.py": [
+        "ic_im_v1_4_policy.py",
+        "poe_ic_im_mainline_v1_4_bot.py",
+        "poe_ic_im_v1_4_state.py",
+        "test_poe_ic_im_v1_3_state.py"
+      ],
+      "poe_ic_im_v1_4_state.py": [
+        "ic_im_v1_4_policy.py",
+        "poe_ic_im_mainline_v1_4_bot.py"
+      ],
+      "test_poe_ic_im_v1_3_state.py": [
+        "poe_ic_im_mainline_v1_3_bot.py",
+        "poe_ic_im_v1_3_server.py",
+        "poe_ic_im_v1_3_state.py"
+      ],
+      "test_migrate_ic_im_v1_3_r7_to_v1_4_r1_state.py": [
+        "ic_im_v1_4_policy.py",
+        "migrate_ic_im_v1_3_r7_to_v1_4_r1_state.py",
+        "poe_ic_im_v1_3_state.py",
+        "poe_ic_im_v1_4_state.py",
+        "test_poe_ic_im_v1_3_state.py"
+      ],
+      "migrate_ic_im_v1_3_r7_to_v1_4_r1_state.py": [
+        "ic_im_v1_4_policy.py",
+        "poe_ic_im_mainline_v1_4_bot.py",
+        "poe_ic_im_v1_3_state.py",
+        "poe_ic_im_v1_4_state.py"
+      ],
+      "test_ic_im_v1_4_integration_guards.py": [
+        "ic_im_v1_4_policy.py",
+        "poe_ic_im_mainline_v1_4_bot.py",
+        "poe_ic_im_v1_4_state.py"
+      ],
+      "test_run_ic_im_v1_4_github_digest.py": [
+        "poe_ic_im_mainline_v1_4_bot.py",
+        "run_ic_im_v1_4_github_digest.py"
+      ],
+      "run_ic_im_v1_4_github_digest.py": [
+        "poe_ic_im_mainline_v1_4_bot.py",
+        "poe_ic_im_v1_4_server.py",
+        "poe_ic_im_v1_4_state.py"
+      ],
+      "poe_ic_im_v1_4_server.py": [
+        "poe_ic_im_mainline_v1_4_bot.py",
+        "poe_ic_im_v1_4_state.py"
+      ],
+      "test_adversarial_icim_delivery.py": [
+        "poe_ic_im_v1_3_state.py",
+        "run_ic_im_v1_3_github_digest.py",
+        "test_poe_ic_im_v1_3_state.py"
+      ],
+      "test_im_put_policy.py": [
+        "im_put_policy.py",
+        "poe_ic_im_mainline_v1_3_bot.py"
+      ],
+      "test_adversarial_im_put_execution_20260908.py": [
+        "poe_ic_im_mainline_v1_3_bot.py",
+        "poe_ic_im_v1_3_state.py"
+      ],
+      "test_adversarial_im_ledger_20260908.py": [
+        "poe_ic_im_v1_3_state.py",
+        "run_ic_im_v1_3_github_digest.py"
+      ],
+      "test_adversarial_im_report_iv_20260908.py": [
+        "im_put_policy.py",
+        "poe_ic_im_mainline_v1_3_bot.py"
+      ],
+      "test_im_put_price_basis.py": [
+        "poe_ic_im_mainline_v1_3_bot.py"
+      ],
+      "test_live_mo_put_midpoint_20260908.py": [
+        "poe_ic_im_mainline_v1_3_bot.py"
+      ],
+      "test_grid_half_release_20260913.py": [
+        "poe_ic_im_mainline_v1_3_bot.py"
+      ],
+      "test_im_grid160_half_release_20260914.py": [
+        "poe_ic_im_mainline_v1_3_bot.py"
+      ],
+      "test_ic_im_v1_4_ic_csi500_forward.py": [
+        "poe_ic_im_mainline_v1_4_bot.py"
+      ],
+      "test_adversarial_market_20261007.py": [
+        "poe_ic_im_mainline_v1_4_bot.py"
+      ],
+      "test_adversarial_state_20261007.py": [
+        "ic_im_v1_4_policy.py",
+        "poe_ic_im_v1_4_state.py",
+        "test_poe_ic_im_v1_3_state.py"
+      ],
+      "test_adversarial_delivery_20261007.py": [
+        "ic_im_v1_4_policy.py",
+        "poe_ic_im_mainline_v1_4_bot.py",
+        "poe_ic_im_v1_4_server.py",
+        "run_ic_im_v1_4_github_digest.py"
+      ],
+      "test_adversarial_policy_20261007.py": [
+        "ic_im_v1_4_policy.py",
+        "poe_ic_im_mainline_v1_4_bot.py"
+      ],
+      "test_adversarial_cffex_transport_20261009.py": [
+        "poe_ic_im_mainline_v1_4_bot.py"
+      ],
+      "test_adversarial_cffex_close_runner_20261009.py": [
+        "poe_ic_im_mainline_v1_4_bot.py",
+        "poe_ic_im_v1_4_state.py",
+        "run_ic_im_v1_4_github_digest.py"
+      ],
+      "test_tencent_ohlcv_pagination_20261012.py": [
+        "poe_ic_im_mainline_v1_4_bot.py"
+      ],
+      "test_ic_im_v1_4_repeat_roll_20260925.py": [
+        "ic_im_v1_4_policy.py",
+        "test_ic_im_v1_4_policy.py"
+      ],
+      "test_ic_im_v1_4_market_maker_quotes_20260925.py": [
+        "poe_ic_im_mainline_v1_4_bot.py"
+      ],
+      "test_ic_im_fear_grid_v1.py": [
+        "ic_im_fear_grid_v1.py",
+        "poe_ic_im_v1_4_state.py"
+      ],
+      "test_ic_im_daily_valuation.py": [
+        "ic_im_daily_valuation.py",
+        "poe_ic_im_mainline_v1_3_bot.py",
+        "run_ic_im_v1_3_github_digest.py",
+        "test_poe_ic_im_mainline_v1_3_bot.py"
+      ],
+      "test_poe_ic_im_mainline_v1_3_bot.py": [
+        "ic_mainline_v1_3.py",
+        "im_mainline_v1_3.py",
+        "poe_ic_im_mainline_v1_3_bot.py"
+      ],
+      "ic_mainline_v1_3.py": [
+        "ic_im_quarter_roll_v1_3.py",
+        "ic_mainline_v1_2.py",
+        "im_mainline_v1_3.py"
+      ],
+      "ic_mainline_v1_2.py": [
+        "ic_roll_momentum_stage3_grid_v1.py",
+        "im_mainline_v1_2.py"
+      ],
+      "ic_roll_momentum_stage3_grid_v1.py": [],
+      "im_mainline_v1_2.py": [
+        "im_mainline_v1_1.py"
+      ],
+      "im_mainline_v1_1.py": [
+        "im_roll50_momentum50_fullcycle_put_v1.py"
+      ],
+      "im_roll50_momentum50_fullcycle_put_v1.py": [
+        "im_mo_adaptive_valuation_mom120_floor_v12.py",
+        "im_mo_adaptive_valuation_tier_put_v10.py",
+        "im_put_four_valuation_tier_scan_v2.py",
+        "im_valuation_window_ladder_scan_v7.py"
+      ],
+      "im_mo_adaptive_valuation_mom120_floor_v12.py": [
+        "im_mo_adaptive_valuation_tier_put_v10.py",
+        "im_mo_close_execution_v8.py",
+        "im_mo_csi1000_put_protection_battery_v6.py",
+        "im_mo_front95_fixed_dynamic_momentum_validation_v5.py",
+        "im_valuation_frequency_tenor_scan_v4.py"
+      ],
+      "im_mo_adaptive_valuation_tier_put_v10.py": [
+        "im_mo_close_execution_v8.py",
+        "im_mo_csi1000_put_protection_battery_v6.py",
+        "im_mo_front95_fixed_dynamic_momentum_validation_v5.py",
+        "im_valuation_frequency_tenor_scan_v4.py"
+      ],
+      "im_mo_close_execution_v8.py": [
+        "im_mo_csi1000_put_protection_battery_v6.py",
+        "im_mo_front95_fixed_dynamic_momentum_validation_v5.py",
+        "im_valuation_frequency_tenor_scan_v4.py"
+      ],
+      "im_mo_csi1000_put_protection_battery_v6.py": [
+        "ic_510500_put_proxy_validation_v1.py",
+        "im_mo_front95_fixed_dynamic_momentum_validation_v5.py",
+        "im_valuation_frequency_tenor_scan_v4.py"
+      ],
+      "ic_510500_put_proxy_validation_v1.py": [
+        "im_monthly_roll_valuation_gated_put_v1.py"
+      ],
+      "im_monthly_roll_valuation_gated_put_v1.py": [],
+      "im_mo_front95_fixed_dynamic_momentum_validation_v5.py": [
+        "im_valuation_frequency_tenor_scan_v4.py"
+      ],
+      "im_valuation_frequency_tenor_scan_v4.py": [
+        "im_monthly_roll_valuation_gated_put_v1.py",
+        "im_monthly_roll_valuation_gated_put_v2.py",
+        "im_put_maturity_valuation_tiers_v3.py"
+      ],
+      "im_monthly_roll_valuation_gated_put_v2.py": [
+        "ic_monthly_discount_roll_v1.py",
+        "im_monthly_roll_valuation_gated_put_v1.py"
+      ],
+      "ic_monthly_discount_roll_v1.py": [],
+      "im_put_maturity_valuation_tiers_v3.py": [
+        "im_monthly_roll_valuation_gated_put_v2.py"
+      ],
+      "im_put_four_valuation_tier_scan_v2.py": [
+        "ic_im_put_max_protection_scan_v1.py",
+        "im_mo_adaptive_valuation_mom120_floor_v12.py",
+        "im_valuation_window_ladder_scan_v7.py"
+      ],
+      "ic_im_put_max_protection_scan_v1.py": [
+        "ic_510500_put_tiered_notional_delta_v20.py",
+        "im_mo_adaptive_valuation_mom120_floor_v12.py"
+      ],
+      "ic_510500_put_tiered_notional_delta_v20.py": [
+        "ic_510500_put_unbounded_valuation_or_mom120_v19.py"
+      ],
+      "ic_510500_put_unbounded_valuation_or_mom120_v19.py": [
+        "ic_510500_put_unbounded_valuation_gate_v18.py"
+      ],
+      "ic_510500_put_unbounded_valuation_gate_v18.py": [
+        "ic_510500_put_absolute_momentum_protection_tool_v11.py",
+        "ic_510500_put_absolute_momentum_protection_tool_v13.py",
+        "ic_510500_put_close_execution_full_retest_v17.py",
+        "ic_510500_put_extreme_valuation_absolute_momentum_v10.py"
+      ],
+      "ic_510500_put_absolute_momentum_protection_tool_v11.py": [
+        "ic_510500_put_extreme_valuation_absolute_momentum_v10.py"
+      ],
+      "ic_510500_put_extreme_valuation_absolute_momentum_v10.py": [
+        "ic_510500_put_extreme_valuation_gate_v9.py"
+      ],
+      "ic_510500_put_extreme_valuation_gate_v9.py": [
+        "ic_510500_put_absolute_valuation_stress_v5.py",
+        "ic_510500_put_persistent_stress_hold3m_v7.py",
+        "ic_510500_put_proxy_validation_v1.py",
+        "ic_510500_put_v4_monthly_tenor_rerun_v6.py"
+      ],
+      "ic_510500_put_absolute_valuation_stress_v5.py": [
+        "ic_510500_put_rolling_continuous_valuation_v3.py"
+      ],
+      "ic_510500_put_rolling_continuous_valuation_v3.py": [
+        "ic_510500_put_full_cycle_valuation_v2.py",
+        "ic_510500_put_proxy_validation_v1.py"
+      ],
+      "ic_510500_put_full_cycle_valuation_v2.py": [
+        "ic_510500_put_proxy_validation_v1.py",
+        "im_monthly_roll_valuation_gated_put_v1.py"
+      ],
+      "ic_510500_put_persistent_stress_hold3m_v7.py": [
+        "ic_510500_put_absolute_valuation_stress_v5.py",
+        "ic_510500_put_proxy_validation_v1.py",
+        "ic_510500_put_rolling_continuous_valuation_v3.py",
+        "ic_510500_put_v4_monthly_tenor_rerun_v6.py"
+      ],
+      "ic_510500_put_v4_monthly_tenor_rerun_v6.py": [
+        "ic_510500_put_proxy_validation_v1.py",
+        "ic_510500_put_rolling_continuous_valuation_v3.py",
+        "ic_510500_put_rolling_continuous_valuation_v4.py"
+      ],
+      "ic_510500_put_rolling_continuous_valuation_v4.py": [
+        "ic_510500_put_rolling_continuous_valuation_v3.py"
+      ],
+      "ic_510500_put_absolute_momentum_protection_tool_v13.py": [
+        "ic_510500_put_absolute_momentum_protection_tool_v12.py"
+      ],
+      "ic_510500_put_absolute_momentum_protection_tool_v12.py": [
+        "ic_510500_put_absolute_momentum_protection_tool_v11.py"
+      ],
+      "ic_510500_put_close_execution_full_retest_v17.py": [],
+      "im_valuation_window_ladder_scan_v7.py": [
+        "im_finite_window_valuation_v6.py",
+        "im_fixed_valuation_tier_relationship_v3.py",
+        "im_regime_aware_valuation_v5.py"
+      ],
+      "im_finite_window_valuation_v6.py": [
+        "im_fixed_valuation_tier_relationship_v3.py",
+        "im_regime_aware_valuation_v5.py"
+      ],
+      "im_fixed_valuation_tier_relationship_v3.py": [
+        "ic_fixed_valuation_unbounded_score_v6.py"
+      ],
+      "ic_fixed_valuation_unbounded_score_v6.py": [
+        "ic_fixed_valuation_raw_economic_score_v5.py"
+      ],
+      "ic_fixed_valuation_raw_economic_score_v5.py": [],
+      "im_regime_aware_valuation_v5.py": [
+        "im_fixed_valuation_tier_relationship_v3.py"
+      ],
+      "im_mainline_v1_3.py": [
+        "ic_im_quarter_roll_v1_3.py",
+        "im_mainline_v1_1.py",
+        "im_mainline_v1_2.py",
+        "im_put_policy.py"
+      ],
+      "test_ic_im_chinabond.py": [
+        "ic_im_chinabond.py",
+        "ic_im_daily_valuation.py",
+        "poe_ic_im_mainline_v1_3_bot.py",
+        "test_poe_ic_im_mainline_v1_3_bot.py"
+      ],
+      "test_ic_im_quarter_roll_v1_3.py": [
+        "ic_im_quarter_roll_v1_3.py",
+        "migrate_ic_im_v1_3_r5_to_r6_state.py",
+        "migrate_ic_im_v1_3_r6_to_r7_state.py",
+        "poe_ic_im_mainline_v1_3_bot.py",
+        "poe_ic_im_v1_3_state.py"
+      ],
+      "migrate_ic_im_v1_3_r5_to_r6_state.py": [
+        "poe_ic_im_v1_3_state.py"
+      ],
+      "migrate_ic_im_v1_3_r6_to_r7_state.py": [
+        "poe_ic_im_v1_3_state.py"
+      ],
+      "test_ic_im_ordinary_put_route_fix_20261013.py": [
+        "ic_im_v1_4_policy.py",
+        "poe_ic_im_mainline_v1_4_bot.py",
+        "poe_ic_im_v1_4_state.py"
+      ],
+      "test_ic_im_quote_snapshot_guard_20261013.py": [
+        "ic_im_quote_snapshot_guard.py",
+        "poe_ic_im_mainline_v1_4_bot.py"
+      ],
+      "test_ic_im_split_put_summary_20261013.py": [
+        "ic_im_v1_4_policy.py",
+        "poe_ic_im_mainline_v1_4_bot.py",
+        "run_ic_im_v1_4_github_digest.py"
+      ]
+    },
+    "state_guards_note": "test_ic_im_v1_4_state_guards.py is imported through test_poe_ic_im_v1_4_state.py; must exist in checkout, do not add it as a second collected entry."
+  },
+  "research_exclusion": {
+    "must_not_promote": "research_reports/20261013_recovery_put_research/",
+    "production_or_test_import_hits": [],
+    "candidate_only_modules": [
+      "recovery_account.py",
+      "recovery_cycle_controller.py"
+    ],
+    "recommendation": "Stage/release an explicit code/test/docs allowlist; do not sweep all untracked research, temp ledgers or backups into the production artifact."
+  },
+  "pre_release_actions": [
+    {
+      "priority": "required",
+      "item": "Publish all five source files and three new tests together; include quote guard in any cloud runtime allowlist."
+    },
+    {
+      "priority": "required",
+      "item": "Update local/cloud daily cumulative command from runbook 24 files to saved 33 file list, retaining three imported helper files."
+    },
+    {
+      "priority": "required",
+      "item": "After sync, record exact strategy and automation commits, verify cloud/local runtime file hashes, then execute independent adversarial review on that exact commit."
+    },
+    {
+      "priority": "boundary",
+      "item": "Source and test success do not prove report generation, SMTP DATA, delivered marker or Gmail INBOX. Each must be separately evidenced by the parent delivery workflow."
+    }
+  ],
+  "runbook_gap": {
+    "path": "docs/ic_im_v1_4_github_gmail_runbook.md",
+    "current_documented_selected_files": 24,
+    "required_cumulative_files": 33,
+    "missing_groups": [
+      "additional_6",
+      "new_repair_cases"
+    ]
+  },
+  "waiting_for": "Parent synchronization completion and exact remote commit/checkout for final adversarial verification",
+  "exact_prepared_strategy_commit": {
+    "sha": "427cf45fd78710583c8028f7eca1ed88968036ee",
+    "changed_paths": [
+      "ic_im_quote_snapshot_guard.py",
+      "ic_im_v1_4_policy.py",
+      "poe_ic_im_mainline_v1_4_bot.py",
+      "poe_ic_im_v1_4_state.py",
+      "run_ic_im_v1_4_github_digest.py",
+      "test_ic_im_ordinary_put_route_fix_20261013.py",
+      "test_ic_im_quote_snapshot_guard_20261013.py",
+      "test_ic_im_split_put_summary_20261013.py"
+    ],
+    "exactly_minimum_eight_files": true,
+    "source_blob_hashes": {
+      "ic_im_v1_4_policy.py": {
+        "git_blob_sha256": "e658610a4259ac6e00eca9495589e7e78c47ab87437d89090038d7a0b49e202f",
+        "matches_final_repair_manifest": true
+      },
+      "poe_ic_im_mainline_v1_4_bot.py": {
+        "git_blob_sha256": "6a31e15f28428bae723650478ecd923062a1fdd9206959d797744167337c48cc",
+        "matches_final_repair_manifest": true
+      },
+      "poe_ic_im_v1_4_state.py": {
+        "git_blob_sha256": "d589d8f651e565cfdc5b8f521f29dfbd44e638b73cde552a2f73dbcf3de64705",
+        "matches_final_repair_manifest": true
+      },
+      "run_ic_im_v1_4_github_digest.py": {
+        "git_blob_sha256": "f84c1374ecd7bc20d1d3932aeb80dcd9af1f21dfdafbeadb74c408fc06724242",
+        "matches_final_repair_manifest": true
+      },
+      "ic_im_quote_snapshot_guard.py": {
+        "git_blob_sha256": "ae22b541a1a2a6bc20d5bd23bb1fc3d275a2f3fcfce96b5345c2458cde74b9d5",
+        "matches_final_repair_manifest": true
+      }
+    },
+    "recovery_research_changed_paths": []
+  },
+  "cloud_initial_inspection": {
+    "checkout": "D:\\Codex\\tmp\\icim_release_20261013\\cloud",
+    "head": "cf6b6734333e1e315c4fe6b6e9cba43f7bc6ca15",
+    "source_checkout": "Complete actions/checkout of immutable strategy ref; no selective runtime source allowlist found in production/readiness/CI workflows.",
+    "quote_guard_packaging": "Guard exists in prepared strategy commit. Full checkout includes it automatically; no added third-party requirements.",
+    "readiness_and_ci_pin": "Both parse the sole immutable strategy ref from the production daily workflow.",
+    "existing_ci_explicit_test_count": 31,
+    "missing_cumulative_tests": [
+      "test_ic_im_ordinary_put_route_fix_20261013.py",
+      "test_ic_im_quarter_roll_v1_3.py",
+      "test_ic_im_quote_snapshot_guard_20261013.py",
+      "test_ic_im_split_put_summary_20261013.py",
+      "test_ic_im_v1_4_market_maker_quotes_20260925.py",
+      "test_ic_im_v1_4_repeat_roll_20260925.py"
+    ],
+    "duplicate_imported_selector": "test_ic_im_v1_4_state_guards.py is explicitly selected and imported by test_poe_ic_im_v1_4_state.py; remove the explicit duplicate if claiming unique cumulative counts, retain helper file.",
+    "source_sha256": {
+      ".github/workflows/ic-im-v1-4-daily-digest.yml": "b983420bfa737d3d06f9a6ee149a32c5bc9c34b9553eff009bb1dd93199ca0a9",
+      ".github/workflows/ic-im-v1-4-delivery-readiness.yml": "db44d55366db459b9985aaa4ad96c048bace9006dd9e21288c981667d311dca3",
+      ".github/workflows/delivery-regression.yml": "29b6b5661e573741db5ac22c8d67dce0d4d462a1507e6e1d7d5c888e488dce07",
+      "tests/test_ic_im_v1_4_workflow.py": "f8d21bfb15c723379ebf4830b7ee69120fd1d254817f99ee89a947b5a50d3aec",
+      "tests/test_delivery_regression_contract.py": "f7c6ed2d99840f911b25eaa076aff3d03af960dd42fba90d3c35603a0894faa9"
+    },
+    "minimum_edits": [
+      ".github/workflows/ic-im-v1-4-daily-digest.yml:102 strategy ref to 427cf45fd78710583c8028f7eca1ed88968036ee",
+      "tests/test_ic_im_v1_4_workflow.py:40 exact strategy ref assertion",
+      ".github/workflows/delivery-regression.yml:167 add six missing tests and remove duplicate state_guards selection",
+      "tests/test_delivery_regression_contract.py:44 synchronize required tests and compatible state-guard coverage"
+    ],
+    "optional_reinforcement": "Explicit quote_snapshot_guard import assertion in identity smoke check; no additional runtime packaging line is required with whole-repository checkout."
+  }
+}

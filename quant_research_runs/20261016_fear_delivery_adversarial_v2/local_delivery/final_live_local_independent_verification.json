@@ -1,0 +1,68 @@
+{
+  "verified_at": "2026-10-16T13:41:19.042964+08:00",
+  "status": "PASS_WITH_WARNINGS",
+  "strategy_sha": "36ef68aa1e96a1d352d67f60eeb36e3e622bd010",
+  "automation_sha": "bcbd91a4714d4b649e3a6b26af90789ef605b848",
+  "source_run": 38856549173,
+  "source": "Fresh cloud-computed realtime research snapshot, independently rendered locally by fixed formal consumer",
+  "report_generated_at": "2026-10-16T13:37:34+08:00",
+  "market_date": "2026-10-16",
+  "snapshots": {
+    "strategy": {
+      "files": 437,
+      "sha256_errors": [],
+      "git_blob_errors_against_saved_tree": [
+        "ic_im_fear_grid_v1.py",
+        "poe_ic_im_mainline_v1_4_bot.py",
+        "poe_ic_im_v1_4_state.py",
+        "test_ic_im_fear_delivery_adversarial_20261016.py"
+      ]
+    },
+    "consumer": {
+      "files": 14,
+      "sha256_errors": [],
+      "git_blob_errors_against_saved_tree": [
+        "build_ic_im_v1_4_digest.py"
+      ]
+    }
+  },
+  "zip_sha256": "587a54945617b38cb903bf3fd95ff77ebb9c117f02d8df69ed6ef0f4a140d4db",
+  "checked_input_files": 21,
+  "input_manifest_unchanged": true,
+  "independent_consumer_rerender_exact_metadata_equal": true,
+  "markdown_html_and_subject_semantics_passed": true,
+  "shared_source_snapshot_equal": true,
+  "bfw": {
+    "value": 51.36,
+    "data_date": "2026-10-16",
+    "cross_validation": "matched"
+  },
+  "jiu": {
+    "value": 2.28,
+    "data_date": "2026-10-15",
+    "reference_only": true
+  },
+  "ic_candidate_contract": "510500P2612M06500",
+  "put_maintenance": "2026-10-16 same-day close, candidate requires end-of-session review",
+  "external_config_sha256": "b7417e9746e7a8202284a3823e22ca671cd24a2bb950da5905fd309f7bd24e43",
+  "external_config_changed": false,
+  "warnings": [
+    "Actual external task prompt remains unchanged; proposed 38-file update is not installed.",
+    "Saved production_tree.json / consumer_tree.json appear to precede the final patch; 4 strategy and 1 consumer Git blob identities differ. Final SHA-256 manifests match all 437/14 files, but final remote Git provenance needs coordinator evidence.",
+    "This verifies a local rendering of cloud computation; it is not a local direct-network recomputation.",
+    "The live success snapshot uses both BFW sources; single-source/partial behavior is verified separately by injected regression cases.",
+    "14:15 scheduled execution, 20:00 normal SMTP submission and Gmail inbox arrival are not evidenced by this no-send run.",
+    "Existing valuation/rate proxy and missing individual option quotation metadata remain explicitly disclosed."
+  ],
+  "no_new_market_fetch": true,
+  "no_ledger_continuation": true,
+  "no_smtp": true,
+  "outputs": {
+    "ic_im_v1_4_digest.html": "5c77ecdeaeea10c7fe52d6b398bec407f438eb5ed9d2d3b4c666c93ae9181911",
+    "ic_im_v1_4_digest.md": "ca2d7ce824a35462205f8e9f2315618e9e70a8855d299b97c7c7ae86d5000c91",
+    "local_verified_daily.html": "a940fa3e68f04bc705a474496d89ca93902df9576f0c2b8dbeac01e57e30a299",
+    "local_verified_daily.md": "451021dd973651e076b80f375f74e3fa1aca32e9ad121a94d4644fdd789b337d",
+    "metadata.json": "2fd4c03409f60b06b1cf52d7d8277e2b0b4cc9a9900f50c20235990911b83ac4",
+    "verification.json": "dab19b0acbd928964140056c81625c54028cf5210a22941d0aba29a1b5a7d4ef"
+  }
+}

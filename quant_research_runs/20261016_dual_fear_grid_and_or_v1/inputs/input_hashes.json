@@ -1,0 +1,15 @@
+{
+  "quant_research_runs\\20261016_jiu_fear_grid_threshold_v1\\inputs\\jiu_fear_greed.csv": "f511173a66478654a3ef4ffdd3185b5ae71928a58e5afeb84ea92b0c622d154b",
+  "quant_research_runs\\20260928_csi1000_fear_greed_reproduction\\inputs\\fear_greed_full.csv": "1b209c9166250ef4d320503386a94d6e3b868595d38fd687a03d7acea7cb7de9",
+  "quant_research_runs\\20261016_put_execution_repairs_v1\\daily_paths.csv.gz": "2d99e2fcb67c06e2ee12bc2cff39dc42810c43968ae509d73bd1d51c8fcd6a74",
+  "quant_research_runs\\20261016_put_execution_repairs_v1\\backups\\ic_im_v1_4_policy.py": "e658610a4259ac6e00eca9495589e7e78c47ab87437d89090038d7a0b49e202f",
+  "quant_research_runs\\20261016_put_execution_repairs_v1\\history_manifest.json": "21351e7e6f279ec857bf466eb16887baa18e7c0b6ca1f0da0bb0fee698bd37a9",
+  "quant_research_runs\\20261016_put_execution_repairs_v1\\inputs\\ic\\native_fix4_ic_noseller_targets_v2.csv.gz": "b62e1b41ccb761577499cc0804888bbeaaae38058e18206f953455732d172100",
+  "quant_research_runs\\20261016_put_execution_repairs_v1\\inputs\\im\\native_fix4_im_noseller_targets_v3.csv.gz": "b80e8e93a316d9bc4ff4c4260f8f2677e01f3280060f57328a1f82f464c5bd83",
+  "quant_research_runs\\20261016_put_execution_repairs_v1\\ic_seller_lifecycle_fixed.csv.gz": "670dff45bb5adbd81be2b33d68e242045b6170bd9a167ddf92814e013abc5094",
+  "quant_research_runs\\20261016_put_execution_repairs_v1\\im_seller_lifecycle_fixed.csv.gz": "6b8bf1eeac4376dee0c00b96d21cecc9e76b79f43bdad98198bbaa16326786df",
+  "quant_research_runs\\20261016_put_execution_repairs_v1\\inputs\\ic\\native_fix4_ic_risk_signals_v1.csv.gz": "b6e73b2f011e36d33de3adbc8c662285117a7cb332af215ee593b1ca957bde45",
+  "quant_research_runs\\20261016_put_execution_repairs_v1\\inputs\\im\\native_fix4_im_risk_signals_v1.csv.gz": "c503a21f12ab801ef742d9ec396df1414f5ccc4e97d416f7d9c5ce5cc9672f26",
+  "quant_research_runs\\20261016_dual_fear_grid_and_or_v1\\preregistered_spec.md": "e4c93475067f77becb61fdd9f6f95b647536e3c8a2bea9b6df4a83a63f3ca721",
+  "quant_research_runs\\20261016_dual_fear_grid_and_or_v1\\run_joint.py": "e43e011fefd27e1dad19eff4dc7468c5e4f1b2e57f4a89b09304e362d558a6c6"
+}

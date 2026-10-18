@@ -1,0 +1,375 @@
+{
+  "status": "PASS_SOURCE_AND_ISOLATED_ADVERSARIAL_TESTS",
+  "scope": "Independent read-only audit of exact released source plus isolated adversarial tests; no sends",
+  "production_ledger_before": {
+    ".ledger.lock": "61126de1b795b976f3ac878f48e88fa77a87d7308ba57c7642b9e1068403a496",
+    "journal/000000-2026-09-16.json": "57827b22c2f31cb1319fa7504f2fdbdcf08acafa24d26202c272ec9bef813384",
+    "journal/000001-2026-09-17.json": "800143c188e86de97585edddc949d0fbd0d2cdc958ced8e79397dbf9bce210d2",
+    "journal/000002-2026-09-18.json": "877c633301a7429a7cf1f7f6e96e17f6723500dad4fbcc870f600b3600ed43b8",
+    "journal/000003-2026-09-21.json": "e17f5919c1b4eb44374ebcd3a170f10ee1daeaa719d817c9c40a5ca0ab204c8b",
+    "journal/000004-2026-09-22.json": "0d4d1dfa206f65f5e774a185b03e8b7de0aba4b73a0953b22276287dfdfa2665",
+    "journal/000005-2026-09-23.json": "7906d585439c83700a6182763d90d28e2ec5b1a8768fb935c7aa2ce31028de27",
+    "journal/000006-2026-09-24.json": "ad1d6e7f475e65650e5c04a5291045264088ec69139bea6e63c91c12824bf808",
+    "journal/000007-2026-09-28.json": "962e610468dc895decbe6881f9b786572910444c26f24c33c7591f18833e2ccc",
+    "journal/000008-2026-09-29.json": "cd2a85ba963589450511d43fb6915011680c099a416ecb8803dda846eb643386",
+    "journal/000009-2026-09-30.json": "cbec96a645d691822a85c640330a45502629529fdc6c46af69d26f02c53d710d",
+    "journal/000010-2026-10-08.json": "5210a2e8c04c23577a1baa444effa41f072f34d48d19bc28e751ae62064e614d",
+    "journal/000011-2026-10-09.json": "e7368caec1bd52580ae618afb703ed858b8ade4b280af5daac134448339aaaae",
+    "journal/000012-2026-10-12.json": "2a5193bef219094cf57b6b52fa7778b3fb19526a0bf938ab5e3c97a545b89da3",
+    "journal/000013-2026-10-13.json": "b18946ed62f202eaf74efdf5b558b679291bce6cffc8f97a6b0fcea7fa4ceca1",
+    "latest.json": "b18946ed62f202eaf74efdf5b558b679291bce6cffc8f97a6b0fcea7fa4ceca1",
+    "migration_record.json": "bae64e783e57e87227b54b463d8046638df5e27adbdd2c61b1d5ff0af90cf53d"
+  },
+  "refs": {
+    "strategy": {
+      "local_head": "43cbc5e36179425d99e2c9447f9745109215339b",
+      "remote_main": "43cbc5e36179425d99e2c9447f9745109215339b"
+    },
+    "cloud": {
+      "local_head": "0f0fec83f549f2db942fa5633593af48dc90476a",
+      "remote_main": "0f0fec83f549f2db942fa5633593af48dc90476a"
+    }
+  },
+  "five_source_hashes": [
+    {
+      "path": "ic_im_v1_4_policy.py",
+      "sha256": "e658610a4259ac6e00eca9495589e7e78c47ab87437d89090038d7a0b49e202f",
+      "matches_repaired_and_local": true
+    },
+    {
+      "path": "poe_ic_im_mainline_v1_4_bot.py",
+      "sha256": "6a31e15f28428bae723650478ecd923062a1fdd9206959d797744167337c48cc",
+      "matches_repaired_and_local": true
+    },
+    {
+      "path": "poe_ic_im_v1_4_state.py",
+      "sha256": "d589d8f651e565cfdc5b8f521f29dfbd44e638b73cde552a2f73dbcf3de64705",
+      "matches_repaired_and_local": true
+    },
+    {
+      "path": "run_ic_im_v1_4_github_digest.py",
+      "sha256": "f84c1374ecd7bc20d1d3932aeb80dcd9af1f21dfdafbeadb74c408fc06724242",
+      "matches_repaired_and_local": true
+    },
+    {
+      "path": "ic_im_quote_snapshot_guard.py",
+      "sha256": "ae22b541a1a2a6bc20d5bd23bb1fc3d275a2f3fcfce96b5345c2458cde74b9d5",
+      "matches_repaired_and_local": true
+    }
+  ],
+  "frozen_specs_unchanged": [
+    {
+      "path": "docs/ic_im_fix6_profit3x_t1_open_vs_close_research_v1_spec.md",
+      "sha256": "1e34d10fa7e93087881cb015043ca3226430a01a3d7a3496eeee2d3a7c77f734"
+    },
+    {
+      "path": "docs/ic_im_im_grid160_half_20260914_v1_spec.md",
+      "sha256": "35ae2bbf425b6d954a9fcc9e7884eb7b62f70c00ee230aa5b7cff544294db3de"
+    },
+    {
+      "path": "docs/ic_im_im_mom120_put102_20260908_v1_spec.md",
+      "sha256": "485323354b1f1885266590746be88c9fcacee0ac3ebb39dcdbc2072658af8d0b"
+    },
+    {
+      "path": "docs/ic_im_mainline_v1_2_spec.md",
+      "sha256": "f84e3d672806da22e6c54c9178a68e554ecbcc1f5d40bd57dd8b05a42dd7eb53"
+    },
+    {
+      "path": "docs/ic_im_mainline_v1_3_fixed_performance_v4_spec.md",
+      "sha256": "03706fe017a64fdff9164351d6ce96bedbfe0efb024d55f16df403dd8a3d2819"
+    },
+    {
+      "path": "docs/ic_im_mainline_v1_3_fixed_performance_v5_spec.md",
+      "sha256": "a0133e7bee0a0f6d9757fc0f40d198154d7746a15262c4106100c59989a5e9f1"
+    },
+    {
+      "path": "docs/ic_im_mainline_v1_3_r2_spec.md",
+      "sha256": "dde368ec0b348cdd52c8ad7cd638f094ee8fa24a9d2439710479d6efcddf55c0"
+    },
+    {
+      "path": "docs/ic_im_mainline_v1_3_r3_spec.md",
+      "sha256": "74656916cefe308913b2d826a2c24332c755635dccf73d9ba1561f2e9f9e4752"
+    },
+    {
+      "path": "docs/ic_im_mainline_v1_3_r4_spec.md",
+      "sha256": "a6c801c0576a19f15b2200cc63d4c0741111d4572314b12b4bebfc80c71f341f"
+    },
+    {
+      "path": "docs/ic_im_mainline_v1_3_r5_spec.md",
+      "sha256": "66202cfa93cf50c4173390643eb45cec4145ebd4cb20a786aaab5a70c1f20c30"
+    },
+    {
+      "path": "docs/ic_im_mainline_v1_3_r6_spec.md",
+      "sha256": "24c718a938534362aa6c6c5bd283bf610baf91a852bff210268f5270a790fefa"
+    },
+    {
+      "path": "docs/ic_im_mainline_v1_3_r7_spec.md",
+      "sha256": "82e9fffe6d905c173f2f7c29dd29a385c7f0ec9caf28f5ed5b394236eb737a89"
+    },
+    {
+      "path": "docs/ic_im_mainline_v1_3_spec.md",
+      "sha256": "96258c00944e9b181b0c905660ed6effa395d32b3deb3d15ae3c32e16d9119e6"
+    },
+    {
+      "path": "docs/ic_im_mainline_v1_4_r1_spec.md",
+      "sha256": "d891854db7984be516962df755ac5f07406ec3f1178ad5c6a4eaaaf3155f26f2"
+    },
+    {
+      "path": "docs/ic_im_mom120_abs20_debounce_20260915_v1_spec.md",
+      "sha256": "ee72a2da59b0951e79296ca60aceb515a1d5831f834e84841128eb79e727c67d"
+    },
+    {
+      "path": "docs/ic_im_put102_adversarial_fix_20260908_v1_spec.md",
+      "sha256": "a427127d996e79cac33ddfda083f8107b5a53fc3b91f29b5b3308ad7b7405ff5"
+    },
+    {
+      "path": "docs/ic_im_put_max_protection_scan_v1_spec.md",
+      "sha256": "91833fb24069e8367eb295a671e0b1b6b903e6ea4da3a2d355baa44b31adac97"
+    },
+    {
+      "path": "docs/ic_im_system_mainlines_v1_spec.md",
+      "sha256": "a7ed851fdae45a16cd14d05449730221a8a2c804fb2be56efaedafb7ab0eb2fc"
+    },
+    {
+      "path": "docs/ic_im_system_mainlines_v2_spec.md",
+      "sha256": "244dc8774d099433f125ebdb4940c8fc26c70368f4818f7e81f29240ed6ecc7d"
+    },
+    {
+      "path": "docs/ic_im_v1_3_put_monthly_correction_v1_spec.md",
+      "sha256": "88d810dc5de63138dc5e611c71a5c83be9c966933a851e6a8bf660004ddbc2b7"
+    },
+    {
+      "path": "docs/ic_im_v1_4_r1_adversarial_fix1_spec.md",
+      "sha256": "448d21c4fefc3a34ff50e38af3f45e642ba0d0636b66190221949b6c1f67cb9a"
+    },
+    {
+      "path": "docs/ic_im_v1_4_r1_fix10_fear_grid25_50_20261008_spec.md",
+      "sha256": "f8a0279ce862edc5b48bf41c1f6402a326f80e01e8c52e3e1eeb2cd33085f86f"
+    },
+    {
+      "path": "docs/ic_im_v1_4_r1_fix11_ic_csi500_abs40_20261008_spec.md",
+      "sha256": "fd0a2429fba12d9f83017186a364b0f89c80261577e6ab1cedd8962bc891e717"
+    },
+    {
+      "path": "docs/ic_im_v1_4_r1_fix4_integrated_20260924_spec.md",
+      "sha256": "94c064c4d6c400bb40930c1bf4bc9f50e5a6c1407f9f2af7aaead82b71d88cbf"
+    },
+    {
+      "path": "docs/ic_im_v1_4_r1_fix7_profit3x_t1_open_20260928_spec.md",
+      "sha256": "80a2de2e7321a6c07795fd9a98258eeac913126c6293393360c1496951150945"
+    },
+    {
+      "path": "docs/ic_im_v1_4_r1_fix8_ordinary_put_t1_open_20260929_spec.md",
+      "sha256": "33c659946de8c5730b41d11be51ea88ad7339de4a155fe8bf6a6d2c625247364"
+    },
+    {
+      "path": "docs/ic_im_v1_4_r1_fix9_ic_seller_mom120_20260929_spec.md",
+      "sha256": "b28efe860bd2d8552ff65df9a9aa84cc721c06efc856e33025a380a1e24b08db"
+    },
+    {
+      "path": "docs/ic_im_v1_4_r1_signal_scope_fix2_spec.md",
+      "sha256": "5cb06b020e3a7f6386cbef940aabd382a3881a63869c7f51382370e97d8bcc41"
+    }
+  ],
+  "strategy_execution_diff": [
+    "ic_im_quote_snapshot_guard.py",
+    "ic_im_v1_4_policy.py",
+    "poe_ic_im_mainline_v1_4_bot.py",
+    "poe_ic_im_v1_4_state.py",
+    "run_ic_im_v1_4_github_digest.py",
+    "test_ic_im_ordinary_put_route_fix_20261013.py",
+    "test_ic_im_quote_snapshot_guard_20261013.py",
+    "test_ic_im_split_put_summary_20261013.py"
+  ],
+  "recovery_research_excluded": true,
+  "immutable_execution_pin": "427cf45fd78710583c8028f7eca1ed88968036ee",
+  "cloud_36_test_allowlist": [
+    "test_delivery_transport_retry.py",
+    "test_ohlcv_provider_validation.py",
+    "test_poe_ic_im_v1_3_state.py",
+    "test_run_ic_im_v1_3_github_digest.py",
+    "test_ic_im_v1_4_policy.py",
+    "test_poe_ic_im_v1_4_state.py",
+    "test_ic_im_v1_4_ic_csi500_forward.py",
+    "test_ic_im_fear_grid_v1.py",
+    "test_ic_im_v1_4_integration_guards.py",
+    "test_run_ic_im_v1_4_github_digest.py",
+    "test_migrate_ic_im_v1_3_r7_to_v1_4_r1_state.py",
+    "test_ic_im_daily_valuation.py",
+    "test_im_put_policy.py",
+    "test_adversarial_im_ledger_20260908.py",
+    "test_adversarial_im_report_iv_20260908.py",
+    "test_adversarial_im_put_execution_20260908.py",
+    "test_im_put_price_basis.py",
+    "test_live_mo_put_midpoint_20260908.py",
+    "test_external_review_fixes_20260911.py",
+    "test_ic_im_chinabond.py",
+    "test_grid_half_release_20260913.py",
+    "test_im_grid160_half_release_20260914.py",
+    "test_adversarial_icim_delivery.py",
+    "test_adversarial_market_20261007.py",
+    "test_adversarial_state_20261007.py",
+    "test_adversarial_delivery_20261007.py",
+    "test_adversarial_policy_20261007.py",
+    "test_adversarial_cffex_transport_20261009.py",
+    "test_adversarial_cffex_close_runner_20261009.py",
+    "test_tencent_ohlcv_pagination_20261012.py",
+    "test_ic_im_v1_4_repeat_roll_20260925.py",
+    "test_ic_im_v1_4_market_maker_quotes_20260925.py",
+    "test_ic_im_quarter_roll_v1_3.py",
+    "test_ic_im_ordinary_put_route_fix_20261013.py",
+    "test_ic_im_quote_snapshot_guard_20261013.py",
+    "test_ic_im_split_put_summary_20261013.py"
+  ],
+  "local_33_are_subset": true,
+  "export_sha256": {
+    "strategy": "e2c079a04141e5e7422f8a0194a677c62e2bddaa098dd98b6638d920d17b13cb",
+    "cloud": "3f9a56c7c3ebd80618e43f750a5452fbd30c9f9daf3e3345d7989453867d023d"
+  },
+  "real_fixture_exact_source_parity": [
+    {
+      "source": "runtime/ic_im_v1_3_r6/latest.json",
+      "bytes": 2955,
+      "sha256": "dbb17fee14ec7152eb66bb3a9015ce31f51d648bbeea532aba211959d96bc883"
+    },
+    {
+      "source": "runtime/ic_im_v1_3_r6/migration_record.json",
+      "bytes": 998,
+      "sha256": "e68383d2d4668a60d02468b8d25501e6ac3f7f7347fae07f09e7c6ebbed22b11"
+    },
+    {
+      "source": "runtime/ic_im_v1_3_r6/journal/000000-2026-09-02.json",
+      "bytes": 2955,
+      "sha256": "dbb17fee14ec7152eb66bb3a9015ce31f51d648bbeea532aba211959d96bc883"
+    },
+    {
+      "source": "quant_param_scan_runs/20260904_ic_v13_full_roll_tenor_timing_v2/roll_events.csv",
+      "bytes": 544000,
+      "sha256": "e3f2663b9b79196deb8f56c9968f37d3982dd869423bb10770ba3d6eb4565452"
+    },
+    {
+      "source": "quant_param_scan_runs/20260904_im_v13_quarter_t3_close_impact_v4/roll_events.csv",
+      "bytes": 31840,
+      "sha256": "3060c968361d8b34bb1e93380b2c41d6cb159093782a11a2c7eaca5e15208e03"
+    },
+    {
+      "source": "data/ic_monthly_discount_roll_v1/cffex_ic_contracts.csv",
+      "bytes": 918156,
+      "sha256": "4e02b889747112459125999382c3ff2fe89017aaea30df05e91bb2a7bc1e2104"
+    },
+    {
+      "source": "data/im_monthly_roll_3m_lowest_put_v1/cffex_im_contracts.csv",
+      "bytes": 333905,
+      "sha256": "6f19f04824026e3cf7e4fc7ebfeb20f60637e53bfc3caebc616fae47794f3cc0"
+    }
+  ],
+  "runtime_identities": {
+    "BUILD": "v1.4-20261008-r1-ic-csi500-abs40-fix11",
+    "RULE": "ic_im_v1_4_ic_csi500_ma105_w16_abs40_static_20261008_v1",
+    "DELIVERY": "20261008-v14-ic-csi500-abs40-fix11",
+    "schema": 4,
+    "revision": "r1"
+  },
+  "tests": [
+    {
+      "name": "post_sync_policy_strategy",
+      "command": [
+        "C:\\Python314\\python.exe",
+        "-B",
+        "-X",
+        "utf8",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "test_ic_im_ordinary_put_route_fix_20261013.py",
+        "test_ic_im_split_put_summary_20261013.py",
+        "test_ic_im_quote_snapshot_guard_20261013.py",
+        "test_ic_im_quarter_roll_v1_3.py",
+        "--basetemp",
+        "D:\\动量策略\\IC和IM滚动套利\\research_reports\\20261013_release_sync\\post_sync_policy_sandbox\\post_sync_policy_strategy_tmp",
+        "--junitxml",
+        "D:\\动量策略\\IC和IM滚动套利\\research_reports\\20261013_release_sync\\post_sync_policy_strategy.xml"
+      ],
+      "cwd": "D:\\动量策略\\IC和IM滚动套利\\research_reports\\20261013_release_sync\\post_sync_policy_sandbox\\strategy",
+      "returncode": 0,
+      "tests": 103,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "by_file": {
+        "test_ic_im_ordinary_put_route_fix_20261013": 50,
+        "test_ic_im_split_put_summary_20261013": 8,
+        "test_ic_im_quote_snapshot_guard_20261013": 29,
+        "test_ic_im_quarter_roll_v1_3": 16
+      },
+      "subtests_passed": 0
+    },
+    {
+      "name": "post_sync_policy_cloud",
+      "command": [
+        "C:\\Python314\\python.exe",
+        "-B",
+        "-X",
+        "utf8",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "tests/test_ic_im_v1_4_ordinary_route_sync_20261013.py",
+        "tests/test_ic_im_v1_4_put_display.py",
+        "tests/test_ic_im_v1_4_daily_digest.py",
+        "--basetemp",
+        "D:\\动量策略\\IC和IM滚动套利\\research_reports\\20261013_release_sync\\post_sync_policy_sandbox\\post_sync_policy_cloud_tmp",
+        "--junitxml",
+        "D:\\动量策略\\IC和IM滚动套利\\research_reports\\20261013_release_sync\\post_sync_policy_cloud.xml"
+      ],
+      "cwd": "D:\\动量策略\\IC和IM滚动套利\\research_reports\\20261013_release_sync\\post_sync_policy_sandbox\\automation",
+      "returncode": 0,
+      "tests": 130,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "by_file": {
+        "tests.test_ic_im_v1_4_ordinary_route_sync_20261013": 84,
+        "tests.test_ic_im_v1_4_put_display": 20,
+        "tests.test_ic_im_v1_4_daily_digest": 2,
+        "tests.test_ic_im_v1_4_daily_digest.ICIMV14DailyDigestTests": 24
+      },
+      "subtests_passed": 10
+    }
+  ],
+  "canonical_chain_read_only_validation": {
+    "records": 14,
+    "sequence": 13,
+    "verified_day": "2026-10-13",
+    "digest": "d411a56706591228280f4b7d5244d59c9e9be4af276adad8371f539c92a54086",
+    "status": "PASS",
+    "method": "Direct JSON reads and canonical SHA256; no StateStore or lock acquired"
+  },
+  "production_ledger_after": {
+    ".ledger.lock": "61126de1b795b976f3ac878f48e88fa77a87d7308ba57c7642b9e1068403a496",
+    "journal/000000-2026-09-16.json": "57827b22c2f31cb1319fa7504f2fdbdcf08acafa24d26202c272ec9bef813384",
+    "journal/000001-2026-09-17.json": "800143c188e86de97585edddc949d0fbd0d2cdc958ced8e79397dbf9bce210d2",
+    "journal/000002-2026-09-18.json": "877c633301a7429a7cf1f7f6e96e17f6723500dad4fbcc870f600b3600ed43b8",
+    "journal/000003-2026-09-21.json": "e17f5919c1b4eb44374ebcd3a170f10ee1daeaa719d817c9c40a5ca0ab204c8b",
+    "journal/000004-2026-09-22.json": "0d4d1dfa206f65f5e774a185b03e8b7de0aba4b73a0953b22276287dfdfa2665",
+    "journal/000005-2026-09-23.json": "7906d585439c83700a6182763d90d28e2ec5b1a8768fb935c7aa2ce31028de27",
+    "journal/000006-2026-09-24.json": "ad1d6e7f475e65650e5c04a5291045264088ec69139bea6e63c91c12824bf808",
+    "journal/000007-2026-09-28.json": "962e610468dc895decbe6881f9b786572910444c26f24c33c7591f18833e2ccc",
+    "journal/000008-2026-09-29.json": "cd2a85ba963589450511d43fb6915011680c099a416ecb8803dda846eb643386",
+    "journal/000009-2026-09-30.json": "cbec96a645d691822a85c640330a45502629529fdc6c46af69d26f02c53d710d",
+    "journal/000010-2026-10-08.json": "5210a2e8c04c23577a1baa444effa41f072f34d48d19bc28e751ae62064e614d",
+    "journal/000011-2026-10-09.json": "e7368caec1bd52580ae618afb703ed858b8ade4b280af5daac134448339aaaae",
+    "journal/000012-2026-10-12.json": "2a5193bef219094cf57b6b52fa7778b3fb19526a0bf938ab5e3c97a545b89da3",
+    "journal/000013-2026-10-13.json": "b18946ed62f202eaf74efdf5b558b679291bce6cffc8f97a6b0fcea7fa4ceca1",
+    "latest.json": "b18946ed62f202eaf74efdf5b558b679291bce6cffc8f97a6b0fcea7fa4ceca1",
+    "migration_record.json": "bae64e783e57e87227b54b463d8046638df5e27adbdd2c61b1d5ff0af90cf53d"
+  },
+  "production_ledger_unchanged": true,
+  "production_tracked_code_unchanged": true,
+  "delivery_boundary": "No readiness result, SMTP receipt, dedupe marker or inbox acceptance claimed. Parent owns those checks separately.",
+  "coverage_note": "The exact published exports were tested, with 103 strategy cases and 130 cloud cases plus 10 subtests. Offline recorded data and explicitly synthetic fault injections do not establish actual trading execution or mail delivery."
+}

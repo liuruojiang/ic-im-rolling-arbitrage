@@ -1,0 +1,81 @@
+{
+  "upstream": "db84b6e056f55fc68c8b63a06afd852c04e279c4",
+  "merge_file_exit": 0,
+  "before": {
+    ".github/workflows/delivery-regression.yml": "cd3ddcd4c121b09db7569216694287a24fb63507fc66e667612b685970497a0f",
+    ".github/workflows/ic-im-v1-4-daily-digest.yml": "d62e202e74dea01df13d9c4c0f4f27e729e46587da295972b97d2930f44526f4",
+    ".github/workflows/ic-im-v1-4-delivery-readiness.yml": "e535f5966ea514e899b264048a7dd44f04485e94494259063f512d1d2eb872ff",
+    "scripts/build_ic_im_v1_4_digest.py": "b65f272dd2a80e03c2ddc676e957e4602139817fd98e158b85ef2a2c3c50b05b",
+    "scripts/ic_im_readiness_handoff.py": "a549217b3c7e0fc1c06ed880e71b7f56fbf05db2a28a59ab30d4865d03d30b8f",
+    "scripts/ic_im_v1_4_delivery_contract.py": "931824909ccbd86d7a21a859d7ff39918c5abe858884f54b9a9a9a3d740f72a0",
+    "scripts/ic_im_v1_4_put_display.py": "3a016ce487d92beab40019e5cc838492e21a8409065cca6bd04e9a857b836539",
+    "scripts/prepare_ic_im_v1_4_marker.py": "0bd54703f07ca57ac68bc8b7a9ec6423a17121cb820d6bf48dad97df568953fb",
+    "tests/fixtures/icim/maintenance_20261016/provenance.json": "a51ff514a49e74bdff64d8303557ff642b7ebb7d6a14ef57682ad6956e0fc44c",
+    "tests/fixtures/icim/maintenance_20261016/result.json": "c54e9048432cdce19de84645c71022a5f7bfeebe23b8f15461013224bade2434",
+    "tests/test_ic_im_v1_4_fear_sources.py": null,
+    "tests/test_ic_im_v1_4_maintenance_display_20261016.py": "fdaa4a3c7d0ae1b13f7aac5cd3e71357d4f161c4a4eb02cf2c5af582081415ec",
+    "tests/test_ic_im_v1_4_workflow.py": "ec8cfefb14300dbb994141c85d3200eae5af4848ff58043b839fe4c89a25485e"
+  },
+  "copied_upstream_files": [
+    {
+      "path": ".github/workflows/delivery-regression.yml",
+      "git_blob_sha": "cf373435cc66e6a953c763644136567d345a821e",
+      "sha256": "ce67ed1d9b7c4ba2a366f66117775bfac1c9f193778361d3106bfcde6e70e3fd",
+      "threeway": false
+    },
+    {
+      "path": ".github/workflows/ic-im-v1-4-daily-digest.yml",
+      "git_blob_sha": "0ab0f6c11f098fa131728a9d03b020c5295ee201",
+      "sha256": "0b9dccdc63f016a7168a52c78430916043d9df502b1bcd5b1fdc7dd655e1990d",
+      "threeway": false
+    },
+    {
+      "path": ".github/workflows/ic-im-v1-4-delivery-readiness.yml",
+      "git_blob_sha": "05d65c124f3896c06480cc0bbb6bb4447941db92",
+      "sha256": "29b861a1370ae8813af52c838cbfd17244a6dceb65ec8d71955a69a22a18e10e",
+      "threeway": false
+    },
+    {
+      "path": "scripts/build_ic_im_v1_4_digest.py",
+      "git_blob_sha": "767fe245442a45103ca32a51c84ed8f32b2d1afe",
+      "sha256": "4c802f096cfbeebd26097855d9348c72a92884b75407649e4b185267f9417ec5",
+      "threeway": true
+    },
+    {
+      "path": "scripts/ic_im_readiness_handoff.py",
+      "git_blob_sha": "ab0e3f0bdd18af31e247c0e9b7d8f9c4dad729c0",
+      "sha256": "23e950504000d752e638f8ce68b01de4d900fbd5c2861d014957fb63403341ff",
+      "threeway": false
+    },
+    {
+      "path": "scripts/ic_im_v1_4_delivery_contract.py",
+      "git_blob_sha": "87e0215125ed563de14e6e561e436b8968eed28f",
+      "sha256": "0c8986f184b677cb3dc353b9c6a5847fbd842bc4819b18dd9b2e87e4c2646d4a",
+      "threeway": false
+    },
+    {
+      "path": "scripts/prepare_ic_im_v1_4_marker.py",
+      "git_blob_sha": "bd6e27afe5db7100442987506040dc275660ecfb",
+      "sha256": "83d1329c37a21873c3e89a2050a61a13ce657fc445808852b3921cbd3f11562a",
+      "threeway": false
+    },
+    {
+      "path": "tests/test_ic_im_v1_4_fear_sources.py",
+      "git_blob_sha": "cbabe385e714620f88342b1175918d18b9055740",
+      "sha256": "1c775d368de910d9b8a93810dfbf8267f0a1cdd2768ee37f9d73e4113b8b8e21",
+      "threeway": false
+    },
+    {
+      "path": "tests/test_ic_im_v1_4_workflow.py",
+      "git_blob_sha": "e706477045fa8f386da0ecea0815f4bc6d440e0a",
+      "sha256": "5cd1dcbc355cc9f8c941a940ac1033f8c3c2d2b75d379f6ae604c130e104ca9f",
+      "threeway": false
+    }
+  ],
+  "preserved_monthly_files": [
+    "scripts/ic_im_v1_4_put_display.py",
+    "tests/fixtures/icim/maintenance_20261016/provenance.json",
+    "tests/fixtures/icim/maintenance_20261016/result.json",
+    "tests/test_ic_im_v1_4_maintenance_display_20261016.py"
+  ]
+}

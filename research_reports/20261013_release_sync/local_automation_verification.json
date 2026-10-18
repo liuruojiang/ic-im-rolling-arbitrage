@@ -1,0 +1,20 @@
+{
+  "status": "PASS",
+  "preserved_fields": [
+    "id",
+    "name",
+    "status",
+    "rrule",
+    "model",
+    "reasoning_effort",
+    "execution_environment",
+    "target",
+    "cwds"
+  ],
+  "original_prompt_preserved": true,
+  "current_execution_pin": "427cf45fd78710583c8028f7eca1ed88968036ee",
+  "current_test_files": 33,
+  "automation_sha256": "69c06e09f8797efc00b870e9b59f00ce7d0526d3f05489cb705a953e5dd732b3",
+  "old_prompt_chars": 34829,
+  "new_prompt_chars": 37410
+}

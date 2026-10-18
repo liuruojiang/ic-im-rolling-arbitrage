@@ -1,0 +1,21 @@
+{
+  "started_at": "2026-10-13T19:21:31.910038+08:00",
+  "command": [
+    "python",
+    "-B",
+    "-X",
+    "utf8",
+    "-m",
+    "pytest",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "tests/test_ic_im_v1_4_put_display.py",
+    "tests/test_ic_im_v1_4_daily_digest.py",
+    "--junitxml=D:\\动量策略\\IC和IM滚动套利\\research_reports\\20261013_release_sync\\cloud_renderer_tests.xml"
+  ],
+  "cwd": "D:\\Codex\\tmp\\icim_release_20261013\\cloud",
+  "exit_code": 0,
+  "elapsed_seconds": 1.5409808158874512,
+  "scope": "synthetic script identity tests plus hash-verified real saved result renderer; no market fetch/send/ledger"
+}

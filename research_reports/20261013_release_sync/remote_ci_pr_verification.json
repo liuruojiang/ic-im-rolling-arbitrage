@@ -1,0 +1,38 @@
+{
+  "status": "PASS",
+  "run": 38391946774,
+  "cloud_code_sha": "e0b9f3b66e9dd60f32fd41de89dc25bdbeb04963",
+  "junit": [
+    {
+      "path": "automation-regression-38391946774\\automation-tests.xml",
+      "testcase": 893,
+      "failure": 0,
+      "error": 0,
+      "skipped": 0
+    },
+    {
+      "path": "strategy-regression-icim-38391946774\\regression.xml",
+      "testcase": 667,
+      "failure": 0,
+      "error": 0,
+      "skipped": 0
+    },
+    {
+      "path": "strategy-regression-microcap-38391946774\\regression.xml",
+      "testcase": 527,
+      "failure": 0,
+      "error": 0,
+      "skipped": 0
+    }
+  ],
+  "tested_sha": [
+    {
+      "path": "strategy-regression-icim-38391946774\\tested-sha.txt",
+      "tested_sha": "427cf45fd78710583c8028f7eca1ed88968036ee"
+    },
+    {
+      "path": "strategy-regression-microcap-38391946774\\tested-sha.txt",
+      "tested_sha": "6d09f4c3ad47f536fd76cce0990a6665f300269e"
+    }
+  ]
+}

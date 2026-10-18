@@ -1,0 +1,31 @@
+{
+  "strategy_runtime_pin": "36ef68aa1e96a1d352d67f60eeb36e3e622bd010",
+  "consumer_source": "bcbd91a4714d4b649e3a6b26af90789ef605b848",
+  "automation_main": "6f0a006cde333e015aa0fe9f372c64345e5c669c",
+  "latest_main_consumer_blob_matches": 14,
+  "final_docs_pr": "https://github.com/liuruojiang/ic-im-rolling-arbitrage/pull/52",
+  "final_docs_merge": "ec05aac4ac52ce74a62f03ca8ba4f1280c5cad45",
+  "readback": [
+    {
+      "path": "docs/ic_im_put_delivery_completion_20261016.md",
+      "sha": "c8fddbaf9079ed49bd6e8eb53dc3e1d1eb7b80bf",
+      "content_equal": true
+    },
+    {
+      "path": "quant_research_runs/20261016_put_delivery_completion_v1/run_formal_checks.py",
+      "sha": "94badb8b505639199876c785a12add1c15101ea0",
+      "content_equal": true
+    },
+    {
+      "path": "quant_research_runs/20261016_put_delivery_completion_v1/record.md",
+      "sha": "f72c28098e61e27bbb85f27a59b46e8621719673",
+      "content_equal": true
+    },
+    {
+      "path": "quant_research_runs/20261016_put_delivery_completion_v1/final_delivery_receipt.json",
+      "sha": "aa97abda58f7bfeca5b31ac7019d018d0979e779",
+      "content_equal": true
+    }
+  ],
+  "registry_link_verified": true
+}

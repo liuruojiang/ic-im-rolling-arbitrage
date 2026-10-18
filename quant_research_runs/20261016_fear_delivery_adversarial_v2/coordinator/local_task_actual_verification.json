@@ -1,0 +1,16 @@
+{
+  "checks": {
+    "receipt_applied": true,
+    "before_hash_matches": true,
+    "after_hash_matches": true,
+    "prompt_equals_reviewed_proposal": true,
+    "original_prompt_preserved": true,
+    "other_fields_preserved": true,
+    "adversarial_test_present": true,
+    "single_source_revision_present": true
+  },
+  "passed": true,
+  "status": "ACTIVE",
+  "rrule": "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR;BYHOUR=14;BYMINUTE=15;BYSECOND=0",
+  "after_sha256": "eb9e0060670d4a2e6309655a1bfdcfc944b3c63d035056b0563e30047b73e031"
+}

@@ -1,1 +1,6 @@
 * -text
+
+# Preserve the existing Windows checksum files without rewriting frozen bytes.
+docs/ic_im_fear_single_source_delivery_20261016_v1_spec.md.sha256 text eol=crlf
+docs/ic_im_put_delivery_completion_20261016_v1_spec.md.sha256 text eol=crlf
+docs/ic_im_put_execution_repairs_20261016_v1_spec.md.sha256 text eol=crlf

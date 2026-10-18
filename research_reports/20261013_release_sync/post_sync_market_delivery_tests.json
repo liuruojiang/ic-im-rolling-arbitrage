@@ -1,0 +1,37 @@
+{
+  "started_at": "2026-10-13T19:45:38.566181+08:00",
+  "command": [
+    "python",
+    "-B",
+    "-X",
+    "utf8",
+    "-m",
+    "pytest",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "tests/test_ic_im_v1_4_ordinary_route_sync_20261013.py",
+    "tests/test_ic_im_v1_4_contract_adversarial_20261009.py",
+    "tests/test_ic_im_v1_4_result_day_delivery.py",
+    "tests/test_adversarial_delivery.py",
+    "tests/test_cloudflare_dispatch_retry.py",
+    "tests/test_delivery_regression_contract.py",
+    "tests/test_ic_im_v1_4_readiness.py",
+    "tests/test_ic_im_v1_4_workflow.py",
+    "--junitxml=D:\\动量策略\\IC和IM滚动套利\\research_reports\\20261013_release_sync\\post_sync_market_delivery_tests.xml"
+  ],
+  "cwd": "D:\\Codex\\tmp\\icim_release_20261013\\cloud",
+  "exit_code": 0,
+  "elapsed_seconds": 4.5296571254730225,
+  "scope": "independently rerun gate/dedupe/transport synthetic tests, no actual SMTP/dispatch/state",
+  "junit": {
+    "name": "pytest",
+    "errors": "0",
+    "failures": "0",
+    "skipped": "0",
+    "tests": "213",
+    "time": "3.875",
+    "timestamp": "2026-10-13T19:45:39.030725+08:00",
+    "hostname": "DESKTOP-95I7VVU"
+  }
+}

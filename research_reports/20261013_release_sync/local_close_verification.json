@@ -1,0 +1,42 @@
+{
+  "status": "PASS",
+  "execution_pin": "427cf45fd78710583c8028f7eca1ed88968036ee",
+  "local_main": "43cbc5e36179425d99e2c9447f9745109215339b",
+  "sequence": 13,
+  "verified_day": "2026-10-13",
+  "digest": "d411a56706591228280f4b7d5244d59c9e9be4af276adad8371f539c92a54086",
+  "previous_digest": "6bfb74ddb3d43b783e3cde7e9ee61119619f1d4369509a8384e42bad107b0bf4",
+  "old_history_files_unchanged": 14,
+  "changed_previous_files": [
+    "runtime\\ic_im_v1_4_r1\\latest.json"
+  ],
+  "advanced_sessions": 1,
+  "signal_summary": {
+    "IC": {
+      "market_date": "2026-10-13",
+      "next_trade_date": "2026-10-14",
+      "close_confirmed": true,
+      "v14_route_state": "future",
+      "v14_action": "HOLD",
+      "core_contract_current": null,
+      "core_contract_target": null,
+      "v14_ordinary_put_plan_status": null,
+      "v14_profit_pending": false,
+      "state_anchor_day": "2026-10-12"
+    },
+    "IM": {
+      "market_date": "2026-10-13",
+      "next_trade_date": "2026-10-14",
+      "close_confirmed": true,
+      "v14_route_state": "future",
+      "v14_action": "HOLD",
+      "core_contract_current": null,
+      "core_contract_target": null,
+      "v14_ordinary_put_plan_status": null,
+      "v14_profit_pending": false,
+      "state_anchor_day": "2026-10-12"
+    }
+  },
+  "message_sent": false,
+  "basis": "official close producer and verified canonical hash-chain; no history rewrite"
+}

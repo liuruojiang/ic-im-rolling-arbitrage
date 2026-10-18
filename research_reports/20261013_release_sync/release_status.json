@@ -1,0 +1,29 @@
+{
+  "strategy_pr": "https://github.com/liuruojiang/ic-im-rolling-arbitrage/pull/46",
+  "strategy_pr_state": "MERGED",
+  "execution_pin": "427cf45fd78710583c8028f7eca1ed88968036ee",
+  "strategy_main": "43cbc5e36179425d99e2c9447f9745109215339b",
+  "local_scheduler": "updated with exact pin and 33-file suite; all other fields preserved",
+  "local_close": "official canonical seq13 2026-10-13, d411a56706591228280f4b7d5244d59c9e9be4af276adad8371f539c92a54086; 14 historical JSON unchanged",
+  "cloud_checkout": "D:/Codex/tmp/icim_release_20261013/cloud",
+  "strategy_test_checkout": "D:/Codex/tmp/icim_release_20261013/strategy",
+  "cloud_pending": [],
+  "cloud_main_before": "cf6b6734333e1e315c4fe6b6e9cba43f7bc6ca15",
+  "normal_mail_seen_today": false,
+  "do_not_repeat": [
+    "official local producer succeeded",
+    "10/12 normal mail succeeded",
+    "historical one-off local formatters",
+    "do not adopt cloud fork into local canonical"
+  ],
+  "cloud_pr": "https://github.com/liuruojiang/codex-daily-automation-probe/pull/145",
+  "cloud_pr_state": "MERGED",
+  "cloud_code_commit": "e0b9f3b66e9dd60f32fd41de89dc25bdbeb04963",
+  "cloud_pr_ci_run": 38391946774,
+  "local_tests": "609 pass; cloud ICIM automation324 pass+12subtests; cloud source667 pass zero skips",
+  "status": "COMPLETE_VERIFIED",
+  "cloud_main": "0f0fec83f549f2db942fa5633593af48dc90476a",
+  "normal_run": 38392612084,
+  "readiness_run": 38392179386,
+  "final_acceptance": "final_acceptance.json"
+}

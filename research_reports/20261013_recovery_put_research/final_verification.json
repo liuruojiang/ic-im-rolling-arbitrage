@@ -1,0 +1,15 @@
+{
+  "status": "PASS",
+  "sealed_at": "2026-10-13T18:19:43.726458+08:00",
+  "classification": "research_only_no_production_promotion",
+  "protected_files_checked_unchanged": 820,
+  "unique_source_inputs_hash_checked": 34,
+  "preregistered_spec_sha256": "2cad383b63052a5036b141ab0f0fce46a0be910198bd12dba07ca85c8e38d1ca",
+  "completed_runs": 16,
+  "baseline_daily_and_event_pairs": 4,
+  "account_reconciliations": 16,
+  "controller_tests_passed": 11,
+  "independent_probes_passed": 8,
+  "independent_data_review": "FINAL_INDEPENDENT_READ_ONLY_RESULTS_REVIEW_PASS_WITH_INTERPRETATION_LIMITS",
+  "independent_strategy_review": "ACCEPT_RESEARCH_RESULT_ARITHMETIC_AND_QUALIFIED_INTERPRETATION"
+}

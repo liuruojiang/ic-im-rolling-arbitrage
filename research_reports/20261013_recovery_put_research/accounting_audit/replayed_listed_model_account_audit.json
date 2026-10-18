@@ -1,0 +1,669 @@
+{
+  "status": "PASS",
+  "scope": "Completed saved outputs only; event/cash/fee/cycle/insurance reconciliation",
+  "panels_requested": [
+    "listed",
+    "model"
+  ],
+  "runs_checked": 16,
+  "results": [
+    {
+      "run": "runs/listed/IC/A0",
+      "daily_rows": 945,
+      "event_rows": 5862,
+      "equity_max_error": 2.2351741790771484e-07,
+      "cash_max_error": 7.450580596923828e-08,
+      "fee_error": 1.3969838619232178e-09,
+      "files_sha256": {
+        "daily.csv.gz": "ee96e60c636d9f6c09364e55fa3870c48f224eaf8dcb894d2e2736c8f246eaf6",
+        "events.csv.gz": "69abde08ff811b4ed35a8fcf8dc36541ddead6fbf21fac41d5a1ea3bc0adcbaa",
+        "audit.json": "8d22f5b89674157b7dc4bc2a60aa58d215cd738fb6e02e4a7a048bb57fdcaef1"
+      },
+      "status": "PASS",
+      "baseline_parity": "PASS"
+    },
+    {
+      "run": "runs/listed/IC/A",
+      "daily_rows": 945,
+      "event_rows": 5862,
+      "equity_max_error": 2.2351741790771484e-07,
+      "cash_max_error": 7.450580596923828e-08,
+      "fee_error": 1.3969838619232178e-09,
+      "files_sha256": {
+        "daily.csv.gz": "10c2fb93c76d567237ac2ea58d798f19bedcd4cbc1ea82fbd78fa3c8d05e26c7",
+        "events.csv.gz": "0c3e6f8c2205c9cdc073ff5b6a5fa189b7e827d305658d2c6170def72d1d5750",
+        "audit.json": "1a58cfeaf98009f86cb5c63c7d5ecd890594519a85cbb34fd7ceadb46c5b918c"
+      },
+      "status": "PASS",
+      "cycles": [
+        {
+          "cycle_id": "IC-1-2024-10-08",
+          "closed": true,
+          "attributed_events": 177,
+          "net_pnl": 641233.9985906319,
+          "insurance_net_cash": 0.0,
+          "insurance_quantity_remaining": 0.0
+        },
+        {
+          "cycle_id": "IC-2-2026-02-03",
+          "closed": true,
+          "attributed_events": 112,
+          "net_pnl": 1811505.0130434837,
+          "insurance_net_cash": 0.0,
+          "insurance_quantity_remaining": 0.0
+        }
+      ],
+      "insurance_fills": 0,
+      "insurance_fill_basis": {},
+      "attributed_events": 289
+    },
+    {
+      "run": "runs/listed/IC/B",
+      "daily_rows": 945,
+      "event_rows": 5862,
+      "equity_max_error": 2.2351741790771484e-07,
+      "cash_max_error": 7.450580596923828e-08,
+      "fee_error": 1.3969838619232178e-09,
+      "files_sha256": {
+        "daily.csv.gz": "053bd76dbc54322ec5d0277ff372aae48c65479cfdaa28670184864d8892f320",
+        "events.csv.gz": "ba88ec03bdfcd5008cadd75575c43378212b83cc8d29a412d38bc7debe384d25",
+        "audit.json": "e6b57adafc3286a4449416a5dbfd8cc8e230d9eb84f4a1140197617869b0d17e"
+      },
+      "status": "PASS",
+      "cycles": [
+        {
+          "cycle_id": "IC-1-2024-10-08",
+          "closed": true,
+          "attributed_events": 177,
+          "net_pnl": 641233.9985906319,
+          "insurance_net_cash": 0.0,
+          "insurance_quantity_remaining": 0.0
+        },
+        {
+          "cycle_id": "IC-2-2026-02-03",
+          "closed": true,
+          "attributed_events": 112,
+          "net_pnl": 1811505.0130434837,
+          "insurance_net_cash": 0.0,
+          "insurance_quantity_remaining": 0.0
+        }
+      ],
+      "insurance_fills": 0,
+      "insurance_fill_basis": {},
+      "attributed_events": 289
+    },
+    {
+      "run": "runs/listed/IC/C",
+      "daily_rows": 945,
+      "event_rows": 5871,
+      "equity_max_error": 8.940696716308594e-08,
+      "cash_max_error": 1.9371509552001953e-07,
+      "fee_error": 9.313225746154785e-10,
+      "files_sha256": {
+        "daily.csv.gz": "572db969fd540e0368beb29b3663f45607d71d0db69b4915ab2cece23f18c912",
+        "events.csv.gz": "fa42ba794adb3027ad9e62221731b0f06a937aac20aa7caaa2e42ac4a5555c27",
+        "audit.json": "5522ac7c562ef72ca7532da7ba41db13ebc8ec40ad1d3cd29dbed363f6076924"
+      },
+      "status": "PASS",
+      "cycles": [
+        {
+          "cycle_id": "IC-1-2024-10-08",
+          "closed": true,
+          "attributed_events": 186,
+          "net_pnl": 560359.4408191843,
+          "insurance_net_cash": -81099.71229814735,
+          "insurance_quantity_remaining": 0.0
+        },
+        {
+          "cycle_id": "IC-2-2026-02-03",
+          "closed": true,
+          "attributed_events": 112,
+          "net_pnl": 1808494.206191199,
+          "insurance_net_cash": 0.0,
+          "insurance_quantity_remaining": 0.0
+        }
+      ],
+      "insurance_fills": 2,
+      "insurance_fill_basis": {
+        "T_plus_1_dated_open_market_maker": 2
+      },
+      "attributed_events": 298
+    },
+    {
+      "run": "runs/listed/IM/A0",
+      "daily_rows": 986,
+      "event_rows": 6788,
+      "equity_max_error": 7.450580596923828e-08,
+      "cash_max_error": 1.4901161193847656e-07,
+      "fee_error": 9.313225746154785e-10,
+      "files_sha256": {
+        "daily.csv.gz": "67c65ecb7583f96b48d9f97f38d8db32625797f86500a5defec6400ea758dc53",
+        "events.csv.gz": "21c25348cde158589893af06027cd92b4b5c8eac326093578f9168a34267df38",
+        "audit.json": "c59f6bdaf3071892472c6abb15b241e52fe4addc91e1b84e86a9c928ec7be92b"
+      },
+      "status": "PASS",
+      "baseline_parity": "PASS"
+    },
+    {
+      "run": "runs/listed/IM/A",
+      "daily_rows": 986,
+      "event_rows": 6788,
+      "equity_max_error": 7.450580596923828e-08,
+      "cash_max_error": 1.4901161193847656e-07,
+      "fee_error": 9.313225746154785e-10,
+      "files_sha256": {
+        "daily.csv.gz": "13714557c620031390077ff5422542d6295e0422b11126ade2be626de2f88971",
+        "events.csv.gz": "301694e0d8ec69365615028d732cb308f2fe5c7af5f53c3dbf38ce6da1778f5d",
+        "audit.json": "26f40cd217f96e0798a8f0aaaa9db54ff2e0c67cfbf43f314a3f0eab301f8b6d"
+      },
+      "status": "PASS",
+      "cycles": [
+        {
+          "cycle_id": "IM-1-2024-10-08",
+          "closed": true,
+          "attributed_events": 165,
+          "net_pnl": 1301306.8604146815,
+          "insurance_net_cash": 0.0,
+          "insurance_quantity_remaining": 0.0
+        },
+        {
+          "cycle_id": "IM-2-2025-04-10",
+          "closed": true,
+          "attributed_events": 55,
+          "net_pnl": 781965.2355772246,
+          "insurance_net_cash": 0.0,
+          "insurance_quantity_remaining": 0.0
+        },
+        {
+          "cycle_id": "IM-3-2026-02-03",
+          "closed": true,
+          "attributed_events": 63,
+          "net_pnl": 1264329.2349977633,
+          "insurance_net_cash": 0.0,
+          "insurance_quantity_remaining": 0.0
+        },
+        {
+          "cycle_id": "IM-4-2026-03-31",
+          "closed": true,
+          "attributed_events": 33,
+          "net_pnl": 661214.4704757923,
+          "insurance_net_cash": 0.0,
+          "insurance_quantity_remaining": 0.0
+        }
+      ],
+      "insurance_fills": 0,
+      "insurance_fill_basis": {},
+      "attributed_events": 316
+    },
+    {
+      "run": "runs/listed/IM/B",
+      "daily_rows": 986,
+      "event_rows": 6788,
+      "equity_max_error": 7.450580596923828e-08,
+      "cash_max_error": 1.4901161193847656e-07,
+      "fee_error": 9.313225746154785e-10,
+      "files_sha256": {
+        "daily.csv.gz": "152f1b95a529422b77604cab5ca039ba644b1d59014679e748a1c07c9e2cfa4e",
+        "events.csv.gz": "b5f3b745e37925e46d026f7ab2a0d73b1594a0cbc5c9e7914ba40bfb9f9e8ee9",
+        "audit.json": "48361fce67166ace4b92ddec42a4889ce2dfd7fd67e1c0a2b90ea0e6bff07aab"
+      },
+      "status": "PASS",
+      "cycles": [
+        {
+          "cycle_id": "IM-1-2024-10-08",
+          "closed": true,
+          "attributed_events": 165,
+          "net_pnl": 1301306.8604146815,
+          "insurance_net_cash": 0.0,
+          "insurance_quantity_remaining": 0.0
+        },
+        {
+          "cycle_id": "IM-2-2025-04-10",
+          "closed": true,
+          "attributed_events": 55,
+          "net_pnl": 781965.2355772246,
+          "insurance_net_cash": 0.0,
+          "insurance_quantity_remaining": 0.0
+        },
+        {
+          "cycle_id": "IM-3-2026-02-03",
+          "closed": true,
+          "attributed_events": 63,
+          "net_pnl": 1264329.2349977633,
+          "insurance_net_cash": 0.0,
+          "insurance_quantity_remaining": 0.0
+        },
+        {
+          "cycle_id": "IM-4-2026-03-31",
+          "closed": true,
+          "attributed_events": 33,
+          "net_pnl": 661214.4704757923,
+          "insurance_net_cash": 0.0,
+          "insurance_quantity_remaining": 0.0
+        }
+      ],
+      "insurance_fills": 0,
+      "insurance_fill_basis": {},
+      "attributed_events": 316
+    },
+    {
+      "run": "runs/listed/IM/C",
+      "daily_rows": 986,
+      "event_rows": 6795,
+      "equity_max_error": 2.682209014892578e-07,
+      "cash_max_error": 1.9371509552001953e-07,
+      "fee_error": 9.313225746154785e-10,
+      "files_sha256": {
+        "daily.csv.gz": "b99ab5e03ac1c608134b945ff307ccd8e39fb3408cc338ea75053d12b4d7495c",
+        "events.csv.gz": "5ebb5b837588d4caed4dcdb5804776ecdf3e0f9201b2c3dcbd0078b751064cdb",
+        "audit.json": "afa8ba4266d37f3273b2405200cd3c91f51af3c0ec1a56d970e5dd89c2557010"
+      },
+      "status": "PASS",
+      "cycles": [
+        {
+          "cycle_id": "IM-1-2024-10-08",
+          "closed": true,
+          "attributed_events": 172,
+          "net_pnl": 1277185.7482925374,
+          "insurance_net_cash": -24121.11212214036,
+          "insurance_quantity_remaining": 0.0
+        },
+        {
+          "cycle_id": "IM-2-2025-04-10",
+          "closed": true,
+          "attributed_events": 55,
+          "net_pnl": 781508.9085203154,
+          "insurance_net_cash": 0.0,
+          "insurance_quantity_remaining": 0.0
+        },
+        {
+          "cycle_id": "IM-3-2026-02-03",
+          "closed": true,
+          "attributed_events": 63,
+          "net_pnl": 1263669.8304774426,
+          "insurance_net_cash": 0.0,
+          "insurance_quantity_remaining": 0.0
+        },
+        {
+          "cycle_id": "IM-4-2026-03-31",
+          "closed": true,
+          "attributed_events": 33,
+          "net_pnl": 660869.3583400714,
+          "insurance_net_cash": 0.0,
+          "insurance_quantity_remaining": 0.0
+        }
+      ],
+      "insurance_fills": 2,
+      "insurance_fill_basis": {
+        "T_plus_1_dated_open_market_maker": 2
+      },
+      "attributed_events": 323
+    },
+    {
+      "run": "runs/model/IC/A0",
+      "daily_rows": 1770,
+      "event_rows": 12030,
+      "equity_max_error": 1.1920928955078125e-07,
+      "cash_max_error": 1.4901161193847656e-07,
+      "fee_error": 9.313225746154785e-10,
+      "files_sha256": {
+        "daily.csv.gz": "aa34ac0474641165e6bb7125ebb6b0d15410f4ad81b7f2e5b204352a0c77246c",
+        "events.csv.gz": "688ce7b22e2e0156a6d8c359c3fe5c4b92168b668792ea2f0e3e5aee675bf552",
+        "audit.json": "b0cafbca933d1a7d06171fa712b25cd5be0f4d81024a58ff4cd24f3112be0c42"
+      },
+      "status": "PASS",
+      "baseline_parity": "PASS"
+    },
+    {
+      "run": "runs/model/IC/A",
+      "daily_rows": 1770,
+      "event_rows": 12662,
+      "equity_max_error": 8.940696716308594e-08,
+      "cash_max_error": 1.4901161193847656e-07,
+      "fee_error": 0.0,
+      "files_sha256": {
+        "daily.csv.gz": "5f7fabe26a193087ec6491f174bcd87a33f81c198983c33003328a99f2d8afa6",
+        "events.csv.gz": "00c72a675c3ea4812f3c39bbbd1ec280a87ec22b6f662a11dee62ccfdfed66af",
+        "audit.json": "e564f80a0eb66f658cd5ee192f57b368047793e54d2194f81bac320a6469afb9"
+      },
+      "status": "PASS",
+      "cycles": [
+        {
+          "cycle_id": "IC-1-2019-02-26",
+          "closed": true,
+          "attributed_events": 196,
+          "net_pnl": 247012.90033285506,
+          "insurance_net_cash": 0.0,
+          "insurance_quantity_remaining": 0.0
+        },
+        {
+          "cycle_id": "IC-2-2019-07-03",
+          "closed": true,
+          "attributed_events": 89,
+          "net_pnl": 1003375.2340991873,
+          "insurance_net_cash": 0.0,
+          "insurance_quantity_remaining": 0.0
+        },
+        {
+          "cycle_id": "IC-3-2020-02-04",
+          "closed": true,
+          "attributed_events": 132,
+          "net_pnl": 1203521.7388954284,
+          "insurance_net_cash": 0.0,
+          "insurance_quantity_remaining": 0.0
+        },
+        {
+          "cycle_id": "IC-4-2020-07-07",
+          "closed": true,
+          "attributed_events": 81,
+          "net_pnl": 1336338.3598287264,
+          "insurance_net_cash": 0.0,
+          "insurance_quantity_remaining": 0.0
+        },
+        {
+          "cycle_id": "IC-5-2020-09-29",
+          "closed": true,
+          "attributed_events": 84,
+          "net_pnl": 1649572.8396339782,
+          "insurance_net_cash": 0.0,
+          "insurance_quantity_remaining": 0.0
+        }
+      ],
+      "insurance_fills": 0,
+      "insurance_fill_basis": {},
+      "attributed_events": 582
+    },
+    {
+      "run": "runs/model/IC/B",
+      "daily_rows": 1770,
+      "event_rows": 12662,
+      "equity_max_error": 8.940696716308594e-08,
+      "cash_max_error": 1.4901161193847656e-07,
+      "fee_error": 0.0,
+      "files_sha256": {
+        "daily.csv.gz": "558d01f0801e3cd3fa76bcc2665de8e309f4aaebc633dbcc322ba9356326b80c",
+        "events.csv.gz": "3ee7fff8ae7f1c61f8348825f66f4e3e6cd70c3c0c136b4c2fb861606d54e1d1",
+        "audit.json": "609451ff29bc40117e16bc7bfca5860292e1a8dec3ab979cd292b6d6952f6d9b"
+      },
+      "status": "PASS",
+      "cycles": [
+        {
+          "cycle_id": "IC-1-2019-02-26",
+          "closed": true,
+          "attributed_events": 196,
+          "net_pnl": 247012.90033285506,
+          "insurance_net_cash": 0.0,
+          "insurance_quantity_remaining": 0.0
+        },
+        {
+          "cycle_id": "IC-2-2019-07-03",
+          "closed": true,
+          "attributed_events": 89,
+          "net_pnl": 1003375.2340991873,
+          "insurance_net_cash": 0.0,
+          "insurance_quantity_remaining": 0.0
+        },
+        {
+          "cycle_id": "IC-3-2020-02-04",
+          "closed": true,
+          "attributed_events": 132,
+          "net_pnl": 1203521.7388954284,
+          "insurance_net_cash": 0.0,
+          "insurance_quantity_remaining": 0.0
+        },
+        {
+          "cycle_id": "IC-4-2020-07-07",
+          "closed": true,
+          "attributed_events": 81,
+          "net_pnl": 1336338.3598287264,
+          "insurance_net_cash": 0.0,
+          "insurance_quantity_remaining": 0.0
+        },
+        {
+          "cycle_id": "IC-5-2020-09-29",
+          "closed": true,
+          "attributed_events": 84,
+          "net_pnl": 1649572.8396339782,
+          "insurance_net_cash": 0.0,
+          "insurance_quantity_remaining": 0.0
+        }
+      ],
+      "insurance_fills": 0,
+      "insurance_fill_basis": {},
+      "attributed_events": 582
+    },
+    {
+      "run": "runs/model/IC/C",
+      "daily_rows": 1770,
+      "event_rows": 12682,
+      "equity_max_error": 2.384185791015625e-07,
+      "cash_max_error": 3.427267074584961e-07,
+      "fee_error": 9.313225746154785e-10,
+      "files_sha256": {
+        "daily.csv.gz": "03cff7a0f47a4fdb5303f2237905bd83706026df50d212b373a128b937e1ad15",
+        "events.csv.gz": "063a00ba1c9218a28e4212d1a4203eb67ff79fd49cd545576ee84d28963b404a",
+        "audit.json": "6696555a2ea615c5dd3b2a383fc1e3affc79be2b7801e460768e0fe679886cb5"
+      },
+      "status": "PASS",
+      "cycles": [
+        {
+          "cycle_id": "IC-1-2019-02-26",
+          "closed": true,
+          "attributed_events": 207,
+          "net_pnl": 129697.24813614297,
+          "insurance_net_cash": -117650.56029789429,
+          "insurance_quantity_remaining": 0.0
+        },
+        {
+          "cycle_id": "IC-2-2019-07-03",
+          "closed": true,
+          "attributed_events": 89,
+          "net_pnl": 1000824.317192081,
+          "insurance_net_cash": 0.0,
+          "insurance_quantity_remaining": 0.0
+        },
+        {
+          "cycle_id": "IC-3-2020-02-04",
+          "closed": true,
+          "attributed_events": 141,
+          "net_pnl": 1321127.3551756523,
+          "insurance_net_cash": 120753.05668978905,
+          "insurance_quantity_remaining": 0.0
+        },
+        {
+          "cycle_id": "IC-4-2020-07-07",
+          "closed": true,
+          "attributed_events": 81,
+          "net_pnl": 1335861.0317159535,
+          "insurance_net_cash": 0.0,
+          "insurance_quantity_remaining": 0.0
+        },
+        {
+          "cycle_id": "IC-5-2020-09-29",
+          "closed": true,
+          "attributed_events": 84,
+          "net_pnl": 1648970.1895476251,
+          "insurance_net_cash": 0.0,
+          "insurance_quantity_remaining": 0.0
+        }
+      ],
+      "insurance_fills": 4,
+      "insurance_fill_basis": {
+        "T_plus_1_dated_open_market_maker": 4
+      },
+      "attributed_events": 602
+    },
+    {
+      "run": "runs/model/IM/A0",
+      "daily_rows": 1770,
+      "event_rows": 12775,
+      "equity_max_error": 3.2782554626464844e-07,
+      "cash_max_error": 5.066394805908203e-07,
+      "fee_error": 9.313225746154785e-10,
+      "files_sha256": {
+        "daily.csv.gz": "91c38ef654750439c97f5f8c9b7d0061212af15959f5b5ad78975a903ddb9df1",
+        "events.csv.gz": "fd27bebaedf2e088d952412ac1407e7b1f947abd1e34367bb0f67c06701560d6",
+        "audit.json": "fc97f2f52ad8967cdf8a64685d694621c2490e815a8afc52196d1d519c7cb6da"
+      },
+      "status": "PASS",
+      "baseline_parity": "PASS"
+    },
+    {
+      "run": "runs/model/IM/A",
+      "daily_rows": 1770,
+      "event_rows": 12786,
+      "equity_max_error": 1.1920928955078125e-07,
+      "cash_max_error": 5.364418029785156e-07,
+      "fee_error": 8.381903171539307e-09,
+      "files_sha256": {
+        "daily.csv.gz": "5380e22d8fe8355288c62be01a420f6773acf19ea2ba301618d3d9544a0e8baa",
+        "events.csv.gz": "92d0b36960ed59049e123173f0b5b5410cb810c1e7e23c626999ad8dd0d5ace4",
+        "audit.json": "643aec20f30615debc0fd458af59a4e83ce4b72909d7fe21339859e803ca7e33"
+      },
+      "status": "PASS",
+      "cycles": [
+        {
+          "cycle_id": "IM-1-2019-02-26",
+          "closed": true,
+          "attributed_events": 35,
+          "net_pnl": 573743.6272162345,
+          "insurance_net_cash": 0.0,
+          "insurance_quantity_remaining": 0.0
+        },
+        {
+          "cycle_id": "IM-2-2019-04-09",
+          "closed": true,
+          "attributed_events": 366,
+          "net_pnl": 34353.178535418956,
+          "insurance_net_cash": 0.0,
+          "insurance_quantity_remaining": 0.0
+        },
+        {
+          "cycle_id": "IM-3-2020-02-04",
+          "closed": true,
+          "attributed_events": 118,
+          "net_pnl": 3713431.801665313,
+          "insurance_net_cash": 0.0,
+          "insurance_quantity_remaining": 0.0
+        },
+        {
+          "cycle_id": "IM-4-2020-09-29",
+          "closed": true,
+          "attributed_events": 23,
+          "net_pnl": 568436.8380722803,
+          "insurance_net_cash": 0.0,
+          "insurance_quantity_remaining": 0.0
+        }
+      ],
+      "insurance_fills": 0,
+      "insurance_fill_basis": {},
+      "attributed_events": 542
+    },
+    {
+      "run": "runs/model/IM/B",
+      "daily_rows": 1770,
+      "event_rows": 12967,
+      "equity_max_error": 2.682209014892578e-07,
+      "cash_max_error": 7.450580596923828e-07,
+      "fee_error": 9.313225746154785e-09,
+      "files_sha256": {
+        "daily.csv.gz": "5463dc0838c902ed75e7557c3a998b0d435928bb2447a180e0ea9154d0e7d217",
+        "events.csv.gz": "b72fdea3cff386252107d12e866de3a08dac596a9cd60746f9f93d7c23e209b0",
+        "audit.json": "29c5b11d60edfd5f9773c2c355567fca9a0c405fc1a64ec712a1b7cecc04482c"
+      },
+      "status": "PASS",
+      "cycles": [
+        {
+          "cycle_id": "IM-1-2019-02-26",
+          "closed": true,
+          "attributed_events": 35,
+          "net_pnl": 573743.6272162345,
+          "insurance_net_cash": 0.0,
+          "insurance_quantity_remaining": 0.0
+        },
+        {
+          "cycle_id": "IM-2-2019-04-09",
+          "closed": true,
+          "attributed_events": 633,
+          "net_pnl": 91019.25393642765,
+          "insurance_net_cash": -2914083.946794248,
+          "insurance_quantity_remaining": 1.4210854715202004e-14
+        },
+        {
+          "cycle_id": "IM-3-2020-03-10",
+          "closed": true,
+          "attributed_events": 63,
+          "net_pnl": 1482581.0771073417,
+          "insurance_net_cash": 0.0,
+          "insurance_quantity_remaining": 0.0
+        },
+        {
+          "cycle_id": "IM-4-2020-09-29",
+          "closed": true,
+          "attributed_events": 23,
+          "net_pnl": 583348.0640828573,
+          "insurance_net_cash": 0.0,
+          "insurance_quantity_remaining": 0.0
+        }
+      ],
+      "insurance_fills": 14,
+      "insurance_fill_basis": {
+        "T_plus_1_dated_open_market_maker": 14
+      },
+      "attributed_events": 754
+    },
+    {
+      "run": "runs/model/IM/C",
+      "daily_rows": 1770,
+      "event_rows": 13225,
+      "equity_max_error": 1.9371509552001953e-07,
+      "cash_max_error": 2.384185791015625e-07,
+      "fee_error": 2.7939677238464355e-09,
+      "files_sha256": {
+        "daily.csv.gz": "86404ecea5ddadc306f9a569a9dd61fe9d7b657740a78d7a07214efc39c9a020",
+        "events.csv.gz": "df419cdf33112c8f8bba07993e15be75e9ce42cf815c85ceb4c82a36eb80ed99",
+        "audit.json": "cd468047e48ebcc9ff143796373908b012a257f9e8d3042869e67a461265f228"
+      },
+      "status": "PASS",
+      "cycles": [
+        {
+          "cycle_id": "IM-1-2019-02-26",
+          "closed": true,
+          "attributed_events": 35,
+          "net_pnl": 573743.6272162345,
+          "insurance_net_cash": 0.0,
+          "insurance_quantity_remaining": 0.0
+        },
+        {
+          "cycle_id": "IM-2-2019-04-09",
+          "closed": true,
+          "attributed_events": 924,
+          "net_pnl": 704092.522420544,
+          "insurance_net_cash": -2904184.9788033157,
+          "insurance_quantity_remaining": -1.4210854715202004e-14
+        },
+        {
+          "cycle_id": "IM-3-2020-03-17",
+          "closed": true,
+          "attributed_events": 92,
+          "net_pnl": 2915768.7923312294,
+          "insurance_net_cash": 0.0,
+          "insurance_quantity_remaining": 0.0
+        },
+        {
+          "cycle_id": "IM-4-2020-09-29",
+          "closed": true,
+          "attributed_events": 23,
+          "net_pnl": 571813.0599110477,
+          "insurance_net_cash": 0.0,
+          "insurance_quantity_remaining": 0.0
+        }
+      ],
+      "insurance_fills": 20,
+      "insurance_fill_basis": {
+        "T_plus_1_dated_open_market_maker": 20
+      },
+      "attributed_events": 1074
+    }
+  ]
+}

@@ -1,0 +1,130 @@
+{
+  "classification": "read_only_saved_theoretical_account_evidence_not_new_performance",
+  "scope": "Source audit plus event-equity and fee reconciliation of saved same-run files; no fresh baseline replay claim",
+  "inputs_sha256": {
+    "quant_research_runs\\20261002_fix10_vs_fix11_full_history\\account_daily_paths.csv.gz": "244f2dba987ef63737f602de7efd43416c2a76baf1759364259b7789474c93e0",
+    "quant_research_runs\\20261002_fix10_vs_fix11_full_history\\account_events.csv.gz": "6f02d66f5020fc466d8a6ec110359355497ac1911c971fc71e206a92b71d75c5",
+    "quant_param_scan_runs\\20260928_fear_entry_paired_exit_fix9_certified_v2\\outputs\\fix9_full_account_daily_nav.csv.gz": "bfadedc03c935848947f90a79c3ab080c87ef191fbb05e664bdd69eafa12cf18",
+    "quant_param_scan_runs\\20260928_fear_entry_paired_exit_fix9_certified_v2\\outputs\\full_account_events.csv.gz": "2f22016f2a661919ef84e857ba4e2e06c9c17bcbe706c24aa9031e32c614855e",
+    "quant_research_runs\\20261003_mom120_core_only_annual\\model_latest_full_daily.csv.gz": "a27737a2d08ebf4f496aa0d2fde727e39c3b182d8a0a7db26b857964d51f878b",
+    "quant_research_runs\\20261003_mom120_core_only_annual\\model_latest_full_events.csv.gz": "01458c3892fc55264c39a5acc77ccfb74ac34cbccc5ed93dd5a8ad4bc54766c3"
+  },
+  "results": [
+    {
+      "label": "listed_IC_FIX11",
+      "rows": 945,
+      "start": "2022-09-19",
+      "end": "2026-08-13",
+      "event_rows": 5862,
+      "initial_capital_reconstructed": 23240800.0,
+      "final_equity": 72590262.79596406,
+      "equity_event_reconciliation_max_abs_error": 2.2351741790771484e-07,
+      "fees_paid": 2397656.5054765726,
+      "fee_event_reconciliation_abs_error": 1.3969838619232178e-09,
+      "route_counts": {
+        "future": 816,
+        "short_put": 126,
+        "assigned_etf": 1,
+        "recovery_future": 1,
+        "terminal_unknown": 1
+      },
+      "recovery_core_put_event_rows": 0,
+      "recovery_episodes": [
+        {
+          "first_held_day": "2025-01-24",
+          "last_held_day": "2025-01-24",
+          "held_sessions": 1,
+          "calendar_days_inclusive": 1,
+          "right_censored_or_terminal_route_unknown": false
+        }
+      ]
+    },
+    {
+      "label": "listed_IM_unchanged_FIX11",
+      "rows": 986,
+      "start": "2022-07-22",
+      "end": "2026-08-14",
+      "event_rows": 6788,
+      "initial_capital_reconstructed": 27604800.0,
+      "final_equity": 77989792.50082666,
+      "equity_event_reconciliation_max_abs_error": 7.450580596923828e-08,
+      "fees_paid": 2266111.207106418,
+      "fee_event_reconciliation_abs_error": 9.313225746154785e-10,
+      "route_counts": {
+        "future": 845,
+        "short_put": 138,
+        "cash_wait": 1,
+        "recovery_future": 1,
+        "terminal_unknown": 1
+      },
+      "recovery_core_put_event_rows": 0,
+      "recovery_episodes": [
+        {
+          "first_held_day": "2025-01-21",
+          "last_held_day": "2025-01-21",
+          "held_sessions": 1,
+          "calendar_days_inclusive": 1,
+          "right_censored_or_terminal_route_unknown": false
+        }
+      ]
+    },
+    {
+      "label": "prelisting_model_IC_latest",
+      "rows": 1770,
+      "start": "2015-04-16",
+      "end": "2022-07-21",
+      "event_rows": 12030,
+      "initial_capital_reconstructed": 30609599.999999996,
+      "final_equity": 71949139.01011871,
+      "equity_event_reconciliation_max_abs_error": 1.043081283569336e-07,
+      "fees_paid": 5489367.779125008,
+      "fee_event_reconciliation_abs_error": 9.313225746154785e-10,
+      "route_counts": {
+        "future": 942,
+        "recovery_future": 744,
+        "short_put": 82,
+        "assigned_etf": 1,
+        "terminal_unknown": 1
+      },
+      "recovery_core_put_event_rows": 0,
+      "recovery_episodes": [
+        {
+          "first_held_day": "2019-06-28",
+          "last_held_day": "2022-07-20",
+          "held_sessions": 744,
+          "calendar_days_inclusive": 1119,
+          "right_censored_or_terminal_route_unknown": true
+        }
+      ]
+    },
+    {
+      "label": "prelisting_model_IM_latest",
+      "rows": 1770,
+      "start": "2015-04-16",
+      "end": "2022-07-21",
+      "event_rows": 12775,
+      "initial_capital_reconstructed": 37514817.27916451,
+      "final_equity": 99782851.9459803,
+      "equity_event_reconciliation_max_abs_error": 3.2782554626464844e-07,
+      "fees_paid": 7530711.473198015,
+      "fee_event_reconciliation_abs_error": 9.313225746154785e-10,
+      "route_counts": {
+        "future": 1500,
+        "recovery_future": 167,
+        "short_put": 101,
+        "cash_wait": 1,
+        "terminal_unknown": 1
+      },
+      "recovery_core_put_event_rows": 0,
+      "recovery_episodes": [
+        {
+          "first_held_day": "2019-05-21",
+          "last_held_day": "2020-01-20",
+          "held_sessions": 167,
+          "calendar_days_inclusive": 245,
+          "right_censored_or_terminal_route_unknown": false
+        }
+      ]
+    }
+  ]
+}

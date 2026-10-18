@@ -1,0 +1,6 @@
+file,market_date,fear_greed_index,fear_data_date,fear_data_status,fear_page_updated_at,fear_retrieved_at,fear_fallback_reason,fear_csv_sha256
+runtime\ic_im_v1_4_r1\journal\000010-2026-10-08.json,2026-10-08,31.63,2026-10-08,same_day_post_close,2026-10-08T15:02+08:00,2026-10-08T20:02:15+08:00,,8c93c269c6edc9e24d524bdba4fc906b9335c6cddbce947c842836d64172fef4
+runtime\ic_im_v1_4_r1\journal\000011-2026-10-09.json,2026-10-09,31.12,2026-10-09,same_day_post_close,2026-10-09T15:02+08:00,2026-10-09T20:03:05+08:00,,f4c4b1b1a29b71a39b8d885a771fda95c34d3e9497bcebea4920db418d87fd14
+runtime\ic_im_v1_4_r1\journal\000012-2026-10-12.json,2026-10-12,36.02,2026-10-12,same_day_post_close,2026-10-12T15:02+08:00,2026-10-12T17:38:20+08:00,,b862f5568e2f45cb1599cff56c28b890e2a05c756ec068fead8ef774944480c6
+runtime\ic_im_v1_4_r1\journal\000013-2026-10-13.json,2026-10-13,39.32,2026-10-13,same_day_post_close,2026-10-13T15:01+08:00,2026-10-13T19:26:33+08:00,,89215e8fc59acf5128622fd7eaed2537586a1880fcc4bf7899cb9defb7934a7c
+runtime\ic_im_v1_4_r1\journal\000014-2026-10-14.json,2026-10-14,39.32,2026-10-13,close_previous_session,2026-10-14T21:08+08:00,2026-10-15T01:48:08+08:00,same_day_not_published,89215e8fc59acf5128622fd7eaed2537586a1880fcc4bf7899cb9defb7934a7c

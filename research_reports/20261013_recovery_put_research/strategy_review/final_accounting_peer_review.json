@@ -1,0 +1,212 @@
+{
+  "artifact": "final_independent_accounting_peer_review",
+  "created_at": "2026-10-13T16:22:27.110497+08:00",
+  "status": "ACCEPT_FOR_RESEARCH_WITH_DECLARED_MODEL_LIMITS",
+  "open_findings": [],
+  "reviewed_hashes": {
+    "recovery_account.py": "0de72ba6be1fb840643d0c5f9aace0e4602156c9f83349798e17481cb2cb4e1b",
+    "recovery_cycle_controller.py": "7e582f6760614b4cfc1691db47633cb443dbd626833dfec115f2889ced222f76",
+    "preregistered_spec.txt": "2cad383b63052a5036b141ab0f0fce46a0be910198bd12dba07ca85c8e38d1ca"
+  },
+  "original_findings_resolution": [
+    {
+      "id": "R1",
+      "prior_severity": "P2",
+      "status": "RESOLVED",
+      "source": "recovery_cycle_controller.py:166-167",
+      "evidence": "B and C both admit IC assigned_etf; check_b_ic_assignment PASS with positive ordinary Delta."
+    },
+    {
+      "id": "R2",
+      "prior_severity": "P2",
+      "status": "RESOLVED",
+      "source": "recovery_cycle_controller.py:172-173",
+      "evidence": "IC monthly_reset_reference_day must equal T; synthetic Jan15 entry/Jan16 preview/Jan17 reference yields only Jan15 and Jan17 selections."
+    },
+    {
+      "id": "R3",
+      "prior_severity": "P1",
+      "status": "RESOLVED",
+      "source": "recovery_cycle_controller.py:184-206",
+      "evidence": "Independent protection_selection identity; fresh entry invokes T selector and ignores stale ordinary-core identity; check_fresh_identity PASS."
+    }
+  ],
+  "executed_verification": {
+    "command": "python -B -X utf8 research_reports/20261013_recovery_put_research/strategy_review/accounting_peer_probes.py",
+    "count": 8,
+    "passed": 8,
+    "result": "strategy_review/accounting_peer_probe_results.json",
+    "probes_are_synthetic": true,
+    "actual_imported_code": [
+      "RecoveryCycleController",
+      "Account",
+      "formal IM Put selector and policy"
+    ],
+    "not_claimed": [
+      "Full real-quote replay by this reviewer",
+      "Real account or broker fills",
+      "Prelisting model results validated"
+    ]
+  },
+  "core_accounting_acceptance": [
+    "Cash premium creates/removes an option asset or liability; entry equity loss is fee only. A synthetic round-trip yields exactly gross option PnL minus both fees.",
+    "IC physical assignment first marks seller intrinsic and converts to ETF at unchanged equity; ETF subsequent return is attributed once. No duplicate intrinsic deduction.",
+    "IM cash_wait has no core asset and no spot proxy PnL; independent momentum/grid/cash-interest excluded from cycle.",
+    "T close cycle PnL is compared after estimated insurance sale fee; low-positive PnL insufficient to cover fee remains in recovery.",
+    "After-open closure collects insurance actual exit and overnight gap before final cycle record. Remaining ordinary intraday core returns belong outside closed cycle.",
+    "IM synthetic historical 2025 selection locks current102%, chooses5100 at5000 reference, only reads2025-01-20 inputs for2025-01-21 plan, and restores production effective date.",
+    "Fixed0.5 core controller configuration guard and separate insurance symbol preserve ordinary core/momentum3x and independent sleeves; no recovery3x branch."
+  ],
+  "saved_listed_output_checks": [
+    {
+      "product": "IC",
+      "A_B_identical_columns": [
+        "date",
+        "equity_close",
+        "cash_close",
+        "margin_reserved",
+        "option_value",
+        "etf_value",
+        "fees_cumulative",
+        "nav",
+        "return_net",
+        "seller_route",
+        "recovery_cycle_net_pnl",
+        "recovery_put_held_quantity"
+      ],
+      "A_end_nav": 3.1233977658240706,
+      "C_end_nav": 3.1182539856649285,
+      "C_plans": [
+        {
+          "signal_date": "2025-01-22",
+          "execution_date": "2025-01-23",
+          "route_after_execution": "assigned_etf",
+          "contract": "510500P2503M05250",
+          "quantity_normalized": 10.0,
+          "core_target_base_quantity": 0.0,
+          "target_absolute_delta": 0.125,
+          "refresh": true,
+          "selection_reason": "first_entry_or_zero_to_positive",
+          "selection_rule": "IC 95% ETF / IM 102% confirmed quarterly future; T+3 nearest listed maturity",
+          "three_x_enabled": false
+        },
+        {
+          "signal_date": "2025-01-23",
+          "execution_date": "2025-01-24",
+          "route_after_execution": "recovery_future",
+          "contract": "510500P2503M05250",
+          "quantity_normalized": 10.0,
+          "core_target_base_quantity": 0.0,
+          "target_absolute_delta": 0.125,
+          "refresh": false,
+          "selection_reason": "hold_independent_protection_identity",
+          "selection_rule": "IC 95% ETF / IM 102% confirmed quarterly future; T+3 nearest listed maturity",
+          "three_x_enabled": false
+        }
+      ],
+      "C_recovery_cycles": [
+        {
+          "cycle_id": "IC-1-2024-10-08",
+          "start_signal_date": "2024-09-30",
+          "start_execution_date": "2024-10-08",
+          "recovery_first_execution_date": "2025-01-24",
+          "assigned_first_execution_date": "2025-01-23",
+          "closed": true,
+          "pnl_by_sleeve": {
+            "seller": 485386.90091521386,
+            "assigned_etf": -173690.99321457502,
+            "recovery_core": 329763.24541668466,
+            "recovery_put": -81099.71229813909
+          },
+          "fees_by_sleeve": {
+            "seller": 64558.07983548843,
+            "assigned_etf": 2508.721243699466,
+            "recovery_core": 3148.802888119032,
+            "recovery_put": 18829.30559813892
+          },
+          "exit_signal_date": "2025-01-24",
+          "exit_execution_date": "2025-01-27",
+          "exit_action": "EXIT_RECOVERY_AT_BREAKEVEN",
+          "final_net_pnl": 560359.4408191843,
+          "decision_net_pnl": 551638.0451664474,
+          "estimated_exit_protection_fee": 9410.49033872855,
+          "negative_pnl_after_next_open": false
+        }
+      ],
+      "economic_claim_boundary": "Saved listed outputs independently inspected; not a fresh replay from raw quotes by this reviewer."
+    },
+    {
+      "product": "IM",
+      "A_B_identical_columns": [
+        "date",
+        "equity_close",
+        "cash_close",
+        "margin_reserved",
+        "option_value",
+        "etf_value",
+        "fees_cumulative",
+        "nav",
+        "return_net",
+        "seller_route",
+        "recovery_cycle_net_pnl",
+        "recovery_put_held_quantity"
+      ],
+      "A_end_nav": 2.8252257759819543,
+      "C_end_nav": 2.823751186805512,
+      "C_plans": [
+        {
+          "signal_date": "2025-01-20",
+          "execution_date": "2025-01-21",
+          "route_after_execution": "recovery_future",
+          "contract": "MO2504-P-5900",
+          "quantity_normalized": 1.5,
+          "core_target_base_quantity": 0.0,
+          "target_absolute_delta": null,
+          "refresh": true,
+          "selection_reason": "first_entry_or_zero_to_positive",
+          "selection_rule": "IC 95% ETF / IM 102% confirmed quarterly future; T+3 nearest listed maturity",
+          "three_x_enabled": false
+        }
+      ],
+      "C_recovery_cycles": [
+        {
+          "cycle_id": "IM-1-2024-10-08",
+          "start_signal_date": "2024-09-30",
+          "start_execution_date": "2024-10-08",
+          "recovery_first_execution_date": "2025-01-21",
+          "assigned_first_execution_date": null,
+          "closed": true,
+          "pnl_by_sleeve": {
+            "seller": 1447020.323847855,
+            "assigned_etf": 0.0,
+            "recovery_core": -145713.4634331733,
+            "recovery_put": -24121.11212214425
+          },
+          "fees_by_sleeve": {
+            "seller": 79833.66675724617,
+            "assigned_etf": 0.0,
+            "recovery_core": 3459.8179183647017,
+            "recovery_put": 33105.55289149626
+          },
+          "exit_signal_date": "2025-01-21",
+          "exit_execution_date": "2025-01-22",
+          "exit_action": "EXIT_RECOVERY_AT_BREAKEVEN",
+          "final_net_pnl": 1277185.7482925374,
+          "decision_net_pnl": 1192128.793450861,
+          "estimated_exit_protection_fee": 16587.58834609165,
+          "negative_pnl_after_next_open": false
+        }
+      ],
+      "economic_claim_boundary": "Saved listed outputs independently inspected; not a fresh replay from raw quotes by this reviewer."
+    }
+  ],
+  "qualifications": [
+    "A/B equality in the listed sample is expected because ordinary recovery protection target is zero; it is not evidence that insurance has no effect generally.",
+    "C reduces saved listed final NAV for both products and leaves their short recovery exit dates unchanged. Only one recovery per product; this cannot reject long-tail insurance.",
+    "IC first-cycle insurance contribution differs slightly from total A-to-C cycle difference because insurance spending changes subsequent recovery sizing/fees. Do not call all portfolio delta premium cost.",
+    "Cycle attribution includes future|core| switch transaction fees on entering/leaving the seller cycle; ordinary core Put switch trades are excluded. This is an explicit cycle-sleeve boundary, not total account PnL.",
+    "Actual daily source quotes are theoretical fills; spreads, capacity, broker financing, integer lots, and PIT certification remain unverified.",
+    "A0 native route last-row label may be null while controller labels current state; economic A0 parity is separate from that reporting completion."
+  ],
+  "scope_of_writes": "Only strategy_review/ independent evidence and probe script; production, frozen spec, engine/controller and other agents evidence untouched."
+}

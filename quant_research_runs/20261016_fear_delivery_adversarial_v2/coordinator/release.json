@@ -1,0 +1,10 @@
+{
+  "strategy_sha": "36ef68aa1e96a1d352d67f60eeb36e3e622bd010",
+  "automation_sha": "bcbd91a4714d4b649e3a6b26af90789ef605b848",
+  "readiness_run": 38856549173,
+  "source": "four independent adversarial roles; producer/consumer patches follow merged monthly Put display fixes",
+  "message_sent": false,
+  "prior_actual_failure_run": 38855933595,
+  "local_regression_tests": 894,
+  "external_task_config_written": false
+}

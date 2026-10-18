@@ -1,0 +1,96 @@
+{
+  "start": "2020-08-03",
+  "end": "2026-09-24",
+  "source_calendar_rows": 1493,
+  "matched_rows": 1492,
+  "pearson": 0.5277562259057204,
+  "spearman": 0.5087580925346353,
+  "daily_point_change_pearson": 0.5303432773791378,
+  "daily_point_change_rows": 1490,
+  "rolling60": {
+    "valid_windows": 1390,
+    "min": -0.22394029670306342,
+    "median": 0.507353249008309,
+    "max": 0.904136170510189
+  },
+  "low_signal_overlap": {
+    "jiu_le5_days": 52,
+    "bfw_le25_days": 50,
+    "both_days": 14,
+    "either_days": 88,
+    "bfw_low_given_jiu_low": 0.2692307692307692,
+    "jiu_low_given_bfw_low": 0.28,
+    "jaccard": 0.1590909090909091,
+    "jiu_low_frequency": 0.03485254691689008,
+    "bfw_low_frequency": 0.03351206434316354
+  },
+  "source_std": {
+    "jiu": 28.52937736598199,
+    "bfw": 14.037952810679622
+  },
+  "missing_bfw_dates": [
+    "2026-07-27"
+  ],
+  "missing_jiu_dates": [],
+  "yearly": [
+    {
+      "year": "2020",
+      "n": 103,
+      "pearson": 0.41757054724281295,
+      "spearman": 0.4626950503043113
+    },
+    {
+      "year": "2021",
+      "n": 243,
+      "pearson": 0.35370048621274797,
+      "spearman": 0.3328396957386039
+    },
+    {
+      "year": "2022",
+      "n": 242,
+      "pearson": 0.5056484394327887,
+      "spearman": 0.5206334879192964
+    },
+    {
+      "year": "2023",
+      "n": 242,
+      "pearson": 0.03822481211262069,
+      "spearman": 0.04086654276197925
+    },
+    {
+      "year": "2024",
+      "n": 242,
+      "pearson": 0.7228472624638755,
+      "spearman": 0.6863691651330694
+    },
+    {
+      "year": "2025",
+      "n": 243,
+      "pearson": 0.7670965780093046,
+      "spearman": 0.7394985778431866
+    },
+    {
+      "year": "2026",
+      "n": 177,
+      "pearson": 0.7250460315352797,
+      "spearman": 0.7342433707055316
+    }
+  ],
+  "account_windows": [
+    {
+      "window": "IC_ACCOUNT",
+      "start": "2022-09-19",
+      "end": "2026-08-13",
+      "matched_rows": 944,
+      "pearson": 0.5643906183799468
+    },
+    {
+      "window": "IM_ACCOUNT",
+      "start": "2022-07-22",
+      "end": "2026-08-14",
+      "matched_rows": 985,
+      "pearson": 0.5659274951202347
+    }
+  ],
+  "scope": "Frozen downloaded histories at different retrieval dates; descriptive association, not release-time or point-in-time certification"
+}
