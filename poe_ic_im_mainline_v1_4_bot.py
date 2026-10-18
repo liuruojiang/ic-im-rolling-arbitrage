@@ -5880,6 +5880,9 @@ def _build_live_trade_signal(
         "roll_confirmed": future_plan["roll_confirmed"],
         "roll_policy": future_plan["roll_policy"],
         "quarter_spread": spread,
+        **quarter_roll.monthly_spreads(
+            product, future_quotes, market_date, lambda c: _third_friday(*_contract_month(c))
+        ),
         "option_monthly_reset_due": option_roll_due,
         "option_monthly_reset_preview": product == "IC" and monthly_preview_only,
         "option_monthly_reset_execution_date": monthly_expiry,
@@ -7196,7 +7199,8 @@ class ICIMMainlinesBot:
                     f"{_format_quote_number(live['future_bid'])}/"
                     f"{_format_quote_number(live['future_ask'])}\n"
                 )
-                msg.write("- " + quarter_roll.format_spread(live.get("quarter_spread")) + "\n")
+                for spread_line in quarter_roll.format_spreads(live):
+                    msg.write("- " + spread_line + "\n")
                 if live["scheduled_roll_completed"]:
                     msg.write("- 本日期货展期已收盘确认；期权维护日程独立。\n")
                 elif live["core_action"] == "ROLL" and live["roll_execution_date"]:
