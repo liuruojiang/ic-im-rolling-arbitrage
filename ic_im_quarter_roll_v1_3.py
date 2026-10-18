@@ -185,5 +185,8 @@ def format_month_spread(value, label):
 
 
 def format_spreads(signal):
-    return [format_spread(signal.get("quarter_spread")),
-            *[format_month_spread(signal.get(key), label) for key, label in MONTH_SPREAD_LABELS.items()]]
+    lines = [format_spread(signal.get("quarter_spread"))]
+    # Archived signals without these diagnostics retain their exact old render.
+    if any(key in signal for key in MONTH_SPREAD_LABELS) or str(signal.get("market_date", ""))[:10] >= "2026-10-18":
+        lines.extend(format_month_spread(signal.get(key), label) for key, label in MONTH_SPREAD_LABELS.items())
+    return lines

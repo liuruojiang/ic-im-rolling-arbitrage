@@ -16,8 +16,13 @@ def test_stored_close_attachment_shows_all_three_pairs_and_keeps_old_signal():
               "signals": {"IC": {}, "IM": {}}}
     before = copy.deepcopy(latest)
     report = digest.render_stored_close_report(latest)
-    assert report.count("当月－次月") == report.count("当月－当季") == 2
+    assert "当月－次月" not in report and "当月－当季" not in report
     assert latest == before
+    for signal in latest["signals"].values():
+        signal["market_date"] = "2026-10-19"
+    latest["verified_day"] = "2026-10-19"
+    report = digest.render_stored_close_report(latest)
+    assert report.count("当月－次月") == report.count("当月－当季") == 2
 
 
 @pytest.mark.parametrize("product", ["IC", "IM"])
