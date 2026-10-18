@@ -1,0 +1,13 @@
+{
+  "cases": 1434,
+  "exceptions": [],
+  "deleted_but_not_na": [],
+  "source_nontext_accepted": [],
+  "different_outcome": [],
+  "source_sha": {
+    "ic_im_quarter_roll_v1_3.py": "cec4535aa0dca4200ac4e50ec91f7aa82aee12c5157f0cb350ab73c82d53457d",
+    "quant_research_runs\\20261018_monthly_spreads_adversarial_v1\\cloud\\scripts\\build_ic_im_v1_4_digest.py": "14d6e4936d5c58f3f1048f5d7f47a81969118c985e964d6e1aea41ffea77862b"
+  },
+  "raw_evidence_sha256": "81092aade29f7691461e875fed705f2f69506a0a07124c4ea89929b85709b29c",
+  "raw_evidence_local_path": "delivery/formatter_all_read_keys_post.json"
+}

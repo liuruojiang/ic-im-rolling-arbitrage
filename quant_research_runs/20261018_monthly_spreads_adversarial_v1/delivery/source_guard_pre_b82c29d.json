@@ -1,0 +1,51 @@
+{
+  "immutable_strategy_ref": "b82c29d",
+  "source_sha256": "02930a320d9dee582bd405e3dba8d4ca326eab57a66ea4931f021188877eed28",
+  "immutable_cloud_ref": "0480d446207966b3e3cc358a90b8c70953b982cf",
+  "cloud_source_sha256": "8817c5fb43e1185063c4bb3cbcda3b514c487d3cfd9f2ea6957813e517eb3468",
+  "cloud_pre_not_independently_obtained": false,
+  "cases": [
+    {
+      "case": "deleted",
+      "exception": "KeyError",
+      "message": "'source'",
+      "cloud": {
+        "exception": "KeyError",
+        "message": "'source'"
+      }
+    },
+    {
+      "case": "null",
+      "exception": null,
+      "na": false,
+      "text": "月度价差（当月－次月）：IC2610 6100.00 − IC2611 6075.00 = +25.00点（+0.41%；按到期间隔折算+4.27%/年，非保证收益）；行情 2026-10-15，None",
+      "cloud": {
+        "exception": null,
+        "na": false,
+        "text": "月度价差（当月－次月）：IC2610 6100.00 − IC2611 6075.00 = +25.00点（+0.41%；按到期间隔折算+4.27%/年，非保证收益）；行情 2026-10-15，None"
+      }
+    },
+    {
+      "case": "object",
+      "exception": null,
+      "na": false,
+      "text": "月度价差（当月－次月）：IC2610 6100.00 − IC2611 6075.00 = +25.00点（+0.41%；按到期间隔折算+4.27%/年，非保证收益）；行情 2026-10-15，{}",
+      "cloud": {
+        "exception": null,
+        "na": false,
+        "text": "月度价差（当月－次月）：IC2610 6100.00 − IC2611 6075.00 = +25.00点（+0.41%；按到期间隔折算+4.27%/年，非保证收益）；行情 2026-10-15，{}"
+      }
+    },
+    {
+      "case": "empty",
+      "exception": null,
+      "na": false,
+      "text": "月度价差（当月－次月）：IC2610 6100.00 − IC2611 6075.00 = +25.00点（+0.41%；按到期间隔折算+4.27%/年，非保证收益）；行情 2026-10-15，",
+      "cloud": {
+        "exception": null,
+        "na": false,
+        "text": "月度价差（当月－次月）：IC2610 6100.00 − IC2611 6075.00 = +25.00点（+0.41%；按到期间隔折算+4.27%/年，非保证收益）；行情 2026-10-15，"
+      }
+    }
+  ]
+}

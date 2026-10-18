@@ -21,7 +21,13 @@
 
 ## 发布状态
 
-策略PR56已合并第一轮防护；云端PR157尚待最终源码与CI完成，未提前合并失败或中间版本。本轮最终云端CI、正式pin及逐文件读回验收完成后补记；正式pin仍以远端workflow为准。未发送邮件、未续写正式账本；本轮只修改诊断、展示及对应测试。
+策略PR56/57均已合并，最终执行pin `dc81478f0552f9ac685588d79679f2258caaca19`。云端PR157最终消费者提交 `bf7bcc5ea95c98789f932dd2b3b77b6e5eef0b5a`，合并为 `c6e6a7bd49421cca709ff474ff3261cbccd39c03`；合并后main工作流读回唯一固定上述策略pin，workflow Git blob `03b7a4e7eae358abfffca89239cf20da43230f97`。未合并云端中间版本。
+
+最终CI [39123053963](https://github.com/liuruojiang/codex-daily-automation-probe/actions/runs/39123053963)全部成功：自动化1137项通过、IC/IM999项通过，共用微盘门禁成功。各范围分别计数，不相加冒称单次全量。10个执行/测试/工作流文件逐一读回Git blob，与本地LF源码全部匹配，见 `source_manifest.json`。本地最终40文件941项通过；邮件专项30项通过。
+
+交付角色最终补审1434项矩阵无异常、无漏拦/双端差异，摘要和原始JSON哈希在 `delivery/formatter_all_read_keys_summary.json`。完整大JSON及两份固定ref基线源码保存在本地审计目录；仓库只归档摘要、关键失败/成功证据及复现脚本。`delivery/source_guard_pre_b82c29d.json`确认第一轮策略提交和未启用的云端PR快照确有source删除KeyError，不把它说成已发生的生产故障。
+
+未发送邮件、未续写正式账本；本轮只修改诊断、展示及对应测试。无发送回归/代码读回不等于下一交易日日报已实际生成或投递。跨覆盖历史日历及上游布尔转换局限仍未在本轮修改，不能称全历史/全数据门禁无问题。
 
 ## 独立证据
 
