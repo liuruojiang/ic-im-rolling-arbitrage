@@ -146,3 +146,15 @@ def test_quarter_spread_rejects_nonfinite_derived_value():
     f = pd.DataFrame({"instrument": ["IM2612", "IM2703"], "lastprice": [1., 1e308]})
     f.attrs.update(source_date="2026-10-15")
     assert q.quarter_spread("IM", f, date(2026, 10, 15), expiry)["status"] == "unavailable"
+
+
+@pytest.mark.parametrize("missing", ["source", "source_date", "near_contract", "far_contract", "near_price",
+    "far_price", "points", "ratio", "annualized", "same_contract", "near_expiry", "far_expiry", "expiry_gap_days"])
+def test_each_required_display_field_missing_is_isolated(missing):
+    f = pd.DataFrame({"instrument": ["IM2610", "IM2611", "IM2612", "IM2703"],
+                      "lastprice": [6100., 6075., 6000., 5900.]})
+    f.attrs.update(source_date="2026-10-15")
+    signal = {"market_date": "2026-10-15", **q.monthly_spreads("IM", f, date(2026, 10, 15), expiry)}
+    del signal["month_next_spread"][missing]
+    lines = q.format_spreads(signal, product="IM")
+    assert "N/A" in lines[1] and "+100.00点" in lines[2]
