@@ -1,0 +1,5 @@
+{
+  "scripts/verify_icim_source_release.py": "2d2461227aa9c0a9ec10fec1debf4a3cc8255b6e0992c99b08f7c02ad61d6d7b",
+  "scripts/build_ic_im_v1_4_digest.py": "bdd2be79ab0e4446fb2355a0a898de2a10626763abecb4c21ccf14a97264562d",
+  "tests/test_delivery_regression_contract.py": "65de810760c6da74ee68c471d0ddf11374f6474718f2cb8271caa52e0a7be991"
+}

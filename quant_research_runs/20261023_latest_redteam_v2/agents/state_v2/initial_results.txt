@@ -1,0 +1,79 @@
+FF......                                                                 [100%]
+================================== FAILURES ===================================
+_______ test_capture_after_successful_public_append_uses_committed_head _______
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x00000214E77D0770>
+tmp_path = WindowsPath('D:/动量策略/IC和IM滚动套利/quant_research_runs/20261023_latest_redteam_v2/agents/state_v2/temp/pytest/test_capture_after_successful_0')
+
+    def test_capture_after_successful_public_append_uses_committed_head(monkeypatch,tmp_path):
+        module, owner, old, signals, clock=_coordinator(tmp_path,monkeypatch)
+        text,_,observed=owner.execute_query('信号',clock)
+        latest=owner.store.load_latest()
+        assert latest['sequence']==old['sequence']+1
+        before=snapshot(owner.store.root)
+        seen={}
+        def capture(strategy,root,now):
+            seen.update(anchors=state._jsonable(strategy.LIVE_CONTINUATION_ANCHOR),
+                        observation_clock=str(strategy._iv_observation_clock(now)))
+            return {'status':'captured','day':str(now.date()),'products':{}}
+        monkeypatch.setattr(adapter,'capture_daily',capture)
+        owner.capture_current_inputs(clock)
+        observation={'expected_day':latest['verified_day'],
+                     'actual_day':seen['anchors']['IC']['last_verified_day'],
+                     'old_day':old['verified_day'],'formal_store_unchanged':snapshot(owner.store.root)==before}
+        (OUT/'stale_capture_anchor_observation.json').write_text(json.dumps(observation,indent=2),encoding='utf-8')
+        assert snapshot(owner.store.root)==before
+>       assert seen['anchors']['IC']['last_verified_day']==latest['verified_day']
+E       AssertionError: assert '2026-10-20' == '2026-10-21'
+E         
+E         - 2026-10-21
+E         ?          ^
+E         + 2026-10-20
+E         ?          ^
+
+quant_research_runs\20261023_latest_redteam_v2\agents\state_v2\test_state_v2.py:40: AssertionError
+------------------------------ Captured log call ------------------------------
+WARNING  uvicorn.default:base.py:1139 
+************* Warning *************
+WARNING  uvicorn.default:base.py:1140 Bot name or access key is not set for PoeBot.
+Bot settings will NOT be synced automatically on server start/update.Please remember to sync bot settings manually.
+
+For more information, see: https://creator.poe.com/docs/server-bots/updating-bot-settings
+WARNING  uvicorn.default:base.py:1146 
+************* Warning *************
+_______________ test_server_capture_advances_observation_clock ________________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x00000214857B9E00>
+tmp_path = WindowsPath('D:/动量策略/IC和IM滚动套利/quant_research_runs/20261023_latest_redteam_v2/agents/state_v2/temp/pytest/test_server_capture_advances_o0')
+
+    def test_server_capture_advances_observation_clock(monkeypatch,tmp_path):
+        module,owner,old,signals,clock=_coordinator(tmp_path,monkeypatch)
+        ticks=[100.]
+        monkeypatch.setattr(bot.time_module,'monotonic',lambda:ticks[0])
+        def capture(strategy,root,now):
+            ticks[0]+=2.
+            stamp=now+timedelta(seconds=1)
+            strategy.quote_snapshot_guard.official_snapshot_evidence(
+                stamp,strategy._iv_observation_clock(now),now.date(),'synthetic current CFFEX frame')
+            return {'status':'captured','day':str(now.date()),'products':{}}
+        monkeypatch.setattr(adapter,'capture_daily',capture)
+        result=owner.capture_current_inputs(clock)
+        (OUT/'missing_capture_clock_observation.json').write_text(json.dumps(result,ensure_ascii=False,indent=2),encoding='utf-8')
+>       assert result['status']=='captured',result
+E       AssertionError: {'day': '2026-10-21', 'reason': 'RuntimeError: synthetic current CFFEX frame行情更新时间晚于采集时刻，禁止确认信号', 'status': 'incomplete'}
+E       assert 'incomplete' == 'captured'
+E         
+E         - captured
+E         + incomplete
+
+quant_research_runs\20261023_latest_redteam_v2\agents\state_v2\test_state_v2.py:56: AssertionError
+============================== warnings summary ===============================
+C:\Python314\Lib\site-packages\fastapi_poe\types.py:171
+  C:\Python314\Lib\site-packages\fastapi_poe\types.py:171: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    class RequestContext(BaseModel):
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED quant_research_runs/20261023_latest_redteam_v2/agents/state_v2/test_state_v2.py::test_capture_after_successful_public_append_uses_committed_head
+FAILED quant_research_runs/20261023_latest_redteam_v2/agents/state_v2/test_state_v2.py::test_server_capture_advances_observation_clock
+2 failed, 6 passed, 1 warning in 3.34s

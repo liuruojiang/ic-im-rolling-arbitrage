@@ -1,0 +1,2126 @@
+........................................................................ [  6%]
+.................FFFFFFFFFFFFFFF........................................ [ 12%]
+........................................................................ [ 18%]
+........................................................................ [ 24%]
+........................................................................ [ 30%]
+........................................................................ [ 36%]
+........................................................................ [ 42%]
+........................................................................ [ 48%]
+........................................................................ [ 54%]
+................................................F..F..F..F..FF.......... [ 60%]
+........................................................................ [ 66%]
+.........FF....................................FFFFFF......FF..FFFF..... [ 73%]
+........................................................................ [ 79%]
+........................................................................ [ 85%]
+........................................................................ [ 91%]
+........................................................................ [ 97%]
+...............................                                          [100%]
+================================== FAILURES ===================================
+_________ test_reject_corrupt_short_state_before_hash_write[changes0] _________
+
+changes = {'v14_short_put_contract': 'THIS_IS_NOT_A_PUT'}
+
+    @pytest.mark.parametrize('changes', [
+        {'v14_short_put_contract':'THIS_IS_NOT_A_PUT'},
+        {'v14_short_put_expiry':None},
+        {'v14_short_put_expiry':date(2026,11,25)},
+        {'v14_short_put_expiry':date(2026,10,27)},
+        {'v14_cycle_id':None}, {'v14_last_event_id':None},
+        {'v14_short_put_security_id':'invalid'},
+        {'v14_short_put_entry_premium':float('inf')},
+        {'core_put_target_delta':.25}, {'put_target_core_qty':1},
+        {'v14_roll_pending':'false'}, {'v14_recovery_net_pnl':float('nan')},
+        {'v14_core_put_qty':1, 'v14_core_put_contract':'510500P2612M07500',
+         'v14_core_put_security_id':'10012099', 'put_target_core_qty':1},
+        {'v14_core_put_qty':0, 'v14_core_put_contract':'510500P2612M07500'},
+        {'v14_core_put_qty':float('nan')},
+    ])
+    def test_reject_corrupt_short_state_before_hash_write(changes):
+        signal = short_signal()
+>       state.validate_delivery_values(signal, 'IC')
+
+test_ic_im_v1_4_state_guards.py:362: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_v1_4_state.py:304: in validate_delivery_values
+    require_persistence_eligible(signal, product)
+poe_ic_im_v1_4_state.py:259: in require_persistence_eligible
+    v14_policy.require_short_put_mark(product, signal, signal, require_binding=True)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+product = 'IC'
+signal = {'call_target_qty_normalized': 0.0, 'close_confirmed': True, 'core_put_driver': 'MOM120负动量下限', 'core_put_target_delta': 0.0, ...}
+state = {'call_target_qty_normalized': 0.0, 'close_confirmed': True, 'core_put_driver': 'MOM120负动量下限', 'core_put_target_delta': 0.0, ...}
+
+    def require_short_put_mark(product: str, signal: dict[str, Any], state: dict[str, Any],
+                               *, require_binding: bool = False) -> None:
+        """Unknown decay evidence cannot mean an observed, unchanged short route.
+    
+        Pure policy callers supply a mark for the signal day by contract. Adapters
+        and new ledger writes additionally bind that observation to day and leg.
+        Historical records are not revalidated under this new-write requirement.
+        """
+        if not short_put_mark_required(product, signal, state):
+            return
+        mark = signal.get("v14_short_put_mark")
+        try:
+            valid = not isinstance(mark, bool) and mark is not None and math.isfinite(float(mark)) and float(mark) > 0
+        except (TypeError, ValueError, OverflowError):
+            valid = False
+        if not valid:
+>           raise RuntimeError(f"{product} held short Put lacks a finite positive current-day mark")
+E           RuntimeError: IC held short Put lacks a finite positive current-day mark
+
+ic_im_v1_4_policy.py:448: RuntimeError
+_________ test_reject_corrupt_short_state_before_hash_write[changes1] _________
+
+changes = {'v14_short_put_expiry': None}
+
+    @pytest.mark.parametrize('changes', [
+        {'v14_short_put_contract':'THIS_IS_NOT_A_PUT'},
+        {'v14_short_put_expiry':None},
+        {'v14_short_put_expiry':date(2026,11,25)},
+        {'v14_short_put_expiry':date(2026,10,27)},
+        {'v14_cycle_id':None}, {'v14_last_event_id':None},
+        {'v14_short_put_security_id':'invalid'},
+        {'v14_short_put_entry_premium':float('inf')},
+        {'core_put_target_delta':.25}, {'put_target_core_qty':1},
+        {'v14_roll_pending':'false'}, {'v14_recovery_net_pnl':float('nan')},
+        {'v14_core_put_qty':1, 'v14_core_put_contract':'510500P2612M07500',
+         'v14_core_put_security_id':'10012099', 'put_target_core_qty':1},
+        {'v14_core_put_qty':0, 'v14_core_put_contract':'510500P2612M07500'},
+        {'v14_core_put_qty':float('nan')},
+    ])
+    def test_reject_corrupt_short_state_before_hash_write(changes):
+        signal = short_signal()
+>       state.validate_delivery_values(signal, 'IC')
+
+test_ic_im_v1_4_state_guards.py:362: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_v1_4_state.py:304: in validate_delivery_values
+    require_persistence_eligible(signal, product)
+poe_ic_im_v1_4_state.py:259: in require_persistence_eligible
+    v14_policy.require_short_put_mark(product, signal, signal, require_binding=True)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+product = 'IC'
+signal = {'call_target_qty_normalized': 0.0, 'close_confirmed': True, 'core_put_driver': 'MOM120负动量下限', 'core_put_target_delta': 0.0, ...}
+state = {'call_target_qty_normalized': 0.0, 'close_confirmed': True, 'core_put_driver': 'MOM120负动量下限', 'core_put_target_delta': 0.0, ...}
+
+    def require_short_put_mark(product: str, signal: dict[str, Any], state: dict[str, Any],
+                               *, require_binding: bool = False) -> None:
+        """Unknown decay evidence cannot mean an observed, unchanged short route.
+    
+        Pure policy callers supply a mark for the signal day by contract. Adapters
+        and new ledger writes additionally bind that observation to day and leg.
+        Historical records are not revalidated under this new-write requirement.
+        """
+        if not short_put_mark_required(product, signal, state):
+            return
+        mark = signal.get("v14_short_put_mark")
+        try:
+            valid = not isinstance(mark, bool) and mark is not None and math.isfinite(float(mark)) and float(mark) > 0
+        except (TypeError, ValueError, OverflowError):
+            valid = False
+        if not valid:
+>           raise RuntimeError(f"{product} held short Put lacks a finite positive current-day mark")
+E           RuntimeError: IC held short Put lacks a finite positive current-day mark
+
+ic_im_v1_4_policy.py:448: RuntimeError
+_________ test_reject_corrupt_short_state_before_hash_write[changes2] _________
+
+changes = {'v14_short_put_expiry': datetime.date(2026, 11, 25)}
+
+    @pytest.mark.parametrize('changes', [
+        {'v14_short_put_contract':'THIS_IS_NOT_A_PUT'},
+        {'v14_short_put_expiry':None},
+        {'v14_short_put_expiry':date(2026,11,25)},
+        {'v14_short_put_expiry':date(2026,10,27)},
+        {'v14_cycle_id':None}, {'v14_last_event_id':None},
+        {'v14_short_put_security_id':'invalid'},
+        {'v14_short_put_entry_premium':float('inf')},
+        {'core_put_target_delta':.25}, {'put_target_core_qty':1},
+        {'v14_roll_pending':'false'}, {'v14_recovery_net_pnl':float('nan')},
+        {'v14_core_put_qty':1, 'v14_core_put_contract':'510500P2612M07500',
+         'v14_core_put_security_id':'10012099', 'put_target_core_qty':1},
+        {'v14_core_put_qty':0, 'v14_core_put_contract':'510500P2612M07500'},
+        {'v14_core_put_qty':float('nan')},
+    ])
+    def test_reject_corrupt_short_state_before_hash_write(changes):
+        signal = short_signal()
+>       state.validate_delivery_values(signal, 'IC')
+
+test_ic_im_v1_4_state_guards.py:362: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_v1_4_state.py:304: in validate_delivery_values
+    require_persistence_eligible(signal, product)
+poe_ic_im_v1_4_state.py:259: in require_persistence_eligible
+    v14_policy.require_short_put_mark(product, signal, signal, require_binding=True)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+product = 'IC'
+signal = {'call_target_qty_normalized': 0.0, 'close_confirmed': True, 'core_put_driver': 'MOM120负动量下限', 'core_put_target_delta': 0.0, ...}
+state = {'call_target_qty_normalized': 0.0, 'close_confirmed': True, 'core_put_driver': 'MOM120负动量下限', 'core_put_target_delta': 0.0, ...}
+
+    def require_short_put_mark(product: str, signal: dict[str, Any], state: dict[str, Any],
+                               *, require_binding: bool = False) -> None:
+        """Unknown decay evidence cannot mean an observed, unchanged short route.
+    
+        Pure policy callers supply a mark for the signal day by contract. Adapters
+        and new ledger writes additionally bind that observation to day and leg.
+        Historical records are not revalidated under this new-write requirement.
+        """
+        if not short_put_mark_required(product, signal, state):
+            return
+        mark = signal.get("v14_short_put_mark")
+        try:
+            valid = not isinstance(mark, bool) and mark is not None and math.isfinite(float(mark)) and float(mark) > 0
+        except (TypeError, ValueError, OverflowError):
+            valid = False
+        if not valid:
+>           raise RuntimeError(f"{product} held short Put lacks a finite positive current-day mark")
+E           RuntimeError: IC held short Put lacks a finite positive current-day mark
+
+ic_im_v1_4_policy.py:448: RuntimeError
+_________ test_reject_corrupt_short_state_before_hash_write[changes3] _________
+
+changes = {'v14_short_put_expiry': datetime.date(2026, 10, 27)}
+
+    @pytest.mark.parametrize('changes', [
+        {'v14_short_put_contract':'THIS_IS_NOT_A_PUT'},
+        {'v14_short_put_expiry':None},
+        {'v14_short_put_expiry':date(2026,11,25)},
+        {'v14_short_put_expiry':date(2026,10,27)},
+        {'v14_cycle_id':None}, {'v14_last_event_id':None},
+        {'v14_short_put_security_id':'invalid'},
+        {'v14_short_put_entry_premium':float('inf')},
+        {'core_put_target_delta':.25}, {'put_target_core_qty':1},
+        {'v14_roll_pending':'false'}, {'v14_recovery_net_pnl':float('nan')},
+        {'v14_core_put_qty':1, 'v14_core_put_contract':'510500P2612M07500',
+         'v14_core_put_security_id':'10012099', 'put_target_core_qty':1},
+        {'v14_core_put_qty':0, 'v14_core_put_contract':'510500P2612M07500'},
+        {'v14_core_put_qty':float('nan')},
+    ])
+    def test_reject_corrupt_short_state_before_hash_write(changes):
+        signal = short_signal()
+>       state.validate_delivery_values(signal, 'IC')
+
+test_ic_im_v1_4_state_guards.py:362: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_v1_4_state.py:304: in validate_delivery_values
+    require_persistence_eligible(signal, product)
+poe_ic_im_v1_4_state.py:259: in require_persistence_eligible
+    v14_policy.require_short_put_mark(product, signal, signal, require_binding=True)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+product = 'IC'
+signal = {'call_target_qty_normalized': 0.0, 'close_confirmed': True, 'core_put_driver': 'MOM120负动量下限', 'core_put_target_delta': 0.0, ...}
+state = {'call_target_qty_normalized': 0.0, 'close_confirmed': True, 'core_put_driver': 'MOM120负动量下限', 'core_put_target_delta': 0.0, ...}
+
+    def require_short_put_mark(product: str, signal: dict[str, Any], state: dict[str, Any],
+                               *, require_binding: bool = False) -> None:
+        """Unknown decay evidence cannot mean an observed, unchanged short route.
+    
+        Pure policy callers supply a mark for the signal day by contract. Adapters
+        and new ledger writes additionally bind that observation to day and leg.
+        Historical records are not revalidated under this new-write requirement.
+        """
+        if not short_put_mark_required(product, signal, state):
+            return
+        mark = signal.get("v14_short_put_mark")
+        try:
+            valid = not isinstance(mark, bool) and mark is not None and math.isfinite(float(mark)) and float(mark) > 0
+        except (TypeError, ValueError, OverflowError):
+            valid = False
+        if not valid:
+>           raise RuntimeError(f"{product} held short Put lacks a finite positive current-day mark")
+E           RuntimeError: IC held short Put lacks a finite positive current-day mark
+
+ic_im_v1_4_policy.py:448: RuntimeError
+_________ test_reject_corrupt_short_state_before_hash_write[changes4] _________
+
+changes = {'v14_cycle_id': None}
+
+    @pytest.mark.parametrize('changes', [
+        {'v14_short_put_contract':'THIS_IS_NOT_A_PUT'},
+        {'v14_short_put_expiry':None},
+        {'v14_short_put_expiry':date(2026,11,25)},
+        {'v14_short_put_expiry':date(2026,10,27)},
+        {'v14_cycle_id':None}, {'v14_last_event_id':None},
+        {'v14_short_put_security_id':'invalid'},
+        {'v14_short_put_entry_premium':float('inf')},
+        {'core_put_target_delta':.25}, {'put_target_core_qty':1},
+        {'v14_roll_pending':'false'}, {'v14_recovery_net_pnl':float('nan')},
+        {'v14_core_put_qty':1, 'v14_core_put_contract':'510500P2612M07500',
+         'v14_core_put_security_id':'10012099', 'put_target_core_qty':1},
+        {'v14_core_put_qty':0, 'v14_core_put_contract':'510500P2612M07500'},
+        {'v14_core_put_qty':float('nan')},
+    ])
+    def test_reject_corrupt_short_state_before_hash_write(changes):
+        signal = short_signal()
+>       state.validate_delivery_values(signal, 'IC')
+
+test_ic_im_v1_4_state_guards.py:362: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_v1_4_state.py:304: in validate_delivery_values
+    require_persistence_eligible(signal, product)
+poe_ic_im_v1_4_state.py:259: in require_persistence_eligible
+    v14_policy.require_short_put_mark(product, signal, signal, require_binding=True)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+product = 'IC'
+signal = {'call_target_qty_normalized': 0.0, 'close_confirmed': True, 'core_put_driver': 'MOM120负动量下限', 'core_put_target_delta': 0.0, ...}
+state = {'call_target_qty_normalized': 0.0, 'close_confirmed': True, 'core_put_driver': 'MOM120负动量下限', 'core_put_target_delta': 0.0, ...}
+
+    def require_short_put_mark(product: str, signal: dict[str, Any], state: dict[str, Any],
+                               *, require_binding: bool = False) -> None:
+        """Unknown decay evidence cannot mean an observed, unchanged short route.
+    
+        Pure policy callers supply a mark for the signal day by contract. Adapters
+        and new ledger writes additionally bind that observation to day and leg.
+        Historical records are not revalidated under this new-write requirement.
+        """
+        if not short_put_mark_required(product, signal, state):
+            return
+        mark = signal.get("v14_short_put_mark")
+        try:
+            valid = not isinstance(mark, bool) and mark is not None and math.isfinite(float(mark)) and float(mark) > 0
+        except (TypeError, ValueError, OverflowError):
+            valid = False
+        if not valid:
+>           raise RuntimeError(f"{product} held short Put lacks a finite positive current-day mark")
+E           RuntimeError: IC held short Put lacks a finite positive current-day mark
+
+ic_im_v1_4_policy.py:448: RuntimeError
+_________ test_reject_corrupt_short_state_before_hash_write[changes5] _________
+
+changes = {'v14_last_event_id': None}
+
+    @pytest.mark.parametrize('changes', [
+        {'v14_short_put_contract':'THIS_IS_NOT_A_PUT'},
+        {'v14_short_put_expiry':None},
+        {'v14_short_put_expiry':date(2026,11,25)},
+        {'v14_short_put_expiry':date(2026,10,27)},
+        {'v14_cycle_id':None}, {'v14_last_event_id':None},
+        {'v14_short_put_security_id':'invalid'},
+        {'v14_short_put_entry_premium':float('inf')},
+        {'core_put_target_delta':.25}, {'put_target_core_qty':1},
+        {'v14_roll_pending':'false'}, {'v14_recovery_net_pnl':float('nan')},
+        {'v14_core_put_qty':1, 'v14_core_put_contract':'510500P2612M07500',
+         'v14_core_put_security_id':'10012099', 'put_target_core_qty':1},
+        {'v14_core_put_qty':0, 'v14_core_put_contract':'510500P2612M07500'},
+        {'v14_core_put_qty':float('nan')},
+    ])
+    def test_reject_corrupt_short_state_before_hash_write(changes):
+        signal = short_signal()
+>       state.validate_delivery_values(signal, 'IC')
+
+test_ic_im_v1_4_state_guards.py:362: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_v1_4_state.py:304: in validate_delivery_values
+    require_persistence_eligible(signal, product)
+poe_ic_im_v1_4_state.py:259: in require_persistence_eligible
+    v14_policy.require_short_put_mark(product, signal, signal, require_binding=True)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+product = 'IC'
+signal = {'call_target_qty_normalized': 0.0, 'close_confirmed': True, 'core_put_driver': 'MOM120负动量下限', 'core_put_target_delta': 0.0, ...}
+state = {'call_target_qty_normalized': 0.0, 'close_confirmed': True, 'core_put_driver': 'MOM120负动量下限', 'core_put_target_delta': 0.0, ...}
+
+    def require_short_put_mark(product: str, signal: dict[str, Any], state: dict[str, Any],
+                               *, require_binding: bool = False) -> None:
+        """Unknown decay evidence cannot mean an observed, unchanged short route.
+    
+        Pure policy callers supply a mark for the signal day by contract. Adapters
+        and new ledger writes additionally bind that observation to day and leg.
+        Historical records are not revalidated under this new-write requirement.
+        """
+        if not short_put_mark_required(product, signal, state):
+            return
+        mark = signal.get("v14_short_put_mark")
+        try:
+            valid = not isinstance(mark, bool) and mark is not None and math.isfinite(float(mark)) and float(mark) > 0
+        except (TypeError, ValueError, OverflowError):
+            valid = False
+        if not valid:
+>           raise RuntimeError(f"{product} held short Put lacks a finite positive current-day mark")
+E           RuntimeError: IC held short Put lacks a finite positive current-day mark
+
+ic_im_v1_4_policy.py:448: RuntimeError
+_________ test_reject_corrupt_short_state_before_hash_write[changes6] _________
+
+changes = {'v14_short_put_security_id': 'invalid'}
+
+    @pytest.mark.parametrize('changes', [
+        {'v14_short_put_contract':'THIS_IS_NOT_A_PUT'},
+        {'v14_short_put_expiry':None},
+        {'v14_short_put_expiry':date(2026,11,25)},
+        {'v14_short_put_expiry':date(2026,10,27)},
+        {'v14_cycle_id':None}, {'v14_last_event_id':None},
+        {'v14_short_put_security_id':'invalid'},
+        {'v14_short_put_entry_premium':float('inf')},
+        {'core_put_target_delta':.25}, {'put_target_core_qty':1},
+        {'v14_roll_pending':'false'}, {'v14_recovery_net_pnl':float('nan')},
+        {'v14_core_put_qty':1, 'v14_core_put_contract':'510500P2612M07500',
+         'v14_core_put_security_id':'10012099', 'put_target_core_qty':1},
+        {'v14_core_put_qty':0, 'v14_core_put_contract':'510500P2612M07500'},
+        {'v14_core_put_qty':float('nan')},
+    ])
+    def test_reject_corrupt_short_state_before_hash_write(changes):
+        signal = short_signal()
+>       state.validate_delivery_values(signal, 'IC')
+
+test_ic_im_v1_4_state_guards.py:362: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_v1_4_state.py:304: in validate_delivery_values
+    require_persistence_eligible(signal, product)
+poe_ic_im_v1_4_state.py:259: in require_persistence_eligible
+    v14_policy.require_short_put_mark(product, signal, signal, require_binding=True)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+product = 'IC'
+signal = {'call_target_qty_normalized': 0.0, 'close_confirmed': True, 'core_put_driver': 'MOM120负动量下限', 'core_put_target_delta': 0.0, ...}
+state = {'call_target_qty_normalized': 0.0, 'close_confirmed': True, 'core_put_driver': 'MOM120负动量下限', 'core_put_target_delta': 0.0, ...}
+
+    def require_short_put_mark(product: str, signal: dict[str, Any], state: dict[str, Any],
+                               *, require_binding: bool = False) -> None:
+        """Unknown decay evidence cannot mean an observed, unchanged short route.
+    
+        Pure policy callers supply a mark for the signal day by contract. Adapters
+        and new ledger writes additionally bind that observation to day and leg.
+        Historical records are not revalidated under this new-write requirement.
+        """
+        if not short_put_mark_required(product, signal, state):
+            return
+        mark = signal.get("v14_short_put_mark")
+        try:
+            valid = not isinstance(mark, bool) and mark is not None and math.isfinite(float(mark)) and float(mark) > 0
+        except (TypeError, ValueError, OverflowError):
+            valid = False
+        if not valid:
+>           raise RuntimeError(f"{product} held short Put lacks a finite positive current-day mark")
+E           RuntimeError: IC held short Put lacks a finite positive current-day mark
+
+ic_im_v1_4_policy.py:448: RuntimeError
+_________ test_reject_corrupt_short_state_before_hash_write[changes7] _________
+
+changes = {'v14_short_put_entry_premium': inf}
+
+    @pytest.mark.parametrize('changes', [
+        {'v14_short_put_contract':'THIS_IS_NOT_A_PUT'},
+        {'v14_short_put_expiry':None},
+        {'v14_short_put_expiry':date(2026,11,25)},
+        {'v14_short_put_expiry':date(2026,10,27)},
+        {'v14_cycle_id':None}, {'v14_last_event_id':None},
+        {'v14_short_put_security_id':'invalid'},
+        {'v14_short_put_entry_premium':float('inf')},
+        {'core_put_target_delta':.25}, {'put_target_core_qty':1},
+        {'v14_roll_pending':'false'}, {'v14_recovery_net_pnl':float('nan')},
+        {'v14_core_put_qty':1, 'v14_core_put_contract':'510500P2612M07500',
+         'v14_core_put_security_id':'10012099', 'put_target_core_qty':1},
+        {'v14_core_put_qty':0, 'v14_core_put_contract':'510500P2612M07500'},
+        {'v14_core_put_qty':float('nan')},
+    ])
+    def test_reject_corrupt_short_state_before_hash_write(changes):
+        signal = short_signal()
+>       state.validate_delivery_values(signal, 'IC')
+
+test_ic_im_v1_4_state_guards.py:362: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_v1_4_state.py:304: in validate_delivery_values
+    require_persistence_eligible(signal, product)
+poe_ic_im_v1_4_state.py:259: in require_persistence_eligible
+    v14_policy.require_short_put_mark(product, signal, signal, require_binding=True)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+product = 'IC'
+signal = {'call_target_qty_normalized': 0.0, 'close_confirmed': True, 'core_put_driver': 'MOM120负动量下限', 'core_put_target_delta': 0.0, ...}
+state = {'call_target_qty_normalized': 0.0, 'close_confirmed': True, 'core_put_driver': 'MOM120负动量下限', 'core_put_target_delta': 0.0, ...}
+
+    def require_short_put_mark(product: str, signal: dict[str, Any], state: dict[str, Any],
+                               *, require_binding: bool = False) -> None:
+        """Unknown decay evidence cannot mean an observed, unchanged short route.
+    
+        Pure policy callers supply a mark for the signal day by contract. Adapters
+        and new ledger writes additionally bind that observation to day and leg.
+        Historical records are not revalidated under this new-write requirement.
+        """
+        if not short_put_mark_required(product, signal, state):
+            return
+        mark = signal.get("v14_short_put_mark")
+        try:
+            valid = not isinstance(mark, bool) and mark is not None and math.isfinite(float(mark)) and float(mark) > 0
+        except (TypeError, ValueError, OverflowError):
+            valid = False
+        if not valid:
+>           raise RuntimeError(f"{product} held short Put lacks a finite positive current-day mark")
+E           RuntimeError: IC held short Put lacks a finite positive current-day mark
+
+ic_im_v1_4_policy.py:448: RuntimeError
+_________ test_reject_corrupt_short_state_before_hash_write[changes8] _________
+
+changes = {'core_put_target_delta': 0.25}
+
+    @pytest.mark.parametrize('changes', [
+        {'v14_short_put_contract':'THIS_IS_NOT_A_PUT'},
+        {'v14_short_put_expiry':None},
+        {'v14_short_put_expiry':date(2026,11,25)},
+        {'v14_short_put_expiry':date(2026,10,27)},
+        {'v14_cycle_id':None}, {'v14_last_event_id':None},
+        {'v14_short_put_security_id':'invalid'},
+        {'v14_short_put_entry_premium':float('inf')},
+        {'core_put_target_delta':.25}, {'put_target_core_qty':1},
+        {'v14_roll_pending':'false'}, {'v14_recovery_net_pnl':float('nan')},
+        {'v14_core_put_qty':1, 'v14_core_put_contract':'510500P2612M07500',
+         'v14_core_put_security_id':'10012099', 'put_target_core_qty':1},
+        {'v14_core_put_qty':0, 'v14_core_put_contract':'510500P2612M07500'},
+        {'v14_core_put_qty':float('nan')},
+    ])
+    def test_reject_corrupt_short_state_before_hash_write(changes):
+        signal = short_signal()
+>       state.validate_delivery_values(signal, 'IC')
+
+test_ic_im_v1_4_state_guards.py:362: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_v1_4_state.py:304: in validate_delivery_values
+    require_persistence_eligible(signal, product)
+poe_ic_im_v1_4_state.py:259: in require_persistence_eligible
+    v14_policy.require_short_put_mark(product, signal, signal, require_binding=True)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+product = 'IC'
+signal = {'call_target_qty_normalized': 0.0, 'close_confirmed': True, 'core_put_driver': 'MOM120负动量下限', 'core_put_target_delta': 0.0, ...}
+state = {'call_target_qty_normalized': 0.0, 'close_confirmed': True, 'core_put_driver': 'MOM120负动量下限', 'core_put_target_delta': 0.0, ...}
+
+    def require_short_put_mark(product: str, signal: dict[str, Any], state: dict[str, Any],
+                               *, require_binding: bool = False) -> None:
+        """Unknown decay evidence cannot mean an observed, unchanged short route.
+    
+        Pure policy callers supply a mark for the signal day by contract. Adapters
+        and new ledger writes additionally bind that observation to day and leg.
+        Historical records are not revalidated under this new-write requirement.
+        """
+        if not short_put_mark_required(product, signal, state):
+            return
+        mark = signal.get("v14_short_put_mark")
+        try:
+            valid = not isinstance(mark, bool) and mark is not None and math.isfinite(float(mark)) and float(mark) > 0
+        except (TypeError, ValueError, OverflowError):
+            valid = False
+        if not valid:
+>           raise RuntimeError(f"{product} held short Put lacks a finite positive current-day mark")
+E           RuntimeError: IC held short Put lacks a finite positive current-day mark
+
+ic_im_v1_4_policy.py:448: RuntimeError
+_________ test_reject_corrupt_short_state_before_hash_write[changes9] _________
+
+changes = {'put_target_core_qty': 1}
+
+    @pytest.mark.parametrize('changes', [
+        {'v14_short_put_contract':'THIS_IS_NOT_A_PUT'},
+        {'v14_short_put_expiry':None},
+        {'v14_short_put_expiry':date(2026,11,25)},
+        {'v14_short_put_expiry':date(2026,10,27)},
+        {'v14_cycle_id':None}, {'v14_last_event_id':None},
+        {'v14_short_put_security_id':'invalid'},
+        {'v14_short_put_entry_premium':float('inf')},
+        {'core_put_target_delta':.25}, {'put_target_core_qty':1},
+        {'v14_roll_pending':'false'}, {'v14_recovery_net_pnl':float('nan')},
+        {'v14_core_put_qty':1, 'v14_core_put_contract':'510500P2612M07500',
+         'v14_core_put_security_id':'10012099', 'put_target_core_qty':1},
+        {'v14_core_put_qty':0, 'v14_core_put_contract':'510500P2612M07500'},
+        {'v14_core_put_qty':float('nan')},
+    ])
+    def test_reject_corrupt_short_state_before_hash_write(changes):
+        signal = short_signal()
+>       state.validate_delivery_values(signal, 'IC')
+
+test_ic_im_v1_4_state_guards.py:362: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_v1_4_state.py:304: in validate_delivery_values
+    require_persistence_eligible(signal, product)
+poe_ic_im_v1_4_state.py:259: in require_persistence_eligible
+    v14_policy.require_short_put_mark(product, signal, signal, require_binding=True)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+product = 'IC'
+signal = {'call_target_qty_normalized': 0.0, 'close_confirmed': True, 'core_put_driver': 'MOM120负动量下限', 'core_put_target_delta': 0.0, ...}
+state = {'call_target_qty_normalized': 0.0, 'close_confirmed': True, 'core_put_driver': 'MOM120负动量下限', 'core_put_target_delta': 0.0, ...}
+
+    def require_short_put_mark(product: str, signal: dict[str, Any], state: dict[str, Any],
+                               *, require_binding: bool = False) -> None:
+        """Unknown decay evidence cannot mean an observed, unchanged short route.
+    
+        Pure policy callers supply a mark for the signal day by contract. Adapters
+        and new ledger writes additionally bind that observation to day and leg.
+        Historical records are not revalidated under this new-write requirement.
+        """
+        if not short_put_mark_required(product, signal, state):
+            return
+        mark = signal.get("v14_short_put_mark")
+        try:
+            valid = not isinstance(mark, bool) and mark is not None and math.isfinite(float(mark)) and float(mark) > 0
+        except (TypeError, ValueError, OverflowError):
+            valid = False
+        if not valid:
+>           raise RuntimeError(f"{product} held short Put lacks a finite positive current-day mark")
+E           RuntimeError: IC held short Put lacks a finite positive current-day mark
+
+ic_im_v1_4_policy.py:448: RuntimeError
+________ test_reject_corrupt_short_state_before_hash_write[changes10] _________
+
+changes = {'v14_roll_pending': 'false'}
+
+    @pytest.mark.parametrize('changes', [
+        {'v14_short_put_contract':'THIS_IS_NOT_A_PUT'},
+        {'v14_short_put_expiry':None},
+        {'v14_short_put_expiry':date(2026,11,25)},
+        {'v14_short_put_expiry':date(2026,10,27)},
+        {'v14_cycle_id':None}, {'v14_last_event_id':None},
+        {'v14_short_put_security_id':'invalid'},
+        {'v14_short_put_entry_premium':float('inf')},
+        {'core_put_target_delta':.25}, {'put_target_core_qty':1},
+        {'v14_roll_pending':'false'}, {'v14_recovery_net_pnl':float('nan')},
+        {'v14_core_put_qty':1, 'v14_core_put_contract':'510500P2612M07500',
+         'v14_core_put_security_id':'10012099', 'put_target_core_qty':1},
+        {'v14_core_put_qty':0, 'v14_core_put_contract':'510500P2612M07500'},
+        {'v14_core_put_qty':float('nan')},
+    ])
+    def test_reject_corrupt_short_state_before_hash_write(changes):
+        signal = short_signal()
+>       state.validate_delivery_values(signal, 'IC')
+
+test_ic_im_v1_4_state_guards.py:362: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_v1_4_state.py:304: in validate_delivery_values
+    require_persistence_eligible(signal, product)
+poe_ic_im_v1_4_state.py:259: in require_persistence_eligible
+    v14_policy.require_short_put_mark(product, signal, signal, require_binding=True)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+product = 'IC'
+signal = {'call_target_qty_normalized': 0.0, 'close_confirmed': True, 'core_put_driver': 'MOM120负动量下限', 'core_put_target_delta': 0.0, ...}
+state = {'call_target_qty_normalized': 0.0, 'close_confirmed': True, 'core_put_driver': 'MOM120负动量下限', 'core_put_target_delta': 0.0, ...}
+
+    def require_short_put_mark(product: str, signal: dict[str, Any], state: dict[str, Any],
+                               *, require_binding: bool = False) -> None:
+        """Unknown decay evidence cannot mean an observed, unchanged short route.
+    
+        Pure policy callers supply a mark for the signal day by contract. Adapters
+        and new ledger writes additionally bind that observation to day and leg.
+        Historical records are not revalidated under this new-write requirement.
+        """
+        if not short_put_mark_required(product, signal, state):
+            return
+        mark = signal.get("v14_short_put_mark")
+        try:
+            valid = not isinstance(mark, bool) and mark is not None and math.isfinite(float(mark)) and float(mark) > 0
+        except (TypeError, ValueError, OverflowError):
+            valid = False
+        if not valid:
+>           raise RuntimeError(f"{product} held short Put lacks a finite positive current-day mark")
+E           RuntimeError: IC held short Put lacks a finite positive current-day mark
+
+ic_im_v1_4_policy.py:448: RuntimeError
+________ test_reject_corrupt_short_state_before_hash_write[changes11] _________
+
+changes = {'v14_recovery_net_pnl': nan}
+
+    @pytest.mark.parametrize('changes', [
+        {'v14_short_put_contract':'THIS_IS_NOT_A_PUT'},
+        {'v14_short_put_expiry':None},
+        {'v14_short_put_expiry':date(2026,11,25)},
+        {'v14_short_put_expiry':date(2026,10,27)},
+        {'v14_cycle_id':None}, {'v14_last_event_id':None},
+        {'v14_short_put_security_id':'invalid'},
+        {'v14_short_put_entry_premium':float('inf')},
+        {'core_put_target_delta':.25}, {'put_target_core_qty':1},
+        {'v14_roll_pending':'false'}, {'v14_recovery_net_pnl':float('nan')},
+        {'v14_core_put_qty':1, 'v14_core_put_contract':'510500P2612M07500',
+         'v14_core_put_security_id':'10012099', 'put_target_core_qty':1},
+        {'v14_core_put_qty':0, 'v14_core_put_contract':'510500P2612M07500'},
+        {'v14_core_put_qty':float('nan')},
+    ])
+    def test_reject_corrupt_short_state_before_hash_write(changes):
+        signal = short_signal()
+>       state.validate_delivery_values(signal, 'IC')
+
+test_ic_im_v1_4_state_guards.py:362: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_v1_4_state.py:304: in validate_delivery_values
+    require_persistence_eligible(signal, product)
+poe_ic_im_v1_4_state.py:259: in require_persistence_eligible
+    v14_policy.require_short_put_mark(product, signal, signal, require_binding=True)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+product = 'IC'
+signal = {'call_target_qty_normalized': 0.0, 'close_confirmed': True, 'core_put_driver': 'MOM120负动量下限', 'core_put_target_delta': 0.0, ...}
+state = {'call_target_qty_normalized': 0.0, 'close_confirmed': True, 'core_put_driver': 'MOM120负动量下限', 'core_put_target_delta': 0.0, ...}
+
+    def require_short_put_mark(product: str, signal: dict[str, Any], state: dict[str, Any],
+                               *, require_binding: bool = False) -> None:
+        """Unknown decay evidence cannot mean an observed, unchanged short route.
+    
+        Pure policy callers supply a mark for the signal day by contract. Adapters
+        and new ledger writes additionally bind that observation to day and leg.
+        Historical records are not revalidated under this new-write requirement.
+        """
+        if not short_put_mark_required(product, signal, state):
+            return
+        mark = signal.get("v14_short_put_mark")
+        try:
+            valid = not isinstance(mark, bool) and mark is not None and math.isfinite(float(mark)) and float(mark) > 0
+        except (TypeError, ValueError, OverflowError):
+            valid = False
+        if not valid:
+>           raise RuntimeError(f"{product} held short Put lacks a finite positive current-day mark")
+E           RuntimeError: IC held short Put lacks a finite positive current-day mark
+
+ic_im_v1_4_policy.py:448: RuntimeError
+________ test_reject_corrupt_short_state_before_hash_write[changes12] _________
+
+changes = {'put_target_core_qty': 1, 'v14_core_put_contract': '510500P2612M07500', 'v14_core_put_qty': 1, 'v14_core_put_security_id': '10012099'}
+
+    @pytest.mark.parametrize('changes', [
+        {'v14_short_put_contract':'THIS_IS_NOT_A_PUT'},
+        {'v14_short_put_expiry':None},
+        {'v14_short_put_expiry':date(2026,11,25)},
+        {'v14_short_put_expiry':date(2026,10,27)},
+        {'v14_cycle_id':None}, {'v14_last_event_id':None},
+        {'v14_short_put_security_id':'invalid'},
+        {'v14_short_put_entry_premium':float('inf')},
+        {'core_put_target_delta':.25}, {'put_target_core_qty':1},
+        {'v14_roll_pending':'false'}, {'v14_recovery_net_pnl':float('nan')},
+        {'v14_core_put_qty':1, 'v14_core_put_contract':'510500P2612M07500',
+         'v14_core_put_security_id':'10012099', 'put_target_core_qty':1},
+        {'v14_core_put_qty':0, 'v14_core_put_contract':'510500P2612M07500'},
+        {'v14_core_put_qty':float('nan')},
+    ])
+    def test_reject_corrupt_short_state_before_hash_write(changes):
+        signal = short_signal()
+>       state.validate_delivery_values(signal, 'IC')
+
+test_ic_im_v1_4_state_guards.py:362: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_v1_4_state.py:304: in validate_delivery_values
+    require_persistence_eligible(signal, product)
+poe_ic_im_v1_4_state.py:259: in require_persistence_eligible
+    v14_policy.require_short_put_mark(product, signal, signal, require_binding=True)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+product = 'IC'
+signal = {'call_target_qty_normalized': 0.0, 'close_confirmed': True, 'core_put_driver': 'MOM120负动量下限', 'core_put_target_delta': 0.0, ...}
+state = {'call_target_qty_normalized': 0.0, 'close_confirmed': True, 'core_put_driver': 'MOM120负动量下限', 'core_put_target_delta': 0.0, ...}
+
+    def require_short_put_mark(product: str, signal: dict[str, Any], state: dict[str, Any],
+                               *, require_binding: bool = False) -> None:
+        """Unknown decay evidence cannot mean an observed, unchanged short route.
+    
+        Pure policy callers supply a mark for the signal day by contract. Adapters
+        and new ledger writes additionally bind that observation to day and leg.
+        Historical records are not revalidated under this new-write requirement.
+        """
+        if not short_put_mark_required(product, signal, state):
+            return
+        mark = signal.get("v14_short_put_mark")
+        try:
+            valid = not isinstance(mark, bool) and mark is not None and math.isfinite(float(mark)) and float(mark) > 0
+        except (TypeError, ValueError, OverflowError):
+            valid = False
+        if not valid:
+>           raise RuntimeError(f"{product} held short Put lacks a finite positive current-day mark")
+E           RuntimeError: IC held short Put lacks a finite positive current-day mark
+
+ic_im_v1_4_policy.py:448: RuntimeError
+________ test_reject_corrupt_short_state_before_hash_write[changes13] _________
+
+changes = {'v14_core_put_contract': '510500P2612M07500', 'v14_core_put_qty': 0}
+
+    @pytest.mark.parametrize('changes', [
+        {'v14_short_put_contract':'THIS_IS_NOT_A_PUT'},
+        {'v14_short_put_expiry':None},
+        {'v14_short_put_expiry':date(2026,11,25)},
+        {'v14_short_put_expiry':date(2026,10,27)},
+        {'v14_cycle_id':None}, {'v14_last_event_id':None},
+        {'v14_short_put_security_id':'invalid'},
+        {'v14_short_put_entry_premium':float('inf')},
+        {'core_put_target_delta':.25}, {'put_target_core_qty':1},
+        {'v14_roll_pending':'false'}, {'v14_recovery_net_pnl':float('nan')},
+        {'v14_core_put_qty':1, 'v14_core_put_contract':'510500P2612M07500',
+         'v14_core_put_security_id':'10012099', 'put_target_core_qty':1},
+        {'v14_core_put_qty':0, 'v14_core_put_contract':'510500P2612M07500'},
+        {'v14_core_put_qty':float('nan')},
+    ])
+    def test_reject_corrupt_short_state_before_hash_write(changes):
+        signal = short_signal()
+>       state.validate_delivery_values(signal, 'IC')
+
+test_ic_im_v1_4_state_guards.py:362: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_v1_4_state.py:304: in validate_delivery_values
+    require_persistence_eligible(signal, product)
+poe_ic_im_v1_4_state.py:259: in require_persistence_eligible
+    v14_policy.require_short_put_mark(product, signal, signal, require_binding=True)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+product = 'IC'
+signal = {'call_target_qty_normalized': 0.0, 'close_confirmed': True, 'core_put_driver': 'MOM120负动量下限', 'core_put_target_delta': 0.0, ...}
+state = {'call_target_qty_normalized': 0.0, 'close_confirmed': True, 'core_put_driver': 'MOM120负动量下限', 'core_put_target_delta': 0.0, ...}
+
+    def require_short_put_mark(product: str, signal: dict[str, Any], state: dict[str, Any],
+                               *, require_binding: bool = False) -> None:
+        """Unknown decay evidence cannot mean an observed, unchanged short route.
+    
+        Pure policy callers supply a mark for the signal day by contract. Adapters
+        and new ledger writes additionally bind that observation to day and leg.
+        Historical records are not revalidated under this new-write requirement.
+        """
+        if not short_put_mark_required(product, signal, state):
+            return
+        mark = signal.get("v14_short_put_mark")
+        try:
+            valid = not isinstance(mark, bool) and mark is not None and math.isfinite(float(mark)) and float(mark) > 0
+        except (TypeError, ValueError, OverflowError):
+            valid = False
+        if not valid:
+>           raise RuntimeError(f"{product} held short Put lacks a finite positive current-day mark")
+E           RuntimeError: IC held short Put lacks a finite positive current-day mark
+
+ic_im_v1_4_policy.py:448: RuntimeError
+________ test_reject_corrupt_short_state_before_hash_write[changes14] _________
+
+changes = {'v14_core_put_qty': nan}
+
+    @pytest.mark.parametrize('changes', [
+        {'v14_short_put_contract':'THIS_IS_NOT_A_PUT'},
+        {'v14_short_put_expiry':None},
+        {'v14_short_put_expiry':date(2026,11,25)},
+        {'v14_short_put_expiry':date(2026,10,27)},
+        {'v14_cycle_id':None}, {'v14_last_event_id':None},
+        {'v14_short_put_security_id':'invalid'},
+        {'v14_short_put_entry_premium':float('inf')},
+        {'core_put_target_delta':.25}, {'put_target_core_qty':1},
+        {'v14_roll_pending':'false'}, {'v14_recovery_net_pnl':float('nan')},
+        {'v14_core_put_qty':1, 'v14_core_put_contract':'510500P2612M07500',
+         'v14_core_put_security_id':'10012099', 'put_target_core_qty':1},
+        {'v14_core_put_qty':0, 'v14_core_put_contract':'510500P2612M07500'},
+        {'v14_core_put_qty':float('nan')},
+    ])
+    def test_reject_corrupt_short_state_before_hash_write(changes):
+        signal = short_signal()
+>       state.validate_delivery_values(signal, 'IC')
+
+test_ic_im_v1_4_state_guards.py:362: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_v1_4_state.py:304: in validate_delivery_values
+    require_persistence_eligible(signal, product)
+poe_ic_im_v1_4_state.py:259: in require_persistence_eligible
+    v14_policy.require_short_put_mark(product, signal, signal, require_binding=True)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+product = 'IC'
+signal = {'call_target_qty_normalized': 0.0, 'close_confirmed': True, 'core_put_driver': 'MOM120负动量下限', 'core_put_target_delta': 0.0, ...}
+state = {'call_target_qty_normalized': 0.0, 'close_confirmed': True, 'core_put_driver': 'MOM120负动量下限', 'core_put_target_delta': 0.0, ...}
+
+    def require_short_put_mark(product: str, signal: dict[str, Any], state: dict[str, Any],
+                               *, require_binding: bool = False) -> None:
+        """Unknown decay evidence cannot mean an observed, unchanged short route.
+    
+        Pure policy callers supply a mark for the signal day by contract. Adapters
+        and new ledger writes additionally bind that observation to day and leg.
+        Historical records are not revalidated under this new-write requirement.
+        """
+        if not short_put_mark_required(product, signal, state):
+            return
+        mark = signal.get("v14_short_put_mark")
+        try:
+            valid = not isinstance(mark, bool) and mark is not None and math.isfinite(float(mark)) and float(mark) > 0
+        except (TypeError, ValueError, OverflowError):
+            valid = False
+        if not valid:
+>           raise RuntimeError(f"{product} held short Put lacks a finite positive current-day mark")
+E           RuntimeError: IC held short Put lacks a finite positive current-day mark
+
+ic_im_v1_4_policy.py:448: RuntimeError
+_ test_nonfuture_momentum_plan_survives_restart_and_requires_exact_open[False-IC-short_put] _
+
+tmp_path = WindowsPath('D:/动量策略/IC和IM滚动套利/quant_research_runs/20261023_redteam_repairs_v3/daily_gate_01/isolated_temp/icim_put_7a380f6a/pytest/test_nonfuture_momentum_plan_s0')
+product = 'IC', route = 'short_put', missing = False
+
+    @pytest.mark.parametrize("product,route", [
+        ("IC", "short_put"), ("IC", "assigned_etf"), ("IC", "recovery_future"),
+        ("IM", "short_put"), ("IM", "cash_wait"), ("IM", "recovery_future")])
+    @pytest.mark.parametrize("missing", [False, True])
+    def test_nonfuture_momentum_plan_survives_restart_and_requires_exact_open(tmp_path, product, route, missing):
+        record = _record()
+        _route(record["products"][product], product, route)
+        store, record = _persist(tmp_path, record)
+        current = state.anchors_from_record(record)[product]
+>       signal = _signal(product, current, momentum=True)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_ic_im_ordinary_put_route_fix_20261013.py:220: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+test_ic_im_ordinary_put_route_fix_20261013.py:150: in _signal
+    signal = policy.apply_policy(product, signal, current, candidate=candidate or {"tradable": False})
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ic_im_v1_4_policy.py:600: in apply_policy
+    if _short_roll_due(product, signal, state, day):
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ic_im_v1_4_policy.py:460: in _short_roll_due
+    require_short_put_mark(product, signal, state)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+product = 'IC'
+signal = {'call_action': 'HOLD', 'call_current_contract': None, 'call_target_contract': None, 'call_target_expiry': None, ...}
+state = {'v14_core_put_contract': None, 'v14_core_put_entry_premium': None, 'v14_core_put_profit3x_eligible': False, 'v14_core_put_qty': 0.0, ...}
+
+    def require_short_put_mark(product: str, signal: dict[str, Any], state: dict[str, Any],
+                               *, require_binding: bool = False) -> None:
+        """Unknown decay evidence cannot mean an observed, unchanged short route.
+    
+        Pure policy callers supply a mark for the signal day by contract. Adapters
+        and new ledger writes additionally bind that observation to day and leg.
+        Historical records are not revalidated under this new-write requirement.
+        """
+        if not short_put_mark_required(product, signal, state):
+            return
+        mark = signal.get("v14_short_put_mark")
+        try:
+            valid = not isinstance(mark, bool) and mark is not None and math.isfinite(float(mark)) and float(mark) > 0
+        except (TypeError, ValueError, OverflowError):
+            valid = False
+        if not valid:
+>           raise RuntimeError(f"{product} held short Put lacks a finite positive current-day mark")
+E           RuntimeError: IC held short Put lacks a finite positive current-day mark
+
+ic_im_v1_4_policy.py:448: RuntimeError
+_ test_nonfuture_momentum_plan_survives_restart_and_requires_exact_open[False-IM-short_put] _
+
+tmp_path = WindowsPath('D:/动量策略/IC和IM滚动套利/quant_research_runs/20261023_redteam_repairs_v3/daily_gate_01/isolated_temp/icim_put_7a380f6a/pytest/test_nonfuture_momentum_plan_s3')
+product = 'IM', route = 'short_put', missing = False
+
+    @pytest.mark.parametrize("product,route", [
+        ("IC", "short_put"), ("IC", "assigned_etf"), ("IC", "recovery_future"),
+        ("IM", "short_put"), ("IM", "cash_wait"), ("IM", "recovery_future")])
+    @pytest.mark.parametrize("missing", [False, True])
+    def test_nonfuture_momentum_plan_survives_restart_and_requires_exact_open(tmp_path, product, route, missing):
+        record = _record()
+        _route(record["products"][product], product, route)
+        store, record = _persist(tmp_path, record)
+        current = state.anchors_from_record(record)[product]
+>       signal = _signal(product, current, momentum=True)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_ic_im_ordinary_put_route_fix_20261013.py:220: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+test_ic_im_ordinary_put_route_fix_20261013.py:150: in _signal
+    signal = policy.apply_policy(product, signal, current, candidate=candidate or {"tradable": False})
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ic_im_v1_4_policy.py:600: in apply_policy
+    if _short_roll_due(product, signal, state, day):
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ic_im_v1_4_policy.py:460: in _short_roll_due
+    require_short_put_mark(product, signal, state)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+product = 'IM'
+signal = {'call_action': 'HOLD', 'call_current_contract': None, 'call_target_contract': None, 'call_target_expiry': None, ...}
+state = {'v14_core_put_contract': None, 'v14_core_put_entry_premium': None, 'v14_core_put_profit3x_eligible': False, 'v14_core_put_qty': 0.0, ...}
+
+    def require_short_put_mark(product: str, signal: dict[str, Any], state: dict[str, Any],
+                               *, require_binding: bool = False) -> None:
+        """Unknown decay evidence cannot mean an observed, unchanged short route.
+    
+        Pure policy callers supply a mark for the signal day by contract. Adapters
+        and new ledger writes additionally bind that observation to day and leg.
+        Historical records are not revalidated under this new-write requirement.
+        """
+        if not short_put_mark_required(product, signal, state):
+            return
+        mark = signal.get("v14_short_put_mark")
+        try:
+            valid = not isinstance(mark, bool) and mark is not None and math.isfinite(float(mark)) and float(mark) > 0
+        except (TypeError, ValueError, OverflowError):
+            valid = False
+        if not valid:
+>           raise RuntimeError(f"{product} held short Put lacks a finite positive current-day mark")
+E           RuntimeError: IM held short Put lacks a finite positive current-day mark
+
+ic_im_v1_4_policy.py:448: RuntimeError
+_ test_nonfuture_momentum_plan_survives_restart_and_requires_exact_open[True-IC-short_put] _
+
+tmp_path = WindowsPath('D:/动量策略/IC和IM滚动套利/quant_research_runs/20261023_redteam_repairs_v3/daily_gate_01/isolated_temp/icim_put_7a380f6a/pytest/test_nonfuture_momentum_plan_s6')
+product = 'IC', route = 'short_put', missing = True
+
+    @pytest.mark.parametrize("product,route", [
+        ("IC", "short_put"), ("IC", "assigned_etf"), ("IC", "recovery_future"),
+        ("IM", "short_put"), ("IM", "cash_wait"), ("IM", "recovery_future")])
+    @pytest.mark.parametrize("missing", [False, True])
+    def test_nonfuture_momentum_plan_survives_restart_and_requires_exact_open(tmp_path, product, route, missing):
+        record = _record()
+        _route(record["products"][product], product, route)
+        store, record = _persist(tmp_path, record)
+        current = state.anchors_from_record(record)[product]
+>       signal = _signal(product, current, momentum=True)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_ic_im_ordinary_put_route_fix_20261013.py:220: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+test_ic_im_ordinary_put_route_fix_20261013.py:150: in _signal
+    signal = policy.apply_policy(product, signal, current, candidate=candidate or {"tradable": False})
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ic_im_v1_4_policy.py:600: in apply_policy
+    if _short_roll_due(product, signal, state, day):
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ic_im_v1_4_policy.py:460: in _short_roll_due
+    require_short_put_mark(product, signal, state)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+product = 'IC'
+signal = {'call_action': 'HOLD', 'call_current_contract': None, 'call_target_contract': None, 'call_target_expiry': None, ...}
+state = {'v14_core_put_contract': None, 'v14_core_put_entry_premium': None, 'v14_core_put_profit3x_eligible': False, 'v14_core_put_qty': 0.0, ...}
+
+    def require_short_put_mark(product: str, signal: dict[str, Any], state: dict[str, Any],
+                               *, require_binding: bool = False) -> None:
+        """Unknown decay evidence cannot mean an observed, unchanged short route.
+    
+        Pure policy callers supply a mark for the signal day by contract. Adapters
+        and new ledger writes additionally bind that observation to day and leg.
+        Historical records are not revalidated under this new-write requirement.
+        """
+        if not short_put_mark_required(product, signal, state):
+            return
+        mark = signal.get("v14_short_put_mark")
+        try:
+            valid = not isinstance(mark, bool) and mark is not None and math.isfinite(float(mark)) and float(mark) > 0
+        except (TypeError, ValueError, OverflowError):
+            valid = False
+        if not valid:
+>           raise RuntimeError(f"{product} held short Put lacks a finite positive current-day mark")
+E           RuntimeError: IC held short Put lacks a finite positive current-day mark
+
+ic_im_v1_4_policy.py:448: RuntimeError
+_ test_nonfuture_momentum_plan_survives_restart_and_requires_exact_open[True-IM-short_put] _
+
+tmp_path = WindowsPath('D:/动量策略/IC和IM滚动套利/quant_research_runs/20261023_redteam_repairs_v3/daily_gate_01/isolated_temp/icim_put_7a380f6a/pytest/test_nonfuture_momentum_plan_s9')
+product = 'IM', route = 'short_put', missing = True
+
+    @pytest.mark.parametrize("product,route", [
+        ("IC", "short_put"), ("IC", "assigned_etf"), ("IC", "recovery_future"),
+        ("IM", "short_put"), ("IM", "cash_wait"), ("IM", "recovery_future")])
+    @pytest.mark.parametrize("missing", [False, True])
+    def test_nonfuture_momentum_plan_survives_restart_and_requires_exact_open(tmp_path, product, route, missing):
+        record = _record()
+        _route(record["products"][product], product, route)
+        store, record = _persist(tmp_path, record)
+        current = state.anchors_from_record(record)[product]
+>       signal = _signal(product, current, momentum=True)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_ic_im_ordinary_put_route_fix_20261013.py:220: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+test_ic_im_ordinary_put_route_fix_20261013.py:150: in _signal
+    signal = policy.apply_policy(product, signal, current, candidate=candidate or {"tradable": False})
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ic_im_v1_4_policy.py:600: in apply_policy
+    if _short_roll_due(product, signal, state, day):
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ic_im_v1_4_policy.py:460: in _short_roll_due
+    require_short_put_mark(product, signal, state)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+product = 'IM'
+signal = {'call_action': 'HOLD', 'call_current_contract': None, 'call_target_contract': None, 'call_target_expiry': None, ...}
+state = {'v14_core_put_contract': None, 'v14_core_put_entry_premium': None, 'v14_core_put_profit3x_eligible': False, 'v14_core_put_qty': 0.0, ...}
+
+    def require_short_put_mark(product: str, signal: dict[str, Any], state: dict[str, Any],
+                               *, require_binding: bool = False) -> None:
+        """Unknown decay evidence cannot mean an observed, unchanged short route.
+    
+        Pure policy callers supply a mark for the signal day by contract. Adapters
+        and new ledger writes additionally bind that observation to day and leg.
+        Historical records are not revalidated under this new-write requirement.
+        """
+        if not short_put_mark_required(product, signal, state):
+            return
+        mark = signal.get("v14_short_put_mark")
+        try:
+            valid = not isinstance(mark, bool) and mark is not None and math.isfinite(float(mark)) and float(mark) > 0
+        except (TypeError, ValueError, OverflowError):
+            valid = False
+        if not valid:
+>           raise RuntimeError(f"{product} held short Put lacks a finite positive current-day mark")
+E           RuntimeError: IM held short Put lacks a finite positive current-day mark
+
+ic_im_v1_4_policy.py:448: RuntimeError
+__ test_enter_short_route_does_not_restore_core_due_to_momentum_pending[IC] ___
+
+tmp_path = WindowsPath('D:/动量策略/IC和IM滚动套利/quant_research_runs/20261023_redteam_repairs_v3/daily_gate_01/isolated_temp/icim_put_7a380f6a/pytest/test_enter_short_route_does_no0')
+product = 'IC'
+
+    @pytest.mark.parametrize("product", ["IC", "IM"])
+    def test_enter_short_route_does_not_restore_core_due_to_momentum_pending(tmp_path, product):
+        record = _record()
+        store, record = _persist(tmp_path, record)
+        anchor = state.anchors_from_record(record)[product]
+        candidate = dict(tradable=True, iv=.6, contract="510500P2610M07500" if product == "IC" else "MO2610-P-7200",
+                         security_id="10012098" if product == "IC" else None,
+                         qty_normalized=10 if product == "IC" else 1.5,
+                         premium=.4 if product == "IC" else 400.0,
+                         expiry=date(2026, 10, 28) if product == "IC" else date(2026, 10, 16))
+        # Existing momentum Put exits when MOM120 turns nonnegative on IM; the
+        # independently changed IC momentum leg is still legitimate.
+        if product == "IM":
+            anchor.update(post_momentum_put_contract="MO2612-P-8200", verified_momentum_put_qty_normalized=1.5,
+                          verified_total_put_qty_normalized=3.0, verified_put_qty_normalized=3.0,
+                          post_momentum_put_equivalent_units=.75, post_put_equivalent_units=1.5)
+            record["products"][product] = state._jsonable(anchor)
+            store, record = _persist(tmp_path, record)
+        signal = _signal(product, anchor, momentum=product == "IC", candidate=candidate,
+                         extra=dict(momentum_120=.1, momentum_put_target_qty_normalized=0.0,
+                                    momentum_put_target_contract=None, total_put_target_qty_normalized=1.5) if product == "IM" else dict(momentum_120=.1))
+        assert signal["v14_action"] == "ENTER_SHORT_PUT"
+>       result = _append(store, record, product, signal)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_ic_im_ordinary_put_route_fix_20261013.py:271: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+test_ic_im_ordinary_put_route_fix_20261013.py:166: in _append
+    result = store.append_confirmed_signals(record, signals)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+poe_ic_im_v1_4_state.py:1550: in append_confirmed_signals
+    return self._append_locked(current, signals)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+poe_ic_im_v1_4_state.py:1553: in _append_locked
+    anchors = derive_next_anchors(current, signals)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+poe_ic_im_v1_4_state.py:1020: in derive_next_anchors
+    require_persistence_eligible(signals[product], product, check_grid=False)
+poe_ic_im_v1_4_state.py:259: in require_persistence_eligible
+    v14_policy.require_short_put_mark(product, signal, signal, require_binding=True)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+product = 'IC'
+signal = {'call_action': 'HOLD', 'call_current_contract': None, 'call_target_contract': None, 'call_target_expiry': None, ...}
+state = {'call_action': 'HOLD', 'call_current_contract': None, 'call_target_contract': None, 'call_target_expiry': None, ...}
+
+    def require_short_put_mark(product: str, signal: dict[str, Any], state: dict[str, Any],
+                               *, require_binding: bool = False) -> None:
+        """Unknown decay evidence cannot mean an observed, unchanged short route.
+    
+        Pure policy callers supply a mark for the signal day by contract. Adapters
+        and new ledger writes additionally bind that observation to day and leg.
+        Historical records are not revalidated under this new-write requirement.
+        """
+        if not short_put_mark_required(product, signal, state):
+            return
+        mark = signal.get("v14_short_put_mark")
+        try:
+            valid = not isinstance(mark, bool) and mark is not None and math.isfinite(float(mark)) and float(mark) > 0
+        except (TypeError, ValueError, OverflowError):
+            valid = False
+        if not valid:
+>           raise RuntimeError(f"{product} held short Put lacks a finite positive current-day mark")
+E           RuntimeError: IC held short Put lacks a finite positive current-day mark
+
+ic_im_v1_4_policy.py:448: RuntimeError
+__ test_enter_short_route_does_not_restore_core_due_to_momentum_pending[IM] ___
+
+tmp_path = WindowsPath('D:/动量策略/IC和IM滚动套利/quant_research_runs/20261023_redteam_repairs_v3/daily_gate_01/isolated_temp/icim_put_7a380f6a/pytest/test_enter_short_route_does_no1')
+product = 'IM'
+
+    @pytest.mark.parametrize("product", ["IC", "IM"])
+    def test_enter_short_route_does_not_restore_core_due_to_momentum_pending(tmp_path, product):
+        record = _record()
+        store, record = _persist(tmp_path, record)
+        anchor = state.anchors_from_record(record)[product]
+        candidate = dict(tradable=True, iv=.6, contract="510500P2610M07500" if product == "IC" else "MO2610-P-7200",
+                         security_id="10012098" if product == "IC" else None,
+                         qty_normalized=10 if product == "IC" else 1.5,
+                         premium=.4 if product == "IC" else 400.0,
+                         expiry=date(2026, 10, 28) if product == "IC" else date(2026, 10, 16))
+        # Existing momentum Put exits when MOM120 turns nonnegative on IM; the
+        # independently changed IC momentum leg is still legitimate.
+        if product == "IM":
+            anchor.update(post_momentum_put_contract="MO2612-P-8200", verified_momentum_put_qty_normalized=1.5,
+                          verified_total_put_qty_normalized=3.0, verified_put_qty_normalized=3.0,
+                          post_momentum_put_equivalent_units=.75, post_put_equivalent_units=1.5)
+            record["products"][product] = state._jsonable(anchor)
+            store, record = _persist(tmp_path, record)
+        signal = _signal(product, anchor, momentum=product == "IC", candidate=candidate,
+                         extra=dict(momentum_120=.1, momentum_put_target_qty_normalized=0.0,
+                                    momentum_put_target_contract=None, total_put_target_qty_normalized=1.5) if product == "IM" else dict(momentum_120=.1))
+        assert signal["v14_action"] == "ENTER_SHORT_PUT"
+>       result = _append(store, record, product, signal)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_ic_im_ordinary_put_route_fix_20261013.py:271: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+test_ic_im_ordinary_put_route_fix_20261013.py:166: in _append
+    result = store.append_confirmed_signals(record, signals)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+poe_ic_im_v1_4_state.py:1550: in append_confirmed_signals
+    return self._append_locked(current, signals)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+poe_ic_im_v1_4_state.py:1553: in _append_locked
+    anchors = derive_next_anchors(current, signals)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+poe_ic_im_v1_4_state.py:1020: in derive_next_anchors
+    require_persistence_eligible(signals[product], product, check_grid=False)
+poe_ic_im_v1_4_state.py:259: in require_persistence_eligible
+    v14_policy.require_short_put_mark(product, signal, signal, require_binding=True)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+product = 'IM'
+signal = {'call_action': 'HOLD', 'call_current_contract': None, 'call_target': '目标空仓（fix6停止卖Call）', 'call_target_contract': None, ...}
+state = {'call_action': 'HOLD', 'call_current_contract': None, 'call_target': '目标空仓（fix6停止卖Call）', 'call_target_contract': None, ...}
+
+    def require_short_put_mark(product: str, signal: dict[str, Any], state: dict[str, Any],
+                               *, require_binding: bool = False) -> None:
+        """Unknown decay evidence cannot mean an observed, unchanged short route.
+    
+        Pure policy callers supply a mark for the signal day by contract. Adapters
+        and new ledger writes additionally bind that observation to day and leg.
+        Historical records are not revalidated under this new-write requirement.
+        """
+        if not short_put_mark_required(product, signal, state):
+            return
+        mark = signal.get("v14_short_put_mark")
+        try:
+            valid = not isinstance(mark, bool) and mark is not None and math.isfinite(float(mark)) and float(mark) > 0
+        except (TypeError, ValueError, OverflowError):
+            valid = False
+        if not valid:
+>           raise RuntimeError(f"{product} held short Put lacks a finite positive current-day mark")
+E           RuntimeError: IM held short Put lacks a finite positive current-day mark
+
+ic_im_v1_4_policy.py:448: RuntimeError
+_________ test_short_open_cost_survives_real_hash_ledger_restart[IC] __________
+
+tmp_path = WindowsPath('D:/动量策略/IC和IM滚动套利/quant_research_runs/20261023_redteam_repairs_v3/daily_gate_01/isolated_temp/icim_put_7a380f6a/pytest/test_short_open_cost_survives_0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001D467AF82F0>
+product = 'IC'
+
+    @pytest.mark.parametrize('product',['IC','IM'])
+    def test_short_open_cost_survives_real_hash_ledger_restart(tmp_path,monkeypatch,product):
+        import test_ic_im_ordinary_put_route_fix_20261013 as fixture
+        import poe_ic_im_v1_4_state as state
+        monkeypatch.setattr(execution,'EFFECTIVE_DATE',fixture.DAY)
+        monkeypatch.setattr(bot.fear_grid,'EFFECTIVE_SIGNAL_DATE',date(2100,1,1))
+        record=fixture._record();store,record=fixture._persist(tmp_path,record)
+        before=state.anchors_from_record(record);other='IM' if product=='IC' else 'IC'
+        signals={p:fixture._signal(p,before[p],candidate=candidate(p) if p==product else None,
+                                  extra=dict(momentum_120=.1,valuation_puts_per_full_core=1,valuation_tier=1))
+                 for p in (product,other)}
+        for s in signals.values():s['v14_opening_events']=[]
+        result=store.append_confirmed_signals(record,signals)
+        reopened=state.StateStore(store.root).load_latest();after=state.anchors_from_record(reopened)
+        assert after[product]['v14_short_put_entry_premium'] is None
+        pending=after[product]['v14_short_put_open_pending'];day=execution.as_day(pending['execution_day'])
+        event=dict(kind='short_put',plan=pending,status='confirmed_open_research_price',prices=prices(pending,day))
+        held=execution.project_short_open(product,after[product],event,day)
+>       signals={product:fixture._signal(product,held,day),other:fixture._signal(other,after[other],day)}
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_ic_im_put_execution_repairs_20261016.py:255: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+test_ic_im_ordinary_put_route_fix_20261013.py:150: in _signal
+    signal = policy.apply_policy(product, signal, current, candidate=candidate or {"tradable": False})
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ic_im_v1_4_policy.py:600: in apply_policy
+    if _short_roll_due(product, signal, state, day):
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ic_im_v1_4_policy.py:460: in _short_roll_due
+    require_short_put_mark(product, signal, state)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+product = 'IC'
+signal = {'call_action': 'HOLD', 'call_current_contract': None, 'call_target_contract': None, 'call_target_expiry': None, ...}
+state = {'v14_core_put_contract': None, 'v14_core_put_entry_premium': 0.4, 'v14_core_put_profit3x_eligible': True, 'v14_core_put_qty': 0.0, ...}
+
+    def require_short_put_mark(product: str, signal: dict[str, Any], state: dict[str, Any],
+                               *, require_binding: bool = False) -> None:
+        """Unknown decay evidence cannot mean an observed, unchanged short route.
+    
+        Pure policy callers supply a mark for the signal day by contract. Adapters
+        and new ledger writes additionally bind that observation to day and leg.
+        Historical records are not revalidated under this new-write requirement.
+        """
+        if not short_put_mark_required(product, signal, state):
+            return
+        mark = signal.get("v14_short_put_mark")
+        try:
+            valid = not isinstance(mark, bool) and mark is not None and math.isfinite(float(mark)) and float(mark) > 0
+        except (TypeError, ValueError, OverflowError):
+            valid = False
+        if not valid:
+>           raise RuntimeError(f"{product} held short Put lacks a finite positive current-day mark")
+E           RuntimeError: IC held short Put lacks a finite positive current-day mark
+
+ic_im_v1_4_policy.py:448: RuntimeError
+_________ test_short_open_cost_survives_real_hash_ledger_restart[IM] __________
+
+tmp_path = WindowsPath('D:/动量策略/IC和IM滚动套利/quant_research_runs/20261023_redteam_repairs_v3/daily_gate_01/isolated_temp/icim_put_7a380f6a/pytest/test_short_open_cost_survives_1')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001D467F2BE70>
+product = 'IM'
+
+    @pytest.mark.parametrize('product',['IC','IM'])
+    def test_short_open_cost_survives_real_hash_ledger_restart(tmp_path,monkeypatch,product):
+        import test_ic_im_ordinary_put_route_fix_20261013 as fixture
+        import poe_ic_im_v1_4_state as state
+        monkeypatch.setattr(execution,'EFFECTIVE_DATE',fixture.DAY)
+        monkeypatch.setattr(bot.fear_grid,'EFFECTIVE_SIGNAL_DATE',date(2100,1,1))
+        record=fixture._record();store,record=fixture._persist(tmp_path,record)
+        before=state.anchors_from_record(record);other='IM' if product=='IC' else 'IC'
+        signals={p:fixture._signal(p,before[p],candidate=candidate(p) if p==product else None,
+                                  extra=dict(momentum_120=.1,valuation_puts_per_full_core=1,valuation_tier=1))
+                 for p in (product,other)}
+        for s in signals.values():s['v14_opening_events']=[]
+        result=store.append_confirmed_signals(record,signals)
+        reopened=state.StateStore(store.root).load_latest();after=state.anchors_from_record(reopened)
+        assert after[product]['v14_short_put_entry_premium'] is None
+        pending=after[product]['v14_short_put_open_pending'];day=execution.as_day(pending['execution_day'])
+        event=dict(kind='short_put',plan=pending,status='confirmed_open_research_price',prices=prices(pending,day))
+        held=execution.project_short_open(product,after[product],event,day)
+>       signals={product:fixture._signal(product,held,day),other:fixture._signal(other,after[other],day)}
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_ic_im_put_execution_repairs_20261016.py:255: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+test_ic_im_ordinary_put_route_fix_20261013.py:150: in _signal
+    signal = policy.apply_policy(product, signal, current, candidate=candidate or {"tradable": False})
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ic_im_v1_4_policy.py:600: in apply_policy
+    if _short_roll_due(product, signal, state, day):
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ic_im_v1_4_policy.py:460: in _short_roll_due
+    require_short_put_mark(product, signal, state)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+product = 'IM'
+signal = {'call_action': 'HOLD', 'call_current_contract': None, 'call_target_contract': None, 'call_target_expiry': None, ...}
+state = {'v14_core_put_contract': None, 'v14_core_put_entry_premium': 400.0, 'v14_core_put_profit3x_eligible': True, 'v14_core_put_qty': 0.0, ...}
+
+    def require_short_put_mark(product: str, signal: dict[str, Any], state: dict[str, Any],
+                               *, require_binding: bool = False) -> None:
+        """Unknown decay evidence cannot mean an observed, unchanged short route.
+    
+        Pure policy callers supply a mark for the signal day by contract. Adapters
+        and new ledger writes additionally bind that observation to day and leg.
+        Historical records are not revalidated under this new-write requirement.
+        """
+        if not short_put_mark_required(product, signal, state):
+            return
+        mark = signal.get("v14_short_put_mark")
+        try:
+            valid = not isinstance(mark, bool) and mark is not None and math.isfinite(float(mark)) and float(mark) > 0
+        except (TypeError, ValueError, OverflowError):
+            valid = False
+        if not valid:
+>           raise RuntimeError(f"{product} held short Put lacks a finite positive current-day mark")
+E           RuntimeError: IM held short Put lacks a finite positive current-day mark
+
+ic_im_v1_4_policy.py:448: RuntimeError
+______ test_ledger_rejects_conflicting_confirmed_short_cost[premium-IC] _______
+
+tmp_path = WindowsPath('D:/动量策略/IC和IM滚动套利/quant_research_runs/20261023_redteam_repairs_v3/daily_gate_01/isolated_temp/icim_put_7a380f6a/pytest/test_ledger_rejects_conflictin0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001D467AFC830>
+product = 'IC', tamper = 'premium'
+
+    @pytest.mark.parametrize('product', ['IC', 'IM'])
+    @pytest.mark.parametrize('tamper', ['premium', 'price_day', 'no_price_day'])
+    def test_ledger_rejects_conflicting_confirmed_short_cost(tmp_path, monkeypatch, product, tamper):
+        monkeypatch.setattr(execution, 'EFFECTIVE_DATE', fixture.DAY)
+        monkeypatch.setattr(bot.fear_grid, 'EFFECTIVE_SIGNAL_DATE', date(2100,1,1))
+        record=fixture._record(); store, record=fixture._persist(tmp_path,record)
+        before=state.anchors_from_record(record); other='IM' if product=='IC' else 'IC'
+        signals={p:fixture._signal(p,before[p],candidate=candidate(p) if p==product else None,
+                     extra=dict(momentum_120=.1,valuation_puts_per_full_core=1,valuation_tier=1))
+                 for p in (product,other)}
+        for s in signals.values():s['v14_opening_events']=[]
+        record=store.append_confirmed_signals(record,signals)
+        before=state.anchors_from_record(record)
+        pending=before[product]['v14_short_put_open_pending']; day=execution.as_day(pending['execution_day'])
+        event=dict(kind='short_put',plan=pending,status='confirmed_open_research_price',prices=prices(pending,day))
+        held=execution.project_short_open(product,before[product],event,day)
+>       signals={product:fixture._signal(product,held,day),other:fixture._signal(other,before[other],day)}
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_ic_im_put_delivery_completion_20261016.py:28: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+test_ic_im_ordinary_put_route_fix_20261013.py:150: in _signal
+    signal = policy.apply_policy(product, signal, current, candidate=candidate or {"tradable": False})
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ic_im_v1_4_policy.py:600: in apply_policy
+    if _short_roll_due(product, signal, state, day):
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ic_im_v1_4_policy.py:460: in _short_roll_due
+    require_short_put_mark(product, signal, state)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+product = 'IC'
+signal = {'call_action': 'HOLD', 'call_current_contract': None, 'call_target_contract': None, 'call_target_expiry': None, ...}
+state = {'v14_core_put_contract': None, 'v14_core_put_entry_premium': 0.4, 'v14_core_put_profit3x_eligible': True, 'v14_core_put_qty': 0.0, ...}
+
+    def require_short_put_mark(product: str, signal: dict[str, Any], state: dict[str, Any],
+                               *, require_binding: bool = False) -> None:
+        """Unknown decay evidence cannot mean an observed, unchanged short route.
+    
+        Pure policy callers supply a mark for the signal day by contract. Adapters
+        and new ledger writes additionally bind that observation to day and leg.
+        Historical records are not revalidated under this new-write requirement.
+        """
+        if not short_put_mark_required(product, signal, state):
+            return
+        mark = signal.get("v14_short_put_mark")
+        try:
+            valid = not isinstance(mark, bool) and mark is not None and math.isfinite(float(mark)) and float(mark) > 0
+        except (TypeError, ValueError, OverflowError):
+            valid = False
+        if not valid:
+>           raise RuntimeError(f"{product} held short Put lacks a finite positive current-day mark")
+E           RuntimeError: IC held short Put lacks a finite positive current-day mark
+
+ic_im_v1_4_policy.py:448: RuntimeError
+______ test_ledger_rejects_conflicting_confirmed_short_cost[premium-IM] _______
+
+tmp_path = WindowsPath('D:/动量策略/IC和IM滚动套利/quant_research_runs/20261023_redteam_repairs_v3/daily_gate_01/isolated_temp/icim_put_7a380f6a/pytest/test_ledger_rejects_conflictin1')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001D4688AE270>
+product = 'IM', tamper = 'premium'
+
+    @pytest.mark.parametrize('product', ['IC', 'IM'])
+    @pytest.mark.parametrize('tamper', ['premium', 'price_day', 'no_price_day'])
+    def test_ledger_rejects_conflicting_confirmed_short_cost(tmp_path, monkeypatch, product, tamper):
+        monkeypatch.setattr(execution, 'EFFECTIVE_DATE', fixture.DAY)
+        monkeypatch.setattr(bot.fear_grid, 'EFFECTIVE_SIGNAL_DATE', date(2100,1,1))
+        record=fixture._record(); store, record=fixture._persist(tmp_path,record)
+        before=state.anchors_from_record(record); other='IM' if product=='IC' else 'IC'
+        signals={p:fixture._signal(p,before[p],candidate=candidate(p) if p==product else None,
+                     extra=dict(momentum_120=.1,valuation_puts_per_full_core=1,valuation_tier=1))
+                 for p in (product,other)}
+        for s in signals.values():s['v14_opening_events']=[]
+        record=store.append_confirmed_signals(record,signals)
+        before=state.anchors_from_record(record)
+        pending=before[product]['v14_short_put_open_pending']; day=execution.as_day(pending['execution_day'])
+        event=dict(kind='short_put',plan=pending,status='confirmed_open_research_price',prices=prices(pending,day))
+        held=execution.project_short_open(product,before[product],event,day)
+>       signals={product:fixture._signal(product,held,day),other:fixture._signal(other,before[other],day)}
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_ic_im_put_delivery_completion_20261016.py:28: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+test_ic_im_ordinary_put_route_fix_20261013.py:150: in _signal
+    signal = policy.apply_policy(product, signal, current, candidate=candidate or {"tradable": False})
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ic_im_v1_4_policy.py:600: in apply_policy
+    if _short_roll_due(product, signal, state, day):
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ic_im_v1_4_policy.py:460: in _short_roll_due
+    require_short_put_mark(product, signal, state)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+product = 'IM'
+signal = {'call_action': 'HOLD', 'call_current_contract': None, 'call_target_contract': None, 'call_target_expiry': None, ...}
+state = {'v14_core_put_contract': None, 'v14_core_put_entry_premium': 400.0, 'v14_core_put_profit3x_eligible': True, 'v14_core_put_qty': 0.0, ...}
+
+    def require_short_put_mark(product: str, signal: dict[str, Any], state: dict[str, Any],
+                               *, require_binding: bool = False) -> None:
+        """Unknown decay evidence cannot mean an observed, unchanged short route.
+    
+        Pure policy callers supply a mark for the signal day by contract. Adapters
+        and new ledger writes additionally bind that observation to day and leg.
+        Historical records are not revalidated under this new-write requirement.
+        """
+        if not short_put_mark_required(product, signal, state):
+            return
+        mark = signal.get("v14_short_put_mark")
+        try:
+            valid = not isinstance(mark, bool) and mark is not None and math.isfinite(float(mark)) and float(mark) > 0
+        except (TypeError, ValueError, OverflowError):
+            valid = False
+        if not valid:
+>           raise RuntimeError(f"{product} held short Put lacks a finite positive current-day mark")
+E           RuntimeError: IM held short Put lacks a finite positive current-day mark
+
+ic_im_v1_4_policy.py:448: RuntimeError
+_____ test_ledger_rejects_conflicting_confirmed_short_cost[price_day-IC] ______
+
+tmp_path = WindowsPath('D:/动量策略/IC和IM滚动套利/quant_research_runs/20261023_redteam_repairs_v3/daily_gate_01/isolated_temp/icim_put_7a380f6a/pytest/test_ledger_rejects_conflictin2')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001D4688AD710>
+product = 'IC', tamper = 'price_day'
+
+    @pytest.mark.parametrize('product', ['IC', 'IM'])
+    @pytest.mark.parametrize('tamper', ['premium', 'price_day', 'no_price_day'])
+    def test_ledger_rejects_conflicting_confirmed_short_cost(tmp_path, monkeypatch, product, tamper):
+        monkeypatch.setattr(execution, 'EFFECTIVE_DATE', fixture.DAY)
+        monkeypatch.setattr(bot.fear_grid, 'EFFECTIVE_SIGNAL_DATE', date(2100,1,1))
+        record=fixture._record(); store, record=fixture._persist(tmp_path,record)
+        before=state.anchors_from_record(record); other='IM' if product=='IC' else 'IC'
+        signals={p:fixture._signal(p,before[p],candidate=candidate(p) if p==product else None,
+                     extra=dict(momentum_120=.1,valuation_puts_per_full_core=1,valuation_tier=1))
+                 for p in (product,other)}
+        for s in signals.values():s['v14_opening_events']=[]
+        record=store.append_confirmed_signals(record,signals)
+        before=state.anchors_from_record(record)
+        pending=before[product]['v14_short_put_open_pending']; day=execution.as_day(pending['execution_day'])
+        event=dict(kind='short_put',plan=pending,status='confirmed_open_research_price',prices=prices(pending,day))
+        held=execution.project_short_open(product,before[product],event,day)
+>       signals={product:fixture._signal(product,held,day),other:fixture._signal(other,before[other],day)}
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_ic_im_put_delivery_completion_20261016.py:28: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+test_ic_im_ordinary_put_route_fix_20261013.py:150: in _signal
+    signal = policy.apply_policy(product, signal, current, candidate=candidate or {"tradable": False})
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ic_im_v1_4_policy.py:600: in apply_policy
+    if _short_roll_due(product, signal, state, day):
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ic_im_v1_4_policy.py:460: in _short_roll_due
+    require_short_put_mark(product, signal, state)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+product = 'IC'
+signal = {'call_action': 'HOLD', 'call_current_contract': None, 'call_target_contract': None, 'call_target_expiry': None, ...}
+state = {'v14_core_put_contract': None, 'v14_core_put_entry_premium': 0.4, 'v14_core_put_profit3x_eligible': True, 'v14_core_put_qty': 0.0, ...}
+
+    def require_short_put_mark(product: str, signal: dict[str, Any], state: dict[str, Any],
+                               *, require_binding: bool = False) -> None:
+        """Unknown decay evidence cannot mean an observed, unchanged short route.
+    
+        Pure policy callers supply a mark for the signal day by contract. Adapters
+        and new ledger writes additionally bind that observation to day and leg.
+        Historical records are not revalidated under this new-write requirement.
+        """
+        if not short_put_mark_required(product, signal, state):
+            return
+        mark = signal.get("v14_short_put_mark")
+        try:
+            valid = not isinstance(mark, bool) and mark is not None and math.isfinite(float(mark)) and float(mark) > 0
+        except (TypeError, ValueError, OverflowError):
+            valid = False
+        if not valid:
+>           raise RuntimeError(f"{product} held short Put lacks a finite positive current-day mark")
+E           RuntimeError: IC held short Put lacks a finite positive current-day mark
+
+ic_im_v1_4_policy.py:448: RuntimeError
+_____ test_ledger_rejects_conflicting_confirmed_short_cost[price_day-IM] ______
+
+tmp_path = WindowsPath('D:/动量策略/IC和IM滚动套利/quant_research_runs/20261023_redteam_repairs_v3/daily_gate_01/isolated_temp/icim_put_7a380f6a/pytest/test_ledger_rejects_conflictin3')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001D46888DD30>
+product = 'IM', tamper = 'price_day'
+
+    @pytest.mark.parametrize('product', ['IC', 'IM'])
+    @pytest.mark.parametrize('tamper', ['premium', 'price_day', 'no_price_day'])
+    def test_ledger_rejects_conflicting_confirmed_short_cost(tmp_path, monkeypatch, product, tamper):
+        monkeypatch.setattr(execution, 'EFFECTIVE_DATE', fixture.DAY)
+        monkeypatch.setattr(bot.fear_grid, 'EFFECTIVE_SIGNAL_DATE', date(2100,1,1))
+        record=fixture._record(); store, record=fixture._persist(tmp_path,record)
+        before=state.anchors_from_record(record); other='IM' if product=='IC' else 'IC'
+        signals={p:fixture._signal(p,before[p],candidate=candidate(p) if p==product else None,
+                     extra=dict(momentum_120=.1,valuation_puts_per_full_core=1,valuation_tier=1))
+                 for p in (product,other)}
+        for s in signals.values():s['v14_opening_events']=[]
+        record=store.append_confirmed_signals(record,signals)
+        before=state.anchors_from_record(record)
+        pending=before[product]['v14_short_put_open_pending']; day=execution.as_day(pending['execution_day'])
+        event=dict(kind='short_put',plan=pending,status='confirmed_open_research_price',prices=prices(pending,day))
+        held=execution.project_short_open(product,before[product],event,day)
+>       signals={product:fixture._signal(product,held,day),other:fixture._signal(other,before[other],day)}
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_ic_im_put_delivery_completion_20261016.py:28: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+test_ic_im_ordinary_put_route_fix_20261013.py:150: in _signal
+    signal = policy.apply_policy(product, signal, current, candidate=candidate or {"tradable": False})
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ic_im_v1_4_policy.py:600: in apply_policy
+    if _short_roll_due(product, signal, state, day):
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ic_im_v1_4_policy.py:460: in _short_roll_due
+    require_short_put_mark(product, signal, state)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+product = 'IM'
+signal = {'call_action': 'HOLD', 'call_current_contract': None, 'call_target_contract': None, 'call_target_expiry': None, ...}
+state = {'v14_core_put_contract': None, 'v14_core_put_entry_premium': 400.0, 'v14_core_put_profit3x_eligible': True, 'v14_core_put_qty': 0.0, ...}
+
+    def require_short_put_mark(product: str, signal: dict[str, Any], state: dict[str, Any],
+                               *, require_binding: bool = False) -> None:
+        """Unknown decay evidence cannot mean an observed, unchanged short route.
+    
+        Pure policy callers supply a mark for the signal day by contract. Adapters
+        and new ledger writes additionally bind that observation to day and leg.
+        Historical records are not revalidated under this new-write requirement.
+        """
+        if not short_put_mark_required(product, signal, state):
+            return
+        mark = signal.get("v14_short_put_mark")
+        try:
+            valid = not isinstance(mark, bool) and mark is not None and math.isfinite(float(mark)) and float(mark) > 0
+        except (TypeError, ValueError, OverflowError):
+            valid = False
+        if not valid:
+>           raise RuntimeError(f"{product} held short Put lacks a finite positive current-day mark")
+E           RuntimeError: IM held short Put lacks a finite positive current-day mark
+
+ic_im_v1_4_policy.py:448: RuntimeError
+____ test_ledger_rejects_conflicting_confirmed_short_cost[no_price_day-IC] ____
+
+tmp_path = WindowsPath('D:/动量策略/IC和IM滚动套利/quant_research_runs/20261023_redteam_repairs_v3/daily_gate_01/isolated_temp/icim_put_7a380f6a/pytest/test_ledger_rejects_conflictin4')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001D46888F150>
+product = 'IC', tamper = 'no_price_day'
+
+    @pytest.mark.parametrize('product', ['IC', 'IM'])
+    @pytest.mark.parametrize('tamper', ['premium', 'price_day', 'no_price_day'])
+    def test_ledger_rejects_conflicting_confirmed_short_cost(tmp_path, monkeypatch, product, tamper):
+        monkeypatch.setattr(execution, 'EFFECTIVE_DATE', fixture.DAY)
+        monkeypatch.setattr(bot.fear_grid, 'EFFECTIVE_SIGNAL_DATE', date(2100,1,1))
+        record=fixture._record(); store, record=fixture._persist(tmp_path,record)
+        before=state.anchors_from_record(record); other='IM' if product=='IC' else 'IC'
+        signals={p:fixture._signal(p,before[p],candidate=candidate(p) if p==product else None,
+                     extra=dict(momentum_120=.1,valuation_puts_per_full_core=1,valuation_tier=1))
+                 for p in (product,other)}
+        for s in signals.values():s['v14_opening_events']=[]
+        record=store.append_confirmed_signals(record,signals)
+        before=state.anchors_from_record(record)
+        pending=before[product]['v14_short_put_open_pending']; day=execution.as_day(pending['execution_day'])
+        event=dict(kind='short_put',plan=pending,status='confirmed_open_research_price',prices=prices(pending,day))
+        held=execution.project_short_open(product,before[product],event,day)
+>       signals={product:fixture._signal(product,held,day),other:fixture._signal(other,before[other],day)}
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_ic_im_put_delivery_completion_20261016.py:28: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+test_ic_im_ordinary_put_route_fix_20261013.py:150: in _signal
+    signal = policy.apply_policy(product, signal, current, candidate=candidate or {"tradable": False})
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ic_im_v1_4_policy.py:600: in apply_policy
+    if _short_roll_due(product, signal, state, day):
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ic_im_v1_4_policy.py:460: in _short_roll_due
+    require_short_put_mark(product, signal, state)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+product = 'IC'
+signal = {'call_action': 'HOLD', 'call_current_contract': None, 'call_target_contract': None, 'call_target_expiry': None, ...}
+state = {'v14_core_put_contract': None, 'v14_core_put_entry_premium': 0.4, 'v14_core_put_profit3x_eligible': True, 'v14_core_put_qty': 0.0, ...}
+
+    def require_short_put_mark(product: str, signal: dict[str, Any], state: dict[str, Any],
+                               *, require_binding: bool = False) -> None:
+        """Unknown decay evidence cannot mean an observed, unchanged short route.
+    
+        Pure policy callers supply a mark for the signal day by contract. Adapters
+        and new ledger writes additionally bind that observation to day and leg.
+        Historical records are not revalidated under this new-write requirement.
+        """
+        if not short_put_mark_required(product, signal, state):
+            return
+        mark = signal.get("v14_short_put_mark")
+        try:
+            valid = not isinstance(mark, bool) and mark is not None and math.isfinite(float(mark)) and float(mark) > 0
+        except (TypeError, ValueError, OverflowError):
+            valid = False
+        if not valid:
+>           raise RuntimeError(f"{product} held short Put lacks a finite positive current-day mark")
+E           RuntimeError: IC held short Put lacks a finite positive current-day mark
+
+ic_im_v1_4_policy.py:448: RuntimeError
+____ test_ledger_rejects_conflicting_confirmed_short_cost[no_price_day-IM] ____
+
+tmp_path = WindowsPath('D:/动量策略/IC和IM滚动套利/quant_research_runs/20261023_redteam_repairs_v3/daily_gate_01/isolated_temp/icim_put_7a380f6a/pytest/test_ledger_rejects_conflictin5')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001D46888C3D0>
+product = 'IM', tamper = 'no_price_day'
+
+    @pytest.mark.parametrize('product', ['IC', 'IM'])
+    @pytest.mark.parametrize('tamper', ['premium', 'price_day', 'no_price_day'])
+    def test_ledger_rejects_conflicting_confirmed_short_cost(tmp_path, monkeypatch, product, tamper):
+        monkeypatch.setattr(execution, 'EFFECTIVE_DATE', fixture.DAY)
+        monkeypatch.setattr(bot.fear_grid, 'EFFECTIVE_SIGNAL_DATE', date(2100,1,1))
+        record=fixture._record(); store, record=fixture._persist(tmp_path,record)
+        before=state.anchors_from_record(record); other='IM' if product=='IC' else 'IC'
+        signals={p:fixture._signal(p,before[p],candidate=candidate(p) if p==product else None,
+                     extra=dict(momentum_120=.1,valuation_puts_per_full_core=1,valuation_tier=1))
+                 for p in (product,other)}
+        for s in signals.values():s['v14_opening_events']=[]
+        record=store.append_confirmed_signals(record,signals)
+        before=state.anchors_from_record(record)
+        pending=before[product]['v14_short_put_open_pending']; day=execution.as_day(pending['execution_day'])
+        event=dict(kind='short_put',plan=pending,status='confirmed_open_research_price',prices=prices(pending,day))
+        held=execution.project_short_open(product,before[product],event,day)
+>       signals={product:fixture._signal(product,held,day),other:fixture._signal(other,before[other],day)}
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_ic_im_put_delivery_completion_20261016.py:28: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+test_ic_im_ordinary_put_route_fix_20261013.py:150: in _signal
+    signal = policy.apply_policy(product, signal, current, candidate=candidate or {"tradable": False})
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ic_im_v1_4_policy.py:600: in apply_policy
+    if _short_roll_due(product, signal, state, day):
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ic_im_v1_4_policy.py:460: in _short_roll_due
+    require_short_put_mark(product, signal, state)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+product = 'IM'
+signal = {'call_action': 'HOLD', 'call_current_contract': None, 'call_target_contract': None, 'call_target_expiry': None, ...}
+state = {'v14_core_put_contract': None, 'v14_core_put_entry_premium': 400.0, 'v14_core_put_profit3x_eligible': True, 'v14_core_put_qty': 0.0, ...}
+
+    def require_short_put_mark(product: str, signal: dict[str, Any], state: dict[str, Any],
+                               *, require_binding: bool = False) -> None:
+        """Unknown decay evidence cannot mean an observed, unchanged short route.
+    
+        Pure policy callers supply a mark for the signal day by contract. Adapters
+        and new ledger writes additionally bind that observation to day and leg.
+        Historical records are not revalidated under this new-write requirement.
+        """
+        if not short_put_mark_required(product, signal, state):
+            return
+        mark = signal.get("v14_short_put_mark")
+        try:
+            valid = not isinstance(mark, bool) and mark is not None and math.isfinite(float(mark)) and float(mark) > 0
+        except (TypeError, ValueError, OverflowError):
+            valid = False
+        if not valid:
+>           raise RuntimeError(f"{product} held short Put lacks a finite positive current-day mark")
+E           RuntimeError: IM held short Put lacks a finite positive current-day mark
+
+ic_im_v1_4_policy.py:448: RuntimeError
+_ test_missing_revision_or_required_opening_event_is_rejected[pending_short_event-IC] _
+
+tmp_path = WindowsPath('D:/动量策略/IC和IM滚动套利/quant_research_runs/20261023_redteam_repairs_v3/daily_gate_01/isolated_temp/icim_put_7a380f6a/pytest/test_missing_revision_or_requi4')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001D46888D0F0>
+product = 'IC', omit = 'pending_short_event'
+
+    @pytest.mark.parametrize('product',['IC','IM'])
+    @pytest.mark.parametrize('omit',['revision','event_list','pending_short_event'])
+    def test_missing_revision_or_required_opening_event_is_rejected(tmp_path,monkeypatch,product,omit):
+        monkeypatch.setattr(execution,'EFFECTIVE_DATE',fixture.DAY)
+        monkeypatch.setattr(bot.fear_grid,'EFFECTIVE_SIGNAL_DATE',date(2100,1,1))
+        record=fixture._record();store,record=fixture._persist(tmp_path,record)
+        before=state.anchors_from_record(record);other='IM' if product=='IC' else 'IC'
+        signals={p:fixture._signal(p,before[p],candidate=candidate(p) if p==product else None,
+                  extra=dict(momentum_120=.1,valuation_tier=1,valuation_puts_per_full_core=1)) for p in (product,other)}
+        for s in signals.values():s['v14_opening_events']=[]
+        if omit=='revision':signals[product].pop('v14_execution_revision')
+        elif omit=='event_list':signals[product].pop('v14_opening_events')
+        else:
+            record=store.append_confirmed_signals(record,signals);before=state.anchors_from_record(record)
+            pending=before[product]['v14_short_put_open_pending'];day=execution.as_day(pending['execution_day'])
+            event=dict(kind='short_put',plan=pending,status='confirmed_open_research_price',prices=prices(pending,day))
+            held=execution.project_short_open(product,before[product],event,day)
+>           signals={product:fixture._signal(product,held,day),other:fixture._signal(other,before[other],day)}
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_ic_im_put_delivery_completion_20261016.py:97: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+test_ic_im_ordinary_put_route_fix_20261013.py:150: in _signal
+    signal = policy.apply_policy(product, signal, current, candidate=candidate or {"tradable": False})
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ic_im_v1_4_policy.py:600: in apply_policy
+    if _short_roll_due(product, signal, state, day):
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ic_im_v1_4_policy.py:460: in _short_roll_due
+    require_short_put_mark(product, signal, state)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+product = 'IC'
+signal = {'call_action': 'HOLD', 'call_current_contract': None, 'call_target_contract': None, 'call_target_expiry': None, ...}
+state = {'v14_core_put_contract': None, 'v14_core_put_entry_premium': 0.4, 'v14_core_put_profit3x_eligible': True, 'v14_core_put_qty': 0.0, ...}
+
+    def require_short_put_mark(product: str, signal: dict[str, Any], state: dict[str, Any],
+                               *, require_binding: bool = False) -> None:
+        """Unknown decay evidence cannot mean an observed, unchanged short route.
+    
+        Pure policy callers supply a mark for the signal day by contract. Adapters
+        and new ledger writes additionally bind that observation to day and leg.
+        Historical records are not revalidated under this new-write requirement.
+        """
+        if not short_put_mark_required(product, signal, state):
+            return
+        mark = signal.get("v14_short_put_mark")
+        try:
+            valid = not isinstance(mark, bool) and mark is not None and math.isfinite(float(mark)) and float(mark) > 0
+        except (TypeError, ValueError, OverflowError):
+            valid = False
+        if not valid:
+>           raise RuntimeError(f"{product} held short Put lacks a finite positive current-day mark")
+E           RuntimeError: IC held short Put lacks a finite positive current-day mark
+
+ic_im_v1_4_policy.py:448: RuntimeError
+_ test_missing_revision_or_required_opening_event_is_rejected[pending_short_event-IM] _
+
+tmp_path = WindowsPath('D:/动量策略/IC和IM滚动套利/quant_research_runs/20261023_redteam_repairs_v3/daily_gate_01/isolated_temp/icim_put_7a380f6a/pytest/test_missing_revision_or_requi5')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001D46888C0C0>
+product = 'IM', omit = 'pending_short_event'
+
+    @pytest.mark.parametrize('product',['IC','IM'])
+    @pytest.mark.parametrize('omit',['revision','event_list','pending_short_event'])
+    def test_missing_revision_or_required_opening_event_is_rejected(tmp_path,monkeypatch,product,omit):
+        monkeypatch.setattr(execution,'EFFECTIVE_DATE',fixture.DAY)
+        monkeypatch.setattr(bot.fear_grid,'EFFECTIVE_SIGNAL_DATE',date(2100,1,1))
+        record=fixture._record();store,record=fixture._persist(tmp_path,record)
+        before=state.anchors_from_record(record);other='IM' if product=='IC' else 'IC'
+        signals={p:fixture._signal(p,before[p],candidate=candidate(p) if p==product else None,
+                  extra=dict(momentum_120=.1,valuation_tier=1,valuation_puts_per_full_core=1)) for p in (product,other)}
+        for s in signals.values():s['v14_opening_events']=[]
+        if omit=='revision':signals[product].pop('v14_execution_revision')
+        elif omit=='event_list':signals[product].pop('v14_opening_events')
+        else:
+            record=store.append_confirmed_signals(record,signals);before=state.anchors_from_record(record)
+            pending=before[product]['v14_short_put_open_pending'];day=execution.as_day(pending['execution_day'])
+            event=dict(kind='short_put',plan=pending,status='confirmed_open_research_price',prices=prices(pending,day))
+            held=execution.project_short_open(product,before[product],event,day)
+>           signals={product:fixture._signal(product,held,day),other:fixture._signal(other,before[other],day)}
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_ic_im_put_delivery_completion_20261016.py:97: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+test_ic_im_ordinary_put_route_fix_20261013.py:150: in _signal
+    signal = policy.apply_policy(product, signal, current, candidate=candidate or {"tradable": False})
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ic_im_v1_4_policy.py:600: in apply_policy
+    if _short_roll_due(product, signal, state, day):
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ic_im_v1_4_policy.py:460: in _short_roll_due
+    require_short_put_mark(product, signal, state)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+product = 'IM'
+signal = {'call_action': 'HOLD', 'call_current_contract': None, 'call_target_contract': None, 'call_target_expiry': None, ...}
+state = {'v14_core_put_contract': None, 'v14_core_put_entry_premium': 400.0, 'v14_core_put_profit3x_eligible': True, 'v14_core_put_qty': 0.0, ...}
+
+    def require_short_put_mark(product: str, signal: dict[str, Any], state: dict[str, Any],
+                               *, require_binding: bool = False) -> None:
+        """Unknown decay evidence cannot mean an observed, unchanged short route.
+    
+        Pure policy callers supply a mark for the signal day by contract. Adapters
+        and new ledger writes additionally bind that observation to day and leg.
+        Historical records are not revalidated under this new-write requirement.
+        """
+        if not short_put_mark_required(product, signal, state):
+            return
+        mark = signal.get("v14_short_put_mark")
+        try:
+            valid = not isinstance(mark, bool) and mark is not None and math.isfinite(float(mark)) and float(mark) > 0
+        except (TypeError, ValueError, OverflowError):
+            valid = False
+        if not valid:
+>           raise RuntimeError(f"{product} held short Put lacks a finite positive current-day mark")
+E           RuntimeError: IM held short Put lacks a finite positive current-day mark
+
+ic_im_v1_4_policy.py:448: RuntimeError
+_______ test_short_cost_cannot_be_confirmed_without_committed_plan[IC] ________
+
+tmp_path = WindowsPath('D:/动量策略/IC和IM滚动套利/quant_research_runs/20261023_redteam_repairs_v3/daily_gate_01/isolated_temp/icim_put_7a380f6a/pytest/test_short_cost_cannot_be_conf0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001D46888E7B0>
+product = 'IC'
+
+    @pytest.mark.parametrize('product',['IC','IM'])
+    def test_short_cost_cannot_be_confirmed_without_committed_plan(tmp_path,monkeypatch,product):
+        store,record,signals,_=_entry_case(tmp_path,monkeypatch,product)
+        signals[product].update(v14_short_put_open_pending=None,v14_short_put_entry_premium=999.,
+            v14_short_put_entry_price_day=fixture.DAY,v14_short_put_cost_basis='confirmed_dated_open')
+        with pytest.raises(RuntimeError,match='独立核验'):
+>           store.append_confirmed_signals(record,signals)
+
+test_ic_im_put_delivery_completion_20261016.py:135: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_v1_4_state.py:1550: in append_confirmed_signals
+    return self._append_locked(current, signals)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+poe_ic_im_v1_4_state.py:1553: in _append_locked
+    anchors = derive_next_anchors(current, signals)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+poe_ic_im_v1_4_state.py:1020: in derive_next_anchors
+    require_persistence_eligible(signals[product], product, check_grid=False)
+poe_ic_im_v1_4_state.py:259: in require_persistence_eligible
+    v14_policy.require_short_put_mark(product, signal, signal, require_binding=True)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+product = 'IC'
+signal = {'call_action': 'HOLD', 'call_current_contract': None, 'call_target_contract': None, 'call_target_expiry': None, ...}
+state = {'call_action': 'HOLD', 'call_current_contract': None, 'call_target_contract': None, 'call_target_expiry': None, ...}
+
+    def require_short_put_mark(product: str, signal: dict[str, Any], state: dict[str, Any],
+                               *, require_binding: bool = False) -> None:
+        """Unknown decay evidence cannot mean an observed, unchanged short route.
+    
+        Pure policy callers supply a mark for the signal day by contract. Adapters
+        and new ledger writes additionally bind that observation to day and leg.
+        Historical records are not revalidated under this new-write requirement.
+        """
+        if not short_put_mark_required(product, signal, state):
+            return
+        mark = signal.get("v14_short_put_mark")
+        try:
+            valid = not isinstance(mark, bool) and mark is not None and math.isfinite(float(mark)) and float(mark) > 0
+        except (TypeError, ValueError, OverflowError):
+            valid = False
+        if not valid:
+>           raise RuntimeError(f"{product} held short Put lacks a finite positive current-day mark")
+E           RuntimeError: IC held short Put lacks a finite positive current-day mark
+
+ic_im_v1_4_policy.py:448: RuntimeError
+
+During handling of the above exception, another exception occurred:
+
+tmp_path = WindowsPath('D:/动量策略/IC和IM滚动套利/quant_research_runs/20261023_redteam_repairs_v3/daily_gate_01/isolated_temp/icim_put_7a380f6a/pytest/test_short_cost_cannot_be_conf0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001D46888E7B0>
+product = 'IC'
+
+    @pytest.mark.parametrize('product',['IC','IM'])
+    def test_short_cost_cannot_be_confirmed_without_committed_plan(tmp_path,monkeypatch,product):
+        store,record,signals,_=_entry_case(tmp_path,monkeypatch,product)
+        signals[product].update(v14_short_put_open_pending=None,v14_short_put_entry_premium=999.,
+            v14_short_put_entry_price_day=fixture.DAY,v14_short_put_cost_basis='confirmed_dated_open')
+>       with pytest.raises(RuntimeError,match='独立核验'):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: Regex pattern did not match.
+E         Expected regex: '独立核验'
+E         Actual message: 'IC held short Put lacks a finite positive current-day mark'
+
+test_ic_im_put_delivery_completion_20261016.py:134: AssertionError
+_______ test_short_cost_cannot_be_confirmed_without_committed_plan[IM] ________
+
+tmp_path = WindowsPath('D:/动量策略/IC和IM滚动套利/quant_research_runs/20261023_redteam_repairs_v3/daily_gate_01/isolated_temp/icim_put_7a380f6a/pytest/test_short_cost_cannot_be_conf1')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001D467F826D0>
+product = 'IM'
+
+    @pytest.mark.parametrize('product',['IC','IM'])
+    def test_short_cost_cannot_be_confirmed_without_committed_plan(tmp_path,monkeypatch,product):
+        store,record,signals,_=_entry_case(tmp_path,monkeypatch,product)
+        signals[product].update(v14_short_put_open_pending=None,v14_short_put_entry_premium=999.,
+            v14_short_put_entry_price_day=fixture.DAY,v14_short_put_cost_basis='confirmed_dated_open')
+        with pytest.raises(RuntimeError,match='独立核验'):
+>           store.append_confirmed_signals(record,signals)
+
+test_ic_im_put_delivery_completion_20261016.py:135: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_v1_4_state.py:1550: in append_confirmed_signals
+    return self._append_locked(current, signals)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+poe_ic_im_v1_4_state.py:1553: in _append_locked
+    anchors = derive_next_anchors(current, signals)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+poe_ic_im_v1_4_state.py:1020: in derive_next_anchors
+    require_persistence_eligible(signals[product], product, check_grid=False)
+poe_ic_im_v1_4_state.py:259: in require_persistence_eligible
+    v14_policy.require_short_put_mark(product, signal, signal, require_binding=True)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+product = 'IM'
+signal = {'call_action': 'HOLD', 'call_current_contract': None, 'call_target': '目标空仓（fix6停止卖Call）', 'call_target_contract': None, ...}
+state = {'call_action': 'HOLD', 'call_current_contract': None, 'call_target': '目标空仓（fix6停止卖Call）', 'call_target_contract': None, ...}
+
+    def require_short_put_mark(product: str, signal: dict[str, Any], state: dict[str, Any],
+                               *, require_binding: bool = False) -> None:
+        """Unknown decay evidence cannot mean an observed, unchanged short route.
+    
+        Pure policy callers supply a mark for the signal day by contract. Adapters
+        and new ledger writes additionally bind that observation to day and leg.
+        Historical records are not revalidated under this new-write requirement.
+        """
+        if not short_put_mark_required(product, signal, state):
+            return
+        mark = signal.get("v14_short_put_mark")
+        try:
+            valid = not isinstance(mark, bool) and mark is not None and math.isfinite(float(mark)) and float(mark) > 0
+        except (TypeError, ValueError, OverflowError):
+            valid = False
+        if not valid:
+>           raise RuntimeError(f"{product} held short Put lacks a finite positive current-day mark")
+E           RuntimeError: IM held short Put lacks a finite positive current-day mark
+
+ic_im_v1_4_policy.py:448: RuntimeError
+
+During handling of the above exception, another exception occurred:
+
+tmp_path = WindowsPath('D:/动量策略/IC和IM滚动套利/quant_research_runs/20261023_redteam_repairs_v3/daily_gate_01/isolated_temp/icim_put_7a380f6a/pytest/test_short_cost_cannot_be_conf1')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001D467F826D0>
+product = 'IM'
+
+    @pytest.mark.parametrize('product',['IC','IM'])
+    def test_short_cost_cannot_be_confirmed_without_committed_plan(tmp_path,monkeypatch,product):
+        store,record,signals,_=_entry_case(tmp_path,monkeypatch,product)
+        signals[product].update(v14_short_put_open_pending=None,v14_short_put_entry_premium=999.,
+            v14_short_put_entry_price_day=fixture.DAY,v14_short_put_cost_basis='confirmed_dated_open')
+>       with pytest.raises(RuntimeError,match='独立核验'):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: Regex pattern did not match.
+E         Expected regex: '独立核验'
+E         Actual message: 'IM held short Put lacks a finite positive current-day mark'
+
+test_ic_im_put_delivery_completion_20261016.py:134: AssertionError
+_______ test_confirmed_short_can_schedule_and_confirm_another_roll[IC] ________
+
+tmp_path = WindowsPath('D:/动量策略/IC和IM滚动套利/quant_research_runs/20261023_redteam_repairs_v3/daily_gate_01/isolated_temp/icim_put_7a380f6a/pytest/test_confirmed_short_can_sched0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001D467FDA2E0>
+product = 'IC'
+
+    @pytest.mark.parametrize('product',['IC','IM'])
+    def test_confirmed_short_can_schedule_and_confirm_another_roll(tmp_path,monkeypatch,product):
+        store,record,signals,other=_entry_case(tmp_path,monkeypatch,product)
+        record=store.append_confirmed_signals(record,signals)
+        before=state.anchors_from_record(record);pending=before[product]['v14_short_put_open_pending']
+        day=execution.as_day(pending['execution_day'])
+        event=dict(kind='short_put',plan=pending,status='confirmed_open_research_price',prices=prices(pending,day))
+        held=execution.project_short_open(product,before[product],event,day)
+        replacement=candidate(product,'12');replacement['expiry']=date(2026,12,23 if product=='IC' else 18)
+        signals={product:fixture._signal(product,held,day,candidate=replacement,
+            extra=dict(momentum_120=.1,valuation_tier=1,valuation_puts_per_full_core=1,v14_short_put_mark=40.)),
+            other:fixture._signal(other,before[other],day)}
+        signals[product]['v14_opening_events']=[event];signals[other]['v14_opening_events']=[]
+        assert signals[product]['v14_action']=='ROLL_SHORT_PUT'
+>       record=store.append_confirmed_signals(record,signals)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_ic_im_put_delivery_completion_20261016.py:152: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_v1_4_state.py:1550: in append_confirmed_signals
+    return self._append_locked(current, signals)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+poe_ic_im_v1_4_state.py:1553: in _append_locked
+    anchors = derive_next_anchors(current, signals)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+poe_ic_im_v1_4_state.py:1115: in derive_next_anchors
+    v14_policy.require_short_put_mark(product, signal, anchor, require_binding=True)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+product = 'IC'
+signal = {'call_action': 'HOLD', 'call_current_contract': None, 'call_target_contract': None, 'call_target_expiry': None, ...}
+state = {'core_contract': 'IC2608', 'core_settle': 7949.8, 'last_verified_day': datetime.date(2026, 9, 30), 'post_core_contract': 'IC2612', ...}
+
+    def require_short_put_mark(product: str, signal: dict[str, Any], state: dict[str, Any],
+                               *, require_binding: bool = False) -> None:
+        """Unknown decay evidence cannot mean an observed, unchanged short route.
+    
+        Pure policy callers supply a mark for the signal day by contract. Adapters
+        and new ledger writes additionally bind that observation to day and leg.
+        Historical records are not revalidated under this new-write requirement.
+        """
+        if not short_put_mark_required(product, signal, state):
+            return
+        mark = signal.get("v14_short_put_mark")
+        try:
+            valid = not isinstance(mark, bool) and mark is not None and math.isfinite(float(mark)) and float(mark) > 0
+        except (TypeError, ValueError, OverflowError):
+            valid = False
+        if not valid:
+            raise RuntimeError(f"{product} held short Put lacks a finite positive current-day mark")
+        mark_day = signal.get("v14_short_put_mark_day")
+        mark_contract = signal.get("v14_short_put_mark_contract")
+        if ((require_binding or mark_day is not None)
+                and str(mark_day) != str(signal["market_date"])):
+>           raise RuntimeError(f"{product} held short Put mark is not bound to the signal day")
+E           RuntimeError: IC held short Put mark is not bound to the signal day
+
+ic_im_v1_4_policy.py:453: RuntimeError
+_______ test_confirmed_short_can_schedule_and_confirm_another_roll[IM] ________
+
+tmp_path = WindowsPath('D:/动量策略/IC和IM滚动套利/quant_research_runs/20261023_redteam_repairs_v3/daily_gate_01/isolated_temp/icim_put_7a380f6a/pytest/test_confirmed_short_can_sched1')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001D468608C20>
+product = 'IM'
+
+    @pytest.mark.parametrize('product',['IC','IM'])
+    def test_confirmed_short_can_schedule_and_confirm_another_roll(tmp_path,monkeypatch,product):
+        store,record,signals,other=_entry_case(tmp_path,monkeypatch,product)
+        record=store.append_confirmed_signals(record,signals)
+        before=state.anchors_from_record(record);pending=before[product]['v14_short_put_open_pending']
+        day=execution.as_day(pending['execution_day'])
+        event=dict(kind='short_put',plan=pending,status='confirmed_open_research_price',prices=prices(pending,day))
+        held=execution.project_short_open(product,before[product],event,day)
+        replacement=candidate(product,'12');replacement['expiry']=date(2026,12,23 if product=='IC' else 18)
+        signals={product:fixture._signal(product,held,day,candidate=replacement,
+            extra=dict(momentum_120=.1,valuation_tier=1,valuation_puts_per_full_core=1,v14_short_put_mark=40.)),
+            other:fixture._signal(other,before[other],day)}
+        signals[product]['v14_opening_events']=[event];signals[other]['v14_opening_events']=[]
+        assert signals[product]['v14_action']=='ROLL_SHORT_PUT'
+>       record=store.append_confirmed_signals(record,signals)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_ic_im_put_delivery_completion_20261016.py:152: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_v1_4_state.py:1550: in append_confirmed_signals
+    return self._append_locked(current, signals)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+poe_ic_im_v1_4_state.py:1553: in _append_locked
+    anchors = derive_next_anchors(current, signals)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+poe_ic_im_v1_4_state.py:1115: in derive_next_anchors
+    v14_policy.require_short_put_mark(product, signal, anchor, require_binding=True)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+product = 'IM'
+signal = {'call_action': 'HOLD', 'call_current_contract': None, 'call_target': '目标空仓（fix6停止卖Call）', 'call_target_contract': None, ...}
+state = {'call_contract': 'MO2608-C-8800', 'call_equivalent_units': 0.5, 'call_mark': 0.8, 'call_strike': 8800.0, ...}
+
+    def require_short_put_mark(product: str, signal: dict[str, Any], state: dict[str, Any],
+                               *, require_binding: bool = False) -> None:
+        """Unknown decay evidence cannot mean an observed, unchanged short route.
+    
+        Pure policy callers supply a mark for the signal day by contract. Adapters
+        and new ledger writes additionally bind that observation to day and leg.
+        Historical records are not revalidated under this new-write requirement.
+        """
+        if not short_put_mark_required(product, signal, state):
+            return
+        mark = signal.get("v14_short_put_mark")
+        try:
+            valid = not isinstance(mark, bool) and mark is not None and math.isfinite(float(mark)) and float(mark) > 0
+        except (TypeError, ValueError, OverflowError):
+            valid = False
+        if not valid:
+            raise RuntimeError(f"{product} held short Put lacks a finite positive current-day mark")
+        mark_day = signal.get("v14_short_put_mark_day")
+        mark_contract = signal.get("v14_short_put_mark_contract")
+        if ((require_binding or mark_day is not None)
+                and str(mark_day) != str(signal["market_date"])):
+>           raise RuntimeError(f"{product} held short Put mark is not bound to the signal day")
+E           RuntimeError: IM held short Put mark is not bound to the signal day
+
+ic_im_v1_4_policy.py:453: RuntimeError
+============================== warnings summary ===============================
+C:\Python314\Lib\site-packages\fastapi_poe\types.py:171
+  C:\Python314\Lib\site-packages\fastapi_poe\types.py:171: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    class RequestContext(BaseModel):
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED test_poe_ic_im_v1_4_state.py::test_reject_corrupt_short_state_before_hash_write[changes0]
+FAILED test_poe_ic_im_v1_4_state.py::test_reject_corrupt_short_state_before_hash_write[changes1]
+FAILED test_poe_ic_im_v1_4_state.py::test_reject_corrupt_short_state_before_hash_write[changes2]
+FAILED test_poe_ic_im_v1_4_state.py::test_reject_corrupt_short_state_before_hash_write[changes3]
+FAILED test_poe_ic_im_v1_4_state.py::test_reject_corrupt_short_state_before_hash_write[changes4]
+FAILED test_poe_ic_im_v1_4_state.py::test_reject_corrupt_short_state_before_hash_write[changes5]
+FAILED test_poe_ic_im_v1_4_state.py::test_reject_corrupt_short_state_before_hash_write[changes6]
+FAILED test_poe_ic_im_v1_4_state.py::test_reject_corrupt_short_state_before_hash_write[changes7]
+FAILED test_poe_ic_im_v1_4_state.py::test_reject_corrupt_short_state_before_hash_write[changes8]
+FAILED test_poe_ic_im_v1_4_state.py::test_reject_corrupt_short_state_before_hash_write[changes9]
+FAILED test_poe_ic_im_v1_4_state.py::test_reject_corrupt_short_state_before_hash_write[changes10]
+FAILED test_poe_ic_im_v1_4_state.py::test_reject_corrupt_short_state_before_hash_write[changes11]
+FAILED test_poe_ic_im_v1_4_state.py::test_reject_corrupt_short_state_before_hash_write[changes12]
+FAILED test_poe_ic_im_v1_4_state.py::test_reject_corrupt_short_state_before_hash_write[changes13]
+FAILED test_poe_ic_im_v1_4_state.py::test_reject_corrupt_short_state_before_hash_write[changes14]
+FAILED test_ic_im_ordinary_put_route_fix_20261013.py::test_nonfuture_momentum_plan_survives_restart_and_requires_exact_open[False-IC-short_put]
+FAILED test_ic_im_ordinary_put_route_fix_20261013.py::test_nonfuture_momentum_plan_survives_restart_and_requires_exact_open[False-IM-short_put]
+FAILED test_ic_im_ordinary_put_route_fix_20261013.py::test_nonfuture_momentum_plan_survives_restart_and_requires_exact_open[True-IC-short_put]
+FAILED test_ic_im_ordinary_put_route_fix_20261013.py::test_nonfuture_momentum_plan_survives_restart_and_requires_exact_open[True-IM-short_put]
+FAILED test_ic_im_ordinary_put_route_fix_20261013.py::test_enter_short_route_does_not_restore_core_due_to_momentum_pending[IC]
+FAILED test_ic_im_ordinary_put_route_fix_20261013.py::test_enter_short_route_does_not_restore_core_due_to_momentum_pending[IM]
+FAILED test_ic_im_put_execution_repairs_20261016.py::test_short_open_cost_survives_real_hash_ledger_restart[IC]
+FAILED test_ic_im_put_execution_repairs_20261016.py::test_short_open_cost_survives_real_hash_ledger_restart[IM]
+FAILED test_ic_im_put_delivery_completion_20261016.py::test_ledger_rejects_conflicting_confirmed_short_cost[premium-IC]
+FAILED test_ic_im_put_delivery_completion_20261016.py::test_ledger_rejects_conflicting_confirmed_short_cost[premium-IM]
+FAILED test_ic_im_put_delivery_completion_20261016.py::test_ledger_rejects_conflicting_confirmed_short_cost[price_day-IC]
+FAILED test_ic_im_put_delivery_completion_20261016.py::test_ledger_rejects_conflicting_confirmed_short_cost[price_day-IM]
+FAILED test_ic_im_put_delivery_completion_20261016.py::test_ledger_rejects_conflicting_confirmed_short_cost[no_price_day-IC]
+FAILED test_ic_im_put_delivery_completion_20261016.py::test_ledger_rejects_conflicting_confirmed_short_cost[no_price_day-IM]
+FAILED test_ic_im_put_delivery_completion_20261016.py::test_missing_revision_or_required_opening_event_is_rejected[pending_short_event-IC]
+FAILED test_ic_im_put_delivery_completion_20261016.py::test_missing_revision_or_required_opening_event_is_rejected[pending_short_event-IM]
+FAILED test_ic_im_put_delivery_completion_20261016.py::test_short_cost_cannot_be_confirmed_without_committed_plan[IC]
+FAILED test_ic_im_put_delivery_completion_20261016.py::test_short_cost_cannot_be_confirmed_without_committed_plan[IM]
+FAILED test_ic_im_put_delivery_completion_20261016.py::test_confirmed_short_can_schedule_and_confirm_another_roll[IC]
+FAILED test_ic_im_put_delivery_completion_20261016.py::test_confirmed_short_can_schedule_and_confirm_another_roll[IM]
+35 failed, 1148 passed, 5 deselected, 1 warning in 50.19s

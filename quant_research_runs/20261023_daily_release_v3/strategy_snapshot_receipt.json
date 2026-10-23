@@ -1,0 +1,7 @@
+{
+  "strategy_sha": "e3f26824a8ff0a89b6125d4385f75e0a6cfa2a7e",
+  "kind": "immutable production/test filesystem snapshot; partial Git object graph, not a full repository clone",
+  "manifest_from_commit_verified": true,
+  "execution_files_match": 29,
+  "initial_builder_failure": "new Git default HEAD referenced master; corrected HEAD to existing exact main ref without editing commit or source"
+}

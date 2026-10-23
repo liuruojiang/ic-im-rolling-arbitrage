@@ -1,0 +1,16 @@
+{
+  "base_commit": "58986fda2c17df93eb3925bf09a1cebd55a7869e",
+  "exit_code": 1,
+  "elapsed_seconds": 22.57010900000023,
+  "source_before_equals_after": false,
+  "source_files": 1173,
+  "acceptance_error": "audit evidence rejected: test process did not exit zero",
+  "artifacts": {
+    "collection.json": "a5357d77cd63df84bab73325d3d8065d894bea49d9f7502aba5456ea94619766",
+    "regression.xml": "877b10dacdace1e4e991435501dc1a92ed976e1e1730f50f54ad64fe0db0cf2c",
+    "regression.txt": "7a15c86fe55436e8cdecbecd9a186940cdef3c61caa00e67b17b4163e3e5d2e4",
+    "test_run.json": "d8a6abb03d877d1e165a3d9652cac9190d9958cb2c3d79e8cae82dae3afe7eca",
+    "source_before.json": "7000baf9b7be99385f30604f81f62bde74233ab9fe714794064b72464ca7676c",
+    "source_after.json": "fc401165c5ad2c3d75d98e1305baabfa9b8e649db29bdb4f70afa9acb31a4a2e"
+  }
+}

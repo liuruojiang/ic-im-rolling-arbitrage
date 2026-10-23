@@ -1,0 +1,54 @@
+[
+  {
+    "id": "EV2-01",
+    "priority": "P2",
+    "title": "Sina MO batch replay strips an invalid identifier prefix and bypasses exact variable identity validation",
+    "commit": "58986fda2c17df93eb3925bf09a1cebd55a7869e",
+    "locations": [
+      {
+        "file": "poe_ic_im_mainline_v1_4_bot.py",
+        "lines": [
+          183,
+          186
+        ]
+      },
+      {
+        "file": "ic_im_signal_evidence_v1.py",
+        "lines": [
+          713,
+          719
+        ]
+      }
+    ],
+    "entry_path": "ic_im_evidence_adapter_v1.capture_daily (MO source Eastmoney) -> _prefetch_mo_replay_verification -> CaptureSession -> EvidenceReader.http_response (batch projection) -> verify_sina_option_quote",
+    "trigger": "Recorded Sina batch variables use xhq_str_P_OP_mo... or not_hq_str_P_OP_mo... instead of exact hq_str_P_OP_mo...; request contains at least two symbols so single-symbol recovery takes the projection branch.",
+    "expected": "Malformed identity rejected before seal and/or by replay; direct and recovered quote validation must agree.",
+    "actual": "Both prefixes pass prefetch. Generic capture is marked complete, validates hashes and loads. Projection removes the invalid prefix and verify_sina_option_quote accepts the price. The same malformed single packet is rejected by the direct consumer.",
+    "reproduced_price": 74.0,
+    "tests": {
+      "passed": 3,
+      "failed_expected_rejection": 4,
+      "errors": 0,
+      "skipped": 0
+    },
+    "fixture": {
+      "original_file": "quant_research_runs/20261022_free_source_integration_v1/wire_probe_01/response.bin",
+      "original_sha256": "8ee4b6f3a1fd92392430213f7d81f6642deada308c84c50dfef58a91aeb2112c",
+      "first_packet_sha256": "02c1eda77f4400ba7f75eb6be13614aaebec2e8b2e5598de5470fbd2ce00bc94",
+      "real_first_contract": "MO2611-P-6000",
+      "real_quote_timestamp": "2026-10-22 15:00:00",
+      "mutations": [
+        "add x or not_ before hq_str_",
+        "duplicate first quote with symbol changed to MO2611-P-6100 only, to exercise batch projection; no claim second contract market values are real"
+      ]
+    },
+    "scope_limit": "No live provider corruption was observed; no full builder/StateStore/ledger acceptance asserted. This proves identity loss in the real capture/seal/load/projection/consumer chain under explicitly mutated raw input.",
+    "patch": "Use one shared exact-identifier parser for direct consumption, prefetch and replay projection; require a negative lookbehind/lexical boundary before hq_str_, validate unique exact expected IDs, and project only the validated full variable span. Do not reconstruct a legitimate identifier from an arbitrary substring. Reject old malformed archives on read.",
+    "acceptance": [
+      "Existing 3 positive/direct rejection controls stay passing",
+      "4 rejection regression cases pass after correction",
+      "Add duplicate/overlapping batch and prefix cases covering both capture and read paths",
+      "Re-run the 43-file daily gate and full cumulative bound suite, then real original-day IC/IM replay parity"
+    ]
+  }
+]

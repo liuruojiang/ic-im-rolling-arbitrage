@@ -1,0 +1,35 @@
+{
+  "status": "PASS",
+  "checks": [
+    {
+      "report": "audit_market_evidence/report.json",
+      "files": 3,
+      "match_final": true
+    },
+    {
+      "report": "audit_server/result.json",
+      "files": 1,
+      "match_final": true
+    },
+    {
+      "receipt_bindings": "audit_strategy_state/final01/source_after.json",
+      "files": 9,
+      "match_final": true
+    },
+    {
+      "receipt_bindings": "audit_server/collector_timing/run02/source_after.json",
+      "files": 9,
+      "match_final": true
+    },
+    {
+      "receipt_bindings": "independent/run_03_r3/source_after.json",
+      "files": 1177,
+      "match_final": true
+    },
+    {
+      "receipt_bindings": "independent/audit_clock_wait/run_03_r3/source_after.json",
+      "files": 1119,
+      "match_final": true
+    }
+  ]
+}

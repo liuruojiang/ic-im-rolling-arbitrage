@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="3" skipped="0" tests="5" time="9.639" timestamp="2026-10-23T14:05:49.048937+08:00" hostname="DESKTOP-95I7VVU"><testcase classname="quant_research_runs.20261023_latest_redteam_v2.agents.strategy_v2.test_strategy_v2" name="test_missing_active_short_mark_must_not_publish_normal_hold[IC]" time="0.006"><failure message="AssertionError: {'v14_action': 'HOLD', 'v14_candidate_data_status': 'not_required: route_does_not_consume_candidate', 'v14_short_put_mark': None}&#10;assert 'HOLD' == 'HOLD_FAIL_CLOSED'&#10;  &#10;  - HOLD_FAIL_CLOSED&#10;  + HOLD">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000001C2A7C70D60&gt;
+product = 'IC'
+
+    @pytest.mark.parametrize("product", ["IC", "IM"])
+    def test_missing_active_short_mark_must_not_publish_normal_hold(monkeypatch, product):
+        a, frame=wire_adapter(monkeypatch,product,short_anchor(product),mark=.8)
+        if product=="IC":
+            monkeypatch.setattr(bot,"fetch_option_closes",lambda *a:pd.Series([.8],index=[pd.Timestamp("2026-11-30")]))
+        else:
+            frame=frame.iloc[0:0].copy()
+        out=bot._apply_v14_live_policy(product,signal(product),mo_quotes=frame)
+&gt;       assert out["v14_action"]=="HOLD_FAIL_CLOSED", {k:out.get(k) for k in ["v14_action","v14_short_put_mark","v14_candidate_data_status"]}
+E       AssertionError: {'v14_action': 'HOLD', 'v14_candidate_data_status': 'not_required: route_does_not_consume_candidate', 'v14_short_put_mark': None}
+E       assert 'HOLD' == 'HOLD_FAIL_CLOSED'
+E         
+E         - HOLD_FAIL_CLOSED
+E         + HOLD
+
+quant_research_runs\20261023_latest_redteam_v2\agents\strategy_v2\test_strategy_v2.py:22: AssertionError</failure></testcase><testcase classname="quant_research_runs.20261023_latest_redteam_v2.agents.strategy_v2.test_strategy_v2" name="test_missing_active_short_mark_must_not_publish_normal_hold[IM]" time="0.004"><failure message="AssertionError: {'v14_action': 'HOLD', 'v14_candidate_data_status': 'not_required: route_does_not_consume_candidate', 'v14_short_put_mark': None}&#10;assert 'HOLD' == 'HOLD_FAIL_CLOSED'&#10;  &#10;  - HOLD_FAIL_CLOSED&#10;  + HOLD">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000001C2C5C909D0&gt;
+product = 'IM'
+
+    @pytest.mark.parametrize("product", ["IC", "IM"])
+    def test_missing_active_short_mark_must_not_publish_normal_hold(monkeypatch, product):
+        a, frame=wire_adapter(monkeypatch,product,short_anchor(product),mark=.8)
+        if product=="IC":
+            monkeypatch.setattr(bot,"fetch_option_closes",lambda *a:pd.Series([.8],index=[pd.Timestamp("2026-11-30")]))
+        else:
+            frame=frame.iloc[0:0].copy()
+        out=bot._apply_v14_live_policy(product,signal(product),mo_quotes=frame)
+&gt;       assert out["v14_action"]=="HOLD_FAIL_CLOSED", {k:out.get(k) for k in ["v14_action","v14_short_put_mark","v14_candidate_data_status"]}
+E       AssertionError: {'v14_action': 'HOLD', 'v14_candidate_data_status': 'not_required: route_does_not_consume_candidate', 'v14_short_put_mark': None}
+E       assert 'HOLD' == 'HOLD_FAIL_CLOSED'
+E         
+E         - HOLD_FAIL_CLOSED
+E         + HOLD
+
+quant_research_runs\20261023_latest_redteam_v2\agents\strategy_v2\test_strategy_v2.py:22: AssertionError</failure></testcase><testcase classname="quant_research_runs.20261023_latest_redteam_v2.agents.strategy_v2.test_strategy_v2" name="test_valid_active_short_mark_may_hold[IC]" time="0.005" /><testcase classname="quant_research_runs.20261023_latest_redteam_v2.agents.strategy_v2.test_strategy_v2" name="test_valid_active_short_mark_may_hold[IM]" time="0.002" /><testcase classname="quant_research_runs.20261023_latest_redteam_v2.agents.strategy_v2.test_strategy_v2" name="test_full_ic_builder_missing_history_day_must_be_diagnostic" time="6.397"><failure message="AssertionError: {'close_confirmed': True, 'ledger_eligible': None, 'v14_action': 'HOLD', 'v14_candidate_data_status': 'not_required: route_does_not_consume_candidate', ...}&#10;assert (None or 'HOLD' == 'HOLD_FAIL_CLOSED'&#10; +  where None = &lt;built-in method get of dict object at 0x000001C2C5DD5680&gt;('diagnostic_only')&#10; +    where &lt;built-in method get of dict object at 0x000001C2C5DD5680&gt; = {'calendar_coverage_warning': '交易日历覆盖预警：距离2026年末不足90天，2027年官方交易日历尚未载入；跨年日期仅作标注诊断，执行与落账须核验。；挂牌合约包含2027年到期日，但脚本尚未载入该年度官方...仅供诊断展示，不能作为新增目标、维护或提醒的日期依据；须补齐官方安排后验证', 'calendar_provisional': False, 'call_action': 'HOLD', 'call_current': '无', ...}.get&#10;  &#10;  - HOLD_FAIL_CLOSED&#10;  + HOLD)">tmp_path = WindowsPath('D:/动量策略/IC和IM滚动套利/quant_research_runs/20261023_latest_redteam_v2/agents/strategy_v2/run01/temp/icim_put_07fa0e28/pytest/test_full_ic_builder_missing_h0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000001C2C5C1DF20&gt;
+
+    def test_full_ic_builder_missing_history_day_must_be_diagnostic(tmp_path,monkeypatch):
+        import test_icim_round2_audit_lifecycle_20261021 as prior
+        store,record=prior.recent_store(tmp_path/"ledger")
+        anchors=prior.state.anchors_from_record(record); a=anchors["IC"]
+        prior.ledger._empty_core(a,"IC")
+        a.update(v14_route_state="short_put",v14_cycle_id="synthetic-existing-short",
+            v14_short_put_contract=prior.real.M,v14_short_put_security_id="10012099",
+            v14_short_put_qty_normalized=5.,v14_short_put_entry_premium=.4,
+            v14_short_put_expiry=date(2026,12,23),v14_short_put_cost_basis="confirmed_dated_open",
+            v14_short_put_entry_price_day=prior.PREVIOUS,
+            verified_momentum_put_delta=0.,verified_momentum_put_qty=0)
+        chain,stamp=prior.real.wire(monkeypatch)
+        monkeypatch.setattr(bot,"LIVE_CONTINUATION_ANCHOR",anchors)
+        prior.builder_inputs(monkeypatch,a,chain,stamp)
+        monkeypatch.setattr(bot,"fetch_sse_510500_quote",lambda:dict(date="20261021",time="150000",last=7.8,prev_close=7.8))
+        live=bot.live_proxy("IC",prior.CLOCK);live.update(momentum_120=.1,valuation_tier=1)
+        monkeypatch.setattr(bot,"live_proxy",lambda *a:deepcopy(live))
+        # Real-format prior-session historical closes, synthetic accepted holding;
+        # actual identity checks consume the preserved SSE fixture.
+        monkeypatch.setattr(bot,"fetch_option_closes",lambda *a:pd.Series([.4],index=[pd.Timestamp(prior.PREVIOUS)]))
+        out=bot.build_live_trade_signal("IC",prior.CLOCK,"close")
+&gt;       assert out.get("diagnostic_only") or out.get("v14_action")=="HOLD_FAIL_CLOSED", {k:out.get(k) for k in ["close_confirmed","ledger_eligible","v14_action","v14_short_put_mark","v14_candidate_data_status"]}
+E       AssertionError: {'close_confirmed': True, 'ledger_eligible': None, 'v14_action': 'HOLD', 'v14_candidate_data_status': 'not_required: route_does_not_consume_candidate', ...}
+E       assert (None or 'HOLD' == 'HOLD_FAIL_CLOSED'
+E        +  where None = &lt;built-in method get of dict object at 0x000001C2C5DD5680&gt;('diagnostic_only')
+E        +    where &lt;built-in method get of dict object at 0x000001C2C5DD5680&gt; = {'calendar_coverage_warning': '交易日历覆盖预警：距离2026年末不足90天，2027年官方交易日历尚未载入；跨年日期仅作标注诊断，执行与落账须核验。；挂牌合约包含2027年到期日，但脚本尚未载入该年度官方...仅供诊断展示，不能作为新增目标、维护或提醒的日期依据；须补齐官方安排后验证', 'calendar_provisional': False, 'call_action': 'HOLD', 'call_current': '无', ...}.get
+E         
+E         - HOLD_FAIL_CLOSED
+E         + HOLD)
+
+quant_research_runs\20261023_latest_redteam_v2\agents\strategy_v2\test_strategy_v2.py:52: AssertionError</failure></testcase></testsuite></testsuites>

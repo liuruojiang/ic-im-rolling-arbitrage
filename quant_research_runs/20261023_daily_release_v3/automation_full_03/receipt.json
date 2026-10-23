@@ -1,0 +1,28 @@
+{
+  "exit_code": 0,
+  "counts": {
+    "tests": 1347,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "scope": "all automation tests",
+  "elapsed_seconds": 41.26955209999869,
+  "source_files": 187,
+  "source_before_equals_after": true,
+  "changed_files": [],
+  "collected_nodes": 1170,
+  "windows_test_temp_mode_adaptations": {
+    "mkdir": 276,
+    "chmod": 0
+  },
+  "adaptation_scope": "D:\\\u52a8\u91cf\u7b56\u7565\\IC\u548cIM\u6eda\u52a8\u5957\u5229\\quant_research_runs\\20261023_daily_release_v3\\automation_full_03\\isolated_temp",
+  "non_source_directory_exclusions": [
+    ".git",
+    "__pycache__",
+    ".pytest_cache",
+    ".hypothesis"
+  ],
+  "runner_sha256": "9b54c3c11f5099290e7f2bb95c74fad2ab894daffe8f1485d8b8bea33f2c5a55",
+  "config_sha256": "d01637a0417e7fd4c8704ba8ed3b7717601c8b6396dd7fe3ab4303007ee70ffd"
+}

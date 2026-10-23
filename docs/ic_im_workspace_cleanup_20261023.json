@@ -1,0 +1,51 @@
+{
+  "checked_at": "2026-10-23T21:01:57.853198+08:00",
+  "scope": "Classify local artifacts and remove archived disposable test state; preserve release code, immutable specifications, original evidence and ledgers. No strategy or deployment change.",
+  "baseline_commit": "58986fda2c17df93eb3925bf09a1cebd55a7869e",
+  "remote_main_verified": "cb98c6af72afb53e7d44e7d89bdadba2fea6a318",
+  "disposable_targets_removed": 58,
+  "disposable_removal_failures": [],
+  "archived_files": 35674,
+  "archived_uncompressed_bytes": 251753956,
+  "local_recovery_archive": ".codex_backups/workspace_cleanup_20261023/pre_cleanup.zip",
+  "tracked_files_deleted": 0,
+  "existing_modified_root_python_files_unchanged": [
+    "capture_ic_im_v1_4_inputs.py",
+    "ic_im_evidence_adapter_v1.py",
+    "ic_im_signal_evidence_v1.py",
+    "ic_im_v1_4_policy.py",
+    "poe_ic_im_mainline_v1_4_bot.py",
+    "poe_ic_im_v1_4_server.py",
+    "poe_ic_im_v1_4_state.py",
+    "run_ic_im_v1_4_delivery_tests.py",
+    "test_ic_im_ordinary_put_route_fix_20261013.py",
+    "test_ic_im_v1_4_integration_guards.py",
+    "test_ic_im_v1_4_state_guards.py",
+    "test_icim_round3_evidence_integration_20261021.py",
+    "test_icim_round4_recovery_20261021.py",
+    "test_icim_round5_recording_semantics_20261021.py"
+  ],
+  "local_only_classification": "VIP valuation recomputation and original email, duplicate checkouts, backups, synthetic recovery ledgers and local transport artifacts remain local and are excluded from Git. Review rules are scoped to the dated 20261023 runs.",
+  "artifact_validation": {
+    "counts": {
+      "json": 458,
+      "python": 62,
+      "xml": 66,
+      "frozen_sha": 6
+    },
+    "issues": [],
+    "execution_manifest_mismatches": []
+  },
+  "current_regression": {
+    "tests": {
+      "tests": 1193,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "historical_deselections": 5,
+    "source_files_bound": 175,
+    "source_before_equals_after": true
+  },
+  "commit_status": "Pending local Git write access; git add failed creating .git/index.lock with Permission denied. No commit or push performed by this session."
+}

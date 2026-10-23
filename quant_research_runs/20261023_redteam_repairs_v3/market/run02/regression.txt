@@ -1,0 +1,71 @@
+........................................................................ [ 39%]
+........................F....................................FF......... [ 78%]
+.......................................                                  [100%]
+================================== FAILURES ===================================
+_________ test_expiry_branches_survive_unavailable_new_candidate_data _________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x00000160BB1F5B70>
+
+    def test_expiry_branches_survive_unavailable_new_candidate_data(monkeypatch):
+        anchor=bot.v14_policy.default_extension('IM')
+        anchor.update(v14_route_state='short_put',v14_cycle_id='cycle',
+                      v14_short_put_contract='MO2609-P-7000',
+                      v14_short_put_qty_normalized=1.5,
+                      v14_short_put_entry_premium=100.,
+                      v14_short_put_expiry=date(2026,9,18))
+        signal={'market_date':date(2026,9,18),'next_trade_date':date(2026,9,21),
+                'close_confirmed':True,'option_monthly_reset_due':False,
+                'total_units_current':.5,'total_units_target':.5,
+                'momentum_put_target_qty_normalized':0.,'momentum_put_action':'HOLD'}
+        monkeypatch.setitem(bot.LIVE_CONTINUATION_ANCHOR,'IM',anchor)
+        result=bot._apply_v14_live_policy('IM',signal,mo_quotes=None)
+        assert result['v14_action']=='PUBLISH_SHORT_PUT_EXPIRY_BRANCHES'
+>       assert result['v14_candidate_data_status'].startswith('unavailable:')
+E       AssertionError: assert False
+E        +  where False = <built-in method startswith of str object at 0x00000160BAE284E0>('unavailable:')
+E        +    where <built-in method startswith of str object at 0x00000160BAE284E0> = 'not_required: valuation_not_0_or_1'.startswith
+
+test_ic_im_v1_4_integration_guards.py:291: AssertionError
+______ test_mixed_malformed_and_lag_sources_are_not_called_pure_wait[IC] ______
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x00000160BB032120>
+product = 'IC'
+
+    @pytest.mark.parametrize('product', ['IC', 'IM'])
+    def test_mixed_malformed_and_lag_sources_are_not_called_pure_wait(monkeypatch, product):
+        source_parsers(monkeypatch, product, bad_primary=True)
+        with pytest.raises(RuntimeError) as caught:
+            bot.fetch_ohlcv_history(product)
+>       assert type(caught.value) is RuntimeError
+E       assert <class 'poe_ic_im_mainline_v1_4_bot.DailyOHLCVSourcesUnavailable'> is RuntimeError
+E        +  where <class 'poe_ic_im_mainline_v1_4_bot.DailyOHLCVSourcesUnavailable'> = type(DailyOHLCVSourcesUnavailable("IC OHLCV全部来源失败：Sina: KeyError: 'open'；Eastmoney: DailyOHLCVNotReady: IC OHLCV已过期：最新 2026...21；等待当日完整日线（含成交量）更新，暂停收盘确认；Tencent: DailyOHLCVNotReady: IC Tencent最新日线尚未更新：最新2026-10-20，应覆盖2026-10-21；等待完整日线（含成交量）后重试"))
+E        +    where DailyOHLCVSourcesUnavailable("IC OHLCV全部来源失败：Sina: KeyError: 'open'；Eastmoney: DailyOHLCVNotReady: IC OHLCV已过期：最新 2026...21；等待当日完整日线（含成交量）更新，暂停收盘确认；Tencent: DailyOHLCVNotReady: IC Tencent最新日线尚未更新：最新2026-10-20，应覆盖2026-10-21；等待完整日线（含成交量）后重试") = <ExceptionInfo DailyOHLCVSourcesUnavailable("IC OHLCV全部来源失败：Sina: KeyError: 'open'；Eastmoney: DailyOHLCVNotReady: IC O...日线（含成交量）更新，暂停收盘确认；Tencent: DailyOHLCVNotReady: IC Tencent最新日线尚未更新：最新2026-10-20，应覆盖2026-10-21；等待完整日线（含成交量）后重试") tblen=2>.value
+
+test_icim_b3adv_market_20261021.py:130: AssertionError
+______ test_mixed_malformed_and_lag_sources_are_not_called_pure_wait[IM] ______
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x00000160BB1F5550>
+product = 'IM'
+
+    @pytest.mark.parametrize('product', ['IC', 'IM'])
+    def test_mixed_malformed_and_lag_sources_are_not_called_pure_wait(monkeypatch, product):
+        source_parsers(monkeypatch, product, bad_primary=True)
+        with pytest.raises(RuntimeError) as caught:
+            bot.fetch_ohlcv_history(product)
+>       assert type(caught.value) is RuntimeError
+E       assert <class 'poe_ic_im_mainline_v1_4_bot.DailyOHLCVSourcesUnavailable'> is RuntimeError
+E        +  where <class 'poe_ic_im_mainline_v1_4_bot.DailyOHLCVSourcesUnavailable'> = type(DailyOHLCVSourcesUnavailable("IM OHLCV全部来源失败：Sina: KeyError: 'open'；Eastmoney: DailyOHLCVNotReady: IM OHLCV已过期：最新 2026...21；等待当日完整日线（含成交量）更新，暂停收盘确认；Tencent: DailyOHLCVNotReady: IM Tencent最新日线尚未更新：最新2026-10-20，应覆盖2026-10-21；等待完整日线（含成交量）后重试"))
+E        +    where DailyOHLCVSourcesUnavailable("IM OHLCV全部来源失败：Sina: KeyError: 'open'；Eastmoney: DailyOHLCVNotReady: IM OHLCV已过期：最新 2026...21；等待当日完整日线（含成交量）更新，暂停收盘确认；Tencent: DailyOHLCVNotReady: IM Tencent最新日线尚未更新：最新2026-10-20，应覆盖2026-10-21；等待完整日线（含成交量）后重试") = <ExceptionInfo DailyOHLCVSourcesUnavailable("IM OHLCV全部来源失败：Sina: KeyError: 'open'；Eastmoney: DailyOHLCVNotReady: IM O...日线（含成交量）更新，暂停收盘确认；Tencent: DailyOHLCVNotReady: IM Tencent最新日线尚未更新：最新2026-10-20，应覆盖2026-10-21；等待完整日线（含成交量）后重试") tblen=2>.value
+
+test_icim_b3adv_market_20261021.py:130: AssertionError
+============================== warnings summary ===============================
+C:\Python314\Lib\site-packages\fastapi_poe\types.py:171
+  C:\Python314\Lib\site-packages\fastapi_poe\types.py:171: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    class RequestContext(BaseModel):
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED test_ic_im_v1_4_integration_guards.py::test_expiry_branches_survive_unavailable_new_candidate_data
+FAILED test_icim_b3adv_market_20261021.py::test_mixed_malformed_and_lag_sources_are_not_called_pure_wait[IC]
+FAILED test_icim_b3adv_market_20261021.py::test_mixed_malformed_and_lag_sources_are_not_called_pure_wait[IM]
+3 failed, 180 passed, 1 warning in 26.13s

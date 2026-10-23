@@ -1,0 +1,24 @@
+{
+  "status": "running_with_audited_pin",
+  "pid": 36668,
+  "first_status": "waiting_for_close",
+  "source_pin_sha256": "e06474b555d8fbbf3dd5d3209b5ad7ae3d3d4f3c729eac12b86c54913495e1a8",
+  "first_receipt_sha256": "0fdf7930d4727e2a6b540ada2d0a801e447713ac7ad436e4a851f3a60ce3ae15",
+  "ledger_paths_and_bytes_unchanged": true,
+  "message_send_requested": false,
+  "ledger_write_requested": false,
+  "command": [
+    "C:\\Python314\\python.exe",
+    "-B",
+    "-X",
+    "utf8",
+    "D:\\动量策略\\IC和IM滚动套利\\capture_ic_im_v1_4_inputs.py",
+    "--loop",
+    "--state-dir",
+    "D:\\动量策略\\IC和IM滚动套利\\runtime\\ic_im_v1_4_r1",
+    "--evidence-dir",
+    "D:\\动量策略\\IC和IM滚动套利\\data\\icim_v14_original_inputs",
+    "--source-pin",
+    "D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261023_redteam_repairs_v3\\delivery\\capture_source_pin.json"
+  ]
+}

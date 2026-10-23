@@ -1,0 +1,10 @@
+{
+  "value": 0,
+  "python_type": "int",
+  "actual": {
+    "rejected": true,
+    "error": "SSE adjustment response scope unverified"
+  },
+  "severity": "P3 diagnostic schema ambiguity; no trading execution",
+  "reproduction": "replace real envelope isPagination string false with numeric zero"
+}

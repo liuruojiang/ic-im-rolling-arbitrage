@@ -1,0 +1,13 @@
+{
+  "same_complete_collection_as_02": true,
+  "nodes": 1170,
+  "unique_nodes": 1170,
+  "artifacts": {
+    "regression.xml": "a62a10838874e3e370866f1a4ddaa40b8853056d3bc20f914dddc370e64e4e6b",
+    "source_before.json": "535e48d0c2181ec8dd2dc13f612f314867403d9ff69064b461bffcbdad712dc7",
+    "source_after.json": "535e48d0c2181ec8dd2dc13f612f314867403d9ff69064b461bffcbdad712dc7",
+    "collection.json": "7bb6bdee3a742110e7ba846f0b5d847d345b4b328b051d6fed7d587bb1322afc",
+    "executed.json": "b8530cf4b54eaf75497bae80795feb340ff1b810d7d0e7652127804a78e16b65",
+    "receipt.json": "67892903190deb709d0bbb9d609514d2539ea892a2efe7c1a4b02183c2868701"
+  }
+}

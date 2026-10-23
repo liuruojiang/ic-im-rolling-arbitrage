@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="1" failures="0" skipped="0" tests="1" time="4.293" timestamp="2026-10-23T15:08:52.233357+08:00" hostname="DESKTOP-95I7VVU"><testcase classname="" name="test_icim_redteam_server_repairs_20261023" time="0.000"><error message="collection failure">test_icim_redteam_server_repairs_20261023.py:15: in &lt;module&gt;
+    OUT=Path(os.environ["ICIM_TEST_OUTPUT_DIR"])
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+&lt;frozen os&gt;:709: in __getitem__
+    ???
+E   KeyError: 'ICIM_TEST_OUTPUT_DIR'</error></testcase></testsuite></testsuites>

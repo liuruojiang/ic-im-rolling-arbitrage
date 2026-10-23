@@ -1,0 +1,11 @@
+{
+  "field": "START_DATE",
+  "injected": "20260716",
+  "actual": {
+    "rejected": true,
+    "error": "SSE adjustment effective date mismatch"
+  },
+  "severity": "P2 diagnostic integrity; no production A execution",
+  "reproduction": "parse_adjustment_events(real_raw_with_single_field_mutation, effective_date=2026-07-15)",
+  "trust_boundary": "single internal contradiction, not forged consistent authority data"
+}

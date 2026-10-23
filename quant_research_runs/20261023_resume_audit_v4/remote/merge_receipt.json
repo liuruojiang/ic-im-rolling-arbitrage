@@ -1,0 +1,83 @@
+{
+  "strategy": {
+    "pr": 60,
+    "sha": "cb98c6af72afb53e7d44e7d89bdadba2fea6a318",
+    "executionPin": "e3f26824a8ff0a89b6125d4385f75e0a6cfa2a7e"
+  },
+  "automation": {
+    "pr": 163,
+    "sha": "8bcb2acb8c8965469e6613738c409a23357aa29f",
+    "candidate": "14662a36d6ab63031682140f08aa5b36a04fe3de"
+  },
+  "byteVerification": {
+    "remote": [
+      {
+        "path": ".github/workflows/ic-im-v1-4-daily-digest.yml",
+        "sha": "d8c6824df1423557b7156bf7168acda1d9425760"
+      },
+      {
+        "path": "docs/ic_im_daily_release_20261023_repairs_v3_r3_manifest.json",
+        "sha": "70dd299b58ac3521a8a009912c49a7d5696d9ac1"
+      },
+      {
+        "path": "scripts/build_ic_im_v1_4_digest.py",
+        "sha": "265bac9bb5b7264621f4658479fadb47b153a919"
+      },
+      {
+        "path": "scripts/ic_im_v1_4_delivery_contract.py",
+        "sha": "32c06975fd874a7b4fe4f961bd132b784da0b1f5"
+      },
+      {
+        "path": "scripts/verify_icim_source_release.py",
+        "sha": "6462434a98e75b3a12c4bddc29379d5c1b912921"
+      },
+      {
+        "path": "tests/test_delivery_regression_contract.py",
+        "sha": "ff92265eeadec0396a9ad5e42484d43f6ecbf1bb"
+      },
+      {
+        "path": "tests/test_ic_im_v1_4_source_manifest_v3.py",
+        "sha": "eead432b12ff01b32fc0ee3e3fd6c164d1054a2d"
+      },
+      {
+        "path": "tests/test_ic_im_v1_4_workflow.py",
+        "sha": "9eadf9f23ff725686fc087880e9ed1737e6eceb5"
+      }
+    ],
+    "local": [
+      {
+        "path": "docs/ic_im_daily_release_20261023_repairs_v3_r3_manifest.json",
+        "sha": "70dd299b58ac3521a8a009912c49a7d5696d9ac1"
+      },
+      {
+        "path": "scripts/build_ic_im_v1_4_digest.py",
+        "sha": "265bac9bb5b7264621f4658479fadb47b153a919"
+      },
+      {
+        "path": "scripts/ic_im_v1_4_delivery_contract.py",
+        "sha": "32c06975fd874a7b4fe4f961bd132b784da0b1f5"
+      },
+      {
+        "path": "scripts/verify_icim_source_release.py",
+        "sha": "6462434a98e75b3a12c4bddc29379d5c1b912921"
+      },
+      {
+        "path": "tests/test_delivery_regression_contract.py",
+        "sha": "ff92265eeadec0396a9ad5e42484d43f6ecbf1bb"
+      },
+      {
+        "path": "tests/test_ic_im_v1_4_source_manifest_v3.py",
+        "sha": "eead432b12ff01b32fc0ee3e3fd6c164d1054a2d"
+      },
+      {
+        "path": "tests/test_ic_im_v1_4_workflow.py",
+        "sha": "9eadf9f23ff725686fc087880e9ed1737e6eceb5"
+      },
+      {
+        "path": ".github/workflows/ic-im-v1-4-daily-digest.yml",
+        "sha": "d8c6824df1423557b7156bf7168acda1d9425760"
+      }
+    ],
+    "mismatch": []
+  }
+}

@@ -1,0 +1,45 @@
+{
+  "status": "targeted_pass",
+  "finding": "EV2-01",
+  "additional_same_root_finding": "direct Sina opening quote parser identity bypass",
+  "scope": [
+    "capture exact identity",
+    "old archive replay projection",
+    "direct last quote consumer",
+    "direct opening quote consumer"
+  ],
+  "run02": {
+    "passed": 112,
+    "failed": 0,
+    "skipped": 0,
+    "new_tests": 42
+  },
+  "source_sha256": {
+    "ic_im_signal_evidence_v1.py": "8cf484fdc536596d426a0dccced2a3a4a9e76d9952c8474b97051bcd5673d087",
+    "test_icim_redteam_evidence_repairs_20261023.py": "eabc74b98bbfa7eb37ba9990c05d9c708b1f351f12db42ecd11252843fab253a"
+  },
+  "bot_functions": {
+    "_prefetch_mo_replay_verification": {
+      "line": 166,
+      "sha256": "8280ae95d7a94b0bfc4534b6130f93f8a8ac820bbdd9cb1a2e33b7d53128009c"
+    },
+    "verify_sina_option_quote": {
+      "line": 3915,
+      "sha256": "298eba187fa5c76aacddf81ff29531493db5504b2a43c159eff13d1a7c2b60a1"
+    },
+    "verify_sina_option_open": {
+      "line": 4004,
+      "sha256": "47fede353a9302925b20ceeacd07fb5f773a089bf303fbc448f4fb58010a0cc2"
+    }
+  },
+  "oracle": {
+    "path": "quant_research_runs/20261022_free_source_integration_v1/wire_probe_01/response.bin",
+    "sha256": "8ee4b6f3a1fd92392430213f7d81f6642deada308c84c50dfef58a91aeb2112c"
+  },
+  "boundaries": [
+    "The first packet is saved real 2026-10-22 MO2611-P-6000; second/third IDs are explicit synthetic mutations.",
+    "Archive integrity alone is not claimed to establish market identity; consumer projection rejects old malformed raw bodies.",
+    "Concurrent other agents modified disjoint bot functions; parent must bind whole final source for independent audit/full regression.",
+    "No network, formal ledger, remote deployment or email."
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "exit_code": 1,
+  "files": [
+    "test_icim_redteam_evidence_repairs_20261023.py",
+    "-k",
+    "opening_quote or legal_batch"
+  ],
+  "state_dir": "D:\\\u52a8\u91cf\u7b56\u7565\\IC\u548cIM\u6eda\u52a8\u5957\u5229\\quant_research_runs\\20261023_redteam_repairs_v3\\evidence\\open_before\\temp\\icim_put_ae0cd4e3\\state",
+  "test_only_windows_mkdir_mode_adjustment": true,
+  "implicit_pytest_addopts_removed": false
+}

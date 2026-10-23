@@ -1,0 +1,17 @@
+{
+  "final_recovery_run": "real_recovery_02",
+  "within_run_differences": [],
+  "previous_accepted_result_differences": [],
+  "compared_signal_fields": {
+    "IC": 209,
+    "IM": 224
+  },
+  "complete_product_states_compared": true,
+  "excluded_only_calculation_clocks": [
+    "fetch_time",
+    "signal_calculation_started_at",
+    "signal_generated_at"
+  ],
+  "strict_json_types": true,
+  "status": "PASS"
+}

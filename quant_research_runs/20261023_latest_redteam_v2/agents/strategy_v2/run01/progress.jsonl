@@ -1,0 +1,5 @@
+{"nodeid": "quant_research_runs/20261023_latest_redteam_v2/agents/strategy_v2/test_strategy_v2.py::test_missing_active_short_mark_must_not_publish_normal_hold[IC]", "started_at": "2026-10-23T14:05:51.715570+08:00"}
+{"nodeid": "quant_research_runs/20261023_latest_redteam_v2/agents/strategy_v2/test_strategy_v2.py::test_missing_active_short_mark_must_not_publish_normal_hold[IM]", "started_at": "2026-10-23T14:05:52.111602+08:00"}
+{"nodeid": "quant_research_runs/20261023_latest_redteam_v2/agents/strategy_v2/test_strategy_v2.py::test_valid_active_short_mark_may_hold[IC]", "started_at": "2026-10-23T14:05:52.124073+08:00"}
+{"nodeid": "quant_research_runs/20261023_latest_redteam_v2/agents/strategy_v2/test_strategy_v2.py::test_valid_active_short_mark_may_hold[IM]", "started_at": "2026-10-23T14:05:52.279059+08:00"}
+{"nodeid": "quant_research_runs/20261023_latest_redteam_v2/agents/strategy_v2/test_strategy_v2.py::test_full_ic_builder_missing_history_day_must_be_diagnostic", "started_at": "2026-10-23T14:05:52.282089+08:00"}

@@ -1,0 +1,12 @@
+{
+  "close_confirmed": true,
+  "ledger_eligible": null,
+  "diagnostic_only": true,
+  "calendar_provisional": false,
+  "v14_action": "HOLD_FAIL_CLOSED",
+  "v14_short_put_mark": null,
+  "v14_candidate_data_status": null,
+  "append_accepted": false,
+  "unchanged_bytes": true,
+  "sequence": 0
+}

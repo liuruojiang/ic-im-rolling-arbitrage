@@ -1,0 +1,65 @@
+{
+  "findings": [
+    {
+      "id": "DELIVERY-V2-01",
+      "severity": "P2",
+      "status": "confirmed",
+      "title": "非交易时段快照及收盘失败兜底错误显示倒数第二个已核验账本",
+      "baseline": "58986fda2c17df93eb3925bf09a1cebd55a7869e",
+      "root_cause": {
+        "path": "poe_ic_im_v1_4_server.py",
+        "lines": [
+          112,
+          145
+        ],
+        "detail": "_record_for_display 在非 live_session 且 latest=completed 时返回 sequence-1；execute_query 对纯快照和失败兜底也统一安装该计算锚。"
+      },
+      "reachable_paths": [
+        "execute_query(当前持仓) -> _handle_snapshot -> _write_last_verified_snapshot",
+        "execute_query(信号) -> _handle_signal -> builder异常 -> _write_last_verified_snapshot"
+      ],
+      "evidence": {
+        "fixture": "fixture_ledger",
+        "fixture_source": "runtime/ic_im_v1_4_r1 (read-only copy)",
+        "verified_day": "2026-10-21",
+        "sequence": 19,
+        "latest_digest": "c068710414dd9070d178faa4625d56835e67b9f2004c935a268900b9a1080342",
+        "tests": "test_delivery_confirmed.py",
+        "xml": "run_04_confirmed/regression.xml",
+        "test_run": "run_04_confirmed/test_run.json",
+        "result": {
+          "failed": 3,
+          "passed": 2,
+          "skipped": 0,
+          "seconds": 5.77
+        },
+        "failed_cases": [
+          "2026-10-22 08:00 当前持仓",
+          "2026-10-22 09:10 当前持仓",
+          "2026-10-21 18:00 信号 with source failure"
+        ],
+        "positive_controls": [
+          "2026-10-22 09:30 当前持仓",
+          "2026-10-22 14:30 当前持仓"
+        ],
+        "expected": "IC/IM 均显示最后逐腿核验快照2026-10-21",
+        "actual": "失败3例均显示2026-10-20；通过2例显示2026-10-21",
+        "mutations": "no observed signals, no attachments, latest ledger digest unchanged"
+      },
+      "impact": "隐藏最新已核验研究状态，并把旧状态称为最后；未证实账本污染、当日新信号误标或实际交易损失。",
+      "minimal_fix": "在同一coordinator锁内分离计算anchor和展示anchor：同日收盘重算继续使用sequence-1；纯快照与计算失败的最后已核验快照显式使用latest。不要整体删除回退。",
+      "followup_tests": [
+        "开盘前、集合竞价、盘中、午间、收盘后失败、非交易日、sequence0",
+        "同日重算正确且不重复状态迁移",
+        "失败路径不落账本、显示真实最后核验日期"
+      ],
+      "limits": [
+        "仅本地已提交代码及固定真实账本副本；未联网、未发邮件、未访问或部署远端",
+        "故障case仅注入builder异常；其余store/coordinator/renderer均真实",
+        "不宣称覆盖完整日报gate或远端运行"
+      ]
+    }
+  ],
+  "confirmed_count": 1,
+  "rejected_candidates_file": "rejected_candidates.md"
+}

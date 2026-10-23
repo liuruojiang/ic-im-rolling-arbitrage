@@ -1,0 +1,227 @@
+........................................................................ [ 69%]
+..............FF.............FF                                          [100%]
+================================== FAILURES ===================================
+_ test_none_and_untradable_roll_candidate_leave_unneeded_gate_actions_identical[IC] _
+
+product = 'IC'
+
+    @pytest.mark.parametrize("product", ["IC", "IM"])
+    def test_none_and_untradable_roll_candidate_leave_unneeded_gate_actions_identical(product):
+        from test_ic_im_v1_4_policy import _signal, _candidate
+        from test_icim_round3_policy_repairs_20261021 import short_anchor
+        rng = random.Random(20261021)
+        checked = 0
+        for _ in range(200):
+            signal = _signal(product, market_date=date(2026, 12, 1), next_trade_date=date(2026, 12, 2),
+                             core_eod_contract=product + "2612", v14_short_put_mark=rng.choice([.1, .99, None]))
+            signal.update(close_confirmed=rng.choice([True, False]), valuation_tier=rng.randrange(4),
+                          valuation_puts_per_full_core=rng.randrange(4), momentum_next_weight=rng.choice([0., .5]))
+            contract = "510500P2612M07500" if product == "IC" else "MO2612-P-7200"
+            anchor = short_anchor(product, v14_short_put_contract=contract) if rng.choice([True, False]) else policy.default_extension(product)
+>           required = policy.short_put_candidate_requirements(product, signal, anchor)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_icim_round5_recording_semantics_20261021.py:276: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+ic_im_v1_4_policy.py:488: in short_put_candidate_requirements
+    require_short_put_mark(product, signal, state)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+product = 'IC'
+signal = {'call_current_contract': None, 'close_confirmed': True, 'core_eod_contract': 'IC2612', 'core_units_current': 0.5, ...}
+state = {'v14_core_put_contract': None, 'v14_core_put_entry_premium': None, 'v14_core_put_profit3x_eligible': False, 'v14_core_put_qty': 0.0, ...}
+
+    def require_short_put_mark(product: str, signal: dict[str, Any], state: dict[str, Any],
+                               *, require_binding: bool = False) -> None:
+        """Unknown decay evidence cannot mean an observed, unchanged short route.
+    
+        Pure policy callers supply a mark for the signal day by contract. Adapters
+        and new ledger writes additionally bind that observation to day and leg.
+        Historical records are not revalidated under this new-write requirement.
+        """
+        if not short_put_mark_required(product, signal, state):
+            return
+        mark = signal.get("v14_short_put_mark")
+        try:
+            valid = not isinstance(mark, bool) and mark is not None and math.isfinite(float(mark)) and float(mark) > 0
+        except (TypeError, ValueError, OverflowError):
+            valid = False
+        if not valid:
+>           raise RuntimeError(f"{product} held short Put lacks a finite positive current-day mark")
+E           RuntimeError: IC held short Put lacks a finite positive current-day mark
+
+ic_im_v1_4_policy.py:448: RuntimeError
+_ test_none_and_untradable_roll_candidate_leave_unneeded_gate_actions_identical[IM] _
+
+product = 'IM'
+
+    @pytest.mark.parametrize("product", ["IC", "IM"])
+    def test_none_and_untradable_roll_candidate_leave_unneeded_gate_actions_identical(product):
+        from test_ic_im_v1_4_policy import _signal, _candidate
+        from test_icim_round3_policy_repairs_20261021 import short_anchor
+        rng = random.Random(20261021)
+        checked = 0
+        for _ in range(200):
+            signal = _signal(product, market_date=date(2026, 12, 1), next_trade_date=date(2026, 12, 2),
+                             core_eod_contract=product + "2612", v14_short_put_mark=rng.choice([.1, .99, None]))
+            signal.update(close_confirmed=rng.choice([True, False]), valuation_tier=rng.randrange(4),
+                          valuation_puts_per_full_core=rng.randrange(4), momentum_next_weight=rng.choice([0., .5]))
+            contract = "510500P2612M07500" if product == "IC" else "MO2612-P-7200"
+            anchor = short_anchor(product, v14_short_put_contract=contract) if rng.choice([True, False]) else policy.default_extension(product)
+>           required = policy.short_put_candidate_requirements(product, signal, anchor)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_icim_round5_recording_semantics_20261021.py:276: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+ic_im_v1_4_policy.py:488: in short_put_candidate_requirements
+    require_short_put_mark(product, signal, state)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+product = 'IM'
+signal = {'call_current_contract': 'MO2610-C-9000', 'close_confirmed': True, 'core_eod_contract': 'IM2612', 'core_units_current': 0.5, ...}
+state = {'v14_core_put_contract': None, 'v14_core_put_entry_premium': None, 'v14_core_put_profit3x_eligible': False, 'v14_core_put_qty': 0.0, ...}
+
+    def require_short_put_mark(product: str, signal: dict[str, Any], state: dict[str, Any],
+                               *, require_binding: bool = False) -> None:
+        """Unknown decay evidence cannot mean an observed, unchanged short route.
+    
+        Pure policy callers supply a mark for the signal day by contract. Adapters
+        and new ledger writes additionally bind that observation to day and leg.
+        Historical records are not revalidated under this new-write requirement.
+        """
+        if not short_put_mark_required(product, signal, state):
+            return
+        mark = signal.get("v14_short_put_mark")
+        try:
+            valid = not isinstance(mark, bool) and mark is not None and math.isfinite(float(mark)) and float(mark) > 0
+        except (TypeError, ValueError, OverflowError):
+            valid = False
+        if not valid:
+>           raise RuntimeError(f"{product} held short Put lacks a finite positive current-day mark")
+E           RuntimeError: IM held short Put lacks a finite positive current-day mark
+
+ic_im_v1_4_policy.py:448: RuntimeError
+_ test_none_roll_candidate_and_random_gate_contract_are_real_policy_compatible[IC] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000002C01B421DA0>
+product = 'IC'
+
+    @pytest.mark.parametrize("product", ["IC", "IM"])
+    def test_none_roll_candidate_and_random_gate_contract_are_real_policy_compatible(monkeypatch, product):
+        from test_icim_round3_policy_repairs_20261021 import short_anchor, wire_adapter
+        from test_ic_im_v1_4_policy import _signal, _candidate
+        contract = "510500P2612M07500" if product == "IC" else "MO2612-P-7200"
+        anchor, frame = wire_adapter(monkeypatch, product, short_anchor(product, v14_short_put_contract=contract), mark=.99)
+        held = bot._apply_v14_live_policy(product, _signal(product, market_date=date(2026, 12, 1),
+            next_trade_date=date(2026, 12, 2), core_eod_contract=product + "2612"), mo_quotes=frame)
+        assert held["v14_action"] != "HOLD_FAIL_CLOSED"
+        rng = random.Random(20261021)
+        checked = 0
+        for _ in range(200):
+            signal = _signal(product, market_date=date(2026, 12, 1), next_trade_date=date(2026, 12, 2),
+                             core_eod_contract=product + "2612", v14_short_put_mark=rng.choice([.1, .99, None]))
+            signal.update(close_confirmed=rng.choice([True, False]), valuation_tier=rng.randrange(4),
+                          valuation_puts_per_full_core=rng.randrange(4), momentum_next_weight=rng.choice([0., .5]))
+            candidate = _candidate(product, contract=contract, expiry=date(2026, 12, 23 if product == "IC" else 18))
+            active = anchor if rng.choice([True, False]) else policy.default_extension(product)
+>           requirements = policy.short_put_candidate_requirements(product, signal, active)
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_icim_round4_recovery_20261021.py:313: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+ic_im_v1_4_policy.py:488: in short_put_candidate_requirements
+    require_short_put_mark(product, signal, state)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+product = 'IC'
+signal = {'call_current_contract': None, 'close_confirmed': True, 'core_eod_contract': 'IC2612', 'core_units_current': 0.5, ...}
+state = {'v14_core_put_contract': None, 'v14_core_put_entry_premium': None, 'v14_core_put_profit3x_eligible': False, 'v14_core_put_qty': 0.0, ...}
+
+    def require_short_put_mark(product: str, signal: dict[str, Any], state: dict[str, Any],
+                               *, require_binding: bool = False) -> None:
+        """Unknown decay evidence cannot mean an observed, unchanged short route.
+    
+        Pure policy callers supply a mark for the signal day by contract. Adapters
+        and new ledger writes additionally bind that observation to day and leg.
+        Historical records are not revalidated under this new-write requirement.
+        """
+        if not short_put_mark_required(product, signal, state):
+            return
+        mark = signal.get("v14_short_put_mark")
+        try:
+            valid = not isinstance(mark, bool) and mark is not None and math.isfinite(float(mark)) and float(mark) > 0
+        except (TypeError, ValueError, OverflowError):
+            valid = False
+        if not valid:
+>           raise RuntimeError(f"{product} held short Put lacks a finite positive current-day mark")
+E           RuntimeError: IC held short Put lacks a finite positive current-day mark
+
+ic_im_v1_4_policy.py:448: RuntimeError
+_ test_none_roll_candidate_and_random_gate_contract_are_real_policy_compatible[IM] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000002C01B428440>
+product = 'IM'
+
+    @pytest.mark.parametrize("product", ["IC", "IM"])
+    def test_none_roll_candidate_and_random_gate_contract_are_real_policy_compatible(monkeypatch, product):
+        from test_icim_round3_policy_repairs_20261021 import short_anchor, wire_adapter
+        from test_ic_im_v1_4_policy import _signal, _candidate
+        contract = "510500P2612M07500" if product == "IC" else "MO2612-P-7200"
+        anchor, frame = wire_adapter(monkeypatch, product, short_anchor(product, v14_short_put_contract=contract), mark=.99)
+        held = bot._apply_v14_live_policy(product, _signal(product, market_date=date(2026, 12, 1),
+            next_trade_date=date(2026, 12, 2), core_eod_contract=product + "2612"), mo_quotes=frame)
+        assert held["v14_action"] != "HOLD_FAIL_CLOSED"
+        rng = random.Random(20261021)
+        checked = 0
+        for _ in range(200):
+            signal = _signal(product, market_date=date(2026, 12, 1), next_trade_date=date(2026, 12, 2),
+                             core_eod_contract=product + "2612", v14_short_put_mark=rng.choice([.1, .99, None]))
+            signal.update(close_confirmed=rng.choice([True, False]), valuation_tier=rng.randrange(4),
+                          valuation_puts_per_full_core=rng.randrange(4), momentum_next_weight=rng.choice([0., .5]))
+            candidate = _candidate(product, contract=contract, expiry=date(2026, 12, 23 if product == "IC" else 18))
+            active = anchor if rng.choice([True, False]) else policy.default_extension(product)
+>           requirements = policy.short_put_candidate_requirements(product, signal, active)
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_icim_round4_recovery_20261021.py:313: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+ic_im_v1_4_policy.py:488: in short_put_candidate_requirements
+    require_short_put_mark(product, signal, state)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+product = 'IM'
+signal = {'call_current_contract': 'MO2610-C-9000', 'close_confirmed': True, 'core_eod_contract': 'IM2612', 'core_units_current': 0.5, ...}
+state = {'v14_core_put_contract': None, 'v14_core_put_entry_premium': None, 'v14_core_put_profit3x_eligible': False, 'v14_core_put_qty': 0.0, ...}
+
+    def require_short_put_mark(product: str, signal: dict[str, Any], state: dict[str, Any],
+                               *, require_binding: bool = False) -> None:
+        """Unknown decay evidence cannot mean an observed, unchanged short route.
+    
+        Pure policy callers supply a mark for the signal day by contract. Adapters
+        and new ledger writes additionally bind that observation to day and leg.
+        Historical records are not revalidated under this new-write requirement.
+        """
+        if not short_put_mark_required(product, signal, state):
+            return
+        mark = signal.get("v14_short_put_mark")
+        try:
+            valid = not isinstance(mark, bool) and mark is not None and math.isfinite(float(mark)) and float(mark) > 0
+        except (TypeError, ValueError, OverflowError):
+            valid = False
+        if not valid:
+>           raise RuntimeError(f"{product} held short Put lacks a finite positive current-day mark")
+E           RuntimeError: IM held short Put lacks a finite positive current-day mark
+
+ic_im_v1_4_policy.py:448: RuntimeError
+============================== warnings summary ===============================
+C:\Python314\Lib\site-packages\fastapi_poe\types.py:171
+  C:\Python314\Lib\site-packages\fastapi_poe\types.py:171: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    class RequestContext(BaseModel):
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED test_icim_round5_recording_semantics_20261021.py::test_none_and_untradable_roll_candidate_leave_unneeded_gate_actions_identical[IC]
+FAILED test_icim_round5_recording_semantics_20261021.py::test_none_and_untradable_roll_candidate_leave_unneeded_gate_actions_identical[IM]
+FAILED test_icim_round4_recovery_20261021.py::test_none_roll_candidate_and_random_gate_contract_are_real_policy_compatible[IC]
+FAILED test_icim_round4_recovery_20261021.py::test_none_roll_candidate_and_random_gate_contract_are_real_policy_compatible[IM]
+4 failed, 99 passed, 1 warning in 29.59s

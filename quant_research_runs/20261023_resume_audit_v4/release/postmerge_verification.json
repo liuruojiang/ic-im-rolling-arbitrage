@@ -1,0 +1,66 @@
+{
+  "status": "PASS_POSTMERGE_INDEPENDENT_READONLY",
+  "strategy_main": "cb98c6af72afb53e7d44e7d89bdadba2fea6a318",
+  "strategy_merge_tree": "05ab2be0a8a60f127639eee70757204d48090c94",
+  "candidate_tree": "05ab2be0a8a60f127639eee70757204d48090c94",
+  "strategy_main_tree_equals_audited_candidate": true,
+  "automation_merge": "8bcb2acb8c8965469e6613738c409a23357aa29f",
+  "automation_merge_tree": "71b374b99f6a166f3627daef3d9fe21362298c83",
+  "automation_candidate": "14662a36d6ab63031682140f08aa5b36a04fe3de",
+  "automation_candidate_tree": "71b374b99f6a166f3627daef3d9fe21362298c83",
+  "automation_merge_tree_equals_candidate": true,
+  "postmerge_ci": {
+    "id": 39920874130,
+    "url": "https://github.com/liuruojiang/codex-daily-automation-probe/actions/runs/39920874130",
+    "head_sha": "8bcb2acb8c8965469e6613738c409a23357aa29f",
+    "event": "push",
+    "status": "completed",
+    "conclusion": "success",
+    "jobs": [
+      {
+        "id": 120305515665,
+        "name": "strategy-tests (icim)",
+        "conclusion": "success",
+        "status": "completed"
+      },
+      {
+        "id": 120305515851,
+        "name": "automation-tests",
+        "conclusion": "success",
+        "status": "completed"
+      },
+      {
+        "id": 120305516067,
+        "name": "strategy-tests (microcap)",
+        "conclusion": "success",
+        "status": "completed"
+      }
+    ]
+  },
+  "log_evidence": [
+    {
+      "job_id": 120305515665,
+      "lines": [
+        "2026-10-23T07:54:08.6303240Z   ref: e3f26824a8ff0a89b6125d4385f75e0a6cfa2a7e",
+        "2026-10-23T07:54:46.8278684Z {\"status\": \"PASS\", \"counts\": {\"tests\": 1193, \"failures\": 0, \"errors\": 0, \"skipped\": 0}, \"deselected\": 5, \"release\": \"20261023-redteam-repairs-v3-r3\", \"bound_files\": 175}",
+        "2026-10-23T07:54:49.3530759Z 105 passed, 1 warning in 2.08s"
+      ]
+    },
+    {
+      "job_id": 120305515851,
+      "lines": [
+        "2026-10-23T07:54:46.6056452Z 1170 passed, 2 warnings in 34.16s"
+      ]
+    }
+  ],
+  "latest_automation_head": {
+    "sha": "2b8a3f7d94dfd21b429be5557633a46688c0ea86",
+    "parent": "8bcb2acb8c8965469e6613738c409a23357aa29f",
+    "message": "ci: verify merged IC IM v3-r3 release without sending mail",
+    "changed_files": [
+      "docs/icim-readiness-requests/current.json"
+    ],
+    "note": "Only the no-send readiness request changed after the tested merge; product runtime unchanged."
+  },
+  "scope": "No tests rerun; no remote mutations; no mail sent; no production ledger mutation."
+}

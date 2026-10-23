@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="4" skipped="0" tests="103" time="29.311" timestamp="2026-10-23T14:27:13.334517+08:00" hostname="DESKTOP-95I7VVU"><testcase classname="test_icim_redteam_evidence_repairs_20261023" name="test_direct_quote_rejects_nonexact_identifier[x]" time="0.003" /><testcase classname="test_icim_redteam_evidence_repairs_20261023" name="test_direct_quote_rejects_nonexact_identifier[not_]" time="0.002" /><testcase classname="test_icim_redteam_evidence_repairs_20261023" name="test_direct_quote_rejects_nonexact_identifier[$]" time="0.001" /><testcase classname="test_icim_redteam_evidence_repairs_20261023" name="test_direct_quote_rejects_nonexact_identifier[0]" time="0.001" /><testcase classname="test_icim_redteam_evidence_repairs_20261023" name="test_direct_quote_rejects_nonexact_identifier[object.]" time="0.002" /><testcase classname="test_icim_redteam_evidence_repairs_20261023" name="test_direct_quote_rejects_nonexact_identifier[\xd6\xd0]" time="0.003" /><testcase classname="test_icim_redteam_evidence_repairs_20261023" name="test_capture_rejects_nonexact_identifier_before_complete_seal[x]" time="0.024" /><testcase classname="test_icim_redteam_evidence_repairs_20261023" name="test_capture_rejects_nonexact_identifier_before_complete_seal[not_]" time="0.028" /><testcase classname="test_icim_redteam_evidence_repairs_20261023" name="test_capture_rejects_nonexact_identifier_before_complete_seal[$]" time="0.028" /><testcase classname="test_icim_redteam_evidence_repairs_20261023" name="test_capture_rejects_nonexact_identifier_before_complete_seal[0]" time="0.032" /><testcase classname="test_icim_redteam_evidence_repairs_20261023" name="test_capture_rejects_nonexact_identifier_before_complete_seal[object.]" time="0.022" /><testcase classname="test_icim_redteam_evidence_repairs_20261023" name="test_capture_rejects_nonexact_identifier_before_complete_seal[\xd6\xd0]" time="0.024" /><testcase classname="test_icim_redteam_evidence_repairs_20261023" name="test_old_integrity_valid_archive_cannot_launder_identifier_on_projection[x]" time="0.058" /><testcase classname="test_icim_redteam_evidence_repairs_20261023" name="test_old_integrity_valid_archive_cannot_launder_identifier_on_projection[not_]" time="0.057" /><testcase classname="test_icim_redteam_evidence_repairs_20261023" name="test_old_integrity_valid_archive_cannot_launder_identifier_on_projection[$]" time="0.054" /><testcase classname="test_icim_redteam_evidence_repairs_20261023" name="test_old_integrity_valid_archive_cannot_launder_identifier_on_projection[0]" time="0.067" /><testcase classname="test_icim_redteam_evidence_repairs_20261023" name="test_old_integrity_valid_archive_cannot_launder_identifier_on_projection[object.]" time="0.085" /><testcase classname="test_icim_redteam_evidence_repairs_20261023" name="test_old_integrity_valid_archive_cannot_launder_identifier_on_projection[\xd6\xd0]" time="0.101" /><testcase classname="test_icim_redteam_evidence_repairs_20261023" name="test_batch_parser_rejects_ambiguous_or_partial_body_in_capture_and_replay[duplicate]" time="0.077" /><testcase classname="test_icim_redteam_evidence_repairs_20261023" name="test_batch_parser_rejects_ambiguous_or_partial_body_in_capture_and_replay[conflicting_duplicate]" time="0.070" /><testcase classname="test_icim_redteam_evidence_repairs_20261023" name="test_batch_parser_rejects_ambiguous_or_partial_body_in_capture_and_replay[missing]" time="0.073" /><testcase classname="test_icim_redteam_evidence_repairs_20261023" name="test_batch_parser_rejects_ambiguous_or_partial_body_in_capture_and_replay[extra]" time="0.106" /><testcase classname="test_icim_redteam_evidence_repairs_20261023" name="test_batch_parser_rejects_ambiguous_or_partial_body_in_capture_and_replay[valid_plus_malformed]" time="0.096" /><testcase classname="test_icim_redteam_evidence_repairs_20261023" name="test_batch_parser_rejects_ambiguous_or_partial_body_in_capture_and_replay[empty_payload]" time="0.126" /><testcase classname="test_icim_redteam_evidence_repairs_20261023" name="test_batch_parser_rejects_ambiguous_or_partial_body_in_capture_and_replay[commented]" time="0.100" /><testcase classname="test_icim_redteam_evidence_repairs_20261023" name="test_batch_parser_rejects_ambiguous_or_partial_body_in_capture_and_replay[quoted]" time="0.064" /><testcase classname="test_icim_redteam_evidence_repairs_20261023" name="test_legal_batch_keeps_exact_original_span_and_real_price[original]" time="0.067" /><testcase classname="test_icim_redteam_evidence_repairs_20261023" name="test_legal_batch_keeps_exact_original_span_and_real_price[no_var]" time="0.081" /><testcase classname="test_icim_redteam_evidence_repairs_20261023" name="test_legal_batch_keeps_exact_original_span_and_real_price[spaces]" time="0.090" /><testcase classname="test_icim_redteam_evidence_repairs_20261023" name="test_legal_batch_keeps_exact_original_span_and_real_price[final_semicolon_optional]" time="0.100" /><testcase classname="test_icim_redteam_evidence_repairs_20261023" name="test_duplicate_requested_symbol_does_not_hide_bad_original_batch" time="0.094" /><testcase classname="test_icim_redteam_evidence_repairs_20261023" name="test_overlapping_original_batches_cannot_hide_conflict_or_bad_identity[conflicting]" time="0.098" /><testcase classname="test_icim_redteam_evidence_repairs_20261023" name="test_overlapping_original_batches_cannot_hide_conflict_or_bad_identity[malformed]" time="0.105" /><testcase classname="test_icim_sina_literal_transport_20261022" name="test_real_mo_batch_preserves_logical_evidence_and_exact_variables" time="0.096" /><testcase classname="test_icim_sina_literal_transport_20261022" name="test_only_safe_sina_csv_params_change_wire_encoding[https://hq.sinajs.cn/etag.php-params0-list=P_OP_mo2611P6000,P_OP_mo2611P6100]" time="0.002" /><testcase classname="test_icim_sina_literal_transport_20261022" name="test_only_safe_sina_csv_params_change_wire_encoding[https://hq.sinajs.cn/-params1-list=CON_OP_10012149,CON_OP_10012150]" time="0.003" /><testcase classname="test_icim_sina_literal_transport_20261022" name="test_only_safe_sina_csv_params_change_wire_encoding[https://example.invalid/-params2-expected2]" time="0.001" /><testcase classname="test_icim_sina_literal_transport_20261022" name="test_only_safe_sina_csv_params_change_wire_encoding[https://hq.sinajs.cn/etag.php-params3-expected3]" time="0.002" /><testcase classname="test_icim_sina_literal_transport_20261022" name="test_only_safe_sina_csv_params_change_wire_encoding[https://hq.sinajs.cn/etag.php-params4-expected4]" time="0.001" /><testcase classname="test_icim_sina_literal_transport_20261022" name="test_only_safe_sina_csv_params_change_wire_encoding[https://hq.sinajs.cn/etag.php-params5-expected5]" time="0.001" /><testcase classname="test_icim_sina_literal_transport_20261022" name="test_empty_per_symbol_mo_response_is_not_complete_evidence" time="0.004" /><testcase classname="test_icim_ma23_evidence_20261023" name="test_raw_http_metadata_must_be_valid_before_complete_loader_acceptance[status-None]" time="0.054" /><testcase classname="test_icim_ma23_evidence_20261023" name="test_raw_http_metadata_must_be_valid_before_complete_loader_acceptance[status-True]" time="0.030" /><testcase classname="test_icim_ma23_evidence_20261023" name="test_raw_http_metadata_must_be_valid_before_complete_loader_acceptance[status-200.0]" time="0.030" /><testcase classname="test_icim_ma23_evidence_20261023" name="test_raw_http_metadata_must_be_valid_before_complete_loader_acceptance[status-99]" time="0.032" /><testcase classname="test_icim_ma23_evidence_20261023" name="test_raw_http_metadata_must_be_valid_before_complete_loader_acceptance[status-600]" time="0.031" /><testcase classname="test_icim_ma23_evidence_20261023" name="test_raw_http_metadata_must_be_valid_before_complete_loader_acceptance[encoding-42]" time="0.031" /><testcase classname="test_icim_ma23_evidence_20261023" name="test_valid_original_http_error_status_remains_recordable_for_fallback_audit[100]" time="0.069" /><testcase classname="test_icim_ma23_evidence_20261023" name="test_valid_original_http_error_status_remains_recordable_for_fallback_audit[200]" time="0.052" /><testcase classname="test_icim_ma23_evidence_20261023" name="test_valid_original_http_error_status_remains_recordable_for_fallback_audit[302]" time="0.065" /><testcase classname="test_icim_ma23_evidence_20261023" name="test_valid_original_http_error_status_remains_recordable_for_fallback_audit[404]" time="0.068" /><testcase classname="test_icim_ma23_evidence_20261023" name="test_valid_original_http_error_status_remains_recordable_for_fallback_audit[503]" time="0.401" /><testcase classname="test_icim_ma23_evidence_20261023" name="test_valid_original_http_error_status_remains_recordable_for_fallback_audit[599]" time="0.093" /><testcase classname="test_icim_ma23_evidence_20261023" name="test_rehashed_structural_or_blob_corruption_is_rejected[typed_blob]" time="0.058" /><testcase classname="test_icim_ma23_evidence_20261023" name="test_rehashed_structural_or_blob_corruption_is_rejected[raw_blob]" time="0.060" /><testcase classname="test_icim_ma23_evidence_20261023" name="test_rehashed_structural_or_blob_corruption_is_rejected[manifest_hash]" time="0.034" /><testcase classname="test_icim_ma23_evidence_20261023" name="test_rehashed_structural_or_blob_corruption_is_rejected[total]" time="0.059" /><testcase classname="test_icim_ma23_evidence_20261023" name="test_rehashed_structural_or_blob_corruption_is_rejected[role]" time="0.036" /><testcase classname="test_icim_ma23_evidence_20261023" name="test_rehashed_structural_or_blob_corruption_is_rejected[fetched_at]" time="0.045" /><testcase classname="test_icim_ma23_evidence_20261023" name="test_exact_request_retains_its_observation_over_different_batch_prefetch" time="0.096" /><testcase classname="test_icim_ma23_evidence_20261023" name="test_missing_exact_request_requires_all_possible_projections_to_agree" time="0.095" /><testcase classname="test_icim_ma23_evidence_20261023" name="test_reader_does_not_alias_parameter_types_or_fabricate_missing_batches[parameters0]" time="0.089" /><testcase classname="test_icim_ma23_evidence_20261023" name="test_reader_does_not_alias_parameter_types_or_fabricate_missing_batches[parameters1]" time="0.086" /><testcase classname="test_icim_ma23_evidence_20261023" name="test_reader_does_not_alias_parameter_types_or_fabricate_missing_batches[parameters2]" time="0.069" /><testcase classname="test_icim_ma23_evidence_20261023" name="test_reader_does_not_alias_parameter_types_or_fabricate_missing_batches[parameters3]" time="0.063" /><testcase classname="test_icim_ma23_evidence_20261023" name="test_query_order_is_irrelevant_but_original_body_is_not" time="0.159" /><testcase classname="test_icim_ma23_evidence_20261023" name="test_sealed_archive_cannot_be_extended_or_reannotated" time="0.041" /><testcase classname="test_icim_ma23_evidence_20261023" name="test_conflicted_session_stays_unusable_when_same_body_is_seen_again" time="0.054" /><testcase classname="test_icim_ma23_evidence_20261023" name="test_real_accepted_pack_verifies_all_original_blob_bytes_without_http" time="1.087" /><testcase classname="test_icim_round5_recording_semantics_20261021" name="test_conflicting_same_url_parameters_are_rejected_instead_of_taking_last[body]" time="0.053" /><testcase classname="test_icim_round5_recording_semantics_20261021" name="test_conflicting_same_url_parameters_are_rejected_instead_of_taking_last[headers]" time="0.044" /><testcase classname="test_icim_round5_recording_semantics_20261021" name="test_conflicting_same_url_parameters_are_rejected_instead_of_taking_last[status]" time="0.055" /><testcase classname="test_icim_round5_recording_semantics_20261021" name="test_conflicting_same_url_parameters_are_rejected_instead_of_taking_last[encoding]" time="0.053" /><testcase classname="test_icim_round5_recording_semantics_20261021" name="test_identical_repeat_http_is_reusable_without_consuming_invented_request_order" time="0.149" /><testcase classname="test_icim_round5_recording_semantics_20261021" name="test_overlapping_sina_batches_must_agree_on_the_exact_projected_variable[True]" time="0.127" /><testcase classname="test_icim_round5_recording_semantics_20261021" name="test_overlapping_sina_batches_must_agree_on_the_exact_projected_variable[False]" time="0.134" /><testcase classname="test_icim_round5_recording_semantics_20261021" name="test_annotation_is_encoded_once_and_capture_context_is_active" time="0.057" /><testcase classname="test_icim_round5_recording_semantics_20261021" name="test_real_chain_adapter_coalesces_month_day_and_never_aliases_years" time="0.126" /><testcase classname="test_icim_round5_recording_semantics_20261021" name="test_wrong_year_return_from_same_month_url_cannot_form_a_complete_chain_archive" time="0.019" /><testcase classname="test_icim_round5_recording_semantics_20261021" name="test_existing_unknown_year_ic_put_collects_without_new_expiry_then_real_server_recovers[day0-previous0-2703]" time="1.994" /><testcase classname="test_icim_round5_recording_semantics_20261021" name="test_existing_unknown_year_ic_put_collects_without_new_expiry_then_real_server_recovers[day1-previous1-2701]" time="1.789" /><testcase classname="test_icim_round5_recording_semantics_20261021" name="test_nov23_ic_2701_not_in_rule_shaped_listing_never_becomes_a_formal_target" time="1.048" /><testcase classname="test_icim_round5_recording_semantics_20261021" name="test_replay_freezes_real_collection_end_despite_outer_elapsed_query_clock" time="0.246" /><testcase classname="test_icim_round5_recording_semantics_20261021" name="test_close_quote_freshness_is_consistent_at_original_elapsed_and_replay_end[15-0-True]" time="0.001" /><testcase classname="test_icim_round5_recording_semantics_20261021" name="test_close_quote_freshness_is_consistent_at_original_elapsed_and_replay_end[14-54-False]" time="0.001" /><testcase classname="test_icim_round5_recording_semantics_20261021" name="test_close_quote_freshness_is_consistent_at_original_elapsed_and_replay_end[18-1-False]" time="0.001" /><testcase classname="test_icim_round5_recording_semantics_20261021" name="test_none_and_untradable_roll_candidate_leave_unneeded_gate_actions_identical[IC]" time="0.010"><failure message="RuntimeError: IC held short Put lacks a finite positive current-day mark">product = 'IC'
+
+    @pytest.mark.parametrize("product", ["IC", "IM"])
+    def test_none_and_untradable_roll_candidate_leave_unneeded_gate_actions_identical(product):
+        from test_ic_im_v1_4_policy import _signal, _candidate
+        from test_icim_round3_policy_repairs_20261021 import short_anchor
+        rng = random.Random(20261021)
+        checked = 0
+        for _ in range(200):
+            signal = _signal(product, market_date=date(2026, 12, 1), next_trade_date=date(2026, 12, 2),
+                             core_eod_contract=product + "2612", v14_short_put_mark=rng.choice([.1, .99, None]))
+            signal.update(close_confirmed=rng.choice([True, False]), valuation_tier=rng.randrange(4),
+                          valuation_puts_per_full_core=rng.randrange(4), momentum_next_weight=rng.choice([0., .5]))
+            contract = "510500P2612M07500" if product == "IC" else "MO2612-P-7200"
+            anchor = short_anchor(product, v14_short_put_contract=contract) if rng.choice([True, False]) else policy.default_extension(product)
+&gt;           required = policy.short_put_candidate_requirements(product, signal, anchor)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_icim_round5_recording_semantics_20261021.py:276: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+ic_im_v1_4_policy.py:488: in short_put_candidate_requirements
+    require_short_put_mark(product, signal, state)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+product = 'IC'
+signal = {'call_current_contract': None, 'close_confirmed': True, 'core_eod_contract': 'IC2612', 'core_units_current': 0.5, ...}
+state = {'v14_core_put_contract': None, 'v14_core_put_entry_premium': None, 'v14_core_put_profit3x_eligible': False, 'v14_core_put_qty': 0.0, ...}
+
+    def require_short_put_mark(product: str, signal: dict[str, Any], state: dict[str, Any],
+                               *, require_binding: bool = False) -&gt; None:
+        """Unknown decay evidence cannot mean an observed, unchanged short route.
+    
+        Pure policy callers supply a mark for the signal day by contract. Adapters
+        and new ledger writes additionally bind that observation to day and leg.
+        Historical records are not revalidated under this new-write requirement.
+        """
+        if not short_put_mark_required(product, signal, state):
+            return
+        mark = signal.get("v14_short_put_mark")
+        try:
+            valid = not isinstance(mark, bool) and mark is not None and math.isfinite(float(mark)) and float(mark) &gt; 0
+        except (TypeError, ValueError, OverflowError):
+            valid = False
+        if not valid:
+&gt;           raise RuntimeError(f"{product} held short Put lacks a finite positive current-day mark")
+E           RuntimeError: IC held short Put lacks a finite positive current-day mark
+
+ic_im_v1_4_policy.py:448: RuntimeError</failure></testcase><testcase classname="test_icim_round5_recording_semantics_20261021" name="test_none_and_untradable_roll_candidate_leave_unneeded_gate_actions_identical[IM]" time="0.001"><failure message="RuntimeError: IM held short Put lacks a finite positive current-day mark">product = 'IM'
+
+    @pytest.mark.parametrize("product", ["IC", "IM"])
+    def test_none_and_untradable_roll_candidate_leave_unneeded_gate_actions_identical(product):
+        from test_ic_im_v1_4_policy import _signal, _candidate
+        from test_icim_round3_policy_repairs_20261021 import short_anchor
+        rng = random.Random(20261021)
+        checked = 0
+        for _ in range(200):
+            signal = _signal(product, market_date=date(2026, 12, 1), next_trade_date=date(2026, 12, 2),
+                             core_eod_contract=product + "2612", v14_short_put_mark=rng.choice([.1, .99, None]))
+            signal.update(close_confirmed=rng.choice([True, False]), valuation_tier=rng.randrange(4),
+                          valuation_puts_per_full_core=rng.randrange(4), momentum_next_weight=rng.choice([0., .5]))
+            contract = "510500P2612M07500" if product == "IC" else "MO2612-P-7200"
+            anchor = short_anchor(product, v14_short_put_contract=contract) if rng.choice([True, False]) else policy.default_extension(product)
+&gt;           required = policy.short_put_candidate_requirements(product, signal, anchor)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_icim_round5_recording_semantics_20261021.py:276: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+ic_im_v1_4_policy.py:488: in short_put_candidate_requirements
+    require_short_put_mark(product, signal, state)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+product = 'IM'
+signal = {'call_current_contract': 'MO2610-C-9000', 'close_confirmed': True, 'core_eod_contract': 'IM2612', 'core_units_current': 0.5, ...}
+state = {'v14_core_put_contract': None, 'v14_core_put_entry_premium': None, 'v14_core_put_profit3x_eligible': False, 'v14_core_put_qty': 0.0, ...}
+
+    def require_short_put_mark(product: str, signal: dict[str, Any], state: dict[str, Any],
+                               *, require_binding: bool = False) -&gt; None:
+        """Unknown decay evidence cannot mean an observed, unchanged short route.
+    
+        Pure policy callers supply a mark for the signal day by contract. Adapters
+        and new ledger writes additionally bind that observation to day and leg.
+        Historical records are not revalidated under this new-write requirement.
+        """
+        if not short_put_mark_required(product, signal, state):
+            return
+        mark = signal.get("v14_short_put_mark")
+        try:
+            valid = not isinstance(mark, bool) and mark is not None and math.isfinite(float(mark)) and float(mark) &gt; 0
+        except (TypeError, ValueError, OverflowError):
+            valid = False
+        if not valid:
+&gt;           raise RuntimeError(f"{product} held short Put lacks a finite positive current-day mark")
+E           RuntimeError: IM held short Put lacks a finite positive current-day mark
+
+ic_im_v1_4_policy.py:448: RuntimeError</failure></testcase><testcase classname="test_icim_round4_recovery_20261021" name="test_real_independent_collector_survives_calendar_diagnostic_then_server_recovers[False-day0-previous0-later0]" time="2.071" /><testcase classname="test_icim_round4_recovery_20261021" name="test_real_independent_collector_survives_calendar_diagnostic_then_server_recovers[False-day1-previous1-later1]" time="1.985" /><testcase classname="test_icim_round4_recovery_20261021" name="test_real_independent_collector_survives_calendar_diagnostic_then_server_recovers[True-day0-previous0-later0]" time="2.769" /><testcase classname="test_icim_round4_recovery_20261021" name="test_real_independent_collector_survives_calendar_diagnostic_then_server_recovers[True-day1-previous1-later1]" time="2.826" /><testcase classname="test_icim_round4_recovery_20261021" name="test_unavailable_original_fear_recovers_with_separate_real_time_history_supplement" time="0.596" /><testcase classname="test_icim_round4_recovery_20261021" name="test_missing_fear_history_remains_unresolved_and_creates_no_complete_supplement" time="0.115" /><testcase classname="test_icim_round4_recovery_20261021" name="test_two_actual_independent_captures_while_stale_then_sequential_server_recovery" time="3.601" /><testcase classname="test_icim_round4_recovery_20261021" name="test_legacy_ic_profit_rebuild_uses_original_chain_only_if_present[True]" time="0.298" /><testcase classname="test_icim_round4_recovery_20261021" name="test_legacy_ic_profit_rebuild_uses_original_chain_only_if_present[False]" time="0.256" /><testcase classname="test_icim_round4_recovery_20261021" name="test_batched_mo_original_crosschecks_replay_quote_and_open_without_http" time="0.118" /><testcase classname="test_icim_round4_recovery_20261021" name="test_incomplete_mo_verification_batch_cannot_claim_complete_archive[missing]" time="0.022" /><testcase classname="test_icim_round4_recovery_20261021" name="test_incomplete_mo_verification_batch_cannot_claim_complete_archive[duplicate]" time="0.019" /><testcase classname="test_icim_round4_recovery_20261021" name="test_incomplete_mo_verification_batch_cannot_claim_complete_archive[wrong_identity]" time="0.020" /><testcase classname="test_icim_round4_recovery_20261021" name="test_none_roll_candidate_and_random_gate_contract_are_real_policy_compatible[IC]" time="0.002"><failure message="RuntimeError: IC held short Put lacks a finite positive current-day mark">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000002C01B421DA0&gt;
+product = 'IC'
+
+    @pytest.mark.parametrize("product", ["IC", "IM"])
+    def test_none_roll_candidate_and_random_gate_contract_are_real_policy_compatible(monkeypatch, product):
+        from test_icim_round3_policy_repairs_20261021 import short_anchor, wire_adapter
+        from test_ic_im_v1_4_policy import _signal, _candidate
+        contract = "510500P2612M07500" if product == "IC" else "MO2612-P-7200"
+        anchor, frame = wire_adapter(monkeypatch, product, short_anchor(product, v14_short_put_contract=contract), mark=.99)
+        held = bot._apply_v14_live_policy(product, _signal(product, market_date=date(2026, 12, 1),
+            next_trade_date=date(2026, 12, 2), core_eod_contract=product + "2612"), mo_quotes=frame)
+        assert held["v14_action"] != "HOLD_FAIL_CLOSED"
+        rng = random.Random(20261021)
+        checked = 0
+        for _ in range(200):
+            signal = _signal(product, market_date=date(2026, 12, 1), next_trade_date=date(2026, 12, 2),
+                             core_eod_contract=product + "2612", v14_short_put_mark=rng.choice([.1, .99, None]))
+            signal.update(close_confirmed=rng.choice([True, False]), valuation_tier=rng.randrange(4),
+                          valuation_puts_per_full_core=rng.randrange(4), momentum_next_weight=rng.choice([0., .5]))
+            candidate = _candidate(product, contract=contract, expiry=date(2026, 12, 23 if product == "IC" else 18))
+            active = anchor if rng.choice([True, False]) else policy.default_extension(product)
+&gt;           requirements = policy.short_put_candidate_requirements(product, signal, active)
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_icim_round4_recovery_20261021.py:313: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+ic_im_v1_4_policy.py:488: in short_put_candidate_requirements
+    require_short_put_mark(product, signal, state)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+product = 'IC'
+signal = {'call_current_contract': None, 'close_confirmed': True, 'core_eod_contract': 'IC2612', 'core_units_current': 0.5, ...}
+state = {'v14_core_put_contract': None, 'v14_core_put_entry_premium': None, 'v14_core_put_profit3x_eligible': False, 'v14_core_put_qty': 0.0, ...}
+
+    def require_short_put_mark(product: str, signal: dict[str, Any], state: dict[str, Any],
+                               *, require_binding: bool = False) -&gt; None:
+        """Unknown decay evidence cannot mean an observed, unchanged short route.
+    
+        Pure policy callers supply a mark for the signal day by contract. Adapters
+        and new ledger writes additionally bind that observation to day and leg.
+        Historical records are not revalidated under this new-write requirement.
+        """
+        if not short_put_mark_required(product, signal, state):
+            return
+        mark = signal.get("v14_short_put_mark")
+        try:
+            valid = not isinstance(mark, bool) and mark is not None and math.isfinite(float(mark)) and float(mark) &gt; 0
+        except (TypeError, ValueError, OverflowError):
+            valid = False
+        if not valid:
+&gt;           raise RuntimeError(f"{product} held short Put lacks a finite positive current-day mark")
+E           RuntimeError: IC held short Put lacks a finite positive current-day mark
+
+ic_im_v1_4_policy.py:448: RuntimeError</failure></testcase><testcase classname="test_icim_round4_recovery_20261021" name="test_none_roll_candidate_and_random_gate_contract_are_real_policy_compatible[IM]" time="0.003"><failure message="RuntimeError: IM held short Put lacks a finite positive current-day mark">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000002C01B428440&gt;
+product = 'IM'
+
+    @pytest.mark.parametrize("product", ["IC", "IM"])
+    def test_none_roll_candidate_and_random_gate_contract_are_real_policy_compatible(monkeypatch, product):
+        from test_icim_round3_policy_repairs_20261021 import short_anchor, wire_adapter
+        from test_ic_im_v1_4_policy import _signal, _candidate
+        contract = "510500P2612M07500" if product == "IC" else "MO2612-P-7200"
+        anchor, frame = wire_adapter(monkeypatch, product, short_anchor(product, v14_short_put_contract=contract), mark=.99)
+        held = bot._apply_v14_live_policy(product, _signal(product, market_date=date(2026, 12, 1),
+            next_trade_date=date(2026, 12, 2), core_eod_contract=product + "2612"), mo_quotes=frame)
+        assert held["v14_action"] != "HOLD_FAIL_CLOSED"
+        rng = random.Random(20261021)
+        checked = 0
+        for _ in range(200):
+            signal = _signal(product, market_date=date(2026, 12, 1), next_trade_date=date(2026, 12, 2),
+                             core_eod_contract=product + "2612", v14_short_put_mark=rng.choice([.1, .99, None]))
+            signal.update(close_confirmed=rng.choice([True, False]), valuation_tier=rng.randrange(4),
+                          valuation_puts_per_full_core=rng.randrange(4), momentum_next_weight=rng.choice([0., .5]))
+            candidate = _candidate(product, contract=contract, expiry=date(2026, 12, 23 if product == "IC" else 18))
+            active = anchor if rng.choice([True, False]) else policy.default_extension(product)
+&gt;           requirements = policy.short_put_candidate_requirements(product, signal, active)
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_icim_round4_recovery_20261021.py:313: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+ic_im_v1_4_policy.py:488: in short_put_candidate_requirements
+    require_short_put_mark(product, signal, state)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+product = 'IM'
+signal = {'call_current_contract': 'MO2610-C-9000', 'close_confirmed': True, 'core_eod_contract': 'IM2612', 'core_units_current': 0.5, ...}
+state = {'v14_core_put_contract': None, 'v14_core_put_entry_premium': None, 'v14_core_put_profit3x_eligible': False, 'v14_core_put_qty': 0.0, ...}
+
+    def require_short_put_mark(product: str, signal: dict[str, Any], state: dict[str, Any],
+                               *, require_binding: bool = False) -&gt; None:
+        """Unknown decay evidence cannot mean an observed, unchanged short route.
+    
+        Pure policy callers supply a mark for the signal day by contract. Adapters
+        and new ledger writes additionally bind that observation to day and leg.
+        Historical records are not revalidated under this new-write requirement.
+        """
+        if not short_put_mark_required(product, signal, state):
+            return
+        mark = signal.get("v14_short_put_mark")
+        try:
+            valid = not isinstance(mark, bool) and mark is not None and math.isfinite(float(mark)) and float(mark) &gt; 0
+        except (TypeError, ValueError, OverflowError):
+            valid = False
+        if not valid:
+&gt;           raise RuntimeError(f"{product} held short Put lacks a finite positive current-day mark")
+E           RuntimeError: IM held short Put lacks a finite positive current-day mark
+
+ic_im_v1_4_policy.py:448: RuntimeError</failure></testcase></testsuite></testsuites>

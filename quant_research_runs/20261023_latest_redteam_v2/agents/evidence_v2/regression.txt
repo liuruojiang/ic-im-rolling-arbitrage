@@ -1,0 +1,92 @@
+..FFFF.                                                                  [100%]
+================================== FAILURES ===================================
+_____________ test_prefetch_must_reject_wrong_variable_prefix[x] ______________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000025F1F61A0F0>
+tmp_path = WindowsPath('D:/动量策略/IC和IM滚动套利/quant_research_runs/20261023_latest_redteam_v2/agents/evidence_v2/temp/pytest/test_prefetch_must_reject_wron0')
+prefix = b'x'
+
+    @pytest.mark.parametrize('prefix',[b'x',b'not_'])
+    def test_prefetch_must_reject_wrong_variable_prefix(monkeypatch,tmp_path,prefix):
+        body,_=batch(prefix)
+        monkeypatch.setattr(bot.requests,'get',lambda *a,**k:response(body))
+        frame=pd.DataFrame({'instrument':['MO2611-P-6000','MO2611-P-6100']})
+>       with bot.runtime_clock(CLOCK),pytest.raises(RuntimeError):
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+quant_research_runs\20261023_latest_redteam_v2\agents\evidence_v2\test_batch_identity.py:52: Failed
+____________ test_prefetch_must_reject_wrong_variable_prefix[not_] ____________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000025F1F6BD260>
+tmp_path = WindowsPath('D:/动量策略/IC和IM滚动套利/quant_research_runs/20261023_latest_redteam_v2/agents/evidence_v2/temp/pytest/test_prefetch_must_reject_wron1')
+prefix = b'not_'
+
+    @pytest.mark.parametrize('prefix',[b'x',b'not_'])
+    def test_prefetch_must_reject_wrong_variable_prefix(monkeypatch,tmp_path,prefix):
+        body,_=batch(prefix)
+        monkeypatch.setattr(bot.requests,'get',lambda *a,**k:response(body))
+        frame=pd.DataFrame({'instrument':['MO2611-P-6000','MO2611-P-6100']})
+>       with bot.runtime_clock(CLOCK),pytest.raises(RuntimeError):
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+quant_research_runs\20261023_latest_redteam_v2\agents\evidence_v2\test_batch_identity.py:52: Failed
+_________ test_prefetch_seal_replay_must_not_launder_wrong_prefix[x] __________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000025F1F6BCE20>
+tmp_path = WindowsPath('D:/动量策略/IC和IM滚动套利/quant_research_runs/20261023_latest_redteam_v2/agents/evidence_v2/temp/pytest/test_prefetch_seal_replay_must0')
+prefix = b'x'
+
+    @pytest.mark.parametrize('prefix',[b'x',b'not_'])
+    def test_prefetch_seal_replay_must_not_launder_wrong_prefix(monkeypatch,tmp_path,prefix):
+        body,price=batch(prefix)
+        monkeypatch.setattr(bot.requests,'get',lambda *a,**k:response(body))
+        frame=pd.DataFrame({'instrument':['MO2611-P-6000','MO2611-P-6100']})
+        with bot.runtime_clock(CLOCK),evidence.capture_session(tmp_path,DAY,CLOCK,{'synthetic_mutation':True}) as session:
+            result=bot._prefetch_mo_replay_verification(frame,CLOCK)
+            # Actual adapter ordinarily supplies this named provider role.
+            if not session.entries: session.call('mo.replay_verification',{'day':DAY,'product':'MO'},lambda:result)
+        assert session.context['complete'] is True
+        reader=evidence.load_session(tmp_path,DAY)
+        monkeypatch.setattr(bot.requests,'get',lambda *a,**k:pytest.fail('replay escaped to network'))
+>       with bot.runtime_clock(CLOCK),evidence.replay_session(reader),pytest.raises(RuntimeError):
+                                                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+quant_research_runs\20261023_latest_redteam_v2\agents\evidence_v2\test_batch_identity.py:68: Failed
+________ test_prefetch_seal_replay_must_not_launder_wrong_prefix[not_] ________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000025F1F735B50>
+tmp_path = WindowsPath('D:/动量策略/IC和IM滚动套利/quant_research_runs/20261023_latest_redteam_v2/agents/evidence_v2/temp/pytest/test_prefetch_seal_replay_must1')
+prefix = b'not_'
+
+    @pytest.mark.parametrize('prefix',[b'x',b'not_'])
+    def test_prefetch_seal_replay_must_not_launder_wrong_prefix(monkeypatch,tmp_path,prefix):
+        body,price=batch(prefix)
+        monkeypatch.setattr(bot.requests,'get',lambda *a,**k:response(body))
+        frame=pd.DataFrame({'instrument':['MO2611-P-6000','MO2611-P-6100']})
+        with bot.runtime_clock(CLOCK),evidence.capture_session(tmp_path,DAY,CLOCK,{'synthetic_mutation':True}) as session:
+            result=bot._prefetch_mo_replay_verification(frame,CLOCK)
+            # Actual adapter ordinarily supplies this named provider role.
+            if not session.entries: session.call('mo.replay_verification',{'day':DAY,'product':'MO'},lambda:result)
+        assert session.context['complete'] is True
+        reader=evidence.load_session(tmp_path,DAY)
+        monkeypatch.setattr(bot.requests,'get',lambda *a,**k:pytest.fail('replay escaped to network'))
+>       with bot.runtime_clock(CLOCK),evidence.replay_session(reader),pytest.raises(RuntimeError):
+                                                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+quant_research_runs\20261023_latest_redteam_v2\agents\evidence_v2\test_batch_identity.py:68: Failed
+============================== warnings summary ===============================
+C:\Python314\Lib\site-packages\fastapi_poe\types.py:171
+  C:\Python314\Lib\site-packages\fastapi_poe\types.py:171: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    class RequestContext(BaseModel):
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED quant_research_runs/20261023_latest_redteam_v2/agents/evidence_v2/test_batch_identity.py::test_prefetch_must_reject_wrong_variable_prefix[x]
+FAILED quant_research_runs/20261023_latest_redteam_v2/agents/evidence_v2/test_batch_identity.py::test_prefetch_must_reject_wrong_variable_prefix[not_]
+FAILED quant_research_runs/20261023_latest_redteam_v2/agents/evidence_v2/test_batch_identity.py::test_prefetch_seal_replay_must_not_launder_wrong_prefix[x]
+FAILED quant_research_runs/20261023_latest_redteam_v2/agents/evidence_v2/test_batch_identity.py::test_prefetch_seal_replay_must_not_launder_wrong_prefix[not_]
+4 failed, 3 passed, 1 warning in 3.21s

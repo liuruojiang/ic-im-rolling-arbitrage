@@ -1,0 +1,58 @@
+[
+  {
+    "path": "docs/ic_im_daily_release_20261023_repairs_v3_r3_manifest.json",
+    "bytes": 28704,
+    "git_blob_sha": "70dd299b58ac3521a8a009912c49a7d5696d9ac1",
+    "sha256": "7c61e6506342ade9c23d6c878579cc575490e9f7baaa224db5da02dab2ccb600",
+    "remote_blob_sha": null
+  },
+  {
+    "path": "scripts/build_ic_im_v1_4_digest.py",
+    "bytes": 87737,
+    "git_blob_sha": "265bac9bb5b7264621f4658479fadb47b153a919",
+    "sha256": "2b937df04d409311cd4325c625b0760a9c1aef26f59cb056f1fcfbba2fbe17dc",
+    "remote_blob_sha": "b434271cb7772e110bfd20be7b26536d38548ae2"
+  },
+  {
+    "path": "scripts/ic_im_v1_4_delivery_contract.py",
+    "bytes": 34341,
+    "git_blob_sha": "32c06975fd874a7b4fe4f961bd132b784da0b1f5",
+    "sha256": "aec518348ef2f47a34258a69c7015739675df5aabc5eec50a49e3e403f56a7e6",
+    "remote_blob_sha": "44cd1f00ed8c0f573e5afdcbda9e5be8f2b4c881"
+  },
+  {
+    "path": "scripts/verify_icim_source_release.py",
+    "bytes": 2968,
+    "git_blob_sha": "6462434a98e75b3a12c4bddc29379d5c1b912921",
+    "sha256": "39b7076d348f92f845822a50891b31ca491f4053a47afec669ab7d3e7942c049",
+    "remote_blob_sha": "fd319e064882079f49e1da713aad34cda2f81a01"
+  },
+  {
+    "path": "tests/test_delivery_regression_contract.py",
+    "bytes": 18559,
+    "git_blob_sha": "ff92265eeadec0396a9ad5e42484d43f6ecbf1bb",
+    "sha256": "7b86fd6f5874951fa5add5fddb3108eb8b003a74a1fb46c43f024a358004873f",
+    "remote_blob_sha": "78f7071327bedf0beb04f69eb718b12aae361c94"
+  },
+  {
+    "path": "tests/test_ic_im_v1_4_source_manifest_v3.py",
+    "bytes": 3806,
+    "git_blob_sha": "eead432b12ff01b32fc0ee3e3fd6c164d1054a2d",
+    "sha256": "a7a9cedfee975cf64fc3aec12c7eb409d8d02b9f60ca59b241f961312fff1c98",
+    "remote_blob_sha": null
+  },
+  {
+    "path": "tests/test_ic_im_v1_4_workflow.py",
+    "bytes": 15546,
+    "git_blob_sha": "9eadf9f23ff725686fc087880e9ed1737e6eceb5",
+    "sha256": "4f05a9091f251b4220f54eccf7bd18b29c20c3a7b6a92d5ddeb0cb097ecb2d67",
+    "remote_blob_sha": "ce96561d5ed3c741adc7c08c44dc1e1d55620f51"
+  },
+  {
+    "path": ".github/workflows/ic-im-v1-4-daily-digest.yml",
+    "bytes": 24778,
+    "git_blob_sha": "d8c6824df1423557b7156bf7168acda1d9425760",
+    "sha256": "cfbf715fa876d12bf731e82dcbc9a568fc8ad5d27857dec1c8744bc6b6b2e863",
+    "remote_blob_sha": "add31717d6d4de92ed5aa39a77613b65611f9163"
+  }
+]

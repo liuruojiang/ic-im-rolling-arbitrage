@@ -1,0 +1,11 @@
+# Complete automation regression after source-pin update
+
+Final run exited 0: **1170 passed and 177 subtests passed**, 0 failures, errors or skips. JUnit records 1347 cases including the subtests. Pytest elapsed 40.58 seconds; harness elapsed 41.27 seconds. All 187 source/fixture/workflow files are byte-identical before and after. Collection contains 1170 unique node IDs and exactly matches run02. `receipt.json` and `final_binding.json` bind the results and source inventories.
+
+Original run01 was not overwritten: its 211 errors were all tmp_path setup failures reading the inaccessible Windows directory `C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/pytest-of-Administrator`, with WinError 5. No test-call assertion failed. Run02 independently matched every one of those 211 nodes and all passed; the exact comparison is in `../automation_full_02/prior_errors_comparison.json`.
+
+Run02 completed the same 1170 tests and 177 subtests, but its harness exited 1 because its broad file scan included a newly generated Hypothesis cache. Actual source files remained unchanged, documented by `../automation_full_02/source_cache_classification.json`; original run02 receipt is retained. Final run03 explicitly relocates Hypothesis storage to isolated temporary output and excludes only Git metadata and generated Python/pytest/Hypothesis caches from the source inventory.
+
+The runner follows the prior tested Windows compatibility method, narrowed to paths inside this run's isolated_temp directory: mkdir(0700) becomes mkdir(0777) to avoid Python 3.14 Windows ACL isolation denying the test process's inherited token. Exactly 276 such temporary mkdir calls were adapted, 0 chmod calls. No existing production directory permission, test assertion, source code or case-selection rule was changed. Explicit pytest configuration preserves all test_*.py, Test* and test_* cases. The two warnings are intentional duplicate ZIP-member negative fixtures.
+
+This is full author-side automated verification after preparation of the automation patch, not the separate independent post-publication audit. No SMTP, deployment or production-ledger operation was performed by this runner. Final immutable strategy source checkout tests and remote readiness remain separate parent tasks.

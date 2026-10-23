@@ -1,0 +1,8 @@
+{
+  "function": "verify_sina_option_open",
+  "unchanged_vs_58986fda_backup": true,
+  "function_sha256": "50ac9d7cd2c422b3a1c025dcad0116b56627fbdf772b116fc5749b44044a6be5",
+  "negative_assertions_failed": 9,
+  "other_failure": "spaces format control old parser cannot handle; fixed by shared parser",
+  "positive_controls_passed": 3
+}

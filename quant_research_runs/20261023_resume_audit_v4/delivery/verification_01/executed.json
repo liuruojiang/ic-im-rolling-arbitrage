@@ -1,0 +1,3627 @@
+[
+  {
+    "nodeid": "test_delivery_boundaries.py::test_pinned_execution_source_and_consumer_agree",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "test_delivery_boundaries.py::test_pinned_execution_source_and_consumer_agree",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "test_delivery_boundaries.py::test_pinned_execution_source_and_consumer_agree",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "test_delivery_boundaries.py::test_wrong_checkout_identity_cannot_produce_a_verified_proof[main]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "test_delivery_boundaries.py::test_wrong_checkout_identity_cannot_produce_a_verified_proof[main]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "test_delivery_boundaries.py::test_wrong_checkout_identity_cannot_produce_a_verified_proof[main]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "test_delivery_boundaries.py::test_wrong_checkout_identity_cannot_produce_a_verified_proof[0000000000000000000000000000000000000000]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "test_delivery_boundaries.py::test_wrong_checkout_identity_cannot_produce_a_verified_proof[0000000000000000000000000000000000000000]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "test_delivery_boundaries.py::test_wrong_checkout_identity_cannot_produce_a_verified_proof[0000000000000000000000000000000000000000]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "test_delivery_boundaries.py::test_wrong_checkout_identity_cannot_produce_a_verified_proof[8038980de86251b2c5133da04e788dc2c49c84ff]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "test_delivery_boundaries.py::test_wrong_checkout_identity_cannot_produce_a_verified_proof[8038980de86251b2c5133da04e788dc2c49c84ff]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "test_delivery_boundaries.py::test_wrong_checkout_identity_cannot_produce_a_verified_proof[8038980de86251b2c5133da04e788dc2c49c84ff]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "test_delivery_boundaries.py::test_proof_substitution_cannot_reach_renderer[wrong_sha]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "test_delivery_boundaries.py::test_proof_substitution_cannot_reach_renderer[wrong_sha]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "test_delivery_boundaries.py::test_proof_substitution_cannot_reach_renderer[wrong_sha]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "test_delivery_boundaries.py::test_proof_substitution_cannot_reach_renderer[old_release]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "test_delivery_boundaries.py::test_proof_substitution_cannot_reach_renderer[old_release]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "test_delivery_boundaries.py::test_proof_substitution_cannot_reach_renderer[old_release]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "test_delivery_boundaries.py::test_proof_substitution_cannot_reach_renderer[wrong_release]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "test_delivery_boundaries.py::test_proof_substitution_cannot_reach_renderer[wrong_release]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "test_delivery_boundaries.py::test_proof_substitution_cannot_reach_renderer[wrong_release]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "test_delivery_boundaries.py::test_proof_substitution_cannot_reach_renderer[old_manifest_hash]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "test_delivery_boundaries.py::test_proof_substitution_cannot_reach_renderer[old_manifest_hash]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "test_delivery_boundaries.py::test_proof_substitution_cannot_reach_renderer[old_manifest_hash]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "test_delivery_boundaries.py::test_proof_substitution_cannot_reach_renderer[tampered_source_hash]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "test_delivery_boundaries.py::test_proof_substitution_cannot_reach_renderer[tampered_source_hash]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "test_delivery_boundaries.py::test_proof_substitution_cannot_reach_renderer[tampered_source_hash]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "test_delivery_boundaries.py::test_proof_substitution_cannot_reach_renderer[missing_file]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "test_delivery_boundaries.py::test_proof_substitution_cannot_reach_renderer[missing_file]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "test_delivery_boundaries.py::test_proof_substitution_cannot_reach_renderer[missing_file]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "test_delivery_boundaries.py::test_proof_substitution_cannot_reach_renderer[future_verification]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "test_delivery_boundaries.py::test_proof_substitution_cannot_reach_renderer[future_verification]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "test_delivery_boundaries.py::test_proof_substitution_cannot_reach_renderer[future_verification]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "test_delivery_boundaries.py::test_proof_substitution_cannot_reach_renderer[naive_verification]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "test_delivery_boundaries.py::test_proof_substitution_cannot_reach_renderer[naive_verification]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "test_delivery_boundaries.py::test_proof_substitution_cannot_reach_renderer[naive_verification]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "test_delivery_boundaries.py::test_real_old_proof_cannot_be_relabelled_as_new_release",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "test_delivery_boundaries.py::test_real_old_proof_cannot_be_relabelled_as_new_release",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "test_delivery_boundaries.py::test_real_old_proof_cannot_be_relabelled_as_new_release",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "test_delivery_boundaries.py::test_real_payload_reference_pollution_preserves_both_renderings[pollution0]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "test_delivery_boundaries.py::test_real_payload_reference_pollution_preserves_both_renderings[pollution0]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "test_delivery_boundaries.py::test_real_payload_reference_pollution_preserves_both_renderings[pollution0]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "test_delivery_boundaries.py::test_real_payload_reference_pollution_preserves_both_renderings[pollution1]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "test_delivery_boundaries.py::test_real_payload_reference_pollution_preserves_both_renderings[pollution1]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "test_delivery_boundaries.py::test_real_payload_reference_pollution_preserves_both_renderings[pollution1]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "test_delivery_boundaries.py::test_real_payload_reference_pollution_preserves_both_renderings[pollution2]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "test_delivery_boundaries.py::test_real_payload_reference_pollution_preserves_both_renderings[pollution2]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "test_delivery_boundaries.py::test_real_payload_reference_pollution_preserves_both_renderings[pollution2]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "test_delivery_boundaries.py::test_real_payload_reference_pollution_preserves_both_renderings[pollution3]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "test_delivery_boundaries.py::test_real_payload_reference_pollution_preserves_both_renderings[pollution3]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "test_delivery_boundaries.py::test_real_payload_reference_pollution_preserves_both_renderings[pollution3]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "test_delivery_boundaries.py::test_old_signal_render_keeps_actual_market_day",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "test_delivery_boundaries.py::test_old_signal_render_keeps_actual_market_day",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "test_delivery_boundaries.py::test_old_signal_render_keeps_actual_market_day",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "test_delivery_boundaries.py::test_real_old_signal_cannot_be_partially_renamed_today[top_market_day]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "test_delivery_boundaries.py::test_real_old_signal_cannot_be_partially_renamed_today[top_market_day]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "test_delivery_boundaries.py::test_real_old_signal_cannot_be_partially_renamed_today[top_market_day]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "test_delivery_boundaries.py::test_real_old_signal_cannot_be_partially_renamed_today[one_leg_day]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "test_delivery_boundaries.py::test_real_old_signal_cannot_be_partially_renamed_today[one_leg_day]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "test_delivery_boundaries.py::test_real_old_signal_cannot_be_partially_renamed_today[one_leg_day]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "test_delivery_boundaries.py::test_real_old_signal_cannot_be_partially_renamed_today[both_leg_days]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "test_delivery_boundaries.py::test_real_old_signal_cannot_be_partially_renamed_today[both_leg_days]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "test_delivery_boundaries.py::test_real_old_signal_cannot_be_partially_renamed_today[both_leg_days]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "test_delivery_boundaries.py::test_real_old_signal_cannot_be_partially_renamed_today[verified_day]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "test_delivery_boundaries.py::test_real_old_signal_cannot_be_partially_renamed_today[verified_day]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "test_delivery_boundaries.py::test_real_old_signal_cannot_be_partially_renamed_today[verified_day]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "test_delivery_boundaries.py::test_real_old_signal_cannot_be_partially_renamed_today[completed_day]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "test_delivery_boundaries.py::test_real_old_signal_cannot_be_partially_renamed_today[completed_day]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "test_delivery_boundaries.py::test_real_old_signal_cannot_be_partially_renamed_today[completed_day]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "test_delivery_boundaries.py::test_failed_recovery_ignores_old_positions_and_candidate_symbols",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "test_delivery_boundaries.py::test_failed_recovery_ignores_old_positions_and_candidate_symbols",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "test_delivery_boundaries.py::test_failed_recovery_ignores_old_positions_and_candidate_symbols",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "test_delivery_boundaries.py::test_result_day_gate_uses_old_signal_day_not_attempt_day[]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "test_delivery_boundaries.py::test_result_day_gate_uses_old_signal_day_not_attempt_day[]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "test_delivery_boundaries.py::test_result_day_gate_uses_old_signal_day_not_attempt_day[]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "test_delivery_boundaries.py::test_result_day_gate_uses_old_signal_day_not_attempt_day[-send-intent]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "test_delivery_boundaries.py::test_result_day_gate_uses_old_signal_day_not_attempt_day[-send-intent]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "test_delivery_boundaries.py::test_result_day_gate_uses_old_signal_day_not_attempt_day[-send-intent]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "test_delivery_boundaries.py::test_other_day_marker_does_not_block_historical_day",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "test_delivery_boundaries.py::test_other_day_marker_does_not_block_historical_day",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "test_delivery_boundaries.py::test_other_day_marker_does_not_block_historical_day",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "test_delivery_boundaries.py::test_explicit_correction_is_separate_from_normal_retry",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "test_delivery_boundaries.py::test_explicit_correction_is_separate_from_normal_retry",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "test_delivery_boundaries.py::test_explicit_correction_is_separate_from_normal_retry",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "test_delivery_boundaries.py::test_invalid_ledger_only_attempt_cannot_enable_smtp[schedule-close_confirmed-false-false]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "test_delivery_boundaries.py::test_invalid_ledger_only_attempt_cannot_enable_smtp[schedule-close_confirmed-false-false]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "test_delivery_boundaries.py::test_invalid_ledger_only_attempt_cannot_enable_smtp[schedule-close_confirmed-false-false]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "test_delivery_boundaries.py::test_invalid_ledger_only_attempt_cannot_enable_smtp[workflow_dispatch-realtime-false-false]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "test_delivery_boundaries.py::test_invalid_ledger_only_attempt_cannot_enable_smtp[workflow_dispatch-realtime-false-false]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "test_delivery_boundaries.py::test_invalid_ledger_only_attempt_cannot_enable_smtp[workflow_dispatch-realtime-false-false]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "test_delivery_boundaries.py::test_invalid_ledger_only_attempt_cannot_enable_smtp[workflow_dispatch-close_confirmed-true-false]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "test_delivery_boundaries.py::test_invalid_ledger_only_attempt_cannot_enable_smtp[workflow_dispatch-close_confirmed-true-false]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "test_delivery_boundaries.py::test_invalid_ledger_only_attempt_cannot_enable_smtp[workflow_dispatch-close_confirmed-true-false]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "test_delivery_boundaries.py::test_invalid_ledger_only_attempt_cannot_enable_smtp[workflow_dispatch-close_confirmed-false-true]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "test_delivery_boundaries.py::test_invalid_ledger_only_attempt_cannot_enable_smtp[workflow_dispatch-close_confirmed-false-true]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "test_delivery_boundaries.py::test_invalid_ledger_only_attempt_cannot_enable_smtp[workflow_dispatch-close_confirmed-false-true]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "test_delivery_boundaries.py::test_valid_ledger_only_attempt_disables_smtp",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "test_delivery_boundaries.py::test_valid_ledger_only_attempt_disables_smtp",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "test_delivery_boundaries.py::test_valid_ledger_only_attempt_disables_smtp",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "test_delivery_boundaries.py::test_invalid_archive_cannot_initialize_destination",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "test_delivery_boundaries.py::test_invalid_archive_cannot_initialize_destination",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "test_delivery_boundaries.py::test_invalid_archive_cannot_initialize_destination",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::ICIMV14WorkflowTests::test_ledger_recovery_rejects_scheduled_realtime_and_correction_modes",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::ICIMV14WorkflowTests::test_ledger_recovery_rejects_scheduled_realtime_and_correction_modes",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::ICIMV14WorkflowTests::test_ledger_recovery_rejects_scheduled_realtime_and_correction_modes",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::ICIMV14WorkflowTests::test_ledger_recovery_rejects_scheduled_realtime_and_correction_modes",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::ICIMV14WorkflowTests::test_ledger_recovery_rejects_scheduled_realtime_and_correction_modes",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::ICIMV14WorkflowTests::test_ledger_recovery_rejects_scheduled_realtime_and_correction_modes",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::ICIMV14WorkflowTests::test_ledger_recovery_rejects_scheduled_realtime_and_correction_modes",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::ICIMV14WorkflowTests::test_ledger_recovery_rejects_scheduled_realtime_and_correction_modes",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::ICIMV14WorkflowTests::test_manual_ledger_recovery_cannot_enable_smtp",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::ICIMV14WorkflowTests::test_manual_ledger_recovery_cannot_enable_smtp",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::ICIMV14WorkflowTests::test_manual_ledger_recovery_cannot_enable_smtp",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::ICIMV14WorkflowTests::test_manual_ledger_recovery_cannot_enable_smtp",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::ICIMV14WorkflowTests::test_manual_ledger_recovery_cannot_enable_smtp",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::ICIMV14WorkflowTests::test_manual_ledger_recovery_cannot_enable_smtp",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::ICIMV14WorkflowTests::test_ordinary_schedule_and_manual_delivery_keep_smtp_enabled",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::ICIMV14WorkflowTests::test_ordinary_schedule_and_manual_delivery_keep_smtp_enabled",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::ICIMV14WorkflowTests::test_ordinary_schedule_and_manual_delivery_keep_smtp_enabled",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::ICIMV14WorkflowTests::test_workflow_uses_r1_migration_persistence_and_gmail_gate",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::ICIMV14WorkflowTests::test_workflow_uses_r1_migration_persistence_and_gmail_gate",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::ICIMV14WorkflowTests::test_workflow_uses_r1_migration_persistence_and_gmail_gate",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_actual_yaml_healthy_normal_and_ledger_only_are_distinct[False]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_actual_yaml_healthy_normal_and_ledger_only_are_distinct[False]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_actual_yaml_healthy_normal_and_ledger_only_are_distinct[False]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_actual_yaml_healthy_normal_and_ledger_only_are_distinct[True]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_actual_yaml_healthy_normal_and_ledger_only_are_distinct[True]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_actual_yaml_healthy_normal_and_ledger_only_are_distinct[True]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_actual_yaml_missing_classifier_outputs_fail_closed[ledger_only-False]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_actual_yaml_missing_classifier_outputs_fail_closed[ledger_only-False]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_actual_yaml_missing_classifier_outputs_fail_closed[ledger_only-False]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_actual_yaml_missing_classifier_outputs_fail_closed[ledger_only-True]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_actual_yaml_missing_classifier_outputs_fail_closed[ledger_only-True]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_actual_yaml_missing_classifier_outputs_fail_closed[ledger_only-True]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_actual_yaml_missing_classifier_outputs_fail_closed[smtp_enabled-False]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_actual_yaml_missing_classifier_outputs_fail_closed[smtp_enabled-False]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_actual_yaml_missing_classifier_outputs_fail_closed[smtp_enabled-False]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_actual_yaml_missing_classifier_outputs_fail_closed[smtp_enabled-True]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_actual_yaml_missing_classifier_outputs_fail_closed[smtp_enabled-True]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_actual_yaml_missing_classifier_outputs_fail_closed[smtp_enabled-True]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_actual_yaml_missing_classifier_outputs_fail_closed[final_attempt-False]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_actual_yaml_missing_classifier_outputs_fail_closed[final_attempt-False]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_actual_yaml_missing_classifier_outputs_fail_closed[final_attempt-False]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_actual_yaml_missing_classifier_outputs_fail_closed[final_attempt-True]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_actual_yaml_missing_classifier_outputs_fail_closed[final_attempt-True]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_actual_yaml_missing_classifier_outputs_fail_closed[final_attempt-True]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_actual_yaml_missing_classifier_outputs_fail_closed[all-False]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_actual_yaml_missing_classifier_outputs_fail_closed[all-False]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_actual_yaml_missing_classifier_outputs_fail_closed[all-False]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_actual_yaml_missing_classifier_outputs_fail_closed[all-True]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_actual_yaml_missing_classifier_outputs_fail_closed[all-True]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_actual_yaml_missing_classifier_outputs_fail_closed[all-True]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_actual_yaml_contradictory_or_untyped_classifier_outputs_cannot_promote_or_send[true-true]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_actual_yaml_contradictory_or_untyped_classifier_outputs_cannot_promote_or_send[true-true]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_actual_yaml_contradictory_or_untyped_classifier_outputs_cannot_promote_or_send[true-true]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_actual_yaml_contradictory_or_untyped_classifier_outputs_cannot_promote_or_send[false-false]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_actual_yaml_contradictory_or_untyped_classifier_outputs_cannot_promote_or_send[false-false]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_actual_yaml_contradictory_or_untyped_classifier_outputs_cannot_promote_or_send[false-false]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_actual_yaml_contradictory_or_untyped_classifier_outputs_cannot_promote_or_send[TRUE-false]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_actual_yaml_contradictory_or_untyped_classifier_outputs_cannot_promote_or_send[TRUE-false]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_actual_yaml_contradictory_or_untyped_classifier_outputs_cannot_promote_or_send[TRUE-false]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_actual_yaml_contradictory_or_untyped_classifier_outputs_cannot_promote_or_send[false-yes]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_actual_yaml_contradictory_or_untyped_classifier_outputs_cannot_promote_or_send[false-yes]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_actual_yaml_contradictory_or_untyped_classifier_outputs_cannot_promote_or_send[false-yes]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_actual_yaml_contradictory_or_untyped_classifier_outputs_cannot_promote_or_send[True-false]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_actual_yaml_contradictory_or_untyped_classifier_outputs_cannot_promote_or_send[True-false]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_actual_yaml_contradictory_or_untyped_classifier_outputs_cannot_promote_or_send[True-false]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_actual_yaml_contradictory_or_untyped_classifier_outputs_cannot_promote_or_send[false-True]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_actual_yaml_contradictory_or_untyped_classifier_outputs_cannot_promote_or_send[false-True]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_actual_yaml_contradictory_or_untyped_classifier_outputs_cannot_promote_or_send[false-True]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_actual_yaml_contradictory_or_untyped_classifier_outputs_cannot_promote_or_send[None-true]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_actual_yaml_contradictory_or_untyped_classifier_outputs_cannot_promote_or_send[None-true]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_actual_yaml_contradictory_or_untyped_classifier_outputs_cannot_promote_or_send[None-true]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_actual_yaml_contradictory_or_untyped_classifier_outputs_cannot_promote_or_send[true-None]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_actual_yaml_contradictory_or_untyped_classifier_outputs_cannot_promote_or_send[true-None]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_actual_yaml_contradictory_or_untyped_classifier_outputs_cannot_promote_or_send[true-None]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_actual_yaml_classifier_not_success_cannot_promote_or_send[failure-False]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_actual_yaml_classifier_not_success_cannot_promote_or_send[failure-False]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_actual_yaml_classifier_not_success_cannot_promote_or_send[failure-False]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_actual_yaml_classifier_not_success_cannot_promote_or_send[failure-True]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_actual_yaml_classifier_not_success_cannot_promote_or_send[failure-True]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_actual_yaml_classifier_not_success_cannot_promote_or_send[failure-True]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_actual_yaml_classifier_not_success_cannot_promote_or_send[cancelled-False]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_actual_yaml_classifier_not_success_cannot_promote_or_send[cancelled-False]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_actual_yaml_classifier_not_success_cannot_promote_or_send[cancelled-False]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_actual_yaml_classifier_not_success_cannot_promote_or_send[cancelled-True]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_actual_yaml_classifier_not_success_cannot_promote_or_send[cancelled-True]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_actual_yaml_classifier_not_success_cannot_promote_or_send[cancelled-True]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_actual_yaml_classifier_not_success_cannot_promote_or_send[skipped-False]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_actual_yaml_classifier_not_success_cannot_promote_or_send[skipped-False]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_actual_yaml_classifier_not_success_cannot_promote_or_send[skipped-False]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_actual_yaml_classifier_not_success_cannot_promote_or_send[skipped-True]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_actual_yaml_classifier_not_success_cannot_promote_or_send[skipped-True]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_actual_yaml_classifier_not_success_cannot_promote_or_send[skipped-True]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_actual_yaml_failed_production_boundary_cannot_promote_or_emit_intent[run_signal-False]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_actual_yaml_failed_production_boundary_cannot_promote_or_emit_intent[run_signal-False]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_actual_yaml_failed_production_boundary_cannot_promote_or_emit_intent[run_signal-False]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_actual_yaml_failed_production_boundary_cannot_promote_or_emit_intent[run_signal-True]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_actual_yaml_failed_production_boundary_cannot_promote_or_emit_intent[run_signal-True]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_actual_yaml_failed_production_boundary_cannot_promote_or_emit_intent[run_signal-True]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_actual_yaml_failed_production_boundary_cannot_promote_or_emit_intent[build_digest-False]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_actual_yaml_failed_production_boundary_cannot_promote_or_emit_intent[build_digest-False]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_actual_yaml_failed_production_boundary_cannot_promote_or_emit_intent[build_digest-False]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_actual_yaml_failed_production_boundary_cannot_promote_or_emit_intent[build_digest-True]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_actual_yaml_failed_production_boundary_cannot_promote_or_emit_intent[build_digest-True]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_actual_yaml_failed_production_boundary_cannot_promote_or_emit_intent[build_digest-True]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_actual_yaml_failed_production_boundary_cannot_promote_or_emit_intent[prepare_marker-False]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_actual_yaml_failed_production_boundary_cannot_promote_or_emit_intent[prepare_marker-False]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_actual_yaml_failed_production_boundary_cannot_promote_or_emit_intent[prepare_marker-False]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_actual_yaml_failed_production_boundary_cannot_promote_or_emit_intent[prepare_marker-True]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_actual_yaml_failed_production_boundary_cannot_promote_or_emit_intent[prepare_marker-True]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_actual_yaml_failed_production_boundary_cannot_promote_or_emit_intent[prepare_marker-True]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_actual_yaml_failed_production_boundary_cannot_promote_or_emit_intent[result_day_gate-False]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_actual_yaml_failed_production_boundary_cannot_promote_or_emit_intent[result_day_gate-False]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_actual_yaml_failed_production_boundary_cannot_promote_or_emit_intent[result_day_gate-False]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_actual_yaml_failed_production_boundary_cannot_promote_or_emit_intent[result_day_gate-True]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_actual_yaml_failed_production_boundary_cannot_promote_or_emit_intent[result_day_gate-True]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_actual_yaml_failed_production_boundary_cannot_promote_or_emit_intent[result_day_gate-True]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_actual_yaml_ledger_only_requires_successful_recovery_verification[failure]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_actual_yaml_ledger_only_requires_successful_recovery_verification[failure]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_actual_yaml_ledger_only_requires_successful_recovery_verification[failure]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_actual_yaml_ledger_only_requires_successful_recovery_verification[cancelled]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_actual_yaml_ledger_only_requires_successful_recovery_verification[cancelled]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_actual_yaml_ledger_only_requires_successful_recovery_verification[cancelled]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_actual_yaml_ledger_only_requires_successful_recovery_verification[skipped]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_actual_yaml_ledger_only_requires_successful_recovery_verification[skipped]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_actual_yaml_ledger_only_requires_successful_recovery_verification[skipped]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_actual_yaml_missing_final_attempt_disables_failed_run_diagnostic_mail",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_actual_yaml_missing_final_attempt_disables_failed_run_diagnostic_mail",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_actual_yaml_missing_final_attempt_disables_failed_run_diagnostic_mail",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_readiness_never_uploads_formal_ledger_or_delivery_marker",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_readiness_never_uploads_formal_ledger_or_delivery_marker",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_readiness_never_uploads_formal_ledger_or_delivery_marker",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_transport_probe_checks_all_recipients_and_never_submits_data[False-True]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_transport_probe_checks_all_recipients_and_never_submits_data[False-True]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_transport_probe_checks_all_recipients_and_never_submits_data[False-True]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_transport_probe_checks_all_recipients_and_never_submits_data[False-False]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_transport_probe_checks_all_recipients_and_never_submits_data[False-False]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_transport_probe_checks_all_recipients_and_never_submits_data[False-False]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_transport_probe_checks_all_recipients_and_never_submits_data[True-True]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_transport_probe_checks_all_recipients_and_never_submits_data[True-True]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_transport_probe_checks_all_recipients_and_never_submits_data[True-True]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_transport_probe_checks_all_recipients_and_never_submits_data[True-False]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_transport_probe_checks_all_recipients_and_never_submits_data[True-False]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_transport_probe_checks_all_recipients_and_never_submits_data[True-False]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_only_verified_files_export_with_matching_hashes_and_no_mutation[realtime]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_only_verified_files_export_with_matching_hashes_and_no_mutation[realtime]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_only_verified_files_export_with_matching_hashes_and_no_mutation[realtime]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_only_verified_files_export_with_matching_hashes_and_no_mutation[close]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_only_verified_files_export_with_matching_hashes_and_no_mutation[close]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_only_verified_files_export_with_matching_hashes_and_no_mutation[close]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_mismatched_result_cannot_export[digest-dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_mismatched_result_cannot_export[digest-dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_mismatched_result_cannot_export[digest-dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_mismatched_result_cannot_export[sequence-0]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_mismatched_result_cannot_export[sequence-0]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_mismatched_result_cannot_export[sequence-0]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_mismatched_result_cannot_export[verified_day-2026-10-14]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_mismatched_result_cannot_export[verified_day-2026-10-14]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_mismatched_result_cannot_export[verified_day-2026-10-14]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_mismatched_result_cannot_export[market_date-2026-10-15]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_mismatched_result_cannot_export[market_date-2026-10-15]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_mismatched_result_cannot_export[market_date-2026-10-15]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_mismatched_result_cannot_export[publication_mode-close_confirmed]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_mismatched_result_cannot_export[publication_mode-close_confirmed]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_mismatched_result_cannot_export[publication_mode-close_confirmed]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_mismatched_result_cannot_export[report_file-../private.txt]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_mismatched_result_cannot_export[report_file-../private.txt]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_mismatched_result_cannot_export[report_file-../private.txt]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_mismatched_result_cannot_export[report_file-/etc/environment]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_mismatched_result_cannot_export[report_file-/etc/environment]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_mismatched_result_cannot_export[report_file-/etc/environment]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_mismatched_result_cannot_export[report_file-mail-transport.json]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_mismatched_result_cannot_export[report_file-mail-transport.json]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_mismatched_result_cannot_export[report_file-mail-transport.json]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_mismatched_result_cannot_export[report_file-ic_im_v1_4_close_signal.md]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_mismatched_result_cannot_export[report_file-ic_im_v1_4_close_signal.md]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_mismatched_result_cannot_export[report_file-ic_im_v1_4_close_signal.md]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_mismatched_result_cannot_export[status-partial]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_mismatched_result_cannot_export[status-partial]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_mismatched_result_cannot_export[status-partial]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_mismatched_preflight_cannot_export[strategy_sha-dddddddddddddddddddddddddddddddddddddddd]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_mismatched_preflight_cannot_export[strategy_sha-dddddddddddddddddddddddddddddddddddddddd]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_mismatched_preflight_cannot_export[strategy_sha-dddddddddddddddddddddddddddddddddddddddd]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_mismatched_preflight_cannot_export[restored_digest-dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_mismatched_preflight_cannot_export[restored_digest-dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_mismatched_preflight_cannot_export[restored_digest-dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_mismatched_preflight_cannot_export[completed_day-2026-10-14]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_mismatched_preflight_cannot_export[completed_day-2026-10-14]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_mismatched_preflight_cannot_export[completed_day-2026-10-14]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_mismatched_preflight_cannot_export[expected_market_day-2026-10-15]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_mismatched_preflight_cannot_export[expected_market_day-2026-10-15]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_mismatched_preflight_cannot_export[expected_market_day-2026-10-15]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_mismatched_preflight_cannot_export[publication_mode-close]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_mismatched_preflight_cannot_export[publication_mode-close]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_mismatched_preflight_cannot_export[publication_mode-close]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_unverified_extra_journal_is_rejected[extra.json]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_unverified_extra_journal_is_rejected[extra.json]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_unverified_extra_journal_is_rejected[extra.json]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_unverified_extra_journal_is_rejected[000002-2026-10-16.json]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_unverified_extra_journal_is_rejected[000002-2026-10-16.json]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_unverified_extra_journal_is_rejected[000002-2026-10-16.json]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_full_chain_and_migration_must_validate[broken_chain]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_full_chain_and_migration_must_validate[broken_chain]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_full_chain_and_migration_must_validate[broken_chain]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_full_chain_and_migration_must_validate[wrong_session]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_full_chain_and_migration_must_validate[wrong_session]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_full_chain_and_migration_must_validate[wrong_session]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_full_chain_and_migration_must_validate[bad_migration]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_full_chain_and_migration_must_validate[bad_migration]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_full_chain_and_migration_must_validate[bad_migration]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_full_chain_and_migration_must_validate[invalid_anchor]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_full_chain_and_migration_must_validate[invalid_anchor]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_full_chain_and_migration_must_validate[invalid_anchor]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_missing_source_artifact_and_advanced_ledger_fail_closed",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_missing_source_artifact_and_advanced_ledger_fail_closed",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_missing_source_artifact_and_advanced_ledger_fail_closed",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_holiday_manual_run_finds_actual_prior_signal_day_marker",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_holiday_manual_run_finds_actual_prior_signal_day_marker",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_holiday_manual_run_finds_actual_prior_signal_day_marker",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_pending_signal_day_send_intent_blocks_uncertain_retry",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_pending_signal_day_send_intent_blocks_uncertain_retry",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_pending_signal_day_send_intent_blocks_uncertain_retry",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_explicit_correction_may_bypass_signal_day_marker",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_explicit_correction_may_bypass_signal_day_marker",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_explicit_correction_may_bypass_signal_day_marker",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_new_signal_day_without_marker_remains_eligible",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_new_signal_day_without_marker_remains_eligible",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_new_signal_day_without_marker_remains_eligible",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_reference_pollution_cannot_change_text_html_or_fear_banner[pollution0-False]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_reference_pollution_cannot_change_text_html_or_fear_banner[pollution0-False]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_reference_pollution_cannot_change_text_html_or_fear_banner[pollution0-False]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_reference_pollution_cannot_change_text_html_or_fear_banner[pollution0-True]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_reference_pollution_cannot_change_text_html_or_fear_banner[pollution0-True]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_reference_pollution_cannot_change_text_html_or_fear_banner[pollution0-True]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_reference_pollution_cannot_change_text_html_or_fear_banner[pollution1-False]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_reference_pollution_cannot_change_text_html_or_fear_banner[pollution1-False]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_reference_pollution_cannot_change_text_html_or_fear_banner[pollution1-False]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_reference_pollution_cannot_change_text_html_or_fear_banner[pollution1-True]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_reference_pollution_cannot_change_text_html_or_fear_banner[pollution1-True]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_reference_pollution_cannot_change_text_html_or_fear_banner[pollution1-True]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_reference_pollution_cannot_change_text_html_or_fear_banner[pollution2-False]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_reference_pollution_cannot_change_text_html_or_fear_banner[pollution2-False]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_reference_pollution_cannot_change_text_html_or_fear_banner[pollution2-False]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_reference_pollution_cannot_change_text_html_or_fear_banner[pollution2-True]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_reference_pollution_cannot_change_text_html_or_fear_banner[pollution2-True]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_reference_pollution_cannot_change_text_html_or_fear_banner[pollution2-True]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_reference_pollution_cannot_change_text_html_or_fear_banner[pollution3-False]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_reference_pollution_cannot_change_text_html_or_fear_banner[pollution3-False]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_reference_pollution_cannot_change_text_html_or_fear_banner[pollution3-False]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_reference_pollution_cannot_change_text_html_or_fear_banner[pollution3-True]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_reference_pollution_cannot_change_text_html_or_fear_banner[pollution3-True]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_reference_pollution_cannot_change_text_html_or_fear_banner[pollution3-True]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_malformed_optional_reference_does_not_block_report[None]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_malformed_optional_reference_does_not_block_report[None]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_malformed_optional_reference_does_not_block_report[None]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_malformed_optional_reference_does_not_block_report[reference1]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_malformed_optional_reference_does_not_block_report[reference1]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_malformed_optional_reference_does_not_block_report[reference1]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_malformed_optional_reference_does_not_block_report[unavailable]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_malformed_optional_reference_does_not_block_report[unavailable]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_malformed_optional_reference_does_not_block_report[unavailable]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_malformed_optional_reference_does_not_block_report[3]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_malformed_optional_reference_does_not_block_report[3]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_malformed_optional_reference_does_not_block_report[3]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_synthetic_schema_control_is_accepted",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_synthetic_schema_control_is_accepted",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_synthetic_schema_control_is_accepted",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_complete_current_fix11_schema_control_is_accepted",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_complete_current_fix11_schema_control_is_accepted",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_complete_current_fix11_schema_control_is_accepted",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_current_fix11_required_fields_cannot_be_deleted_to_bypass_checks[IC-core_units_current]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_current_fix11_required_fields_cannot_be_deleted_to_bypass_checks[IC-core_units_current]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_current_fix11_required_fields_cannot_be_deleted_to_bypass_checks[IC-core_units_current]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_current_fix11_required_fields_cannot_be_deleted_to_bypass_checks[IM-momentum_units_target]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_current_fix11_required_fields_cannot_be_deleted_to_bypass_checks[IM-momentum_units_target]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_current_fix11_required_fields_cannot_be_deleted_to_bypass_checks[IM-momentum_units_target]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_current_fix11_required_fields_cannot_be_deleted_to_bypass_checks[IM-total_units_change]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_current_fix11_required_fields_cannot_be_deleted_to_bypass_checks[IM-total_units_change]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_current_fix11_required_fields_cannot_be_deleted_to_bypass_checks[IM-total_units_change]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_current_fix11_required_fields_cannot_be_deleted_to_bypass_checks[IC-momentum_units_change]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_current_fix11_required_fields_cannot_be_deleted_to_bypass_checks[IC-momentum_units_change]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_current_fix11_required_fields_cannot_be_deleted_to_bypass_checks[IC-momentum_units_change]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_current_fix11_required_fields_cannot_be_deleted_to_bypass_checks[IC-put_current_core_qty]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_current_fix11_required_fields_cannot_be_deleted_to_bypass_checks[IC-put_current_core_qty]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_current_fix11_required_fields_cannot_be_deleted_to_bypass_checks[IC-put_current_core_qty]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_current_fix11_required_fields_cannot_be_deleted_to_bypass_checks[IC-put_target_grid_qty]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_current_fix11_required_fields_cannot_be_deleted_to_bypass_checks[IC-put_target_grid_qty]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_current_fix11_required_fields_cannot_be_deleted_to_bypass_checks[IC-put_target_grid_qty]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_current_fix11_required_fields_cannot_be_deleted_to_bypass_checks[IM-core_put_target_qty_normalized]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_current_fix11_required_fields_cannot_be_deleted_to_bypass_checks[IM-core_put_target_qty_normalized]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_current_fix11_required_fields_cannot_be_deleted_to_bypass_checks[IM-core_put_target_qty_normalized]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_current_fix11_required_fields_cannot_be_deleted_to_bypass_checks[IM-total_put_current_qty_normalized]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_current_fix11_required_fields_cannot_be_deleted_to_bypass_checks[IM-total_put_current_qty_normalized]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_current_fix11_required_fields_cannot_be_deleted_to_bypass_checks[IM-total_put_current_qty_normalized]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_current_fix11_required_fields_cannot_be_deleted_to_bypass_checks[IC-v14_core_put_qty]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_current_fix11_required_fields_cannot_be_deleted_to_bypass_checks[IC-v14_core_put_qty]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_current_fix11_required_fields_cannot_be_deleted_to_bypass_checks[IC-v14_core_put_qty]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_current_fix11_required_fields_cannot_be_deleted_to_bypass_checks[IM-v14_ordinary_put_pending]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_current_fix11_required_fields_cannot_be_deleted_to_bypass_checks[IM-v14_ordinary_put_pending]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_current_fix11_required_fields_cannot_be_deleted_to_bypass_checks[IM-v14_ordinary_put_pending]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_current_fix11_required_fields_cannot_be_deleted_to_bypass_checks[IC-v14_profit_pending]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_current_fix11_required_fields_cannot_be_deleted_to_bypass_checks[IC-v14_profit_pending]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_current_fix11_required_fields_cannot_be_deleted_to_bypass_checks[IC-v14_profit_pending]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_current_fix11_required_fields_cannot_be_deleted_to_bypass_checks[IM-v14_roll_pending]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_current_fix11_required_fields_cannot_be_deleted_to_bypass_checks[IM-v14_roll_pending]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_current_fix11_required_fields_cannot_be_deleted_to_bypass_checks[IM-v14_roll_pending]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_marker_cli_requires_full_delivery_contract_before_writing[normal]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_marker_cli_requires_full_delivery_contract_before_writing[normal]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_marker_cli_requires_full_delivery_contract_before_writing[normal]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_marker_cli_requires_full_delivery_contract_before_writing[holiday]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_marker_cli_requires_full_delivery_contract_before_writing[holiday]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_marker_cli_requires_full_delivery_contract_before_writing[holiday]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_marker_cli_requires_full_delivery_contract_before_writing[quantity]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_marker_cli_requires_full_delivery_contract_before_writing[quantity]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_marker_cli_requires_full_delivery_contract_before_writing[quantity]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_marker_cli_requires_full_delivery_contract_before_writing[missing_field]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_marker_cli_requires_full_delivery_contract_before_writing[missing_field]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_marker_cli_requires_full_delivery_contract_before_writing[missing_field]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_valid_ordinary_plan_control_is_accepted",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_valid_ordinary_plan_control_is_accepted",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_valid_ordinary_plan_control_is_accepted",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_legitimate_weight_above_one_control_is_accepted",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_legitimate_weight_above_one_control_is_accepted",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_legitimate_weight_above_one_control_is_accepted",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_valid_profit_plan_control_is_accepted",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_valid_profit_plan_control_is_accepted",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_valid_profit_plan_control_is_accepted",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_independently_found_lifecycle_combinations_are_rejected[unknown_route]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_independently_found_lifecycle_combinations_are_rejected[unknown_route]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_independently_found_lifecycle_combinations_are_rejected[unknown_route]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_independently_found_lifecycle_combinations_are_rejected[profit_recovery]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_independently_found_lifecycle_combinations_are_rejected[profit_recovery]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_independently_found_lifecycle_combinations_are_rejected[profit_recovery]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_independently_found_lifecycle_combinations_are_rejected[profit_monthly_confirmed]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_independently_found_lifecycle_combinations_are_rejected[profit_monthly_confirmed]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_independently_found_lifecycle_combinations_are_rejected[profit_monthly_confirmed]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_independently_found_lifecycle_combinations_are_rejected[orphan_roll]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_independently_found_lifecycle_combinations_are_rejected[orphan_roll]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_independently_found_lifecycle_combinations_are_rejected[orphan_roll]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_independently_found_lifecycle_combinations_are_rejected[orphan_settlement]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_independently_found_lifecycle_combinations_are_rejected[orphan_settlement]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_independently_found_lifecycle_combinations_are_rejected[orphan_settlement]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_unpriced_monthly_maintenance_keeps_auditable_profit_pending",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_unpriced_monthly_maintenance_keeps_auditable_profit_pending",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_unpriced_monthly_maintenance_keeps_auditable_profit_pending",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_independent_calendar_refuses_unsupported_year_even_on_weekend",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_independent_calendar_refuses_unsupported_year_even_on_weekend",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_independent_calendar_refuses_unsupported_year_even_on_weekend",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_self_consistent_dates_must_pass_independent_exchange_calendar[holiday_execution]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_self_consistent_dates_must_pass_independent_exchange_calendar[holiday_execution]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_self_consistent_dates_must_pass_independent_exchange_calendar[holiday_execution]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_self_consistent_dates_must_pass_independent_exchange_calendar[skipped_session]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_self_consistent_dates_must_pass_independent_exchange_calendar[skipped_session]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_self_consistent_dates_must_pass_independent_exchange_calendar[skipped_session]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_self_consistent_dates_must_pass_independent_exchange_calendar[closed_signal]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_self_consistent_dates_must_pass_independent_exchange_calendar[closed_signal]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_self_consistent_dates_must_pass_independent_exchange_calendar[closed_signal]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_self_consistent_dates_must_pass_independent_exchange_calendar[unsupported_year]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_self_consistent_dates_must_pass_independent_exchange_calendar[unsupported_year]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_self_consistent_dates_must_pass_independent_exchange_calendar[unsupported_year]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_self_consistent_dates_must_pass_independent_exchange_calendar[stale_realtime_anchor]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_self_consistent_dates_must_pass_independent_exchange_calendar[stale_realtime_anchor]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_self_consistent_dates_must_pass_independent_exchange_calendar[stale_realtime_anchor]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_quantity_invariants_are_rechecked_at_mail_boundary[IC-total_units_current--1.0]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_quantity_invariants_are_rechecked_at_mail_boundary[IC-total_units_current--1.0]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_quantity_invariants_are_rechecked_at_mail_boundary[IC-total_units_current--1.0]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_quantity_invariants_are_rechecked_at_mail_boundary[IM-core_units_target--0.5]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_quantity_invariants_are_rechecked_at_mail_boundary[IM-core_units_target--0.5]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_quantity_invariants_are_rechecked_at_mail_boundary[IM-core_units_target--0.5]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_quantity_invariants_are_rechecked_at_mail_boundary[IM-total_units_target-99.0]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_quantity_invariants_are_rechecked_at_mail_boundary[IM-total_units_target-99.0]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_quantity_invariants_are_rechecked_at_mail_boundary[IM-total_units_target-99.0]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_quantity_invariants_are_rechecked_at_mail_boundary[IC-total_units_change-99.0]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_quantity_invariants_are_rechecked_at_mail_boundary[IC-total_units_change-99.0]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_quantity_invariants_are_rechecked_at_mail_boundary[IC-total_units_change-99.0]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_quantity_invariants_are_rechecked_at_mail_boundary[IM-momentum_units_change-99.0]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_quantity_invariants_are_rechecked_at_mail_boundary[IM-momentum_units_change-99.0]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_quantity_invariants_are_rechecked_at_mail_boundary[IM-momentum_units_change-99.0]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_quantity_invariants_are_rechecked_at_mail_boundary[IC-put_target_core_qty--1.0]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_quantity_invariants_are_rechecked_at_mail_boundary[IC-put_target_core_qty--1.0]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_quantity_invariants_are_rechecked_at_mail_boundary[IC-put_target_core_qty--1.0]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_quantity_invariants_are_rechecked_at_mail_boundary[IC-put_current_core_qty-nan]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_quantity_invariants_are_rechecked_at_mail_boundary[IC-put_current_core_qty-nan]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_quantity_invariants_are_rechecked_at_mail_boundary[IC-put_current_core_qty-nan]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_quantity_invariants_are_rechecked_at_mail_boundary[IM-core_put_target_qty_normalized-True]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_quantity_invariants_are_rechecked_at_mail_boundary[IM-core_put_target_qty_normalized-True]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_quantity_invariants_are_rechecked_at_mail_boundary[IM-core_put_target_qty_normalized-True]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_quantity_invariants_are_rechecked_at_mail_boundary[IM-total_put_target_qty_normalized-999.0]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_quantity_invariants_are_rechecked_at_mail_boundary[IM-total_put_target_qty_normalized-999.0]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_quantity_invariants_are_rechecked_at_mail_boundary[IM-total_put_target_qty_normalized-999.0]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_quantity_invariants_are_rechecked_at_mail_boundary[IC-put_target_grid_qty-1.0]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_quantity_invariants_are_rechecked_at_mail_boundary[IC-put_target_grid_qty-1.0]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_quantity_invariants_are_rechecked_at_mail_boundary[IC-put_target_grid_qty-1.0]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_pending_plan_invariants_are_rechecked_at_mail_boundary[orphan_plan]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_pending_plan_invariants_are_rechecked_at_mail_boundary[orphan_plan]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_pending_plan_invariants_are_rechecked_at_mail_boundary[orphan_plan]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_pending_plan_invariants_are_rechecked_at_mail_boundary[negative_plan_qty]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_pending_plan_invariants_are_rechecked_at_mail_boundary[negative_plan_qty]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_pending_plan_invariants_are_rechecked_at_mail_boundary[negative_plan_qty]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_pending_plan_invariants_are_rechecked_at_mail_boundary[missing_positive_contract]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_pending_plan_invariants_are_rechecked_at_mail_boundary[missing_positive_contract]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_pending_plan_invariants_are_rechecked_at_mail_boundary[missing_positive_contract]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_pending_plan_invariants_are_rechecked_at_mail_boundary[profit_conflict]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_pending_plan_invariants_are_rechecked_at_mail_boundary[profit_conflict]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_pending_plan_invariants_are_rechecked_at_mail_boundary[profit_conflict]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_pending_plan_invariants_are_rechecked_at_mail_boundary[monthly_conflict]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_pending_plan_invariants_are_rechecked_at_mail_boundary[monthly_conflict]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_pending_plan_invariants_are_rechecked_at_mail_boundary[monthly_conflict]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_pending_plan_invariants_are_rechecked_at_mail_boundary[profit_missing_contract]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_pending_plan_invariants_are_rechecked_at_mail_boundary[profit_missing_contract]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_pending_plan_invariants_are_rechecked_at_mail_boundary[profit_missing_contract]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_pending_plan_invariants_are_rechecked_at_mail_boundary[profit_negative_qty]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_pending_plan_invariants_are_rechecked_at_mail_boundary[profit_negative_qty]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_pending_plan_invariants_are_rechecked_at_mail_boundary[profit_negative_qty]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_pending_plan_invariants_are_rechecked_at_mail_boundary[profit_holiday_execution]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_pending_plan_invariants_are_rechecked_at_mail_boundary[profit_holiday_execution]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_pending_plan_invariants_are_rechecked_at_mail_boundary[profit_holiday_execution]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_pending_plan_invariants_are_rechecked_at_mail_boundary[profit_future_trigger]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_pending_plan_invariants_are_rechecked_at_mail_boundary[profit_future_trigger]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_pending_plan_invariants_are_rechecked_at_mail_boundary[profit_future_trigger]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_existing_identity_check_control_still_rejects_wrong_rule",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_existing_identity_check_control_still_rejects_wrong_rule",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_existing_identity_check_control_still_rejects_wrong_rule",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_approved_close_fallback_passes_and_is_labeled_in_mail_subject_and_body",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_approved_close_fallback_passes_and_is_labeled_in_mail_subject_and_body",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_approved_close_fallback_passes_and_is_labeled_in_mail_subject_and_body",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_close_fallback_cannot_bypass_independent_mail_contract[fear_data_date-2026-10-14]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_close_fallback_cannot_bypass_independent_mail_contract[fear_data_date-2026-10-14]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_close_fallback_cannot_bypass_independent_mail_contract[fear_data_date-2026-10-14]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_close_fallback_cannot_bypass_independent_mail_contract[fear_data_date-2026-10-12]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_close_fallback_cannot_bypass_independent_mail_contract[fear_data_date-2026-10-12]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_close_fallback_cannot_bypass_independent_mail_contract[fear_data_date-2026-10-12]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_close_fallback_cannot_bypass_independent_mail_contract[fear_previous_exchange_date-2026-10-12]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_close_fallback_cannot_bypass_independent_mail_contract[fear_previous_exchange_date-2026-10-12]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_close_fallback_cannot_bypass_independent_mail_contract[fear_previous_exchange_date-2026-10-12]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_close_fallback_cannot_bypass_independent_mail_contract[fear_page_data_date-2026-10-14]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_close_fallback_cannot_bypass_independent_mail_contract[fear_page_data_date-2026-10-14]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_close_fallback_cannot_bypass_independent_mail_contract[fear_page_data_date-2026-10-14]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_close_fallback_cannot_bypass_independent_mail_contract[fear_latest_available_date-2026-10-12]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_close_fallback_cannot_bypass_independent_mail_contract[fear_latest_available_date-2026-10-12]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_close_fallback_cannot_bypass_independent_mail_contract[fear_latest_available_date-2026-10-12]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_close_fallback_cannot_bypass_independent_mail_contract[fear_close_policy_revision-old]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_close_fallback_cannot_bypass_independent_mail_contract[fear_close_policy_revision-old]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_close_fallback_cannot_bypass_independent_mail_contract[fear_close_policy_revision-old]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_close_fallback_cannot_bypass_independent_mail_contract[fear_fallback_applied-False]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_close_fallback_cannot_bypass_independent_mail_contract[fear_fallback_applied-False]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_close_fallback_cannot_bypass_independent_mail_contract[fear_fallback_applied-False]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_close_fallback_cannot_bypass_independent_mail_contract[fear_fallback_reason-old_cache]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_close_fallback_cannot_bypass_independent_mail_contract[fear_fallback_reason-old_cache]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_close_fallback_cannot_bypass_independent_mail_contract[fear_fallback_reason-old_cache]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_close_fallback_cannot_bypass_independent_mail_contract[fear_fallback_timing-same_day_post_close]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_close_fallback_cannot_bypass_independent_mail_contract[fear_fallback_timing-same_day_post_close]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_close_fallback_cannot_bypass_independent_mail_contract[fear_fallback_timing-same_day_post_close]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_close_fallback_cannot_bypass_independent_mail_contract[close_confirmed-False]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_close_fallback_cannot_bypass_independent_mail_contract[close_confirmed-False]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_close_fallback_cannot_bypass_independent_mail_contract[close_confirmed-False]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_close_fallback_cannot_bypass_independent_mail_contract[signal_generation_timing-close_confirmed]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_close_fallback_cannot_bypass_independent_mail_contract[signal_generation_timing-close_confirmed]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_close_fallback_cannot_bypass_independent_mail_contract[signal_generation_timing-close_confirmed]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_close_fallback_cannot_bypass_independent_mail_contract[signal_generated_at-2026-10-14T20:00:00+08:00]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_close_fallback_cannot_bypass_independent_mail_contract[signal_generated_at-2026-10-14T20:00:00+08:00]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_close_fallback_cannot_bypass_independent_mail_contract[signal_generated_at-2026-10-14T20:00:00+08:00]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_close_fallback_cannot_bypass_independent_mail_contract[fear_csv_sha256-bad]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_close_fallback_cannot_bypass_independent_mail_contract[fear_csv_sha256-bad]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_close_fallback_cannot_bypass_independent_mail_contract[fear_csv_sha256-bad]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_close_fallback_cannot_bypass_independent_mail_contract[fear_source_url-https://example.invalid/fear.csv]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_close_fallback_cannot_bypass_independent_mail_contract[fear_source_url-https://example.invalid/fear.csv]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_close_fallback_cannot_bypass_independent_mail_contract[fear_source_url-https://example.invalid/fear.csv]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_close_fallback_cannot_bypass_independent_mail_contract[fear_page_updated_at-2026-10-13T15:00:00+08:00]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_close_fallback_cannot_bypass_independent_mail_contract[fear_page_updated_at-2026-10-13T15:00:00+08:00]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_close_fallback_cannot_bypass_independent_mail_contract[fear_page_updated_at-2026-10-13T15:00:00+08:00]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_close_fallback_cannot_bypass_independent_mail_contract[fear_page_updated_at-2026-10-15T02:00:00+08:00]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_close_fallback_cannot_bypass_independent_mail_contract[fear_page_updated_at-2026-10-15T02:00:00+08:00]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_close_fallback_cannot_bypass_independent_mail_contract[fear_page_updated_at-2026-10-15T02:00:00+08:00]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_close_fallback_cannot_bypass_independent_mail_contract[fear_retrieved_at-2026-10-14T14:59:00+08:00]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_close_fallback_cannot_bypass_independent_mail_contract[fear_retrieved_at-2026-10-14T14:59:00+08:00]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_close_fallback_cannot_bypass_independent_mail_contract[fear_retrieved_at-2026-10-14T14:59:00+08:00]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_close_fallback_cannot_bypass_independent_mail_contract[fear_retrieved_at-2026-10-15T01:20:00]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_close_fallback_cannot_bypass_independent_mail_contract[fear_retrieved_at-2026-10-15T01:20:00]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_close_fallback_cannot_bypass_independent_mail_contract[fear_retrieved_at-2026-10-15T01:20:00]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_close_fallback_cannot_bypass_independent_mail_contract[fear_greed_index-nan]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_close_fallback_cannot_bypass_independent_mail_contract[fear_greed_index-nan]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_close_fallback_cannot_bypass_independent_mail_contract[fear_greed_index-nan]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_close_fallback_replay_cannot_be_hidden_by_outer_payload",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_close_fallback_replay_cannot_be_hidden_by_outer_payload",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_close_fallback_replay_cannot_be_hidden_by_outer_payload",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_close_fallback_evidence_must_agree_between_products",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_close_fallback_evidence_must_agree_between_products",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_close_fallback_evidence_must_agree_between_products",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_intraday_fallback_is_accepted_only_in_realtime_channel",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_intraday_fallback_is_accepted_only_in_realtime_channel",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_intraday_fallback_is_accepted_only_in_realtime_channel",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_provisional_T_point_can_carry_previous_close_but_must_retain_actual_source_day",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_provisional_T_point_can_carry_previous_close_but_must_retain_actual_source_day",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_provisional_T_point_can_carry_previous_close_but_must_retain_actual_source_day",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_replayed_ordinary_put_plan_shows_actual_creation_instead_of_original_close_preselection",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_replayed_ordinary_put_plan_shows_actual_creation_instead_of_original_close_preselection",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_replayed_ordinary_put_plan_shows_actual_creation_instead_of_original_close_preselection",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_replayed_ordinary_plan_cannot_erase_or_forge_actual_creation_time[None]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_replayed_ordinary_plan_cannot_erase_or_forge_actual_creation_time[None]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_replayed_ordinary_plan_cannot_erase_or_forge_actual_creation_time[None]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_replayed_ordinary_plan_cannot_erase_or_forge_actual_creation_time[2026-10-14T20:00:00+08:00]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_replayed_ordinary_plan_cannot_erase_or_forge_actual_creation_time[2026-10-14T20:00:00+08:00]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_replayed_ordinary_plan_cannot_erase_or_forge_actual_creation_time[2026-10-14T20:00:00+08:00]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_replayed_ordinary_plan_cannot_erase_or_forge_actual_creation_time[2026-10-15T01:20:30]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_replayed_ordinary_plan_cannot_erase_or_forge_actual_creation_time[2026-10-15T01:20:30]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_replayed_ordinary_plan_cannot_erase_or_forge_actual_creation_time[2026-10-15T01:20:30]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_replayed_ordinary_plan_cannot_erase_or_forge_actual_creation_time[2026-10-15T02:00:00+08:00]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_replayed_ordinary_plan_cannot_erase_or_forge_actual_creation_time[2026-10-15T02:00:00+08:00]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_replayed_ordinary_plan_cannot_erase_or_forge_actual_creation_time[2026-10-15T02:00:00+08:00]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_replayed_ordinary_plan_with_bound_actual_creation_passes",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_replayed_ordinary_plan_with_bound_actual_creation_passes",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_replayed_ordinary_plan_with_bound_actual_creation_passes",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_close_fallback_is_accepted_under_independent_synthetic_clock",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_close_fallback_is_accepted_under_independent_synthetic_clock",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_close_fallback_is_accepted_under_independent_synthetic_clock",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_independent_fear_clock_rejects_future_inverted_or_missing_evidence[future_retrieved]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_independent_fear_clock_rejects_future_inverted_or_missing_evidence[future_retrieved]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_independent_fear_clock_rejects_future_inverted_or_missing_evidence[future_retrieved]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_independent_fear_clock_rejects_future_inverted_or_missing_evidence[future_generated]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_independent_fear_clock_rejects_future_inverted_or_missing_evidence[future_generated]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_independent_fear_clock_rejects_future_inverted_or_missing_evidence[future_generated]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_independent_fear_clock_rejects_future_inverted_or_missing_evidence[generation_before_retrieval]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_independent_fear_clock_rejects_future_inverted_or_missing_evidence[generation_before_retrieval]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_independent_fear_clock_rejects_future_inverted_or_missing_evidence[generation_before_retrieval]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_independent_fear_clock_rejects_future_inverted_or_missing_evidence[missing_started]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_independent_fear_clock_rejects_future_inverted_or_missing_evidence[missing_started]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_independent_fear_clock_rejects_future_inverted_or_missing_evidence[missing_started]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_independent_fear_clock_rejects_future_inverted_or_missing_evidence[started_after_retrieved]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_independent_fear_clock_rejects_future_inverted_or_missing_evidence[started_after_retrieved]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_independent_fear_clock_rejects_future_inverted_or_missing_evidence[started_after_retrieved]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_independent_fear_clock_rejects_future_inverted_or_missing_evidence[naive_started]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_independent_fear_clock_rejects_future_inverted_or_missing_evidence[naive_started]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_independent_fear_clock_rejects_future_inverted_or_missing_evidence[naive_started]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_independent_fear_clock_rejects_future_inverted_or_missing_evidence[future_started]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_independent_fear_clock_rejects_future_inverted_or_missing_evidence[future_started]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_independent_fear_clock_rejects_future_inverted_or_missing_evidence[future_started]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_complete_consumer_rejects_self_consistent_future_collection_and_report",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_complete_consumer_rejects_self_consistent_future_collection_and_report",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_complete_consumer_rejects_self_consistent_future_collection_and_report",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_report_completion_cannot_precede_any_leg_or_exceed_independent_clock[missing]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_report_completion_cannot_precede_any_leg_or_exceed_independent_clock[missing]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_report_completion_cannot_precede_any_leg_or_exceed_independent_clock[missing]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_report_completion_cannot_precede_any_leg_or_exceed_independent_clock[naive]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_report_completion_cannot_precede_any_leg_or_exceed_independent_clock[naive]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_report_completion_cannot_precede_any_leg_or_exceed_independent_clock[naive]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_report_completion_cannot_precede_any_leg_or_exceed_independent_clock[future]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_report_completion_cannot_precede_any_leg_or_exceed_independent_clock[future]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_report_completion_cannot_precede_any_leg_or_exceed_independent_clock[future]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_report_completion_cannot_precede_any_leg_or_exceed_independent_clock[before_both_legs]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_report_completion_cannot_precede_any_leg_or_exceed_independent_clock[before_both_legs]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_report_completion_cannot_precede_any_leg_or_exceed_independent_clock[before_both_legs]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_report_completion_cannot_precede_any_leg_or_exceed_independent_clock[before_im_leg_only]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_report_completion_cannot_precede_any_leg_or_exceed_independent_clock[before_im_leg_only]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_report_completion_cannot_precede_any_leg_or_exceed_independent_clock[before_im_leg_only]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_nonfallback_status_cannot_carry_contradictory_metadata[fear_fallback_applied-True]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_nonfallback_status_cannot_carry_contradictory_metadata[fear_fallback_applied-True]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_nonfallback_status_cannot_carry_contradictory_metadata[fear_fallback_applied-True]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_nonfallback_status_cannot_carry_contradictory_metadata[fear_fallback_applied-false]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_nonfallback_status_cannot_carry_contradictory_metadata[fear_fallback_applied-false]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_nonfallback_status_cannot_carry_contradictory_metadata[fear_fallback_applied-false]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_nonfallback_status_cannot_carry_contradictory_metadata[fear_fallback_reason-same_day_not_published]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_nonfallback_status_cannot_carry_contradictory_metadata[fear_fallback_reason-same_day_not_published]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_nonfallback_status_cannot_carry_contradictory_metadata[fear_fallback_reason-same_day_not_published]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_nonfallback_status_cannot_carry_contradictory_metadata[fear_fallback_timing-retrospective_replay]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_nonfallback_status_cannot_carry_contradictory_metadata[fear_fallback_timing-retrospective_replay]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_nonfallback_status_cannot_carry_contradictory_metadata[fear_fallback_timing-retrospective_replay]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_nonfallback_page_timestamp_must_be_bound_to_its_acquisition[2026-10-16T02:00:00+08:00]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_nonfallback_page_timestamp_must_be_bound_to_its_acquisition[2026-10-16T02:00:00+08:00]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_nonfallback_page_timestamp_must_be_bound_to_its_acquisition[2026-10-16T02:00:00+08:00]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_nonfallback_page_timestamp_must_be_bound_to_its_acquisition[2026-10-15T01:21:00+08:00]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_nonfallback_page_timestamp_must_be_bound_to_its_acquisition[2026-10-15T01:21:00+08:00]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_nonfallback_page_timestamp_must_be_bound_to_its_acquisition[2026-10-15T01:21:00+08:00]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_nonfallback_page_timestamp_must_be_bound_to_its_acquisition[2026-10-15T01:00:00]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_nonfallback_page_timestamp_must_be_bound_to_its_acquisition[2026-10-15T01:00:00]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_nonfallback_page_timestamp_must_be_bound_to_its_acquisition[2026-10-15T01:00:00]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_real_collection_dates_prevent_erasing_replay_labels[outer]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_real_collection_dates_prevent_erasing_replay_labels[outer]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_real_collection_dates_prevent_erasing_replay_labels[outer]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_real_collection_dates_prevent_erasing_replay_labels[leg]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_real_collection_dates_prevent_erasing_replay_labels[leg]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_real_collection_dates_prevent_erasing_replay_labels[leg]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_real_collection_dates_prevent_erasing_replay_labels[both]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_real_collection_dates_prevent_erasing_replay_labels[both]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_real_collection_dates_prevent_erasing_replay_labels[both]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_pending_plan_replay_is_derived_from_actual_dates_after_all_labels_are_erased",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_pending_plan_replay_is_derived_from_actual_dates_after_all_labels_are_erased",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_pending_plan_replay_is_derived_from_actual_dates_after_all_labels_are_erased",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_next_bj_day_generation_cannot_hide_replay_with_utc_spelling[2026-10-15T07:00:00+08:00]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_next_bj_day_generation_cannot_hide_replay_with_utc_spelling[2026-10-15T07:00:00+08:00]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_next_bj_day_generation_cannot_hide_replay_with_utc_spelling[2026-10-15T07:00:00+08:00]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_next_bj_day_generation_cannot_hide_replay_with_utc_spelling[2026-10-14T23:00:00Z]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_next_bj_day_generation_cannot_hide_replay_with_utc_spelling[2026-10-14T23:00:00Z]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_next_bj_day_generation_cannot_hide_replay_with_utc_spelling[2026-10-14T23:00:00Z]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_current_proof_accepted_without_relabeling_historical_identity",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_current_proof_accepted_without_relabeling_historical_identity",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_current_proof_accepted_without_relabeling_historical_identity",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_old_complete_proof_cannot_pass_current_consumer",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_old_complete_proof_cannot_pass_current_consumer",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_old_complete_proof_cannot_pass_current_consumer",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_current_proof_rejects_mismatched_or_unverified_fields[commit]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_current_proof_rejects_mismatched_or_unverified_fields[commit]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_current_proof_rejects_mismatched_or_unverified_fields[commit]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_current_proof_rejects_mismatched_or_unverified_fields[release]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_current_proof_rejects_mismatched_or_unverified_fields[release]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_current_proof_rejects_mismatched_or_unverified_fields[release]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_current_proof_rejects_mismatched_or_unverified_fields[manifest]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_current_proof_rejects_mismatched_or_unverified_fields[manifest]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_current_proof_rejects_mismatched_or_unverified_fields[manifest]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_current_proof_rejects_mismatched_or_unverified_fields[missing_runner]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_current_proof_rejects_mismatched_or_unverified_fields[missing_runner]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_current_proof_rejects_mismatched_or_unverified_fields[missing_runner]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_current_proof_rejects_mismatched_or_unverified_fields[source_hash]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_current_proof_rejects_mismatched_or_unverified_fields[source_hash]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_current_proof_rejects_mismatched_or_unverified_fields[source_hash]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_current_proof_rejects_mismatched_or_unverified_fields[future_clock]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_current_proof_rejects_mismatched_or_unverified_fields[future_clock]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_current_proof_rejects_mismatched_or_unverified_fields[future_clock]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_current_proof_rejects_mismatched_or_unverified_fields[naive_clock]",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_current_proof_rejects_mismatched_or_unverified_fields[naive_clock]",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_current_proof_rejects_mismatched_or_unverified_fields[naive_clock]",
+    "phase": "teardown",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_verifier_reads_new_committed_manifest_and_rejects_tampered_source",
+    "phase": "setup",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_verifier_reads_new_committed_manifest_and_rejects_tampered_source",
+    "phase": "call",
+    "outcome": "passed"
+  },
+  {
+    "nodeid": "::test_verifier_reads_new_committed_manifest_and_rejects_tampered_source",
+    "phase": "teardown",
+    "outcome": "passed"
+  }
+]

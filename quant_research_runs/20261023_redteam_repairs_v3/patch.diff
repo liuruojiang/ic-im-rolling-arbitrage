@@ -1,0 +1,718 @@
+diff --git a/capture_ic_im_v1_4_inputs.py b/capture_ic_im_v1_4_inputs.py
+index a685005..61e91c3 100644
+--- a/capture_ic_im_v1_4_inputs.py
++++ b/capture_ic_im_v1_4_inputs.py
+@@ -227,6 +227,12 @@ class CaptureRunner:
+         import ic_im_evidence_adapter_v1 as adapter
+         import ic_im_signal_evidence_v1 as evidence
+         clock = strategy._beijing_clock(clock or datetime.now(strategy.BEIJING))
++        # Preserve elapsed readonly preflight and lock-wait time in quote
++        # validation without advancing the selected strategy day/clock.
++        with strategy.collection_clock(clock):
++            return self._cycle_at_clock(clock, strategy, state, adapter, evidence)
++
++    def _cycle_at_clock(self, clock, strategy, state, adapter, evidence):
+         result = {"schema": "icim_capture_runner_receipt_v1", "started_at": clock.isoformat(),
+                   "pid": os.getpid(), "ledger_write_requested": False, "message_send_requested": False,
+                   "state_dir": str(self.state_dir), "evidence_dir": str(self.evidence_dir)}
+@@ -250,7 +256,7 @@ class CaptureRunner:
+                         original = deepcopy(strategy.LIVE_CONTINUATION_ANCHOR)
+                         try:
+                             strategy.install_runtime_anchors(anchors)
+-                            with strategy.collection_clock(clock), strategy._network_budget(
++                            with strategy._network_budget(
+                                     2 * strategy.SIGNAL_PRODUCT_NETWORK_BUDGET_SECONDS + 1), \
+                                     evidence.publication_guard(self._verify_sources):
+                                 capture = adapter.capture_daily(strategy, self.evidence_dir, clock)
+diff --git a/ic_im_evidence_adapter_v1.py b/ic_im_evidence_adapter_v1.py
+index 36c58e5..692e9d1 100644
+--- a/ic_im_evidence_adapter_v1.py
++++ b/ic_im_evidence_adapter_v1.py
+@@ -337,14 +337,16 @@ def install(strategy):
+     closes = strategy.fetch_option_closes
+ 
+     @wraps(closes)
+-    def option_closes(security_id):
++    def option_closes(security_id, required_day=None):
+         reader = evidence.current_reader.get()
+         if reader is not None:
++            if required_day is not None and pd.Timestamp(required_day).date() != reader.day:
++                raise evidence.EvidenceUnavailable("required option close day differs from original evidence day")
+             row, stamp = _chain_close(strategy, security_id, reader.day)
+             result = pd.Series([float(row["last"])], index=pd.DatetimeIndex([reader.day]), dtype=float)
+             result.attrs.update(source="原日期权链存证：" + str(stamp.get("source", "")), source_failures=[])
+             return result
+-        return closes(security_id)
++        return closes(security_id, required_day) if required_day is not None else closes(security_id)
+     strategy.fetch_option_closes = option_closes
+     historical = strategy.fetch_sse_existing_put_historical_quote
+ 
+diff --git a/ic_im_signal_evidence_v1.py b/ic_im_signal_evidence_v1.py
+index 50bbfe8..3a4d7b9 100644
+--- a/ic_im_signal_evidence_v1.py
++++ b/ic_im_signal_evidence_v1.py
+@@ -47,6 +47,43 @@ class EvidenceUnavailable(RuntimeError):
+     """A required original-day input is missing, invalid, or incomplete."""
+ 
+ 
++def sina_mo_quote_variables(raw: bytes, expected_symbols: list[str]) -> dict[str, tuple[bytes, bytes]]:
++    """Parse only complete original Sina MO assignments, never identifier suffixes.
++
++    Each value contains the payload and the exact assignment bytes. The same
++    parser is used at capture, direct consumption and batch replay projection;
++    integrity-valid older archives do not gain an identity by being projected.
++    Whitespace between assignments is allowed, but other text is not ignored.
++    """
++    symbol_pattern = r"P_OP_mo[0-9]{4}[CP][0-9]+"
++    if (not expected_symbols or len(expected_symbols) != len(set(expected_symbols))
++            or any(not isinstance(symbol, str) or re.fullmatch(symbol_pattern, symbol) is None
++                   for symbol in expected_symbols)):
++        raise EvidenceUnavailable("Sina verification batch request identities invalid")
++    pattern = re.compile(rb'(?:var[ \t]+)?hq_str_(P_OP_mo[0-9]{4}[CP][0-9]+)[ \t]*=[ \t]*"([^"\r\n]*)"[ \t]*;?')
++    values: dict[str, tuple[bytes, bytes]] = {}
++    position = 0
++    while position < len(raw):
++        while position < len(raw) and raw[position] in b" \t\r\n":
++            position += 1
++        if position == len(raw):
++            break
++        match = pattern.match(raw, position)
++        if match is None:
++            raise EvidenceUnavailable("Sina verification batch contains an invalid exact variable identity")
++        symbol = match[1].decode("ascii")
++        if symbol in values or not match[2]:
++            raise EvidenceUnavailable("Sina verification batch identities duplicate or payload empty")
++        values[symbol] = (match[2], match[0])
++        position = match.end()
++        if (not match[0].rstrip().endswith(b";") and position < len(raw)
++                and raw[position] not in b"\r\n"):
++            raise EvidenceUnavailable("Sina verification batch assignments lack a separator")
++    if set(values) != set(expected_symbols):
++        raise EvidenceUnavailable("Sina verification batch identities incomplete")
++    return values
++
++
+ @contextmanager
+ def publication_guard(callback: Callable[[], Any]) -> Iterator[None]:
+     """Validate the capture source before its manifest can become readable.
+@@ -710,11 +747,8 @@ class EvidenceReader:
+                     continue
+                 _validate_http_metadata(row)
+                 body = _verified_blob(self.root, row)
+-                values = list(re.finditer(rb'(?:var\s+)?hq_str_(P_OP_mo[0-9]{4}[CP][0-9]+)="([^"\r\n]*)";?', body))
+-                returned = [m[1].decode("ascii") for m in values]
+-                if len(returned) != len(set(returned)) or set(returned) != set(symbols):
+-                    raise EvidenceUnavailable("recorded Sina verification batch identities incomplete")
+-                selected = next(m[0] for m in values if m[1].decode("ascii") == params["list"])
++                values = sina_mo_quote_variables(body, symbols)
++                selected = values[params["list"]][1]
+                 candidates.append({**row, "body": selected, "projection": "exact_recorded_Sina_variable",
+                                    "parent_raw_sha256": row["sha256"]})
+         if not candidates:
+diff --git a/ic_im_v1_4_policy.py b/ic_im_v1_4_policy.py
+index 1a200d6..57f51a5 100644
+--- a/ic_im_v1_4_policy.py
++++ b/ic_im_v1_4_policy.py
+@@ -412,7 +412,52 @@ def _profit_open_due(signal: dict[str, Any], state: dict[str, Any], day: date) -
+     )
+ 
+ 
++def short_put_mark_required(product: str, signal: dict[str, Any], state: dict[str, Any]) -> bool:
++    """Whether today's fresh decay decision consumes the held short's mark."""
++    day = date.fromisoformat(str(signal["market_date"])[:10])
++    expiry = state.get("v14_short_put_expiry")
++    return bool(
++        day >= EFFECTIVE_SIGNAL_DATE and signal.get("close_confirmed")
++        and state.get("v14_route_state") == "short_put"
++        and state.get("v14_short_put_contract")
++        and (expiry is None or day < date.fromisoformat(str(expiry)[:10]))
++        and (not put_execution.active(day)
++             or (state.get("v14_short_put_cost_basis") == "confirmed_dated_open"
++                 and not state.get("v14_short_put_open_pending")))
++        and not state.get("v14_roll_pending")
++        and (day >= REPEAT_ROLL_EFFECTIVE_SIGNAL_DATE or not state.get("v14_early_roll_used"))
++    )
++
++
++def require_short_put_mark(product: str, signal: dict[str, Any], state: dict[str, Any],
++                           *, require_binding: bool = False) -> None:
++    """Unknown decay evidence cannot mean an observed, unchanged short route.
++
++    Pure policy callers supply a mark for the signal day by contract. Adapters
++    and new ledger writes additionally bind that observation to day and leg.
++    Historical records are not revalidated under this new-write requirement.
++    """
++    if not short_put_mark_required(product, signal, state):
++        return
++    mark = signal.get("v14_short_put_mark")
++    try:
++        valid = not isinstance(mark, bool) and mark is not None and math.isfinite(float(mark)) and float(mark) > 0
++    except (TypeError, ValueError, OverflowError):
++        valid = False
++    if not valid:
++        raise RuntimeError(f"{product} held short Put lacks a finite positive current-day mark")
++    mark_day = signal.get("v14_short_put_mark_day")
++    mark_contract = signal.get("v14_short_put_mark_contract")
++    if ((require_binding or mark_day is not None)
++            and str(mark_day) != str(signal["market_date"])):
++        raise RuntimeError(f"{product} held short Put mark is not bound to the signal day")
++    if ((require_binding or mark_contract is not None)
++            and mark_contract != state.get("v14_short_put_contract")):
++        raise RuntimeError(f"{product} held short Put mark is not bound to the held contract")
++
++
+ def _short_roll_due(product: str, signal: dict[str, Any], state: dict[str, Any], day: date) -> bool:
++    require_short_put_mark(product, signal, state)
+     cost_verified = not put_execution.active(day) or state.get("v14_short_put_cost_basis") == "confirmed_dated_open"
+     mark = signal.get("v14_short_put_mark")
+     entry = state.get("v14_short_put_entry_premium")
+@@ -440,6 +485,7 @@ def short_put_candidate_requirements(
+     result = {"entry": False, "roll": False, "reason": "route_does_not_consume_candidate"}
+     if day < EFFECTIVE_SIGNAL_DATE:
+         return {**result, "reason": "before_effective_signal_date"}
++    require_short_put_mark(product, signal, state)
+     ready, reason = seller_prerequisites(product, signal)
+     if not ready:
+         return {**result, "reason": reason}
+diff --git a/notes/mainline_registry.md b/notes/mainline_registry.md
+index 518a122..a563987 100644
+--- a/notes/mainline_registry.md
++++ b/notes/mainline_registry.md
+@@ -443,3 +443,12 @@
+ - 用户明确要求独立多智能体检验两端完整性。修复来源读数与CSV/网页快照绑定、伪造当日未发布、删除T快照、跨日生成漏回放，以及云端缺恐慌伪装完整日报/marker的消费边界；失败日报补齐9圈及单侧提示。
+ - 源可用性规则、网格阈值、fix11/Put/月度时点不变；新反例加入累计回归。正式账本及旧输出不回写；真实本地定时配置、最终报告、云端无发送预检分别验收，不能把此前CI通过称为两端全完成。
+ - 审计首次失败、修复与独立复验保存在 `quant_research_runs/20261016_fear_delivery_adversarial_v2/`；当次最终生产pin以远端workflow和发布记录为准。
++
++
++## 2026-10-23 本地 red-team 修补 v3-r3 验收（待本地 Git 提交，未远端发布）
++
++- 基线 58986fda；原 7 项缺陷及同源 Sina 开盘验证、服务端锁/线程排队、独立采集器预检时钟缺口已修复并交叉审计。策略参数、IC 无 Call、绩效 30% 口径及正式账本未改。
++- 当前本地日报门禁使用 docs/ic_im_daily_release_20261023_repairs_v3_r3_manifest.json：1193 通过、原 5 项单列；累计 3333 通过、原 22 项单列；独立对抗 148 通过。均无失败、错误、跳过。
++- 保存的真实 2026-10-22 原日证据：5 恢复场景通过；IC 209 / IM 224 信号字段（仅排除 3 个计算时钟）及完整产品状态与既有验收相同。正式 runtime/outputs 和旧审计证据保持只读。
++- 本地原有只读采集器已恢复，新的不可变 pin 为 quant_research_runs/20261023_redteam_repairs_v3/delivery/capture_source_pin.json；启动状态 waiting_for_close，未发消息、未请求续账。精确 PID/回执见 delivery/collector_restart.json。
++- 源码与证据详见 quant_research_runs/20261023_redteam_repairs_v3/record.md、final_verification.json。Git 索引写权限受限，当前仍是已审计的工作区补丁；commit_repairs.ps1 按哈希核对后提交。未更新远端 Poe/GitHub 自动化，不代表实盘授权。
+diff --git a/poe_ic_im_mainline_v1_4_bot.py b/poe_ic_im_mainline_v1_4_bot.py
+index 9b8fbcb..cb3d0bc 100644
+--- a/poe_ic_im_mainline_v1_4_bot.py
++++ b/poe_ic_im_mainline_v1_4_bot.py
+@@ -180,10 +180,10 @@ def _prefetch_mo_replay_verification(quotes: pd.DataFrame, clock: datetime) -> d
+         try:
+             response.raise_for_status()
+             raw = _response_with_size_limit(response, "MO原日复核报文")
+-            returned = re.findall(rb'(?:var\s+)?hq_str_(P_OP_mo[0-9]{4}[CP][0-9]+)="([^"\r\n]*)";?', raw)
+-            ids = [symbol.decode("ascii") for symbol, _ in returned]
+-            if len(ids) != len(set(ids)) or set(ids) != set(batch) or any(not payload for _, payload in returned):
+-                raise RuntimeError("MO原日复核报文返回标识不完整；不能承诺自动恢复")
++            try:
++                signal_evidence.sina_mo_quote_variables(raw, batch)
++            except signal_evidence.EvidenceUnavailable as exc:
++                raise RuntimeError("MO原日复核报文返回标识不完整；不能承诺自动恢复") from exc
+         finally:
+             response.close()
+     with _network_budget(SIGNAL_PRODUCT_NETWORK_BUDGET_SECONDS):
+@@ -288,6 +288,17 @@ _OPTION_CHAIN_REFERENCE_DAY = contextvars.ContextVar("ic_im_option_chain_referen
+ _SINA_OPTION_QUOTE_BATCH_SIZE = 6
+ _IC_QUOTE_QUERY_CACHE = contextvars.ContextVar("ic_im_ic_quote_query_cache", default=None)
+ _COLLECTION_CLOCK_ANCHOR = contextvars.ContextVar("ic_im_quote_collection_clock", default=None)
++_VERIFIED_DISPLAY_ANCHORS = contextvars.ContextVar("ic_im_verified_display_anchors", default=None)
++
++
++@contextmanager
++def verified_display_anchors(anchors: dict[str, dict[str, Any]]):
++    """Keep the committed display head separate from a recomputation anchor."""
++    token = _VERIFIED_DISPLAY_ANCHORS.set(deepcopy(anchors))
++    try:
++        yield
++    finally:
++        _VERIFIED_DISPLAY_ANCHORS.reset(token)
+ 
+ 
+ @contextmanager
+@@ -1498,7 +1509,7 @@ def fetch_eastmoney_option_closes(security_id: str) -> pd.Series:
+     return result
+ 
+ 
+-def fetch_option_closes(security_id: str) -> pd.Series:
++def fetch_option_closes(security_id: str, required_day: date | str | None = None) -> pd.Series:
+     """Fetch SSE option closes with audited Sina -> Eastmoney failover."""
+ 
+     failures: list[str] = []
+@@ -1518,6 +1529,8 @@ def fetch_option_closes(security_id: str) -> pd.Series:
+             values = result.to_numpy(dtype=float)
+             if not np.isfinite(values).all() or (values <= 0).any():
+                 raise RuntimeError(f"{source}期权历史收盘价无效")
++            if required_day is not None and pd.Timestamp(required_day) not in result.index:
++                raise RuntimeError(f"{source}期权历史缺少所需交易日 {required_day}")
+             result.attrs["source"] = source
+             result.attrs["source_failures"] = list(failures)
+             return result
+@@ -2274,12 +2287,39 @@ def _request_json(url: str, params: dict[str, Any]) -> dict[str, Any]:
+     raise RuntimeError(f"行情接口不可用: {error}")
+ 
+ 
++def _validate_live_index_stamp(
++    product: str, stamp: datetime, clock: datetime, observation_clock: datetime,
++) -> None:
++    """Keep a live index observation on its signal day and before receipt time.
++
++    Lunch quotes may retain the morning update; there is deliberately no new
++    minute-age threshold. The 09:15 lower bound matches the existing cash-market
++    quote guard, and 15:00 is the end of the cash-index trading session.
++    """
++    clock = _beijing_clock(clock)
++    observed = _beijing_clock(observation_clock)
++    if observed.tzinfo is None:
++        observed = observed.replace(tzinfo=BEIJING)
++    if stamp.tzinfo is None:
++        raise ValueError(f"{product} 指数报价缺少带时区的供应商时间")
++    stamp = stamp.astimezone(BEIJING)
++    if stamp.date() != clock.date():
++        raise ValueError(f"{product} 指数报价日期与当前信号日不一致")
++    if not time(9, 15) <= stamp.time() <= time(15, 0):
++        raise ValueError(f"{product} 指数报价时间不在有效交易时段")
++    if stamp > observed:
++        raise ValueError(f"{product} 指数报价时间晚于实际采集时刻")
++
++
+ def fetch_live_price_quote(product: str) -> dict[str, Any]:
+     # Tencent is the low-latency primary quote. EastMoney remains a compatible
+     # fallback because Poe egress rules can differ between deployments.
++    clock = _beijing_clock(_now_beijing())
++    collection_started = time_module.monotonic()
++    symbol = TENCENT_SYMBOLS[product]
+     try:
+         response = _evidence_http_get(
+-            f"https://qt.gtimg.cn/q={TENCENT_SYMBOLS[product]}",
++            f"https://qt.gtimg.cn/q={symbol}",
+             timeout=_bounded_timeout(6),
+             headers={
+                 "User-Agent": "Mozilla/5.0",
+@@ -2289,13 +2329,26 @@ def fetch_live_price_quote(product: str) -> dict[str, Any]:
+             },
+         )
+         response.raise_for_status()
+-        fields = (
+-            response.content.decode("gbk", errors="replace").split('"')[1].split("~")
++        # The request is for one symbol. A whole-response match rejects wrong
++        # variable names, prefixed identifiers and duplicate/conflicting rows.
++        match = re.fullmatch(
++            rf'\s*(?:var\s+)?v_{re.escape(symbol)}\s*=\s*"([^"\r\n]*)"\s*;?\s*',
++            response.content.decode("gbk"),
+         )
++        if match is None:
++            raise ValueError("腾讯指数变量身份不一致或响应不唯一")
++        fields = match.group(1).split("~")
++        if len(fields) < 31 or fields[2] != symbol[2:]:
++            raise ValueError("腾讯指数内嵌代码不一致或报价字段不足")
+         price = float(fields[3])
++        if not re.fullmatch(r"[0-9]{14}", fields[30]):
++            raise ValueError("腾讯指数供应商时间格式无效")
+         stamp = datetime.strptime(fields[30], "%Y%m%d%H%M%S").replace(
+             tzinfo=BEIJING
+         )
++        _validate_live_index_stamp(
++            product, stamp, clock, _iv_observation_clock(clock, collection_started),
++        )
+         if math.isfinite(price) and price > 0:
+             return {
+                 "price": price,
+@@ -2310,15 +2363,24 @@ def fetch_live_price_quote(product: str) -> dict[str, Any]:
+         "https://push2.eastmoney.com/api/qt/stock/get",
+         {
+             "secid": EASTMONEY_SECIDS[product],
+-            "fields": "f43,f44,f45,f60,f86",
++            "fields": "f43,f44,f45,f57,f58,f60,f86",
+             "ut": "fa5fd1943c7b386f172d6893dbfba10b",
+         },
+     )
+-    data = payload.get("data") or {}
+-    price = float(data.get("f43", 0)) / 100.0
++    data = payload.get("data") if isinstance(payload, dict) else None
++    if not isinstance(data, dict) or data.get("f57") != EASTMONEY_SECIDS[product].split(".", 1)[1]:
++        raise RuntimeError(f"东方财富 {product} 指数报价标的身份缺失或不一致")
++    try:
++        if isinstance(data.get("f43"), bool):
++            raise ValueError("boolean price")
++        price = float(data.get("f43", 0)) / 100.0
++    except (TypeError, ValueError, OverflowError) as exc:
++        raise RuntimeError(f"{product} 未取得有效实时价格") from exc
+     if not math.isfinite(price) or price <= 0:
+         raise RuntimeError(f"{product} 未取得有效实时价格")
+     try:
++        if isinstance(data["f86"], bool):
++            raise ValueError("boolean timestamp")
+         raw_stamp = float(data["f86"])
+         if not math.isfinite(raw_stamp):
+             raise ValueError("non-finite timestamp")
+@@ -2327,6 +2389,12 @@ def fetch_live_price_quote(product: str) -> dict[str, Any]:
+             raise ValueError("timestamp out of range")
+     except (KeyError, TypeError, ValueError, OSError, OverflowError) as exc:
+         raise RuntimeError(f"东方财富 {product} 指数报价缺少有效供应商更新时间") from exc
++    try:
++        _validate_live_index_stamp(
++            product, stamp, clock, _iv_observation_clock(clock, collection_started),
++        )
++    except ValueError as exc:
++        raise RuntimeError(f"东方财富 {product} 指数报价供应商时间无效: {exc}") from exc
+     return {
+         "price": price,
+         "source": "东方财富",
+@@ -2897,7 +2965,23 @@ def live_proxy(product: str, clock: datetime | None = None) -> dict[str, Any]:
+         live_quote = {"price": live_price, "source": "指数公开日线历史收盘",
+                       "source_date": history.index[-1].date(), "source_time": "15:00:00"}
+     else:
+-        live_quote = fetch_live_price_quote(product)
++        with runtime_clock(clock), collection_clock(clock):
++            live_quote = fetch_live_price_quote(product)
++            # Validate at the consuming boundary too: a named/cache adapter
++            # must not turn a same-day future or missing-time tick into a bar.
++            try:
++                raw_time = live_quote.get("source_time")
++                if not isinstance(raw_time, str) or not re.fullmatch(r"[0-9]{2}:[0-9]{2}:[0-9]{2}", raw_time):
++                    raise ValueError("指数报价缺少完整供应商时间")
++                source_day = live_quote.get("source_date")
++                if type(source_day) is not date:
++                    raise ValueError("指数报价缺少有效供应商日期")
++                stamp = datetime.combine(
++                    source_day, datetime.strptime(raw_time, "%H:%M:%S").time(), tzinfo=BEIJING,
++                )
++                _validate_live_index_stamp(product, stamp, clock, _iv_observation_clock(clock))
++            except (TypeError, ValueError) as exc:
++                raise RuntimeError(f"{product} 实时报价时间校验失败: {exc}") from exc
+         live_price = float(live_quote["price"])
+         if not math.isfinite(live_price) or live_price <= 0:
+             raise RuntimeError(f"{product} 实时报价含NaN、无穷值或非正价格")
+@@ -3851,10 +3935,11 @@ def verify_sina_option_quote(
+     )
+     response.raise_for_status()
+     raw = _response_with_size_limit(response, f"新浪MO详报价 {contract}")
+-    packets = _exact_quote_variables(raw, "hq_str_P_OP_")
+-    if set(packets) != {symbol}:
+-        raise RuntimeError(f"新浪MO详报价 {contract} 返回合约与请求不一致")
+-    fields = packets[symbol].split(",")
++    try:
++        packets = signal_evidence.sina_mo_quote_variables(raw, [f"P_OP_{symbol}"])
++    except signal_evidence.EvidenceUnavailable as exc:
++        raise RuntimeError(f"新浪MO详报价 {contract} 返回合约与请求不一致") from exc
++    fields = packets[f"P_OP_{symbol}"][0].decode("gb18030", errors="strict").split(",")
+     if len(fields) <= 40:
+         raise RuntimeError(f"新浪MO详报价 {contract} 字段不足")
+     try:
+@@ -3935,13 +4020,12 @@ def verify_sina_option_open(
+         },
+     )
+     response.raise_for_status()
+-    payload = _response_with_size_limit(response, f"新浪MO开盘价 {contract}").decode(
+-        "gbk", errors="replace"
+-    )
+-    quoted = re.search(rf'hq_str_P_OP_{re.escape(symbol)}="([^"]*)"', payload)
+-    if not quoted or not quoted.group(1):
+-        raise RuntimeError(f"新浪MO开盘复核 {contract} 为空")
+-    fields = quoted.group(1).split(",")
++    raw = _response_with_size_limit(response, f"新浪MO开盘价 {contract}")
++    try:
++        packets = signal_evidence.sina_mo_quote_variables(raw, [f"P_OP_{symbol}"])
++    except signal_evidence.EvidenceUnavailable as exc:
++        raise RuntimeError(f"新浪MO开盘复核 {contract} 返回合约与请求不一致或为空") from exc
++    fields = packets[f"P_OP_{symbol}"][0].decode("gb18030", errors="strict").split(",")
+     if len(fields) <= 32:
+         raise RuntimeError(f"新浪MO开盘复核 {contract} 字段不足")
+     try:
+@@ -6638,6 +6722,8 @@ def _apply_v14_live_policy(
+     short_identity_required = (product == "IC" and bool(anchor.get("v14_short_put_contract"))
+                                and signal["market_date"] >= sse_identity.EFFECTIVE_SIGNAL_DATE)
+     short_identity_verified = not short_identity_required
++    short_mark_required = v14_policy.short_put_mark_required(product, signal, anchor)
++    short_mark_verified = not short_mark_required
+     if product == "IC" and float(anchor.get("v14_core_put_qty", 0)) > 0:
+         # Bind the requested monitor before quote collection: a failed core
+         # overlay cannot silently become the independent momentum Put's IV.
+@@ -6657,15 +6743,26 @@ def _apply_v14_live_policy(
+         signal["v14_core_put_target_entry_premium"] = target_entry
+         current_short = anchor.get("v14_short_put_contract")
+         if current_short:
++            # Prepared or reused signal fields are not evidence for this leg.
++            for field in ("v14_short_put_mark", "v14_short_put_mark_day", "v14_short_put_mark_contract"):
++                signal.pop(field, None)
+             if product == "IC":
+                 security_id = anchor.get("v14_short_put_security_id")
+                 if security_id:
+-                    closes = fetch_option_closes(str(security_id))
++                    closes = (fetch_option_closes(str(security_id), signal["market_date"])
++                              if short_mark_required else fetch_option_closes(str(security_id)))
+                     stamp = pd.Timestamp(signal["market_date"])
+                     signal["v14_short_put_mark"] = float(closes.loc[stamp]) if stamp in closes.index else None
+             else:
+-                row = _quote_row(mo_quotes, str(current_short))
++                if mo_quotes is None:
++                    raise RuntimeError("IM held short Put quote chain unavailable")
++                row = _quote_row(mo_quotes, str(current_short), signal["market_date"])
+                 signal["v14_short_put_mark"] = float(row["lastprice"]) if row is not None else None
++            if signal.get("v14_short_put_mark") is not None:
++                signal["v14_short_put_mark_day"] = signal["market_date"]
++                signal["v14_short_put_mark_contract"] = current_short
++            v14_policy.require_short_put_mark(product, signal, anchor, require_binding=True)
++            short_mark_verified = True
+         # Admission dates and chains are only consumed when the pure policy
+         # can enter or roll. Required held/core marks above keep their own
+         # failure boundary; an unused M+1 chain cannot disable other sleeves.
+@@ -6708,15 +6805,18 @@ def _apply_v14_live_policy(
+         # A failed source must not become a policy decision or a new state.
+         raise
+     except Exception as exc:
+-        if not short_identity_verified:
++        if not short_identity_verified or not short_mark_verified:
+             # No policy projection, even for expiry, may consume an unproved
+             # held identity or a mark left in a prepared signal.
+             fallback = {k: v for k, v in signal.items() if not k.startswith("v14_")}
+             fallback.update(v14_policy.default_extension(product))
+             fallback.update({k: v for k, v in anchor.items() if k.startswith("v14_")})
+-            fallback.update(v14_held_put_identity_status="unverified",
+-                            v14_action="HOLD_FAIL_CLOSED", v14_action_reason=str(exc),
++            fallback.update(v14_action="HOLD_FAIL_CLOSED", v14_action_reason=str(exc),
+                             v14_candidate_data_status=f"unavailable: {type(exc).__name__}: {exc}")
++            if not short_identity_verified:
++                fallback["v14_held_put_identity_status"] = "unverified"
++            if not short_mark_verified:
++                fallback["v14_short_put_mark_status"] = "unverified"
+             return fallback
+         # Candidate admission is fail-closed; independent lifecycle events
+         # keep the action that produced their state/event-id transition.
+@@ -8165,7 +8265,8 @@ def _write_last_verified_snapshot(msg: Any, product: str) -> None:
+     # The builder may temporarily install an opening projection while holding
+     # this same lock. Copy under the lock; rendering must use that stable copy.
+     with STRATEGY_QUERY_LOCK:
+-        anchor = deepcopy(LIVE_CONTINUATION_ANCHOR[product])
++        display = _VERIFIED_DISPLAY_ANCHORS.get()
++        anchor = deepcopy((display if display is not None else LIVE_CONTINUATION_ANCHOR)[product])
+     momentum_weight = float(anchor["verified_momentum_weight"])
+     grid_units = float(anchor["verified_grid_units"])
+     route = anchor.get("v14_route_state", "future")
+diff --git a/poe_ic_im_v1_4_server.py b/poe_ic_im_v1_4_server.py
+index 324b376..f3ccebc 100644
+--- a/poe_ic_im_v1_4_server.py
++++ b/poe_ic_im_v1_4_server.py
+@@ -110,6 +110,8 @@ class LedgerCoordinator:
+                 raise RuntimeError("迁移证明与当前v1.4账本revision/digest不一致")
+ 
+     def _record_for_display(self, now: datetime) -> dict[str, Any]:
++        # Compatibility name: this is the calculation anchor. Recalculating an
++        # already committed close needs its predecessor; display uses the head.
+         latest = self.store.load_latest()
+         phase = strategy._market_phase(now)
+         try:
+@@ -141,6 +143,7 @@ class LedgerCoordinator:
+     ) -> tuple[str, list[dict[str, Any]], dict[str, dict[str, Any]]]:
+         clock = strategy._beijing_clock(now or strategy._now_beijing())
+         with strategy.collection_clock(clock), self.lock:
++            display_anchors = anchors_from_record(self.store.load_latest())
+             record = self._record_for_display(clock)
+             strategy.install_runtime_anchors(anchors_from_record(record))
+             capture = _CaptureOutput(query)
+@@ -151,7 +154,7 @@ class LedgerCoordinator:
+                 lambda product, signal: observed.__setitem__(product, signal)
+             )
+             try:
+-                with strategy.evidence_adapter.evidence_location(self.evidence_root), strategy.runtime_clock(clock), strategy.historical_replay(
++                with strategy.verified_display_anchors(display_anchors), strategy.evidence_adapter.evidence_location(self.evidence_root), strategy.runtime_clock(clock), strategy.historical_replay(
+                     replay_day
+                 ):
+                     strategy.ICIMMainlinesBot().run()
+@@ -206,14 +209,22 @@ class LedgerCoordinator:
+         # Capture one early close and one after the official-rate publication
+         # window. Failed/incomplete attempts can be retried by the same loop.
+         bucket = (clock.date(), clock.time() >= strategy.time(17, 30))
+-        with self.lock:
++        # Start the observation clock before waiting for the shared strategy
++        # lock, so a quote received after that wait is compared to receipt time.
++        with strategy.collection_clock(clock), self.lock:
+             if self._evidence_capture_bucket == bucket:
+                 return self.last_evidence_capture or {}
++            previous_anchors = deepcopy(strategy.LIVE_CONTINUATION_ANCHOR)
+             try:
++                latest = self.store.load_latest()
++                strategy.install_runtime_anchors(anchors_from_record(latest))
+                 result = strategy.evidence_adapter.capture_daily(strategy, self.evidence_root, clock)
+             except Exception as exc:
+                 result = {"day": str(clock.date()), "status": "incomplete",
+                           "reason": f"{type(exc).__name__}: {exc}"}
++            finally:
++                strategy.LIVE_CONTINUATION_ANCHOR.clear()
++                strategy.LIVE_CONTINUATION_ANCHOR.update(previous_anchors)
+             self.last_evidence_capture = result
+             if result.get("status") == "captured":
+                 self._evidence_capture_bucket = bucket
+@@ -372,7 +383,9 @@ async def _refresh_loop() -> None:
+                     coordinator.last_refresh_error = f"{type(exc).__name__}: {exc}"
+                 # This runs even when catch-up failed. Cancellation escapes
+                 # before starting further I/O, and the sole scheduler stays.
+-                await asyncio.to_thread(coordinator.capture_current_inputs, now)
++                # Resolve the start clock in the worker, after any executor
++                # queue delay as well as after the catch-up operation.
++                await asyncio.to_thread(coordinator.capture_current_inputs)
+         except Exception as exc:
+             # Calendar/head checks can fail before catch_up_once's replay try.
+             # Keep the sole scheduler alive for later retries, without making
+diff --git a/poe_ic_im_v1_4_state.py b/poe_ic_im_v1_4_state.py
+index 34182f0..c9c80bd 100644
+--- a/poe_ic_im_v1_4_state.py
++++ b/poe_ic_im_v1_4_state.py
+@@ -255,6 +255,12 @@ def require_persistence_eligible(
+             raise RuntimeError(f"{product} {field}未确认，禁止持久化")
+     if signal.get("v14_action") == "HOLD_FAIL_CLOSED":
+         raise RuntimeError(f"{product} HOLD_FAIL_CLOSED目标未确认，禁止持久化")
++    # Entry/roll fields describe the new target leg, not the old held leg whose
++    # decay was observed. Their mark binding is checked against the independent
++    # pre-close anchor in derive_next_anchors, never against the target here.
++    if (signal.get("market_date") is not None
++            and signal.get("v14_action") not in {"ENTER_SHORT_PUT", "ROLL_SHORT_PUT"}):
++        v14_policy.require_short_put_mark(product, signal, signal, require_binding=True)
+     if check_grid:
+         require_confirmed_grid_target(signal, product)
+ 
+@@ -1108,6 +1114,9 @@ def derive_next_anchors(
+         if _as_day(signal.get("next_trade_date"), f"{product} next_trade_date") != expected_next_day:
+             raise RuntimeError(f"{product}下一交易日不正确")
+         anchor = result[product]
++        # Validate against the independently projected held leg, before a new
++        # close plan can replace it or mark a previously unknown trigger pending.
++        v14_policy.require_short_put_mark(product, signal, anchor, require_binding=True)
+         prior_option_anchor = deepcopy(anchor)
+         short_open = signal.get("v14_short_put_open_pending")
+         if short_open is not None:
+diff --git a/run_ic_im_v1_4_delivery_tests.py b/run_ic_im_v1_4_delivery_tests.py
+index 07ba70a..1104a12 100644
+--- a/run_ic_im_v1_4_delivery_tests.py
++++ b/run_ic_im_v1_4_delivery_tests.py
+@@ -9,7 +9,7 @@ import subprocess
+ import sys
+ 
+ ROOT = Path(__file__).resolve().parent
+-MANIFEST = ROOT / 'docs/ic_im_daily_release_20261023_manifest.json'
++MANIFEST = ROOT / 'docs/ic_im_daily_release_20261023_repairs_v3_r3_manifest.json'
+ 
+ 
+ def sha(path):
+@@ -19,7 +19,7 @@ def sha(path):
+ def bindings(manifest):
+     names = set(manifest['files']) | set(manifest.get('fixture_sha256', {})) | set(manifest['required_local_tests']) | set(manifest['required_test_helpers'])
+     names |= {'run_ic_im_v1_4_delivery_tests.py', '_icim_delivery_test_worker.py',
+-              'icim_delivery_test_evidence.py', 'docs/ic_im_daily_release_20261023_manifest.json',
++              'icim_delivery_test_evidence.py', MANIFEST.relative_to(ROOT).as_posix(),
+               'docs/icim_delivery_legacy_fixtures_20261023.json', 'docs/icim_delivery_pytest.ini',
+               'docs/icim_historical_deselections_20261023.json'}
+     return {name: sha(ROOT / name) for name in sorted(names)}
+@@ -45,7 +45,7 @@ def main():
+     assert sha(ROOT / 'docs/icim_historical_deselections_20261023.json') == manifest['historical_exclusion_registry_sha256']
+     assert registered == json.loads((ROOT / 'docs/icim_historical_deselections_20261023.json').read_text(encoding='utf-8'))
+     tests = manifest['required_local_tests']
+-    assert len(tests) == len(set(tests)) == 43
++    assert len(tests) == len(set(tests)) == 47
+     allowed = [node for node in registered if node.split('::', 1)[0] in tests]
+     assert manifest['daily_gate_deselections'] == allowed
+     selected = list(tests)
+diff --git a/test_ic_im_ordinary_put_route_fix_20261013.py b/test_ic_im_ordinary_put_route_fix_20261013.py
+index c04350a..68ed28d 100644
+--- a/test_ic_im_ordinary_put_route_fix_20261013.py
++++ b/test_ic_im_ordinary_put_route_fix_20261013.py
+@@ -145,6 +145,12 @@ def _signal(product, anchor, day=DAY, *, momentum=False, candidate=None, opening
+                       im_execution_fix_revision=bot.IM_EXECUTION_FIX_REVISION,
+                       im_put_target_moneyness=1.02, core_put_action="HOLD",
+                       momentum_put_action="RESIZE_OR_ROLL" if target_mom != mom else "HOLD")
++    if current.get("v14_route_state") == "short_put" and current.get("v14_short_put_entry_premium") is not None:
++        # Synthetic unchanged-price observation, distinct from opening evidence;
++        # explicit fault/decay inputs below still override this fixture default.
++        signal.update(v14_short_put_mark=current["v14_short_put_entry_premium"],
++                      v14_short_put_mark_day=day,
++                      v14_short_put_mark_contract=current["v14_short_put_contract"])
+     signal.update(extra or {})
+     if live_quotes is None:
+         signal = policy.apply_policy(product, signal, current, candidate=candidate or {"tradable": False})
+diff --git a/test_ic_im_v1_4_integration_guards.py b/test_ic_im_v1_4_integration_guards.py
+index f6e729c..092b776 100644
+--- a/test_ic_im_v1_4_integration_guards.py
++++ b/test_ic_im_v1_4_integration_guards.py
+@@ -533,13 +533,15 @@ def test_im_profit_open_on_eastmoney_needs_both_sina_open_checks():
+ 
+ def test_eastmoney_intraday_fallback_requires_vendor_timestamp():
+     stamp = datetime(2026, 9, 30, 11, 15, tzinfo=bot.BEIJING)
+-    with (patch.object(bot.requests, 'get', side_effect=bot.requests.RequestException('Tencent unavailable')),
+-          patch.object(bot, '_request_json', return_value={'data': {'f43': 785432, 'f86': int(stamp.timestamp())}})):
++    with (bot.runtime_clock(stamp),
++          patch.object(bot.requests, 'get', side_effect=bot.requests.RequestException('Tencent unavailable')),
++          patch.object(bot, '_request_json', return_value={'data': {'f43': 785432, 'f57': '000905', 'f86': int(stamp.timestamp())}})):
+         quote = bot.fetch_live_price_quote('IC')
+     assert quote['source_date'] == stamp.date()
+     assert quote['source_time'] == '11:15:00'
+-    with (patch.object(bot.requests, 'get', side_effect=bot.requests.RequestException('Tencent unavailable')),
+-          patch.object(bot, '_request_json', return_value={'data': {'f43': 785432}})):
++    with (bot.runtime_clock(stamp),
++          patch.object(bot.requests, 'get', side_effect=bot.requests.RequestException('Tencent unavailable')),
++          patch.object(bot, '_request_json', return_value={'data': {'f43': 785432, 'f57': '000905'}})):
+         with pytest.raises(RuntimeError, match='缺少有效供应商更新时间'):
+             bot.fetch_live_price_quote('IC')
+ 
+diff --git a/test_ic_im_v1_4_state_guards.py b/test_ic_im_v1_4_state_guards.py
+index 0e2dcb6..21dbb47 100644
+--- a/test_ic_im_v1_4_state_guards.py
++++ b/test_ic_im_v1_4_state_guards.py
+@@ -274,6 +274,8 @@ def short_signal():
+                   v14_short_put_contract='510500P2610M07500', v14_short_put_security_id='10019999',
+                   v14_short_put_qty_normalized=9.8, v14_short_put_entry_premium=.12,
+                   v14_short_put_expiry=date(2026, 10, 28), core_put_target_delta=0., put_target_core_qty=0)
++    signal.update(v14_short_put_mark=.12, v14_short_put_mark_day=signal['market_date'],
++                  v14_short_put_mark_contract=signal['v14_short_put_contract'])
+     return signal
+ 
+ 
+diff --git a/test_icim_round3_evidence_integration_20261021.py b/test_icim_round3_evidence_integration_20261021.py
+index 8d7b3eb..ae6b3f9 100644
+--- a/test_icim_round3_evidence_integration_20261021.py
++++ b/test_icim_round3_evidence_integration_20261021.py
+@@ -122,7 +122,9 @@ def test_sole_refresh_loop_collects_today_even_when_old_catchup_raises(tmp_path,
+     def fail(clock):
+         calls.append("catchup")
+         raise RuntimeError("old gap unresolved")
+-    def collect(clock):
++    def collect(clock=None):
++        # Capture now resolves its own start after executor queuing.
++        assert clock is None
+         calls.append("capture_today")
+     async def cancelled_sleep(seconds):
+         assert seconds == 300
+diff --git a/test_icim_round4_recovery_20261021.py b/test_icim_round4_recovery_20261021.py
+index e75c915..baf7b43 100644
+--- a/test_icim_round4_recovery_20261021.py
++++ b/test_icim_round4_recovery_20261021.py
+@@ -310,6 +310,13 @@ def test_none_roll_candidate_and_random_gate_contract_are_real_policy_compatible
+                       valuation_puts_per_full_core=rng.randrange(4), momentum_next_weight=rng.choice([0., .5]))
+         candidate = _candidate(product, contract=contract, expiry=date(2026, 12, 23 if product == "IC" else 18))
+         active = anchor if rng.choice([True, False]) else policy.default_extension(product)
++        if policy.short_put_mark_required(product, signal, active) and signal["v14_short_put_mark"] is None:
++            # Missing required marks reject; keep these random inputs as negatives.
++            with pytest.raises(RuntimeError, match="held short Put"):
++                policy.short_put_candidate_requirements(product, signal, active)
++            with pytest.raises(RuntimeError, match="held short Put"):
++                policy.apply_policy(product, signal, active, candidate=candidate)
++            continue
+         requirements = policy.short_put_candidate_requirements(product, signal, active)
+         if not requirements["entry"] and not requirements["roll"]:
+             out = policy.apply_policy(product, signal, active, candidate=candidate, roll_candidate=candidate)
+diff --git a/test_icim_round5_recording_semantics_20261021.py b/test_icim_round5_recording_semantics_20261021.py
+index c608853..1de3406 100644
+--- a/test_icim_round5_recording_semantics_20261021.py
++++ b/test_icim_round5_recording_semantics_20261021.py
+@@ -273,6 +273,13 @@ def test_none_and_untradable_roll_candidate_leave_unneeded_gate_actions_identica
+                       valuation_puts_per_full_core=rng.randrange(4), momentum_next_weight=rng.choice([0., .5]))
+         contract = "510500P2612M07500" if product == "IC" else "MO2612-P-7200"
+         anchor = short_anchor(product, v14_short_put_contract=contract) if rng.choice([True, False]) else policy.default_extension(product)
++        if policy.short_put_mark_required(product, signal, anchor) and signal["v14_short_put_mark"] is None:
++            # STRAT-01: an unknown held-leg decay decision is not an unused candidate.
++            with pytest.raises(RuntimeError, match="held short Put"):
++                policy.short_put_candidate_requirements(product, signal, anchor)
++            with pytest.raises(RuntimeError, match="held short Put"):
++                policy.apply_policy(product, signal, anchor, candidate=None)
++            continue
+         required = policy.short_put_candidate_requirements(product, signal, anchor)
+         if required["entry"] or required["roll"]:
+             continue

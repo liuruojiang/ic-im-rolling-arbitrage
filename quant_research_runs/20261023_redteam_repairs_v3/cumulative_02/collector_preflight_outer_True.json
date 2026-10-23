@@ -1,0 +1,83 @@
+{
+  "start": "2026-10-22T18:45:00+08:00",
+  "quote": "2026-10-22T18:45:01+08:00",
+  "wall": "2026-10-22T18:45:02+08:00",
+  "observation": "2026-10-22T18:45:02+08:00",
+  "result": {
+    "schema": "icim_capture_runner_receipt_v1",
+    "started_at": "2026-10-22T18:45:00+08:00",
+    "pid": 22044,
+    "ledger_write_requested": false,
+    "message_send_requested": false,
+    "state_dir": "D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261023_redteam_repairs_v3\\cumulative_02\\isolated_temp\\icim_put_937f8f67\\pytest\\test_capture_runner_accounts_f1\\state",
+    "evidence_dir": "D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261023_redteam_repairs_v3\\cumulative_02\\isolated_temp\\icim_put_937f8f67\\pytest\\test_capture_runner_accounts_f1\\evidence",
+    "source_sha256": {
+      "capture_ic_im_v1_4_inputs.py": "c0b90df51fd4257aa54ec9dfef200656c662572b0e77d2c74508093e089653b7",
+      "ic_im_adjusted_put_migration_v1.py": "f4bbdaa49225e51b83ccfe441b9c6f4dc36b7f3206acf509098f4d8628215c29",
+      "ic_im_chinabond.py": "4e1098b2f4c253d9950c084eafcc655ea8e5e820478a01a29393d638e6d40ab9",
+      "ic_im_daily_valuation.py": "b389a81475836fb3e4e96dbc92216a54afeb199029d524f51efbb8d029e4257c",
+      "ic_im_evidence_adapter_v1.py": "775f39c2ba60f64d41a580d344969d91c56e25c029fe31a5588e352b4916e867",
+      "ic_im_fear_grid_v1.py": "a21578621eb7695af5dcc669670cdcfa2bef2f0d9fceb4ad40a3ddae707fcc67",
+      "ic_im_option_maintenance_notice.py": "a2ad67732d85bad5d96444d7a74a350d3ecdf0fdb6b82b9b593ccfaf95c63746",
+      "ic_im_put_execution_v1.py": "8cdda4e3761bda7889c16b0102ee0106d2efaaa61088b7cb6fc83a08d67b2368",
+      "ic_im_quarter_roll_v1_3.py": "cec4535aa0dca4200ac4e50ec91f7aa82aee12c5157f0cb350ab73c82d53457d",
+      "ic_im_quote_snapshot_guard.py": "ae22b541a1a2a6bc20d5bd23bb1fc3d275a2f3fcfce96b5345c2458cde74b9d5",
+      "ic_im_signal_evidence_v1.py": "8cf484fdc536596d426a0dccced2a3a4a9e76d9952c8474b97051bcd5673d087",
+      "ic_im_sse_contract_identity_v1.py": "47a2d81f665d2b199eaa2c2043c90271cdd242aa9776620002c833f3cdafacc8",
+      "ic_im_v1_4_policy.py": "d632d411a130658b5b993fbffcb7ac98be3affc8ceb634842c45e8e8da9a7cd2",
+      "im_put_policy.py": "ff9c9b1d52e4b1aa25fcb3c85e61665a4acf0a4de68272d8ddc9caaf2d4a9a9c",
+      "poe_ic_im_mainline_v1_3_bot.py": "fd3c7df2b68255fda618ca9267a00f38ab3f8c2ce66ff99b53e1fb0be2a284fa",
+      "poe_ic_im_mainline_v1_4_bot.py": "48a0fd691904a72b83ac0b9ca3506a2e5a4754d82edb72e1aed0937f23e1239c",
+      "poe_ic_im_v1_3_server.py": "bb4a482557e406e161ded843567903532eb0f38649b3dd61bce934584e464260",
+      "poe_ic_im_v1_3_state.py": "3ab7a9feb038e4139d63655d416459d6afa2f5d416903965e8e13ed657ec938c",
+      "poe_ic_im_v1_4_server.py": "98383b69ecfd33dc22e0d9699129d9458b632f4979d75e7f838c50176d6cbd2c",
+      "poe_ic_im_v1_4_state.py": "dd326abd1fc6d687c901d4960f30456207606569ba80456f719d6a267ce335d3"
+    },
+    "source_pin_sha256": null,
+    "ledger": {
+      "verified_day": "2026-10-21",
+      "sequence": 0,
+      "digest": "c08c9cd91674e5a93dc8230f7c28aa532d54e71661f506e6847fe7e14225af1d"
+    },
+    "status": "captured",
+    "capture": {
+      "status": "captured",
+      "day": "2026-10-22",
+      "products": {}
+    },
+    "consistency_statistics": {
+      "day": "2026-10-22",
+      "status": "not_recorded",
+      "products": {
+        "IC": {
+          "attempts": 0,
+          "complete_attempts": 0,
+          "incomplete_attempts": 0,
+          "conflict_attempts": 0,
+          "conflict_requests": 0,
+          "conflict_frequency": null
+        },
+        "IM": {
+          "attempts": 0,
+          "complete_attempts": 0,
+          "incomplete_attempts": 0,
+          "conflict_attempts": 0,
+          "conflict_requests": 0,
+          "conflict_frequency": null
+        }
+      },
+      "missing_products": [
+        "IC",
+        "IM"
+      ],
+      "unreadable_manifests": [],
+      "unavailable_originals": [],
+      "failed_cycle_receipts": [],
+      "unreadable_receipts": [],
+      "denominator": "sealed original-close sessions per product; polling receipts excluded",
+      "recovery_warning": null
+    },
+    "ledger_paths_and_bytes_unchanged": true,
+    "finished_at": "2026-10-22T18:45:02+08:00"
+  }
+}

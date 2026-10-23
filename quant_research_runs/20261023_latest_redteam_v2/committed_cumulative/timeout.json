@@ -1,0 +1,7 @@
+{
+  "status": "NOT_ACCEPTED",
+  "reason": "audit harness child timeout",
+  "timeout_seconds": 240,
+  "daily_delivery_60s_gate_changed": false,
+  "no_final_xml": true
+}

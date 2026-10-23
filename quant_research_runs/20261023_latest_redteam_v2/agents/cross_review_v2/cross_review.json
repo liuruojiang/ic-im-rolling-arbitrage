@@ -1,0 +1,86 @@
+{
+  "commit": "58986fda2c17df93eb3925bf09a1cebd55a7869e",
+  "reviewed": [
+    {
+      "candidate": "STRAT-01",
+      "decision": "accepted",
+      "priority": "P1",
+      "evidence": "cross_probe_results.json; state_append_cross/regression.xml; state_reachability.json",
+      "reason": "完整IC公开builder产生mark=None/HOLD且通过资格门禁；交叉重跑真实隔离StateStore追加后seq0到1、重开digest一致。持有旧卖Put的衰减条件必须有当前mark，缺值不是未触发。",
+      "limit": "合成合法持仓和故障注入；不声称正式账本或实盘已经发生。IM本轮只证明adapter层。"
+    },
+    {
+      "candidate": "market_index_identity",
+      "decision": "accepted",
+      "priority": "P1",
+      "evidence": "cross_probe_results.json:index_identity",
+      "reason": "返回变量与body代码均指向另一指数仍作为IC价格3000进入实际live_proxy动量计算。请求URL不能代替返回身份校验。",
+      "limit": "盘中路径；收盘/历史回放采用日线，不能外推污染收盘账本。"
+    },
+    {
+      "candidate": "market_index_time",
+      "decision": "accepted",
+      "priority": "P1",
+      "evidence": "cross_probe_results.json:index_future",
+      "reason": "观察时钟14:30仍接受明确15:00未来报价，live_proxy计算成功；30分钟差无法解释为正常请求耗时。",
+      "limit": "未来时间为主要决定性反例；00:00案例同类输入校验缺口，修补不能擅自引入未经规格确定的新鲜度阈值。"
+    },
+    {
+      "candidate": "EV2-01",
+      "decision": "accepted",
+      "priority": "P2",
+      "evidence": "cross_probe_results.json:batch_projection",
+      "reason": "加入unrelated_前缀的同一MO报文直接核验拒绝，但真实批量预取、封存、load_session和投影后verify接受。源字节哈希完整不能弥补词法身份丢失。",
+      "limit": "没有全套required-role原日包资格或整账本接受证明，按防御边界P2；不能升格为已污染账本。"
+    },
+    {
+      "candidate": "state_capture_anchor",
+      "decision": "accepted",
+      "priority": "P2",
+      "evidence": "p2_cross/regression.xml; stale_capture_anchor_observation.json",
+      "reason": "公开追加后当前head10-21而capture_current_inputs仍见10-20模块全局锚点。",
+      "limit": "当前adapter只用持仓来排列实际挂牌月优先顺序与元数据；未证实错误持仓/价格或漏采，因此P2。"
+    },
+    {
+      "candidate": "state_capture_clock",
+      "decision": "accepted",
+      "priority": "P2",
+      "evidence": "p2_cross/regression.xml; full_capture_context_False.json; full_capture_context_True.json",
+      "reason": "采集开始后1秒更新、2秒后读到的行情被旧观察时钟误判未来；实际capture_daily无上下文封不完整，加collection_clock控制通过。后台refresh loop直接调用该入口，缺失外层补救。",
+      "limit": "是可用性/取证失败，未证明污染；独立CaptureRunner已正确包装上下文，不受此发现概括。"
+    },
+    {
+      "candidate": "delivery_stale_snapshot",
+      "decision": "accepted",
+      "priority": "P2",
+      "evidence": "p2_cross/regression.xml; snapshot_2026-10-22T080000_0800.md; snapshot_2026-10-21T180000_0800.md",
+      "reason": "复制真实10-21正式账本，开盘前只读或当日失败回退展示为最后快照10-20，正常盘中控制显示10-21。计算用前一record选择错误复用于最后已核验展示。",
+      "limit": "页面注明10-20并称研究快照，未伪称账户持仓或将旧日标成今日；与采集锚点是不同消费路径，需分别验收。"
+    }
+  ],
+  "summary": {
+    "accepted": 7,
+    "P1": 3,
+    "P2": 4
+  },
+  "independent_observation_scenarios": 4,
+  "author_test_cross_rerun": {
+    "p2_suite": {
+      "tests": 15,
+      "passed": 9,
+      "expected_rejection_assertion_failures": 6
+    },
+    "strategy_append": {
+      "tests": 1,
+      "passed": 1
+    }
+  },
+  "counting_rule": "交叉复跑不新增独立bug数量，也不重复计入原作者测试总数；observational tests passing means bug reproduced, not fixed.",
+  "production_changed": false,
+  "formal_runtime_write": false,
+  "network": "blocked",
+  "withdrawn_candidates_endorsed": [
+    "盘中合格快照报告可以15点后完成，不能以完成晚于15点报bug。",
+    "本地参考字典覆盖在当前生产器仅有jiu字段的条件下未证实外部可达，列防御建议而非确认bug。"
+  ]
+}

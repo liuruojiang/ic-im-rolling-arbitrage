@@ -1,0 +1,13 @@
+{
+  "request_clock": "2026-10-21T15:40:00+08:00",
+  "elapsed_before_snapshot": 2.0,
+  "actual_receive_clock": "2026-10-21T15:40:02+08:00",
+  "validator_observation_clock": "2026-10-21T15:40:00+08:00",
+  "source_stamp": "2026-10-21T15:40:01+08:00",
+  "result": {
+    "day": "2026-10-21",
+    "status": "incomplete",
+    "reason": "RuntimeError: valid frame after shared-lock contention行情更新时间晚于采集时刻，禁止确认信号"
+  },
+  "ledger_bytes_unchanged": true
+}

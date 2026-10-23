@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="1" failures="0" skipped="0" tests="1" time="0.923" timestamp="2026-10-23T15:22:59.297221+08:00" hostname="DESKTOP-95I7VVU"><testcase classname="" name="tests.test_ic_im_v1_4_source_manifest_v3" time="0.000"><error message="collection failure">ImportError while importing test module 'D:\动量策略\IC和IM滚动套利\quant_research_runs\20261023_daily_release_v3\automation_checkout\tests\test_ic_im_v1_4_source_manifest_v3.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\Python314\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\test_ic_im_v1_4_source_manifest_v3.py:10: in &lt;module&gt;
+    import build_ic_im_v1_4_digest as digest
+E   ModuleNotFoundError: No module named 'build_ic_im_v1_4_digest'</error></testcase></testsuite></testsuites>

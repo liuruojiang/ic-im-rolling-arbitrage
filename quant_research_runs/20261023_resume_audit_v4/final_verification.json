@@ -1,0 +1,836 @@
+{
+  "status": "RELEASE_AUDIT_AND_REMOTE_DELIVERY_ACCEPTED",
+  "strategy_pin": "e3f26824a8ff0a89b6125d4385f75e0a6cfa2a7e",
+  "strategy_merge": "cb98c6af72afb53e7d44e7d89bdadba2fea6a318",
+  "automation_head": "8505167a66fdc685d580d280ff31905b1a749108",
+  "readiness": {
+    "run": 39921352353,
+    "conclusion": "success",
+    "sequence": 21,
+    "verified_day": "2026-10-23",
+    "message_sent": false,
+    "jobs": [
+      {
+        "id": 120307075823,
+        "name": "regression / strategy-tests (icim)",
+        "status": "completed",
+        "conclusion": "success",
+        "run_id": 39921352353,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Run actions/checkout@v6",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Run actions/setup-python@v6",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Resolve exact published strategy pin",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "Run actions/checkout@v6",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "Install Microcap regression dependencies",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 6
+          },
+          {
+            "name": "Install ICIM regression dependencies",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7
+          },
+          {
+            "name": "Test Microcap state and cloud transport invariants",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 8
+          },
+          {
+            "name": "Test ICIM source failover and persistent ledger invariants",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 9
+          },
+          {
+            "name": "Preserve tests and actual tested strategy SHA",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 10
+          },
+          {
+            "name": "Run actions/upload-artifact@v7",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 11
+          },
+          {
+            "name": "Post Run actions/checkout@v6",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 20
+          },
+          {
+            "name": "Post Run actions/setup-python@v6",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 21
+          },
+          {
+            "name": "Post Run actions/checkout@v6",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 22
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 23
+          }
+        ]
+      },
+      {
+        "id": 120307076303,
+        "name": "regression / automation-tests",
+        "status": "completed",
+        "conclusion": "success",
+        "run_id": 39921352353,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Run actions/checkout@v6",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Run actions/setup-python@v6",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Run python -m pip install 'pytest>=8,<9' 'PyYAML>=6,<7' 'hypothesis>=6,<7'",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "Check delivery contracts and all automation regressions",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "Run actions/upload-artifact@v7",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6
+          },
+          {
+            "name": "Post Run actions/setup-python@v6",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 11
+          },
+          {
+            "name": "Post Run actions/checkout@v6",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 12
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 13
+          }
+        ]
+      },
+      {
+        "id": 120307406895,
+        "name": "readiness",
+        "status": "completed",
+        "conclusion": "success",
+        "run_id": 39921352353,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Run actions/checkout@v6",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Run actions/setup-python@v6",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Resolve the bounded no-send validation request",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "Resolve the exact production strategy pin",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "Run actions/checkout@v6",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6
+          },
+          {
+            "name": "Install the production dependencies",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7
+          },
+          {
+            "name": "Restore a verified production ledger to an isolated volume",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 8
+          },
+          {
+            "name": "Verify producer identity, migration and completed-session coverage",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 9
+          },
+          {
+            "name": "Verify audited execution source inventory",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 10
+          },
+          {
+            "name": "Run the official close producer on the isolated ledger",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 11
+          },
+          {
+            "name": "Validate the normal digest and dated marker without publishing",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 12
+          },
+          {
+            "name": "Authenticate SMTP and validate envelopes without DATA",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 13
+          },
+          {
+            "name": "Export verified research handoff when explicitly requested",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 14
+          },
+          {
+            "name": "Observe public Fear feeds without sending",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 15
+          },
+          {
+            "name": "Run actions/upload-artifact@v7",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 16
+          },
+          {
+            "name": "Post Run actions/checkout@v6",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 30
+          },
+          {
+            "name": "Post Run actions/setup-python@v6",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 31
+          },
+          {
+            "name": "Post Run actions/checkout@v6",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 32
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 33
+          }
+        ]
+      },
+      {
+        "id": 120309626295,
+        "name": "Microcap refresh progress",
+        "status": "completed",
+        "conclusion": "success",
+        "run_id": 39921352353,
+        "logs_url": null,
+        "steps": null
+      }
+    ]
+  },
+  "daily": {
+    "run": 39950081613,
+    "conclusion": "success",
+    "verified_day": "2026-10-23",
+    "sequence": 21,
+    "jobs": [
+      {
+        "id": 120402141827,
+        "name": "regression / strategy-tests (icim)",
+        "status": "completed",
+        "conclusion": "success",
+        "run_id": 39950081613,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Run actions/checkout@v6",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Run actions/setup-python@v6",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Resolve exact published strategy pin",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "Run actions/checkout@v6",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "Install Microcap regression dependencies",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 6
+          },
+          {
+            "name": "Install ICIM regression dependencies",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7
+          },
+          {
+            "name": "Test Microcap state and cloud transport invariants",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 8
+          },
+          {
+            "name": "Test ICIM source failover and persistent ledger invariants",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 9
+          },
+          {
+            "name": "Preserve tests and actual tested strategy SHA",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 10
+          },
+          {
+            "name": "Run actions/upload-artifact@v7",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 11
+          },
+          {
+            "name": "Post Run actions/checkout@v6",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 20
+          },
+          {
+            "name": "Post Run actions/setup-python@v6",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 21
+          },
+          {
+            "name": "Post Run actions/checkout@v6",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 22
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 23
+          }
+        ]
+      },
+      {
+        "id": 120402142169,
+        "name": "regression / automation-tests",
+        "status": "completed",
+        "conclusion": "success",
+        "run_id": 39950081613,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Run actions/checkout@v6",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Run actions/setup-python@v6",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Run python -m pip install 'pytest>=8,<9' 'PyYAML>=6,<7' 'hypothesis>=6,<7'",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "Check delivery contracts and all automation regressions",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "Run actions/upload-artifact@v7",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6
+          },
+          {
+            "name": "Post Run actions/setup-python@v6",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 11
+          },
+          {
+            "name": "Post Run actions/checkout@v6",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 12
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 13
+          }
+        ]
+      },
+      {
+        "id": 120402471699,
+        "name": "send",
+        "status": "completed",
+        "conclusion": "success",
+        "run_id": 39950081613,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Check out automation repository",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Set up Python",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Classify attempt",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "Resolve publication mode",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "Check delivery marker",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6
+          },
+          {
+            "name": "Check out public IC/IM strategy repository",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7
+          },
+          {
+            "name": "Record exact ICIM strategy revision",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 8
+          },
+          {
+            "name": "Verify audited execution source inventory",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 9
+          },
+          {
+            "name": "Install strategy dependencies",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 10
+          },
+          {
+            "name": "Verify IC/IM fix11 build and historical identities",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 11
+          },
+          {
+            "name": "Check A-share trading day",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 12
+          },
+          {
+            "name": "Restore latest v1.4-r1 hash-chained ledger",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 13
+          },
+          {
+            "name": "Restore latest verified v1.3-r7 seed for first migration",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 14
+          },
+          {
+            "name": "Restore last pre-fix r7 seed when current r7 artifact is absent",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 15
+          },
+          {
+            "name": "Migrate verified r7 seed to independent v1.4-r1 ledger",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 16
+          },
+          {
+            "name": "Verify v1.4 ledger chain and migration proof before runner import",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 17
+          },
+          {
+            "name": "Run IC/IM signal",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 18
+          },
+          {
+            "name": "Build Gmail digest",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 19
+          },
+          {
+            "name": "Prepare delivery marker",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 20
+          },
+          {
+            "name": "Recheck delivery against actual signal day",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 21
+          },
+          {
+            "name": "Persist normal-send intent before SMTP",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 22
+          },
+          {
+            "name": "Send Gmail",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 23
+          },
+          {
+            "name": "Verify ledger-only recovery before artifact promotion",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 24
+          },
+          {
+            "name": "Upload successful ledger",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 25
+          },
+          {
+            "name": "Mark digest delivered",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 26
+          },
+          {
+            "name": "Upload audit artifacts",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 27
+          },
+          {
+            "name": "Add run summary",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 28
+          },
+          {
+            "name": "Fail when signal publication failed",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 29
+          },
+          {
+            "name": "Post Check out public IC/IM strategy repository",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 56
+          },
+          {
+            "name": "Post Set up Python",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 57
+          },
+          {
+            "name": "Post Check out automation repository",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 58
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 59
+          }
+        ]
+      }
+    ],
+    "artifacts": [
+      {
+        "id": 12500181784,
+        "name": "automation-regression-39950081613",
+        "size_in_bytes": 10194,
+        "url": "https://api.github.com/repos/liuruojiang/codex-daily-automation-probe/actions/artifacts/12500181784",
+        "archive_download_url": "https://api.github.com/repos/liuruojiang/codex-daily-automation-probe/actions/artifacts/12500181784/zip",
+        "expired": false,
+        "created_at": "2026-10-23T12:00:33Z",
+        "expires_at": "2027-01-21T12:00:13Z",
+        "updated_at": "2026-10-23T12:00:33Z",
+        "digest": "sha256:66350f9ac1efa917f280f3cbe7c448bb8c96fa8dbee87d963d508ca53e1b2842",
+        "workflow_run": {
+          "id": 39950081613,
+          "repository_id": 1236131103,
+          "head_repository_id": 1236131103,
+          "head_branch": "main",
+          "head_sha": "8505167a66fdc685d580d280ff31905b1a749108"
+        }
+      },
+      {
+        "id": 12499762318,
+        "name": "ic-im-v1-4-r1-707295aeaa67-close_confirmed-digest-delivered-2026-10-23-c504806e86a1-send-intent",
+        "size_in_bytes": 9217,
+        "url": "https://api.github.com/repos/liuruojiang/codex-daily-automation-probe/actions/artifacts/12499762318",
+        "archive_download_url": "https://api.github.com/repos/liuruojiang/codex-daily-automation-probe/actions/artifacts/12499762318/zip",
+        "expired": false,
+        "created_at": "2026-10-23T12:02:52Z",
+        "expires_at": "2026-11-22T12:02:51Z",
+        "updated_at": "2026-10-23T12:02:52Z",
+        "digest": "sha256:58f37e9b4fd1285de885fa6982d1f7e82ad8d0c5bbde8a02734c46dafc52b842",
+        "workflow_run": {
+          "id": 39950081613,
+          "repository_id": 1236131103,
+          "head_repository_id": 1236131103,
+          "head_branch": "main",
+          "head_sha": "8505167a66fdc685d580d280ff31905b1a749108"
+        }
+      },
+      {
+        "id": 12499443275,
+        "name": "ic-im-v1-4-r1-ledger",
+        "size_in_bytes": 144734,
+        "url": "https://api.github.com/repos/liuruojiang/codex-daily-automation-probe/actions/artifacts/12499443275",
+        "archive_download_url": "https://api.github.com/repos/liuruojiang/codex-daily-automation-probe/actions/artifacts/12499443275/zip",
+        "expired": false,
+        "created_at": "2026-10-23T12:02:57Z",
+        "expires_at": "2027-01-21T12:00:13Z",
+        "updated_at": "2026-10-23T12:02:57Z",
+        "digest": "sha256:86496f13b7c0333e7639343073884e1ff224b0719f7d095739b7a8655a76b422",
+        "workflow_run": {
+          "id": 39950081613,
+          "repository_id": 1236131103,
+          "head_repository_id": 1236131103,
+          "head_branch": "main",
+          "head_sha": "8505167a66fdc685d580d280ff31905b1a749108"
+        }
+      },
+      {
+        "id": 12499024591,
+        "name": "ic-im-v1-4-r1-707295aeaa67-close_confirmed-digest-delivered-2026-10-23-c504806e86a1",
+        "size_in_bytes": 416,
+        "url": "https://api.github.com/repos/liuruojiang/codex-daily-automation-probe/actions/artifacts/12499024591",
+        "archive_download_url": "https://api.github.com/repos/liuruojiang/codex-daily-automation-probe/actions/artifacts/12499024591/zip",
+        "expired": false,
+        "created_at": "2026-10-23T12:02:59Z",
+        "expires_at": "2026-11-22T12:02:58Z",
+        "updated_at": "2026-10-23T12:02:59Z",
+        "digest": "sha256:8f3a8ab1173ebb42217f34bea0e2ededc44b9a10c40f9f016bec446270f77c3a",
+        "workflow_run": {
+          "id": 39950081613,
+          "repository_id": 1236131103,
+          "head_repository_id": 1236131103,
+          "head_branch": "main",
+          "head_sha": "8505167a66fdc685d580d280ff31905b1a749108"
+        }
+      },
+      {
+        "id": 12499004313,
+        "name": "strategy-regression-icim-39950081613",
+        "size_in_bytes": 93765,
+        "url": "https://api.github.com/repos/liuruojiang/codex-daily-automation-probe/actions/artifacts/12499004313",
+        "archive_download_url": "https://api.github.com/repos/liuruojiang/codex-daily-automation-probe/actions/artifacts/12499004313/zip",
+        "expired": false,
+        "created_at": "2026-10-23T12:00:57Z",
+        "expires_at": "2027-01-21T12:00:13Z",
+        "updated_at": "2026-10-23T12:00:57Z",
+        "digest": "sha256:aa526897cf734de4f4be45e197882ca5a5506c471d1bc896b2c85e63fc360dcb",
+        "workflow_run": {
+          "id": 39950081613,
+          "repository_id": 1236131103,
+          "head_repository_id": 1236131103,
+          "head_branch": "main",
+          "head_sha": "8505167a66fdc685d580d280ff31905b1a749108"
+        }
+      },
+      {
+        "id": 12498979715,
+        "name": "ic-im-v1-4-r1-post-close-digest",
+        "size_in_bytes": 39424,
+        "url": "https://api.github.com/repos/liuruojiang/codex-daily-automation-probe/actions/artifacts/12498979715",
+        "archive_download_url": "https://api.github.com/repos/liuruojiang/codex-daily-automation-probe/actions/artifacts/12498979715/zip",
+        "expired": false,
+        "created_at": "2026-10-23T12:03:00Z",
+        "expires_at": "2026-11-22T12:02:59Z",
+        "updated_at": "2026-10-23T12:03:00Z",
+        "digest": "sha256:ac8c530941cc70db47c3e696dabc822476e45697af8ed0743912d277a3809eb0",
+        "workflow_run": {
+          "id": 39950081613,
+          "repository_id": 1236131103,
+          "head_repository_id": 1236131103,
+          "head_branch": "main",
+          "head_sha": "8505167a66fdc685d580d280ff31905b1a749108"
+        }
+      }
+    ]
+  },
+  "gmail": {
+    "gmail_message_id": "1a168a483ccea8cc",
+    "labels": [
+      "SENT",
+      "INBOX"
+    ],
+    "date": "Fri, 23 Oct 2026 12:02:53 +0000",
+    "message_id_header": "<179275697351.2888.12941174176440340580@gmail.com>",
+    "subject": "[收盘确认][无需调整] IC/IM 1.4-r1 日报 - 2026-10-23",
+    "run_link_matches": true,
+    "release_matches": true,
+    "signal_day_matches": true,
+    "next_trade_date": "2026-10-26",
+    "received_at_utc": "2026-10-23T12:02:53.000Z",
+    "valuation_disclosure_present": true
+  },
+  "ad_hoc_send_performed": false,
+  "limitations": [
+    "Local direct collection WinError10013 was not repaired by this release task; local formal ledger last observed 10-22 seq20, remote normal published ledger 10-23 seq21.",
+    "Real current-day PE/PB were unavailable to this send; both MIME bodies explicitly disclose proxy valuation and actual 10-22 source date. No claim of same-day real valuation.",
+    "Original failed readiness handoff export and incomplete snapshot receipts retained."
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "finding": "CAPTURE-V3-PREFLIGHT",
+  "status": "FIXED_INDEPENDENTLY_VERIFIED",
+  "unchanged_original_probe": "test_collector_preflight_clock.py",
+  "failed_original_run_preserved": "run01",
+  "final_run": "run02",
+  "tests": 2,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "seconds": 11.137,
+  "source_before_equals_after": true,
+  "bound_files": 9,
+  "capture_source_sha256": "c0b90df51fd4257aa54ec9dfef200656c662572b0e77d2c74508093e089653b7",
+  "observation": "2026-10-22T18:45:02+08:00",
+  "scope": "actual cycle, real readonly chain and actual official snapshot guard; injected two-second preflight delay; no full capture seal claimed"
+}

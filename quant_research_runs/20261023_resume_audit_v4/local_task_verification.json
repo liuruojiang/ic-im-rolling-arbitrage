@@ -1,0 +1,15 @@
+{
+  "id": "ic-im",
+  "status": "ACTIVE",
+  "rrule": "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR;BYHOUR=14;BYMINUTE=30;BYSECOND=0",
+  "model": "gpt-6.1-sol",
+  "reasoning_effort": "high",
+  "cwds": [
+    "D:\\动量策略\\IC和IM滚动套利"
+  ],
+  "sha256": "bffab4c028d03ff0c841c931647f94f5f722c9d8a23de47dcf33cafae7b9ba3f",
+  "reads_registry": true,
+  "reads_runbook": true,
+  "dynamic_remote_workflow_pin": true,
+  "local_timeout_180": true
+}

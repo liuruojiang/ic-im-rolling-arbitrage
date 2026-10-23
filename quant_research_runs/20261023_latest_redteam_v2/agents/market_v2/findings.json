@@ -1,0 +1,53 @@
+{
+  "commit": "58986fda2c17df93eb3925bf09a1cebd55a7869e",
+  "findings": [
+    {
+      "id": "MKT-01",
+      "severity": "P1",
+      "title": "实时指数主备源缺少返回标的身份与唯一性校验",
+      "source": [
+        {
+          "file": "poe_ic_im_mainline_v1_4_bot.py",
+          "lines": "2286-2304"
+        },
+        {
+          "file": "poe_ic_im_mainline_v1_4_bot.py",
+          "lines": "2310-2318"
+        }
+      ],
+      "trigger": "盘中查询IC，腾讯返回sh000852变量/000852代码或重复冲突变量；腾讯不可用时东财返回f57=000852。",
+      "expected": "拒绝错标的或歧义响应，尝试合格备用源，否则失败关闭。",
+      "observed": "四个异常均被接纳。实际live_proxy接受错误3000点并把MOM120由-0.10367951034856637改为-0.6383453722131347，momentum_score由-44.3603248390313改为-113.43876105503018。",
+      "call_path": "build_live_trade_signal -> _build_live_trade_signal:6930 -> live_proxy:2900 -> fetch_live_price_quote",
+      "scope_limit": "此次两种输入momentum_next_weight均为0，未声称这次反例已改变仓位；收盘/历史回放走日线，不据此声称正式账本或历史NAV被污染。",
+      "fix": "腾讯要求唯一精确变量v_<requested symbol>、字段2等于请求代码、完整字段长度；东财请求并验证f57/f58等身份，至少f57与secid后缀严格相等；错误身份作为来源失败触发备用源；不按响应顺序静默取第一项。",
+      "regression": "正常IC/IM；错变量/错内嵌代码；重复一致与冲突变量契约；东财错/缺代码；全源失败；实际live_proxy消费检查。"
+    },
+    {
+      "id": "MKT-02",
+      "severity": "P1",
+      "title": "实时指数时间只核同日，未来及盘前无效时刻进入盘中策略",
+      "source": [
+        {
+          "file": "poe_ic_im_mainline_v1_4_bot.py",
+          "lines": "2294-2304"
+        },
+        {
+          "file": "poe_ic_im_mainline_v1_4_bot.py",
+          "lines": "2319-2334"
+        },
+        {
+          "file": "poe_ic_im_mainline_v1_4_bot.py",
+          "lines": "2900-2931"
+        }
+      ],
+      "trigger": "10-22北京时间14:30查询，主源或备用源返回同日15:00报价；另例同日00:00。",
+      "expected": "在报价参与历史拼接与指标计算前核对完整供应商时间、合理交易时段及实际观察时钟，未来报价和无效盘前报价应拒绝。",
+      "observed": "腾讯和东财15:00均被live_proxy接纳并完成动量运算；同日00:00也可进入当前交易日行情。三个拒绝断言失败。",
+      "call_path": "_build_live_trade_signal:6930 -> live_proxy:2900 -> source_date-only check:2914/2930 -> history append/overwrite -> momentum calculation:2967+",
+      "scope_limit": "反例模拟时钟及报价，非声称真实数据源已发生未来行情；30分钟超前非采集时间微小推进。未运行外部盘中日报投递，正式收盘仍取OHLCV。",
+      "fix": "统一指数实时报价时间验证，provider返回前按完整date/time对运行/推进观察时钟校验（容差沿已有约定）；拒绝非法盘前/未来时刻并允许备用源；若新增陈旧分钟阈值，须按交易时段/午休定义单独预注册，不可随意照抄期权阈值。",
+      "regression": "Tencent/EastMoney未来1秒与允许容差边界；跨午休/同日00:00；前日/次日；实际live_proxy两种历史拼接分支；采集时钟推进与历史回放隔离。"
+    }
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "exit_code": 0,
+  "counts": {
+    "tests": 247,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "collected_nodes": 239,
+  "elapsed_seconds": 10.97105940000256,
+  "source_files": 187,
+  "source_before_equals_after": true,
+  "prior_full_03_source_matches": true,
+  "prior_source_differences": [],
+  "workflow_structure": {
+    "steps": 28,
+    "step_ids": [
+      "attempt",
+      "publication_mode",
+      "delivery_gate",
+      "calendar",
+      "restore_ledger",
+      "restore_v13_seed",
+      "restore_prefx_ledger",
+      "run_signal",
+      "build_digest",
+      "prepare_marker",
+      "result_day_gate",
+      "send_intent",
+      "send_gmail",
+      "verify_recovery"
+    ],
+    "unresolved_step_references": [],
+    "steps_without_run_or_uses": [],
+    "duplicate_ids": false
+  },
+  "temp_acl_adaptation_count": 50,
+  "temp_acl_adaptation_scope": "D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261023_resume_audit_v4\\delivery\\verification_01\\temp",
+  "smtp_executed": false,
+  "production_ledger_written": false
+}

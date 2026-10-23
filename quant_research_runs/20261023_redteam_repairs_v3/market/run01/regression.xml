@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="63" time="8.839" timestamp="2026-10-23T14:26:57.463535+08:00" hostname="DESKTOP-95I7VVU"><testcase classname="test_icim_redteam_market_repairs_20261023" name="test_exact_index_identity_and_timestamp_accepted[qt-IC]" time="0.026" /><testcase classname="test_icim_redteam_market_repairs_20261023" name="test_exact_index_identity_and_timestamp_accepted[qt-IM]" time="0.012" /><testcase classname="test_icim_redteam_market_repairs_20261023" name="test_exact_index_identity_and_timestamp_accepted[em-IC]" time="0.012" /><testcase classname="test_icim_redteam_market_repairs_20261023" name="test_exact_index_identity_and_timestamp_accepted[em-IM]" time="0.012" /><testcase classname="test_icim_redteam_market_repairs_20261023" name="test_invalid_tencent_identity_or_structure_falls_back_or_rejects[False-wrong_variable]" time="0.009" /><testcase classname="test_icim_redteam_market_repairs_20261023" name="test_invalid_tencent_identity_or_structure_falls_back_or_rejects[False-wrong_body]" time="0.010" /><testcase classname="test_icim_redteam_market_repairs_20261023" name="test_invalid_tencent_identity_or_structure_falls_back_or_rejects[False-prefix]" time="0.011" /><testcase classname="test_icim_redteam_market_repairs_20261023" name="test_invalid_tencent_identity_or_structure_falls_back_or_rejects[False-unicode_prefix]" time="0.013" /><testcase classname="test_icim_redteam_market_repairs_20261023" name="test_invalid_tencent_identity_or_structure_falls_back_or_rejects[False-duplicate_same]" time="0.010" /><testcase classname="test_icim_redteam_market_repairs_20261023" name="test_invalid_tencent_identity_or_structure_falls_back_or_rejects[False-duplicate_conflict]" time="0.012" /><testcase classname="test_icim_redteam_market_repairs_20261023" name="test_invalid_tencent_identity_or_structure_falls_back_or_rejects[False-extra_wrong_variable]" time="0.011" /><testcase classname="test_icim_redteam_market_repairs_20261023" name="test_invalid_tencent_identity_or_structure_falls_back_or_rejects[False-short_row]" time="0.011" /><testcase classname="test_icim_redteam_market_repairs_20261023" name="test_invalid_tencent_identity_or_structure_falls_back_or_rejects[False-bad_stamp]" time="0.009" /><testcase classname="test_icim_redteam_market_repairs_20261023" name="test_invalid_tencent_identity_or_structure_falls_back_or_rejects[True-wrong_variable]" time="0.011" /><testcase classname="test_icim_redteam_market_repairs_20261023" name="test_invalid_tencent_identity_or_structure_falls_back_or_rejects[True-wrong_body]" time="0.126" /><testcase classname="test_icim_redteam_market_repairs_20261023" name="test_invalid_tencent_identity_or_structure_falls_back_or_rejects[True-prefix]" time="0.021" /><testcase classname="test_icim_redteam_market_repairs_20261023" name="test_invalid_tencent_identity_or_structure_falls_back_or_rejects[True-unicode_prefix]" time="0.019" /><testcase classname="test_icim_redteam_market_repairs_20261023" name="test_invalid_tencent_identity_or_structure_falls_back_or_rejects[True-duplicate_same]" time="0.014" /><testcase classname="test_icim_redteam_market_repairs_20261023" name="test_invalid_tencent_identity_or_structure_falls_back_or_rejects[True-duplicate_conflict]" time="0.017" /><testcase classname="test_icim_redteam_market_repairs_20261023" name="test_invalid_tencent_identity_or_structure_falls_back_or_rejects[True-extra_wrong_variable]" time="0.016" /><testcase classname="test_icim_redteam_market_repairs_20261023" name="test_invalid_tencent_identity_or_structure_falls_back_or_rejects[True-short_row]" time="0.013" /><testcase classname="test_icim_redteam_market_repairs_20261023" name="test_invalid_tencent_identity_or_structure_falls_back_or_rejects[True-bad_stamp]" time="0.012" /><testcase classname="test_icim_redteam_market_repairs_20261023" name="test_eastmoney_missing_or_wrong_identity_rejected[None]" time="0.019" /><testcase classname="test_icim_redteam_market_repairs_20261023" name="test_eastmoney_missing_or_wrong_identity_rejected[000852]" time="0.013" /><testcase classname="test_icim_redteam_market_repairs_20261023" name="test_eastmoney_missing_or_wrong_identity_rejected[905_0]" time="0.015" /><testcase classname="test_icim_redteam_market_repairs_20261023" name="test_eastmoney_missing_or_wrong_identity_rejected[905_1]" time="0.016" /><testcase classname="test_icim_redteam_market_repairs_20261023" name="test_eastmoney_missing_or_wrong_identity_rejected[]" time="0.015" /><testcase classname="test_icim_redteam_market_repairs_20261023" name="test_eastmoney_missing_or_wrong_identity_rejected[000905 ]" time="0.014" /><testcase classname="test_icim_redteam_market_repairs_20261023" name="test_invalid_index_time_rejected_before_return[stamp0-qt]" time="0.016" /><testcase classname="test_icim_redteam_market_repairs_20261023" name="test_invalid_index_time_rejected_before_return[stamp0-em]" time="0.016" /><testcase classname="test_icim_redteam_market_repairs_20261023" name="test_invalid_index_time_rejected_before_return[stamp1-qt]" time="0.015" /><testcase classname="test_icim_redteam_market_repairs_20261023" name="test_invalid_index_time_rejected_before_return[stamp1-em]" time="0.018" /><testcase classname="test_icim_redteam_market_repairs_20261023" name="test_invalid_index_time_rejected_before_return[stamp2-qt]" time="0.014" /><testcase classname="test_icim_redteam_market_repairs_20261023" name="test_invalid_index_time_rejected_before_return[stamp2-em]" time="0.015" /><testcase classname="test_icim_redteam_market_repairs_20261023" name="test_invalid_index_time_rejected_before_return[stamp3-qt]" time="0.014" /><testcase classname="test_icim_redteam_market_repairs_20261023" name="test_invalid_index_time_rejected_before_return[stamp3-em]" time="0.018" /><testcase classname="test_icim_redteam_market_repairs_20261023" name="test_invalid_index_time_rejected_before_return[stamp4-qt]" time="0.029" /><testcase classname="test_icim_redteam_market_repairs_20261023" name="test_invalid_index_time_rejected_before_return[stamp4-em]" time="0.018" /><testcase classname="test_icim_redteam_market_repairs_20261023" name="test_invalid_index_time_rejected_before_return[stamp5-qt]" time="0.049" /><testcase classname="test_icim_redteam_market_repairs_20261023" name="test_invalid_index_time_rejected_before_return[stamp5-em]" time="0.013" /><testcase classname="test_icim_redteam_market_repairs_20261023" name="test_invalid_tencent_time_uses_valid_secondary" time="0.012" /><testcase classname="test_icim_redteam_market_repairs_20261023" name="test_exact_clock_and_earlier_session_quotes_remain_accepted[stamp0-qt]" time="0.010" /><testcase classname="test_icim_redteam_market_repairs_20261023" name="test_exact_clock_and_earlier_session_quotes_remain_accepted[stamp0-em]" time="0.013" /><testcase classname="test_icim_redteam_market_repairs_20261023" name="test_exact_clock_and_earlier_session_quotes_remain_accepted[stamp1-qt]" time="0.012" /><testcase classname="test_icim_redteam_market_repairs_20261023" name="test_exact_clock_and_earlier_session_quotes_remain_accepted[stamp1-em]" time="0.015" /><testcase classname="test_icim_redteam_market_repairs_20261023" name="test_exact_clock_and_earlier_session_quotes_remain_accepted[stamp2-qt]" time="0.016" /><testcase classname="test_icim_redteam_market_repairs_20261023" name="test_exact_clock_and_earlier_session_quotes_remain_accepted[stamp2-em]" time="0.018" /><testcase classname="test_icim_redteam_market_repairs_20261023" name="test_collection_clock_accepts_timestamp_received_after_start[qt]" time="0.016" /><testcase classname="test_icim_redteam_market_repairs_20261023" name="test_collection_clock_accepts_timestamp_received_after_start[em]" time="0.014" /><testcase classname="test_icim_redteam_market_repairs_20261023" name="test_historical_replay_clock_never_advances" time="0.012" /><testcase classname="test_icim_redteam_market_repairs_20261023" name="test_real_history_consumer_rejects_bad_quote_on_both_merge_paths[future-False]" time="0.249" /><testcase classname="test_icim_redteam_market_repairs_20261023" name="test_real_history_consumer_rejects_bad_quote_on_both_merge_paths[future-True]" time="0.272" /><testcase classname="test_icim_redteam_market_repairs_20261023" name="test_real_history_consumer_rejects_bad_quote_on_both_merge_paths[midnight-False]" time="0.273" /><testcase classname="test_icim_redteam_market_repairs_20261023" name="test_real_history_consumer_rejects_bad_quote_on_both_merge_paths[midnight-True]" time="0.248" /><testcase classname="test_icim_redteam_market_repairs_20261023" name="test_real_history_consumer_rejects_bad_quote_on_both_merge_paths[missing_time-False]" time="0.250" /><testcase classname="test_icim_redteam_market_repairs_20261023" name="test_real_history_consumer_rejects_bad_quote_on_both_merge_paths[missing_time-True]" time="0.242" /><testcase classname="test_icim_redteam_market_repairs_20261023" name="test_real_history_consumer_rejects_bad_quote_on_both_merge_paths[wrong_identity-False]" time="0.281" /><testcase classname="test_icim_redteam_market_repairs_20261023" name="test_real_history_consumer_rejects_bad_quote_on_both_merge_paths[wrong_identity-True]" time="0.279" /><testcase classname="test_icim_redteam_market_repairs_20261023" name="test_real_history_consumer_retains_valid_quote_and_momentum[False]" time="0.500" /><testcase classname="test_icim_redteam_market_repairs_20261023" name="test_real_history_consumer_retains_valid_quote_and_momentum[True]" time="0.420" /><testcase classname="test_icim_redteam_market_repairs_20261023" name="test_live_proxy_explicit_clock_governs_provider_even_without_outer_override" time="0.433" /><testcase classname="test_icim_redteam_market_repairs_20261023" name="test_completed_replay_does_not_consume_live_price" time="0.433" /><testcase classname="test_ic_im_v1_4_integration_guards" name="test_eastmoney_intraday_fallback_requires_vendor_timestamp" time="0.002"><failure message="RuntimeError: 东方财富 IC 指数报价标的身份缺失或不一致">def test_eastmoney_intraday_fallback_requires_vendor_timestamp():
+        stamp = datetime(2026, 9, 30, 11, 15, tzinfo=bot.BEIJING)
+        with (patch.object(bot.requests, 'get', side_effect=bot.requests.RequestException('Tencent unavailable')),
+              patch.object(bot, '_request_json', return_value={'data': {'f43': 785432, 'f86': int(stamp.timestamp())}})):
+&gt;           quote = bot.fetch_live_price_quote('IC')
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_ic_im_v1_4_integration_guards.py:538: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+product = 'IC'
+
+    def fetch_live_price_quote(product: str) -&gt; dict[str, Any]:
+        # Tencent is the low-latency primary quote. EastMoney remains a compatible
+        # fallback because Poe egress rules can differ between deployments.
+        clock = _beijing_clock(_now_beijing())
+        collection_started = time_module.monotonic()
+        symbol = TENCENT_SYMBOLS[product]
+        try:
+            response = _evidence_http_get(
+                f"https://qt.gtimg.cn/q={symbol}",
+                timeout=_bounded_timeout(6),
+                headers={
+                    "User-Agent": "Mozilla/5.0",
+                    "Referer": "https://finance.qq.com/",
+                    "Cache-Control": "no-cache",
+                    "Pragma": "no-cache",
+                },
+            )
+            response.raise_for_status()
+            # The request is for one symbol. A whole-response match rejects wrong
+            # variable names, prefixed identifiers and duplicate/conflicting rows.
+            match = re.fullmatch(
+                rf'\s*(?:var\s+)?v_{re.escape(symbol)}\s*=\s*"([^"\r\n]*)"\s*;?\s*',
+                response.content.decode("gbk"),
+            )
+            if match is None:
+                raise ValueError("腾讯指数变量身份不一致或响应不唯一")
+            fields = match.group(1).split("~")
+            if len(fields) &lt; 31 or fields[2] != symbol[2:]:
+                raise ValueError("腾讯指数内嵌代码不一致或报价字段不足")
+            price = float(fields[3])
+            if not re.fullmatch(r"[0-9]{14}", fields[30]):
+                raise ValueError("腾讯指数供应商时间格式无效")
+            stamp = datetime.strptime(fields[30], "%Y%m%d%H%M%S").replace(
+                tzinfo=BEIJING
+            )
+            _validate_live_index_stamp(
+                product, stamp, clock, _iv_observation_clock(clock, collection_started),
+            )
+            if math.isfinite(price) and price &gt; 0:
+                return {
+                    "price": price,
+                    "source": "腾讯财经",
+                    "source_date": stamp.date(),
+                    "source_time": stamp.strftime("%H:%M:%S"),
+                }
+        except (requests.RequestException, ValueError, IndexError):
+            pass
+    
+        payload = _request_json(
+            "https://push2.eastmoney.com/api/qt/stock/get",
+            {
+                "secid": EASTMONEY_SECIDS[product],
+                "fields": "f43,f44,f45,f57,f58,f60,f86",
+                "ut": "fa5fd1943c7b386f172d6893dbfba10b",
+            },
+        )
+        data = payload.get("data") or {}
+        if not isinstance(data, dict) or data.get("f57") != EASTMONEY_SECIDS[product].split(".", 1)[1]:
+&gt;           raise RuntimeError(f"东方财富 {product} 指数报价标的身份缺失或不一致")
+E           RuntimeError: 东方财富 IC 指数报价标的身份缺失或不一致
+
+poe_ic_im_mainline_v1_4_bot.py:2372: RuntimeError</failure></testcase></testsuite></testsuites>

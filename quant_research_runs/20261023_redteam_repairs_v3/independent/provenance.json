@@ -1,0 +1,38 @@
+{
+  "test_ind_strategy.py": {
+    "source": "quant_research_runs\\20261023_latest_redteam_v2\\agents\\strategy_v2\\test_strategy_v2.py",
+    "source_sha256": "e44b59c23363941110d64fb2ea1385840e10b780238c758424004e6c87fd093d",
+    "test_sha256": "441d401d3889ff112e6e1c67eb2a11e496317528eeff814bf66dde95ee03ce47"
+  },
+  "test_ind_controls.py": {
+    "source": "quant_research_runs\\20261023_latest_redteam_v2\\agents\\strategy_v2\\test_controls.py",
+    "source_sha256": "953964598b9895c1401aa993e327d9aca560f6a9119bee3387a8a3caeab6f275",
+    "test_sha256": "13f17500fff96dd571ce60d680ecc5efe5d542b582eb5160f0d1048b5e1a4de2"
+  },
+  "test_ind_strategy_state.py": {
+    "source": "quant_research_runs\\20261023_latest_redteam_v2\\agents\\cross_review_v2\\test_strategy_state_cross.py",
+    "source_sha256": "6bb37204b0c6de59e53aed196c14309159d777fff1198ab26239fa75c3883c62",
+    "test_sha256": "c77bc8c458eb4f9f30f79e99806940eeaa2ece9ee934e11e8009ea39c9a07bae"
+  },
+  "test_ind_state.py": {
+    "source": "quant_research_runs\\20261023_latest_redteam_v2\\agents\\state_v2\\test_state_v2.py",
+    "source_sha256": "de028b96c28fd6eee2b56138db7cefe0d78fe492564330626a011a99ca085914",
+    "test_sha256": "1621b8168c8ebfaab29ed20b8f7477608c4e0c6c8214ac96dea678ca503faa20"
+  },
+  "test_ind_delivery.py": {
+    "source": "quant_research_runs\\20261023_latest_redteam_v2\\agents\\delivery_v2\\test_delivery_confirmed.py",
+    "source_sha256": "4aaa4a7d2530fb2e7116659e4ad290f0b346569eaf0b29fc2d9f7cd2b886362a",
+    "test_sha256": "d886330496584f53e5a46d934dd44d5a5980532375e84b2dbcb1da186970c1e0"
+  },
+  "test_ind_market.py": {
+    "source": "quant_research_runs\\20261023_latest_redteam_v2\\agents\\market_v2\\test_market_v2.py",
+    "source_sha256": "002a1005acc25065a8905259eac68d5959f5a642e74755cb4a16603fb846e85c",
+    "test_sha256": "3c8c07505b8ef97bfbc8a90a26e5d2a700156bc69c5ac975d67db059e973e3b3",
+    "harness_correction": "run_01 only difference was NaN != NaN; use production lossless evidence.encode for structural equality"
+  },
+  "test_ind_evidence.py": {
+    "source": "quant_research_runs\\20261023_latest_redteam_v2\\agents\\evidence_v2\\test_batch_identity.py",
+    "source_sha256": "f55fc73524c8c2f237f8507bbcfcab65665d098530ef945c740fbe316b26dbe0",
+    "test_sha256": "3e02d297b772c8fd79885466f075ac3a1510ae8dc117ed568bd3fdec6710b281"
+  }
+}

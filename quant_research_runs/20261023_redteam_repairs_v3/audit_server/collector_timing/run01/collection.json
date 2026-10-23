@@ -1,0 +1,15 @@
+{
+  "collected": [
+    "quant_research_runs/20261023_redteam_repairs_v3/audit_server/collector_timing/test_collector_preflight_clock.py::test_actual_cycle_accounts_for_readonly_preflight_elapsed_time[False]",
+    "quant_research_runs/20261023_redteam_repairs_v3/audit_server/collector_timing/test_collector_preflight_clock.py::test_actual_cycle_accounts_for_readonly_preflight_elapsed_time[True]"
+  ],
+  "selected": [
+    "quant_research_runs/20261023_redteam_repairs_v3/audit_server/collector_timing/test_collector_preflight_clock.py::test_actual_cycle_accounts_for_readonly_preflight_elapsed_time[False]",
+    "quant_research_runs/20261023_redteam_repairs_v3/audit_server/collector_timing/test_collector_preflight_clock.py::test_actual_cycle_accounts_for_readonly_preflight_elapsed_time[True]"
+  ],
+  "deselected": [],
+  "executed": [
+    "quant_research_runs/20261023_redteam_repairs_v3/audit_server/collector_timing/test_collector_preflight_clock.py::test_actual_cycle_accounts_for_readonly_preflight_elapsed_time[False]",
+    "quant_research_runs/20261023_redteam_repairs_v3/audit_server/collector_timing/test_collector_preflight_clock.py::test_actual_cycle_accounts_for_readonly_preflight_elapsed_time[True]"
+  ]
+}

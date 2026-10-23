@@ -1,0 +1,17 @@
+{
+  "status": "PREPARED_NOT_APPLIED_WAITING_PARENT_GO",
+  "production_change": "cycle wraps private _cycle_at_clock with collection_clock immediately after selected clock; helper retains readonly/pin/calendar/network/publication semantics",
+  "root_tests_added": 2,
+  "root_test_file": "test_icim_redteam_server_repairs_20261023.py",
+  "baseline_sha256": {
+    "capture_ic_im_v1_4_inputs.py": "09a01acbaa138b9d6b8a56fe6c05d52e3199b92ddc3eb20aaa84b90d286655a9",
+    "test_icim_redteam_server_repairs_20261023.py": "3fc0865333434de8fe8e6da9b298e92def3257b5a229b63415c1752c616b0f12"
+  },
+  "patch_sha256": "0545253616756f18808f6efa3029b1d15ca192b75682a9b1306d271b05a9e875",
+  "test_plan": [
+    "Run new root server test file incl2 actualcycle delayedpreflight cases",
+    "Run existing test_icim_free_sources_capture_runner_20261022.py (pin,readonly,state,exception controls)",
+    "Rerun independent unchanged audit_server/collector_timing/test_collector_preflight_clock.py in new output directory",
+    "Parent runs final daily/cumulative gates and real saved-market replay after integrated hashes stable"
+  ]
+}

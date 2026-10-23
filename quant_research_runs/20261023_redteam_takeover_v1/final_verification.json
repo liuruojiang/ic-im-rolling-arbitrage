@@ -1,0 +1,28 @@
+{
+  "status": "BLOCKED_PROTECTED_DATA_CHANGED_AND_DELIVERY_INCOMPLETE",
+  "code_review": "NO_NEW_CONFIRMED_PRODUCT_DEFECT",
+  "fresh_daily_passed": 1193,
+  "targeted_groups_passed": [
+    131,
+    192
+  ],
+  "targeted_counts_overlap": true,
+  "historical_cumulative_verified": 3333,
+  "historical_independent_verified": 148,
+  "production_source_edited_in_takeover": false,
+  "formal_ledger_written_in_takeover": false,
+  "git_commit_created": false,
+  "remote_deployment_performed": false,
+  "artifacts": {
+    "record.md": "2c354eee3fb32fe7c890dc43c169346ae1b81b0e096fd29e18b617082e7f21d1",
+    "evidence_audit/verification.json": "3c88d82dfeb6ed00f733af967c86a0bf432e1321dbfc0628343abbf452f2b04d",
+    "evidence_audit/report.md": "4f6cc5c1d5bf69cdbe0931c7cc5ba65a2efd9c0dd33645446f1567d9d7160405",
+    "code_audit/report.md": "e8a728da8424077c959fd873e90a402406b80f39fc295ac04f85d49a2b7df716",
+    "code_audit/final03/receipt.json": "22999172cf35b8a8daa797e7616bc258a935a760359d677940db42bc37cfe848",
+    "clock_audit/report.md": "3e8adce80d7d551e4b7b1faad92daf5fdb5cc442bb94ac3ab9eeef6f69b4a395",
+    "clock_audit/pytest.xml": "8e58c2660839a1b1dab040d61a8fdb126bb0154672fd0119f9cfdd9d9d4b3862",
+    "clock_audit/pin_verification.json": "bc89681160fb72e8fa6d54d67ad0d6d45e5ed8f4a1367c735e16ad5feb5719e2",
+    "clock_audit/collector_observation.json": "12ada8326ab10420d454bc16700520f72ad8f50570203a2ba0d9325f067b2f69",
+    "daily_gate_01/receipt.json": "d1fc043252429a661a3108a62966ed5961ccca155929a213c25f6d4f5843a88b"
+  }
+}

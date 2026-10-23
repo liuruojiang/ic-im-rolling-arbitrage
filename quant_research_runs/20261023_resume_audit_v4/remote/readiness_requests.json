@@ -1,0 +1,18 @@
+{
+  "first": {
+    "commit": "2b8a3f7d94dfd21b429be5557633a46688c0ea86",
+    "run": 39920955368,
+    "export_handoff": true,
+    "conclusion": "failure",
+    "failure_step": "Export verified research handoff when explicitly requested",
+    "guard": "handoff must preserve the restored production ledger",
+    "producer": "10-23 seq21 isolated",
+    "smtp_message_sent": false
+  },
+  "second": {
+    "commit": "8505167a66fdc685d580d280ff31905b1a749108",
+    "run": 39921352353,
+    "export_handoff": false,
+    "purpose": "close no-send readiness only; no production ledger promotion"
+  }
+}

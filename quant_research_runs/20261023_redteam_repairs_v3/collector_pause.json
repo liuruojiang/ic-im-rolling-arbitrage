@@ -1,0 +1,19 @@
+{
+  "pid": 18632,
+  "command": [
+    "C:\\Python314\\python.exe",
+    "-X",
+    "utf8",
+    "-B",
+    "D:\\动量策略\\IC和IM滚动套利\\capture_ic_im_v1_4_inputs.py",
+    "--loop",
+    "--state-dir",
+    "D:\\动量策略\\IC和IM滚动套利\\runtime\\ic_im_v1_4_r1",
+    "--evidence-dir",
+    "D:\\动量策略\\IC和IM滚动套利\\data\\icim_v14_original_inputs",
+    "--source-pin",
+    "D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261023_multiround_adversarial_v1\\delivery\\capture_source_pin.json"
+  ],
+  "create_time": 1792720540.873065,
+  "status": "stopped_before_patch"
+}

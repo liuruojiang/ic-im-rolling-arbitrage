@@ -1,0 +1,239 @@
+FF......F.FF..F                                                          [100%]
+================================== FAILURES ===================================
+_______ test_capture_after_successful_public_append_uses_committed_head _______
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001E89190A520>
+tmp_path = WindowsPath('D:/动量策略/IC和IM滚动套利/quant_research_runs/20261023_latest_redteam_v2/agents/cross_review_v2/p2_cross/temp/icim_put_cc7e1b80/pytest/test_capture_after_successful_0')
+
+    def test_capture_after_successful_public_append_uses_committed_head(monkeypatch,tmp_path):
+        module, owner, old, signals, clock=_coordinator(tmp_path,monkeypatch)
+        text,_,observed=owner.execute_query('信号',clock)
+        latest=owner.store.load_latest()
+        assert latest['sequence']==old['sequence']+1
+        before=snapshot(owner.store.root)
+        seen={}
+        def capture(strategy,root,now):
+            seen.update(anchors=state._jsonable(strategy.LIVE_CONTINUATION_ANCHOR),
+                        observation_clock=str(strategy._iv_observation_clock(now)))
+            return {'status':'captured','day':str(now.date()),'products':{}}
+        monkeypatch.setattr(adapter,'capture_daily',capture)
+        owner.capture_current_inputs(clock)
+        observation={'expected_day':latest['verified_day'],
+                     'actual_day':seen['anchors']['IC']['last_verified_day'],
+                     'old_day':old['verified_day'],'formal_store_unchanged':snapshot(owner.store.root)==before}
+        (OUT/'stale_capture_anchor_observation.json').write_text(json.dumps(observation,indent=2),encoding='utf-8')
+        assert snapshot(owner.store.root)==before
+>       assert seen['anchors']['IC']['last_verified_day']==latest['verified_day']
+E       AssertionError: assert '2026-10-20' == '2026-10-21'
+E         
+E         - 2026-10-21
+E         ?          ^
+E         + 2026-10-20
+E         ?          ^
+
+quant_research_runs\20261023_latest_redteam_v2\agents\cross_review_v2\test_state_cross.py:40: AssertionError
+_______________ test_server_capture_advances_observation_clock ________________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001E89190A650>
+tmp_path = WindowsPath('D:/动量策略/IC和IM滚动套利/quant_research_runs/20261023_latest_redteam_v2/agents/cross_review_v2/p2_cross/temp/icim_put_cc7e1b80/pytest/test_server_capture_advances_o0')
+
+    def test_server_capture_advances_observation_clock(monkeypatch,tmp_path):
+        module,owner,old,signals,clock=_coordinator(tmp_path,monkeypatch)
+        owner.evidence_root=tmp_path/'evidence'
+        ticks=[100.]
+        monkeypatch.setattr(bot.time_module,'monotonic',lambda:ticks[0])
+        def capture(strategy,root,now):
+            ticks[0]+=2.
+            stamp=now+timedelta(seconds=1)
+            strategy.quote_snapshot_guard.official_snapshot_evidence(
+                stamp,strategy._iv_observation_clock(now),now.date(),'synthetic current CFFEX frame')
+            return {'status':'captured','day':str(now.date()),'products':{}}
+        monkeypatch.setattr(adapter,'capture_daily',capture)
+        result=owner.capture_current_inputs(clock)
+        (OUT/'missing_capture_clock_observation.json').write_text(json.dumps(result,ensure_ascii=False,indent=2),encoding='utf-8')
+>       assert result['status']=='captured',result
+E       AssertionError: {'day': '2026-10-21', 'reason': 'RuntimeError: synthetic current CFFEX frame行情更新时间晚于采集时刻，禁止确认信号', 'status': 'incomplete'}
+E       assert 'incomplete' == 'captured'
+E         
+E         - captured
+E         + incomplete
+
+quant_research_runs\20261023_latest_redteam_v2\agents\cross_review_v2\test_state_cross.py:57: AssertionError
+_________ test_real_daily_capture_seals_current_arriving_frame[False] _________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001E891AFEB70>
+tmp_path = WindowsPath('D:/动量策略/IC和IM滚动套利/quant_research_runs/20261023_latest_redteam_v2/agents/cross_review_v2/p2_cross/temp/icim_put_cc7e1b80/pytest/test_real_daily_capture_seals_0')
+with_context = False
+
+    @pytest.mark.parametrize('with_context',[False,True])
+    def test_real_daily_capture_seals_current_arriving_frame(monkeypatch,tmp_path,with_context):
+        import pandas as pd
+        import ic_im_signal_evidence_v1 as evidence
+        from contextlib import nullcontext
+        module,owner,old,signals,clock=_coordinator(tmp_path,monkeypatch)
+        owner.evidence_root=tmp_path/'evidence'
+        ticks=[100.]
+        monkeypatch.setattr(bot.time_module,'monotonic',lambda:ticks[0])
+        class Wall(datetime):
+            @classmethod
+            def now(cls,tz=None):
+                t=clock+timedelta(seconds=ticks[0]-100.)
+                return t.astimezone(tz) if tz else t.replace(tzinfo=None)
+        monkeypatch.setattr(adapter,'datetime',Wall)
+        monkeypatch.setattr(evidence,'_now',lambda:clock+timedelta(seconds=ticks[0]-100.))
+        monkeypatch.setattr(bot,'LIVE_CONTINUATION_ANCHOR',state.anchors_from_record(old))
+        def role(name,key,fn):return evidence.current_session.get().call(name,key,fn)
+        def quotes(product,now):
+            def load():
+                ticks[0]+=2.
+                bot.quote_snapshot_guard.official_snapshot_evidence(
+                    clock+timedelta(seconds=1),bot._iv_observation_clock(now),now.date(),'synthetic current CFFEX frame')
+                frame=pd.DataFrame([{'instrument':product+'2612','last':6500.}])
+                frame.attrs['source']='中金所'
+                return frame
+            return role('cffex.quotes',{'product':product},load)
+        monkeypatch.setattr(bot,'fetch_cffex_quotes',quotes)
+        monkeypatch.setattr(bot,'fetch_510500_expiries_with_failover',lambda:role('ic.months',{},lambda:['202612']))
+        monkeypatch.setattr(bot,'fetch_510500_quote_with_failover',lambda:role('ic.etf',{},lambda:{'last':6.8}))
+        monkeypatch.setattr(bot,'_fetch_510500_chain_for_day',lambda month,day:role('ic.chain',{'month':month,'day':day},lambda:pd.DataFrame([{'contract':'510500P2612M06500'}])))
+        monkeypatch.setattr(bot,'live_proxy',lambda product,now:role('market.live',{'product':product},lambda:{}))
+        monkeypatch.setattr(bot,'_fear_score_evidence',lambda day,mode:role('fear.score',{'day':day,'mode':mode},lambda:{'fear_greed_index':30.}))
+        monkeypatch.setattr(bot,'_fear_reference_evidence',lambda day:role('fear.reference',{'day':day},lambda:{}))
+        monkeypatch.setattr(bot,'_gov10y_for_day',lambda product,day:role('rate.resolve',{'product':product},lambda:.02))
+        before=snapshot(owner.store.root)
+        with bot.collection_clock(clock) if with_context else nullcontext():
+            result=owner.capture_current_inputs(clock)
+        assert snapshot(owner.store.root)==before
+        metadata={}
+        for product,data in result['products'].items():
+            if data.get('manifest'):
+                manifest=json.loads(Path(data['manifest']).read_text('utf-8'))
+                metadata[product]={'complete':manifest['body']['complete'],'metadata':evidence.decode(manifest['body']['metadata'])}
+        (OUT/f'full_capture_context_{with_context}.json').write_text(json.dumps({'result':result,'sealed':metadata},ensure_ascii=False,indent=2),encoding='utf-8')
+>       assert result['status']=='captured',result
+E       AssertionError: {'day': '2026-10-21', 'products': {'IC': {'manifest': 'D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261023_latest_redte...不能承诺自动恢复', 'sha256': '2878ec79022bd6e0fdeb96e6bdddfd2deb336df5aab6c511f34f75685b787d26', ...}}, 'status': 'incomplete'}
+E       assert 'incomplete' == 'captured'
+E         
+E         - captured
+E         + incomplete
+
+quant_research_runs\20261023_latest_redteam_v2\agents\cross_review_v2\test_state_cross.py:156: AssertionError
+_ test_readonly_snapshot_uses_latest_verified_record[2026-10-22T08:00:00+08:00-\u5f53\u524d\u6301\u4ed3] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001E891B16890>
+tmp_path = WindowsPath('D:/动量策略/IC和IM滚动套利/quant_research_runs/20261023_latest_redteam_v2/agents/cross_review_v2/p2_cross/temp/icim_put_cc7e1b80/pytest/test_readonly_snapshot_uses_la0')
+clock = '2026-10-22T08:00:00+08:00', query = '当前持仓'
+
+    @pytest.mark.parametrize("clock,query", [("2026-10-22T08:00:00+08:00","当前持仓"),("2026-10-22T09:10:00+08:00","当前持仓"),("2026-10-22T09:30:00+08:00","当前持仓"),("2026-10-22T14:30:00+08:00","当前持仓"),("2026-10-21T18:00:00+08:00","信号")])
+    def test_readonly_snapshot_uses_latest_verified_record(monkeypatch,tmp_path,clock,query):
+        import shutil
+        import poe_ic_im_v1_4_server as server
+        import poe_ic_im_v1_4_state as state
+        root=Path(__file__).resolve().parents[4]
+        source=root/"runtime/ic_im_v1_4_r1"
+        copied=tmp_path/"ledger_copy"
+        shutil.copytree(source,copied,ignore=shutil.ignore_patterns(".ledger.lock"))
+        monkeypatch.setenv("ICIM_EVIDENCE_DIR",str(tmp_path/"empty_evidence"))
+        monkeypatch.setattr(digest.strategy,"LIVE_CONTINUATION_ANCHOR",deepcopy(digest.strategy.LIVE_CONTINUATION_ANCHOR))
+        coordinator=server.LedgerCoordinator(state.StateStore(copied))
+        latest=coordinator.store.load_latest()
+        before=latest["digest"]
+        assert latest["verified_day"]=="2026-10-21"
+        if query=="信号":
+            def unavailable(*_a,**_k): raise RuntimeError("controlled source unavailable")
+            monkeypatch.setattr(digest.strategy,"build_live_signal_with_transport_retry",unavailable)
+        report,attachments,observed=coordinator.execute_query(query,datetime.fromisoformat(clock),persist_confirmed=False)
+        artifact=Path(__file__).parent/("snapshot_"+clock.replace(":","").replace("+", "_")+".md")
+        artifact.write_text(report,encoding="utf-8")
+        assert observed=={} and not attachments
+        assert coordinator.store.load_latest()["digest"]==before
+>       assert report.count("最后逐腿核验快照（2026-10-21") == 2
+E       AssertionError: assert 0 == 2
+E        +  where 0 = <built-in method count of str object at 0x000001E88FDCE610>('最后逐腿核验快照（2026-10-21')
+E        +    where <built-in method count of str object at 0x000001E88FDCE610> = '## 最近已核验研究账本快照\n\n今日完整收盘数据尚未核验。\n\n**最后逐腿核验快照（2026-10-20，仅研究审计）**\n\n- 0.5倍核心期货：`IC2612`（路线 `future`）\n- 动量袖：权重 0，期货名....5倍；期货合计：1倍\n- Put：核心 1.5张 `MO2612-P-6700`；动量 0张；合计 1.5张；Call：规范化 0张\n- 这只是最后已核验状态，不是当前账户持仓；联网或账本续接恢复前，不生成下一交易日目标。\n\n'.count
+
+quant_research_runs\20261023_latest_redteam_v2\agents\cross_review_v2\test_delivery_cross.py:37: AssertionError
+_ test_readonly_snapshot_uses_latest_verified_record[2026-10-22T09:10:00+08:00-\u5f53\u524d\u6301\u4ed3] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001E891AD6F70>
+tmp_path = WindowsPath('D:/动量策略/IC和IM滚动套利/quant_research_runs/20261023_latest_redteam_v2/agents/cross_review_v2/p2_cross/temp/icim_put_cc7e1b80/pytest/test_readonly_snapshot_uses_la1')
+clock = '2026-10-22T09:10:00+08:00', query = '当前持仓'
+
+    @pytest.mark.parametrize("clock,query", [("2026-10-22T08:00:00+08:00","当前持仓"),("2026-10-22T09:10:00+08:00","当前持仓"),("2026-10-22T09:30:00+08:00","当前持仓"),("2026-10-22T14:30:00+08:00","当前持仓"),("2026-10-21T18:00:00+08:00","信号")])
+    def test_readonly_snapshot_uses_latest_verified_record(monkeypatch,tmp_path,clock,query):
+        import shutil
+        import poe_ic_im_v1_4_server as server
+        import poe_ic_im_v1_4_state as state
+        root=Path(__file__).resolve().parents[4]
+        source=root/"runtime/ic_im_v1_4_r1"
+        copied=tmp_path/"ledger_copy"
+        shutil.copytree(source,copied,ignore=shutil.ignore_patterns(".ledger.lock"))
+        monkeypatch.setenv("ICIM_EVIDENCE_DIR",str(tmp_path/"empty_evidence"))
+        monkeypatch.setattr(digest.strategy,"LIVE_CONTINUATION_ANCHOR",deepcopy(digest.strategy.LIVE_CONTINUATION_ANCHOR))
+        coordinator=server.LedgerCoordinator(state.StateStore(copied))
+        latest=coordinator.store.load_latest()
+        before=latest["digest"]
+        assert latest["verified_day"]=="2026-10-21"
+        if query=="信号":
+            def unavailable(*_a,**_k): raise RuntimeError("controlled source unavailable")
+            monkeypatch.setattr(digest.strategy,"build_live_signal_with_transport_retry",unavailable)
+        report,attachments,observed=coordinator.execute_query(query,datetime.fromisoformat(clock),persist_confirmed=False)
+        artifact=Path(__file__).parent/("snapshot_"+clock.replace(":","").replace("+", "_")+".md")
+        artifact.write_text(report,encoding="utf-8")
+        assert observed=={} and not attachments
+        assert coordinator.store.load_latest()["digest"]==before
+>       assert report.count("最后逐腿核验快照（2026-10-21") == 2
+E       AssertionError: assert 0 == 2
+E        +  where 0 = <built-in method count of str object at 0x000001E88FDCCF30>('最后逐腿核验快照（2026-10-21')
+E        +    where <built-in method count of str object at 0x000001E88FDCCF30> = '## 最近已核验研究账本快照\n\n今日完整收盘数据尚未核验。\n\n**最后逐腿核验快照（2026-10-20，仅研究审计）**\n\n- 0.5倍核心期货：`IC2612`（路线 `future`）\n- 动量袖：权重 0，期货名....5倍；期货合计：1倍\n- Put：核心 1.5张 `MO2612-P-6700`；动量 0张；合计 1.5张；Call：规范化 0张\n- 这只是最后已核验状态，不是当前账户持仓；联网或账本续接恢复前，不生成下一交易日目标。\n\n'.count
+
+quant_research_runs\20261023_latest_redteam_v2\agents\cross_review_v2\test_delivery_cross.py:37: AssertionError
+_ test_readonly_snapshot_uses_latest_verified_record[2026-10-21T18:00:00+08:00-\u4fe1\u53f7] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001E892BFBAC0>
+tmp_path = WindowsPath('D:/动量策略/IC和IM滚动套利/quant_research_runs/20261023_latest_redteam_v2/agents/cross_review_v2/p2_cross/temp/icim_put_cc7e1b80/pytest/test_readonly_snapshot_uses_la4')
+clock = '2026-10-21T18:00:00+08:00', query = '信号'
+
+    @pytest.mark.parametrize("clock,query", [("2026-10-22T08:00:00+08:00","当前持仓"),("2026-10-22T09:10:00+08:00","当前持仓"),("2026-10-22T09:30:00+08:00","当前持仓"),("2026-10-22T14:30:00+08:00","当前持仓"),("2026-10-21T18:00:00+08:00","信号")])
+    def test_readonly_snapshot_uses_latest_verified_record(monkeypatch,tmp_path,clock,query):
+        import shutil
+        import poe_ic_im_v1_4_server as server
+        import poe_ic_im_v1_4_state as state
+        root=Path(__file__).resolve().parents[4]
+        source=root/"runtime/ic_im_v1_4_r1"
+        copied=tmp_path/"ledger_copy"
+        shutil.copytree(source,copied,ignore=shutil.ignore_patterns(".ledger.lock"))
+        monkeypatch.setenv("ICIM_EVIDENCE_DIR",str(tmp_path/"empty_evidence"))
+        monkeypatch.setattr(digest.strategy,"LIVE_CONTINUATION_ANCHOR",deepcopy(digest.strategy.LIVE_CONTINUATION_ANCHOR))
+        coordinator=server.LedgerCoordinator(state.StateStore(copied))
+        latest=coordinator.store.load_latest()
+        before=latest["digest"]
+        assert latest["verified_day"]=="2026-10-21"
+        if query=="信号":
+            def unavailable(*_a,**_k): raise RuntimeError("controlled source unavailable")
+            monkeypatch.setattr(digest.strategy,"build_live_signal_with_transport_retry",unavailable)
+        report,attachments,observed=coordinator.execute_query(query,datetime.fromisoformat(clock),persist_confirmed=False)
+        artifact=Path(__file__).parent/("snapshot_"+clock.replace(":","").replace("+", "_")+".md")
+        artifact.write_text(report,encoding="utf-8")
+        assert observed=={} and not attachments
+        assert coordinator.store.load_latest()["digest"]==before
+>       assert report.count("最后逐腿核验快照（2026-10-21") == 2
+E       AssertionError: assert 0 == 2
+E        +  where 0 = <built-in method count of str object at 0x000001E88FF9E420>('最后逐腿核验快照（2026-10-21')
+E        +    where <built-in method count of str object at 0x000001E88FF9E420> = '## IC / IM 1.4 信号（收盘确认）｜构建 v1.4-20261008-r1-ic-csi500-abs40-fix11（2026-10-21 18:00:00 北京时间）\n\n版本口径：部署服务名V1-2；本页信号规则v....5倍；期货合计：1倍\n- Put：核心 1.5张 `MO2612-P-6700`；动量 0张；合计 1.5张；Call：规范化 0张\n- 这只是最后已核验状态，不是当前账户持仓；联网或账本续接恢复前，不生成下一交易日目标。\n\n'.count
+
+quant_research_runs\20261023_latest_redteam_v2\agents\cross_review_v2\test_delivery_cross.py:37: AssertionError
+============================== warnings summary ===============================
+C:\Python314\Lib\site-packages\fastapi_poe\types.py:171
+  C:\Python314\Lib\site-packages\fastapi_poe\types.py:171: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    class RequestContext(BaseModel):
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED quant_research_runs/20261023_latest_redteam_v2/agents/cross_review_v2/test_state_cross.py::test_capture_after_successful_public_append_uses_committed_head
+FAILED quant_research_runs/20261023_latest_redteam_v2/agents/cross_review_v2/test_state_cross.py::test_server_capture_advances_observation_clock
+FAILED quant_research_runs/20261023_latest_redteam_v2/agents/cross_review_v2/test_state_cross.py::test_real_daily_capture_seals_current_arriving_frame[False]
+FAILED quant_research_runs/20261023_latest_redteam_v2/agents/cross_review_v2/test_delivery_cross.py::test_readonly_snapshot_uses_latest_verified_record[2026-10-22T08:00:00+08:00-\u5f53\u524d\u6301\u4ed3]
+FAILED quant_research_runs/20261023_latest_redteam_v2/agents/cross_review_v2/test_delivery_cross.py::test_readonly_snapshot_uses_latest_verified_record[2026-10-22T09:10:00+08:00-\u5f53\u524d\u6301\u4ed3]
+FAILED quant_research_runs/20261023_latest_redteam_v2/agents/cross_review_v2/test_delivery_cross.py::test_readonly_snapshot_uses_latest_verified_record[2026-10-21T18:00:00+08:00-\u4fe1\u53f7]
+6 failed, 9 passed, 1 warning in 5.60s

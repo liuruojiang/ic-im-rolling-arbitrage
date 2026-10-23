@@ -1,0 +1,82 @@
+*** Begin Patch
+*** Update File: D:\动量策略\IC和IM滚动套利\capture_ic_im_v1_4_inputs.py
+@@ -227,6 +227,12 @@
+         import ic_im_evidence_adapter_v1 as adapter
+         import ic_im_signal_evidence_v1 as evidence
+         clock = strategy._beijing_clock(clock or datetime.now(strategy.BEIJING))
++        # Preserve elapsed readonly preflight and lock-wait time in quote
++        # validation without advancing the selected strategy day/clock.
++        with strategy.collection_clock(clock):
++            return self._cycle_at_clock(clock, strategy, state, adapter, evidence)
++
++    def _cycle_at_clock(self, clock, strategy, state, adapter, evidence):
+         result = {"schema": "icim_capture_runner_receipt_v1", "started_at": clock.isoformat(),
+                   "pid": os.getpid(), "ledger_write_requested": False, "message_send_requested": False,
+                   "state_dir": str(self.state_dir), "evidence_dir": str(self.evidence_dir)}
+@@ -250,7 +256,7 @@
+                         original = deepcopy(strategy.LIVE_CONTINUATION_ANCHOR)
+                         try:
+                             strategy.install_runtime_anchors(anchors)
+-                            with strategy.collection_clock(clock), strategy._network_budget(
++                            with strategy._network_budget(
+                                     2 * strategy.SIGNAL_PRODUCT_NETWORK_BUDGET_SECONDS + 1), \
+                                     evidence.publication_guard(self._verify_sources):
+                                 capture = adapter.capture_daily(strategy, self.evidence_dir, clock)
+*** Update File: D:\动量策略\IC和IM滚动套利\test_icim_redteam_server_repairs_20261023.py
+@@ -385,3 +385,55 @@
+     with pytest.raises(RuntimeError, match="uncaught renderer failure"):
+         owner.execute_query("当前持仓", clock)
+     assert bot._VERIFIED_DISPLAY_ANCHORS.get() is None
++
++
++@pytest.mark.parametrize("outer_collection_context", [False, True])
++def test_capture_runner_accounts_for_readonly_preflight_elapsed_time(monkeypatch, tmp_path, outer_collection_context):
++    from contextlib import nullcontext
++    import requests
++    import capture_ic_im_v1_4_inputs as runner
++    from test_icim_free_sources_capture_runner_20261022 import fixture_runner
++    selected_clock = datetime(2026, 10, 22, 18, 45, tzinfo=bot.BEIJING)
++    owner, store, record = fixture_runner(tmp_path)
++    before = runner.ledger_hashes(store.root)
++    tick = [100.]
++    seen = {}
++    monkeypatch.setattr(requests.sessions.Session, "request", lambda *a, **k: pytest.fail("network forbidden"))
++    monkeypatch.setattr(bot.time_module, "monotonic", lambda: tick[0])
++
++    class Wall(datetime):
++        @classmethod
++        def now(cls, tz=None):
++            current = selected_clock + timedelta(seconds=tick[0] - 100.)
++            return current.astimezone(tz) if tz else current.replace(tzinfo=None)
++
++    monkeypatch.setattr(runner, "datetime", Wall)
++    original_load = runner.load_ledger_readonly
++
++    def delayed_real_readonly_load(*args):
++        value = original_load(*args)
++        # Actual readonly migration/hash-chain validation still runs.
++        tick[0] += 2.
++        return value
++
++    def consume_current_frame(strategy, root, clock):
++        quote_stamp = selected_clock + timedelta(seconds=1)
++        observation = strategy._iv_observation_clock(clock)
++        seen.update(start=clock.isoformat(), quote=quote_stamp.isoformat(),
++                    wall=Wall.now(bot.BEIJING).isoformat(), observation=observation.isoformat())
++        strategy.quote_snapshot_guard.official_snapshot_evidence(
++            quote_stamp, observation, clock.date(), "current frame after readonly preflight")
++        return {"status": "captured", "day": str(clock.date()), "products": {}}
++
++    monkeypatch.setattr(runner, "load_ledger_readonly", delayed_real_readonly_load)
++    monkeypatch.setattr(adapter, "capture_daily", consume_current_frame)
++    with bot.collection_clock(selected_clock) if outer_collection_context else nullcontext():
++        result = owner.cycle()
++    seen["result"] = result
++    (OUT / f"collector_preflight_outer_{outer_collection_context}.json").write_text(
++        json.dumps(seen, ensure_ascii=False, indent=2), encoding="utf-8")
++    assert runner.ledger_hashes(store.root) == before
++    assert result["ledger_paths_and_bytes_unchanged"] is True
++    assert result["status"] == "captured", seen
++    assert result["started_at"] == selected_clock.isoformat()
++    assert bot._COLLECTION_CLOCK_ANCHOR.get() is None
+*** End Patch

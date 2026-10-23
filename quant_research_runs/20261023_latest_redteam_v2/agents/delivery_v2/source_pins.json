@@ -1,0 +1,25 @@
+{
+  "commit": "58986fda2c17df93eb3925bf09a1cebd55a7869e",
+  "files": {
+    "poe_ic_im_v1_4_server.py": {
+      "sha256": "bec2a5b20571a406af7075f9252d72181362a97e502b294d2e5c39c18ac9d5d8",
+      "matches_committed_bytes": true
+    },
+    "poe_ic_im_mainline_v1_4_bot.py": {
+      "sha256": "b390575a41fe11da6da68caee551b7827f9cee28fb8ceba19432ec661e775222",
+      "matches_committed_bytes": true
+    },
+    "poe_ic_im_v1_4_state.py": {
+      "sha256": "dc11b280baf7da884c82fe52cf1866c0ac42a0b73fa9d9e6990d27c5b0ba1d4a",
+      "matches_committed_bytes": true
+    },
+    "run_ic_im_v1_4_github_digest.py": {
+      "sha256": "a016c273dbd24acc797ec3d2205abae600af4b1b14ca24969c09a8212bcdea7f",
+      "matches_committed_bytes": true
+    },
+    "ic_im_fear_grid_v1.py": {
+      "sha256": "a21578621eb7695af5dcc669670cdcfa2bef2f0d9fceb4ad40a3ddae707fcc67",
+      "matches_committed_bytes": true
+    }
+  }
+}

@@ -1,0 +1,2 @@
+{"nodeid": "quant_research_runs/20261023_redteam_repairs_v3/audit_server/collector_timing/test_collector_preflight_clock.py::test_actual_cycle_accounts_for_readonly_preflight_elapsed_time[False]", "started_at": "2026-10-23T14:47:50.428976+08:00"}
+{"nodeid": "quant_research_runs/20261023_redteam_repairs_v3/audit_server/collector_timing/test_collector_preflight_clock.py::test_actual_cycle_accounts_for_readonly_preflight_elapsed_time[True]", "started_at": "2026-10-23T14:47:54.079573+08:00"}

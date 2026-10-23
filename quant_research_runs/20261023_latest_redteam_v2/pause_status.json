@@ -1,0 +1,12 @@
+{
+  "status": "paused_until_user_completes_commit",
+  "reason": "git .git/index.lock write permission denied",
+  "selected_files": 16204,
+  "temporary_excluded": 6249,
+  "daily_gate": {
+    "passed": 981,
+    "deselected": 5
+  },
+  "audit_agents_paused": true,
+  "production_modified_by_this_turn": false
+}

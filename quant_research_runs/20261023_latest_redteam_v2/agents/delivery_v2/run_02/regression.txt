@@ -1,0 +1,74 @@
+FF..                                                                     [100%]
+================================== FAILURES ===================================
+_ test_readonly_snapshot_uses_latest_verified_record[2026-10-22T08:00:00+08:00] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001AFAB8F09D0>
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_23b772c0/pytest/test_readonly_snapshot_uses_la0')
+clock = '2026-10-22T08:00:00+08:00'
+
+    @pytest.mark.parametrize("clock", ["2026-10-22T08:00:00+08:00", "2026-10-22T09:10:00+08:00", "2026-10-22T09:30:00+08:00", "2026-10-22T14:30:00+08:00"])
+    def test_readonly_snapshot_uses_latest_verified_record(monkeypatch,tmp_path,clock):
+        import shutil
+        import poe_ic_im_v1_4_server as server
+        import poe_ic_im_v1_4_state as state
+        root=Path(__file__).resolve().parents[4]
+        source=root/"runtime/ic_im_v1_4_r1"
+        copied=tmp_path/"ledger_copy"
+        shutil.copytree(source,copied,ignore=shutil.ignore_patterns(".ledger.lock"))
+        monkeypatch.setenv("ICIM_EVIDENCE_DIR",str(tmp_path/"empty_evidence"))
+        monkeypatch.setattr(digest.strategy,"LIVE_CONTINUATION_ANCHOR",deepcopy(digest.strategy.LIVE_CONTINUATION_ANCHOR))
+        coordinator=server.LedgerCoordinator(state.StateStore(copied))
+        latest=coordinator.store.load_latest()
+        before=latest["digest"]
+        assert latest["verified_day"]=="2026-10-21"
+        report,attachments,observed=coordinator.execute_query("当前持仓",datetime.fromisoformat(clock),persist_confirmed=False)
+        (tmp_path/"snapshot_report.md").write_text(report,encoding="utf-8")
+        assert observed=={} and not attachments
+        assert coordinator.store.load_latest()["digest"]==before
+>       assert report.count("最后逐腿核验快照（2026-10-21") == 2
+E       AssertionError: assert 0 == 2
+E        +  where 0 = <built-in method count of str object at 0x000001AFC7D0E470>('最后逐腿核验快照（2026-10-21')
+E        +    where <built-in method count of str object at 0x000001AFC7D0E470> = '## 最近已核验研究账本快照\n\n今日完整收盘数据尚未核验。\n\n**最后逐腿核验快照（2026-10-20，仅研究审计）**\n\n- 0.5倍核心期货：`IC2612`（路线 `future`）\n- 动量袖：权重 0，期货名....5倍；期货合计：1倍\n- Put：核心 1.5张 `MO2612-P-6700`；动量 0张；合计 1.5张；Call：规范化 0张\n- 这只是最后已核验状态，不是当前账户持仓；联网或账本续接恢复前，不生成下一交易日目标。\n\n'.count
+
+quant_research_runs\20261023_latest_redteam_v2\agents\delivery_v2\test_delivery_redteam.py:72: AssertionError
+_ test_readonly_snapshot_uses_latest_verified_record[2026-10-22T09:10:00+08:00] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001AFC9A2B360>
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_23b772c0/pytest/test_readonly_snapshot_uses_la1')
+clock = '2026-10-22T09:10:00+08:00'
+
+    @pytest.mark.parametrize("clock", ["2026-10-22T08:00:00+08:00", "2026-10-22T09:10:00+08:00", "2026-10-22T09:30:00+08:00", "2026-10-22T14:30:00+08:00"])
+    def test_readonly_snapshot_uses_latest_verified_record(monkeypatch,tmp_path,clock):
+        import shutil
+        import poe_ic_im_v1_4_server as server
+        import poe_ic_im_v1_4_state as state
+        root=Path(__file__).resolve().parents[4]
+        source=root/"runtime/ic_im_v1_4_r1"
+        copied=tmp_path/"ledger_copy"
+        shutil.copytree(source,copied,ignore=shutil.ignore_patterns(".ledger.lock"))
+        monkeypatch.setenv("ICIM_EVIDENCE_DIR",str(tmp_path/"empty_evidence"))
+        monkeypatch.setattr(digest.strategy,"LIVE_CONTINUATION_ANCHOR",deepcopy(digest.strategy.LIVE_CONTINUATION_ANCHOR))
+        coordinator=server.LedgerCoordinator(state.StateStore(copied))
+        latest=coordinator.store.load_latest()
+        before=latest["digest"]
+        assert latest["verified_day"]=="2026-10-21"
+        report,attachments,observed=coordinator.execute_query("当前持仓",datetime.fromisoformat(clock),persist_confirmed=False)
+        (tmp_path/"snapshot_report.md").write_text(report,encoding="utf-8")
+        assert observed=={} and not attachments
+        assert coordinator.store.load_latest()["digest"]==before
+>       assert report.count("最后逐腿核验快照（2026-10-21") == 2
+E       AssertionError: assert 0 == 2
+E        +  where 0 = <built-in method count of str object at 0x000001AFC7D12CE0>('最后逐腿核验快照（2026-10-21')
+E        +    where <built-in method count of str object at 0x000001AFC7D12CE0> = '## 最近已核验研究账本快照\n\n今日完整收盘数据尚未核验。\n\n**最后逐腿核验快照（2026-10-20，仅研究审计）**\n\n- 0.5倍核心期货：`IC2612`（路线 `future`）\n- 动量袖：权重 0，期货名....5倍；期货合计：1倍\n- Put：核心 1.5张 `MO2612-P-6700`；动量 0张；合计 1.5张；Call：规范化 0张\n- 这只是最后已核验状态，不是当前账户持仓；联网或账本续接恢复前，不生成下一交易日目标。\n\n'.count
+
+quant_research_runs\20261023_latest_redteam_v2\agents\delivery_v2\test_delivery_redteam.py:72: AssertionError
+============================== warnings summary ===============================
+C:\Python314\Lib\site-packages\fastapi_poe\types.py:171
+  C:\Python314\Lib\site-packages\fastapi_poe\types.py:171: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    class RequestContext(BaseModel):
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED quant_research_runs/20261023_latest_redteam_v2/agents/delivery_v2/test_delivery_redteam.py::test_readonly_snapshot_uses_latest_verified_record[2026-10-22T08:00:00+08:00]
+FAILED quant_research_runs/20261023_latest_redteam_v2/agents/delivery_v2/test_delivery_redteam.py::test_readonly_snapshot_uses_latest_verified_record[2026-10-22T09:10:00+08:00]
+2 failed, 2 passed, 3 deselected, 1 warning in 3.92s

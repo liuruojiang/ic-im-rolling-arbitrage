@@ -1,0 +1,32 @@
+[
+  {
+    "case": "correct_qt",
+    "observed": {
+      "price": 7435.164,
+      "source": "腾讯财经",
+      "source_date": "2026-10-22",
+      "source_time": "14:30:00"
+    }
+  },
+  {
+    "case": "correct_em",
+    "observed": {
+      "price": 7435.164000000001,
+      "source": "东方财富",
+      "source_date": "2026-10-22",
+      "source_time": "14:30:00"
+    }
+  },
+  {
+    "case": "live_proxy_control",
+    "observed": {
+      "price": 7435.164,
+      "live_price_source_time": "14:30:00",
+      "history_date": "2026-10-22",
+      "momentum_120": -0.10367951034856637,
+      "momentum_score": -44.3603248390313,
+      "momentum_next_weight": 0.0,
+      "v13_core_put_delta": 0.25
+    }
+  }
+]

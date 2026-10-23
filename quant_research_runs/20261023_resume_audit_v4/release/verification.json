@@ -1,0 +1,48 @@
+{
+  "status": "PASS_FOR_CODE_PUBLICATION",
+  "strategy_candidate_sha": "e3f26824a8ff0a89b6125d4385f75e0a6cfa2a7e",
+  "candidate_tree": "05ab2be0a8a60f127639eee70757204d48090c94",
+  "production_execution_files_current_and_candidate_match": 29,
+  "gate_source_bindings": 175,
+  "independent_daily_gate": {
+    "exit_code": 0,
+    "source_before_equals_after": true,
+    "source_files": 175,
+    "counts": {
+      "tests": 1193,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "artifacts": {
+      "regression.xml": "387e39be2278bc93253522ded70e014840b36e140cfbc2cd50229dcb4bb64b1a",
+      "regression.txt": "5cda508603d8d74d33e2863a1a9e29c18b3454b6adaae11ebff67ca16cf1eb7a",
+      "source_before.json": "c7ba7c774d30e2d086f8f960ea9c2b48bacb0509eb3d404ef1293e06dfee4908",
+      "source_after.json": "c7ba7c774d30e2d086f8f960ea9c2b48bacb0509eb3d404ef1293e06dfee4908",
+      "test_run.json": "dcaec23a8e50ff858966ce4ff9053c5c62f8684e638f70b77509e1c84743fd4b",
+      "collection.json": "dd4b3c89abbc4346ccf252df26c58fe0c14fe9565ea332e9256294abe0f75875"
+    }
+  },
+  "automation_current_source_bindings_match": 187,
+  "automation_test_unique_nodes": 1170,
+  "automation_xml_test_events": 1347,
+  "automation_additional_subtest_events": 177,
+  "prior_snapshot_gate_02_status": "FAILED_PARTIAL_CHECKOUT",
+  "prior_failure_categories": {
+    "failure: FileNotFoundError: [Errno 2] No such file or directory: 'D:\\\\动量策略\\\\IC和IM滚动套利\\\\quant_research_runs\\\\20261023_daily_release_v3\\\\strategy_checkout\\\\data\\\\ic_510500_put_proxy_validation_v1\\\\sina_000905_index.csv'": 3,
+    "failure: FileNotFoundError: [Errno 2] No such file or directory: 'D:\\\\动量策略\\\\IC和IM滚动套利\\\\quant_research_runs\\\\20261023_daily_release_v3\\\\strategy_checkout\\\\tests\\\\fixtures\\\\icim_fear_unpublished_20261014.json'": 101,
+    "error: failed on setup with \"FileNotFoundError: [Errno 2] No such file or directory: 'D:\\\\动量策略\\\\IC和IM滚动套利\\\\quant_research_runs\\\\20261023_daily_release_v3\\\\strategy_checkout\\\\tests\\\\fixtures\\\\icim_adversarial\\\\previous.json'\"": 12,
+    "failure: FileNotFoundError: [Errno 2] No such file or directory: 'D:\\\\动量策略\\\\IC和IM滚动套利\\\\quant_research_runs\\\\20261023_daily_release_v3\\\\strategy_checkout\\\\tests\\\\fixtures\\\\icim_adversarial\\\\real_zero_volume_put.csv'": 1,
+    "failure: FileNotFoundError: [Errno 2] No such file or directory: 'D:\\\\动量策略\\\\IC和IM滚动套利\\\\quant_research_runs\\\\20261023_daily_release_v3\\\\strategy_checkout\\\\tests\\\\fixtures\\\\icim_adversarial\\\\confirmed.json'": 118,
+    "failure: FileNotFoundError: [Errno 2] No such file or directory: 'D:\\\\动量策略\\\\IC和IM滚动套利\\\\quant_research_runs\\\\20261023_daily_release_v3\\\\strategy_checkout\\\\quant_research_runs\\\\20261002_ic_csi500_abs40_debounce\\\\sina_sh000905_ohlcv.csv'": 4,
+    "skipped: the optional local persisted research ledger is not present": 1,
+    "failure: FileNotFoundError: [Errno 2] No such file or directory: 'D:\\\\动量策略\\\\IC和IM滚动套利\\\\quant_research_runs\\\\20261023_daily_release_v3\\\\strategy_checkout\\\\tests\\\\fixtures\\\\icim_adversarial\\\\replay_close_record_20261014.json'": 13,
+    "failure: FileNotFoundError: [Errno 2] No such file or directory: 'D:\\\\动量策略\\\\IC和IM滚动套利\\\\quant_research_runs\\\\20261023_daily_release_v3\\\\strategy_checkout\\\\tests\\\\fixtures\\\\icim_adversarial\\\\legacy_close_record_20261013.json'": 1,
+    "skipped: local runtime audit only": 1,
+    "skipped: local historical scan audit only": 2,
+    "failure: FileNotFoundError: [Errno 2] No such file or directory: 'D:\\\\动量策略\\\\IC和IM滚动套利\\\\quant_research_runs\\\\20261023_daily_release_v3\\\\strategy_checkout\\\\tests\\\\fixtures\\\\baifenwei_real_sample_20260924.csv'": 1
+  },
+  "remediation": "Restore 13 existing base-tree fixture files by Git blob SHA, then materialize the same frozen automation fixtures as delivery-regression.yml. No product/source/manifest edits. No new exclusion. No publication inventory addition required.",
+  "remote_state_note": "Remote CI status is owned by parent; this review proves local candidate code and immutable manifest consistency.",
+  "delivery_note": "No SMTP, external message, live ledger update, or claim of actual delivery."
+}

@@ -1,0 +1,102 @@
+{
+  "commit": "58986fda2c17df93eb3925bf09a1cebd55a7869e",
+  "results": [
+    {
+      "id": "index_identity",
+      "wrong_index_accepted": true,
+      "computed_momentum_120": -0.6383453722131347,
+      "computed_momentum_score": -113.43876105503018,
+      "scope": "live_proxy; no state append"
+    },
+    {
+      "id": "index_future",
+      "observation_clock": "2026-10-22T14:30:00+08:00",
+      "accepted_quote_time": "15:00:00",
+      "scope": "live_proxy; no state append"
+    },
+    {
+      "id": "batch_projection",
+      "direct_rejected": true,
+      "replay_accepted": true,
+      "original_response_sha256": "8ee4b6f3a1fd92392430213f7d81f6642deada308c84c50dfef58a91aeb2112c",
+      "scope": "real capture/reader/verification consumer, not full original-day adapter qualification or ledger append"
+    },
+    {
+      "id": "missing_short_mark",
+      "signal": {
+        "v14_action": "HOLD",
+        "v14_short_put_mark": null,
+        "close_confirmed": true,
+        "diagnostic_only": null,
+        "v14_candidate_data_status": "not_required: route_does_not_consume_candidate"
+      },
+      "persistence_eligibility_passed": true,
+      "eligibility_error": null,
+      "scope": "public IC builder plus persistence gate; synthetic holding and missing history, no full append"
+    }
+  ],
+  "source_before": {
+    "capture_ic_im_v1_4_inputs.py": "09a01acbaa138b9d6b8a56fe6c05d52e3199b92ddc3eb20aaa84b90d286655a9",
+    "ic_im_adjusted_put_migration_v1.py": "f4bbdaa49225e51b83ccfe441b9c6f4dc36b7f3206acf509098f4d8628215c29",
+    "ic_im_chinabond.py": "4e1098b2f4c253d9950c084eafcc655ea8e5e820478a01a29393d638e6d40ab9",
+    "ic_im_daily_valuation.py": "b389a81475836fb3e4e96dbc92216a54afeb199029d524f51efbb8d029e4257c",
+    "ic_im_evidence_adapter_v1.py": "f22a342dcf671f7625d6861f4041cff045d698ba2ba63c8519fdfa0fd204a662",
+    "ic_im_fear_grid_v1.py": "a21578621eb7695af5dcc669670cdcfa2bef2f0d9fceb4ad40a3ddae707fcc67",
+    "ic_im_mainline_v1_2.py": "ae2ccba29779841ea100dfb719cb92552795053567f6faeae9fff00ec4b47dd2",
+    "ic_im_mainline_v1_3.py": "f420f7d8eb357611d085a8e31ce75a47ddc18c67f51a59a160bac8268c6bc0e5",
+    "ic_im_option_maintenance_notice.py": "a2ad67732d85bad5d96444d7a74a350d3ecdf0fdb6b82b9b593ccfaf95c63746",
+    "ic_im_put_execution_v1.py": "8cdda4e3761bda7889c16b0102ee0106d2efaaa61088b7cb6fc83a08d67b2368",
+    "ic_im_put_expiry_side_scan_v2.py": "7cffe49766268d83de8db276e37b30169ec3f383f13b3cada23ae06972c48b45",
+    "ic_im_put_max_protection_scan_v1.py": "151b201bc9258a864cb725aec666133d3e4fcf2f0876ee98062103ce62cd1c1d",
+    "ic_im_quarter_roll_v1_3.py": "cec4535aa0dca4200ac4e50ec91f7aa82aee12c5157f0cb350ab73c82d53457d",
+    "ic_im_quote_snapshot_guard.py": "ae22b541a1a2a6bc20d5bd23bb1fc3d275a2f3fcfce96b5345c2458cde74b9d5",
+    "ic_im_signal_evidence_v1.py": "adb241e56e9c012487a4c3837865450256c53aa1f0d1d2c0c1dc141cd1172a0f",
+    "ic_im_sse_contract_identity_v1.py": "47a2d81f665d2b199eaa2c2043c90271cdd242aa9776620002c833f3cdafacc8",
+    "ic_im_v1_4_policy.py": "b4f131bd60c596f19800d11d4c1f4eab5de0f4f4b2e935242a24ff7324827eac",
+    "poe_ic_im_mainline_v1_2_bot.py": "0fd48ccb2d1f9f9ed061ef4b92f769151d99283efda8d97be7cc29db740ebcd9",
+    "poe_ic_im_mainline_v1_3_bot.py": "fd3c7df2b68255fda618ca9267a00f38ab3f8c2ce66ff99b53e1fb0be2a284fa",
+    "poe_ic_im_mainline_v1_4_bot.py": "b390575a41fe11da6da68caee551b7827f9cee28fb8ceba19432ec661e775222",
+    "poe_ic_im_mainlines_v2_bot.py": "d69e5fee6f662e7cf1703ed151b3ac598fe46703ecdeae11c578e38f584667d2",
+    "poe_ic_im_v1_2_server.py": "098ad40164b01fd5ac4f094a0be0cccc46c4dd863bb5af69de9f1d1770832463",
+    "poe_ic_im_v1_2_state.py": "68a047d974244b44f48c9beea07eb09da11d752d2d1c18e7543ab588898ade9f",
+    "poe_ic_im_v1_3_server.py": "bb4a482557e406e161ded843567903532eb0f38649b3dd61bce934584e464260",
+    "poe_ic_im_v1_3_state.py": "3ab7a9feb038e4139d63655d416459d6afa2f5d416903965e8e13ed657ec938c",
+    "poe_ic_im_v1_4_server.py": "bec2a5b20571a406af7075f9252d72181362a97e502b294d2e5c39c18ac9d5d8",
+    "poe_ic_im_v1_4_state.py": "dc11b280baf7da884c82fe52cf1866c0ac42a0b73fa9d9e6990d27c5b0ba1d4a",
+    "im_put_policy.py": "ff9c9b1d52e4b1aa25fcb3c85e61665a4acf0a4de68272d8ddc9caaf2d4a9a9c",
+    "run_ic_im_v1_4_github_digest.py": "a016c273dbd24acc797ec3d2205abae600af4b1b14ca24969c09a8212bcdea7f"
+  },
+  "source_after": {
+    "capture_ic_im_v1_4_inputs.py": "09a01acbaa138b9d6b8a56fe6c05d52e3199b92ddc3eb20aaa84b90d286655a9",
+    "ic_im_adjusted_put_migration_v1.py": "f4bbdaa49225e51b83ccfe441b9c6f4dc36b7f3206acf509098f4d8628215c29",
+    "ic_im_chinabond.py": "4e1098b2f4c253d9950c084eafcc655ea8e5e820478a01a29393d638e6d40ab9",
+    "ic_im_daily_valuation.py": "b389a81475836fb3e4e96dbc92216a54afeb199029d524f51efbb8d029e4257c",
+    "ic_im_evidence_adapter_v1.py": "f22a342dcf671f7625d6861f4041cff045d698ba2ba63c8519fdfa0fd204a662",
+    "ic_im_fear_grid_v1.py": "a21578621eb7695af5dcc669670cdcfa2bef2f0d9fceb4ad40a3ddae707fcc67",
+    "ic_im_mainline_v1_2.py": "ae2ccba29779841ea100dfb719cb92552795053567f6faeae9fff00ec4b47dd2",
+    "ic_im_mainline_v1_3.py": "f420f7d8eb357611d085a8e31ce75a47ddc18c67f51a59a160bac8268c6bc0e5",
+    "ic_im_option_maintenance_notice.py": "a2ad67732d85bad5d96444d7a74a350d3ecdf0fdb6b82b9b593ccfaf95c63746",
+    "ic_im_put_execution_v1.py": "8cdda4e3761bda7889c16b0102ee0106d2efaaa61088b7cb6fc83a08d67b2368",
+    "ic_im_put_expiry_side_scan_v2.py": "7cffe49766268d83de8db276e37b30169ec3f383f13b3cada23ae06972c48b45",
+    "ic_im_put_max_protection_scan_v1.py": "151b201bc9258a864cb725aec666133d3e4fcf2f0876ee98062103ce62cd1c1d",
+    "ic_im_quarter_roll_v1_3.py": "cec4535aa0dca4200ac4e50ec91f7aa82aee12c5157f0cb350ab73c82d53457d",
+    "ic_im_quote_snapshot_guard.py": "ae22b541a1a2a6bc20d5bd23bb1fc3d275a2f3fcfce96b5345c2458cde74b9d5",
+    "ic_im_signal_evidence_v1.py": "adb241e56e9c012487a4c3837865450256c53aa1f0d1d2c0c1dc141cd1172a0f",
+    "ic_im_sse_contract_identity_v1.py": "47a2d81f665d2b199eaa2c2043c90271cdd242aa9776620002c833f3cdafacc8",
+    "ic_im_v1_4_policy.py": "b4f131bd60c596f19800d11d4c1f4eab5de0f4f4b2e935242a24ff7324827eac",
+    "poe_ic_im_mainline_v1_2_bot.py": "0fd48ccb2d1f9f9ed061ef4b92f769151d99283efda8d97be7cc29db740ebcd9",
+    "poe_ic_im_mainline_v1_3_bot.py": "fd3c7df2b68255fda618ca9267a00f38ab3f8c2ce66ff99b53e1fb0be2a284fa",
+    "poe_ic_im_mainline_v1_4_bot.py": "b390575a41fe11da6da68caee551b7827f9cee28fb8ceba19432ec661e775222",
+    "poe_ic_im_mainlines_v2_bot.py": "d69e5fee6f662e7cf1703ed151b3ac598fe46703ecdeae11c578e38f584667d2",
+    "poe_ic_im_v1_2_server.py": "098ad40164b01fd5ac4f094a0be0cccc46c4dd863bb5af69de9f1d1770832463",
+    "poe_ic_im_v1_2_state.py": "68a047d974244b44f48c9beea07eb09da11d752d2d1c18e7543ab588898ade9f",
+    "poe_ic_im_v1_3_server.py": "bb4a482557e406e161ded843567903532eb0f38649b3dd61bce934584e464260",
+    "poe_ic_im_v1_3_state.py": "3ab7a9feb038e4139d63655d416459d6afa2f5d416903965e8e13ed657ec938c",
+    "poe_ic_im_v1_4_server.py": "bec2a5b20571a406af7075f9252d72181362a97e502b294d2e5c39c18ac9d5d8",
+    "poe_ic_im_v1_4_state.py": "dc11b280baf7da884c82fe52cf1866c0ac42a0b73fa9d9e6990d27c5b0ba1d4a",
+    "im_put_policy.py": "ff9c9b1d52e4b1aa25fcb3c85e61665a4acf0a4de68272d8ddc9caaf2d4a9a9c",
+    "run_ic_im_v1_4_github_digest.py": "a016c273dbd24acc797ec3d2205abae600af4b1b14ca24969c09a8212bcdea7f"
+  },
+  "source_unchanged": true,
+  "network": "all forbidden; only patched vendor packets"
+}

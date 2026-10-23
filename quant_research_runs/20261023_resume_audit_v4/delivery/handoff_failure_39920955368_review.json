@@ -1,0 +1,144 @@
+{
+  "run_id": 39920955368,
+  "job_id": 120306111796,
+  "read_only_remote_evidence": true,
+  "job_steps": [
+    {
+      "name": "Set up job",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 1
+    },
+    {
+      "name": "Run actions/checkout@v6",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 2
+    },
+    {
+      "name": "Run actions/setup-python@v6",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 3
+    },
+    {
+      "name": "Resolve the bounded no-send validation request",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 4
+    },
+    {
+      "name": "Resolve the exact production strategy pin",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 5
+    },
+    {
+      "name": "Run actions/checkout@v6",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 6
+    },
+    {
+      "name": "Install the production dependencies",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 7
+    },
+    {
+      "name": "Restore a verified production ledger to an isolated volume",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 8
+    },
+    {
+      "name": "Verify producer identity, migration and completed-session coverage",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 9
+    },
+    {
+      "name": "Verify audited execution source inventory",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 10
+    },
+    {
+      "name": "Run the official close producer on the isolated ledger",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 11
+    },
+    {
+      "name": "Validate the normal digest and dated marker without publishing",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 12
+    },
+    {
+      "name": "Authenticate SMTP and validate envelopes without DATA",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 13
+    },
+    {
+      "name": "Export verified research handoff when explicitly requested",
+      "status": "completed",
+      "conclusion": "failure",
+      "number": 14
+    },
+    {
+      "name": "Observe public Fear feeds without sending",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 15
+    },
+    {
+      "name": "Run actions/upload-artifact@v7",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 16
+    },
+    {
+      "name": "Post Run actions/checkout@v6",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 30
+    },
+    {
+      "name": "Post Run actions/setup-python@v6",
+      "status": "completed",
+      "conclusion": "skipped",
+      "number": 31
+    },
+    {
+      "name": "Post Run actions/checkout@v6",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 32
+    },
+    {
+      "name": "Complete job",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 33
+    }
+  ],
+  "selected_log_lines": [
+    "2026-10-23T07:57:02.5258826Z ic_im_digest_ok: mode=close_confirmed verified_day=2026-10-23 sequence=21 build=v1.4-20261008-r1-ic-csi500-abs40-fix11",
+    "2026-10-23T07:57:03.5511154Z {\"status\": \"ok\", \"tls_verified\": ***, \"authenticated\": ***, \"sender_envelope_accepted\": ***, \"recipients_accepted\": 1, \"envelope_reset\": ***, \"message_sent\": false}",
+    "2026-10-23T07:57:04.3724821Z     assert latest['digest'] == preflight['restored_digest'], 'handoff must preserve the restored production ledger'",
+    "2026-10-23T07:57:04.3726686Z AssertionError: handoff must preserve the restored production ledger"
+  ],
+  "classification": "request inapplicable when close producer advances restored ledger; existing handoff guard correctly refuses to misattribute new isolated history to source production artifact",
+  "close_export_always_invalid": false,
+  "close_export_valid_condition": "restored production ledger already covers target close and runner leaves original digest unchanged",
+  "recommended_request": {
+    "mode": "close",
+    "export_handoff": false
+  },
+  "retain_guard": true,
+  "product_bug_confirmed": false,
+  "prior_run_overall_success": false,
+  "mail_sent": false
+}

@@ -1,0 +1,27 @@
+{
+  "id": "CAPTURE-V3-PREFLIGHT",
+  "priority": "P2",
+  "status": "confirmed_unfixed_at_probe",
+  "source": "capture_ic_im_v1_4_inputs.py:CaptureRunner.cycle",
+  "source_sha256": "09a01acbaa138b9d6b8a56fe6c05d52e3199b92ddc3eb20aaa84b90d286655a9",
+  "trigger": "Normal close cycle samples18:45:00, readonly preflight takes2seconds; source frame timestamp18:45:01 arrives by wall18:45:02. collection_clock starts only after preflight.",
+  "actual": "Observation remains18:45:00; official_snapshot_evidence rejects valid source time as future; cycle reports incomplete.",
+  "control": "Same cycle with outer collection_clock established before preflight observes18:45:02 and reports captured.",
+  "proof": {
+    "run": "run01",
+    "expected_behavior_failures": 1,
+    "positive_controls_passed": 1,
+    "actual_components": [
+      "CaptureRunner.cycle(no explicit clock)",
+      "load_ledger_readonly and disposable migrated hash chain",
+      "official_snapshot_evidence"
+    ],
+    "fault_injection": [
+      "deterministic2second preflight delay",
+      "synthetic valid frame timestamp"
+    ]
+  },
+  "impact": "False future rejection creates avoidable capture availability/evidence gaps. No acceptance of unsafe price, no ledger mutation, no observation that real provider actually hit this window.",
+  "fix": "Establish collection_clock immediately after clock selection and before ledger hashes, source checks, readonly loading and lock. Preserve pin publication guards and original strategy day.",
+  "scope_limit": "Capture adapter boundary stub invokes real snapshot guard. Actual full capture_daily/sealing not exercised in this minimal proof; allowed parent requested guard+actualcycle path."
+}

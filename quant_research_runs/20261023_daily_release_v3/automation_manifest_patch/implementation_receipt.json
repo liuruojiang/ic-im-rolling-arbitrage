@@ -1,0 +1,30 @@
+{
+  "edited": [
+    "scripts/verify_icim_source_release.py",
+    "scripts/build_ic_im_v1_4_digest.py",
+    "tests/test_delivery_regression_contract.py"
+  ],
+  "added": [
+    "docs/ic_im_daily_release_20261023_repairs_v3_r3_manifest.json",
+    "tests/test_ic_im_v1_4_source_manifest_v3.py"
+  ],
+  "before_sha256": {
+    "scripts/verify_icim_source_release.py": "2d2461227aa9c0a9ec10fec1debf4a3cc8255b6e0992c99b08f7c02ad61d6d7b",
+    "scripts/build_ic_im_v1_4_digest.py": "bdd2be79ab0e4446fb2355a0a898de2a10626763abecb4c21ccf14a97264562d",
+    "tests/test_delivery_regression_contract.py": "65de810760c6da74ee68c471d0ddf11374f6474718f2cb8271caa52e0a7be991"
+  },
+  "after_sha256": {
+    "scripts/verify_icim_source_release.py": "39b7076d348f92f845822a50891b31ca491f4053a47afec669ab7d3e7942c049",
+    "scripts/build_ic_im_v1_4_digest.py": "2b937df04d409311cd4325c625b0760a9c1aef26f59cb056f1fcfbba2fbe17dc",
+    "tests/test_delivery_regression_contract.py": "7b86fd6f5874951fa5add5fddb3108eb8b003a74a1fb46c43f024a358004873f",
+    "docs/ic_im_daily_release_20261023_repairs_v3_r3_manifest.json": "7c61e6506342ade9c23d6c878579cc575490e9f7baaa224db5da02dab2ccb600",
+    "tests/test_ic_im_v1_4_source_manifest_v3.py": "a7a9cedfee975cf64fc3aec12c7eb409d8d02b9f60ca59b241f961312fff1c98"
+  },
+  "tests": {
+    "cases": 49,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "deferred": "new immutable production pin, full automation and strategy gate, remote no-send readiness; workflow files not modified by this implementer"
+}

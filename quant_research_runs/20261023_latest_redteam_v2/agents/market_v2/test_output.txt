@@ -1,0 +1,128 @@
+..FFFFFFF.                                                               [100%]
+================================== FAILURES ===================================
+____________ test_wrong_index_identity_must_be_rejected[variable] _____________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001E6B97F79B0>
+mutation = 'variable'
+
+    @pytest.mark.parametrize('mutation',['variable','body_code','duplicate','eastmoney_code'])
+    def test_wrong_index_identity_must_be_rejected(monkeypatch,mutation):
+        packet=qt();em=None
+        if mutation=='variable':packet=qt(symbol='sh000852',price=3000.)
+        if mutation=='body_code':packet=qt(code='000852',price=3000.)
+        if mutation=='duplicate':packet=qt(price=3000.)+qt(price=7435.164)
+        if mutation=='eastmoney_code':packet=None;em=em_quote('000852')
+        vendor(monkeypatch,packet,em)
+>       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+quant_research_runs\20261023_latest_redteam_v2\agents\market_v2\test_market_v2.py:69: Failed
+____________ test_wrong_index_identity_must_be_rejected[body_code] ____________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001E6B98D0F30>
+mutation = 'body_code'
+
+    @pytest.mark.parametrize('mutation',['variable','body_code','duplicate','eastmoney_code'])
+    def test_wrong_index_identity_must_be_rejected(monkeypatch,mutation):
+        packet=qt();em=None
+        if mutation=='variable':packet=qt(symbol='sh000852',price=3000.)
+        if mutation=='body_code':packet=qt(code='000852',price=3000.)
+        if mutation=='duplicate':packet=qt(price=3000.)+qt(price=7435.164)
+        if mutation=='eastmoney_code':packet=None;em=em_quote('000852')
+        vendor(monkeypatch,packet,em)
+>       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+quant_research_runs\20261023_latest_redteam_v2\agents\market_v2\test_market_v2.py:69: Failed
+____________ test_wrong_index_identity_must_be_rejected[duplicate] ____________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001E6B98D1040>
+mutation = 'duplicate'
+
+    @pytest.mark.parametrize('mutation',['variable','body_code','duplicate','eastmoney_code'])
+    def test_wrong_index_identity_must_be_rejected(monkeypatch,mutation):
+        packet=qt();em=None
+        if mutation=='variable':packet=qt(symbol='sh000852',price=3000.)
+        if mutation=='body_code':packet=qt(code='000852',price=3000.)
+        if mutation=='duplicate':packet=qt(price=3000.)+qt(price=7435.164)
+        if mutation=='eastmoney_code':packet=None;em=em_quote('000852')
+        vendor(monkeypatch,packet,em)
+>       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+quant_research_runs\20261023_latest_redteam_v2\agents\market_v2\test_market_v2.py:69: Failed
+_________ test_wrong_index_identity_must_be_rejected[eastmoney_code] __________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001E6B9DFCC50>
+mutation = 'eastmoney_code'
+
+    @pytest.mark.parametrize('mutation',['variable','body_code','duplicate','eastmoney_code'])
+    def test_wrong_index_identity_must_be_rejected(monkeypatch,mutation):
+        packet=qt();em=None
+        if mutation=='variable':packet=qt(symbol='sh000852',price=3000.)
+        if mutation=='body_code':packet=qt(code='000852',price=3000.)
+        if mutation=='duplicate':packet=qt(price=3000.)+qt(price=7435.164)
+        if mutation=='eastmoney_code':packet=None;em=em_quote('000852')
+        vendor(monkeypatch,packet,em)
+>       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+quant_research_runs\20261023_latest_redteam_v2\agents\market_v2\test_market_v2.py:69: Failed
+_______ test_future_intraday_quote_must_be_rejected_before_strategy[qt] _______
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001E6B9DFD450>
+provider = 'qt'
+
+    @pytest.mark.parametrize('provider',['qt','em'])
+    def test_future_intraday_quote_must_be_rejected_before_strategy(monkeypatch,provider):
+        future=CLOCK.replace(hour=15,minute=0)
+        vendor(monkeypatch,qt(stamp='20261022150000') if provider=='qt' else None,em_quote(stamp=future) if provider=='em' else None)
+>       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+quant_research_runs\20261023_latest_redteam_v2\agents\market_v2\test_market_v2.py:76: Failed
+_______ test_future_intraday_quote_must_be_rejected_before_strategy[em] _______
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001E6B9B135C0>
+provider = 'em'
+
+    @pytest.mark.parametrize('provider',['qt','em'])
+    def test_future_intraday_quote_must_be_rejected_before_strategy(monkeypatch,provider):
+        future=CLOCK.replace(hour=15,minute=0)
+        vendor(monkeypatch,qt(stamp='20261022150000') if provider=='qt' else None,em_quote(stamp=future) if provider=='em' else None)
+>       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+quant_research_runs\20261023_latest_redteam_v2\agents\market_v2\test_market_v2.py:76: Failed
+________ test_midnight_same_day_tick_must_not_drive_intraday_strategy _________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001E69BDEDF40>
+
+    def test_midnight_same_day_tick_must_not_drive_intraday_strategy(monkeypatch):
+        vendor(monkeypatch,qt(stamp='20261022000000'))
+>       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+quant_research_runs\20261023_latest_redteam_v2\agents\market_v2\test_market_v2.py:82: Failed
+============================== warnings summary ===============================
+C:\Python314\Lib\site-packages\fastapi_poe\types.py:171
+  C:\Python314\Lib\site-packages\fastapi_poe\types.py:171: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    class RequestContext(BaseModel):
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED quant_research_runs/20261023_latest_redteam_v2/agents/market_v2/test_market_v2.py::test_wrong_index_identity_must_be_rejected[variable]
+FAILED quant_research_runs/20261023_latest_redteam_v2/agents/market_v2/test_market_v2.py::test_wrong_index_identity_must_be_rejected[body_code]
+FAILED quant_research_runs/20261023_latest_redteam_v2/agents/market_v2/test_market_v2.py::test_wrong_index_identity_must_be_rejected[duplicate]
+FAILED quant_research_runs/20261023_latest_redteam_v2/agents/market_v2/test_market_v2.py::test_wrong_index_identity_must_be_rejected[eastmoney_code]
+FAILED quant_research_runs/20261023_latest_redteam_v2/agents/market_v2/test_market_v2.py::test_future_intraday_quote_must_be_rejected_before_strategy[qt]
+FAILED quant_research_runs/20261023_latest_redteam_v2/agents/market_v2/test_market_v2.py::test_future_intraday_quote_must_be_rejected_before_strategy[em]
+FAILED quant_research_runs/20261023_latest_redteam_v2/agents/market_v2/test_market_v2.py::test_midnight_same_day_tick_must_not_drive_intraday_strategy
+7 failed, 3 passed, 1 warning in 5.34s

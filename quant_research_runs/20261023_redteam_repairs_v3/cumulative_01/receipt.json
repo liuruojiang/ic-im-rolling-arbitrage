@@ -1,0 +1,22 @@
+{
+  "baseline_commit": "58986fda2c17df93eb3925bf09a1cebd55a7869e",
+  "working_tree_patch": true,
+  "exit_code": 0,
+  "elapsed_seconds": 426.5152070000004,
+  "source_before_equals_after": true,
+  "source_files": 1175,
+  "counts": {
+    "tests": 3331,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "artifacts": {
+    "collection.json": "269f51c41c8854daa352687a4df490ef504bdc4c9c5a010e52bac91952ae6293",
+    "regression.xml": "dfb8a26fbe9a0b197d2a94fe4d1b90d53a73be5afc481c9721cbabe2727ffb48",
+    "regression.txt": "bd730d356c6e9dbd35dff6cd5a2b57bac395d08b0ab89d083619231d068515d8",
+    "test_run.json": "74a88c0d71420bf711d1718672ad00414a67d2dc1cd05a3b37b9716a76d6de04",
+    "source_before.json": "98f09285ee99429266a474abc833834877bfe25ff5fd66804378c878e2298dce",
+    "source_after.json": "98f09285ee99429266a474abc833834877bfe25ff5fd66804378c878e2298dce"
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "status": "independent_review_complete_no_new_confirmed_findings",
+  "reviewer": "fix_server_v3 (author of server fixes, independent of market/evidence code)",
+  "reviewed_findings": [
+    "MKT-01",
+    "MKT-02",
+    "EV2-01"
+  ],
+  "tests": {
+    "passed": 29,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 6.24,
+    "run": "run01"
+  },
+  "coverage": [
+    "Tencent/EastMoney UTC runtime clock normalization and future rejection",
+    "Local receipt clock progresses without outer collection context",
+    "Post-15:00 timestamp rejected even if received before observation clock",
+    "Actual live_proxy original-close branch does not call live tick provider",
+    "Actual capture_session market.live wrapper cannot seal a future tick",
+    "Old sealed batch projection and direct opening reject trailing NUL/comments/garbage/extra delimiter",
+    "Exact full assignment parser requires valid separators; legal newline batches preserve original spans",
+    "Direct quote/open and batch prefetch agree on lexical-prefix rejection",
+    "Identical overlapping valid batches preserve exact original packet"
+  ],
+  "confirmed_new_findings": [],
+  "considered_not_promoted": [
+    {
+      "candidate": "Named market.live replay skips re-running live_proxy",
+      "assessment": "Expected role-level replay. Current normal original-close producer calls live_proxy after close, using dated OHLCV rather than intraday quote. A manually fabricated role can carry arbitrary metadata, but no reachable normal producer bypass demonstrated. Capturing actual future tick fails before role entry and archive remains incomplete."
+    },
+    {
+      "candidate": "Midday stale-minute or cash auction lower bound tightening",
+      "assessment": "No new arbitrary freshness rule introduced. Current 09:15 lower bound is explicitly preregistered consistent with existing quote contract. No independent evidence that additional session restriction is required within this patch scope."
+    }
+  ],
+  "limits": [
+    "Offline tests only; fixed real history/option packet fixtures with explicitly synthetic quote timestamps and lexical mutations.",
+    "No formal ledger/state, deployment, email or external HTTP.",
+    "No exhaustive vulnerability claim; parent binds final integrated source hashes and cumulative gates."
+  ],
+  "source_sha256_at_report": {
+    "poe_ic_im_mainline_v1_4_bot.py": "48a0fd691904a72b83ac0b9ca3506a2e5a4754d82edb72e1aed0937f23e1239c",
+    "ic_im_signal_evidence_v1.py": "8cf484fdc536596d426a0dccced2a3a4a9e76d9952c8474b97051bcd5673d087",
+    "ic_im_evidence_adapter_v1.py": "775f39c2ba60f64d41a580d344969d91c56e25c029fe31a5588e352b4916e867"
+  },
+  "test_sha256": "d342d4e679375fc08f2ff163a45ca70f28d08e3b1691f58beb6eeceddb6e5df2"
+}
