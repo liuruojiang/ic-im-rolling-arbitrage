@@ -1,0 +1,26 @@
+{
+  "single_response_chain_batch_size_64": [
+    "test_ic_im_v1_4_integration_guards.py::test_sina_chain_marks_one_yesterday_row_without_reselecting_another_strike",
+    "test_ic_im_external_review_20261021.py::test_real_adjusted_rows_are_quarantined_without_inventing_trading_codes",
+    "test_icim_redteam_market_20261021.py::test_full_real_adjusted_chain_preserves_fifteen_legal_m_contracts"
+  ],
+  "synthetic_etf_previous_close_7_8": [
+    "test_icim_round2_audit_lifecycle_20261021.py::test_full_public_builder_real_sse_current_holding_identity[10012099]",
+    "test_icim_round2_audit_lifecycle_20261021.py::test_full_public_builder_real_sse_current_holding_identity[10011470]",
+    "test_icim_round2_audit_lifecycle_20261021.py::test_full_public_builder_real_sse_current_holding_identity[None]",
+    "test_icim_round2_audit_lifecycle_20261021.py::test_actual_builder_independent_sleeves_never_cross_identity[None]",
+    "test_icim_round2_audit_lifecycle_20261021.py::test_actual_builder_independent_sleeves_never_cross_identity[core]",
+    "test_icim_round2_audit_lifecycle_20261021.py::test_actual_builder_independent_sleeves_never_cross_identity[momentum]",
+    "test_icim_round2_audit_lifecycle_20261021.py::test_legal_zero_put_holding_does_not_require_unheld_legacy_identity",
+    "test_icim_round2_audit_lifecycle_20261021.py::test_actual_short_mark_must_not_trust_stale_m_label_for_adjusted_security",
+    "test_icim_batch3_valuation_20261021.py::test_complete_ic_builder_replaces_legacy_state_before_formal_target[-100.0]",
+    "test_icim_batch3_valuation_20261021.py::test_complete_ic_builder_replaces_legacy_state_before_formal_target[100.0]",
+    "test_icim_expert_display_retry_20261021.py::test_ic_public_monthly_reset_with_missing_quantity_is_diagnostic",
+    "test_icim_expert_audit_calendar_20261021.py::test_actual_ic_quarter_roll_preview_and_close_remain_diagnostic[day0]",
+    "test_icim_expert_audit_calendar_20261021.py::test_actual_ic_quarter_roll_preview_and_close_remain_diagnostic[day1]"
+  ],
+  "note": "Only these isolated test inputs are adapted. Original assertions and 22 exclusions remain unchanged; production defaults/validators are unchanged.",
+  "sina_wire_string_mock_boundary": [
+    "test_icim_round4_recovery_20261021.py::test_batched_mo_original_crosschecks_replay_quote_and_open_without_http"
+  ]
+}

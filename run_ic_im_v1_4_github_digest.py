@@ -135,7 +135,7 @@ def validate_realtime_artifact(
         )
     for product in PRODUCTS:
         signal = observed[product]
-        state_module.validate_delivery_values(signal, product)
+        state_module.validate_delivery_values(signal, product, require_complete=False)
         if bool(signal.get("close_confirmed")):
             raise RuntimeError(f"{product}盘中信号被错误标记为收盘确认")
         if str(signal.get("product")) != product:

@@ -37,6 +37,10 @@ def test_ledger_rejects_conflicting_confirmed_short_cost(tmp_path, monkeypatch, 
 @pytest.mark.parametrize('product', ['IC','IM'])
 def test_short_entry_closes_future_held_after_same_day_quarter_roll(monkeypatch,product):
     monkeypatch.setattr(bot.fear_grid,'EFFECTIVE_SIGNAL_DATE',date(2100,1,1))
+    # This synthetic transition probe assumes calendar coverage to isolate the
+    # post-roll contract invariant. Batch3 separately rejects real unverified
+    # 2027 targets; this fixture supplies no official holiday information.
+    monkeypatch.setattr(bot, '_OFFICIAL_EXCHANGE_CALENDAR_YEARS', frozenset({2026, 2027}))
     # The daily close's quarterly roll completes before next session's short entry.
     day=date(2026,12,15 if product=='IC' else 17)
     previous=day-timedelta(days=1)
