@@ -1,0 +1,124 @@
+{
+  "listing": {
+    "started_at": "2026-10-21T05:28:27.494341+00:00",
+    "completed_at": "2026-10-21T05:28:30.120581+00:00",
+    "status": 200,
+    "url": "https://hq.sinajs.cn/?list=OP_DOWN_5105002612",
+    "bytes": 498,
+    "sha256": "040263c20f8183354432c74392a4bb3a3fdb290195480f09a4e8a7c7d20ecf93",
+    "path": "sina_december_listing.bin"
+  },
+  "quotes": {
+    "started_at": "2026-10-21T05:28:30.120787+00:00",
+    "completed_at": "2026-10-21T05:28:30.542515+00:00",
+    "status": 200,
+    "url": "https://hq.sinajs.cn/list=CON_OP_10011470,CON_OP_10011471,CON_OP_10011472,CON_OP_10011473,CON_OP_10011474,CON_OP_10011475,CON_OP_10011476,CON_OP_10011477,CON_OP_10011478,CON_OP_10011520,CON_OP_10011552,CON_OP_10011600,CON_OP_10011810,CON_OP_10012002,CON_OP_10012098,CON_OP_10012099,CON_OP_10012100,CON_OP_10012101,CON_OP_10012102,CON_OP_10012103,CON_OP_10012104,CON_OP_10012105,CON_OP_10012106,CON_OP_10012120,CON_OP_10012149,CON_OP_10012150,CON_OP_10012282,CON_OP_10012600,CON_OP_10012632",
+    "bytes": 9543,
+    "sha256": "14c527e8b43d924481421fe399eef9adbaddb2960989beda99365c9563d55111",
+    "path": "sina_december_quotes.bin"
+  },
+  "styles": {
+    "A": 14,
+    "M": 15
+  },
+  "adjusted_examples": [
+    {
+      "security_id": "10011470",
+      "strike": "7.3670",
+      "name": "500ETF沽12月7367A",
+      "expiry": "2026-12-23",
+      "timestamp": "2026-10-21 11:24:19"
+    },
+    {
+      "security_id": "10011471",
+      "strike": "7.6130",
+      "name": "500ETF沽12月7613A",
+      "expiry": "2026-12-23",
+      "timestamp": "2026-10-21 11:26:13"
+    },
+    {
+      "security_id": "10011472",
+      "strike": "7.8590",
+      "name": "500ETF沽12月7859A",
+      "expiry": "2026-12-23",
+      "timestamp": "2026-10-21 09:47:44"
+    },
+    {
+      "security_id": "10011473",
+      "strike": "8.1040",
+      "name": "500ETF沽12月8104A",
+      "expiry": "2026-12-23",
+      "timestamp": "2026-10-21 10:08:34"
+    },
+    {
+      "security_id": "10011474",
+      "strike": "8.3500",
+      "name": "500ETF沽12月8350A",
+      "expiry": "2026-12-23",
+      "timestamp": "2026-10-21 11:02:00"
+    },
+    {
+      "security_id": "10011475",
+      "strike": "8.5950",
+      "name": "500ETF沽12月8595A",
+      "expiry": "2026-12-23",
+      "timestamp": "2026-10-21 13:03:37"
+    },
+    {
+      "security_id": "10011476",
+      "strike": "8.8410",
+      "name": "500ETF沽12月8841A",
+      "expiry": "2026-12-23",
+      "timestamp": "2026-10-21 00:00:00"
+    },
+    {
+      "security_id": "10011477",
+      "strike": "9.0860",
+      "name": "500ETF沽12月9086A",
+      "expiry": "2026-12-23",
+      "timestamp": "2026-10-21 13:16:23"
+    },
+    {
+      "security_id": "10011478",
+      "strike": "9.3320",
+      "name": "500ETF沽12月9332A",
+      "expiry": "2026-12-23",
+      "timestamp": "2026-10-21 00:00:00"
+    },
+    {
+      "security_id": "10011520",
+      "strike": "7.1220",
+      "name": "500ETF沽12月7122A",
+      "expiry": "2026-12-23",
+      "timestamp": "2026-10-21 13:21:28"
+    },
+    {
+      "security_id": "10011552",
+      "strike": "9.5780",
+      "name": "500ETF沽12月9578A",
+      "expiry": "2026-12-23",
+      "timestamp": "2026-10-21 13:21:02"
+    },
+    {
+      "security_id": "10011600",
+      "strike": "9.8230",
+      "name": "500ETF沽12月9823A",
+      "expiry": "2026-12-23",
+      "timestamp": "2026-10-21 11:03:03"
+    },
+    {
+      "security_id": "10011810",
+      "strike": "6.8760",
+      "name": "500ETF沽12月6876A",
+      "expiry": "2026-12-23",
+      "timestamp": "2026-10-21 13:25:20"
+    },
+    {
+      "security_id": "10012002",
+      "strike": "10.3140",
+      "name": "500ETF沽12月10314A",
+      "expiry": "2026-12-23",
+      "timestamp": "2026-10-21 11:14:10"
+    }
+  ]
+}

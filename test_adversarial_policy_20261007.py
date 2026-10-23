@@ -23,11 +23,13 @@ def _signal(product="IM"):
 
 
 def test_ic_reset_uses_existing_chain_failover(monkeypatch):
-    """A valid backup exists, so an SSE outage must not abort monthly selection."""
-    chain = pd.DataFrame([{"contract": "510500P2701M07500", "last": .20, "strike": 7.5,
+    """A valid backup in a covered calendar year survives an SSE outage."""
+    # Calendar rejection has separate adversarial coverage; retain this test
+    # as an actual provider-failover check rather than an unknown-year fixture.
+    chain = pd.DataFrame([{"contract": "510500P2612M07500", "last": .20, "strike": 7.5,
                            "source_stamp": datetime(2026, 10, 8, 15, tzinfo=bot.BEIJING)}])
     stamp = {"date": "20261008", "time": "150000", "source": "Sina"}
-    monkeypatch.setattr(bot, "fetch_sse_510500_expiries", lambda: ["202701"])
+    monkeypatch.setattr(bot, "fetch_sse_510500_expiries", lambda: ["202612"])
     monkeypatch.setattr(bot, "fetch_sse_510500_chain",
                         lambda month: (_ for _ in ()).throw(TimeoutError("SSE outage")))
     monkeypatch.setattr(bot, "fetch_sina_510500_chain", lambda month: (chain, stamp))
@@ -35,19 +37,19 @@ def test_ic_reset_uses_existing_chain_failover(monkeypatch):
     monkeypatch.setattr(bot, "_gov10y_for_day", lambda *args: .02)
     with bot.runtime_clock(datetime(2026, 10, 8, 16, tzinfo=bot.BEIJING)):
         selected = bot.select_ic_put_for_reset(date(2026, 10, 8), 7.83, 7641., .25)
-    assert selected["contract"] == "510500P2701M07500"
+    assert selected["contract"] == "510500P2612M07500"
     assert selected["stamp"]["source"] == "Sina"
 
 
 def test_ic_reset_rejects_stale_selected_row_in_current_chain(monkeypatch):
     chain = pd.DataFrame([
-        {"contract": "510500P2701M07500", "last": .20, "strike": 7.5,
+        {"contract": "510500P2612M07500", "last": .20, "strike": 7.5,
          "source_stamp": datetime(2026, 10, 7, 15, tzinfo=bot.BEIJING)},
-        {"contract": "510500P2701M07250", "last": .10, "strike": 7.25,
+        {"contract": "510500P2612M07250", "last": .10, "strike": 7.25,
          "source_stamp": datetime(2026, 10, 8, 15, tzinfo=bot.BEIJING)},
     ])
     stamp = {"date": "20261008", "time": "150000", "source": "Sina"}
-    monkeypatch.setattr(bot, "fetch_sse_510500_expiries", lambda: ["202701"])
+    monkeypatch.setattr(bot, "fetch_sse_510500_expiries", lambda: ["202612"])
     monkeypatch.setattr(bot, "fetch_sse_510500_chain", lambda month: (chain, stamp))
     monkeypatch.setattr(bot, "fetch_sina_510500_security_id", lambda contract: "10012357")
     monkeypatch.setattr(bot, "_gov10y_for_day", lambda *args: .02)

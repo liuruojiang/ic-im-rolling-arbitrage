@@ -344,7 +344,8 @@ def test_ic_core_target_zero_clears_identity_but_keeps_held_mark():
 def test_ic_candidate_falls_back_to_sina_when_sse_times_out(monkeypatch):
     signal={'market_date':date(2026,9,18),'next_trade_date':date(2026,9,21),
             'etf_price':7.83,'future_last':7641.0}
-    chain=pd.DataFrame([{'contract':'510500P2610M07500','last':.1237,'strike':7.5}])
+    chain=pd.DataFrame([{'contract':'510500P2610M07500','last':.1237,'strike':7.5,
+                         'source_stamp':datetime(2026,9,18,15,tzinfo=bot.BEIJING)}])
     monkeypatch.setattr(bot, 'fetch_sse_510500_chain', lambda _month: (_ for _ in ()).throw(TimeoutError('SSE timeout')))
     monkeypatch.setattr(bot, 'fetch_sina_510500_chain', lambda _month: (chain, {'date':'20260918','time':'150000','source':'新浪财经期权详报价（上交所回退）'}))
     monkeypatch.setattr(bot, 'fetch_sina_510500_security_id', lambda _contract: '10012357')
@@ -626,14 +627,17 @@ def test_im_ordinary_open_on_eastmoney_requires_independent_sina_check():
 def test_sina_chain_marks_one_yesterday_row_without_reselecting_another_strike():
     def payload(strike, observed):
         fields = [''] * 47
-        fields[3], fields[7], fields[32] = '0.25', str(strike), observed
+        # CON_OP latest trade is [2]; [3] is ask. This fixture checks time,
+        # not the former incorrect ask-as-trade parser.
+        fields[2], fields[3], fields[7], fields[32] = '0.25', '0.26', str(strike), observed
+        fields[36] = '510500'
         fields[40], fields[43], fields[45], fields[46] = '0.24', 'M', 'P', '2026-12-23'
         return ','.join(fields)
 
-    listing = Mock(headers={}, content=b'CON_OP_1001,CON_OP_1002,CON_OP_1003')
-    details = ('var hq_str_CON_OP_1001="' + payload(7.25, '2026-09-30 13:10:00') + '";'
-               'var hq_str_CON_OP_1002="' + payload(7.50, '2026-09-29 15:00:00') + '";'
-               'var hq_str_CON_OP_1003="' + payload(7.75, '2026-09-30 00:00:00') + '";')
+    listing = Mock(headers={}, content=b'CON_OP_10001001,CON_OP_10001002,CON_OP_10001003')
+    details = ('var hq_str_CON_OP_10001001="' + payload(7.25, '2026-09-30 13:10:00') + '";'
+               'var hq_str_CON_OP_10001002="' + payload(7.50, '2026-09-29 15:00:00') + '";'
+               'var hq_str_CON_OP_10001003="' + payload(7.75, '2026-09-30 00:00:00') + '";')
     quotes_response = Mock(headers={}, content=details.encode('gbk'))
     clock = datetime(2026, 9, 30, 13, 20, tzinfo=bot.BEIJING)
     with patch.object(bot.requests, 'get', side_effect=[listing, quotes_response]):
