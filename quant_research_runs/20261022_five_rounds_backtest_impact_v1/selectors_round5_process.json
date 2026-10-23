@@ -1,0 +1,11 @@
+{
+  "args": [
+    "C:\\Python314\\python.exe",
+    "-B",
+    "quant_research_runs\\20261022_five_rounds_backtest_impact_v1\\probe_historical_selectors.py",
+    "round5"
+  ],
+  "exit_code": 0,
+  "stdout": "{\"version\": \"round5\", \"futures\": {\"IC\": {\"sessions\": 945, \"selected\": 156, \"blocked\": 789}, \"IM\": {\"sessions\": 986, \"selected\": 157, \"blocked\": 829}}, \"first_day_put\": {\"day\": \"2022-07-22\", \"status\": \"blocked\", \"error_type\": \"CalendarCoverageError\", \"reason\": \"independent IM Put expiry需要2022年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号\"}, \"network_requests\": 0}\n",
+  "stderr": ""
+}

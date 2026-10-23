@@ -1,0 +1,59 @@
+{
+  "observed_at": "2026-10-22T21:32:14.776136+08:00",
+  "proxies": [
+    {
+      "name": "HTTP_PROXY",
+      "scheme": "http",
+      "host": "127.0.0.1",
+      "port": 3128,
+      "contains_auth": false,
+      "tcp_reachable": true
+    },
+    {
+      "name": "HTTPS_PROXY",
+      "scheme": "http",
+      "host": "127.0.0.1",
+      "port": 3128,
+      "contains_auth": false,
+      "tcp_reachable": true
+    },
+    {
+      "name": "ALL_PROXY",
+      "scheme": "socks5h",
+      "host": "127.0.0.1",
+      "port": 8081,
+      "contains_auth": false,
+      "tcp_reachable": true
+    }
+  ],
+  "requests": [
+    {
+      "url": "https://www.rfc-editor.org/rfc/rfc9110.html",
+      "started_at": "2026-10-22T21:32:14.816114+08:00",
+      "error_type": "ProxyError",
+      "error": "HTTPSConnectionPool(host='www.rfc-editor.org', port=443): Max retries exceeded with url: /rfc/rfc9110.html (Caused by ProxyError('Cannot connect to proxy.', TimeoutError('timed out')))",
+      "finished_at": "2026-10-22T21:32:18.832661+08:00"
+    },
+    {
+      "url": "https://yunhq.sse.com.cn:32042/v1/sho/list/tstyle/510500_12",
+      "started_at": "2026-10-22T21:32:14.816589+08:00",
+      "error_type": "ProxyError",
+      "error": "HTTPSConnectionPool(host='yunhq.sse.com.cn', port=32042): Max retries exceeded with url: /v1/sho/list/tstyle/510500_12 (Caused by ProxyError('Cannot connect to proxy.', TimeoutError('timed out')))",
+      "finished_at": "2026-10-22T21:32:18.848804+08:00"
+    },
+    {
+      "url": "https://hq.sinajs.cn/etag.php?list=sh510500",
+      "started_at": "2026-10-22T21:32:14.817162+08:00",
+      "error_type": "ProxyError",
+      "error": "HTTPSConnectionPool(host='hq.sinajs.cn', port=443): Max retries exceeded with url: /etag.php?list=sh510500 (Caused by ProxyError('Cannot connect to proxy.', TimeoutError('timed out')))",
+      "finished_at": "2026-10-22T21:32:18.849104+08:00"
+    },
+    {
+      "url": "http://www.cffex.com.cn/quote_IC.txt",
+      "started_at": "2026-10-22T21:32:14.817435+08:00",
+      "error_type": "ReadTimeout",
+      "error": "HTTPConnectionPool(host='127.0.0.1', port=3128): Read timed out. (read timeout=8)",
+      "finished_at": "2026-10-22T21:32:22.854926+08:00"
+    }
+  ]
+}

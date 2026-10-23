@@ -1,0 +1,25 @@
+{
+  "accepted": true,
+  "subject": "[历史模型补录][部分数据缺失/网格未确认] IC/IM 1.4-r1 日报 - 2026-10-09",
+  "base_targets": {
+    "IC": null,
+    "IM": null
+  },
+  "reference_overrides": {
+    "jiu_fear_greed_index": 2.28,
+    "jiu_data_date": "2026-10-08",
+    "jiu_retrieved_at": "2026-10-16T12:30:00+08:00",
+    "jiu_status": "reference_only",
+    "jiu_reference_only": true,
+    "total_units_target": 99.0,
+    "grid_target": 0.5,
+    "grid_action": "ADD"
+  },
+  "text_rows": [
+    "| IC | 0.5 → 99 | 0 → 0 | 0 → 0.5 | 合计10张（核心10张 510500P2612M07500；动量0张 无） → 合计10张（核心10张 510500P2612M07500；动量0张 无） | 明确禁止 | 网格 ADD |",
+    "| IM | 0.5 → 99 | 0 → 0 | 0 → 0.5 | 合计1.5张（核心1.5张 MO2612-P-7600；动量0张 无） → 合计1.5张（核心1.5张 MO2612-P-7600；动量0张 无） | 0张 无 → 0张 无 | 网格 ADD |",
+    "| IC当日动态比例按IC名义金额/ETF期权名义金额×目标Delta/所选Put绝对Delta并取整；result未保存所选Put绝对Delta，本次动态重算N/A。下表比例仅为已记录数量/已记录期货单位，沿用数量不冒称今日重选。 |",
+    "| IM核心Put=绝对估值轴、57个月相对轴、MOM120下限三者取高×0.5；动量Put仅MOM120<0时按3×0.5×原动量多头执行权重，空仓为0。独立生命周期数量另列，不能替代普通核心保护。 |"
+  ],
+  "html_contains_99": true
+}

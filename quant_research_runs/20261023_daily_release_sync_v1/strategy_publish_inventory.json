@@ -1,0 +1,1179 @@
+[
+  {
+    "path": "_icim_delivery_test_worker.py",
+    "git_blob_sha": "29a30efbf5cc19ebc5f32cdcbb36fb2c53bf275e",
+    "sha256": "c7a9b97e6e979c323b2aa0b4b54124e0779a4c7b03401f72e72958013b070afc",
+    "bytes": 9813,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/000_000.json"
+    ]
+  },
+  {
+    "path": "capture_ic_im_v1_4_inputs.py",
+    "git_blob_sha": "a6850051fd7aa2353c18722d393f520546d2a87d",
+    "sha256": "09a01acbaa138b9d6b8a56fe6c05d52e3199b92ddc3eb20aaa84b90d286655a9",
+    "bytes": 17296,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/001_000.json"
+    ]
+  },
+  {
+    "path": "docs/ic_im_daily_release_20261023_manifest.json",
+    "git_blob_sha": "5c1d3c8f525608abf783e63f9481a5921c3db42e",
+    "sha256": "e85c7e703ef9faa4101658d24e35da89d7dc777dde329e2e4b8745c7c9a75927",
+    "bytes": 17681,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/002_000.json"
+    ]
+  },
+  {
+    "path": "docs/ic_im_daily_release_sync_20261023_v1_spec.md",
+    "git_blob_sha": "727cf93faa0dd070a730df533828807735ebc4e8",
+    "sha256": "8fbd36099c8c7175b2e5f4b0038a8249aad5ea72e2a1288d243da702fbae2b64",
+    "bytes": 2020,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/003_000.json"
+    ]
+  },
+  {
+    "path": "docs/ic_im_daily_release_sync_20261023_v1_spec.md.sha256",
+    "git_blob_sha": "faddd2c7b630e2df4e54d03e973fcb9505b35039",
+    "sha256": "efca5b34b3691455f21924493196e7bc548d950effe9b05b580d3728ded552a4",
+    "bytes": 112,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/004_000.json"
+    ]
+  },
+  {
+    "path": "docs/ic_im_multiround_adversarial_20261023_v1_spec.md",
+    "git_blob_sha": "bb0517429f6fd91661aa897e2a4cd6e908e01f0d",
+    "sha256": "d43122b85215f3ee656ffd6b51195e65ff5028e1c6584d8124b028da56ebbb4d",
+    "bytes": 2510,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/005_000.json"
+    ]
+  },
+  {
+    "path": "docs/ic_im_multiround_adversarial_20261023_v1_spec.md.sha256",
+    "git_blob_sha": "e80d51d0b16dbea128bbb62d56919702dd28263a",
+    "sha256": "f7238ed70d9a11f59b6f79c148d02a362800efe18df234779d77d27d97432f16",
+    "bytes": 116,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/006_000.json"
+    ]
+  },
+  {
+    "path": "docs/ic_im_multiround_audit_20261023.md",
+    "git_blob_sha": "19e28d808c24d4b8bab0b4ea1c977bc7096976c3",
+    "sha256": "f65035944a8dcd9ecf3c25225069433b1f3bddd18f49f32dd6a106392a3bce2c",
+    "bytes": 7402,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/007_000.json"
+    ]
+  },
+  {
+    "path": "docs/ic_im_v1_4_github_gmail_runbook.md",
+    "git_blob_sha": "7f214ad5731c6e73fdc24bf7acc044b4e96e163f",
+    "sha256": "2a356082ffd3df8193cb6e7c44969a95009bedda65d14ff723e913cc663a6d28",
+    "bytes": 11075,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/008_000.json"
+    ]
+  },
+  {
+    "path": "docs/icim_delivery_legacy_fixtures_20261023.json",
+    "git_blob_sha": "842fafec6ff1effb05598135a5e578bf13be5ccc",
+    "sha256": "522241f0ab6d61fcec33862a7b4f65af4f85f4b4ac0417159250f2e551aa7abb",
+    "bytes": 2370,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/009_000.json"
+    ]
+  },
+  {
+    "path": "docs/icim_delivery_pytest.ini",
+    "git_blob_sha": "352851031e400e2680c50678adada9e19ceb7ca9",
+    "sha256": "d01637a0417e7fd4c8704ba8ed3b7717601c8b6396dd7fe3ab4303007ee70ffd",
+    "bytes": 83,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/010_000.json"
+    ]
+  },
+  {
+    "path": "docs/icim_historical_deselections_20261023.json",
+    "git_blob_sha": "806fb421d6cd68f6e4d4a828f58d163f84715580",
+    "sha256": "578f2af9b309644d564f2225b30ed0e591eb34865cf475f413afcd294dd8d1fa",
+    "bytes": 6651,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/011_000.json"
+    ]
+  },
+  {
+    "path": "ic_im_adjusted_put_migration_v1.py",
+    "git_blob_sha": "defa579464e8994b24747a23fecd2abaed76c9ff",
+    "sha256": "f4bbdaa49225e51b83ccfe441b9c6f4dc36b7f3206acf509098f4d8628215c29",
+    "bytes": 17091,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/012_000.json"
+    ]
+  },
+  {
+    "path": "ic_im_chinabond.py",
+    "git_blob_sha": "bae7824fa18cffbb01b423084f512226ec2ecbdc",
+    "sha256": "4e1098b2f4c253d9950c084eafcc655ea8e5e820478a01a29393d638e6d40ab9",
+    "bytes": 8188,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/013_000.json"
+    ]
+  },
+  {
+    "path": "ic_im_daily_valuation.py",
+    "git_blob_sha": "aa182703e7c717b433984323e02a01e75eb31729",
+    "sha256": "b389a81475836fb3e4e96dbc92216a54afeb199029d524f51efbb8d029e4257c",
+    "bytes": 5935,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/014_000.json"
+    ]
+  },
+  {
+    "path": "ic_im_evidence_adapter_v1.py",
+    "git_blob_sha": "36c58e5a3127f768e118bb79514258fcc4df741b",
+    "sha256": "f22a342dcf671f7625d6861f4041cff045d698ba2ba63c8519fdfa0fd204a662",
+    "bytes": 38420,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/015_000.json",
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/015_001.json"
+    ]
+  },
+  {
+    "path": "ic_im_fear_grid_v1.py",
+    "git_blob_sha": "6d1ea14748cfde78d03a40156746a03e8bb7068b",
+    "sha256": "a21578621eb7695af5dcc669670cdcfa2bef2f0d9fceb4ad40a3ddae707fcc67",
+    "bytes": 47363,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/016_000.json",
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/016_001.json"
+    ]
+  },
+  {
+    "path": "ic_im_mainline_v1_2.py",
+    "git_blob_sha": "e4143d75e107439a100a9af610bf24de780227ad",
+    "sha256": "ae2ccba29779841ea100dfb719cb92552795053567f6faeae9fff00ec4b47dd2",
+    "bytes": 4000,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/017_000.json"
+    ]
+  },
+  {
+    "path": "ic_im_mainline_v1_3.py",
+    "git_blob_sha": "80c185e0cabd9ce117d21563ddf76d00bbebca49",
+    "sha256": "f420f7d8eb357611d085a8e31ce75a47ddc18c67f51a59a160bac8268c6bc0e5",
+    "bytes": 4015,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/018_000.json"
+    ]
+  },
+  {
+    "path": "ic_im_option_maintenance_notice.py",
+    "git_blob_sha": "b4cc1d9036325acaa63adfcc0917504f19e1cd60",
+    "sha256": "a2ad67732d85bad5d96444d7a74a350d3ecdf0fdb6b82b9b593ccfaf95c63746",
+    "bytes": 4231,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/019_000.json"
+    ]
+  },
+  {
+    "path": "ic_im_put_execution_v1.py",
+    "git_blob_sha": "158902a3ffe6512070abd154c9f4e76a01c95c63",
+    "sha256": "8cdda4e3761bda7889c16b0102ee0106d2efaaa61088b7cb6fc83a08d67b2368",
+    "bytes": 14869,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/020_000.json"
+    ]
+  },
+  {
+    "path": "ic_im_put_expiry_side_scan_v2.py",
+    "git_blob_sha": "4c240ec98da758e10c603b790dc0734a77c155ee",
+    "sha256": "7cffe49766268d83de8db276e37b30169ec3f383f13b3cada23ae06972c48b45",
+    "bytes": 21340,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/021_000.json"
+    ]
+  },
+  {
+    "path": "ic_im_put_max_protection_scan_v1.py",
+    "git_blob_sha": "ecae967669dbdb522108605b372130467f79efad",
+    "sha256": "151b201bc9258a864cb725aec666133d3e4fcf2f0876ee98062103ce62cd1c1d",
+    "bytes": 27024,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/022_000.json"
+    ]
+  },
+  {
+    "path": "ic_im_quarter_roll_v1_3.py",
+    "git_blob_sha": "9369fe494d6f81fc993cdf8507937f3dac47e82b",
+    "sha256": "cec4535aa0dca4200ac4e50ec91f7aa82aee12c5157f0cb350ab73c82d53457d",
+    "bytes": 14259,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/023_000.json"
+    ]
+  },
+  {
+    "path": "ic_im_quote_snapshot_guard.py",
+    "git_blob_sha": "9f260257cab8708135efbb6c3494b376f46bec34",
+    "sha256": "ae22b541a1a2a6bc20d5bd23bb1fc3d275a2f3fcfce96b5345c2458cde74b9d5",
+    "bytes": 4382,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/024_000.json"
+    ]
+  },
+  {
+    "path": "ic_im_signal_evidence_v1.py",
+    "git_blob_sha": "50bbfe8d698bda5671e1f2e87bb3fb31b44e59c5",
+    "sha256": "adb241e56e9c012487a4c3837865450256c53aa1f0d1d2c0c1dc141cd1172a0f",
+    "bytes": 45691,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/025_000.json",
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/025_001.json"
+    ]
+  },
+  {
+    "path": "ic_im_sse_contract_identity_v1.py",
+    "git_blob_sha": "9f21e877f78ce6a965e9363e3370f46e59961584",
+    "sha256": "47a2d81f665d2b199eaa2c2043c90271cdd242aa9776620002c833f3cdafacc8",
+    "bytes": 8121,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/026_000.json"
+    ]
+  },
+  {
+    "path": "ic_im_v1_4_policy.py",
+    "git_blob_sha": "1a200d602dbaeb0a779440eda6c34288a539a210",
+    "sha256": "b4f131bd60c596f19800d11d4c1f4eab5de0f4f4b2e935242a24ff7324827eac",
+    "bytes": 48321,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/027_000.json",
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/027_001.json"
+    ]
+  },
+  {
+    "path": "icim_delivery_test_evidence.py",
+    "git_blob_sha": "3fb1e8bd99b5c7e3d4b17f907907cd3066f8708e",
+    "sha256": "0c41291c1e9552ecf310a7ec564d505d3e948fb685f7c49404cad87a03fa3e76",
+    "bytes": 7756,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/028_000.json"
+    ]
+  },
+  {
+    "path": "im_put_policy.py",
+    "git_blob_sha": "28a72004714687f64b50978f633578a0897965e1",
+    "sha256": "ff9c9b1d52e4b1aa25fcb3c85e61665a4acf0a4de68272d8ddc9caaf2d4a9a9c",
+    "bytes": 2311,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/029_000.json"
+    ]
+  },
+  {
+    "path": "notes/mainline_registry.md",
+    "git_blob_sha": "301dcc226b075795424ea894567d45fbea2a38aa",
+    "sha256": "e7d6d63f895105204a37a979edda1bdee3288e91e9e9a8f0239fb226a08cda9f",
+    "bytes": 73027,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/030_000.json",
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/030_001.json",
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/030_002.json"
+    ]
+  },
+  {
+    "path": "poe_ic_im_mainline_v1_2_bot.py",
+    "git_blob_sha": "7d210571bc2804e58fd9426f3ec0440108a2f8df",
+    "sha256": "0fd48ccb2d1f9f9ed061ef4b92f769151d99283efda8d97be7cc29db740ebcd9",
+    "bytes": 304765,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/031_000.json",
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/031_001.json",
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/031_002.json",
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/031_003.json",
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/031_004.json",
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/031_005.json",
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/031_006.json",
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/031_007.json",
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/031_008.json",
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/031_009.json",
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/031_010.json"
+    ]
+  },
+  {
+    "path": "poe_ic_im_mainline_v1_3_bot.py",
+    "git_blob_sha": "06c3bc4cef628f23833cc707b1d3c112f40f04e4",
+    "sha256": "fd3c7df2b68255fda618ca9267a00f38ab3f8c2ce66ff99b53e1fb0be2a284fa",
+    "bytes": 330760,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/032_000.json",
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/032_001.json",
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/032_002.json",
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/032_003.json",
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/032_004.json",
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/032_005.json",
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/032_006.json",
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/032_007.json",
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/032_008.json",
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/032_009.json",
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/032_010.json",
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/032_011.json"
+    ]
+  },
+  {
+    "path": "poe_ic_im_mainline_v1_4_bot.py",
+    "git_blob_sha": "9b8fbcb20f593286e80c1c64bcffe72c91cfd35c",
+    "sha256": "b390575a41fe11da6da68caee551b7827f9cee28fb8ceba19432ec661e775222",
+    "bytes": 521955,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/033_000.json",
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/033_001.json",
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/033_002.json",
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/033_003.json",
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/033_004.json",
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/033_005.json",
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/033_006.json",
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/033_007.json",
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/033_008.json",
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/033_009.json",
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/033_010.json",
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/033_011.json",
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/033_012.json",
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/033_013.json",
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/033_014.json",
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/033_015.json",
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/033_016.json",
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/033_017.json"
+    ]
+  },
+  {
+    "path": "poe_ic_im_mainlines_v2_bot.py",
+    "git_blob_sha": "7e90bfd8389bb65527a3391d95d7d01051be6428",
+    "sha256": "d69e5fee6f662e7cf1703ed151b3ac598fe46703ecdeae11c578e38f584667d2",
+    "bytes": 117200,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/034_000.json",
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/034_001.json",
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/034_002.json",
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/034_003.json"
+    ]
+  },
+  {
+    "path": "poe_ic_im_v1_2_server.py",
+    "git_blob_sha": "23ef677127dca64ee73c0ce706eb2847bd7ef95e",
+    "sha256": "098ad40164b01fd5ac4f094a0be0cccc46c4dd863bb5af69de9f1d1770832463",
+    "bytes": 10455,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/035_000.json"
+    ]
+  },
+  {
+    "path": "poe_ic_im_v1_2_state.py",
+    "git_blob_sha": "d3bbfecc692006fe79f93d050c49255866732b37",
+    "sha256": "68a047d974244b44f48c9beea07eb09da11d752d2d1c18e7543ab588898ade9f",
+    "bytes": 13419,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/036_000.json"
+    ]
+  },
+  {
+    "path": "poe_ic_im_v1_3_server.py",
+    "git_blob_sha": "17f5c8cf39b63ee839111c0551c5a35fef89741e",
+    "sha256": "bb4a482557e406e161ded843567903532eb0f38649b3dd61bce934584e464260",
+    "bytes": 12707,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/037_000.json"
+    ]
+  },
+  {
+    "path": "poe_ic_im_v1_3_state.py",
+    "git_blob_sha": "e0bf370af226ba3589461307eb2c1d04ff764586",
+    "sha256": "3ab7a9feb038e4139d63655d416459d6afa2f5d416903965e8e13ed657ec938c",
+    "bytes": 39464,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/038_000.json",
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/038_001.json"
+    ]
+  },
+  {
+    "path": "poe_ic_im_v1_4_server.py",
+    "git_blob_sha": "324b376c9181a02c48d9e7c97842c80542e30d5e",
+    "sha256": "bec2a5b20571a406af7075f9252d72181362a97e502b294d2e5c39c18ac9d5d8",
+    "bytes": 19806,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/039_000.json"
+    ]
+  },
+  {
+    "path": "poe_ic_im_v1_4_state.py",
+    "git_blob_sha": "34182f0f45963dd5159665ea5f3d122f820df0f5",
+    "sha256": "dc11b280baf7da884c82fe52cf1866c0ac42a0b73fa9d9e6990d27c5b0ba1d4a",
+    "bytes": 96354,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/040_000.json",
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/040_001.json",
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/040_002.json",
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/040_003.json"
+    ]
+  },
+  {
+    "path": "quant_research_runs/20261022_free_ic_sources_v1/probe_02/raw/em_core_quote.bin",
+    "git_blob_sha": "8ad5fe1a33f348247b58a72d6f932005aa1c43a5",
+    "sha256": "24fe03fdb26088bfff8b1363911c29c79a19614bca42cdcdb9fefdf52917aeb1",
+    "bytes": 157,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/041_000.json"
+    ]
+  },
+  {
+    "path": "quant_research_runs/20261022_free_ic_sources_v1/probe_02/raw/em_etf_quote.bin",
+    "git_blob_sha": "8ad5fe1a33f348247b58a72d6f932005aa1c43a5",
+    "sha256": "24fe03fdb26088bfff8b1363911c29c79a19614bca42cdcdb9fefdf52917aeb1",
+    "bytes": 157,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/042_000.json"
+    ]
+  },
+  {
+    "path": "quant_research_runs/20261022_free_ic_sources_v1/probe_02/raw/sina_dec_put_batch_0.bin",
+    "git_blob_sha": "11b6771568fcb40d80ae44d5d9e04bfa6470f3a0",
+    "sha256": "90496f84ab64433d6519bf52b9445365a27e9d52f8e9b7afbae50de76558f3e4",
+    "bytes": 121,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/043_000.json"
+    ]
+  },
+  {
+    "path": "quant_research_runs/20261022_free_ic_sources_v1/probe_02/raw/sina_dec_put_batch_1.bin",
+    "git_blob_sha": "30ba7038f3ae644cf5e32615731b37fd0da60876",
+    "sha256": "5e04624b94948a63b4851e565b9f9a2f090b8f13fc792bb5c2cf6b1f212638d7",
+    "bytes": 121,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/044_000.json"
+    ]
+  },
+  {
+    "path": "quant_research_runs/20261022_free_ic_sources_v1/probe_02/raw/sina_dec_put_batch_2.bin",
+    "git_blob_sha": "151f098eb434b9a936c43e64815c1fbdb529ce12",
+    "sha256": "6a8ad664c6cb6920e45d314829705766b8668470b2978dc175f55f4b8b1988b4",
+    "bytes": 121,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/045_000.json"
+    ]
+  },
+  {
+    "path": "quant_research_runs/20261022_free_ic_sources_v1/probe_02/raw/sina_dec_put_batch_3.bin",
+    "git_blob_sha": "7672aad7ff48f654aa20f5636b9d2530f266881d",
+    "sha256": "9d6829163902eef02b3a5437432af3fe69357a49ad4ce77f2f35ca5b1f06b15c",
+    "bytes": 121,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/046_000.json"
+    ]
+  },
+  {
+    "path": "quant_research_runs/20261022_free_ic_sources_v1/probe_02/raw/sina_dec_put_batch_4.bin",
+    "git_blob_sha": "e27811c9c8fd38dc59a1b792d04cc1e7cdc63801",
+    "sha256": "3b37d4c113a2a3493465ebff15510fe6cfdafe7cbcbbee2f4f1c8a274cf63306",
+    "bytes": 103,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/047_000.json"
+    ]
+  },
+  {
+    "path": "quant_research_runs/20261022_free_ic_sources_v1/probe_02/raw/sina_etf.bin",
+    "git_blob_sha": "22133a79e8de80d1f4b8e6a6e6a8a1abd1008d36",
+    "sha256": "bbc28327d2a3fd981769ab66d4fca10ec4cb452510282b054c9505c66ffabd1c",
+    "bytes": 271,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/048_000.json"
+    ]
+  },
+  {
+    "path": "quant_research_runs/20261022_free_ic_sources_v1/probe_02/raw/sina_listed_months.bin",
+    "git_blob_sha": "c1222580bf1e345c33417fd655b9c928f5110f58",
+    "sha256": "8dfeabde741a5fca430cd77c2eab607f17608e00cfcb066b5045a45f7c453d04",
+    "bytes": 245,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/049_000.json"
+    ]
+  },
+  {
+    "path": "quant_research_runs/20261022_free_ic_sources_v1/probe_02/raw/sse_chain_primary.bin",
+    "git_blob_sha": "c4f2bf099bd38b6a32cf4310caca01aacdc7635b",
+    "sha256": "dfd0b211707cb4f1e9c12cafc9cb9edb74f7ef9aa58c6c491bd44e840f76f466",
+    "bytes": 3568,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/050_000.json"
+    ]
+  },
+  {
+    "path": "quant_research_runs/20261022_free_ic_sources_v1/probe_02/raw/sse_master_https.bin",
+    "git_blob_sha": "7b3d35a4c12efe0258a4aa9bf88518056d59a079",
+    "sha256": "8effcf50748a9df1d00ae3230b4a98cb3bb8038923b7b0236dccd513d6710a68",
+    "bytes": 569829,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/051_000.json",
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/051_001.json",
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/051_002.json",
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/051_003.json",
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/051_004.json",
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/051_005.json",
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/051_006.json",
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/051_007.json",
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/051_008.json",
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/051_009.json",
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/051_010.json",
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/051_011.json",
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/051_012.json",
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/051_013.json",
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/051_014.json",
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/051_015.json",
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/051_016.json",
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/051_017.json",
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/051_018.json"
+    ]
+  },
+  {
+    "path": "quant_research_runs/20261022_free_ic_sources_v1/probe_02/raw/tencent_etf.bin",
+    "git_blob_sha": "1bdcb5eb3a86a8a2aa624569f75e526570cdfcc0",
+    "sha256": "6cd3a76f3b63c181acfa0bb0a2b124e7330e259b4e4d2a866cbda5cb00c0427f",
+    "bytes": 534,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/052_000.json"
+    ]
+  },
+  {
+    "path": "quant_research_runs/20261022_free_source_integration_v1/wire_probe_01/response.bin",
+    "git_blob_sha": "f974ed84431c18b486818d601662635a23e0e525",
+    "sha256": "8ee4b6f3a1fd92392430213f7d81f6642deada308c84c50dfef58a91aeb2112c",
+    "bytes": 20427,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/053_000.json"
+    ]
+  },
+  {
+    "path": "run_ic_im_v1_4_delivery_tests.py",
+    "git_blob_sha": "07ba70a9bf5429ed92b1124bd3b81cd272ecc8e8",
+    "sha256": "2f88f0b13305e160739468f675525e6b9c2fd111c0b8c5bf1fd65807c189e836",
+    "bytes": 5331,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/054_000.json"
+    ]
+  },
+  {
+    "path": "run_ic_im_v1_4_github_digest.py",
+    "git_blob_sha": "c6a027145badfd97f883217bc6aad94658d9d944",
+    "sha256": "a016c273dbd24acc797ec3d2205abae600af4b1b14ca24969c09a8212bcdea7f",
+    "bytes": 34617,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/055_000.json",
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/055_001.json"
+    ]
+  },
+  {
+    "path": "test_adversarial_cffex_close_runner_20261009.py",
+    "git_blob_sha": "e4786770265c4205a2922f3cf910713fa321ae75",
+    "sha256": "95b53c6290812457449aa209f2786d208f9b85a46d63e152cca32067ad8b4cba",
+    "bytes": 12378,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/056_000.json"
+    ]
+  },
+  {
+    "path": "test_adversarial_cffex_transport_20261009.py",
+    "git_blob_sha": "4b7c870c40fab35d97894e7849ca57a925345096",
+    "sha256": "3ae3e2444b3ded3f2a253b906b49c10d3c6682b465795597ed254b7dbba01620",
+    "bytes": 17603,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/057_000.json"
+    ]
+  },
+  {
+    "path": "test_adversarial_delivery_20261007.py",
+    "git_blob_sha": "b1f214bb2a0095663e59d5e8377e3896bc840d4b",
+    "sha256": "6d2d5911a2519f38e7bc963ded9e279c9a2590a05eb6cfcf4755035f5f7698de",
+    "bytes": 4732,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/058_000.json"
+    ]
+  },
+  {
+    "path": "test_adversarial_icim_delivery.py",
+    "git_blob_sha": "cfec0665093aef938eb5c3c878d19998153fa6b3",
+    "sha256": "22219dc2e7ca2e8f9df60e105ae8ccda0c1f399e3f738c9c2e5824d6c4032648",
+    "bytes": 9399,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/059_000.json"
+    ]
+  },
+  {
+    "path": "test_adversarial_im_ledger_20260908.py",
+    "git_blob_sha": "fe33fccdaa4f206ac3d7b99bd5f3c74d1bf4de69",
+    "sha256": "e64742b032c44dcf17ca9383dce2b6a1bd0189cf1eafdfba12714b46e262dc82",
+    "bytes": 13078,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/060_000.json"
+    ]
+  },
+  {
+    "path": "test_adversarial_im_put_execution_20260908.py",
+    "git_blob_sha": "7fe2c056d3c9dd6eaaa10bba655469559e6a55d4",
+    "sha256": "2af285aaa15f73735eda24a89224a12ca699c7d9ab268e57b5b70ae2aaa8e34e",
+    "bytes": 12756,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/061_000.json"
+    ]
+  },
+  {
+    "path": "test_adversarial_im_report_iv_20260908.py",
+    "git_blob_sha": "1c9a07e530adc75aaf5db072a6d4901e48407d0f",
+    "sha256": "2932352d2a59e87febd1f54a4f32029f4bf139a5da4a8e439f6e53a059a82bc3",
+    "bytes": 8463,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/062_000.json"
+    ]
+  },
+  {
+    "path": "test_adversarial_market_20261007.py",
+    "git_blob_sha": "270a53cb3adda8fcdfafd275f8b3d1a9a1159078",
+    "sha256": "cb7ed277945d901527adad52ab86b3afa40b1e6116138d87e52b02099489c6bb",
+    "bytes": 1478,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/063_000.json"
+    ]
+  },
+  {
+    "path": "test_adversarial_policy_20261007.py",
+    "git_blob_sha": "ac6ebb9bcd8b5d7951c06b05d5faafa3d349ce7e",
+    "sha256": "472898bfa453db8935b034c83036ed23ff86659069e8518218080e83f6e42543",
+    "bytes": 4690,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/064_000.json"
+    ]
+  },
+  {
+    "path": "test_adversarial_state_20261007.py",
+    "git_blob_sha": "5f3a8dee096dea605e3d2a09ff1a3239cefd42e6",
+    "sha256": "ca8c05abe62a884bf36afb98d9501baf316358e87a90bda2c5bdb2aca9434855",
+    "bytes": 10241,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/065_000.json"
+    ]
+  },
+  {
+    "path": "test_delivery_transport_retry.py",
+    "git_blob_sha": "8eccc7dece00558a94ab62f12f11d58c9b46a14c",
+    "sha256": "82a3bab3b535256eab04be7cd477aba3fb50a6b2dd6e80a87482e58013a7e89e",
+    "bytes": 5099,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/066_000.json"
+    ]
+  },
+  {
+    "path": "test_grid_half_release_20260913.py",
+    "git_blob_sha": "47b43cac2628353983f3708f45dae48a3afd7df4",
+    "sha256": "30c8f1d7e6e39ed47db849c16e9e9a734e45046c166f8d1035d2173b32e95a91",
+    "bytes": 984,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/067_000.json"
+    ]
+  },
+  {
+    "path": "test_ic_im_chinabond.py",
+    "git_blob_sha": "eaec2588b22d090f05c2fbad625fbb4a70e27621",
+    "sha256": "34a84804eeb577de67097a6335cdb8a4e09dc3cf329ce3ea39999b6c420d6563",
+    "bytes": 5959,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/068_000.json"
+    ]
+  },
+  {
+    "path": "test_ic_im_daily_valuation.py",
+    "git_blob_sha": "3b9ac056f7392d1c8c0353a18c2d74ab0076904b",
+    "sha256": "fe0409d25230652f48027cd13ac3a38ae51407962eb69ec49ad1e69fdac1b61b",
+    "bytes": 4884,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/069_000.json"
+    ]
+  },
+  {
+    "path": "test_ic_im_external_review_20261021.py",
+    "git_blob_sha": "c2554f5c852fe41f00e07541ec032e3314d126a6",
+    "sha256": "0e87c9ede480d8676c019bb74a7287560ee10c2168b5aa5b310694dff4079f62",
+    "bytes": 16737,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/070_000.json"
+    ]
+  },
+  {
+    "path": "test_ic_im_external_review_round2_20261021.py",
+    "git_blob_sha": "75a8fa330b27e54f3256adde85a39dfc8bbe91ed",
+    "sha256": "9940691c2ac3db928a8e0b0b16b096361d709d9437255e07b70c2f159367ed48",
+    "bytes": 9938,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/071_000.json"
+    ]
+  },
+  {
+    "path": "test_ic_im_fear_delivery_adversarial_20261016.py",
+    "git_blob_sha": "1ad4101c7902635e0601969ed553f8cf9b6ecb70",
+    "sha256": "388451705e4ef6a7e756fdd4181b1140178fc02693169b8c43c589b5d491a34b",
+    "bytes": 5633,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/072_000.json"
+    ]
+  },
+  {
+    "path": "test_ic_im_fear_grid_v1.py",
+    "git_blob_sha": "993a1aeb3764d6f3819840f758aac055b2cec26f",
+    "sha256": "3a0c20f14f8c277595bed225463502b33ba2657e34af2a851eb3ef2dcc73d502",
+    "bytes": 30949,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/073_000.json",
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/073_001.json"
+    ]
+  },
+  {
+    "path": "test_ic_im_fear_source_delivery_20261016.py",
+    "git_blob_sha": "1fabc9450514009e953bce2a306830331758cd2d",
+    "sha256": "f67604dd8b1211f3639fa1fc3786f6dde27260e4ed44be3b90ac2e6f83761de8",
+    "bytes": 7336,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/074_000.json"
+    ]
+  },
+  {
+    "path": "test_ic_im_option_maintenance_notice_20261016.py",
+    "git_blob_sha": "a74da7e4b09fa46ff3e13ab8ab65269f4684decf",
+    "sha256": "1120e44f0274e615ae726935613579c2609d8c6dc8d1778737aceabe8fa9597e",
+    "bytes": 9267,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/075_000.json"
+    ]
+  },
+  {
+    "path": "test_ic_im_ordinary_put_route_fix_20261013.py",
+    "git_blob_sha": "c04350a2f303c9578cd4df1b6735293bfa445105",
+    "sha256": "ff69d0f7e5ce2ca9faa4a1ef9457365bc08cb3b87ba7c913890bcbe7d942d1dd",
+    "bytes": 33293,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/076_000.json",
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/076_001.json"
+    ]
+  },
+  {
+    "path": "test_ic_im_put_delivery_completion_20261016.py",
+    "git_blob_sha": "e5f719b8ac166ff3d69088107c854b60c378ca59",
+    "sha256": "86b3bc56f73e7cbc46655c7d8a29d3fe468c2799ef3f584db247fcbed42ddb52",
+    "bytes": 12661,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/077_000.json"
+    ]
+  },
+  {
+    "path": "test_ic_im_put_execution_repairs_20261016.py",
+    "git_blob_sha": "62eb4a8901ce26593999e1d29d653110d92d7676",
+    "sha256": "b012da82915f492ee5a02c224ee7a1038a3dc8d0c58197e6ecd6a0c23f704bbf",
+    "bytes": 15754,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/078_000.json"
+    ]
+  },
+  {
+    "path": "test_ic_im_quarter_roll_v1_3.py",
+    "git_blob_sha": "5044fe1ae6715bcb5be00906f9ba72078aed3c49",
+    "sha256": "f66b6470fba985618a94e3dddb50f7d0a368e6c3e1ae46411e3b44e74004ffc3",
+    "bytes": 5983,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/079_000.json"
+    ]
+  },
+  {
+    "path": "test_ic_im_quote_snapshot_guard_20261013.py",
+    "git_blob_sha": "719210b5a8af2dba1f5899c78503c2a12a472ee5",
+    "sha256": "d90640e1bdabd10e00c21e24fe2b18a7dc236b30f84cafafd77ab5e1393af01a",
+    "bytes": 9855,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/080_000.json"
+    ]
+  },
+  {
+    "path": "test_ic_im_split_put_summary_20261013.py",
+    "git_blob_sha": "9838bae4e4174543079a7ffa43bd3eba7c65b76f",
+    "sha256": "df8d255710fadd8fd5bec8b21e1151b04b33937d38c9c87ded3d6eb88e71e9f7",
+    "bytes": 5194,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/081_000.json"
+    ]
+  },
+  {
+    "path": "test_ic_im_v1_4_ic_csi500_forward.py",
+    "git_blob_sha": "b3e12f7a3b920a965daa6eca397d17b26f76631f",
+    "sha256": "777aa1e1ec49e557a5cf98e49a5002b73794ffa015a1e7dc2c710924c82ea402",
+    "bytes": 4138,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/082_000.json"
+    ]
+  },
+  {
+    "path": "test_ic_im_v1_4_integration_guards.py",
+    "git_blob_sha": "f6e729ceb913845088eed0245313029051caa72a",
+    "sha256": "21308871a347a739a20aa83264490ade0d51ce08bcaa08746ada2a51dcb9a637",
+    "bytes": 43126,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/083_000.json",
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/083_001.json"
+    ]
+  },
+  {
+    "path": "test_ic_im_v1_4_market_maker_quotes_20260925.py",
+    "git_blob_sha": "e42bc988c620b5d6ef39a09072bb344859fa44dd",
+    "sha256": "74a98549cb827e2b02a8f74b737ce99d29f09438d24fb697051c4d04a899fc9f",
+    "bytes": 3260,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/084_000.json"
+    ]
+  },
+  {
+    "path": "test_ic_im_v1_4_policy.py",
+    "git_blob_sha": "c7324e9b199c9cb7cb4861af0f025b8da94be368",
+    "sha256": "3f6b4bc5828be1cc6aa4a73c5f5c631ce45cfe006ad1499feec8059b53bf59ac",
+    "bytes": 29108,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/085_000.json"
+    ]
+  },
+  {
+    "path": "test_ic_im_v1_4_repeat_roll_20260925.py",
+    "git_blob_sha": "8e9e06b7b32e9b33b72d99a9624fbaa7fcef6e0e",
+    "sha256": "d6454848a3fa17fa5039391ed5d0e6af1f73baa4e3c8a0bce357eff3a96645ea",
+    "bytes": 5594,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/086_000.json"
+    ]
+  },
+  {
+    "path": "test_ic_im_v1_4_state_guards.py",
+    "git_blob_sha": "0e2dcb617b78cfaeebad999fca75762f9730d07d",
+    "sha256": "11d8bbe1d0e44e7f2f16f1e30a3a51b502f5088b1fcfd80ecd52fb0baae94c81",
+    "bytes": 24873,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/087_000.json"
+    ]
+  },
+  {
+    "path": "test_icim_b3adv_state_20261021.py",
+    "git_blob_sha": "f9b2ab486bbc945f6bf681208ae6d89dee1aaa32",
+    "sha256": "9b1442e6b5ce09d121ce72d1eda1ec01929843e364bad9cb3bf4ba6f6de701f5",
+    "bytes": 13534,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/088_000.json"
+    ]
+  },
+  {
+    "path": "test_icim_batch3_concurrency_20261021.py",
+    "git_blob_sha": "e3e61fbc66d437444de4d6520014b122065950aa",
+    "sha256": "d20ae6bb0732fb7ccc54bd84149f0ffbb0d2b512b14b76e7c7c0cfc88817df4d",
+    "bytes": 20065,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/089_000.json"
+    ]
+  },
+  {
+    "path": "test_icim_expert_state_20261021.py",
+    "git_blob_sha": "ef3a65ca71b478a6cc5dd835cd3261d5b617de43",
+    "sha256": "30b99a996717c7f0cf2f3fe21364ce524fa6cb3098766a980225e14e5fbdb547",
+    "bytes": 8655,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/090_000.json"
+    ]
+  },
+  {
+    "path": "test_icim_free_sources_parallel_capture_20261022.py",
+    "git_blob_sha": "fc68a21ce25292b24ee6cb14813f69d37f3d2568",
+    "sha256": "b33ecb7ee1f24c2243d8a6d4ba3600950689a034c1c575822a753e12914ca09a",
+    "bytes": 11463,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/091_000.json"
+    ]
+  },
+  {
+    "path": "test_icim_ma23_clocks_20261023.py",
+    "git_blob_sha": "bd2963329058559a3b3401b4400f05023a5027bc",
+    "sha256": "09d38ae800f7e68ba9f6e7f61aa309555f18104bdb8268cf6d9f72dd2787f066",
+    "bytes": 10628,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/092_000.json"
+    ]
+  },
+  {
+    "path": "test_icim_ma23_concurrency_20261023.py",
+    "git_blob_sha": "aa6243d6d4b2013312cc2526ed443b38fc7b325c",
+    "sha256": "e8d3b305ce0163353ad106b4d8f4f56410b6a13f7a1796470601e92d9d0be609",
+    "bytes": 9362,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/093_000.json"
+    ]
+  },
+  {
+    "path": "test_icim_ma23_market_20261023.py",
+    "git_blob_sha": "b3b0c75f31d88f212a4307de86cfa1840fcb660c",
+    "sha256": "660c112c5da210bb87964647379e959806870780e7cd8e4d5ee3245ab32d74ad",
+    "bytes": 10781,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/094_000.json"
+    ]
+  },
+  {
+    "path": "test_icim_ma23_publication_guard_20261023.py",
+    "git_blob_sha": "46e037acf422601512c31931f8f1c8b40d73683c",
+    "sha256": "378b2cc0b42fc8774132e1b6c50871e0d97728bbe4ba850b247d1301e9fe8927",
+    "bytes": 5724,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/095_000.json"
+    ]
+  },
+  {
+    "path": "test_icim_ma23_state_20261023.py",
+    "git_blob_sha": "ec2fd47d244ce6e431bdc7db88f1c426e8813c3d",
+    "sha256": "0ece9c29608abed8df4bf483d43fe4d03e16d676d3e982fa18cd6be95208d9c9",
+    "bytes": 11580,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/096_000.json"
+    ]
+  },
+  {
+    "path": "test_icim_round2_audit_lifecycle_20261021.py",
+    "git_blob_sha": "a7d9302e3ff39a4ea8314c32f4277f1e7895cf82",
+    "sha256": "3c92189672444fd9745f9d30a327aa93aeecd6ba9f1b53fc49ddbe3d91e0b8ff",
+    "bytes": 27835,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/097_000.json"
+    ]
+  },
+  {
+    "path": "test_im_grid160_half_release_20260914.py",
+    "git_blob_sha": "73266051dd71c94c3a5b31760007814aa59d41fc",
+    "sha256": "cd9cd6dbeae82f9401b7fe9f8fcef08165bd8049098f79fc27f5c33a3b3ecab7",
+    "bytes": 1031,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/098_000.json"
+    ]
+  },
+  {
+    "path": "test_im_put_policy.py",
+    "git_blob_sha": "561f8594d9659ad80eb724b19e314eec1fdc90aa",
+    "sha256": "1dc7083bc3ab2dde22a21cb4e16b9ad8aab66308b3116b23758e4db4a5f7e22c",
+    "bytes": 2574,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/099_000.json"
+    ]
+  },
+  {
+    "path": "test_im_put_price_basis.py",
+    "git_blob_sha": "f4e9996ff98250b47c59fd1123a519ac1551a0ea",
+    "sha256": "565e19359829c02579f8f187044b415be1cb3bd3a1e3171aec4a6f8491f79d39",
+    "bytes": 4579,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/100_000.json"
+    ]
+  },
+  {
+    "path": "test_live_mo_put_midpoint_20260908.py",
+    "git_blob_sha": "a1ba3aef9a8a65a35747fd31f1a0db748257846f",
+    "sha256": "9e7749541c1e8072f7217f22529aa924735e54743712a6330fd4d796eb64207a",
+    "bytes": 4179,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/101_000.json"
+    ]
+  },
+  {
+    "path": "test_migrate_ic_im_v1_3_r7_to_v1_4_r1_state.py",
+    "git_blob_sha": "2989f02a80542c6b5797d1be03e379e01878a037",
+    "sha256": "284a0a05908a53acce60ef05e8e0d8d813cc39656858a48b6f45d3e76ceec88c",
+    "bytes": 4776,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/102_000.json"
+    ]
+  },
+  {
+    "path": "test_ohlcv_provider_validation.py",
+    "git_blob_sha": "1e4fe8d89ab598be9d82cccb8f4a858191902ea0",
+    "sha256": "00bf19e9756de014b242e70338487dda892b5b8435c0067dc8aef9f1aaf71fcf",
+    "bytes": 4526,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/103_000.json"
+    ]
+  },
+  {
+    "path": "test_poe_ic_im_mainline_v1_3_bot.py",
+    "git_blob_sha": "919fccb6048c06d6a3bbc337d9fe0dab5dd77b0c",
+    "sha256": "a32248b35576eb2bb946b12354b68f5ebc8018d4d65246b5ff998b816558b563",
+    "bytes": 54363,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/104_000.json",
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/104_001.json"
+    ]
+  },
+  {
+    "path": "test_poe_ic_im_v1_3_state.py",
+    "git_blob_sha": "690eaada50db9d20a345988b726f599dd993570a",
+    "sha256": "d1b38d7f25380ddefd1e842e2c6280faf8d3d5125eb77823f823405e86b8a511",
+    "bytes": 17379,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/105_000.json"
+    ]
+  },
+  {
+    "path": "test_poe_ic_im_v1_4_state.py",
+    "git_blob_sha": "e9c9d5b833cb38ad84c7d594f1d5ab3e6961c3e3",
+    "sha256": "473ef8fedddb61fdf50d7b4a79fdb2db274b59e489268b461ecfcabf8dc7034d",
+    "bytes": 289,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/106_000.json"
+    ]
+  },
+  {
+    "path": "test_run_ic_im_v1_4_github_digest.py",
+    "git_blob_sha": "9cbefc66234ba3452c8c9318f96acb94f5d54e65",
+    "sha256": "fa83af1ad1f9270d4d63519ced278a4301d55839d4698e1de6ba70565942c9ac",
+    "bytes": 13896,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/107_000.json"
+    ]
+  },
+  {
+    "path": "test_tencent_ohlcv_pagination_20261012.py",
+    "git_blob_sha": "b8587dfc80d7db7bfe7b7ad6fe28dd81a73c8c01",
+    "sha256": "38f0ab8e119318d7e982dd4c7f66978d3897e1131e6b5f0932861a1c1dad5562",
+    "bytes": 16430,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/108_000.json"
+    ]
+  },
+  {
+    "path": "tests/fixtures/icim_external_review_20261021/adjusted_capture.json",
+    "git_blob_sha": "34837f969baa100fd027ba056b83bd6ce34fddf4",
+    "sha256": "6216251ecd6b6ccfeeefcc5c15c58b1b73094d2120a81bcecce4957b62118986",
+    "bytes": 3861,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/109_000.json"
+    ]
+  },
+  {
+    "path": "tests/fixtures/icim_external_review_20261021/capture.json",
+    "git_blob_sha": "7658fc799f709deb3b114fe456fc2e3bcebd8ac1",
+    "sha256": "d031eee965de1aa0fd7bcea5a0ad4c2f934b8ffe09d928b9d40a653ae5a473e5",
+    "bytes": 863,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/110_000.json"
+    ]
+  },
+  {
+    "path": "tests/fixtures/icim_external_review_20261021/sina_december_listing.bin",
+    "git_blob_sha": "42e0b32f2899ed7c1c23641701f21b0909fc9941",
+    "sha256": "040263c20f8183354432c74392a4bb3a3fdb290195480f09a4e8a7c7d20ecf93",
+    "bytes": 498,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/111_000.json"
+    ]
+  },
+  {
+    "path": "tests/fixtures/icim_external_review_20261021/sina_december_quotes.bin",
+    "git_blob_sha": "ccf5c079708717deb4e0c9106e49581c9dee598b",
+    "sha256": "14c527e8b43d924481421fe399eef9adbaddb2960989beda99365c9563d55111",
+    "bytes": 9543,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/112_000.json"
+    ]
+  },
+  {
+    "path": "tests/fixtures/icim_external_review_20261021/sina_listing.bin",
+    "git_blob_sha": "0b8bdf90aa5c0999acd9e3f9a05e420292a0349a",
+    "sha256": "e9b316f855bf4dc39edaaea1c976b1e2202541183ee8c82afc93bd7194151b35",
+    "bytes": 242,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/113_000.json"
+    ]
+  },
+  {
+    "path": "tests/fixtures/icim_external_review_20261021/sina_quotes_literal.bin",
+    "git_blob_sha": "290ace6c591447d879c6924e3b56018e38ea737b",
+    "sha256": "065514dac504e7c70cae346c5aecfb1c9de792d98b27f9787c02fb30d354808f",
+    "bytes": 1000,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/114_000.json"
+    ]
+  },
+  {
+    "path": "tests/fixtures/icim_external_review_20261021/sse_capture.json",
+    "git_blob_sha": "45ac1e64c7b9d91d77cabb71be3071c26528f0d2",
+    "sha256": "d402611ce26f6a1f53a3dd3677b7add087778b7e47ceea2715e2d3bfa7d24f5e",
+    "bytes": 595,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/115_000.json"
+    ]
+  },
+  {
+    "path": "tests/fixtures/icim_external_review_20261021/sse_december_chain.json",
+    "git_blob_sha": "0f99f4b70170ef98956518048b8b2ad538533b74",
+    "sha256": "9af8471eb7291a728e11e3c9aa94dbe0dcbec07b5014d17a3ffdbf3fad562392",
+    "bytes": 2888,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/116_000.json"
+    ]
+  },
+  {
+    "path": "tests/fixtures/icim_external_review_round2_20261021/manifest.json",
+    "git_blob_sha": "f87769815830d67896dbd50fdfb879c67bd1b63f",
+    "sha256": "4dd8aafcd1f1167dfe7f552b069233c1dd71b647e53106eb4a17c99806701562",
+    "bytes": 404,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/117_000.json"
+    ]
+  },
+  {
+    "path": "tests/fixtures/icim_external_review_round2_20261021/official_adjustment.bin",
+    "git_blob_sha": "b33ec8816a51277d674d3ae58b0ef2384663ca15",
+    "sha256": "1042ff0c9e5b8237ca2ef9e75cfd7d4809571f94c87ebc6f984e1d11c11dcf6f",
+    "bytes": 33145,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/118_000.json",
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/118_001.json"
+    ]
+  },
+  {
+    "path": "tests/fixtures/icim_external_review_round2_20261021/sse_adjustment_20260715.json",
+    "git_blob_sha": "f94af366b662f341ea996891937c860560022e0e",
+    "sha256": "85f3f74d8c088e586d7d6275697f104ad5a5774a1e32bc32217db178b5557596",
+    "bytes": 93737,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/119_000.json",
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/119_001.json",
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/119_002.json",
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/119_003.json"
+    ]
+  },
+  {
+    "path": "tests/fixtures/icim_external_review_round2_20261021/sse_contract_master.json",
+    "git_blob_sha": "d390bfc69b87472b1b8fdf123d4017abaeb0d5d5",
+    "sha256": "22ebf371548b9c64f0cdab36bf263aa48ad525c702a4e672d37529b0ba940425",
+    "bytes": 48710,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/120_000.json",
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/120_001.json"
+    ]
+  },
+  {
+    "path": "tests/fixtures/icim_external_review_round2_20261021/sse_december_identity.json",
+    "git_blob_sha": "150a049b60c42a3576ae03960ee69e1ceac3f5c8",
+    "sha256": "327aacd4c032bda5be4535ad6ef2312fe179ea791a293b81944368a0003476b7",
+    "bytes": 3537,
+    "parts": [
+      "quant_research_runs/20261023_daily_release_sync_v1/bridge/121_000.json"
+    ]
+  }
+]

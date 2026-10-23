@@ -1,0 +1,32 @@
+..........F                                                              [100%]
+================================== FAILURES ===================================
+_________ test_reminder_exception_preserves_both_calculated_products __________
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_e63e50c3/pytest/test_reminder_exception_preser0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x00000272A0D98230>
+
+    def test_reminder_exception_preserves_both_calculated_products(tmp_path, monkeypatch):
+        owner, signals = coordinator(tmp_path, monkeypatch)
+        monkeypatch.setattr(bot, "build_live_signal_with_transport_retry", lambda product, *a: deepcopy(signals[product]))
+        monkeypatch.setattr(bot.option_maintenance_notice, "reminder", lambda *a, **k: (_ for _ in ()).throw(RuntimeError("synthetic reminder failed")))
+        text, _, observed = owner.execute_query("信号", CLOCK, persist_confirmed=False)
+>       assert "查询失败" not in text
+E       assert '查询失败' not in "## IC / IM ...its_current'"
+E         
+E         '查询失败' is contained here:
+E           盘 |
+E           ## ⚠️ 查询失败
+E         ?       ++++
+E           
+E           KeyError: 'momentum_units_current'
+
+test_icim_round4_evidence_boundaries_20261021.py:154: AssertionError
+============================== warnings summary ===============================
+C:\Python314\Lib\site-packages\fastapi_poe\types.py:171
+  C:\Python314\Lib\site-packages\fastapi_poe\types.py:171: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    class RequestContext(BaseModel):
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED test_icim_round4_evidence_boundaries_20261021.py::test_reminder_exception_preserves_both_calculated_products
+1 failed, 10 passed, 1 warning in 3.85s

@@ -1,0 +1,48 @@
+{
+  "created_at": "2026-10-21T12:36:43.746743+00:00",
+  "scope": "local_revision_only_not_deployed",
+  "final_stage": "accepted_02",
+  "counts": {
+    "tests": 2541,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "test_files": 85,
+  "new_tests": 520,
+  "applicable_prior_tests": 2021,
+  "deselected": 22,
+  "source_files": 947,
+  "final_source_still_matches_accepted": true,
+  "independent_counts": {
+    "tests": 95,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "independent_source_binding_equals_final": true,
+  "patch_reverse_check_exit_code": 0,
+  "protection_status": "verified_with_runtime_cache_observation",
+  "immutable_files_verified": true,
+  "all_prior_paths_unchanged": false,
+  "runtime_hashes_equal": true,
+  "runtime_cache_writer": "unconfirmed",
+  "production_ledger_written_by_this_revision": false,
+  "deployed": false,
+  "official_2027_calendar_verified": false,
+  "real_intraday_oracles_closed": false,
+  "artifacts": {
+    "quant_research_runs/20261021_expert_round3_repairs_v1/record.md": "914284aa926615bae8d5c23c1a313fcc6f7c22cc8c0d3f998e4c4768bc38c4a0",
+    "notes/mainline_registry.md": "df7e4b137f2a886cd0d7df636fd25234a3abd311b0d46fe66ee5b6eb9add2b13",
+    "quant_research_runs/20261021_expert_round3_repairs_v1/source_delta.patch": "1d413733e8db195d7df1948f38aa6c84e4493ea73d506cb3922c47f05293856e",
+    "quant_research_runs/20261021_expert_round3_repairs_v1/exclusions.json": "578f2af9b309644d564f2225b30ed0e591eb34865cf475f413afcd294dd8d1fa",
+    "quant_research_runs/20261021_expert_round3_repairs_v1/accepted_02/receipt.json": "4db86966efe16c9d7f34bcaf7112d4a700a011838e989e818c7312d4de5d0bef",
+    "quant_research_runs/20261021_expert_round3_repairs_v1/audit_p1_final/accepted_02/receipt.json": "dc2e505989f437de04e5af2066f4c4f771a4058dd7c1129b82ef79b91e343204",
+    "quant_research_runs/20261021_expert_round3_repairs_v1/audit_recovery/record.md": "9cb19e504549fa5f3630ce6444a4281471ef9bb6fdbfc30d829fa6f3ad1f1228",
+    "quant_research_runs/20261021_expert_round3_repairs_v1/protection/verification_02.json": "e35db031b44087e6a55038d54832098943f3a245e859e4d35963cbe84ce38e34",
+    "quant_research_runs/20261021_expert_round3_repairs_v1/protection/observations.json": "b49ecb6b089eabd21073b59c6be4e7a39351728b07b40afdc3515ea023cc8049",
+    "quant_research_runs/20261021_expert_round3_repairs_v1/protection/verify_final.py": "686522c47aa6822a5dd2ec012c8dbd518399776d805e43baf3c68af42f9602c2",
+    "docs/ic_im_expert_round3_repairs_20261021_v1_spec.md": "520fd262d58f31b01b53b297d18cb5cb533a2dfae2c631fb8a804665e1d180e6",
+    "docs/ic_im_expert_round3_repairs_20261021_v1_spec.md.sha256": "6242e4856d82db1e54db523227f7ceb774f5724e41a46b225f566ec2332af73a"
+  }
+}

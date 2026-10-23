@@ -1,0 +1,28 @@
+{
+  "schema": "official_historical_exchange_calendar_oracle_v1",
+  "reviewed_on": "2026-10-22",
+  "scope": ["SSE", "CFFEX"],
+  "representation": "Normalized factual dates from exchange notices; not original HTTP response bytes. CFFEX notice texts were retrieved as preserved reproductions; calendar must also match saved official CFFEX session data.",
+  "years": {
+    "2022": {
+      "sse": {"url": "https://www.sse.com.cn/disclosure/announcement/general/c/c_20211220_5662606.shtml", "document": "上证公告〔2021〕37号", "published": "2021-12-20"},
+      "cffex": {"reproduction_url": "https://bocifco.com/newsinfo.aspx?cid=3&id=46658", "document": "中金所发〔2021〕64号", "published": "2021-12-17", "host": "member_notice_reproduction"},
+      "closed_ranges": [["2022-01-01", "2022-01-03"], ["2022-01-31", "2022-02-06"], ["2022-04-03", "2022-04-05"], ["2022-04-30", "2022-05-04"], ["2022-06-03", "2022-06-05"], ["2022-09-10", "2022-09-12"], ["2022-10-01", "2022-10-07"]]
+    },
+    "2023": {
+      "sse": {"url": "https://www.sse.com.cn/disclosure/announcement/general/c/c_20221227_5714458.shtml", "document": "上证公告〔2022〕51号", "published": "2022-12-27"},
+      "cffex": {"reproduction_url": "https://www.bocifco.com/newsinfo.aspx?cid=3&id=47830", "document": "中金所发〔2022〕81号", "published": "2022-12-27", "host": "member_notice_reproduction"},
+      "closed_ranges": [["2022-12-31", "2023-01-02"], ["2023-01-21", "2023-01-27"], ["2023-04-05", "2023-04-05"], ["2023-04-29", "2023-05-03"], ["2023-06-22", "2023-06-24"], ["2023-09-29", "2023-10-06"]]
+    },
+    "2024": {
+      "sse": {"url": "https://www.sse.com.cn/disclosure/announcement/general/c/c_20231226_5733939.shtml", "document": "上证公告〔2023〕47号", "published": "2023-12-26"},
+      "cffex": {"reproduction_url": "https://www.bocifco.com/newsinfo.aspx?cid=3&id=48730", "document": "中金所发〔2023〕78号", "published": "2023-12-26", "host": "member_notice_reproduction"},
+      "closed_ranges": [["2023-12-30", "2024-01-01"], ["2024-02-09", "2024-02-17"], ["2024-04-04", "2024-04-06"], ["2024-05-01", "2024-05-05"], ["2024-06-08", "2024-06-10"], ["2024-09-15", "2024-09-17"], ["2024-10-01", "2024-10-07"]]
+    },
+    "2025": {
+      "sse": {"url": "https://www.sse.com.cn/disclosure/announcement/general/c/c_20241223_10767108.shtml", "document": "上证公告〔2024〕38号", "published": "2024-12-23"},
+      "cffex": {"reproduction_url": "https://finance.sina.com.cn/money/future/roll/2024-12-23/doc-ineancvm2467037.shtml", "original_author": "中金所发布", "document": "中金所发〔2024〕74号", "published": "2024-12-23", "host": "official_author_syndicated_notice"},
+      "closed_ranges": [["2025-01-01", "2025-01-01"], ["2025-01-28", "2025-02-04"], ["2025-04-04", "2025-04-06"], ["2025-05-01", "2025-05-05"], ["2025-05-31", "2025-06-02"], ["2025-10-01", "2025-10-08"]]
+    }
+  }
+}

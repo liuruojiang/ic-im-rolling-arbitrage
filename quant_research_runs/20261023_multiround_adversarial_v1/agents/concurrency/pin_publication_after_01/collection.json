@@ -1,0 +1,12 @@
+{
+  "collected": [
+    "test_icim_ma23_pin_publication_20261023.py::test_unpinned_executed_module_rejected_after_capture_cannot_leave_usable_original"
+  ],
+  "selected": [
+    "test_icim_ma23_pin_publication_20261023.py::test_unpinned_executed_module_rejected_after_capture_cannot_leave_usable_original"
+  ],
+  "deselected": [],
+  "executed": [
+    "test_icim_ma23_pin_publication_20261023.py::test_unpinned_executed_module_rejected_after_capture_cannot_leave_usable_original"
+  ]
+}

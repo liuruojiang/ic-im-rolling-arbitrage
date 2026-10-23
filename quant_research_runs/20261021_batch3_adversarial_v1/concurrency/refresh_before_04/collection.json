@@ -1,0 +1,12 @@
+{
+  "collected": [
+    "test_icim_b3adv_concurrency_20261021.py::test_background_refresh_survives_unknown_calendar_and_retries"
+  ],
+  "selected": [
+    "test_icim_b3adv_concurrency_20261021.py::test_background_refresh_survives_unknown_calendar_and_retries"
+  ],
+  "deselected": [],
+  "executed": [
+    "test_icim_b3adv_concurrency_20261021.py::test_background_refresh_survives_unknown_calendar_and_retries"
+  ]
+}

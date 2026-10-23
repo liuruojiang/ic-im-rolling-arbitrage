@@ -1,0 +1,30 @@
+{
+  "listing": {
+    "started_at": "2026-10-21T05:24:00.436610+00:00",
+    "completed_at": "2026-10-21T05:24:02.407038+00:00",
+    "status": 200,
+    "url": "https://hq.sinajs.cn/?list=OP_DOWN_5105002611",
+    "bytes": 242,
+    "sha256": "e9b316f855bf4dc39edaaea1c976b1e2202541183ee8c82afc93bd7194151b35",
+    "path": "sina_listing.bin"
+  },
+  "quotes": {
+    "started_at": "2026-10-21T05:24:02.407252+00:00",
+    "completed_at": "2026-10-21T05:24:02.846979+00:00",
+    "status": 200,
+    "url": "https://hq.sinajs.cn/list=CON_OP_10012482,CON_OP_10012483,CON_OP_10012484",
+    "bytes": 1000,
+    "sha256": "065514dac504e7c70cae346c5aecfb1c9de792d98b27f9787c02fb30d354808f",
+    "path": "sina_quotes_literal.bin"
+  },
+  "contracts": [
+    "10012482",
+    "10012483",
+    "10012484"
+  ],
+  "field_counts": [
+    51,
+    51,
+    51
+  ]
+}

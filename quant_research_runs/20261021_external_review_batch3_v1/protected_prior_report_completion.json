@@ -1,0 +1,17 @@
+{
+  "reason": "前轮各组在第三批baseline之后按既有收尾任务追加验收对齐报告；原始测试凭据仍按baseline逐项保护，未回写基线。",
+  "reports": [
+    {
+      "path": "quant_research_runs/20261021_adjusted_put_redteam_v1/history/record.md",
+      "before": "2cb71ec84de20294f369037d03967f556ea9cab43c47ca1327e2a32c4fe42b3c",
+      "after": "8d356f2568e1f2898dd72753de8ecff701ec8d9939577c50307fd274f7d6bdc6",
+      "original_prefix_preserved": true
+    },
+    {
+      "path": "quant_research_runs/20261021_adjusted_put_redteam_v1/ohlcv/record.md",
+      "before": "9354378b118f179a3bc87c86c6bed3c2818983ca6dde70ead5d3af42ca6926b8",
+      "after": "522b9bf012e453ec8ae0f0bd0f21d1a5e408d61349e7ff888f992e10ad979341",
+      "original_prefix_preserved": true
+    }
+  ]
+}

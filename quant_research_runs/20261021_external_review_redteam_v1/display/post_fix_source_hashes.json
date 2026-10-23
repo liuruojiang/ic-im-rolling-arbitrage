@@ -1,0 +1,14 @@
+{
+  "captured_at_utc": "2026-10-21T05:58:14.936112+00:00",
+  "note": "captured immediately after post_fix 16-test run; no production mutation by audit worker",
+  "sha256": {
+    "poe_ic_im_mainline_v1_4_bot.py": "1be3211a2541b996dccfc69dbe67321e78bdda22cb048bf538fa1e07fbb9f708",
+    "ic_im_fear_grid_v1.py": "a21578621eb7695af5dcc669670cdcfa2bef2f0d9fceb4ad40a3ddae707fcc67",
+    "ic_im_v1_4_policy.py": "7fd6feff59b625ea07f8b53b50962df76a016207bb523863bd60276059a64e86",
+    "ic_im_put_execution_v1.py": "2e30546c65fe1991d1b96edc44afb7e2d7de103b8f236353ddd100997829e74d",
+    "poe_ic_im_v1_4_state.py": "78fc7211f1c709df23aed35b41db558a293be8a24c088b8e3bdf7575a0fc2bf2",
+    "run_ic_im_v1_4_github_digest.py": "b4f3a18c480f61e46b5729f2b01cf21fb79a2735a1f131e853129ed3dbb12a83",
+    "test_icim_redteam_display_20261021.py": "47b81780fe209ecb9bf6ab4bcee8b5a05fb68adc01480dd5e1d296d984aaab9b",
+    "quant_research_runs/20261021_external_review_redteam_v1/display/run_checks.py": "e6a198d7af131334775b61b33d99974d18999473e6087c46ce766a9193f3a2e0"
+  }
+}

@@ -1,0 +1,604 @@
+--- before/capture_ic_im_v1_4_inputs.py
++++ after/capture_ic_im_v1_4_inputs.py
+@@ -232,6 +232,7 @@
+                     result.update(status=capture["status"], capture=capture)
+                     if capture["status"] == "captured":
+                         self.completed_bucket, self.completed_result = bucket, capture
++            result["consistency_statistics"] = adapter.capture_day_status(self.evidence_dir, clock.date())
+             self._verify_sources()
+         except SourcePinError:
+             raise
+--- before/ic_im_evidence_adapter_v1.py
++++ after/ic_im_evidence_adapter_v1.py
+@@ -7,6 +7,7 @@
+ from __future__ import annotations
+ 
+ import contextvars
++import hashlib
+ import json
+ import math
+ import os
+@@ -381,25 +382,8 @@
+ 
+ 
+ def _record_http_conflicts(session):
+-    """Mark ambiguous independent evidence without interrupting signal queries.
+-
+-    Named provider inputs normally coalesce repeated calls. If raw requests
+-    still repeat, use the reader's strict body/status/encoding/header identity;
+-    recording both observations must not advertise a complete recovery pack.
+-    """
+-    seen, reported = {}, set()
+-    def canonical(value):
+-        return json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+-    for row in session.raw:
+-        request = (row["url"], canonical(row["params"]))
+-        response = (row["sha256"], row.get("status_code"), row.get("encoding"),
+-                    canonical(row.get("headers", {})))
+-        if request in seen and seen[request] != response and request not in reported:
+-            session.failures.append({"role": "raw_http_conflict", "url": row["url"],
+-                "error": "同一URL/参数录得不同响应，原日存证不完整；正常查询独立运行，采集可重试",
+-                "resolved": False})
+-            reported.add(request)
+-        seen.setdefault(request, response)
++    """The session checks immediately; retain this end-of-collection guard."""
++    return session.record_http_conflicts()
+ 
+ 
+ def capture_daily(strategy, root, clock):
+@@ -537,3 +521,46 @@
+                                      "manifest": str(session.manifest_path) if session and session.manifest_path else None}
+     return {"day": str(day), "status": "captured" if all(
+         v["status"] == "captured" for v in outcomes.values()) else "incomplete", "products": outcomes}
++
++
++def capture_day_status(root, day):
++    """Read sealed attempts, not successful query counts or polling receipts."""
++    root = evidence._canonical(Path(root))
++    products = {p: {"attempts": 0, "complete_attempts": 0, "incomplete_attempts": 0,
++                    "conflict_attempts": 0, "conflict_requests": 0} for p in ("IC", "IM")}
++    errors = []
++    paths = sorted((root / "sessions" / day.isoformat()).glob("*.json"))
++    if len(paths) > evidence.MAX_SESSION_FILES:
++        raise evidence.EvidenceUnavailable("evidence session count exceeds limit")
++    for path in paths:
++        try:
++            envelope = evidence._loads(evidence._read(evidence._inside(root, path), evidence.MAX_MANIFEST_BYTES))
++            body = envelope["body"]
++            if (hashlib.sha256(evidence._dumps(body)).hexdigest() != envelope["sha256"]
++                    or body.get("schema") != evidence.SCHEMA or body.get("day") != str(day)):
++                raise evidence.EvidenceUnavailable("evidence manifest scope/hash invalid")
++            metadata = evidence.decode(body["metadata"])
++            product = metadata.get("product")
++            if metadata.get("original_close") is not True or product not in products:
++                continue
++            counts = products[product]
++            counts["attempts"] += 1
++            conflicts = evidence.raw_http_conflicts(body.get("raw", []))
++            conflicted = bool(conflicts) or any(x.get("role") == "raw_http_conflict" for x in body.get("failures", []))
++            counts["conflict_attempts"] += int(conflicted)
++            counts["conflict_requests"] += len(conflicts)
++            try:
++                evidence._load_one(root, path, day)
++                counts["complete_attempts"] += 1
++            except evidence.EvidenceUnavailable:
++                counts["incomplete_attempts"] += 1
++        except (OSError, ValueError, TypeError, KeyError, AttributeError, evidence.EvidenceUnavailable) as exc:
++            errors.append({"manifest": path.name, "error": str(exc)[:500]})
++    for value in products.values():
++        value["conflict_frequency"] = value["conflict_attempts"] / value["attempts"] if value["attempts"] else None
++    missing = [p for p, c in products.items() if not c["complete_attempts"]]
++    return {"day": str(day), "status": "captured" if not missing else "incomplete" if paths else "not_recorded",
++            "products": products, "missing_products": missing, "unreadable_manifests": errors,
++            "denominator": "sealed original-close sessions per product; polling receipts excluded",
++            "recovery_warning": (f"{day} 当日原日存证缺失（{'/'.join(missing)}）；本轮重试后仍未取得完整包，需另行补证或人工锚定，不能承诺自动恢复。"
++                                 if missing and paths else None)}
+--- before/ic_im_signal_evidence_v1.py
++++ after/ic_im_signal_evidence_v1.py
+@@ -332,6 +332,37 @@
+         temporary.unlink(missing_ok=True)
+ 
+ 
++def canonical_http_params(encoded):
++    # Request dictionary order is immaterial; value types and sequence order
++    # remain explicit. Retain original encoded parameters in the archive.
++    def ordered(value):
++        if isinstance(value, dict):
++            return {k: ordered(v) for k, v in sorted(value.items(), key=lambda item: str(item[0]))}
++        if isinstance(value, list):
++            return [ordered(v) for v in value]
++        if isinstance(value, tuple):
++            return tuple(ordered(v) for v in value)
++        return value
++    return _dumps(encode(ordered(decode(encoded))))
++
++
++def raw_http_conflicts(rows):
++    """Report request ambiguity using the same identity as the strict reader."""
++    seen, reported, conflicts = {}, set(), []
++    for row in rows:
++        request = (row.get("url"), canonical_http_params(row.get("params")))
++        response = (row.get("sha256"), row.get("status_code"), row.get("encoding"),
++                    _dumps(row.get("headers", {})))
++        if request in seen and seen[request] != response and request not in reported:
++            conflicts.append({"role": "raw_http_conflict", "url": row.get("url"),
++                "request_signature": hashlib.sha256(_dumps(request[0]) + request[1]).hexdigest(),
++                "error": "同一URL/参数录得不同响应；参考结果不落账，须全新会话重试",
++                "resolved": False})
++            reported.add(request)
++        seen.setdefault(request, response)
++    return conflicts
++
++
+ class CaptureSession:
+     def __init__(self, root: str | Path, day: date, decision_at: datetime, metadata: dict[str, Any], *,
+                  max_item_bytes: int = MAX_ITEM_BYTES, max_total_bytes: int = MAX_TOTAL_BYTES):
+@@ -363,6 +394,7 @@
+         self._role_locks: dict[str, Any] = {}
+         self._active_role_owners: dict[str, int] = {}
+         self._active_fetches = 0
++        self._bound_signals = []
+ 
+     def annotate(self, name: str, value: Any) -> None:
+         with self._lock:
+@@ -438,6 +470,40 @@
+                     self._active_fetches -= 1
+                     self._active_role_owners.pop(signature, None)
+ 
++    def record_http_conflicts(self):
++        with self._lock:
++            existing = {row.get("request_signature") for row in self.failures
++                        if row.get("role") == "raw_http_conflict"}
++            for row in raw_http_conflicts(self.raw):
++                if row["request_signature"] not in existing:
++                    self.failures.append(row)
++                    existing.add(row["request_signature"])
++            if existing:
++                self._update_bound_signals("inconsistent", False)
++            return len(existing)
++
++    def bind_signal(self, signal):
++        """A decision cannot be persisted before every capture input is sealed."""
++        with self._lock:
++            if self._finished:
++                raise EvidenceUnavailable("capture session already closed")
++            eligible = signal.get("persistence_eligible") is True
++            self._bound_signals.append((signal, eligible))
++            signal["input_evidence_status"] = "recording"
++            signal["persistence_eligible"] = False
++            self.record_http_conflicts()
++        return signal
++
++    def _update_bound_signals(self, status, complete):
++        for signal, eligible in self._bound_signals:
++            signal["input_evidence_status"] = status
++            signal["persistence_eligible"] = bool(complete and eligible)
++            if status in {"inconsistent", "incomplete"}:
++                note = "⚠️ 本次采集存证不完整或报文不一致；以下仅供参考，不落账，等待全新会话重试；持续失败需另行补证或人工锚定。"
++                notes = signal.setdefault("data_notes", [])
++                if note not in notes:
++                    notes.append(note)
++
+     def raw_response(self, url: str, params: Any, response: Any, *, body: bytes | None = None) -> dict[str, Any]:
+         with self._lock:
+             return self._raw_response_locked(url, params, response, body=body)
+@@ -455,6 +521,7 @@
+                          headers={key: str(headers[key]) for key in
+                                   ("Date", "Content-Type", "Last-Modified", "ETag") if key in headers})
+             self.raw.append(entry)
++            self.record_http_conflicts()
+             return entry.copy()
+         except Exception as exc:
+             self.failures.append({"role": "raw_http", "url": str(url),
+@@ -472,6 +539,11 @@
+             return self.manifest_path
+         if self._active_fetches:
+             raise EvidenceUnavailable("cannot close evidence while input fetches are active")
++        conflicts = self.record_http_conflicts()
++        complete = bool(self.entries) and all(x["resolved"] for x in self.failures)
++        integrity = "inconsistent" if conflicts else "complete" if complete else "incomplete"
++        if self._bound_signals:
++            self.annotations["signal_capture_integrity"] = encode({"version": 1, "status": integrity})
+         body = {"schema": SCHEMA, "day": self.day.isoformat(),
+                 "decision_at": self.decision_at.isoformat(), "opened_at": self.opened_at,
+                 "closed_at": _now().isoformat(), "metadata": self.metadata,
+@@ -488,6 +560,7 @@
+         _publish(self.root, path, data)
+         self.manifest_path, self.manifest_sha256, self.context = path, digest, body
+         self._finished = True
++        self._update_bound_signals(integrity, complete)
+         return path
+ 
+ 
+@@ -557,7 +630,7 @@
+ 
+     def http_response(self, url: str, params: Any) -> dict[str, Any]:
+         matches = [row for row in self.context["raw"]
+-                   if row.get("url") == url and decode(row.get("params")) == params]
++                   if row.get("url") == url and canonical_http_params(row.get("params")) == canonical_http_params(encode(params))]
+         candidates = [{**row, "body": _verified_blob(self.root, row)} for row in matches]
+         # Sina accepts a list of symbols. Project one exact original variable
+         # from a verified recorded batch; never construct prices or identities.
+@@ -615,6 +688,7 @@
+         raise EvidenceUnavailable(f"{day} cannot enumerate original evidence") from exc
+     if len(paths) > MAX_SESSION_FILES:
+         raise EvidenceUnavailable("evidence session count exceeds limit")
++    incomplete = False
+     for path in paths:
+         try:
+             envelope = _loads(_read(_inside(root, path), MAX_MANIFEST_BYTES))
+@@ -627,9 +701,15 @@
+             if not isinstance(metadata, dict):
+                 raise EvidenceUnavailable("invalid evidence metadata")
+             if all(metadata.get(k) == v for k, v in metadata_filter.items()):
+-                return True
++                if (body.get("complete") is True and isinstance(body.get("failures"), list)
++                        and all(row.get("resolved") is True for row in body["failures"])
++                        and not raw_http_conflicts(body.get("raw", []))):
++                    return True
++                incomplete = True
+         except (KeyError, TypeError, ValueError, AttributeError) as exc:
+             raise EvidenceUnavailable("cannot verify original evidence scope") from exc
++    if incomplete:
++        raise EvidenceUnavailable(f"{day} original evidence capture incomplete; new session required")
+     return False
+ 
+ 
+@@ -683,6 +763,8 @@
+         total += len(_verified_blob(root, entry))
+     if type(body.get("total_bytes")) is not int or body["total_bytes"] != total or total > MAX_TOTAL_BYTES:
+         raise EvidenceUnavailable("evidence byte total mismatch or exceeds limit")
++    if raw_http_conflicts(raw):
++        raise EvidenceUnavailable("ambiguous original HTTP responses; capture incomplete")
+     metadata = decode(body["metadata"])
+     if not isinstance(metadata, dict):
+         raise EvidenceUnavailable("invalid evidence metadata")
+--- before/notes/mainline_registry.md
++++ after/notes/mainline_registry.md
+@@ -1,4 +1,13 @@
+ # IC / IM 系统主线登记表
++
++## 同址报文冲突与封存门禁（2026-10-22，专家四点复核）
++
++- 旧实现仅在独立采集结束标记冲突；本轮raw_response即时标记，冲突本身不抛错。capture信号封存前不可落账，成功封存仅恢复原本合格者；迟到冲突/深拷贝/写盘失败由StateStore再次拦截。无capture查询独立。
++- 不完整旧包隔离保留；仅坏包时has_original明确拒绝且不触发当前数据兜底，新会话完整包才能恢复。新增每日冲突频率、缺失/补证/人工锚定页面提示。键顺序相同参数已正规化，不加入通用URL网络缓存。
++- 最终102文件2941通过，原22单列不变，1005绑定前后一致；新增23项、原第五轮19项包含。旧reader4例及presence1例契约更新有备份/新增拒绝断言，不新增排除。失败回执保留。最终源真实包服务端5场景再验通过，正式账本不变。
++- 真实SSE重复探针两次正文/time相同而HTTP Date不同，严格策略标为不完整；不能承诺重试收敛或用单日零冲突推断长期稳定。现只观察1个交易日，采集回执继续累计统计。
++- 本轮新增生产存证/落账修复，非仅注释；日历日期/数量公式/策略参数未改。28模块pin更新并重启本机只读采集；正式runtime156及旧证据保持，未远端Poe同步或正式续账。规范docs/ic_im_evidence_conflict_review_20261022_v1_spec.md；证据quant_research_runs/20261022_evidence_conflict_review_v1/record.md及delivery。
++
+ 
+ ## 已部署原日包的服务端恢复验收（2026-10-22，隔离账本）
+ 
+--- before/poe_ic_im_mainline_v1_4_bot.py
++++ after/poe_ic_im_mainline_v1_4_bot.py
+@@ -436,7 +436,7 @@
+ # This is a fixed property of that endpoint, not a cross-provider estimate.
+ TENCENT_OHLCV_VOLUME_TO_SHARES = 100.0
+ 
+-# CFFEX/SSE official 2026 weekday closures. Weekends are always closed even
++# CFFEX/SSE official weekday closures for covered years. Weekends are always closed even
+ # when the State Council designates them as make-up working days. Keep the
+ # covered years explicit so later years never masquerade as a formal calendar.
+ # TODO(calendar): add the official 2027 CFFEX/SSE closure schedule immediately
+@@ -6817,6 +6817,9 @@
+                     "replay_completeness": signal_evidence.decode(
+                         reader.context.get("annotations", {}).get("replay_completeness")),
+                 }
++                integrity = signal_evidence.decode(reader.context.get("annotations", {}).get("signal_capture_integrity"))
++                if isinstance(integrity, dict):
++                    result["input_evidence_status"] = integrity["status"]
+                 result["historical_evidence_supplements"] = deepcopy(
+                     getattr(reader, "supplemental_evidence", []))
+                 return result
+@@ -6853,6 +6856,9 @@
+                     status="calendar_unverified" if context["expiries"] or context["failures"] else "put_fail_closed",
+                 )
+             result["mode"] = mode
++            session = signal_evidence.current_session.get()
++            if session is not None:
++                session.bind_signal(result)
+             return result
+         finally:
+             # Opening confirmation is an in-memory projection for this query.
+--- before/poe_ic_im_v1_4_server.py
++++ after/poe_ic_im_v1_4_server.py
+@@ -178,6 +178,15 @@
+                     message = ("信号已生成，但持久化失败" if stage == "持久化"
+                                else "诊断结果已生成，但尚不具备持久化资格")
+                     capture.text.append(f"\n\n⚠️ {message}：{exc}。账本未确认推进。\n\n")
++            try:
++                verified = date.fromisoformat(str(self.store.load_latest()["verified_day"])[:10])
++                pending_day = strategy._roll_forward_exchange_day(verified + timedelta(days=1))
++                evidence_day = min(pending_day, clock.date())
++                archive_status = strategy.evidence_adapter.capture_day_status(self.evidence_root, evidence_day)
++                if archive_status.get("recovery_warning"):
++                    capture.text.append("\n\n⚠️ " + archive_status["recovery_warning"] + " 当前查询结果与该失败采集会话独立。\n")
++            except Exception as exc:
++                capture.text.append(f"\n\n⚠️ 原日存证状态暂不可核验：{exc}。\n")
+             return "".join(capture.text), capture.attachments, observed
+ 
+     def capture_current_inputs(self, now: datetime | None = None) -> dict[str, Any]:
+--- before/poe_ic_im_v1_4_state.py
++++ after/poe_ic_im_v1_4_state.py
+@@ -243,6 +243,10 @@
+     Older hash-verified records are still read with their original schema.  An
+     omitted new marker remains compatible, but a present marker must be bool.
+     """
++    if strategy.signal_evidence.current_session.get() is not None:
++        raise RuntimeError(f"{product} 采集会话尚未退出，禁止提前持久化")
++    if "input_evidence_status" in signal and signal["input_evidence_status"] != "complete":
++        raise RuntimeError(f"{product} 采集存证未完整封存，禁止持久化")
+     for field in ("calendar_provisional", "diagnostic_only"):
+         if field in signal and (type(signal[field]) is not bool or signal[field]):
+             raise RuntimeError(f"{product} {field}诊断信号禁止持久化")
+--- /dev/null
++++ after/test_icim_evidence_conflict_review_20261022.py
+@@ -0,0 +1,237 @@
++"""Conflict responses remain displayable, but no unsealed decision may persist."""
++from copy import deepcopy
++from datetime import date, datetime, timezone
++import hashlib
++import importlib
++import json
++
++import pytest
++import requests
++
++import ic_im_evidence_adapter_v1 as adapter
++import ic_im_signal_evidence_v1 as evidence
++import poe_ic_im_mainline_v1_4_bot as bot
++import poe_ic_im_v1_4_state as state
++
++DAY = date(2026, 10, 22)
++CLOCK = datetime(2026, 10, 22, 16, tzinfo=bot.BEIJING)
++URL = "https://example.invalid/tstyle/510500_12"
++META = {"product": "IC", "original_close": True, "input_revision": adapter.INPUT_REVISION}
++
++
++def response(body=b"A", status=200, encoding="utf-8", headers=None):
++    r = requests.Response()
++    r._content, r.status_code, r.encoding = body, status, encoding
++    r._content_consumed = True
++    r.headers.update(headers or {})
++    return r
++
++
++def minimum(session):
++    session.call("probe", {}, lambda: True)
++
++
++@pytest.mark.parametrize("difference", ["body", "status", "encoding", "headers"])
++def test_raw_conflict_marks_immediately_without_raising(tmp_path, difference):
++    other = {"body": b"B"} if difference == "body" else {"status": 503} if difference == "status" else {"encoding": "gbk"} if difference == "encoding" else {"headers": {"ETag": "changed"}}
++    with evidence.capture_session(tmp_path, DAY, CLOCK, META) as session:
++        minimum(session)
++        session.raw_response(URL, {"month": "2612"}, response())
++        session.raw_response(URL, {"month": "2612"}, response(**other))
++        conflicts = [f for f in session.failures if f["role"] == "raw_http_conflict"]
++        assert len(conflicts) == 1 and conflicts[0]["resolved"] is False
++    assert session.context["complete"] is False
++    with pytest.raises(evidence.EvidenceUnavailable, match="incomplete"):
++        adapter.has_original(tmp_path, "IC", DAY)
++
++
++def test_http_wrapper_still_returns_both_conflicting_responses(tmp_path, monkeypatch):
++    replies = iter([response(b"A"), response(b"B")])
++    monkeypatch.setattr(bot.requests, "get", lambda *a, **k: next(replies))
++    with evidence.capture_session(tmp_path, DAY, CLOCK, META) as session:
++        minimum(session)
++        assert bot._evidence_http_get(URL).content == b"A"
++        assert bot._evidence_http_get(URL).content == b"B"
++        assert any(f["role"] == "raw_http_conflict" for f in session.failures)
++
++
++def test_parameter_key_order_cannot_hide_same_request_conflict(tmp_path):
++    with evidence.capture_session(tmp_path, DAY, CLOCK, META) as session:
++        minimum(session)
++        session.raw_response(URL, {"select": "x", "begin": 0}, response())
++        session.raw_response(URL, {"begin": 0, "select": "x"}, response(b"B"))
++        assert any(f["role"] == "raw_http_conflict" for f in session.failures)
++
++
++def test_normal_http_query_never_opens_capture(monkeypatch):
++    monkeypatch.setattr(bot.requests, "get", lambda *a, **k: response())
++    monkeypatch.setattr(evidence.CaptureSession, "raw_response", lambda *a, **k: pytest.fail("normal query entered capture"))
++    assert evidence.current_session.get() is None
++    assert bot._evidence_http_get(URL).content == b"A"
++
++
++@pytest.mark.parametrize("difference", ["identical", "body"])
++def test_public_builder_binds_signal_until_capture_seal(monkeypatch, tmp_path, difference):
++    import test_icim_calendar_capture_review_20261022 as fixtures
++    clock = fixtures.changing_raw_providers(monkeypatch, tmp_path, difference)
++    with evidence.capture_session(tmp_path / "evidence", fixtures.DAY, clock, META) as session:
++        signal = bot.build_live_trade_signal("IC", clock, "close")
++        assert signal["persistence_eligible"] is False
++        assert signal["input_evidence_status"] in {"recording", "inconsistent"}
++    assert signal["persistence_eligible"] is (difference == "identical")
++    assert signal["input_evidence_status"] == ("complete" if difference == "identical" else "inconsistent")
++
++
++@pytest.mark.parametrize("late", [False, True])
++def test_conflicted_bound_signal_and_early_copy_cannot_persist(tmp_path, late):
++    signal = {"close_confirmed": True, "signal_complete": True, "persistence_eligible": True}
++    with evidence.capture_session(tmp_path, DAY, CLOCK, META) as session:
++        minimum(session)
++        session.raw_response(URL, None, response())
++        if not late:
++            session.raw_response(URL, None, response(b"B"))
++        session.bind_signal(signal)
++        copied = deepcopy(signal)
++        assert signal["persistence_eligible"] is False
++        if late:
++            session.raw_response(URL, None, response(b"B"))
++        for value in [signal, copied]:
++            with pytest.raises(RuntimeError, match="采集|封存"):
++                state.require_persistence_eligible(value, "IC", check_grid=False)
++    assert signal["input_evidence_status"] == "inconsistent" and not signal["persistence_eligible"]
++    assert any("不落账" in x for x in signal["data_notes"])
++    for value in [signal, copied]:
++        with pytest.raises(RuntimeError, match="采集|封存"):
++            state.require_persistence_eligible(value, "IC", check_grid=False)
++
++
++@pytest.mark.parametrize("initial_eligible", [True, False])
++def test_only_successfully_sealed_originally_eligible_signal_is_promoted(tmp_path, initial_eligible):
++    signal = {"signal_complete": True, "persistence_eligible": initial_eligible}
++    with evidence.capture_session(tmp_path, DAY, CLOCK, META) as session:
++        minimum(session)
++        session.bind_signal(signal)
++        early_copy = deepcopy(signal)
++        assert signal["input_evidence_status"] == "recording" and not signal["persistence_eligible"]
++    assert signal["input_evidence_status"] == "complete"
++    assert signal["persistence_eligible"] is initial_eligible
++    with pytest.raises(RuntimeError, match="采集|封存"):
++        state.require_persistence_eligible(early_copy, "IC", check_grid=False)
++    if initial_eligible:
++        state.require_persistence_eligible(signal, "IC", check_grid=False)
++
++
++def test_store_boundary_rejects_unbound_signal_inside_active_capture(tmp_path):
++    with evidence.capture_session(tmp_path, DAY, CLOCK, META) as session:
++        minimum(session)
++        with pytest.raises(RuntimeError, match="采集"):
++            state.require_persistence_eligible({"persistence_eligible": True}, "IC", check_grid=False)
++
++
++def test_repeated_consistent_observation_does_not_repair_conflicted_session(tmp_path):
++    with evidence.capture_session(tmp_path, DAY, CLOCK, META) as first:
++        minimum(first)
++        first.raw_response(URL, None, response())
++        first.raw_response(URL, None, response(b"B"))
++        first.raw_response(URL, None, response())
++        first.call("probe", {}, lambda: True)
++    assert first.context["complete"] is False
++    with evidence.capture_session(tmp_path, DAY, CLOCK, META) as second:
++        minimum(second)
++        second.raw_response(URL, None, response(b"C"))
++    assert first.manifest_path != second.manifest_path
++    assert first.manifest_path.is_file() and first.context["complete"] is False
++    assert adapter.has_original(tmp_path, "IC", DAY)
++    assert evidence.load_session(tmp_path, DAY).manifest_sha256 == second.manifest_sha256
++
++
++@pytest.mark.parametrize("same_parameters", [True, False])
++def test_identical_response_or_different_parameters_is_not_a_conflict(tmp_path, same_parameters):
++    with evidence.capture_session(tmp_path, DAY, CLOCK, META) as session:
++        minimum(session)
++        session.raw_response(URL, {"month": "2612"}, response())
++        session.raw_response(URL, {"month": "2612" if same_parameters else "2703"}, response(b"A" if same_parameters else b"B"))
++    assert session.context["complete"] is True
++    assert evidence.load_session(tmp_path, DAY)
++
++
++def test_publishing_failure_does_not_promote_signal(tmp_path, monkeypatch):
++    signal = {"persistence_eligible": True}
++    session = evidence.CaptureSession(tmp_path, DAY, CLOCK, META)
++    minimum(session)
++    session.bind_signal(signal)
++    monkeypatch.setattr(evidence, "_publish", lambda *a, **k: (_ for _ in ()).throw(OSError("disk unavailable")))
++    with pytest.raises(OSError):
++        session.finish()
++    assert not signal["persistence_eligible"] and signal["input_evidence_status"] == "recording"
++
++
++def test_context_failure_keeps_bound_signal_ineligible(tmp_path):
++    signal = {"persistence_eligible": True}
++    with pytest.raises(ValueError, match="downstream"):
++        with evidence.capture_session(tmp_path, DAY, CLOCK, META) as session:
++            minimum(session)
++            session.bind_signal(signal)
++            raise ValueError("downstream validation failed")
++    assert signal["input_evidence_status"] == "incomplete"
++    assert signal["persistence_eligible"] is False
++
++
++def test_legacy_ambiguous_pack_claiming_complete_still_cannot_load(tmp_path):
++    with evidence.capture_session(tmp_path, DAY, CLOCK, META) as session:
++        minimum(session)
++        session.raw_response(URL, None, response())
++        session.raw_response(URL, None, response(b"B"))
++    envelope = json.loads(session.manifest_path.read_text(encoding="utf-8"))
++    envelope["body"]["complete"] = True
++    envelope["body"]["failures"] = []
++    envelope["sha256"] = hashlib.sha256(evidence._dumps(envelope["body"])).hexdigest()
++    session.manifest_path.write_bytes(evidence._dumps(envelope))
++    with pytest.raises(evidence.EvidenceUnavailable, match="ambiguous"):
++        evidence.load_session(tmp_path, DAY)
++    with pytest.raises(evidence.EvidenceUnavailable, match="incomplete"):
++        adapter.has_original(tmp_path, "IC", DAY)
++
++
++def test_sealed_attempt_statistics_count_conflicts_not_polling_receipts(tmp_path):
++    for product, bodies in [("IC", [b"A", b"B"]), ("IC", [b"C"]), ("IM", [b"D"])]:
++        with evidence.capture_session(tmp_path, DAY, CLOCK, {**META, "product": product}) as session:
++            minimum(session)
++            for body in bodies:
++                session.raw_response(URL, None, response(body))
++    polling = tmp_path / "capture_receipts" / str(DAY)
++    polling.mkdir(parents=True)
++    (polling / "poll.json").write_text('{"status":"already_captured"}', encoding="utf-8")
++    stats = adapter.capture_day_status(tmp_path, DAY)
++    assert stats["status"] == "captured"
++    ic = stats["products"]["IC"]
++    assert ic["attempts"] == 2 and ic["conflict_attempts"] == 1 and ic["conflict_frequency"] == 0.5
++    assert stats["products"]["IM"]["attempts"] == 1
++
++
++def test_capture_failure_warning_identifies_missing_original_inputs(tmp_path):
++    with evidence.capture_session(tmp_path, DAY, CLOCK, META) as session:
++        minimum(session)
++        session.raw_response(URL, None, response())
++        session.raw_response(URL, None, response(b"B"))
++    stats = adapter.capture_day_status(tmp_path, DAY)
++    assert stats["status"] == "incomplete"
++    assert "存证缺失" in stats["recovery_warning"] and "人工锚定" in stats["recovery_warning"]
++
++
++def test_server_page_displays_incomplete_original_archive(monkeypatch, tmp_path):
++    monkeypatch.setenv("ICIM_STATE_DIR", str(tmp_path / "ledger"))
++    monkeypatch.setenv("ICIM_REQUIRE_MIGRATION", "0")
++    monkeypatch.setenv("ICIM_EVIDENCE_DIR", str(tmp_path / "evidence"))
++    with evidence.capture_session(tmp_path / "evidence", DAY, CLOCK, META) as session:
++        minimum(session)
++        session.raw_response(URL, None, response())
++        session.raw_response(URL, None, response(b"B"))
++    server = importlib.import_module("poe_ic_im_v1_4_server")
++    owner = server.LedgerCoordinator(state.StateStore(tmp_path / "ledger"))
++    monkeypatch.setattr(bot, "ICIMMainlinesBot", lambda: type("Empty", (), {"run": lambda self: None})())
++    monkeypatch.setattr(owner, "_record_for_display", lambda clock: owner.store.load_latest())
++    monkeypatch.setattr(bot, "install_runtime_anchors", lambda value: None)
++    monkeypatch.setattr(bot, "_roll_forward_exchange_day", lambda day: DAY)
++    text, _, _ = owner.execute_query("信号", CLOCK, persist_confirmed=False)
++    assert "存证缺失" in text and "另行补证或人工锚定" in text
+--- before/test_icim_round4_evidence_boundaries_20261021.py
++++ after/test_icim_round4_evidence_boundaries_20261021.py
+@@ -120,7 +120,11 @@
+         session.call("probe", {}, lambda: True)
+         if not complete:
+             session.failures.append({"role": "synthetic", "resolved": False})
+-    assert adapter.has_original(tmp_path, "IC", DAY)
++    if complete:
++        assert adapter.has_original(tmp_path, "IC", DAY)
++    else:
++        with pytest.raises(evidence.EvidenceUnavailable, match="incomplete"):
++            adapter.has_original(tmp_path, "IC", DAY)
+     assert not adapter.has_original(tmp_path, "IM", DAY)
+ 
+ 
+--- before/test_icim_round5_recording_semantics_20261021.py
++++ after/test_icim_round5_recording_semantics_20261021.py
+@@ -36,6 +36,13 @@
+             response = Response([body], headers=headers)
+             response.status_code, response.encoding = status, encoding
+             session.raw_response(url, params, response)
++    if not session.context["complete"]:
++        # Production now rejects the whole ambiguous archive at load time.
++        # This test intentionally exercises http_response's additional in-memory
++        # defense, so construct its malformed reader only after asserting that.
++        with pytest.raises(evidence.EvidenceUnavailable, match="incomplete"):
++            evidence.load_session(tmp_path, DAY)
++        return evidence.EvidenceReader(session.root, session.manifest_path, session.context, session.manifest_sha256)
+     return evidence.load_session(tmp_path, DAY)
+ 
+ 

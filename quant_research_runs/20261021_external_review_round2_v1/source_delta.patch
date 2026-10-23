@@ -1,0 +1,452 @@
+--- before/notes/mainline_registry.md
++++ after/notes/mainline_registry.md
+@@ -1,4 +1,10 @@
+ # IC / IM 系统主线登记表
++
++## 外部评审第二轮修复（2026-10-21，同名M与调整身份）
++
++- 用户澄清继续下一轮修复。SSE主报价新增同报文证券ID，并拒绝缺行/重复/错身份/无效价格；核心监测、既有Put调量及主信号路径自2026-10-21起核对旧持仓证券ID，阻断旧M遇除息后被重新挂牌同名M替代。新依赖`ic_im_sse_contract_identity_v1.py`须随bot完整分发。
++- 官方114条调整事件与58条报价交叉核对14个A型Put的证券ID、真实行权价、单位及到期日；仅完成主数据诊断，明确`engine_supported=false`。A型现金成本、三倍兑现、卖方成本及计划/账本迁移仍待下一项修复，门禁未放开。数量争议继续保留现配量。
++- 最终46文件1192项通过；旧源码相等历史断言继续单列，当前源码另有运行前后收据。预注册`docs/ic_im_external_review_round2_20261021_v1_spec.md`；证据、保护及剩余优先级见`quant_research_runs/20261021_external_review_round2_v1/record.md`。未发布、续正式账本、发邮件或扩大实盘授权。
+ 
+ ## 外部评审修复的多智能体对抗审计（2026-10-21，本地）
+ 
+--- before/poe_ic_im_mainline_v1_4_bot.py
++++ after/poe_ic_im_mainline_v1_4_bot.py
+@@ -198,6 +198,7 @@
+ import ic_im_quarter_roll_v1_3 as quarter_roll
+ import ic_im_v1_4_policy as v14_policy
+ import ic_im_put_execution_v1 as put_execution
++import ic_im_sse_contract_identity_v1 as sse_identity
+ import im_put_policy
+ 
+ BUILD_ID = v14_policy.BUILD_ID
+@@ -1338,6 +1339,28 @@
+             raise RuntimeError("IC Put选约的证券代码格式无效")
+         return security_id
+     return fetch_sina_510500_security_id(str(selected["contract"]))
++
++
++def _require_held_ic_put_identity(
++    contract: str, security_id: str | None, row: pd.Series, day: date
++) -> None:
++    """A re-listed M trading code cannot prove continuity of a held security."""
++    actual = row.get("security_id")
++    strict = day >= sse_identity.EFFECTIVE_SIGNAL_DATE
++    if strict:
++        if (not re.fullmatch(r"\d{8}", str(security_id or ""))
++                or not re.fullmatch(r"\d{8}", str(actual or ""))):
++            raise RuntimeError("IC既有Put证券ID证据缺失或格式无效，禁止仅按同名M代码续接")
++        if str(row.get("contract")) != str(contract):
++            raise RuntimeError("IC既有Put证券与交易代码未绑定")
++        match = re.fullmatch(r"510500P\d{4}M(\d{5})", str(contract))
++        if not match:
++            raise RuntimeError("IC adjusted contract master and multiplier unavailable; preserve held identity")
++        strike = float(row.get("strike", float("nan")))
++        if not math.isfinite(strike) or not math.isclose(strike, int(match.group(1))/1000., rel_tol=0, abs_tol=1e-9):
++            raise RuntimeError("IC既有Put标准行权价与证券身份不一致")
++    if actual is not None and str(actual) != str(security_id):
++        raise RuntimeError("IC既有Put同名合约证券ID不同，禁止用重新挂牌M合约替代原持仓")
+ 
+ 
+ def _contract_daily_marks(
+@@ -3598,21 +3621,13 @@
+     payload = _sse_quote_json(
+         f"v1/sho/list/tstyle/510500_{month}",
+         {
+-            "select": "contractid,last,chg_rate,presetpx,exepx",
++            "select": "contractid,last,chg_rate,presetpx,exepx,code",
+             "order": "contractid,ase",
+         },
+     )
+-    rows = payload.get("list") or []
+-    columns = ["contract", "last", "chg_rate", "pre_settle", "strike"]
+-    frame = (
+-        pd.DataFrame(rows, columns=columns) if rows else pd.DataFrame(columns=columns)
+-    )
+-    if not frame.empty:
+-        frame = _numeric_frame(frame, skip=("contract",))
+-        frame["contract"] = frame["contract"].astype(str)
+-        frame = frame[
+-            frame["contract"].str.contains(rf"510500[CP]{yy}{month}", regex=True)
+-        ].copy()
++    rows = sse_identity.validate_chain_rows(payload, f"{yy}{month}")
++    columns = ["contract", "last", "chg_rate", "pre_settle", "strike", "security_id"]
++    frame = _numeric_frame(pd.DataFrame(rows, columns=columns), skip=("contract", "security_id"))
+     return frame, {
+         "date": str(payload.get("date", "")),
+         "time": str(payload.get("time", "")).zfill(6),
+@@ -4234,6 +4249,7 @@
+     target_momentum_delta: float,
+ ) -> dict[str, Any]:
+     """Resize an already-audited IC Put without silently reselecting its contract."""
++    _require_held_ic_put_identity(contract, LIVE_CONTINUATION_ANCHOR["IC"].get("post_put_security_id"), quote, today)
+     match = re.fullmatch(r"510500P(\d{2})(\d{2})M(\d{5})", contract)
+     if not match:
+         raise RuntimeError(f"无法解析IC Put月份或行权价: {contract}")
+@@ -5171,9 +5187,7 @@
+         row = _quote_row(chain, str(contract), day)
+         if row is None or not math.isfinite(float(row["last"])) or float(row["last"]) <= 0:
+             raise RuntimeError("IC独立核心Put缺少有效当日报价")
+-        if ("security_id" in row.index
+-                and str(row["security_id"]) != str(anchor.get("v14_core_put_security_id"))):
+-            raise RuntimeError("IC核心Put同名合约证券ID不同，禁止用重新挂牌M合约替代原持仓")
++        _require_held_ic_put_identity(str(contract), anchor.get("v14_core_put_security_id"), row, day)
+         signal["iv_monitor_option_price"] = float(row["last"])
+         signal["v14_core_put_current_contract"] = str(contract)
+         match = re.fullmatch(r"510500P(\d{2})(\d{2})M(\d{5})", str(contract))
+@@ -6086,6 +6100,10 @@
+                 f"上交所ETF与期权链日期不一致：{etf_day} != {chain_day}"
+             )
+         put_quote = _quote_row(chain, put_contract, market_date)
++        if put_quote is not None and float(LIVE_CONTINUATION_ANCHOR["IC"].get("post_put_qty", 0)) > 0:
++            _require_held_ic_put_identity(
++                put_contract, LIVE_CONTINUATION_ANCHOR["IC"].get("post_put_security_id"), put_quote, market_date
++            )
+         target_delta = float(live["v13_put_target_delta"])
+         prior_delta = float(live["v13_current_put_delta"])
+         current_core_delta = float(live["v13_current_core_put_delta"])
+--- before/test_ic_im_external_review_display_cache_20261021.py
++++ after/test_ic_im_external_review_display_cache_20261021.py
+@@ -21,6 +21,7 @@
+         put_current_contract="510500P2611M06500", iv_monitor_option_price=.1,
+         sse_time="090000", etf_quote_date="20261021", etf_quote_time="132900")
+     chain = pd.DataFrame([dict(contract=anchor["v14_core_put_contract"], last=.8, strike=7.5,
++                               security_id=anchor["v14_core_put_security_id"],
+                                source_stamp=clock.replace(minute=29))])
+     monkeypatch.setattr(bot,"fetch_510500_chain_with_failover",lambda month:(chain,dict(date="20261021",time="132900",source="synthetic_core")))
+     monkeypatch.setattr(bot,"_now_beijing",lambda:clock)
+--- /dev/null
++++ after/ic_im_sse_contract_identity_v1.py
+@@ -0,0 +1,138 @@
++"""Official SSE identity parsing and adjustment diagnosis; no trading-state migration."""
++from datetime import date
++from decimal import Decimal, InvalidOperation
++import math
++import re
++
++REVISION = 'sse_option_identity_and_adjustment_diagnosis_20261021_v1'
++EFFECTIVE_SIGNAL_DATE = date(2026, 10, 21)
++ADJUSTMENT_SQL = 'SSE_ZQPZ_YSP_OPTZSXT_ADJUST_INFO_HYTZ_SEARCH_L'
++
++def _day(value):
++    try:
++        return date.fromisoformat(str(value))
++    except (ValueError, TypeError) as exc:
++        raise RuntimeError('SSE identity date invalid') from exc
++
++def _number(value, *, positive=False):
++    if isinstance(value, bool):
++        raise RuntimeError('SSE identity numeric value invalid')
++    try:
++        number = float(value)
++    except (TypeError, ValueError, OverflowError) as exc:
++        raise RuntimeError('SSE identity numeric value invalid') from exc
++    if not math.isfinite(number) or (number <= 0 if positive else number < 0):
++        raise RuntimeError('SSE identity numeric value invalid')
++    return number
++
++def _unit(value):
++    try:
++        unit = Decimal(str(value))
++        if not unit.is_finite() or unit <= 0 or unit != unit.to_integral_value():
++            raise ValueError('invalid unit')
++        return int(unit)
++    except (ValueError, InvalidOperation) as exc:
++        raise RuntimeError('SSE identity contract unit invalid') from exc
++
++def validate_chain_rows(payload, yymm):
++    """Validate the exact six-field SSE select projection, without dropping rows."""
++    if not isinstance(payload, dict) or not re.fullmatch(r'\d{4}', str(yymm)):
++        raise RuntimeError('SSE identity payload/month invalid')
++    rows = payload.get('list')
++    if not isinstance(rows, list) or not rows:
++        raise RuntimeError('SSE identity chain empty')
++    for name, expected in [('total', len(rows)), ('begin', 0), ('end', len(rows))]:
++        value = payload.get(name)
++        if isinstance(value, bool) or not isinstance(value, int) or value != expected:
++            raise RuntimeError('SSE identity chain incomplete or pagination unverified')
++    contracts, securities = set(), set()
++    checked = []
++    for row in rows:
++        if not isinstance(row, list) or len(row) != 6:
++            raise RuntimeError('SSE identity fields missing')
++        contract, last, change, previous, strike, security = row
++        match = re.fullmatch(r'510500([CP])(\d{4})([MA])(\d{5})', str(contract))
++        if (not match or match.group(2) != yymm or not isinstance(security, str)
++                or not re.fullmatch(r'\d{8}', security)):
++            raise RuntimeError('SSE identity underlying/month/security mismatch')
++        if contract in contracts or security in securities:
++            raise RuntimeError('SSE identity duplicate contract or security')
++        contracts.add(contract)
++        securities.add(security)
++        strike, last = _number(strike, positive=True), _number(last)
++        if match.group(3) == 'M' and not math.isclose(strike, int(match.group(4))/1000., rel_tol=0, abs_tol=1e-9):
++            raise RuntimeError('SSE identity standard strike mismatch')
++        checked.append([contract, last, change, previous, strike, security])
++    return checked
++
++def parse_adjustment_events(payload, *, effective_date):
++    """Parse the official dated adjustment table; prices are NOT a unit source."""
++    effective_date = _day(effective_date)
++    if (not isinstance(payload, dict) or payload.get('sqlId') != ADJUSTMENT_SQL
++            or str(payload.get('securityCode')) != '510500'
++            or payload.get('isPagination') not in (False, 'false')):
++        raise RuntimeError('SSE adjustment response scope unverified')
++    rows = payload.get('result')
++    if not isinstance(rows, list) or not rows:
++        raise RuntimeError('SSE adjustment table empty')
++    seen, codes, result = set(), set(), []
++    for row in rows:
++        try:
++            if not isinstance(row, dict) or row['UNDERLYING_SECURITY_ID'] != '510500':
++                raise RuntimeError('SSE adjustment underlying mismatch')
++            security = row['SECURITY_ID']
++            old, new = row['ORG_CONTRACT_ID'], row['CONTRACT_ID']
++            match = re.fullmatch(r'510500([CP])(\d{4})M(\d{5})', str(old))
++            if (not isinstance(security, str) or not re.fullmatch(r'\d{8}', security)
++                    or not match or new != old[:11] + 'A' + old[12:]
++                    or row['CALL_OR_PUT'] != {'C': '认购', 'P': '认沽'}[match.group(1)]
++                    or row['EXPIRE_MONTH'] != '20' + match.group(2)):
++                raise RuntimeError('SSE adjustment identity mismatch')
++            if security in seen or new in codes:
++                raise RuntimeError('SSE adjustment duplicate identity')
++            seen.add(security)
++            codes.add(new)
++            effective, expiry = _day(row['ADJUST_DATE']), _day(row['EXPIRE_DATE'])
++            if (effective != effective_date or expiry < effective
++                    or expiry.strftime('%y%m') != match.group(2)
++                    or _day(row['END_DATE']) != expiry or _day(row['EXERCISE_DATE']) != expiry):
++                raise RuntimeError('SSE adjustment effective date mismatch')
++            original_strike = _number(row['ORG_EXERCISE_PRICE'], positive=True)
++            if not math.isclose(original_strike, int(match.group(3))/1000., rel_tol=0, abs_tol=1e-9):
++                raise RuntimeError('SSE adjustment original strike mismatch')
++            original_unit, unit = _unit(row['ORG_CONTRACT_UNIT']), _unit(row['CONTRACT_UNIT'])
++            if original_unit != 10000:
++                raise RuntimeError('SSE adjustment prior nonstandard contract not supported')
++            result.append(dict(security_id=security, contract=new, previous_contract=old,
++                               previous_strike=original_strike,
++                               strike=_number(row['EXERCISE_PRICE'], positive=True),
++                               previous_unit=original_unit, contract_unit=unit,
++                               effective_date=effective, expiry=expiry))
++        except (KeyError, TypeError) as exc:
++            raise RuntimeError('SSE adjustment fields missing') from exc
++    return result
++
++def resolve_adjusted_holding(events, quote_payload, security_id, held_contract, as_of):
++    """Diagnose an old M/new A alias by stable ID, without mutating any anchor.
++
++    The caller must retain the official raw response and capture provenance.
++    This result deliberately cannot authorize engine use or ledger migration.
++    """
++    as_of = _day(as_of)
++    matches = [event for event in events if event['security_id'] == security_id]
++    if len(matches) != 1:
++        raise RuntimeError('SSE adjusted identity missing or ambiguous')
++    event = matches[0]
++    if not event['effective_date'] <= as_of <= event['expiry']:
++        raise RuntimeError('SSE adjusted identity outside effective interval')
++    if held_contract not in {event['previous_contract'], event['contract']}:
++        raise RuntimeError('SSE adjusted holding alias not proved')
++    if _day(quote_payload.get('date')) != as_of:
++        raise RuntimeError('SSE adjusted quote date mismatch')
++    rows = validate_chain_rows(quote_payload, event['contract'][7:11])
++    found = [row for row in rows if row[5] == security_id]
++    if (len(found) != 1 or found[0][0] != event['contract']
++            or not math.isclose(found[0][4], event['strike'], rel_tol=0, abs_tol=1e-9)):
++        raise RuntimeError('SSE adjusted quote identity/strike mismatch')
++    return dict(event, observed_on=as_of, migration_required=held_contract != event['contract'],
++                engine_supported=False, status='requires_unit_and_cost_basis_migration')
+--- /dev/null
++++ after/test_ic_im_external_review_round2_20261021.py
+@@ -0,0 +1,190 @@
++"""Second-round failures: actual official identities; synthetic stale anchors/mutations."""
++from copy import deepcopy
++from datetime import date, datetime
++from pathlib import Path
++import importlib
++import json
++from unittest.mock import Mock
++
++import pandas as pd
++import pytest
++import poe_ic_im_mainline_v1_4_bot as bot
++import test_ic_im_put_execution_repairs_20261016 as fixture
++
++FIXTURE = Path(__file__).parent / 'tests/fixtures/icim_external_review_round2_20261021'
++DAY = date(2026, 10, 21)
++CLOCK = datetime(2026, 10, 21, 14, 15, tzinfo=bot.BEIJING)
++M = '510500P2612M07500'
++A = '510500P2612A07500'
++
++def payload():
++    return json.loads((FIXTURE / 'sse_december_identity.json').read_bytes())
++
++def wire(monkeypatch, body=None):
++    body = body or payload()
++    def request(path, params):
++        result = deepcopy(body)
++        # Emulate the source's actual select projection, not an invented schema.
++        if 'code' not in params['select'].split(','):
++            result['list'] = [row[:5] for row in result['list']]
++        return result
++    monkeypatch.setattr(bot, '_sse_quote_json', request)
++    return bot.fetch_sse_510500_chain('2612')
++
++def core(monkeypatch, chain, stamp, security='10011470'):
++    anchor = fixture.anchor('IC')
++    anchor.update(v14_core_put_contract=M, v14_core_put_security_id=security,
++                  verified_core_put_delta=.25)
++    signal = fixture.signal('IC', DAY, close_confirmed=False,
++                            core_put_target_delta=.25, etf_price=7.8)
++    monkeypatch.setattr(bot, '_now_beijing', lambda: CLOCK)
++    monkeypatch.setattr(bot, 'fetch_510500_chain_with_failover', lambda month: (chain, stamp))
++    return signal, anchor
++
++def test_real_sse_chain_retains_security_id(monkeypatch):
++    chain, _ = wire(monkeypatch)
++    row = chain[chain.contract.eq(M)].iloc[0]
++    assert row['security_id'] == '10012099'
++    assert chain.loc[chain.contract.eq(A), 'security_id'].item() == '10011470'
++    assert chain.loc[chain.contract.eq(A), 'strike'].item() == 7.367
++
++def test_real_relisted_m_cannot_mark_synthetic_pre_adjustment_holding(monkeypatch):
++    chain, stamp = wire(monkeypatch)
++    signal, anchor = core(monkeypatch, chain, stamp)
++    before = deepcopy(anchor)
++    with pytest.raises(RuntimeError, match='证券|identity'):
++        bot._v14_ic_core_overlay(signal, anchor)
++    assert anchor == before
++    assert 'iv_monitor_option_price' not in signal
++
++@pytest.mark.parametrize('security', [None, '', '123', '10012099.0'])
++def test_current_core_missing_or_malformed_security_proof_is_rejected(monkeypatch, security):
++    chain, stamp = wire(monkeypatch)
++    if security is None:
++        chain = chain.drop(columns='security_id', errors='ignore')
++    else:
++        chain['security_id'] = security
++    signal, anchor = core(monkeypatch, chain, stamp, '10012099')
++    with pytest.raises(RuntimeError):
++        bot._v14_ic_core_overlay(signal, anchor)
++
++def test_real_standard_core_same_security_continues(monkeypatch):
++    chain, stamp = wire(monkeypatch)
++    signal, anchor = core(monkeypatch, chain, stamp, '10012099')
++    bot._v14_ic_core_overlay(signal, anchor)
++    assert signal['iv_monitor_option_price'] == chain.loc[chain.contract.eq(M), 'last'].item()
++    assert signal['iv_monitor_evidence']['security_id'] == '10012099'
++    assert signal['v14_core_put_qty'] == anchor['v14_core_put_qty']
++
++@pytest.mark.parametrize('mutation', ['duplicate_id', 'duplicate_contract', 'missing_id',
++    'wrong_underlying', 'wrong_year', 'standard_wrong_strike', 'truncated', 'bad_total',
++    'nan_strike', 'nan_last', 'negative_last'])
++def test_sse_identity_and_completeness_mutations_fail_closed(monkeypatch, mutation):
++    body = payload()
++    row = next(r for r in body['list'] if r[0] == M)
++    if mutation == 'duplicate_id': body['list'][0][5] = row[5]
++    elif mutation == 'duplicate_contract': body['list'][0][0] = M
++    elif mutation == 'missing_id': row[5] = ''
++    elif mutation == 'wrong_underlying': row[0] = row[0].replace('510500', '510300')
++    elif mutation == 'wrong_year': row[0] = row[0].replace('2612', '2712')
++    elif mutation == 'standard_wrong_strike': row[4] = 7.367
++    elif mutation == 'truncated': body['list'].pop()
++    elif mutation == 'bad_total': body['total'] = 59
++    elif mutation == 'nan_strike': row[4] = 'nan'
++    elif mutation == 'nan_last': row[1] = 'nan'
++    elif mutation == 'negative_last': row[1] = -.1
++    with pytest.raises(RuntimeError):
++        wire(monkeypatch, body)
++
++def test_overlay_identity_failure_cannot_admit_new_plan(monkeypatch):
++    chain, stamp = wire(monkeypatch)
++    signal, anchor = core(monkeypatch, chain, stamp)
++    monkeypatch.setitem(bot.LIVE_CONTINUATION_ANCHOR, 'IC', anchor)
++    monkeypatch.setattr(bot, '_v14_ic_short_put_candidate', lambda *a, **k: {'tradable': False})
++    before = deepcopy(anchor)
++    out = bot._apply_v14_live_policy('IC', signal)
++    assert out['v14_action'] == 'HOLD_FAIL_CLOSED'
++    assert out['v14_candidate_data_status'].startswith('unavailable:')
++    assert anchor == before
++    bot._v14_schedule_ordinary_put('IC', out, anchor, None)
++    assert not out.get('v14_ordinary_put_pending')
++
++def test_sizing_current_shared_put_cannot_use_relisted_identity(monkeypatch):
++    chain, _ = wire(monkeypatch)
++    row = chain[chain.contract.eq(M)].iloc[0]
++    anchor = fixture.anchor('IC')
++    anchor.update(post_put_contract=M, post_put_security_id='10011470')
++    monkeypatch.setitem(bot.LIVE_CONTINUATION_ANCHOR, 'IC', anchor)
++    pricing = Mock(return_value=.3)
++    monkeypatch.setattr(bot, '_gov10y_for_day', lambda *a: .02)
++    monkeypatch.setattr(bot, '_implied_volatility', pricing)
++    with pytest.raises(RuntimeError, match='证券|identity'):
++        bot._size_existing_ic_put(M, row, DAY, 7.8, 7800, 5, .25, 0, .5, 0)
++    pricing.assert_not_called()
++
++def test_official_adjustment_resolves_unchanged_security_without_fabricated_suffix():
++    identity = importlib.import_module('ic_im_sse_contract_identity_v1')
++    events = identity.parse_adjustment_events(json.loads((FIXTURE / 'sse_adjustment_20260715.json').read_bytes()),
++                                               effective_date=date(2026, 7, 15))
++    resolved = identity.resolve_adjusted_holding(events, payload(), '10011470', M, DAY)
++    assert resolved['contract'] == A
++    assert resolved['security_id'] == '10011470'
++    assert resolved['strike'] == 7.367
++    assert resolved['contract_unit'] == 10180
++    assert resolved['previous_unit'] == 10000
++    assert resolved['effective_date'] == date(2026, 7, 15)
++    assert resolved['expiry'] == date(2026, 12, 23)
++    assert resolved['migration_required'] is True
++    assert resolved['engine_supported'] is False
++
++@pytest.mark.parametrize('mutation', ['wrong_id', 'wrong_day', 'expired', 'future_effective', 'wrong_strike', 'wrong_code'])
++def test_adjusted_resolver_rejects_unproved_alias_or_date(mutation):
++    identity = importlib.import_module('ic_im_sse_contract_identity_v1')
++    events = identity.parse_adjustment_events(json.loads((FIXTURE / 'sse_adjustment_20260715.json').read_bytes()),
++                                               effective_date=date(2026, 7, 15))
++    body, security, held, day = payload(), '10011470', M, DAY
++    if mutation == 'wrong_id': security = '10012099'
++    elif mutation == 'wrong_day': body['date'] = 20261020
++    elif mutation == 'expired': day = date(2026, 12, 24); body['date'] = 20261224
++    elif mutation == 'future_effective': day = date(2026, 7, 14); body['date'] = 20260714
++    elif mutation == 'wrong_strike': next(r for r in body['list'] if r[5] == security)[4] = 7.5
++    elif mutation == 'wrong_code': held = '510500P2612M07367'
++    with pytest.raises(RuntimeError):
++        identity.resolve_adjusted_holding(events, body, security, held, day)
++
++
++@pytest.mark.parametrize('field,value', [
++    ('SECURITY_ID', '123'), ('ORG_CONTRACT_ID', '510500P2612M07367'),
++    ('CONTRACT_ID', '510500P2612A07367'), ('UNDERLYING_SECURITY_ID', '510300'),
++    ('ORG_EXERCISE_PRICE', '7.367'), ('EXERCISE_PRICE', 'nan'),
++    ('ORG_CONTRACT_UNIT', '10180'), ('CONTRACT_UNIT', '0'),
++    ('CONTRACT_UNIT', 'nan'), ('CONTRACT_UNIT', '10180.5'),
++    ('ADJUST_DATE', '20260716'), ('EXPIRE_DATE', '20261201'),
++    ('EXPIRE_MONTH', '202611'), ('CALL_OR_PUT', '认购')])
++def test_official_adjustment_schema_rejects_corrupt_identity_or_unit(field, value):
++    identity = importlib.import_module('ic_im_sse_contract_identity_v1')
++    body = json.loads((FIXTURE / 'sse_adjustment_20260715.json').read_bytes())
++    next(r for r in body['result'] if r['SECURITY_ID'] == '10011470')[field] = value
++    with pytest.raises(RuntimeError):
++        identity.parse_adjustment_events(body, effective_date=date(2026, 7, 15))
++
++
++def test_all_real_live_adjusted_puts_match_current_official_master():
++    identity = importlib.import_module('ic_im_sse_contract_identity_v1')
++    events = identity.parse_adjustment_events(json.loads((FIXTURE / 'sse_adjustment_20260715.json').read_bytes()),
++                                               effective_date=date(2026, 7, 15))
++    current = json.loads((FIXTURE / 'sse_contract_master.json').read_bytes())['result']
++    adjusted = [row for row in payload()['list'] if row[0].startswith('510500P2612A')]
++    assert len(adjusted) == 14
++    for row in adjusted:
++        result = identity.resolve_adjusted_holding(events, payload(), row[5], row[0], DAY)
++        official = [item for item in current if item['SECURITY_ID'] == row[5]]
++        assert len(official) == 1
++        master = official[0]
++        assert result['contract'] == master['CONTRACT_ID']
++        assert result['strike'] == float(master['EXERCISE_PRICE'])
++        assert result['contract_unit'] == int(master['CONTRACT_UNIT'])
++        assert result['expiry'].strftime('%Y%m%d') == master['EXPIRE_DATE']
++        # Master carries its actual data timestamp; no claim it was updated today.
++        assert master['TIMESAVE'] == '2026-10-20'
++        assert result['engine_supported'] is False

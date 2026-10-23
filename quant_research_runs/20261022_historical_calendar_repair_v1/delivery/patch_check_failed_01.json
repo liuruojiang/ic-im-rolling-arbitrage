@@ -1,0 +1,7 @@
+{
+  "exit_code": 128,
+  "stdout": "",
+  "stderr": "error: patch fragment without header at D:/动量策略/IC和IM滚动套利/quant_research_runs/20261022_historical_calendar_repair_v1/delivery/source_delta.patch:758: @@ -0,0 +1,137 @@\n",
+  "sha256": "a660d49028901b1709e120a1a8259330037762960b551ee99b3a77e0c4cc9b8f",
+  "files": 26
+}

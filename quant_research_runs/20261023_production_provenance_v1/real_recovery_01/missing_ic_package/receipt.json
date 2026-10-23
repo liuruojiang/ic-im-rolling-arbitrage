@@ -1,0 +1,229 @@
+{
+  "name": "missing_ic_package",
+  "evidence_dir": "D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261023_production_provenance_v1\\real_recovery_01\\missing_ic_package\\evidence",
+  "negative": "missing_ic",
+  "before": {
+    "verified_day": "2026-10-21",
+    "sequence": 19,
+    "digest": "c068710414dd9070d178faa4625d56835e67b9f2004c935a268900b9a1080342"
+  },
+  "advanced_sessions": 0,
+  "after": {
+    "verified_day": "2026-10-21",
+    "sequence": 19,
+    "digest": "c068710414dd9070d178faa4625d56835e67b9f2004c935a268900b9a1080342"
+  },
+  "refresh_error": "RuntimeError: 自动补账未同时得到IC/IM完整信号｜诊断交易日2026-10-22｜IC OHLCV全部来源失败：Sina: ConnectionError: audit blocks external HTTP; original evidence only；Eastmoney: RuntimeError: 行情接口不可用: audit blocks external HTTP; original evidence only；Tencent: ConnectionError: IC Tencent分页连接失败：window=2005-01-04..2008-01-31; url=https://proxy.finance.qq.com/ifzqgtimg/appstock/app/newfqkline/get; http=unknown; bytes=0; started=2026-10-23T09:01:29.206746+08:00; ended=2026-10-23T09:01:29.207275+08:00; error=IC Tencent分页连接失败：window=2005-01-04..2008-01-31; timeout=8.000s; started=2026-10-23T09:01:29.206746+08:00; ended=2026-10-23T09:01:29.207254+08:00; error=audit blocks external HTTP; original evidence only",
+  "network_attempts": [
+    {
+      "case": "missing_ic_package",
+      "method": "get",
+      "url": "https://money.finance.sina.com.cn/quotes_service/api/json_v2.php/CN_MarketData.getKLineData?symbol=sh000905&scale=240&ma=no&datalen=10000",
+      "stack": [
+        {
+          "file": "poe_ic_im_mainline_v1_4_bot.py",
+          "function": "build_live_signal_with_transport_retry",
+          "line": 8213
+        },
+        {
+          "file": "poe_ic_im_mainline_v1_4_bot.py",
+          "function": "build_live_trade_signal",
+          "line": 6868
+        },
+        {
+          "file": "poe_ic_im_mainline_v1_4_bot.py",
+          "function": "_build_live_trade_signal",
+          "line": 6908
+        },
+        {
+          "file": "ic_im_evidence_adapter_v1.py",
+          "function": "adapted",
+          "line": 167
+        },
+        {
+          "file": "poe_ic_im_mainline_v1_4_bot.py",
+          "function": "live_proxy",
+          "line": 2878
+        },
+        {
+          "file": "poe_ic_im_mainline_v1_4_bot.py",
+          "function": "fetch_ohlcv_history",
+          "line": 2743
+        },
+        {
+          "file": "poe_ic_im_mainline_v1_4_bot.py",
+          "function": "_evidence_http_get",
+          "line": 83
+        },
+        {
+          "file": "api.py",
+          "function": "get",
+          "line": 73
+        },
+        {
+          "file": "api.py",
+          "function": "request",
+          "line": 59
+        }
+      ]
+    },
+    {
+      "case": "missing_ic_package",
+      "method": "get",
+      "url": "https://push2his.eastmoney.com/api/qt/stock/kline/get",
+      "stack": [
+        {
+          "file": "poe_ic_im_mainline_v1_4_bot.py",
+          "function": "build_live_trade_signal",
+          "line": 6868
+        },
+        {
+          "file": "poe_ic_im_mainline_v1_4_bot.py",
+          "function": "_build_live_trade_signal",
+          "line": 6908
+        },
+        {
+          "file": "ic_im_evidence_adapter_v1.py",
+          "function": "adapted",
+          "line": 167
+        },
+        {
+          "file": "poe_ic_im_mainline_v1_4_bot.py",
+          "function": "live_proxy",
+          "line": 2878
+        },
+        {
+          "file": "poe_ic_im_mainline_v1_4_bot.py",
+          "function": "fetch_ohlcv_history",
+          "line": 2772
+        },
+        {
+          "file": "poe_ic_im_mainline_v1_4_bot.py",
+          "function": "_request_json",
+          "line": 2255
+        },
+        {
+          "file": "poe_ic_im_mainline_v1_4_bot.py",
+          "function": "_evidence_http_get",
+          "line": 83
+        },
+        {
+          "file": "api.py",
+          "function": "get",
+          "line": 73
+        },
+        {
+          "file": "api.py",
+          "function": "request",
+          "line": 59
+        }
+      ]
+    },
+    {
+      "case": "missing_ic_package",
+      "method": "get",
+      "url": "https://push2his.eastmoney.com/api/qt/stock/kline/get",
+      "stack": [
+        {
+          "file": "poe_ic_im_mainline_v1_4_bot.py",
+          "function": "build_live_trade_signal",
+          "line": 6868
+        },
+        {
+          "file": "poe_ic_im_mainline_v1_4_bot.py",
+          "function": "_build_live_trade_signal",
+          "line": 6908
+        },
+        {
+          "file": "ic_im_evidence_adapter_v1.py",
+          "function": "adapted",
+          "line": 167
+        },
+        {
+          "file": "poe_ic_im_mainline_v1_4_bot.py",
+          "function": "live_proxy",
+          "line": 2878
+        },
+        {
+          "file": "poe_ic_im_mainline_v1_4_bot.py",
+          "function": "fetch_ohlcv_history",
+          "line": 2772
+        },
+        {
+          "file": "poe_ic_im_mainline_v1_4_bot.py",
+          "function": "_request_json",
+          "line": 2255
+        },
+        {
+          "file": "poe_ic_im_mainline_v1_4_bot.py",
+          "function": "_evidence_http_get",
+          "line": 83
+        },
+        {
+          "file": "api.py",
+          "function": "get",
+          "line": 73
+        },
+        {
+          "file": "api.py",
+          "function": "request",
+          "line": 59
+        }
+      ]
+    },
+    {
+      "case": "missing_ic_package",
+      "method": "get",
+      "url": "https://proxy.finance.qq.com/ifzqgtimg/appstock/app/newfqkline/get",
+      "stack": [
+        {
+          "file": "poe_ic_im_mainline_v1_4_bot.py",
+          "function": "build_live_trade_signal",
+          "line": 6868
+        },
+        {
+          "file": "poe_ic_im_mainline_v1_4_bot.py",
+          "function": "_build_live_trade_signal",
+          "line": 6908
+        },
+        {
+          "file": "ic_im_evidence_adapter_v1.py",
+          "function": "adapted",
+          "line": 167
+        },
+        {
+          "file": "poe_ic_im_mainline_v1_4_bot.py",
+          "function": "live_proxy",
+          "line": 2878
+        },
+        {
+          "file": "poe_ic_im_mainline_v1_4_bot.py",
+          "function": "fetch_ohlcv_history",
+          "line": 2812
+        },
+        {
+          "file": "poe_ic_im_mainline_v1_4_bot.py",
+          "function": "_fetch_tencent_ohlcv_history",
+          "line": 2441
+        },
+        {
+          "file": "poe_ic_im_mainline_v1_4_bot.py",
+          "function": "_evidence_http_get",
+          "line": 83
+        },
+        {
+          "file": "api.py",
+          "function": "get",
+          "line": 73
+        },
+        {
+          "file": "api.py",
+          "function": "request",
+          "line": 59
+        }
+      ]
+    }
+  ],
+  "atomic_rejection": true,
+  "status": "PASS"
+}

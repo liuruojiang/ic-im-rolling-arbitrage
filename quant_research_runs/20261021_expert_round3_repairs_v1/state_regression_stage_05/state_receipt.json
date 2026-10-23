@@ -1,0 +1,48 @@
+{
+  "exit_code": 1,
+  "counts": {
+    "tests": 447,
+    "failures": 8,
+    "errors": 0,
+    "skipped": 0
+  },
+  "source_before": {
+    "test_ic_im_fear_grid_v1.py": "3a0c20f14f8c277595bed225463502b33ba2657e34af2a851eb3ef2dcc73d502",
+    "test_ic_im_fear_source_delivery_20261016.py": "f67604dd8b1211f3639fa1fc3786f6dde27260e4ed44be3b90ac2e6f83761de8",
+    "test_ic_im_fear_delivery_adversarial_20261016.py": "388451705e4ef6a7e756fdd4181b1140178fc02693169b8c43c589b5d491a34b",
+    "test_ic_im_external_review_20261021.py": "0e87c9ede480d8676c019bb74a7287560ee10c2168b5aa5b310694dff4079f62",
+    "test_icim_redteam_display_20261021.py": "3bc9657a42ce353daa72b0b0ecf90593b1b671b384ac594eda69b7aa7112296a",
+    "test_icim_redteam_integration_20261021.py": "ddb183a2a930e3fe66f7936a04ef8fec0c7c20265443d33934e6e95356074468",
+    "test_icim_round2_audit_lifecycle_20261021.py": "3c92189672444fd9745f9d30a327aa93aeecd6ba9f1b53fc49ddbe3d91e0b8ff",
+    "test_icim_a3_integration_20261021.py": "bdae024437439a8ab6f4b3ee70bd986085311fe9c332540b17b8efc0f91758e1",
+    "test_icim_batch3_calendar_redteam_20261021.py": "7b758a06f3e58535001ed78aec1053712bed15efe3f3dd5824cad4217fe48250",
+    "test_icim_batch3_valuation_20261021.py": "58a2d81611b483dcfb40e6e6448ff7ed11c7227fe527745985c7709b13991978",
+    "test_icim_b3adv_state_20261021.py": "9b1442e6b5ce09d121ce72d1eda1ec01929843e364bad9cb3bf4ba6f6de701f5",
+    "test_icim_expert_state_20261021.py": "30b99a996717c7f0cf2f3fe21364ce524fa6cb3098766a980225e14e5fbdb547",
+    "test_icim_round3_grid_persistence_20261021.py": "bb2b58390af4a7e4f016c6047ca088ef36311679dcb8abd0c84425c84e7b607d",
+    "test_icim_round3_calendar_comparison_20261021.py": "29e21dc8dcc3380c96a26ac65ade6dde1783049eaa7135132b82bad728f2c3f4",
+    "test_icim_round3_grid_contract_replacements_20261021.py": "ff4b82e20160fa6fc08665e6e99c9388ce6067d8ac5f00af24cd93998e58669f",
+    "poe_ic_im_v1_4_state.py": "9244c7f1d8bbb138e8e86246261fad13e90058f42764b855f8219aa1596c1067"
+  },
+  "source_after": {
+    "test_ic_im_fear_grid_v1.py": "3a0c20f14f8c277595bed225463502b33ba2657e34af2a851eb3ef2dcc73d502",
+    "test_ic_im_fear_source_delivery_20261016.py": "f67604dd8b1211f3639fa1fc3786f6dde27260e4ed44be3b90ac2e6f83761de8",
+    "test_ic_im_fear_delivery_adversarial_20261016.py": "388451705e4ef6a7e756fdd4181b1140178fc02693169b8c43c589b5d491a34b",
+    "test_ic_im_external_review_20261021.py": "0e87c9ede480d8676c019bb74a7287560ee10c2168b5aa5b310694dff4079f62",
+    "test_icim_redteam_display_20261021.py": "3bc9657a42ce353daa72b0b0ecf90593b1b671b384ac594eda69b7aa7112296a",
+    "test_icim_redteam_integration_20261021.py": "ddb183a2a930e3fe66f7936a04ef8fec0c7c20265443d33934e6e95356074468",
+    "test_icim_round2_audit_lifecycle_20261021.py": "3c92189672444fd9745f9d30a327aa93aeecd6ba9f1b53fc49ddbe3d91e0b8ff",
+    "test_icim_a3_integration_20261021.py": "bdae024437439a8ab6f4b3ee70bd986085311fe9c332540b17b8efc0f91758e1",
+    "test_icim_batch3_calendar_redteam_20261021.py": "7b758a06f3e58535001ed78aec1053712bed15efe3f3dd5824cad4217fe48250",
+    "test_icim_batch3_valuation_20261021.py": "58a2d81611b483dcfb40e6e6448ff7ed11c7227fe527745985c7709b13991978",
+    "test_icim_b3adv_state_20261021.py": "9b1442e6b5ce09d121ce72d1eda1ec01929843e364bad9cb3bf4ba6f6de701f5",
+    "test_icim_expert_state_20261021.py": "30b99a996717c7f0cf2f3fe21364ce524fa6cb3098766a980225e14e5fbdb547",
+    "test_icim_round3_grid_persistence_20261021.py": "bb2b58390af4a7e4f016c6047ca088ef36311679dcb8abd0c84425c84e7b607d",
+    "test_icim_round3_calendar_comparison_20261021.py": "29e21dc8dcc3380c96a26ac65ade6dde1783049eaa7135132b82bad728f2c3f4",
+    "test_icim_round3_grid_contract_replacements_20261021.py": "ff4b82e20160fa6fc08665e6e99c9388ce6067d8ac5f00af24cd93998e58669f",
+    "poe_ic_im_v1_4_state.py": "9244c7f1d8bbb138e8e86246261fad13e90058f42764b855f8219aa1596c1067"
+  },
+  "owned_source_unchanged": true,
+  "scope": "targeted old state/fear/delivery failures plus new contracts; whole shared bot not frozen while root integrates archive",
+  "args_file": "state_regression_args_05.json"
+}

@@ -1,0 +1,18 @@
+{
+  "counts": {
+    "tests": 38,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "source_before_equals_after": true,
+  "production_module_sha256": "f4bbdaa49225e51b83ccfe441b9c6f4dc36b7f3206acf509098f4d8628215c29",
+  "artifacts": {
+    "recheck_process.json": "e8971c9cbbcef050252348d1051372189d0cf42218aac30f2a9a0a143cd768c5",
+    "regression.txt": "7b2db9c40f17ff81eef6ab788ea8b2bcca8585650a70d6da8a0b97460e1ac895",
+    "regression.xml": "3f130ca876bc9268fe81c599b138aff8b63b46469cf0efd6e3fd61edcb1fbf26",
+    "source_after.json": "ba621a1a29a09b52333eeb1abfa2bf8600db55562cdb71273263dfd65d05b912",
+    "source_before.json": "ba621a1a29a09b52333eeb1abfa2bf8600db55562cdb71273263dfd65d05b912",
+    "test_run.json": "a0ac4e86c283705497482d93b2366dda32ffbebeb5d345c082fd7aa63f75eee5"
+  }
+}

@@ -1,0 +1,280 @@
+....................FFFF................................................ [ 45%]
+........................................................................ [ 91%]
+..............                                                           [100%]
+================================== FAILURES ===================================
+_ test_conflicting_same_url_parameters_are_rejected_instead_of_taking_last[body] _
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_f1524ad9/pytest/test_conflicting_same_url_para0')
+difference = 'body'
+
+    @pytest.mark.parametrize("difference", ["body", "headers", "status", "encoding"])
+    def test_conflicting_same_url_parameters_are_rejected_instead_of_taking_last(tmp_path, difference):
+        first = [URL, PARAMS, b"first", {"Last-Modified": "Wed, 21 Oct 2026 07:00:00 GMT"}, 200, "utf-8"]
+        second = deepcopy(first)
+        if difference == "body":
+            second[2] = b"second"
+        elif difference == "headers":
+            second[3] = {"Last-Modified": "Wed, 21 Oct 2026 07:01:00 GMT"}
+        elif difference == "status":
+            second[4] = 503
+        else:
+            second[5] = "gbk"
+>       reader = raw_archive(tmp_path, [first, second])
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_icim_round5_recording_semantics_20261021.py:54: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+test_icim_round5_recording_semantics_20261021.py:39: in raw_archive
+    return evidence.load_session(tmp_path, DAY)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+root = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_f1524ad9/pytest/test_conflicting_same_url_para0')
+day = datetime.date(2026, 10, 21), required_roles = None, metadata_filter = None
+decision_not_after = None
+
+    def load_session(root: str | Path, day: date, required_roles: Any = None,
+                     metadata_filter: dict[str, Any] | None = None,
+                     decision_not_after: datetime | None = None) -> EvidenceReader:
+        root, day = _canonical(Path(root)), _day(day)
+        cutoff = _aware(decision_not_after, "decision_not_after") if decision_not_after is not None else None
+        directory = _inside(root, root / "sessions" / day.isoformat())
+        try:
+            files = list(directory.glob("*.json"))
+        except OSError as exc:
+            raise EvidenceUnavailable(f"{day} cannot enumerate original evidence") from exc
+        if len(files) > MAX_SESSION_FILES:
+            raise EvidenceUnavailable(f"{day} evidence session count exceeds limit")
+        roles = set(required_roles or [])
+        for role in roles:
+            _role(role)
+        choices, failures = [], []
+        for path in files:
+            try:
+                reader = _load_one(root, path, day)
+                if cutoff is not None and reader.decision_at > cutoff:
+                    continue
+                if metadata_filter and any(reader.metadata.get(key) != value for key, value in metadata_filter.items()):
+                    continue
+                missing = roles - {entry["role"] for entry in reader.context["entries"].values()}
+                if missing:
+                    raise EvidenceUnavailable("missing original evidence roles=" + ",".join(sorted(missing)))
+                choices.append(reader)
+            except (EvidenceUnavailable, ValueError, TypeError, KeyError, AttributeError) as exc:
+                failures.append(f"{path.name}: {exc}")
+        if not choices:
+            detail = "; ".join(failures[:4]) or "no complete session matching requested roles, metadata and decision time"
+>           raise EvidenceUnavailable(f"{day} original evidence unavailable: {detail}")
+E           ic_im_signal_evidence_v1.EvidenceUnavailable: 2026-10-21 original evidence unavailable: 124042087989-b81473564f674c55989469dfd6c7c782.json: evidence capture incomplete
+
+ic_im_signal_evidence_v1.py:791: EvidenceUnavailable
+_ test_conflicting_same_url_parameters_are_rejected_instead_of_taking_last[headers] _
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_f1524ad9/pytest/test_conflicting_same_url_para1')
+difference = 'headers'
+
+    @pytest.mark.parametrize("difference", ["body", "headers", "status", "encoding"])
+    def test_conflicting_same_url_parameters_are_rejected_instead_of_taking_last(tmp_path, difference):
+        first = [URL, PARAMS, b"first", {"Last-Modified": "Wed, 21 Oct 2026 07:00:00 GMT"}, 200, "utf-8"]
+        second = deepcopy(first)
+        if difference == "body":
+            second[2] = b"second"
+        elif difference == "headers":
+            second[3] = {"Last-Modified": "Wed, 21 Oct 2026 07:01:00 GMT"}
+        elif difference == "status":
+            second[4] = 503
+        else:
+            second[5] = "gbk"
+>       reader = raw_archive(tmp_path, [first, second])
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_icim_round5_recording_semantics_20261021.py:54: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+test_icim_round5_recording_semantics_20261021.py:39: in raw_archive
+    return evidence.load_session(tmp_path, DAY)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+root = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_f1524ad9/pytest/test_conflicting_same_url_para1')
+day = datetime.date(2026, 10, 21), required_roles = None, metadata_filter = None
+decision_not_after = None
+
+    def load_session(root: str | Path, day: date, required_roles: Any = None,
+                     metadata_filter: dict[str, Any] | None = None,
+                     decision_not_after: datetime | None = None) -> EvidenceReader:
+        root, day = _canonical(Path(root)), _day(day)
+        cutoff = _aware(decision_not_after, "decision_not_after") if decision_not_after is not None else None
+        directory = _inside(root, root / "sessions" / day.isoformat())
+        try:
+            files = list(directory.glob("*.json"))
+        except OSError as exc:
+            raise EvidenceUnavailable(f"{day} cannot enumerate original evidence") from exc
+        if len(files) > MAX_SESSION_FILES:
+            raise EvidenceUnavailable(f"{day} evidence session count exceeds limit")
+        roles = set(required_roles or [])
+        for role in roles:
+            _role(role)
+        choices, failures = [], []
+        for path in files:
+            try:
+                reader = _load_one(root, path, day)
+                if cutoff is not None and reader.decision_at > cutoff:
+                    continue
+                if metadata_filter and any(reader.metadata.get(key) != value for key, value in metadata_filter.items()):
+                    continue
+                missing = roles - {entry["role"] for entry in reader.context["entries"].values()}
+                if missing:
+                    raise EvidenceUnavailable("missing original evidence roles=" + ",".join(sorted(missing)))
+                choices.append(reader)
+            except (EvidenceUnavailable, ValueError, TypeError, KeyError, AttributeError) as exc:
+                failures.append(f"{path.name}: {exc}")
+        if not choices:
+            detail = "; ".join(failures[:4]) or "no complete session matching requested roles, metadata and decision time"
+>           raise EvidenceUnavailable(f"{day} original evidence unavailable: {detail}")
+E           ic_im_signal_evidence_v1.EvidenceUnavailable: 2026-10-21 original evidence unavailable: 124042516921-6fc642bf1441477a8f5b3bf799ee2b2b.json: evidence capture incomplete
+
+ic_im_signal_evidence_v1.py:791: EvidenceUnavailable
+_ test_conflicting_same_url_parameters_are_rejected_instead_of_taking_last[status] _
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_f1524ad9/pytest/test_conflicting_same_url_para2')
+difference = 'status'
+
+    @pytest.mark.parametrize("difference", ["body", "headers", "status", "encoding"])
+    def test_conflicting_same_url_parameters_are_rejected_instead_of_taking_last(tmp_path, difference):
+        first = [URL, PARAMS, b"first", {"Last-Modified": "Wed, 21 Oct 2026 07:00:00 GMT"}, 200, "utf-8"]
+        second = deepcopy(first)
+        if difference == "body":
+            second[2] = b"second"
+        elif difference == "headers":
+            second[3] = {"Last-Modified": "Wed, 21 Oct 2026 07:01:00 GMT"}
+        elif difference == "status":
+            second[4] = 503
+        else:
+            second[5] = "gbk"
+>       reader = raw_archive(tmp_path, [first, second])
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_icim_round5_recording_semantics_20261021.py:54: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+test_icim_round5_recording_semantics_20261021.py:39: in raw_archive
+    return evidence.load_session(tmp_path, DAY)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+root = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_f1524ad9/pytest/test_conflicting_same_url_para2')
+day = datetime.date(2026, 10, 21), required_roles = None, metadata_filter = None
+decision_not_after = None
+
+    def load_session(root: str | Path, day: date, required_roles: Any = None,
+                     metadata_filter: dict[str, Any] | None = None,
+                     decision_not_after: datetime | None = None) -> EvidenceReader:
+        root, day = _canonical(Path(root)), _day(day)
+        cutoff = _aware(decision_not_after, "decision_not_after") if decision_not_after is not None else None
+        directory = _inside(root, root / "sessions" / day.isoformat())
+        try:
+            files = list(directory.glob("*.json"))
+        except OSError as exc:
+            raise EvidenceUnavailable(f"{day} cannot enumerate original evidence") from exc
+        if len(files) > MAX_SESSION_FILES:
+            raise EvidenceUnavailable(f"{day} evidence session count exceeds limit")
+        roles = set(required_roles or [])
+        for role in roles:
+            _role(role)
+        choices, failures = [], []
+        for path in files:
+            try:
+                reader = _load_one(root, path, day)
+                if cutoff is not None and reader.decision_at > cutoff:
+                    continue
+                if metadata_filter and any(reader.metadata.get(key) != value for key, value in metadata_filter.items()):
+                    continue
+                missing = roles - {entry["role"] for entry in reader.context["entries"].values()}
+                if missing:
+                    raise EvidenceUnavailable("missing original evidence roles=" + ",".join(sorted(missing)))
+                choices.append(reader)
+            except (EvidenceUnavailable, ValueError, TypeError, KeyError, AttributeError) as exc:
+                failures.append(f"{path.name}: {exc}")
+        if not choices:
+            detail = "; ".join(failures[:4]) or "no complete session matching requested roles, metadata and decision time"
+>           raise EvidenceUnavailable(f"{day} original evidence unavailable: {detail}")
+E           ic_im_signal_evidence_v1.EvidenceUnavailable: 2026-10-21 original evidence unavailable: 124042621427-200b0d977ab146d395f3456a21b6a907.json: evidence capture incomplete
+
+ic_im_signal_evidence_v1.py:791: EvidenceUnavailable
+_ test_conflicting_same_url_parameters_are_rejected_instead_of_taking_last[encoding] _
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_f1524ad9/pytest/test_conflicting_same_url_para3')
+difference = 'encoding'
+
+    @pytest.mark.parametrize("difference", ["body", "headers", "status", "encoding"])
+    def test_conflicting_same_url_parameters_are_rejected_instead_of_taking_last(tmp_path, difference):
+        first = [URL, PARAMS, b"first", {"Last-Modified": "Wed, 21 Oct 2026 07:00:00 GMT"}, 200, "utf-8"]
+        second = deepcopy(first)
+        if difference == "body":
+            second[2] = b"second"
+        elif difference == "headers":
+            second[3] = {"Last-Modified": "Wed, 21 Oct 2026 07:01:00 GMT"}
+        elif difference == "status":
+            second[4] = 503
+        else:
+            second[5] = "gbk"
+>       reader = raw_archive(tmp_path, [first, second])
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_icim_round5_recording_semantics_20261021.py:54: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+test_icim_round5_recording_semantics_20261021.py:39: in raw_archive
+    return evidence.load_session(tmp_path, DAY)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+root = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_f1524ad9/pytest/test_conflicting_same_url_para3')
+day = datetime.date(2026, 10, 21), required_roles = None, metadata_filter = None
+decision_not_after = None
+
+    def load_session(root: str | Path, day: date, required_roles: Any = None,
+                     metadata_filter: dict[str, Any] | None = None,
+                     decision_not_after: datetime | None = None) -> EvidenceReader:
+        root, day = _canonical(Path(root)), _day(day)
+        cutoff = _aware(decision_not_after, "decision_not_after") if decision_not_after is not None else None
+        directory = _inside(root, root / "sessions" / day.isoformat())
+        try:
+            files = list(directory.glob("*.json"))
+        except OSError as exc:
+            raise EvidenceUnavailable(f"{day} cannot enumerate original evidence") from exc
+        if len(files) > MAX_SESSION_FILES:
+            raise EvidenceUnavailable(f"{day} evidence session count exceeds limit")
+        roles = set(required_roles or [])
+        for role in roles:
+            _role(role)
+        choices, failures = [], []
+        for path in files:
+            try:
+                reader = _load_one(root, path, day)
+                if cutoff is not None and reader.decision_at > cutoff:
+                    continue
+                if metadata_filter and any(reader.metadata.get(key) != value for key, value in metadata_filter.items()):
+                    continue
+                missing = roles - {entry["role"] for entry in reader.context["entries"].values()}
+                if missing:
+                    raise EvidenceUnavailable("missing original evidence roles=" + ",".join(sorted(missing)))
+                choices.append(reader)
+            except (EvidenceUnavailable, ValueError, TypeError, KeyError, AttributeError) as exc:
+                failures.append(f"{path.name}: {exc}")
+        if not choices:
+            detail = "; ".join(failures[:4]) or "no complete session matching requested roles, metadata and decision time"
+>           raise EvidenceUnavailable(f"{day} original evidence unavailable: {detail}")
+E           ic_im_signal_evidence_v1.EvidenceUnavailable: 2026-10-21 original evidence unavailable: 124042680741-ac9223f7a04f4c3cbf8e7c706fe241c8.json: evidence capture incomplete
+
+ic_im_signal_evidence_v1.py:791: EvidenceUnavailable
+============================== warnings summary ===============================
+C:\Python314\Lib\site-packages\fastapi_poe\types.py:171
+  C:\Python314\Lib\site-packages\fastapi_poe\types.py:171: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    class RequestContext(BaseModel):
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED test_icim_round5_recording_semantics_20261021.py::test_conflicting_same_url_parameters_are_rejected_instead_of_taking_last[body]
+FAILED test_icim_round5_recording_semantics_20261021.py::test_conflicting_same_url_parameters_are_rejected_instead_of_taking_last[headers]
+FAILED test_icim_round5_recording_semantics_20261021.py::test_conflicting_same_url_parameters_are_rejected_instead_of_taking_last[status]
+FAILED test_icim_round5_recording_semantics_20261021.py::test_conflicting_same_url_parameters_are_rejected_instead_of_taking_last[encoding]
+4 failed, 154 passed, 1 warning in 25.26s

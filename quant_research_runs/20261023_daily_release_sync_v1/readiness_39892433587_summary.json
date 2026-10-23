@@ -1,0 +1,14 @@
+{
+  "run": 39892433587,
+  "job": 120215258822,
+  "automation_sha": "f2b77dd4b710101adb897b0d9e40b193faaa10c5",
+  "strategy_sha": "8038980de86251b2c5133da04e788dc2c49c84ff",
+  "conclusion": "success",
+  "evidence": [
+    "2026-10-23T02:59:16.2658891Z {\"status\": \"verified\", \"release\": \"20261023-audited-inputs-v1\", \"strategy_sha\": \"8038980de86251b2c5133da04e788dc2c49c84ff\", \"files\": 29}",
+    "2026-10-23T02:59:23.1120526Z ic_im_digest_ok: mode=close_confirmed verified_day=2026-10-22 sequence=20 build=v1.4-20261008-r1-ic-csi500-abs40-fix11",
+    "2026-10-23T02:59:24.0628617Z {\"status\": \"ok\", \"tls_verified\": ***, \"authenticated\": ***, \"sender_envelope_accepted\": ***, \"recipients_accepted\": 1, \"envelope_reset\": ***, \"message_sent\": false}",
+    "2026-10-23T02:59:25.6856193Z ICIM_HANDOFF_SHA256=04baf5d42d657095a1770a38f57037926de2ffed8211662739407b1633af942a"
+  ],
+  "real_email_sent": false
+}

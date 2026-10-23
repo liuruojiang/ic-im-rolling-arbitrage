@@ -1,0 +1,190 @@
+......FF...FF..F..FF.....F                                               [100%]
+================================== FAILURES ===================================
+________ test_same_instant_has_same_after_close_wait_status[zone1-IC] _________
+
+product = 'IC', zone = datetime.timezone.utc
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001DDAABA7250>
+
+    @pytest.mark.parametrize('product',['IC','IM'])
+    @pytest.mark.parametrize('zone',[bot.BEIJING,timezone.utc,ZoneInfo('Asia/Tokyo')])
+    def test_same_instant_has_same_after_close_wait_status(product,zone,monkeypatch):
+        frame = bars()
+        small_valid_history(monkeypatch,frame)
+        clock = CLOCK.astimezone(zone)
+>       with pytest.raises(bot.DailyOHLCVNotReady):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'poe_ic_im_mainline_v1_4_bot.DailyOHLCVNotReady'>
+
+test_icim_a3_ohlcv_20261021.py:81: Failed
+________ test_same_instant_has_same_after_close_wait_status[zone1-IM] _________
+
+product = 'IM', zone = datetime.timezone.utc
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001DDAABF6300>
+
+    @pytest.mark.parametrize('product',['IC','IM'])
+    @pytest.mark.parametrize('zone',[bot.BEIJING,timezone.utc,ZoneInfo('Asia/Tokyo')])
+    def test_same_instant_has_same_after_close_wait_status(product,zone,monkeypatch):
+        frame = bars()
+        small_valid_history(monkeypatch,frame)
+        clock = CLOCK.astimezone(zone)
+>       with pytest.raises(bot.DailyOHLCVNotReady):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'poe_ic_im_mainline_v1_4_bot.DailyOHLCVNotReady'>
+
+test_icim_a3_ohlcv_20261021.py:81: Failed
+_____ test_public_builder_passes_a_beijing_clock_to_implementation[zone1] _____
+
+zone = datetime.timezone.utc
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001DDAABECAE0>
+
+    @pytest.mark.parametrize('zone',[bot.BEIJING,timezone.utc,ZoneInfo('Asia/Tokyo')])
+    def test_public_builder_passes_a_beijing_clock_to_implementation(zone,monkeypatch):
+        clocks = []
+        def implementation(product,clock,mode):
+            clocks.append(clock)
+            return {'close_confirmed':False}
+        monkeypatch.setattr(bot,'_build_live_trade_signal',implementation)
+>       bot.build_live_trade_signal('IC',now=CLOCK.astimezone(zone),mode='close')
+
+test_icim_a3_ohlcv_20261021.py:92: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+product = 'IC'
+now = datetime.datetime(2026, 10, 21, 7, 1, tzinfo=datetime.timezone.utc)
+mode = 'close'
+
+    def build_live_trade_signal(
+        product: str, now: datetime | None = None, mode: str = "intraday",
+    ) -> dict[str, Any]:
+        clock = now or _now_beijing()
+        with runtime_clock(clock):
+            # The exchange session ends at 15:00.  The generic snapshot route is
+            # deliberately more conservative until 15:30; these are not one gate.
+            if mode == "close" and _is_exchange_trading_day(clock.date()) and _market_phase(clock) != "收盘后":
+>               raise RuntimeError("今日尚未收盘，收盘确认信号尚不可用；盘中研究请查询实时信号")
+E               RuntimeError: 今日尚未收盘，收盘确认信号尚不可用；盘中研究请查询实时信号
+
+poe_ic_im_mainline_v1_4_bot.py:5882: RuntimeError
+_____ test_public_builder_passes_a_beijing_clock_to_implementation[zone2] _____
+
+zone = zoneinfo.ZoneInfo(key='Asia/Tokyo')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001DDAAD66E10>
+
+    @pytest.mark.parametrize('zone',[bot.BEIJING,timezone.utc,ZoneInfo('Asia/Tokyo')])
+    def test_public_builder_passes_a_beijing_clock_to_implementation(zone,monkeypatch):
+        clocks = []
+        def implementation(product,clock,mode):
+            clocks.append(clock)
+            return {'close_confirmed':False}
+        monkeypatch.setattr(bot,'_build_live_trade_signal',implementation)
+        bot.build_live_trade_signal('IC',now=CLOCK.astimezone(zone),mode='close')
+        assert clocks == [CLOCK]
+>       assert clocks[0].tzinfo == bot.BEIJING
+E       AssertionError: assert zoneinfo.ZoneInfo(key='Asia/Tokyo') == zoneinfo.ZoneInfo(key='Asia/Shanghai')
+E        +  where zoneinfo.ZoneInfo(key='Asia/Tokyo') = datetime.datetime(2026, 10, 21, 16, 1, tzinfo=zoneinfo.ZoneInfo(key='Asia/Tokyo')).tzinfo
+E        +  and   zoneinfo.ZoneInfo(key='Asia/Shanghai') = bot.BEIJING
+
+test_icim_a3_ohlcv_20261021.py:94: AssertionError
+________ test_same_preclose_instant_cannot_enter_close_builder[zone2] _________
+
+zone = zoneinfo.ZoneInfo(key='Asia/Tokyo')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001DDAAD817B0>
+
+    @pytest.mark.parametrize('zone',[bot.BEIJING,timezone.utc,ZoneInfo('Asia/Tokyo')])
+    def test_same_preclose_instant_cannot_enter_close_builder(zone,monkeypatch):
+        clock = datetime(2026,10,21,14,59,tzinfo=bot.BEIJING).astimezone(zone)
+        def forbidden(*args,**kwargs):
+            raise AssertionError('close implementation must not run before Beijing close')
+        monkeypatch.setattr(bot,'_build_live_trade_signal',forbidden)
+        with pytest.raises(RuntimeError,match='尚未收盘'):
+>           bot.build_live_trade_signal('IC',now=clock,mode='close')
+
+test_icim_a3_ohlcv_20261021.py:104: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_mainline_v1_4_bot.py:5885: in build_live_trade_signal
+    return _build_live_trade_signal(product, clock, mode)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+args = ('IC', datetime.datetime(2026, 10, 21, 15, 59, tzinfo=zoneinfo.ZoneInfo(key='Asia/Tokyo')), 'close')
+kwargs = {}
+
+    def forbidden(*args,**kwargs):
+>       raise AssertionError('close implementation must not run before Beijing close')
+E       AssertionError: close implementation must not run before Beijing close
+
+test_icim_a3_ohlcv_20261021.py:101: AssertionError
+____ test_known_placeholder_cannot_be_promoted_to_completed_daily_bar[IC] _____
+
+product = 'IC'
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001DDAAD71490>
+
+    @pytest.mark.parametrize('product',['IC','IM'])
+    def test_known_placeholder_cannot_be_promoted_to_completed_daily_bar(product,monkeypatch):
+        # This is a defensive direct-adapter probe; current live_proxy creates its
+        # placeholders AFTER validation on a copy, so no production reachability
+        # claim is made merely from accepting this injected marked frame.
+        frame = bars('2026-10-21')
+        frame['realtime_volume_placeholder'] = [False,False,True]
+        small_valid_history(monkeypatch,frame)
+>       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+test_icim_a3_ohlcv_20261021.py:123: Failed
+____ test_known_placeholder_cannot_be_promoted_to_completed_daily_bar[IM] _____
+
+product = 'IM'
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001DDAAD7F550>
+
+    @pytest.mark.parametrize('product',['IC','IM'])
+    def test_known_placeholder_cannot_be_promoted_to_completed_daily_bar(product,monkeypatch):
+        # This is a defensive direct-adapter probe; current live_proxy creates its
+        # placeholders AFTER validation on a copy, so no production reachability
+        # claim is made merely from accepting this injected marked frame.
+        frame = bars('2026-10-21')
+        frame['realtime_volume_placeholder'] = [False,False,True]
+        small_valid_history(monkeypatch,frame)
+>       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+test_icim_a3_ohlcv_20261021.py:123: Failed
+__ test_utc_coordinator_cannot_misclassify_just_closed_session_as_caught_up ___
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_523975f6/pytest/test_utc_coordinator_cannot_mi0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001DDAAD6FE00>
+
+    def test_utc_coordinator_cannot_misclassify_just_closed_session_as_caught_up(tmp_path,monkeypatch):
+        monkeypatch.setenv('ICIM_STATE_DIR',str(tmp_path/'server_singleton'))
+        monkeypatch.setenv('ICIM_REQUIRE_MIGRATION','0')
+        server = importlib.import_module('poe_ic_im_v1_4_server')
+        from test_icim_round2_audit_lifecycle_20261021 import recent_store
+        store,_ = recent_store(tmp_path/'audited_ledger')
+        coordinator = server.LedgerCoordinator(store)
+        before = ledger_snapshot(store.root)
+        monkeypatch.setattr(bot,'fetch_ohlcv_history',lambda _:bars())
+        assert coordinator.catch_up_once(CLOCK.astimezone(timezone.utc)) is False
+        # The ledger ends yesterday, so today's missing bar is a wait/error. It must
+        # not silently report that all completed sessions have already been caught up.
+>       assert coordinator.last_refresh_error
+E       assert None
+E        +  where None = <poe_ic_im_v1_4_server.LedgerCoordinator object at 0x000001DDAE0B0E90>.last_refresh_error
+
+test_icim_a3_ohlcv_20261021.py:198: AssertionError
+============================== warnings summary ===============================
+C:\Python314\Lib\site-packages\fastapi_poe\types.py:171
+  C:\Python314\Lib\site-packages\fastapi_poe\types.py:171: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    class RequestContext(BaseModel):
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED test_icim_a3_ohlcv_20261021.py::test_same_instant_has_same_after_close_wait_status[zone1-IC]
+FAILED test_icim_a3_ohlcv_20261021.py::test_same_instant_has_same_after_close_wait_status[zone1-IM]
+FAILED test_icim_a3_ohlcv_20261021.py::test_public_builder_passes_a_beijing_clock_to_implementation[zone1]
+FAILED test_icim_a3_ohlcv_20261021.py::test_public_builder_passes_a_beijing_clock_to_implementation[zone2]
+FAILED test_icim_a3_ohlcv_20261021.py::test_same_preclose_instant_cannot_enter_close_builder[zone2]
+FAILED test_icim_a3_ohlcv_20261021.py::test_known_placeholder_cannot_be_promoted_to_completed_daily_bar[IC]
+FAILED test_icim_a3_ohlcv_20261021.py::test_known_placeholder_cannot_be_promoted_to_completed_daily_bar[IM]
+FAILED test_icim_a3_ohlcv_20261021.py::test_utc_coordinator_cannot_misclassify_just_closed_session_as_caught_up
+8 failed, 18 passed, 1 warning in 3.19s

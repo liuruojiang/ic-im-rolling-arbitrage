@@ -1,0 +1,289 @@
+..........FFFFFFFFFFFFFFFF............                                   [100%]
+================================== FAILURES ===================================
+_ test_same_id_cannot_migrate_to_different_original_strike_series_or_expiry[changed0] _
+
+changed = {'contract': '510500P2612A07750', 'strike': Decimal('7.613')}
+
+    @pytest.mark.parametrize('changed', [
+        {'contract':'510500P2612A07750','strike':Decimal('7.613')},
+        {'expiry':date(2026,12,24)},
+    ])
+    def test_same_id_cannot_migrate_to_different_original_strike_series_or_expiry(changed):
+        old,current = pair()
+        wrong = replace(current,**changed)
+>       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+test_icim_a3_cash_20261021.py:108: Failed
+_ test_same_id_cannot_migrate_to_different_original_strike_series_or_expiry[changed1] _
+
+changed = {'expiry': datetime.date(2026, 12, 24)}
+
+    @pytest.mark.parametrize('changed', [
+        {'contract':'510500P2612A07750','strike':Decimal('7.613')},
+        {'expiry':date(2026,12,24)},
+    ])
+    def test_same_id_cannot_migrate_to_different_original_strike_series_or_expiry(changed):
+        old,current = pair()
+        wrong = replace(current,**changed)
+>       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+test_icim_a3_cash_20261021.py:108: Failed
+________ test_adjusted_entry_cannot_revert_to_old_standard_m_identity _________
+
+    def test_adjusted_entry_cannot_revert_to_old_standard_m_identity():
+        old,current = pair()
+        fake_future_m = replace(old,valid_from=date(2026,7,16),valid_through=current.valid_through)
+>       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+test_icim_a3_cash_20261021.py:115: Failed
+__ test_a_to_a_terms_change_requires_a_new_proven_adjustment_event[changed0] __
+
+changed = {'unit': 10181}
+
+    @pytest.mark.parametrize('changed', [{'unit':10181},{'strike':Decimal('7.368')}])
+    def test_a_to_a_terms_change_requires_a_new_proven_adjustment_event(changed):
+        _,current = pair()
+>       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+test_icim_a3_cash_20261021.py:122: Failed
+__ test_a_to_a_terms_change_requires_a_new_proven_adjustment_event[changed1] __
+
+changed = {'strike': Decimal('7.368')}
+
+    @pytest.mark.parametrize('changed', [{'unit':10181},{'strike':Decimal('7.368')}])
+    def test_a_to_a_terms_change_requires_a_new_proven_adjustment_event(changed):
+        _,current = pair()
+>       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+test_icim_a3_cash_20261021.py:122: Failed
+_ test_threshold_rejects_a_self_inconsistent_mutated_preview[cash_per_contract-999999] _
+
+field = 'cash_per_contract', value = '999999'
+
+    @pytest.mark.parametrize('field,value', [
+        ('cash_per_contract','999999'),('total_entry_cash','1'),('contracts',6),
+        ('original_premium','0.5'),('original_unit',10001),
+        ('equivalent_current_unit_premium','0.5'),('cost_evidence_hash',None),
+        ('entry_terms_hash','invalid'),
+    ])
+    def test_threshold_rejects_a_self_inconsistent_mutated_preview(field,value):
+        _,current = pair()
+        value_before = basis()
+        value_before[field] = value
+>       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+test_icim_a3_cash_20261021.py:136: Failed
+_ test_threshold_rejects_a_self_inconsistent_mutated_preview[total_entry_cash-1] _
+
+field = 'total_entry_cash', value = '1'
+
+    @pytest.mark.parametrize('field,value', [
+        ('cash_per_contract','999999'),('total_entry_cash','1'),('contracts',6),
+        ('original_premium','0.5'),('original_unit',10001),
+        ('equivalent_current_unit_premium','0.5'),('cost_evidence_hash',None),
+        ('entry_terms_hash','invalid'),
+    ])
+    def test_threshold_rejects_a_self_inconsistent_mutated_preview(field,value):
+        _,current = pair()
+        value_before = basis()
+        value_before[field] = value
+>       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+test_icim_a3_cash_20261021.py:136: Failed
+___ test_threshold_rejects_a_self_inconsistent_mutated_preview[contracts-6] ___
+
+field = 'contracts', value = 6
+
+    @pytest.mark.parametrize('field,value', [
+        ('cash_per_contract','999999'),('total_entry_cash','1'),('contracts',6),
+        ('original_premium','0.5'),('original_unit',10001),
+        ('equivalent_current_unit_premium','0.5'),('cost_evidence_hash',None),
+        ('entry_terms_hash','invalid'),
+    ])
+    def test_threshold_rejects_a_self_inconsistent_mutated_preview(field,value):
+        _,current = pair()
+        value_before = basis()
+        value_before[field] = value
+>       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+test_icim_a3_cash_20261021.py:136: Failed
+_ test_threshold_rejects_a_self_inconsistent_mutated_preview[original_premium-0.5] _
+
+field = 'original_premium', value = '0.5'
+
+    @pytest.mark.parametrize('field,value', [
+        ('cash_per_contract','999999'),('total_entry_cash','1'),('contracts',6),
+        ('original_premium','0.5'),('original_unit',10001),
+        ('equivalent_current_unit_premium','0.5'),('cost_evidence_hash',None),
+        ('entry_terms_hash','invalid'),
+    ])
+    def test_threshold_rejects_a_self_inconsistent_mutated_preview(field,value):
+        _,current = pair()
+        value_before = basis()
+        value_before[field] = value
+>       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+test_icim_a3_cash_20261021.py:136: Failed
+_ test_threshold_rejects_a_self_inconsistent_mutated_preview[original_unit-10001] _
+
+field = 'original_unit', value = 10001
+
+    @pytest.mark.parametrize('field,value', [
+        ('cash_per_contract','999999'),('total_entry_cash','1'),('contracts',6),
+        ('original_premium','0.5'),('original_unit',10001),
+        ('equivalent_current_unit_premium','0.5'),('cost_evidence_hash',None),
+        ('entry_terms_hash','invalid'),
+    ])
+    def test_threshold_rejects_a_self_inconsistent_mutated_preview(field,value):
+        _,current = pair()
+        value_before = basis()
+        value_before[field] = value
+>       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+test_icim_a3_cash_20261021.py:136: Failed
+_ test_threshold_rejects_a_self_inconsistent_mutated_preview[equivalent_current_unit_premium-0.5] _
+
+field = 'equivalent_current_unit_premium', value = '0.5'
+
+    @pytest.mark.parametrize('field,value', [
+        ('cash_per_contract','999999'),('total_entry_cash','1'),('contracts',6),
+        ('original_premium','0.5'),('original_unit',10001),
+        ('equivalent_current_unit_premium','0.5'),('cost_evidence_hash',None),
+        ('entry_terms_hash','invalid'),
+    ])
+    def test_threshold_rejects_a_self_inconsistent_mutated_preview(field,value):
+        _,current = pair()
+        value_before = basis()
+        value_before[field] = value
+>       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+test_icim_a3_cash_20261021.py:136: Failed
+_ test_threshold_rejects_a_self_inconsistent_mutated_preview[cost_evidence_hash-None] _
+
+field = 'cost_evidence_hash', value = None
+
+    @pytest.mark.parametrize('field,value', [
+        ('cash_per_contract','999999'),('total_entry_cash','1'),('contracts',6),
+        ('original_premium','0.5'),('original_unit',10001),
+        ('equivalent_current_unit_premium','0.5'),('cost_evidence_hash',None),
+        ('entry_terms_hash','invalid'),
+    ])
+    def test_threshold_rejects_a_self_inconsistent_mutated_preview(field,value):
+        _,current = pair()
+        value_before = basis()
+        value_before[field] = value
+>       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+test_icim_a3_cash_20261021.py:136: Failed
+_ test_threshold_rejects_a_self_inconsistent_mutated_preview[entry_terms_hash-invalid] _
+
+field = 'entry_terms_hash', value = 'invalid'
+
+    @pytest.mark.parametrize('field,value', [
+        ('cash_per_contract','999999'),('total_entry_cash','1'),('contracts',6),
+        ('original_premium','0.5'),('original_unit',10001),
+        ('equivalent_current_unit_premium','0.5'),('cost_evidence_hash',None),
+        ('entry_terms_hash','invalid'),
+    ])
+    def test_threshold_rejects_a_self_inconsistent_mutated_preview(field,value):
+        _,current = pair()
+        value_before = basis()
+        value_before[field] = value
+>       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+test_icim_a3_cash_20261021.py:136: Failed
+_________ test_plan_preview_never_shares_nested_mutable_input[option] _________
+
+kind = 'option'
+
+    @pytest.mark.parametrize('kind', ['option','future'])
+    def test_plan_preview_never_shares_nested_mutable_input(kind):
+        _,current = pair()
+        row = dict(kind=kind,contract=current.contract if kind=='option' else 'IC2612',
+                   security_id=SID if kind=='option' else None,extra={'stamp':['original']})
+        value = plan(required_quotes=[row])
+        result = migration.preview_plan_identities(value,{SID:current},execution_day=DAY)
+        result['quote_bindings'][0]['original']['extra']['stamp'][0] = 'mutated'
+>       assert value['required_quotes'][0]['extra']['stamp'] == ['original']
+E       AssertionError: assert ['mutated'] == ['original']
+E         
+E         At index 0 diff: 'mutated' != 'original'
+E         Use -v to get more diff
+
+test_icim_a3_cash_20261021.py:149: AssertionError
+_________ test_plan_preview_never_shares_nested_mutable_input[future] _________
+
+kind = 'future'
+
+    @pytest.mark.parametrize('kind', ['option','future'])
+    def test_plan_preview_never_shares_nested_mutable_input(kind):
+        _,current = pair()
+        row = dict(kind=kind,contract=current.contract if kind=='option' else 'IC2612',
+                   security_id=SID if kind=='option' else None,extra={'stamp':['original']})
+        value = plan(required_quotes=[row])
+        result = migration.preview_plan_identities(value,{SID:current},execution_day=DAY)
+        result['quote_bindings'][0]['original']['extra']['stamp'][0] = 'mutated'
+>       assert value['required_quotes'][0]['extra']['stamp'] == ['original']
+E       AssertionError: assert ['mutated'] == ['original']
+E         
+E         At index 0 diff: 'mutated' != 'original'
+E         Use -v to get more diff
+
+test_icim_a3_cash_20261021.py:149: AssertionError
+_______ test_plan_terms_mapping_key_cannot_hide_different_real_security _______
+
+    def test_plan_terms_mapping_key_cannot_hide_different_real_security():
+        # The real master contains newly listed M07500/10012099. The original
+        # security is 10011470 and has become A07500. A malformed lookup map must
+        # never report the original row as identity_unchanged.
+        master = migration.master_terms(payload('sse_contract_master.json'),as_of='2026-10-20')
+        value = plan(execution_day='2026-10-20',signal_day='2026-10-19')
+>       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+test_icim_a3_cash_20261021.py:158: Failed
+=========================== short test summary info ===========================
+FAILED test_icim_a3_cash_20261021.py::test_same_id_cannot_migrate_to_different_original_strike_series_or_expiry[changed0]
+FAILED test_icim_a3_cash_20261021.py::test_same_id_cannot_migrate_to_different_original_strike_series_or_expiry[changed1]
+FAILED test_icim_a3_cash_20261021.py::test_adjusted_entry_cannot_revert_to_old_standard_m_identity
+FAILED test_icim_a3_cash_20261021.py::test_a_to_a_terms_change_requires_a_new_proven_adjustment_event[changed0]
+FAILED test_icim_a3_cash_20261021.py::test_a_to_a_terms_change_requires_a_new_proven_adjustment_event[changed1]
+FAILED test_icim_a3_cash_20261021.py::test_threshold_rejects_a_self_inconsistent_mutated_preview[cash_per_contract-999999]
+FAILED test_icim_a3_cash_20261021.py::test_threshold_rejects_a_self_inconsistent_mutated_preview[total_entry_cash-1]
+FAILED test_icim_a3_cash_20261021.py::test_threshold_rejects_a_self_inconsistent_mutated_preview[contracts-6]
+FAILED test_icim_a3_cash_20261021.py::test_threshold_rejects_a_self_inconsistent_mutated_preview[original_premium-0.5]
+FAILED test_icim_a3_cash_20261021.py::test_threshold_rejects_a_self_inconsistent_mutated_preview[original_unit-10001]
+FAILED test_icim_a3_cash_20261021.py::test_threshold_rejects_a_self_inconsistent_mutated_preview[equivalent_current_unit_premium-0.5]
+FAILED test_icim_a3_cash_20261021.py::test_threshold_rejects_a_self_inconsistent_mutated_preview[cost_evidence_hash-None]
+FAILED test_icim_a3_cash_20261021.py::test_threshold_rejects_a_self_inconsistent_mutated_preview[entry_terms_hash-invalid]
+FAILED test_icim_a3_cash_20261021.py::test_plan_preview_never_shares_nested_mutable_input[option]
+FAILED test_icim_a3_cash_20261021.py::test_plan_preview_never_shares_nested_mutable_input[future]
+FAILED test_icim_a3_cash_20261021.py::test_plan_terms_mapping_key_cannot_hide_different_real_security
+16 failed, 22 passed in 1.16s

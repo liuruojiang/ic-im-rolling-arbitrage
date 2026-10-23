@@ -1,0 +1,31 @@
+{
+  "checked_at": "2026-10-21T13:01:18.146844+00:00",
+  "source": "outputs/external_review_real_sources_20260911/sse_months_c73f6aee4b65.bin",
+  "source_sha256": "c73f6aee4b6596544a6bdc125b20eba653b01caa48bb4d9882b8a8688d0f5aa7",
+  "source_market_date": 20260910,
+  "source_time": 162901,
+  "source_rows": 20,
+  "parsed_510500_months": [
+    "202609",
+    "202610",
+    "202612",
+    "202703"
+  ],
+  "source_unchanged": true,
+  "production_sha256": "6dbec6dc5054675ea6208e52b4c189ca78e31145e856602ce506f6a06698ac0b",
+  "source_before_equals_after": true,
+  "corrupted_copy_checks": [
+    {
+      "fault": "invalid_requested_month",
+      "rejected": true,
+      "reason": "上交所510500ETF挂牌月份存在无效值，禁止按残缺月份选约"
+    },
+    {
+      "fault": "partial_pagination",
+      "rejected": true,
+      "reason": "上交所510500ETF挂牌月份行情分页不完整或未经核验"
+    }
+  ],
+  "passed": true,
+  "real_preopen_or_morning_availability_verified": false
+}

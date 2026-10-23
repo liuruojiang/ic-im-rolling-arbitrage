@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="16" time="3.868" timestamp="2026-10-22T18:19:27.217516+08:00" hostname="DESKTOP-95I7VVU"><testcase classname="test_ic_im_v1_4_integration_guards" name="test_sina_chain_marks_one_yesterday_row_without_reselecting_another_strike" time="0.002"><failure message="TypeError: 'Mock' object is not iterable">def test_sina_chain_marks_one_yesterday_row_without_reselecting_another_strike():
+        def payload(strike, observed):
+            fields = [''] * 47
+            # CON_OP latest trade is [2]; [3] is ask. This fixture checks time,
+            # not the former incorrect ask-as-trade parser.
+            fields[2], fields[3], fields[7], fields[32] = '0.25', '0.26', str(strike), observed
+            fields[36] = '510500'
+            fields[40], fields[43], fields[45], fields[46] = '0.24', 'M', 'P', '2026-12-23'
+            return ','.join(fields)
+    
+        listing = Mock(headers={}, content=b'CON_OP_10001001,CON_OP_10001002,CON_OP_10001003')
+        details = ('var hq_str_CON_OP_10001001="' + payload(7.25, '2026-09-30 13:10:00') + '";'
+                   'var hq_str_CON_OP_10001002="' + payload(7.50, '2026-09-29 15:00:00') + '";'
+                   'var hq_str_CON_OP_10001003="' + payload(7.75, '2026-09-30 00:00:00') + '";')
+        quotes_response = Mock(headers={}, content=details.encode('gbk'))
+        clock = datetime(2026, 9, 30, 13, 20, tzinfo=bot.BEIJING)
+        with patch.object(bot.requests, 'get', side_effect=[listing, quotes_response]):
+&gt;           chain, stamp = bot.fetch_sina_510500_chain('2612')
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_ic_im_v1_4_integration_guards.py:643: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_mainline_v1_4_bot.py:4180: in fetch_sina_510500_chain
+    listing = _public_quote_bytes("https://hq.sinajs.cn/", "新浪510500 Put列表",
+poe_ic_im_mainline_v1_4_bot.py:4029: in _public_quote_bytes
+    return _bounded_response_bytes(response, label)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+response = &lt;Mock id='1261555559664'&gt;, label = '新浪510500 Put列表'
+
+    def _bounded_response_bytes(response: Any, label: str) -&gt; bytes:
+        """Bound a streamed identity response, including the shared collection budget."""
+        declared = response.headers.get("Content-Length")
+        if declared:
+            try:
+                size = int(declared)
+            except (ValueError, TypeError) as exc:
+                raise RuntimeError(f"{label}响应长度标头非法") from exc
+            if size &lt; 0 or size &gt; MAX_QUOTE_RESPONSE_BYTES:
+                raise RuntimeError(f"{label}响应声明大小超过上限或非法")
+        chunks, downloaded = [], 0
+&gt;       stream = iter(response.iter_content(chunk_size=64*1024))
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: 'Mock' object is not iterable
+
+poe_ic_im_mainline_v1_4_bot.py:3126: TypeError</failure></testcase><testcase classname="test_ic_im_external_review_20261021" name="test_real_adjusted_rows_are_quarantined_without_inventing_trading_codes" time="0.007" /><testcase classname="test_icim_redteam_market_20261021" name="test_full_real_adjusted_chain_preserves_fifteen_legal_m_contracts" time="0.005" /><testcase classname="test_icim_round2_audit_lifecycle_20261021" name="test_full_public_builder_real_sse_current_holding_identity[10012099]" time="0.038" /><testcase classname="test_icim_round2_audit_lifecycle_20261021" name="test_full_public_builder_real_sse_current_holding_identity[10011470]" time="0.022" /><testcase classname="test_icim_round2_audit_lifecycle_20261021" name="test_full_public_builder_real_sse_current_holding_identity[None]" time="0.022" /><testcase classname="test_icim_round2_audit_lifecycle_20261021" name="test_actual_builder_independent_sleeves_never_cross_identity[None]" time="0.021" /><testcase classname="test_icim_round2_audit_lifecycle_20261021" name="test_actual_builder_independent_sleeves_never_cross_identity[core]" time="0.022" /><testcase classname="test_icim_round2_audit_lifecycle_20261021" name="test_actual_builder_independent_sleeves_never_cross_identity[momentum]" time="0.021" /><testcase classname="test_icim_round2_audit_lifecycle_20261021" name="test_legal_zero_put_holding_does_not_require_unheld_legacy_identity" time="0.022" /><testcase classname="test_icim_round2_audit_lifecycle_20261021" name="test_actual_short_mark_must_not_trust_stale_m_label_for_adjusted_security" time="0.025" /><testcase classname="test_icim_batch3_valuation_20261021" name="test_complete_ic_builder_replaces_legacy_state_before_formal_target[-100.0]" time="0.287" /><testcase classname="test_icim_batch3_valuation_20261021" name="test_complete_ic_builder_replaces_legacy_state_before_formal_target[100.0]" time="0.267" /><testcase classname="test_icim_expert_display_retry_20261021" name="test_ic_public_monthly_reset_with_missing_quantity_is_diagnostic" time="0.023" /><testcase classname="test_icim_expert_audit_calendar_20261021" name="test_actual_ic_quarter_roll_preview_and_close_remain_diagnostic[day0]" time="0.023" /><testcase classname="test_icim_expert_audit_calendar_20261021" name="test_actual_ic_quarter_roll_preview_and_close_remain_diagnostic[day1]" time="0.023" /></testsuite></testsuites>

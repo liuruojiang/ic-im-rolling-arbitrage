@@ -1,0 +1,134 @@
+{
+  "checked_at": "2026-10-21T08:43:51.053703+00:00",
+  "counts": {
+    "tests": 1652,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "test_files": 63,
+  "source_files": 897,
+  "source_binding_changed": [],
+  "independent": {
+    "calendar_redteam/final_08": {
+      "counts": {
+        "tests": 17,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "source_files": 3,
+      "shared_files": 3,
+      "shared_match": true,
+      "current_changed": [],
+      "independent_only": []
+    },
+    "old_call/final_03": {
+      "counts": {
+        "tests": 13,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "source_files": 5,
+      "shared_files": 5,
+      "shared_match": true,
+      "current_changed": [],
+      "independent_only": []
+    },
+    "valuation/final_independent": {
+      "counts": {
+        "tests": 32,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "source_files": 21,
+      "shared_files": 21,
+      "shared_match": true,
+      "current_changed": [],
+      "independent_only": []
+    },
+    "research_boundary/final_1": {
+      "counts": {
+        "tests": 15,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "source_files": 19,
+      "shared_files": 17,
+      "shared_match": true,
+      "current_changed": [],
+      "independent_only": [
+        "quant_research_runs/20261021_ic_wait_etf_listing_v1/record.md",
+        "quant_research_runs/20261021_ic_wait_etf_listing_v1/completed.json"
+      ]
+    },
+    "concurrency/final_20261021_1": {
+      "counts": {
+        "tests": 17,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "source_files": 16,
+      "shared_files": 15,
+      "shared_match": true,
+      "current_changed": [],
+      "independent_only": [
+        "quant_research_runs/20261021_external_review_batch3_v1/concurrency/final_reverify.py"
+      ]
+    }
+  },
+  "backup_files": 1155,
+  "bad_backups": [],
+  "protected_outputs": 6795,
+  "bad_outputs": [],
+  "protected_prior_evidence": 643,
+  "prior_report_completion": [
+    {
+      "path": "quant_research_runs/20261021_adjusted_put_redteam_v1/history/record.md",
+      "before": "2cb71ec84de20294f369037d03967f556ea9cab43c47ca1327e2a32c4fe42b3c",
+      "after": "8d356f2568e1f2898dd72753de8ecff701ec8d9939577c50307fd274f7d6bdc6",
+      "original_prefix_preserved": true
+    },
+    {
+      "path": "quant_research_runs/20261021_adjusted_put_redteam_v1/ohlcv/record.md",
+      "before": "9354378b118f179a3bc87c86c6bed3c2818983ca6dde70ead5d3af42ca6926b8",
+      "after": "522b9bf012e453ec8ae0f0bd0f21d1a5e408d61349e7ff888f992e10ad979341",
+      "original_prefix_preserved": true
+    }
+  ],
+  "bad_prior_unapproved": [],
+  "changed_existing": [
+    "notes/mainline_registry.md",
+    "poe_ic_im_mainline_v1_4_bot.py",
+    "poe_ic_im_v1_4_server.py",
+    "poe_ic_im_v1_4_state.py",
+    "test_adversarial_policy_20261007.py",
+    "test_ic_im_put_delivery_completion_20261016.py",
+    "test_icim_redteam_display_20261021.py"
+  ],
+  "unexpected_changes": [],
+  "frozen_specs_changed": [],
+  "batch3_spec_sha256_ok": true,
+  "runtime_ledger_json_count": 142,
+  "runtime_ledger_json_added": [],
+  "runtime_ledger_json_missing": [],
+  "runtime_ledger_unchanged": true,
+  "runtime_unbound_lock_files_observed": [
+    "runtime/ic_im_v1_3/.ledger.lock",
+    "runtime/ic_im_v1_3_r3_redteam_candidate/.ledger.lock",
+    "runtime/ic_im_v1_3_r4_spec_erratum/.ledger.lock",
+    "runtime/ic_im_v1_3_r6/.ledger.lock",
+    "runtime/ic_im_v1_3_r7/.ledger.lock",
+    "runtime/ic_im_v1_3_r7_presync_20260915/.ledger.lock",
+    "runtime/ic_im_v1_4_r1/.ledger.lock",
+    "runtime/ic_im_v1_4_r1_pre_cloud_restore_20261007/.ledger.lock",
+    "runtime/ic_im_v1_4_r1_pre_remote_restore_20260918/.ledger.lock"
+  ],
+  "runtime_entire_tree_byte_equality_not_claimed": true,
+  "git_diff_check_exit": 0,
+  "passed": true
+}

@@ -1,0 +1,48 @@
+[
+  {
+    "name": "official_adjustment",
+    "requested_at": "2026-10-21T06:10:06.855492+00:00",
+    "url": "https://www.sse.com.cn/assortment/options/disclo/update/c/c_20260714_10825473.shtml",
+    "bytes": 33145,
+    "sha256": "1042ff0c9e5b8237ca2ef9e75cfd7d4809571f94c87ebc6f984e1d11c11dcf6f",
+    "status": 200
+  },
+  {
+    "name": "official_info",
+    "requested_at": "2026-10-21T06:10:10.819530+00:00",
+    "url": "https://www.sse.com.cn/assortment/options/disclo/info/",
+    "bytes": 27408,
+    "sha256": "0e6ae16f651de85f7f76955df8150f5c43b57f0daa7dce36d350599fe243c1ca",
+    "status": 200
+  },
+  {
+    "name": "sse_identity",
+    "requested_at": "2026-10-21T06:10:11.326011+00:00",
+    "url": "https://yunhq.sse.com.cn:32042/v1/sho/list/tstyle/510500_12",
+    "bytes": 2798,
+    "sha256": "44bde36c051c4fbe648e11dbb11b31d3677659d8d8548c080bdb2ebb174453d4",
+    "status": 200,
+    "keys": [
+      "date",
+      "time",
+      "total",
+      "begin",
+      "end",
+      "list"
+    ],
+    "rows": [
+      [
+        "10011809",
+        "510500C2612A07000",
+        0.2658,
+        6.876
+      ],
+      [
+        "10011519",
+        "510500C2612A07250",
+        0.1648,
+        7.122
+      ]
+    ]
+  }
+]

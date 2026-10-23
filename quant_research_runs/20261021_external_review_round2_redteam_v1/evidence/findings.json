@@ -1,0 +1,37 @@
+{
+  "audit_area": "acceptance evidence, test validity, dependencies and historical protection",
+  "confirmed_findings": [
+    {
+      "id": "R2-EVIDENCE-1",
+      "scope": "Historical acceptance tooling assurance gap; does not establish actual historical 1192-test failure",
+      "evidence": "historical_false_pass.json",
+      "reproduction": "Untouched isolated copies accept process exit zero despite XML failure and skip; verify_final also accepts an explicitly false source_before_equals_after flag.",
+      "resolution": "Historical evidence left intact. Current audit uses new strict evidence_gate.py. Independent rejection tests passed."
+    },
+    {
+      "id": "R2-EVIDENCE-2",
+      "scope": "New gate initial receipt validation",
+      "evidence": "gate_initial/regression.xml",
+      "reproduction": "receipt exit zero and valid XML can contradict hashed test_run.json exit one without rejection.",
+      "resolution": "Coordinator added test_run exit-code validation. The unchanged failing regression passes in gate_recheck/regression.xml."
+    }
+  ],
+  "verification": {
+    "independent_tests": 27,
+    "result": "27 passed in 1.20s",
+    "original_counts": "1192 actual XML testcases; 46 unique files; one explicitly documented historical source equality deselection",
+    "source_binding": "845 before/after entries agree and historical artifact digests match; current exact-byte check is a machine receipt, not a permanent old-source regression",
+    "fixtures": "Saved fixture and raw bytes agree; 114 adjustment records, 58 quote rows, 14 A puts; quote 2026-10-21, master TIMESAVE 2026-10-20",
+    "old_test": "AST equality after removing only the exact added anchor security_id keyword proves all prior statements and assertions preserved",
+    "dependency": "New identity module imports successfully using standard-library dependencies and exposes no filesystem-writing API; complete future distribution remains a known deployment requirement",
+    "protection": "Independent SHA checks show all 6783 outputs, 266 original selected immutable objects, 837 prior bound backup entries, 1126 backup files and 166 previous evidence files unchanged"
+  },
+  "exceptions": ["Formal latest.json advanced concurrently after baseline; preserved and reported in concurrent_runtime_observation.json, never restored or rewritten by this audit"],
+  "boundaries": [
+    "Current local acceptance only; no remote deployment attempted or certified",
+    "No production ledger update, email or account action performed by this auditor",
+    "6783-output baseline is prospective and cannot retroactively prove previously unrecorded history",
+    "Real source captures and synthetic malicious receipt/XML injections are explicitly separated"
+  ],
+  "test_sha256": "adf304138bc22bb7884210572690a13ea4edc73bbe7908b0c33d2ec14ad36a97"
+}

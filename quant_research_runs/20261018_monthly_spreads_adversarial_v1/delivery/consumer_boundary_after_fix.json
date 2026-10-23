@@ -1,0 +1,296 @@
+[
+  {
+    "case": "normal",
+    "local": {
+      "no_exception": true,
+      "first_group_na": false,
+      "lines": [
+        "季月价差：N/A（未提供同日完整报价）",
+        "月度价差（当月－次月）：IC2610 6100.00 − IC2611 6075.00 = +25.00点（+0.41%；按到期间隔折算+4.27%/年，非保证收益）；行情 2026-10-15，saved-snapshot synthetic prices",
+        "月度价差（当月－当季）：IC2610 6100.00 − IC2612 6000.00 = +100.00点（+1.64%；按到期间隔折算+9.50%/年，非保证收益）；行情 2026-10-15，saved-snapshot synthetic prices"
+      ]
+    },
+    "cloud": {
+      "no_exception": true,
+      "first_group_na": false,
+      "lines": [
+        "月度价差（当月－次月）：IC2610 6100.00 − IC2611 6075.00 = +25.00点（+0.41%；按到期间隔折算+4.27%/年，非保证收益）；行情 2026-10-15，saved-snapshot synthetic prices",
+        "月度价差（当月－当季）：IC2610 6100.00 − IC2612 6000.00 = +100.00点（+1.64%；按到期间隔折算+9.50%/年，非保证收益）；行情 2026-10-15，saved-snapshot synthetic prices"
+      ]
+    },
+    "unchanged": true
+  },
+  {
+    "case": "missing_ratio",
+    "local": {
+      "no_exception": true,
+      "first_group_na": true,
+      "lines": [
+        "季月价差：N/A（未提供同日完整报价）",
+        "月度价差（当月－次月）：N/A（'ratio'）",
+        "月度价差（当月－当季）：IC2610 6100.00 − IC2612 6000.00 = +100.00点（+1.64%；按到期间隔折算+9.50%/年，非保证收益）；行情 2026-10-15，saved-snapshot synthetic prices"
+      ]
+    },
+    "cloud": {
+      "no_exception": true,
+      "first_group_na": true,
+      "lines": [
+        "月度价差（当月－次月）：N/A（'ratio'）",
+        "月度价差（当月－当季）：IC2610 6100.00 − IC2612 6000.00 = +100.00点（+1.64%；按到期间隔折算+9.50%/年，非保证收益）；行情 2026-10-15，saved-snapshot synthetic prices"
+      ]
+    },
+    "unchanged": true
+  },
+  {
+    "case": "missing_annualized",
+    "local": {
+      "no_exception": true,
+      "first_group_na": true,
+      "lines": [
+        "季月价差：N/A（未提供同日完整报价）",
+        "月度价差（当月－次月）：N/A（'annualized'）",
+        "月度价差（当月－当季）：IC2610 6100.00 − IC2612 6000.00 = +100.00点（+1.64%；按到期间隔折算+9.50%/年，非保证收益）；行情 2026-10-15，saved-snapshot synthetic prices"
+      ]
+    },
+    "cloud": {
+      "no_exception": true,
+      "first_group_na": true,
+      "lines": [
+        "月度价差（当月－次月）：N/A（'annualized'）",
+        "月度价差（当月－当季）：IC2610 6100.00 − IC2612 6000.00 = +100.00点（+1.64%；按到期间隔折算+9.50%/年，非保证收益）；行情 2026-10-15，saved-snapshot synthetic prices"
+      ]
+    },
+    "unchanged": true
+  },
+  {
+    "case": "missing_points",
+    "local": {
+      "no_exception": true,
+      "first_group_na": true,
+      "lines": [
+        "季月价差：N/A（未提供同日完整报价）",
+        "月度价差（当月－次月）：N/A（'points'）",
+        "月度价差（当月－当季）：IC2610 6100.00 − IC2612 6000.00 = +100.00点（+1.64%；按到期间隔折算+9.50%/年，非保证收益）；行情 2026-10-15，saved-snapshot synthetic prices"
+      ]
+    },
+    "cloud": {
+      "no_exception": true,
+      "first_group_na": true,
+      "lines": [
+        "月度价差（当月－次月）：N/A（'points'）",
+        "月度价差（当月－当季）：IC2610 6100.00 − IC2612 6000.00 = +100.00点（+1.64%；按到期间隔折算+9.50%/年，非保证收益）；行情 2026-10-15，saved-snapshot synthetic prices"
+      ]
+    },
+    "unchanged": true
+  },
+  {
+    "case": "missing_near_contract",
+    "local": {
+      "no_exception": true,
+      "first_group_na": true,
+      "lines": [
+        "季月价差：N/A（未提供同日完整报价）",
+        "月度价差（当月－次月）：N/A（spread contract product mismatch）",
+        "月度价差（当月－当季）：IC2610 6100.00 − IC2612 6000.00 = +100.00点（+1.64%；按到期间隔折算+9.50%/年，非保证收益）；行情 2026-10-15，saved-snapshot synthetic prices"
+      ]
+    },
+    "cloud": {
+      "no_exception": true,
+      "first_group_na": true,
+      "lines": [
+        "月度价差（当月－次月）：N/A（spread contract product mismatch）",
+        "月度价差（当月－当季）：IC2610 6100.00 − IC2612 6000.00 = +100.00点（+1.64%；按到期间隔折算+9.50%/年，非保证收益）；行情 2026-10-15，saved-snapshot synthetic prices"
+      ]
+    },
+    "unchanged": true
+  },
+  {
+    "case": "missing_far_price",
+    "local": {
+      "no_exception": true,
+      "first_group_na": true,
+      "lines": [
+        "季月价差：N/A（未提供同日完整报价）",
+        "月度价差（当月－次月）：N/A（'far_price'）",
+        "月度价差（当月－当季）：IC2610 6100.00 − IC2612 6000.00 = +100.00点（+1.64%；按到期间隔折算+9.50%/年，非保证收益）；行情 2026-10-15，saved-snapshot synthetic prices"
+      ]
+    },
+    "cloud": {
+      "no_exception": true,
+      "first_group_na": true,
+      "lines": [
+        "月度价差（当月－次月）：N/A（'far_price'）",
+        "月度价差（当月－当季）：IC2610 6100.00 − IC2612 6000.00 = +100.00点（+1.64%；按到期间隔折算+9.50%/年，非保证收益）；行情 2026-10-15，saved-snapshot synthetic prices"
+      ]
+    },
+    "unchanged": true
+  },
+  {
+    "case": "wrong_points",
+    "local": {
+      "no_exception": true,
+      "first_group_na": true,
+      "lines": [
+        "季月价差：N/A（未提供同日完整报价）",
+        "月度价差（当月－次月）：N/A（spread arithmetic mismatch）",
+        "月度价差（当月－当季）：IC2610 6100.00 − IC2612 6000.00 = +100.00点（+1.64%；按到期间隔折算+9.50%/年，非保证收益）；行情 2026-10-15，saved-snapshot synthetic prices"
+      ]
+    },
+    "cloud": {
+      "no_exception": true,
+      "first_group_na": true,
+      "lines": [
+        "月度价差（当月－次月）：N/A（spread arithmetic mismatch）",
+        "月度价差（当月－当季）：IC2610 6100.00 − IC2612 6000.00 = +100.00点（+1.64%；按到期间隔折算+9.50%/年，非保证收益）；行情 2026-10-15，saved-snapshot synthetic prices"
+      ]
+    },
+    "unchanged": true
+  },
+  {
+    "case": "wrong_source_date",
+    "local": {
+      "no_exception": true,
+      "first_group_na": true,
+      "lines": [
+        "季月价差：N/A（未提供同日完整报价）",
+        "月度价差（当月－次月）：N/A（spread source date mismatch）",
+        "月度价差（当月－当季）：IC2610 6100.00 − IC2612 6000.00 = +100.00点（+1.64%；按到期间隔折算+9.50%/年，非保证收益）；行情 2026-10-15，saved-snapshot synthetic prices"
+      ]
+    },
+    "cloud": {
+      "no_exception": true,
+      "first_group_na": true,
+      "lines": [
+        "月度价差（当月－次月）：N/A（spread source date mismatch）",
+        "月度价差（当月－当季）：IC2610 6100.00 − IC2612 6000.00 = +100.00点（+1.64%；按到期间隔折算+9.50%/年，非保证收益）；行情 2026-10-15，saved-snapshot synthetic prices"
+      ]
+    },
+    "unchanged": true
+  },
+  {
+    "case": "wrong_near_contract",
+    "local": {
+      "no_exception": true,
+      "first_group_na": true,
+      "lines": [
+        "季月价差：N/A（未提供同日完整报价）",
+        "月度价差（当月－次月）：N/A（spread contract product mismatch）",
+        "月度价差（当月－当季）：IC2610 6100.00 − IC2612 6000.00 = +100.00点（+1.64%；按到期间隔折算+9.50%/年，非保证收益）；行情 2026-10-15，saved-snapshot synthetic prices"
+      ]
+    },
+    "cloud": {
+      "no_exception": true,
+      "first_group_na": true,
+      "lines": [
+        "月度价差（当月－次月）：N/A（spread contract product mismatch）",
+        "月度价差（当月－当季）：IC2610 6100.00 − IC2612 6000.00 = +100.00点（+1.64%；按到期间隔折算+9.50%/年，非保证收益）；行情 2026-10-15，saved-snapshot synthetic prices"
+      ]
+    },
+    "unchanged": true
+  },
+  {
+    "case": "wrong_annualized",
+    "local": {
+      "no_exception": true,
+      "first_group_na": true,
+      "lines": [
+        "季月价差：N/A（未提供同日完整报价）",
+        "月度价差（当月－次月）：N/A（annualized must be a real number, not boolean/text）",
+        "月度价差（当月－当季）：IC2610 6100.00 − IC2612 6000.00 = +100.00点（+1.64%；按到期间隔折算+9.50%/年，非保证收益）；行情 2026-10-15，saved-snapshot synthetic prices"
+      ]
+    },
+    "cloud": {
+      "no_exception": true,
+      "first_group_na": true,
+      "lines": [
+        "月度价差（当月－次月）：N/A（annualized must be a real number, not boolean/text）",
+        "月度价差（当月－当季）：IC2610 6100.00 − IC2612 6000.00 = +100.00点（+1.64%；按到期间隔折算+9.50%/年，非保证收益）；行情 2026-10-15，saved-snapshot synthetic prices"
+      ]
+    },
+    "unchanged": true
+  },
+  {
+    "case": "wrong_ratio",
+    "local": {
+      "no_exception": true,
+      "first_group_na": true,
+      "lines": [
+        "季月价差：N/A（未提供同日完整报价）",
+        "月度价差（当月－次月）：N/A（ratio must be a real number, not boolean/text）",
+        "月度价差（当月－当季）：IC2610 6100.00 − IC2612 6000.00 = +100.00点（+1.64%；按到期间隔折算+9.50%/年，非保证收益）；行情 2026-10-15，saved-snapshot synthetic prices"
+      ]
+    },
+    "cloud": {
+      "no_exception": true,
+      "first_group_na": true,
+      "lines": [
+        "月度价差（当月－次月）：N/A（ratio must be a real number, not boolean/text）",
+        "月度价差（当月－当季）：IC2610 6100.00 − IC2612 6000.00 = +100.00点（+1.64%；按到期间隔折算+9.50%/年，非保证收益）；行情 2026-10-15，saved-snapshot synthetic prices"
+      ]
+    },
+    "unchanged": true
+  },
+  {
+    "case": "wrong_same_contract",
+    "local": {
+      "no_exception": true,
+      "first_group_na": true,
+      "lines": [
+        "季月价差：N/A（未提供同日完整报价）",
+        "月度价差（当月－次月）：N/A（spread same-contract flag mismatch）",
+        "月度价差（当月－当季）：IC2610 6100.00 − IC2612 6000.00 = +100.00点（+1.64%；按到期间隔折算+9.50%/年，非保证收益）；行情 2026-10-15，saved-snapshot synthetic prices"
+      ]
+    },
+    "cloud": {
+      "no_exception": true,
+      "first_group_na": true,
+      "lines": [
+        "月度价差（当月－次月）：N/A（spread same-contract flag mismatch）",
+        "月度价差（当月－当季）：IC2610 6100.00 − IC2612 6000.00 = +100.00点（+1.64%；按到期间隔折算+9.50%/年，非保证收益）；行情 2026-10-15，saved-snapshot synthetic prices"
+      ]
+    },
+    "unchanged": true
+  },
+  {
+    "case": "wrong_expiry_gap_days",
+    "local": {
+      "no_exception": true,
+      "first_group_na": true,
+      "lines": [
+        "季月价差：N/A（未提供同日完整报价）",
+        "月度价差（当月－次月）：N/A（spread expiry interval mismatch）",
+        "月度价差（当月－当季）：IC2610 6100.00 − IC2612 6000.00 = +100.00点（+1.64%；按到期间隔折算+9.50%/年，非保证收益）；行情 2026-10-15，saved-snapshot synthetic prices"
+      ]
+    },
+    "cloud": {
+      "no_exception": true,
+      "first_group_na": true,
+      "lines": [
+        "月度价差（当月－次月）：N/A（spread expiry interval mismatch）",
+        "月度价差（当月－当季）：IC2610 6100.00 − IC2612 6000.00 = +100.00点（+1.64%；按到期间隔折算+9.50%/年，非保证收益）；行情 2026-10-15，saved-snapshot synthetic prices"
+      ]
+    },
+    "unchanged": true
+  },
+  {
+    "case": "wrong_far_expiry",
+    "local": {
+      "no_exception": true,
+      "first_group_na": true,
+      "lines": [
+        "季月价差：N/A（未提供同日完整报价）",
+        "月度价差（当月－次月）：N/A（spread expiry interval mismatch）",
+        "月度价差（当月－当季）：IC2610 6100.00 − IC2612 6000.00 = +100.00点（+1.64%；按到期间隔折算+9.50%/年，非保证收益）；行情 2026-10-15，saved-snapshot synthetic prices"
+      ]
+    },
+    "cloud": {
+      "no_exception": true,
+      "first_group_na": true,
+      "lines": [
+        "月度价差（当月－次月）：N/A（spread expiry interval mismatch）",
+        "月度价差（当月－当季）：IC2610 6100.00 − IC2612 6000.00 = +100.00点（+1.64%；按到期间隔折算+9.50%/年，非保证收益）；行情 2026-10-15，saved-snapshot synthetic prices"
+      ]
+    },
+    "unchanged": true
+  }
+]

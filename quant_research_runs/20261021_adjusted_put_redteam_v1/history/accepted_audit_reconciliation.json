@@ -1,0 +1,22 @@
+{
+  "matched": true,
+  "bindings": {
+    "ic_im_adjusted_put_migration_v1.py": {
+      "independent": "f4bbdaa49225e51b83ccfe441b9c6f4dc36b7f3206acf509098f4d8628215c29",
+      "cumulative": "f4bbdaa49225e51b83ccfe441b9c6f4dc36b7f3206acf509098f4d8628215c29"
+    },
+    "poe_ic_im_mainline_v1_4_bot.py": {
+      "independent": "41043048f7a9a1dcb00c3b8ea99e6f272c9f836ce54502df5046482afc503e90",
+      "cumulative": "41043048f7a9a1dcb00c3b8ea99e6f272c9f836ce54502df5046482afc503e90"
+    },
+    "ic_im_sse_contract_identity_v1.py": {
+      "independent": "47a2d81f665d2b199eaa2c2043c90271cdd242aa9776620002c833f3cdafacc8",
+      "cumulative": "47a2d81f665d2b199eaa2c2043c90271cdd242aa9776620002c833f3cdafacc8"
+    },
+    "test_icim_a3_history_20261021.py": {
+      "independent": "732e7362977908b14636b2987c9c8b88f334c8107b87bb8b74e2d97be3a80ab6",
+      "cumulative": "732e7362977908b14636b2987c9c8b88f334c8107b87bb8b74e2d97be3a80ab6"
+    }
+  },
+  "cumulative_receipt_sha256": "f8101e24622bfc0710ddfc9b76634f57655507ab02b7cf3d18be566ae6f9e9ce"
+}

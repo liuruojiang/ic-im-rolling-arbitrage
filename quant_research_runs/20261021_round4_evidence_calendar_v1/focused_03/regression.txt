@@ -1,0 +1,40 @@
+...............................F.......                                  [100%]
+================================== FAILURES ===================================
+___ test_legacy_ic_profit_rebuild_uses_original_chain_only_if_present[True] ___
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_788cfcbe/pytest/test_legacy_ic_profit_rebuild_0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000002115EC8D250>
+original_archive = True
+
+    @pytest.mark.parametrize("original_archive", [True, False])
+    def test_legacy_ic_profit_rebuild_uses_original_chain_only_if_present(tmp_path, monkeypatch, original_archive):
+        day = date(2026, 11, 20)
+        wall(monkeypatch, day)
+        oracle(monkeypatch)
+        seed.archive(monkeypatch, tmp_path, "IC", day)
+        reader, runtime = adapter.load_original(bot, tmp_path, "IC", day)
+        monkeypatch.setattr(bot.requests, "get", lambda *a, **k: pytest.fail("legacy IC replay escaped stored chain"))
+        signal = {"market_date": day, "close_confirmed": True, "option_monthly_reset_due": False,
+            "etf_price": 7.8, "future_last": 7800., "core_put_target_delta": .25, "put_target_momentum_qty": 0}
+        anchor = {"v14_route_state": "future", "v14_profit_pending": True,
+            "v14_profit_execution_day": str(day), "v14_profit_trigger_day": "2026-09-25"}
+        from contextlib import nullcontext
+        with bot.runtime_clock(runtime), bot.historical_replay(day), (evidence.replay_session(reader) if original_archive else nullcontext()):
+            bot._v14_prepare_lifecycle_evidence("IC", signal, anchor, None)
+        if original_archive:
+>           assert signal["v14_profit_reentry_status"] == "confirmed_close_research_price"
+E           AssertionError: assert 'blocked_hist...n_unavailable' == 'confirmed_cl...esearch_price'
+E             
+E             - confirmed_close_research_price
+E             + blocked_historical_new_contract_chain_unavailable
+
+test_icim_round4_recovery_20261021.py:240: AssertionError
+============================== warnings summary ===============================
+C:\Python314\Lib\site-packages\fastapi_poe\types.py:171
+  C:\Python314\Lib\site-packages\fastapi_poe\types.py:171: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    class RequestContext(BaseModel):
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED test_icim_round4_recovery_20261021.py::test_legacy_ic_profit_rebuild_uses_original_chain_only_if_present[True]
+1 failed, 38 passed, 1 warning in 16.64s

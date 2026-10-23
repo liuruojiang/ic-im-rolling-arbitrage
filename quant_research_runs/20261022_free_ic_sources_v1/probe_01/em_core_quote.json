@@ -1,0 +1,15 @@
+{
+  "name": "em_core_quote",
+  "family": "Eastmoney",
+  "url": "https://push2.eastmoney.com/api/qt/stock/get",
+  "params": {
+    "fields": "f43,f44,f45,f46,f47,f48,f57,f58,f59,f60,f86,f301,f302,f330,f331,f332,f333,f334,f335,f336",
+    "invt": "2",
+    "fltt": "2",
+    "secid": "10.10012149"
+  },
+  "started_at": "2026-10-22T16:56:09.172142+08:00",
+  "status": "FAILED",
+  "error_type": "ProxyError",
+  "seconds": 4.01
+}

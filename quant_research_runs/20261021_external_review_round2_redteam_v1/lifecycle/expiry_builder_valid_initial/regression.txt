@@ -1,0 +1,75 @@
+F                                                                        [100%]
+================================== FAILURES ===================================
+_______ test_full_builder_expiry_identity_failure_cannot_publish_branch _______
+
+tmp_path = WindowsPath('D:/workspace/icim_round2_lifecycle_temp/icim_put_a8fd1e5d/pytest/test_full_builder_expiry_ident0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000019097E75F30>
+
+    def test_full_builder_expiry_identity_failure_cannot_publish_branch(tmp_path,monkeypatch):
+        expiry=date(2026,12,23)
+        monkeypatch.setitem(globals(),'DAY',expiry)
+        monkeypatch.setitem(globals(),'PREVIOUS',date(2026,12,22))
+        monkeypatch.setitem(globals(),'CLOCK',datetime(2026,12,23,15,40,tzinfo=bot.BEIJING))
+        store,record=recent_store(tmp_path/'ledger')
+        anchors=state.anchors_from_record(record)
+        a=anchors['IC']
+        ledger._empty_core(a,'IC')
+        a.update(post_core_contract='IC2703',v14_route_state='short_put',
+            v14_cycle_id='synthetic-expiry-builder',v14_short_put_contract=real.M,
+            v14_short_put_security_id='10011470',v14_short_put_qty_normalized=5.,
+            v14_short_put_entry_premium=.4,v14_short_put_expiry=expiry,
+            v14_short_put_cost_basis='confirmed_dated_open',v14_short_put_entry_price_day=PREVIOUS,
+            verified_momentum_put_delta=0.,verified_momentum_put_qty=0)
+        record['products']['IC']=state._jsonable(a)
+        record['digest']=state._digest(record)
+        state._validate_record(record)
+        body=real.payload()
+        body['date']=20261223
+        chain,stamp=real.wire(monkeypatch,body)
+        monkeypatch.setattr(bot,'LIVE_CONTINUATION_ANCHOR',anchors)
+        builder_inputs(monkeypatch,a,chain,stamp)
+        monkeypatch.setattr(bot,'fetch_sse_510500_quote',lambda:dict(date='20261223',time='150000',last=7.8))
+        monkeypatch.setattr(bot,'fetch_option_closes',lambda security:
+            pd.Series([.01],index=pd.to_datetime([expiry])))
+        before,disk=deepcopy(a),snapshot(store.root)
+>       out=bot.build_live_trade_signal('IC',CLOCK,'close')
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_icim_round2_audit_lifecycle_20261021.py:460: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_mainline_v1_4_bot.py:5807: in build_live_trade_signal
+    return _build_live_trade_signal(product, clock, mode)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+poe_ic_im_mainline_v1_4_bot.py:5931: in _build_live_trade_signal
+    future_plan = quarter_roll.roll_state(
+ic_im_quarter_roll_v1_3.py:51: in roll_state
+    execution = shift_session(expiry(held), -ROLL_DAYS[product], is_session)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ic_im_quarter_roll_v1_3.py:25: in shift_session
+    if is_session(day):
+       ^^^^^^^^^^^^^^^
+poe_ic_im_mainline_v1_4_bot.py:5929: in covered_session
+    _require_official_exchange_calendar(day, "季度换仓日历")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+day = datetime.date(2027, 3, 18), label = '季度换仓日历'
+
+    def _require_official_exchange_calendar(day: date, label: str) -> None:
+        if day.year not in _OFFICIAL_EXCHANGE_CALENDAR_YEARS:
+            covered = "/".join(str(year) for year in sorted(_OFFICIAL_EXCHANGE_CALENDAR_YEARS))
+>           raise RuntimeError(
+                f"{label}需要{day.year}年官方交易日历，但脚本仅覆盖{covered}年；"
+                "暂停实时新鲜度判定和新增信号"
+            )
+E           RuntimeError: 季度换仓日历需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号
+
+poe_ic_im_mainline_v1_4_bot.py:3866: RuntimeError
+============================== warnings summary ===============================
+C:\Python314\Lib\site-packages\fastapi_poe\types.py:171
+  C:\Python314\Lib\site-packages\fastapi_poe\types.py:171: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    class RequestContext(BaseModel):
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED test_icim_round2_audit_lifecycle_20261021.py::test_full_builder_expiry_identity_failure_cannot_publish_branch
+1 failed, 28 deselected, 1 warning in 2.93s

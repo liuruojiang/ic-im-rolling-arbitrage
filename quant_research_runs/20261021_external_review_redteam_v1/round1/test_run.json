@@ -1,0 +1,12 @@
+{
+  "exit_code": 1,
+  "files": [
+    "test_icim_redteam_market_20261021.py",
+    "test_icim_redteam_display_20261021.py",
+    "test_ic_im_external_review_20261021.py",
+    "test_ic_im_external_review_display_cache_20261021.py",
+    "test_ic_im_v1_4_integration_guards.py"
+  ],
+  "state_dir": "C:\\Users\\ADMINI~1.DES\\AppData\\Local\\Temp\\icim_put_fc849e5b\\state",
+  "test_only_windows_mkdir_mode_adjustment": true
+}

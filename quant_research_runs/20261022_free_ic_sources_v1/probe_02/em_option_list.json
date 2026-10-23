@@ -1,0 +1,21 @@
+{
+  "name": "em_option_list",
+  "family": "Eastmoney",
+  "url": "https://23.push2.eastmoney.com/api/qt/clist/get",
+  "params": {
+    "pn": "1",
+    "pz": "1000",
+    "po": "0",
+    "np": "1",
+    "ut": "bd1d9ddb04089700cf9c27f6f7426281",
+    "fltt": "2",
+    "invt": "2",
+    "fid": "f12",
+    "fs": "m:10",
+    "fields": "f1,f2,f3,f4,f5,f6,f12,f13,f14,f17,f18,f59,f86,f124,f161,f298,f299,f301,f302,f303,f330,f331,f332,f333,f334,f335,f336"
+  },
+  "started_at": "2026-10-22T16:58:53.342654+08:00",
+  "status": "FAILED",
+  "error_type": "TimeoutError",
+  "seconds": 15.677
+}

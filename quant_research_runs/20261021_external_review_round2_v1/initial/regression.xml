@@ -1,0 +1,595 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="23" skipped="0" tests="27" time="2.450" timestamp="2026-10-21T14:14:38.252053+08:00" hostname="DESKTOP-95I7VVU"><testcase classname="test_ic_im_external_review_round2_20261021" name="test_real_sse_chain_retains_security_id" time="0.004"><failure message="KeyError: 'security_id'">self = Index(['contract', 'last', 'chg_rate', 'pre_settle', 'strike'], dtype='object')
+key = 'security_id'
+
+    def get_loc(self, key):
+        """
+        Get integer location, slice or boolean mask for requested label.
+    
+        Parameters
+        ----------
+        key : label
+    
+        Returns
+        -------
+        int if unique index, slice if monotonic index, else mask
+    
+        Examples
+        --------
+        &gt;&gt;&gt; unique_index = pd.Index(list('abc'))
+        &gt;&gt;&gt; unique_index.get_loc('b')
+        1
+    
+        &gt;&gt;&gt; monotonic_index = pd.Index(list('abbc'))
+        &gt;&gt;&gt; monotonic_index.get_loc('b')
+        slice(1, 3, None)
+    
+        &gt;&gt;&gt; non_monotonic_index = pd.Index(list('abcb'))
+        &gt;&gt;&gt; non_monotonic_index.get_loc('b')
+        array([False,  True, False,  True])
+        """
+        casted_key = self._maybe_cast_indexer(key)
+        try:
+&gt;           return self._engine.get_loc(casted_key)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+C:\Python314\Lib\site-packages\pandas\core\indexes\base.py:3812: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+pandas/_libs/index.pyx:167: in pandas._libs.index.IndexEngine.get_loc
+    ???
+pandas/_libs/index.pyx:196: in pandas._libs.index.IndexEngine.get_loc
+    ???
+pandas/_libs/hashtable_class_helper.pxi:7088: in pandas._libs.hashtable.PyObjectHashTable.get_item
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+&gt;   ???
+E   KeyError: 'security_id'
+
+pandas/_libs/hashtable_class_helper.pxi:7096: KeyError
+
+The above exception was the direct cause of the following exception:
+
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x0000025CAB033490&gt;
+
+    def test_real_sse_chain_retains_security_id(monkeypatch):
+        chain, _ = wire(monkeypatch)
+        row = chain[chain.contract.eq(M)].iloc[0]
+&gt;       assert row['security_id'] == '10012099'
+               ^^^^^^^^^^^^^^^^^^
+
+test_ic_im_external_review_round2_20261021.py:47: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+C:\Python314\Lib\site-packages\pandas\core\series.py:1133: in __getitem__
+    return self._get_value(key)
+           ^^^^^^^^^^^^^^^^^^^^
+C:\Python314\Lib\site-packages\pandas\core\series.py:1249: in _get_value
+    loc = self.index.get_loc(label)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = Index(['contract', 'last', 'chg_rate', 'pre_settle', 'strike'], dtype='object')
+key = 'security_id'
+
+    def get_loc(self, key):
+        """
+        Get integer location, slice or boolean mask for requested label.
+    
+        Parameters
+        ----------
+        key : label
+    
+        Returns
+        -------
+        int if unique index, slice if monotonic index, else mask
+    
+        Examples
+        --------
+        &gt;&gt;&gt; unique_index = pd.Index(list('abc'))
+        &gt;&gt;&gt; unique_index.get_loc('b')
+        1
+    
+        &gt;&gt;&gt; monotonic_index = pd.Index(list('abbc'))
+        &gt;&gt;&gt; monotonic_index.get_loc('b')
+        slice(1, 3, None)
+    
+        &gt;&gt;&gt; non_monotonic_index = pd.Index(list('abcb'))
+        &gt;&gt;&gt; non_monotonic_index.get_loc('b')
+        array([False,  True, False,  True])
+        """
+        casted_key = self._maybe_cast_indexer(key)
+        try:
+            return self._engine.get_loc(casted_key)
+        except KeyError as err:
+            if isinstance(casted_key, slice) or (
+                isinstance(casted_key, abc.Iterable)
+                and any(isinstance(x, slice) for x in casted_key)
+            ):
+                raise InvalidIndexError(key)
+&gt;           raise KeyError(key) from err
+E           KeyError: 'security_id'
+
+C:\Python314\Lib\site-packages\pandas\core\indexes\base.py:3819: KeyError</failure></testcase><testcase classname="test_ic_im_external_review_round2_20261021" name="test_real_relisted_m_cannot_mark_synthetic_pre_adjustment_holding" time="0.004"><failure message="Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x0000025CAB3FC2B0&gt;
+
+    def test_real_relisted_m_cannot_mark_synthetic_pre_adjustment_holding(monkeypatch):
+        chain, stamp = wire(monkeypatch)
+        signal, anchor = core(monkeypatch, chain, stamp)
+        before = deepcopy(anchor)
+&gt;       with pytest.raises(RuntimeError, match='证券|identity'):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;
+
+test_ic_im_external_review_round2_20261021.py:55: Failed</failure></testcase><testcase classname="test_ic_im_external_review_round2_20261021" name="test_current_core_missing_or_malformed_security_proof_is_rejected[None]" time="0.003"><failure message="Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x0000025CAB0A6B10&gt;
+security = None
+
+    @pytest.mark.parametrize('security', [None, '', '123', '10012099.0'])
+    def test_current_core_missing_or_malformed_security_proof_is_rejected(monkeypatch, security):
+        chain, stamp = wire(monkeypatch)
+        if security is None:
+            chain = chain.drop(columns='security_id', errors='ignore')
+        else:
+            chain['security_id'] = security
+        signal, anchor = core(monkeypatch, chain, stamp, '10012099')
+&gt;       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;
+
+test_ic_im_external_review_round2_20261021.py:68: Failed</failure></testcase><testcase classname="test_ic_im_external_review_round2_20261021" name="test_current_core_missing_or_malformed_security_proof_is_rejected[]" time="0.003" /><testcase classname="test_ic_im_external_review_round2_20261021" name="test_current_core_missing_or_malformed_security_proof_is_rejected[123]" time="0.003" /><testcase classname="test_ic_im_external_review_round2_20261021" name="test_current_core_missing_or_malformed_security_proof_is_rejected[10012099.0]" time="0.003" /><testcase classname="test_ic_im_external_review_round2_20261021" name="test_real_standard_core_same_security_continues" time="0.003" /><testcase classname="test_ic_im_external_review_round2_20261021" name="test_sse_identity_and_completeness_mutations_fail_closed[duplicate_id]" time="0.002"><failure message="Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x0000025CAB370500&gt;
+mutation = 'duplicate_id'
+
+    @pytest.mark.parametrize('mutation', ['duplicate_id', 'duplicate_contract', 'missing_id',
+        'wrong_underlying', 'wrong_year', 'standard_wrong_strike', 'truncated', 'bad_total',
+        'nan_strike', 'nan_last', 'negative_last'])
+    def test_sse_identity_and_completeness_mutations_fail_closed(monkeypatch, mutation):
+        body = payload()
+        row = next(r for r in body['list'] if r[0] == M)
+        if mutation == 'duplicate_id': body['list'][0][5] = row[5]
+        elif mutation == 'duplicate_contract': body['list'][0][0] = M
+        elif mutation == 'missing_id': row[5] = ''
+        elif mutation == 'wrong_underlying': row[0] = row[0].replace('510500', '510300')
+        elif mutation == 'wrong_year': row[0] = row[0].replace('2612', '2712')
+        elif mutation == 'standard_wrong_strike': row[4] = 7.367
+        elif mutation == 'truncated': body['list'].pop()
+        elif mutation == 'bad_total': body['total'] = 59
+        elif mutation == 'nan_strike': row[4] = 'nan'
+        elif mutation == 'nan_last': row[1] = 'nan'
+        elif mutation == 'negative_last': row[1] = -.1
+&gt;       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;
+
+test_ic_im_external_review_round2_20261021.py:96: Failed</failure></testcase><testcase classname="test_ic_im_external_review_round2_20261021" name="test_sse_identity_and_completeness_mutations_fail_closed[duplicate_contract]" time="0.002"><failure message="Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x0000025CAB371310&gt;
+mutation = 'duplicate_contract'
+
+    @pytest.mark.parametrize('mutation', ['duplicate_id', 'duplicate_contract', 'missing_id',
+        'wrong_underlying', 'wrong_year', 'standard_wrong_strike', 'truncated', 'bad_total',
+        'nan_strike', 'nan_last', 'negative_last'])
+    def test_sse_identity_and_completeness_mutations_fail_closed(monkeypatch, mutation):
+        body = payload()
+        row = next(r for r in body['list'] if r[0] == M)
+        if mutation == 'duplicate_id': body['list'][0][5] = row[5]
+        elif mutation == 'duplicate_contract': body['list'][0][0] = M
+        elif mutation == 'missing_id': row[5] = ''
+        elif mutation == 'wrong_underlying': row[0] = row[0].replace('510500', '510300')
+        elif mutation == 'wrong_year': row[0] = row[0].replace('2612', '2712')
+        elif mutation == 'standard_wrong_strike': row[4] = 7.367
+        elif mutation == 'truncated': body['list'].pop()
+        elif mutation == 'bad_total': body['total'] = 59
+        elif mutation == 'nan_strike': row[4] = 'nan'
+        elif mutation == 'nan_last': row[1] = 'nan'
+        elif mutation == 'negative_last': row[1] = -.1
+&gt;       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;
+
+test_ic_im_external_review_round2_20261021.py:96: Failed</failure></testcase><testcase classname="test_ic_im_external_review_round2_20261021" name="test_sse_identity_and_completeness_mutations_fail_closed[missing_id]" time="0.003"><failure message="Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x0000025CAB195630&gt;
+mutation = 'missing_id'
+
+    @pytest.mark.parametrize('mutation', ['duplicate_id', 'duplicate_contract', 'missing_id',
+        'wrong_underlying', 'wrong_year', 'standard_wrong_strike', 'truncated', 'bad_total',
+        'nan_strike', 'nan_last', 'negative_last'])
+    def test_sse_identity_and_completeness_mutations_fail_closed(monkeypatch, mutation):
+        body = payload()
+        row = next(r for r in body['list'] if r[0] == M)
+        if mutation == 'duplicate_id': body['list'][0][5] = row[5]
+        elif mutation == 'duplicate_contract': body['list'][0][0] = M
+        elif mutation == 'missing_id': row[5] = ''
+        elif mutation == 'wrong_underlying': row[0] = row[0].replace('510500', '510300')
+        elif mutation == 'wrong_year': row[0] = row[0].replace('2612', '2712')
+        elif mutation == 'standard_wrong_strike': row[4] = 7.367
+        elif mutation == 'truncated': body['list'].pop()
+        elif mutation == 'bad_total': body['total'] = 59
+        elif mutation == 'nan_strike': row[4] = 'nan'
+        elif mutation == 'nan_last': row[1] = 'nan'
+        elif mutation == 'negative_last': row[1] = -.1
+&gt;       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;
+
+test_ic_im_external_review_round2_20261021.py:96: Failed</failure></testcase><testcase classname="test_ic_im_external_review_round2_20261021" name="test_sse_identity_and_completeness_mutations_fail_closed[wrong_underlying]" time="0.003"><failure message="Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x0000025CAB2E09F0&gt;
+mutation = 'wrong_underlying'
+
+    @pytest.mark.parametrize('mutation', ['duplicate_id', 'duplicate_contract', 'missing_id',
+        'wrong_underlying', 'wrong_year', 'standard_wrong_strike', 'truncated', 'bad_total',
+        'nan_strike', 'nan_last', 'negative_last'])
+    def test_sse_identity_and_completeness_mutations_fail_closed(monkeypatch, mutation):
+        body = payload()
+        row = next(r for r in body['list'] if r[0] == M)
+        if mutation == 'duplicate_id': body['list'][0][5] = row[5]
+        elif mutation == 'duplicate_contract': body['list'][0][0] = M
+        elif mutation == 'missing_id': row[5] = ''
+        elif mutation == 'wrong_underlying': row[0] = row[0].replace('510500', '510300')
+        elif mutation == 'wrong_year': row[0] = row[0].replace('2612', '2712')
+        elif mutation == 'standard_wrong_strike': row[4] = 7.367
+        elif mutation == 'truncated': body['list'].pop()
+        elif mutation == 'bad_total': body['total'] = 59
+        elif mutation == 'nan_strike': row[4] = 'nan'
+        elif mutation == 'nan_last': row[1] = 'nan'
+        elif mutation == 'negative_last': row[1] = -.1
+&gt;       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;
+
+test_ic_im_external_review_round2_20261021.py:96: Failed</failure></testcase><testcase classname="test_ic_im_external_review_round2_20261021" name="test_sse_identity_and_completeness_mutations_fail_closed[wrong_year]" time="0.002"><failure message="Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x0000025CAB247C70&gt;
+mutation = 'wrong_year'
+
+    @pytest.mark.parametrize('mutation', ['duplicate_id', 'duplicate_contract', 'missing_id',
+        'wrong_underlying', 'wrong_year', 'standard_wrong_strike', 'truncated', 'bad_total',
+        'nan_strike', 'nan_last', 'negative_last'])
+    def test_sse_identity_and_completeness_mutations_fail_closed(monkeypatch, mutation):
+        body = payload()
+        row = next(r for r in body['list'] if r[0] == M)
+        if mutation == 'duplicate_id': body['list'][0][5] = row[5]
+        elif mutation == 'duplicate_contract': body['list'][0][0] = M
+        elif mutation == 'missing_id': row[5] = ''
+        elif mutation == 'wrong_underlying': row[0] = row[0].replace('510500', '510300')
+        elif mutation == 'wrong_year': row[0] = row[0].replace('2612', '2712')
+        elif mutation == 'standard_wrong_strike': row[4] = 7.367
+        elif mutation == 'truncated': body['list'].pop()
+        elif mutation == 'bad_total': body['total'] = 59
+        elif mutation == 'nan_strike': row[4] = 'nan'
+        elif mutation == 'nan_last': row[1] = 'nan'
+        elif mutation == 'negative_last': row[1] = -.1
+&gt;       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;
+
+test_ic_im_external_review_round2_20261021.py:96: Failed</failure></testcase><testcase classname="test_ic_im_external_review_round2_20261021" name="test_sse_identity_and_completeness_mutations_fail_closed[standard_wrong_strike]" time="0.002"><failure message="Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x0000025CAB052990&gt;
+mutation = 'standard_wrong_strike'
+
+    @pytest.mark.parametrize('mutation', ['duplicate_id', 'duplicate_contract', 'missing_id',
+        'wrong_underlying', 'wrong_year', 'standard_wrong_strike', 'truncated', 'bad_total',
+        'nan_strike', 'nan_last', 'negative_last'])
+    def test_sse_identity_and_completeness_mutations_fail_closed(monkeypatch, mutation):
+        body = payload()
+        row = next(r for r in body['list'] if r[0] == M)
+        if mutation == 'duplicate_id': body['list'][0][5] = row[5]
+        elif mutation == 'duplicate_contract': body['list'][0][0] = M
+        elif mutation == 'missing_id': row[5] = ''
+        elif mutation == 'wrong_underlying': row[0] = row[0].replace('510500', '510300')
+        elif mutation == 'wrong_year': row[0] = row[0].replace('2612', '2712')
+        elif mutation == 'standard_wrong_strike': row[4] = 7.367
+        elif mutation == 'truncated': body['list'].pop()
+        elif mutation == 'bad_total': body['total'] = 59
+        elif mutation == 'nan_strike': row[4] = 'nan'
+        elif mutation == 'nan_last': row[1] = 'nan'
+        elif mutation == 'negative_last': row[1] = -.1
+&gt;       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;
+
+test_ic_im_external_review_round2_20261021.py:96: Failed</failure></testcase><testcase classname="test_ic_im_external_review_round2_20261021" name="test_sse_identity_and_completeness_mutations_fail_closed[truncated]" time="0.003"><failure message="Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x0000025CAB052690&gt;
+mutation = 'truncated'
+
+    @pytest.mark.parametrize('mutation', ['duplicate_id', 'duplicate_contract', 'missing_id',
+        'wrong_underlying', 'wrong_year', 'standard_wrong_strike', 'truncated', 'bad_total',
+        'nan_strike', 'nan_last', 'negative_last'])
+    def test_sse_identity_and_completeness_mutations_fail_closed(monkeypatch, mutation):
+        body = payload()
+        row = next(r for r in body['list'] if r[0] == M)
+        if mutation == 'duplicate_id': body['list'][0][5] = row[5]
+        elif mutation == 'duplicate_contract': body['list'][0][0] = M
+        elif mutation == 'missing_id': row[5] = ''
+        elif mutation == 'wrong_underlying': row[0] = row[0].replace('510500', '510300')
+        elif mutation == 'wrong_year': row[0] = row[0].replace('2612', '2712')
+        elif mutation == 'standard_wrong_strike': row[4] = 7.367
+        elif mutation == 'truncated': body['list'].pop()
+        elif mutation == 'bad_total': body['total'] = 59
+        elif mutation == 'nan_strike': row[4] = 'nan'
+        elif mutation == 'nan_last': row[1] = 'nan'
+        elif mutation == 'negative_last': row[1] = -.1
+&gt;       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;
+
+test_ic_im_external_review_round2_20261021.py:96: Failed</failure></testcase><testcase classname="test_ic_im_external_review_round2_20261021" name="test_sse_identity_and_completeness_mutations_fail_closed[bad_total]" time="0.002"><failure message="Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x0000025CAB08B120&gt;
+mutation = 'bad_total'
+
+    @pytest.mark.parametrize('mutation', ['duplicate_id', 'duplicate_contract', 'missing_id',
+        'wrong_underlying', 'wrong_year', 'standard_wrong_strike', 'truncated', 'bad_total',
+        'nan_strike', 'nan_last', 'negative_last'])
+    def test_sse_identity_and_completeness_mutations_fail_closed(monkeypatch, mutation):
+        body = payload()
+        row = next(r for r in body['list'] if r[0] == M)
+        if mutation == 'duplicate_id': body['list'][0][5] = row[5]
+        elif mutation == 'duplicate_contract': body['list'][0][0] = M
+        elif mutation == 'missing_id': row[5] = ''
+        elif mutation == 'wrong_underlying': row[0] = row[0].replace('510500', '510300')
+        elif mutation == 'wrong_year': row[0] = row[0].replace('2612', '2712')
+        elif mutation == 'standard_wrong_strike': row[4] = 7.367
+        elif mutation == 'truncated': body['list'].pop()
+        elif mutation == 'bad_total': body['total'] = 59
+        elif mutation == 'nan_strike': row[4] = 'nan'
+        elif mutation == 'nan_last': row[1] = 'nan'
+        elif mutation == 'negative_last': row[1] = -.1
+&gt;       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;
+
+test_ic_im_external_review_round2_20261021.py:96: Failed</failure></testcase><testcase classname="test_ic_im_external_review_round2_20261021" name="test_sse_identity_and_completeness_mutations_fail_closed[nan_strike]" time="0.003"><failure message="Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x0000025CAB08AA40&gt;
+mutation = 'nan_strike'
+
+    @pytest.mark.parametrize('mutation', ['duplicate_id', 'duplicate_contract', 'missing_id',
+        'wrong_underlying', 'wrong_year', 'standard_wrong_strike', 'truncated', 'bad_total',
+        'nan_strike', 'nan_last', 'negative_last'])
+    def test_sse_identity_and_completeness_mutations_fail_closed(monkeypatch, mutation):
+        body = payload()
+        row = next(r for r in body['list'] if r[0] == M)
+        if mutation == 'duplicate_id': body['list'][0][5] = row[5]
+        elif mutation == 'duplicate_contract': body['list'][0][0] = M
+        elif mutation == 'missing_id': row[5] = ''
+        elif mutation == 'wrong_underlying': row[0] = row[0].replace('510500', '510300')
+        elif mutation == 'wrong_year': row[0] = row[0].replace('2612', '2712')
+        elif mutation == 'standard_wrong_strike': row[4] = 7.367
+        elif mutation == 'truncated': body['list'].pop()
+        elif mutation == 'bad_total': body['total'] = 59
+        elif mutation == 'nan_strike': row[4] = 'nan'
+        elif mutation == 'nan_last': row[1] = 'nan'
+        elif mutation == 'negative_last': row[1] = -.1
+&gt;       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;
+
+test_ic_im_external_review_round2_20261021.py:96: Failed</failure></testcase><testcase classname="test_ic_im_external_review_round2_20261021" name="test_sse_identity_and_completeness_mutations_fail_closed[nan_last]" time="0.003"><failure message="Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x0000025CAA511590&gt;
+mutation = 'nan_last'
+
+    @pytest.mark.parametrize('mutation', ['duplicate_id', 'duplicate_contract', 'missing_id',
+        'wrong_underlying', 'wrong_year', 'standard_wrong_strike', 'truncated', 'bad_total',
+        'nan_strike', 'nan_last', 'negative_last'])
+    def test_sse_identity_and_completeness_mutations_fail_closed(monkeypatch, mutation):
+        body = payload()
+        row = next(r for r in body['list'] if r[0] == M)
+        if mutation == 'duplicate_id': body['list'][0][5] = row[5]
+        elif mutation == 'duplicate_contract': body['list'][0][0] = M
+        elif mutation == 'missing_id': row[5] = ''
+        elif mutation == 'wrong_underlying': row[0] = row[0].replace('510500', '510300')
+        elif mutation == 'wrong_year': row[0] = row[0].replace('2612', '2712')
+        elif mutation == 'standard_wrong_strike': row[4] = 7.367
+        elif mutation == 'truncated': body['list'].pop()
+        elif mutation == 'bad_total': body['total'] = 59
+        elif mutation == 'nan_strike': row[4] = 'nan'
+        elif mutation == 'nan_last': row[1] = 'nan'
+        elif mutation == 'negative_last': row[1] = -.1
+&gt;       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;
+
+test_ic_im_external_review_round2_20261021.py:96: Failed</failure></testcase><testcase classname="test_ic_im_external_review_round2_20261021" name="test_sse_identity_and_completeness_mutations_fail_closed[negative_last]" time="0.002"><failure message="Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x0000025CAA510CD0&gt;
+mutation = 'negative_last'
+
+    @pytest.mark.parametrize('mutation', ['duplicate_id', 'duplicate_contract', 'missing_id',
+        'wrong_underlying', 'wrong_year', 'standard_wrong_strike', 'truncated', 'bad_total',
+        'nan_strike', 'nan_last', 'negative_last'])
+    def test_sse_identity_and_completeness_mutations_fail_closed(monkeypatch, mutation):
+        body = payload()
+        row = next(r for r in body['list'] if r[0] == M)
+        if mutation == 'duplicate_id': body['list'][0][5] = row[5]
+        elif mutation == 'duplicate_contract': body['list'][0][0] = M
+        elif mutation == 'missing_id': row[5] = ''
+        elif mutation == 'wrong_underlying': row[0] = row[0].replace('510500', '510300')
+        elif mutation == 'wrong_year': row[0] = row[0].replace('2612', '2712')
+        elif mutation == 'standard_wrong_strike': row[4] = 7.367
+        elif mutation == 'truncated': body['list'].pop()
+        elif mutation == 'bad_total': body['total'] = 59
+        elif mutation == 'nan_strike': row[4] = 'nan'
+        elif mutation == 'nan_last': row[1] = 'nan'
+        elif mutation == 'negative_last': row[1] = -.1
+&gt;       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;
+
+test_ic_im_external_review_round2_20261021.py:96: Failed</failure></testcase><testcase classname="test_ic_im_external_review_round2_20261021" name="test_overlay_identity_failure_cannot_admit_new_plan" time="0.003"><failure message="AssertionError: assert 'HOLD' == 'HOLD_FAIL_CLOSED'&#10;  &#10;  - HOLD_FAIL_CLOSED&#10;  + HOLD">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x0000025CAB1B6E70&gt;
+
+    def test_overlay_identity_failure_cannot_admit_new_plan(monkeypatch):
+        chain, stamp = wire(monkeypatch)
+        signal, anchor = core(monkeypatch, chain, stamp)
+        monkeypatch.setitem(bot.LIVE_CONTINUATION_ANCHOR, 'IC', anchor)
+        monkeypatch.setattr(bot, '_v14_ic_short_put_candidate', lambda *a, **k: {'tradable': False})
+        before = deepcopy(anchor)
+        out = bot._apply_v14_live_policy('IC', signal)
+&gt;       assert out['v14_action'] == 'HOLD_FAIL_CLOSED'
+E       AssertionError: assert 'HOLD' == 'HOLD_FAIL_CLOSED'
+E         
+E         - HOLD_FAIL_CLOSED
+E         + HOLD
+
+test_ic_im_external_review_round2_20261021.py:106: AssertionError</failure></testcase><testcase classname="test_ic_im_external_review_round2_20261021" name="test_sizing_current_shared_put_cannot_use_relisted_identity" time="0.003"><failure message="Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x0000025CAB1A4F50&gt;
+
+    def test_sizing_current_shared_put_cannot_use_relisted_identity(monkeypatch):
+        chain, _ = wire(monkeypatch)
+        row = chain[chain.contract.eq(M)].iloc[0]
+        anchor = fixture.anchor('IC')
+        anchor.update(post_put_contract=M, post_put_security_id='10011470')
+        monkeypatch.setitem(bot.LIVE_CONTINUATION_ANCHOR, 'IC', anchor)
+        pricing = Mock(return_value=.3)
+        monkeypatch.setattr(bot, '_gov10y_for_day', lambda *a: .02)
+        monkeypatch.setattr(bot, '_implied_volatility', pricing)
+&gt;       with pytest.raises(RuntimeError, match='证券|identity'):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;
+
+test_ic_im_external_review_round2_20261021.py:121: Failed</failure></testcase><testcase classname="test_ic_im_external_review_round2_20261021" name="test_official_adjustment_resolves_unchanged_security_without_fabricated_suffix" time="0.001"><failure message="ModuleNotFoundError: No module named 'ic_im_sse_contract_identity_v1'">def test_official_adjustment_resolves_unchanged_security_without_fabricated_suffix():
+&gt;       identity = importlib.import_module('ic_im_sse_contract_identity_v1')
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_ic_im_external_review_round2_20261021.py:126: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+C:\Python314\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+&lt;frozen importlib._bootstrap&gt;:1406: in _gcd_import
+    ???
+&lt;frozen importlib._bootstrap&gt;:1371: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+name = 'ic_im_sse_contract_identity_v1'
+import_ = &lt;function _gcd_import at 0x0000025C898BBE20&gt;
+
+&gt;   ???
+E   ModuleNotFoundError: No module named 'ic_im_sse_contract_identity_v1'
+
+&lt;frozen importlib._bootstrap&gt;:1335: ModuleNotFoundError</failure></testcase><testcase classname="test_ic_im_external_review_round2_20261021" name="test_adjusted_resolver_rejects_unproved_alias_or_date[wrong_id]" time="0.002"><failure message="ModuleNotFoundError: No module named 'ic_im_sse_contract_identity_v1'">mutation = 'wrong_id'
+
+    @pytest.mark.parametrize('mutation', ['wrong_id', 'wrong_day', 'expired', 'future_effective', 'wrong_strike', 'wrong_code'])
+    def test_adjusted_resolver_rejects_unproved_alias_or_date(mutation):
+&gt;       identity = importlib.import_module('ic_im_sse_contract_identity_v1')
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_ic_im_external_review_round2_20261021.py:142: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+C:\Python314\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+&lt;frozen importlib._bootstrap&gt;:1406: in _gcd_import
+    ???
+&lt;frozen importlib._bootstrap&gt;:1371: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+name = 'ic_im_sse_contract_identity_v1'
+import_ = &lt;function _gcd_import at 0x0000025C898BBE20&gt;
+
+&gt;   ???
+E   ModuleNotFoundError: No module named 'ic_im_sse_contract_identity_v1'
+
+&lt;frozen importlib._bootstrap&gt;:1335: ModuleNotFoundError</failure></testcase><testcase classname="test_ic_im_external_review_round2_20261021" name="test_adjusted_resolver_rejects_unproved_alias_or_date[wrong_day]" time="0.002"><failure message="ModuleNotFoundError: No module named 'ic_im_sse_contract_identity_v1'">mutation = 'wrong_day'
+
+    @pytest.mark.parametrize('mutation', ['wrong_id', 'wrong_day', 'expired', 'future_effective', 'wrong_strike', 'wrong_code'])
+    def test_adjusted_resolver_rejects_unproved_alias_or_date(mutation):
+&gt;       identity = importlib.import_module('ic_im_sse_contract_identity_v1')
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_ic_im_external_review_round2_20261021.py:142: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+C:\Python314\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+&lt;frozen importlib._bootstrap&gt;:1406: in _gcd_import
+    ???
+&lt;frozen importlib._bootstrap&gt;:1371: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+name = 'ic_im_sse_contract_identity_v1'
+import_ = &lt;function _gcd_import at 0x0000025C898BBE20&gt;
+
+&gt;   ???
+E   ModuleNotFoundError: No module named 'ic_im_sse_contract_identity_v1'
+
+&lt;frozen importlib._bootstrap&gt;:1335: ModuleNotFoundError</failure></testcase><testcase classname="test_ic_im_external_review_round2_20261021" name="test_adjusted_resolver_rejects_unproved_alias_or_date[expired]" time="0.001"><failure message="ModuleNotFoundError: No module named 'ic_im_sse_contract_identity_v1'">mutation = 'expired'
+
+    @pytest.mark.parametrize('mutation', ['wrong_id', 'wrong_day', 'expired', 'future_effective', 'wrong_strike', 'wrong_code'])
+    def test_adjusted_resolver_rejects_unproved_alias_or_date(mutation):
+&gt;       identity = importlib.import_module('ic_im_sse_contract_identity_v1')
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_ic_im_external_review_round2_20261021.py:142: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+C:\Python314\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+&lt;frozen importlib._bootstrap&gt;:1406: in _gcd_import
+    ???
+&lt;frozen importlib._bootstrap&gt;:1371: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+name = 'ic_im_sse_contract_identity_v1'
+import_ = &lt;function _gcd_import at 0x0000025C898BBE20&gt;
+
+&gt;   ???
+E   ModuleNotFoundError: No module named 'ic_im_sse_contract_identity_v1'
+
+&lt;frozen importlib._bootstrap&gt;:1335: ModuleNotFoundError</failure></testcase><testcase classname="test_ic_im_external_review_round2_20261021" name="test_adjusted_resolver_rejects_unproved_alias_or_date[future_effective]" time="0.001"><failure message="ModuleNotFoundError: No module named 'ic_im_sse_contract_identity_v1'">mutation = 'future_effective'
+
+    @pytest.mark.parametrize('mutation', ['wrong_id', 'wrong_day', 'expired', 'future_effective', 'wrong_strike', 'wrong_code'])
+    def test_adjusted_resolver_rejects_unproved_alias_or_date(mutation):
+&gt;       identity = importlib.import_module('ic_im_sse_contract_identity_v1')
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_ic_im_external_review_round2_20261021.py:142: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+C:\Python314\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+&lt;frozen importlib._bootstrap&gt;:1406: in _gcd_import
+    ???
+&lt;frozen importlib._bootstrap&gt;:1371: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+name = 'ic_im_sse_contract_identity_v1'
+import_ = &lt;function _gcd_import at 0x0000025C898BBE20&gt;
+
+&gt;   ???
+E   ModuleNotFoundError: No module named 'ic_im_sse_contract_identity_v1'
+
+&lt;frozen importlib._bootstrap&gt;:1335: ModuleNotFoundError</failure></testcase><testcase classname="test_ic_im_external_review_round2_20261021" name="test_adjusted_resolver_rejects_unproved_alias_or_date[wrong_strike]" time="0.001"><failure message="ModuleNotFoundError: No module named 'ic_im_sse_contract_identity_v1'">mutation = 'wrong_strike'
+
+    @pytest.mark.parametrize('mutation', ['wrong_id', 'wrong_day', 'expired', 'future_effective', 'wrong_strike', 'wrong_code'])
+    def test_adjusted_resolver_rejects_unproved_alias_or_date(mutation):
+&gt;       identity = importlib.import_module('ic_im_sse_contract_identity_v1')
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_ic_im_external_review_round2_20261021.py:142: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+C:\Python314\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+&lt;frozen importlib._bootstrap&gt;:1406: in _gcd_import
+    ???
+&lt;frozen importlib._bootstrap&gt;:1371: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+name = 'ic_im_sse_contract_identity_v1'
+import_ = &lt;function _gcd_import at 0x0000025C898BBE20&gt;
+
+&gt;   ???
+E   ModuleNotFoundError: No module named 'ic_im_sse_contract_identity_v1'
+
+&lt;frozen importlib._bootstrap&gt;:1335: ModuleNotFoundError</failure></testcase><testcase classname="test_ic_im_external_review_round2_20261021" name="test_adjusted_resolver_rejects_unproved_alias_or_date[wrong_code]" time="0.002"><failure message="ModuleNotFoundError: No module named 'ic_im_sse_contract_identity_v1'">mutation = 'wrong_code'
+
+    @pytest.mark.parametrize('mutation', ['wrong_id', 'wrong_day', 'expired', 'future_effective', 'wrong_strike', 'wrong_code'])
+    def test_adjusted_resolver_rejects_unproved_alias_or_date(mutation):
+&gt;       identity = importlib.import_module('ic_im_sse_contract_identity_v1')
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_ic_im_external_review_round2_20261021.py:142: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+C:\Python314\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+&lt;frozen importlib._bootstrap&gt;:1406: in _gcd_import
+    ???
+&lt;frozen importlib._bootstrap&gt;:1371: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+name = 'ic_im_sse_contract_identity_v1'
+import_ = &lt;function _gcd_import at 0x0000025C898BBE20&gt;
+
+&gt;   ???
+E   ModuleNotFoundError: No module named 'ic_im_sse_contract_identity_v1'
+
+&lt;frozen importlib._bootstrap&gt;:1335: ModuleNotFoundError</failure></testcase></testsuite></testsuites>

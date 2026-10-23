@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="11" time="3.514" timestamp="2026-10-21T21:45:21.847304+08:00" hostname="DESKTOP-95I7VVU"><testcase classname="test_icim_round4_evidence_boundaries_20261021" name="test_stream_recording_obeys_size_before_content_access[https://www.cffex.com.cn/sj/historysj/202610/zip/202610.zip-MAX_CFFEX_DOWNLOAD_BYTES]" time="0.025" /><testcase classname="test_icim_round4_evidence_boundaries_20261021" name="test_stream_recording_obeys_size_before_content_access[https://web.ifzq.gtimg.cn/page-MAX_QUOTE_RESPONSE_BYTES]" time="0.010" /><testcase classname="test_icim_round4_evidence_boundaries_20261021" name="test_stream_recording_preserves_shared_read_budget" time="0.007" /><testcase classname="test_icim_round4_evidence_boundaries_20261021" name="test_stream_complete_body_is_recorded_without_eager_content" time="0.047" /><testcase classname="test_icim_round4_evidence_boundaries_20261021" name="test_unrecorded_replay_http_never_calls_requests" time="0.033" /><testcase classname="test_icim_round4_evidence_boundaries_20261021" name="test_recorded_http_replays_exact_bytes_without_network" time="0.064" /><testcase classname="test_icim_round4_evidence_boundaries_20261021" name="test_original_presence_is_per_product_even_for_incomplete_capture[True]" time="0.021" /><testcase classname="test_icim_round4_evidence_boundaries_20261021" name="test_original_presence_is_per_product_even_for_incomplete_capture[False]" time="0.027" /><testcase classname="test_icim_round4_evidence_boundaries_20261021" name="test_other_product_archive_does_not_block_native_dated_im_replay" time="0.022" /><testcase classname="test_icim_round4_evidence_boundaries_20261021" name="test_unknown_year_intraday_header_keeps_two_verified_snapshots" time="0.098" /><testcase classname="test_icim_round4_evidence_boundaries_20261021" name="test_reminder_exception_preserves_both_calculated_products" time="0.025"><failure message="assert '查询失败' not in &quot;## IC / IM ...its_current'&quot;&#10;  &#10;  '查询失败' is contained here:&#10;    盘 |&#10;    ## ⚠️ 查询失败&#10;  ?       ++++&#10;    &#10;    KeyError: 'momentum_units_current'">tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_e63e50c3/pytest/test_reminder_exception_preser0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x00000272A0D98230&gt;
+
+    def test_reminder_exception_preserves_both_calculated_products(tmp_path, monkeypatch):
+        owner, signals = coordinator(tmp_path, monkeypatch)
+        monkeypatch.setattr(bot, "build_live_signal_with_transport_retry", lambda product, *a: deepcopy(signals[product]))
+        monkeypatch.setattr(bot.option_maintenance_notice, "reminder", lambda *a, **k: (_ for _ in ()).throw(RuntimeError("synthetic reminder failed")))
+        text, _, observed = owner.execute_query("信号", CLOCK, persist_confirmed=False)
+&gt;       assert "查询失败" not in text
+E       assert '查询失败' not in "## IC / IM ...its_current'"
+E         
+E         '查询失败' is contained here:
+E           盘 |
+E           ## ⚠️ 查询失败
+E         ?       ++++
+E           
+E           KeyError: 'momentum_units_current'
+
+test_icim_round4_evidence_boundaries_20261021.py:154: AssertionError</failure></testcase></testsuite></testsuites>

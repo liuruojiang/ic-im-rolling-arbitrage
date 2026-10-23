@@ -1,0 +1,24 @@
+....................F.....................                               [100%]
+================================== FAILURES ===================================
+______ test_missing_batch_identity_fails_without_retry_or_partial_chain _______
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000021F1EDA5020>
+
+    def test_missing_batch_identity_fails_without_retry_or_partial_chain(monkeypatch):
+        calls = actual_chain_router(monkeypatch, invalid=True)
+        with pytest.raises(RuntimeError, match='集合'):
+            bot.fetch_sina_510500_chain('2612')
+>       assert len(calls) == 1
+E       AssertionError: assert 5 == 1
+E        +  where 5 = len([('10011470', '10011471', '10011472', '10011473', '10011474', '10011475'), ('10011476', '10011477', '10011478', '10011...012103', '10012104', '10012105', '10012106', '10012120'), ('10012149', '10012150', '10012282', '10012600', '10012632')])
+
+test_icim_free_sources_20261022.py:153: AssertionError
+============================== warnings summary ===============================
+C:\Python314\Lib\site-packages\fastapi_poe\types.py:171
+  C:\Python314\Lib\site-packages\fastapi_poe\types.py:171: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    class RequestContext(BaseModel):
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED test_icim_free_sources_20261022.py::test_missing_batch_identity_fails_without_retry_or_partial_chain
+1 failed, 41 passed, 1 warning in 2.89s

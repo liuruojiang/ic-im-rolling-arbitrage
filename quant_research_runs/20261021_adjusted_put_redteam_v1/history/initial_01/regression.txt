@@ -1,0 +1,96 @@
+..FF.................FFF.                                                [100%]
+================================== FAILURES ===================================
+______________ test_code_year_is_20yy_not_a_century_alias[2126] _______________
+
+year = 2126
+
+    @pytest.mark.parametrize('year',[1926,2126])
+    def test_code_year_is_20yy_not_a_century_alias(year):
+        body = payload()
+        row = selected(body)
+        for key in ['EXPIRE_DATE','EXERCISE_DATE','END_DATE']:
+            row[key] = f'{year}1223'
+>       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+test_icim_a3_history_20261021.py:70: Failed
+_____ test_consistent_wrong_expiry_is_rejected_before_a_price_is_consumed _____
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x00000132B8E67360>
+
+    def test_consistent_wrong_expiry_is_rejected_before_a_price_is_consumed(monkeypatch):
+        body = payload()
+        row = selected(body)
+        for key in ['EXPIRE_DATE','EXERCISE_DATE','END_DATE']:
+            row[key] = '20261224'
+        _,calls = bind_sources(monkeypatch,body)
+>       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+test_icim_a3_history_20261021.py:80: Failed
+_____ test_new_master_source_rejects_declared_oversize_before_json_parse ______
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x00000132B8FF4BB0>
+
+    def test_new_master_source_rejects_declared_oversize_before_json_parse(monkeypatch):
+        response = Response(payload(),declared=str(bot.MAX_QUOTE_RESPONSE_BYTES+1))
+        monkeypatch.setattr(bot.requests,'get',lambda *a,**k: response)
+>       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+test_icim_a3_history_20261021.py:124: Failed
+______ test_new_master_source_cannot_finish_after_shared_budget_expired _______
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x00000132B8FF5630>
+
+    def test_new_master_source_cannot_finish_after_shared_budget_expired(monkeypatch):
+        response = Response(payload())
+        now = [0.]
+        monkeypatch.setattr(bot.time_module,'monotonic',lambda: now[0])
+        def get(*a,**k):
+            assert k['timeout'] <= 1.
+            now[0] = 2.
+            return response
+        monkeypatch.setattr(bot.requests,'get',get)
+        token = bot._NETWORK_DEADLINE.set(1.)
+        try:
+>           with pytest.raises(RuntimeError):
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           Failed: DID NOT RAISE <class 'RuntimeError'>
+
+test_icim_a3_history_20261021.py:140: Failed
+___ test_duplicate_raw_sina_dates_cannot_disappear_before_identity_consumer ___
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x00000132B907E1A0>
+
+    def test_duplicate_raw_sina_dates_cannot_disappear_before_identity_consumer(monkeypatch):
+        master = Response(payload())
+        sina = Response({},text='callback([{"d":"2026-10-20","c":"0.2"},{"d":"2026-10-20","c":"0.9"}]);')
+        def request(url,**kwargs):
+            if url == 'https://query.sse.com.cn/commonQuery.do': return master
+            if 'StockOptionDaylineService.getSymbolInfo' in url: return sina
+            raise RuntimeError('synthetic backup unavailable')
+        monkeypatch.setattr(bot.requests,'get',request)
+        # Real public history consumers execute; neither identity nor price loader
+        # is replaced. Only the HTTP transport is synthetic and local.
+>       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+test_icim_a3_history_20261021.py:157: Failed
+============================== warnings summary ===============================
+C:\Python314\Lib\site-packages\fastapi_poe\types.py:171
+  C:\Python314\Lib\site-packages\fastapi_poe\types.py:171: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    class RequestContext(BaseModel):
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED test_icim_a3_history_20261021.py::test_code_year_is_20yy_not_a_century_alias[2126]
+FAILED test_icim_a3_history_20261021.py::test_consistent_wrong_expiry_is_rejected_before_a_price_is_consumed
+FAILED test_icim_a3_history_20261021.py::test_new_master_source_rejects_declared_oversize_before_json_parse
+FAILED test_icim_a3_history_20261021.py::test_new_master_source_cannot_finish_after_shared_budget_expired
+FAILED test_icim_a3_history_20261021.py::test_duplicate_raw_sina_dates_cannot_disappear_before_identity_consumer
+5 failed, 20 passed, 1 warning in 4.42s

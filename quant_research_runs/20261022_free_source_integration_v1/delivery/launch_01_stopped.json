@@ -1,0 +1,10 @@
+{
+  "pid": 40324,
+  "started_at": "2026-10-22T18:33:26.1640480+08:00",
+  "python": "C:\\Python314\\python.exe",
+  "source_pin": "D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261022_free_source_integration_v1\\delivery\\capture_source_pin.json",
+  "evidence_dir": "D:\\动量策略\\IC和IM滚动套利\\data\\icim_v14_original_inputs",
+  "state_read_only": "D:\\动量策略\\IC和IM滚动套利\\runtime\\ic_im_v1_4_r1",
+  "stopped_at": "2026-10-22T18:34:04.415485+08:00",
+  "stop_reason": "read-only audit found im_put_policy.py missing from deployment source pin; stop and rebuild before acceptance"
+}

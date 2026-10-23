@@ -1,0 +1,36 @@
+{
+  "sources": {
+    "ic_im_chinabond.py": "4e1098b2f4c253d9950c084eafcc655ea8e5e820478a01a29393d638e6d40ab9",
+    "ic_im_v1_4_policy.py": "f7e3ad9ddfb83935b47c6af5b5b22bcd28b5c6912b3bd14cec158a7de7f07fff",
+    "run_ic_im_v1_4_github_digest.py": "b4f3a18c480f61e46b5729f2b01cf21fb79a2735a1f131e853129ed3dbb12a83",
+    "ic_im_quote_snapshot_guard.py": "ae22b541a1a2a6bc20d5bd23bb1fc3d275a2f3fcfce96b5345c2458cde74b9d5",
+    "poe_ic_im_v1_4_state.py": "41106e5432464d46c07bfd453f0cf8341a1c2923165beba293967270b9d3821e",
+    "ic_im_daily_valuation.py": "b389a81475836fb3e4e96dbc92216a54afeb199029d524f51efbb8d029e4257c",
+    "poe_ic_im_v1_4_server.py": "15e0fc982a7905656d53cc2d4d7f8443c63c2280850ea26ef196cbf73bbffc6c",
+    "ic_im_sse_contract_identity_v1.py": "47a2d81f665d2b199eaa2c2043c90271cdd242aa9776620002c833f3cdafacc8",
+    "ic_im_quarter_roll_v1_3.py": "cec4535aa0dca4200ac4e50ec91f7aa82aee12c5157f0cb350ab73c82d53457d",
+    "ic_im_fear_grid_v1.py": "a21578621eb7695af5dcc669670cdcfa2bef2f0d9fceb4ad40a3ddae707fcc67",
+    "ic_im_put_execution_v1.py": "8cdda4e3761bda7889c16b0102ee0106d2efaaa61088b7cb6fc83a08d67b2368",
+    "ic_im_adjusted_put_migration_v1.py": "f4bbdaa49225e51b83ccfe441b9c6f4dc36b7f3206acf509098f4d8628215c29",
+    "im_put_policy.py": "ff9c9b1d52e4b1aa25fcb3c85e61665a4acf0a4de68272d8ddc9caaf2d4a9a9c",
+    "ic_im_option_maintenance_notice.py": "a2ad67732d85bad5d96444d7a74a350d3ecdf0fdb6b82b9b593ccfaf95c63746",
+    "poe_ic_im_mainline_v1_4_bot.py": "9ebe4986f9cd3434da8cfc9e316a42c23d2d352ff07b7108743748399d031567"
+  },
+  "research_modules": [
+    "account_close_isolated",
+    "account_monday_isolated",
+    "audit_close",
+    "audit_frozen",
+    "audit_study",
+    "audit_wait",
+    "build_report",
+    "close_controller",
+    "listing_controller",
+    "monday_controller",
+    "run_close",
+    "run_frozen",
+    "run_study",
+    "run_wait"
+  ],
+  "dynamic_calls": []
+}

@@ -1,0 +1,15 @@
+{
+  "strategy_execution_sha": "fe63e1870b6f28c41fdd0959f06092c8b710e892",
+  "automation_consumer_sha": "2962fc145ce1d214577ce2e56264f872d2369163",
+  "automation_main_merge": "4efeaf6f44423ebaf00c6180245ab1f6ce9653d3",
+  "ci_run": 39121597925,
+  "ci_conclusion": "success",
+  "local_required_unique_files": 39,
+  "local_tests_passed": 909,
+  "cloud_automation_tests_passed": 1110,
+  "cloud_icim_tests_passed": 967,
+  "source_blob_match": true,
+  "production_workflow_blob": "141cf8efbf9eff8e812f0fa3bd94a9549d281610",
+  "message_sent": false,
+  "ledger_written": false
+}

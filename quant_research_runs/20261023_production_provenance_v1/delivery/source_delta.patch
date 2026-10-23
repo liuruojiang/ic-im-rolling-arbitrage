@@ -1,0 +1,492 @@
+--- before/ic_im_evidence_adapter_v1.py
++++ after/ic_im_evidence_adapter_v1.py
+@@ -176,8 +176,11 @@
+             if role == "fear.score" and key.get("mode") == "close" and value.get("fear_greed_index") is None:
+                 return _historical_fear_supplement(strategy, reader, key, value, original)
+             return value
+-        return capture.call(role, key, lambda: _validate_value(
++        value = capture.call(role, key, lambda: _validate_value(
+             strategy, role, key, original(*args, **kwargs)))
++        # capture.call coalesces a role/key before reaching the query cache.
++        # Every chain consumption must still recheck its original timestamps.
++        return _validate_value(strategy, role, key, value) if role == "ic.chain" else value
+ 
+     setattr(owner, name, adapted)
+ 
+--- before/notes/mainline_registry.md
++++ after/notes/mainline_registry.md
+@@ -1,4 +1,11 @@
+ # IC / IM 系统主线登记表
++
++## A–H 生产归属与缓存、回退、线程边界续核（2026-10-23）
++
++- A–G 属10-22免费源接入及其并行/线缆/回放补充，F的时钟helper原已存在、本次接入公共查询及验证器归免费源轮；H属后续冲突与封存门禁轮。HTTP Date轮没有引入这些采集逻辑。按冻结源码SHA和AST逐项核对，不撤销旧验收或改写旧报告。
++- 本轮补修普通月链和具名ic.chain采集缓存命中后的时间校验、回退耗尽保留EvidenceUnavailable、两线程批处理仅提交至多两个待完成任务及等待收尾预算检查。缓存不覆盖直连Sina证券身份路径；不增加通用URL缓存，不声称45秒硬墙钟或网络已稳定。
++- 预注册docs/ic_im_production_provenance_20261023_v1_spec.md，新增23项专项，累计与真实10-22包隔离恢复以quant_research_runs/20261023_production_provenance_v1回执为准。正式账本/策略/配量/日历/历史公式保持；不冒充尚未收盘的10-23包或远端部署。
++- 最终104文件2982通过、22单列不变、1010绑定前后相同；5场景真实包恢复、2离线预检及IC212/IM227事实字段对照通过。正式runtime156、原有归档248字节不变。23项含真实线程、缓存/回退及实际StateStore拒绝门槛，修前10失败保留。超时统计仅一个收盘日，尚不能判断批大小因果效果；新PID27840/28模块pin，10-23上午实测waiting_for_close。45秒为包含收尾的同一预算，不保证强杀运行线程硬返回。
+ 
+ ## SSE HTTP Date 误冲突修订（2026-10-22，独立后续轮）
+ 
+--- before/poe_ic_im_mainline_v1_4_bot.py
++++ after/poe_ic_im_mainline_v1_4_bot.py
+@@ -32,7 +32,7 @@
+ import zipfile
+ import zlib
+ from collections.abc import Iterable
+-from concurrent.futures import ThreadPoolExecutor
++from concurrent.futures import FIRST_COMPLETED, ThreadPoolExecutor, wait
+ from contextlib import contextmanager
+ from copy import deepcopy
+ from dataclasses import dataclass
+@@ -131,6 +131,38 @@
+     return fear_grid.fetch_jiu_reference(signal_day)
+ 
+ 
++def _collect_quote_batches(fetch_batch, batches):
++    """Keep two jobs in flight; join writers and charge shutdown to the deadline.
++
++    A running requests call cannot be killed safely. Executor shutdown can have
++    a tail beyond its configured socket timeout, but that tail never grants a
++    new deadline or permits publishing an over-budget successful result.
++    """
++    results = [None] * len(batches)
++    pending, next_batch = {}, 0
++    with ThreadPoolExecutor(max_workers=2) as pool:
++        try:
++            while pending or next_batch < len(batches):
++                _bounded_timeout(1.0)
++                while len(pending) < 2 and next_batch < len(batches):
++                    index = next_batch
++                    future = pool.submit(contextvars.copy_context().run, fetch_batch, batches[index])
++                    pending[future] = index
++                    next_batch += 1
++                done, _ = wait(pending, timeout=_bounded_timeout(1.0), return_when=FIRST_COMPLETED)
++                for future in sorted(done, key=pending.__getitem__):
++                    index = pending.pop(future)
++                    results[index] = future.result()
++                _bounded_timeout(1.0)
++        except BaseException:
++            for future in pending:
++                future.cancel()
++            raise
++    # Includes executor shutdown/writer completion in the original budget.
++    _bounded_timeout(1.0)
++    return results
++
++
+ def _prefetch_mo_replay_verification(quotes: pd.DataFrame, clock: datetime) -> dict[str, Any]:
+     """Record all Put cross-check variables in bounded batches, without selection."""
+     symbols = set()
+@@ -154,16 +186,9 @@
+                 raise RuntimeError("MO原日复核报文返回标识不完整；不能承诺自动恢复")
+         finally:
+             response.close()
+-    with ThreadPoolExecutor(max_workers=2) as pool:
+-        futures = [pool.submit(contextvars.copy_context().run, verify_batch, ordered[offset:offset + 64])
+-                   for offset in range(0, len(ordered), 64)]
+-        try:
+-            for future in futures:
+-                future.result()
+-        except BaseException:
+-            for future in futures:
+-                future.cancel()
+-            raise
++    with _network_budget(SIGNAL_PRODUCT_NETWORK_BUDGET_SECONDS):
++        _collect_quote_batches(verify_batch, [ordered[offset:offset + 64]
++                                           for offset in range(0, len(ordered), 64)])
+     return {"day": clock.date(), "symbols": ordered, "state_decision_made": False}
+ 
+ 
+@@ -2360,6 +2385,12 @@
+ 
+ def _source_failure_error(message: str, errors: list[Exception]) -> RuntimeError:
+     """Keep retries for wholly transient source failures, never malformed data."""
++    if (signal_evidence.current_reader.get() is not None
++            and any(isinstance(exc, signal_evidence.EvidenceUnavailable) for exc in errors)):
++        # A failed primary may be absent when an archived alternate succeeds.
++        # If none succeeds, preserve the evidence diagnosis instead of making
++        # an offline missing-input failure look like an ordinary source outage.
++        return signal_evidence.EvidenceUnavailable("原日存证缺失或无效；" + message)
+     transport = (requests.ConnectionError, requests.Timeout, requests.exceptions.ChunkedEncodingError)
+     if errors and all(isinstance(exc, transport) for exc in errors):
+         return SignalTransportError(message)
+@@ -4134,18 +4165,10 @@
+         if set(values) != set(batch):
+             raise RuntimeError("新浪510500 Put分批证券集合缺失或未请求，禁止跳选其他行权价")
+         return list(values.items())
+-    with _network_budget(SIGNAL_PRODUCT_NETWORK_BUDGET_SECONDS), ThreadPoolExecutor(max_workers=2) as pool:
+-        futures = [pool.submit(contextvars.copy_context().run, fetch_batch, ids[start:start + size])
+-                   for start in range(0, len(ids), size)]
+-        # Keep deterministic batch order without fabricating a combined raw
+-        # response. Each worker records its actual URL and bytes separately.
+-        try:
+-            for future in futures:
+-                packets.extend(future.result())
+-        except BaseException:
+-            for future in futures:
+-                future.cancel()
+-            raise
++    with _network_budget(SIGNAL_PRODUCT_NETWORK_BUDGET_SECONDS):
++        batches = [ids[start:start + size] for start in range(0, len(ids), size)]
++        for values in _collect_quote_batches(fetch_batch, batches):
++            packets.extend(values)
+     return packets
+ 
+ 
+@@ -4296,7 +4319,10 @@
+     key = (evidence_adapter.canonical_ic_month(expiry_ym), reference_day, _HISTORICAL_REPLAY_DAY.get(),
+            id(signal_evidence.current_reader.get()), id(signal_evidence.current_session.get()))
+     if cache is not None and key in cache:
+-        return deepcopy(cache[key])
++        chain, stamp = deepcopy(cache[key])
++        if reference_day >= sse_identity.EFFECTIVE_SIGNAL_DATE:
++            _validate_chain_stamp_matches("510500期权链", stamp, reference_day, _now_beijing())
++        return chain, stamp
+     token = _OPTION_CHAIN_REFERENCE_DAY.set(reference_day)
+     try:
+         chain, stamp = fetch_510500_chain_with_failover(expiry_ym)
+--- /dev/null
++++ after/test_icim_production_provenance_20261023.py
+@@ -0,0 +1,342 @@
++"""Expert A–H follow-up: real threads and stores, offline market fixtures."""
++from concurrent.futures import ThreadPoolExecutor
++from copy import deepcopy
++from datetime import date, datetime
++import contextvars
++import json
++from pathlib import Path
++import re
++import threading
++from urllib.parse import parse_qs
++
++import pandas as pd
++import pytest
++import requests
++
++import ic_im_evidence_adapter_v1 as adapter
++import ic_im_signal_evidence_v1 as evidence
++import poe_ic_im_mainline_v1_4_bot as bot
++import poe_ic_im_v1_4_state as state
++
++DAY = date(2026, 10, 22)
++CLOCK = datetime(2026, 10, 22, 18, tzinfo=bot.BEIJING)
++ROOT = Path(__file__).resolve().parent
++SAVED = ROOT / 'quant_research_runs/20261022_free_ic_sources_v1'
++
++
++def response(body):
++    value = requests.Response()
++    value.status_code, value.encoding = 200, 'gb18030'
++    value._content, value._content_consumed = body, True
++    return value
++
++
++def frame():
++    return pd.DataFrame([{'contract': '510500P2612M06500', 'last': .2614,
++                          'strike': 6.5, 'chg_rate': 0., 'pre_settle': .25,
++                          'security_id': '10012149'}])
++
++
++def bare(name):
++    return getattr(getattr(bot, name), '__wrapped__', getattr(bot, name))
++
++
++def test_query_chain_cache_hit_revalidates_and_keeps_selected_row_time_gate(monkeypatch):
++    tick, network, checks = [0.], [], []
++    clock = CLOCK.replace(hour=10, minute=0)
++    monkeypatch.setattr(bot.time_module, 'monotonic', lambda: tick[0])
++    chain = frame()
++    chain['source_stamp'] = clock
++    def fetch(month):
++        network.append(month)
++        return chain, {'date': '20261022', 'time': '100000'}
++    monkeypatch.setattr(bot, 'fetch_510500_chain_with_failover', fetch)
++    validate = bot._validate_chain_stamp_matches
++    def checked(*args):
++        checks.append(bot._iv_observation_clock(args[-1]))
++        return validate(*args)
++    monkeypatch.setattr(bot, '_validate_chain_stamp_matches', checked)
++    token = bot._IC_QUOTE_QUERY_CACHE.set({})
++    try:
++        with bot.runtime_clock(clock), bot.collection_clock(clock):
++            first = bot._fetch_510500_chain_for_day('2612', DAY)
++            bot._require_selected_510500_quote_time(first[0].iloc[0], clock, DAY)
++            tick[0] = 21 * 60
++            second = bot._fetch_510500_chain_for_day('2612', DAY)
++            assert len(checks) == 2 and checks[-1] > checks[0]
++            with pytest.raises(RuntimeError, match='20分钟'):
++                bot._require_selected_510500_quote_time(second[0].iloc[0], clock, DAY)
++    finally:
++        bot._IC_QUOTE_QUERY_CACHE.reset(token)
++    assert network == ['2612']
++
++
++def test_capture_role_cache_hit_revalidates_consumed_chain(monkeypatch, tmp_path):
++    calls, checks = [], []
++    monkeypatch.setattr(bot, 'fetch_510500_chain_with_failover',
++                        lambda month: (calls.append(month) or frame(), {'date': '20261022', 'time': '150000'}))
++    validate = bot._validate_chain_stamp_matches
++    def checked(*args):
++        checks.append(args[0])
++        return validate(*args)
++    monkeypatch.setattr(bot, '_validate_chain_stamp_matches', checked)
++    with bot.runtime_clock(CLOCK), evidence.capture_session(tmp_path, DAY, CLOCK, {}):
++        bot._fetch_510500_chain_for_day('2612', DAY)
++        before = len(checks)
++        bot._fetch_510500_chain_for_day('2612', DAY)
++        assert len(checks) > before
++    assert calls == ['2612']
++
++
++def test_security_id_direct_sina_chain_remains_outside_month_cache(monkeypatch):
++    calls = []
++    monkeypatch.setattr(bot, 'fetch_sina_510500_chain', lambda month: (calls.append(month) or frame(), {}))
++    token = bot._IC_QUOTE_QUERY_CACHE.set({})
++    try:
++        for _ in range(2):
++            assert bot.fetch_sina_510500_security_id('510500P2612M06500') == '10012149'
++    finally:
++        bot._IC_QUOTE_QUERY_CACHE.reset(token)
++    assert calls == ['2612', '2612']
++
++
++@pytest.mark.parametrize('kind', ['etf', 'months'])
++def test_raw_replay_missing_failed_primary_reaches_recorded_fallback(monkeypatch, tmp_path, kind):
++    target = 'fetch_510500_quote_with_failover' if kind == 'etf' else 'fetch_510500_expiries_with_failover'
++    packet = SAVED / ('probe_02/raw/tencent_etf.bin' if kind == 'etf' else 'probe_02/raw/sina_listed_months.bin')
++    def get(url, **kwargs):
++        if 'yunhq.sse.com.cn' in url:
++            raise requests.Timeout('original primary had no response')
++        return response(packet.read_bytes())
++    monkeypatch.setattr(bot.requests, 'get', get)
++    def run():
++        return bare(target)(DAY) if kind == 'etf' else bare(target)()
++    with bot.runtime_clock(CLOCK), evidence.capture_session(tmp_path, DAY, CLOCK, {}) as session:
++        session.call('scope', {}, lambda: True)
++        original = run()
++    reader = evidence.load_session(tmp_path, DAY)
++    assert all('yunhq.sse.com.cn' not in r['url'] for r in reader.context['raw'])
++    monkeypatch.setattr(bot.requests, 'get', lambda *a, **k: pytest.fail('replay network request'))
++    with bot.runtime_clock(CLOCK), evidence.replay_session(reader):
++        replay = run()
++    if kind == 'etf':
++        assert {k: replay[k] for k in ['last','prev_close','date','time','source']} == {
++            k: original[k] for k in ['last','prev_close','date','time','source']}
++        assert any('EvidenceUnavailable' in s for s in replay['source_failures'])
++    else:
++        assert replay == original == ['202610','202611','202612','202703']
++    # Failed-primary probes are visible in the audit log; do not call this zero misses.
++    assert len(reader.missing_inputs) == 1 and 'yunhq.sse.com.cn' in reader.missing_inputs[0]['url']
++
++
++@pytest.mark.parametrize('target,args', [
++    ('fetch_510500_quote_with_failover', (DAY,)),
++    ('fetch_510500_expiries_with_failover', ()),
++    ('fetch_510500_chain_with_failover', ('2612',))])
++def test_exhausted_raw_replay_preserves_evidence_unavailable(monkeypatch, tmp_path, target, args):
++    with evidence.capture_session(tmp_path, DAY, CLOCK, {}) as session:
++        session.call('scope', {}, lambda: True)
++    reader = evidence.load_session(tmp_path, DAY)
++    monkeypatch.setattr(bot.requests, 'get', lambda *a, **k: pytest.fail('replay network request'))
++    with bot.runtime_clock(CLOCK), evidence.replay_session(reader):
++        with pytest.raises(evidence.EvidenceUnavailable, match='原日|所有来源'):
++            bare(target)(*args)
++
++
++def test_public_original_replay_reports_missing_source_as_original_evidence_unavailable(monkeypatch, tmp_path):
++    with evidence.capture_session(tmp_path, DAY, CLOCK, {}) as session:
++        session.call('scope', {}, lambda: True)
++    reader = evidence.load_session(tmp_path, DAY)
++    monkeypatch.setattr(adapter, 'configured_root', lambda: tmp_path)
++    monkeypatch.setattr(adapter, 'has_original', lambda *a: True)
++    monkeypatch.setattr(adapter, 'load_original', lambda *a: (reader, CLOCK))
++    monkeypatch.setattr(bot, '_build_live_trade_signal', lambda *a: bare('fetch_510500_quote_with_failover')(DAY))
++    monkeypatch.setattr(bot.requests, 'get', lambda *a, **k: pytest.fail('replay network request'))
++    with bot.historical_replay(DAY):
++        result = bot.build_live_trade_signal('IC', CLOCK, 'close')
++    assert result['diagnostic_status'] == 'original_evidence_unavailable'
++    assert result['persistence_eligible'] is False
++
++
++def identifiers(kind, count=None):
++    return [str(10000000 + n) for n in range(count or 24)] if kind == 'ic' else [f'MO2612-P-{6000+n}' for n in range(count or 192)]
++
++
++def run_batches(kind, ids):
++    if kind == 'ic':
++        return bot._sina_put_detail_batches(ids)
++    return bot._prefetch_mo_replay_verification(pd.DataFrame({'instrument': ids}), CLOCK)
++
++
++def symbols_from_request(url, kwargs):
++    if 'etag.php' in url:
++        params = kwargs['params']
++        return (parse_qs(params)['list'][0] if isinstance(params, str) else params['list']).split(',')
++    return url.split('list=')[1].split(',')
++
++
++def wire(symbols):
++    return b';'.join(('var hq_str_' + value + '="offline-synthetic"').encode() for value in symbols) + b';'
++
++
++@pytest.mark.parametrize('kind', ['ic', 'mo'])
++def test_batch_failure_cancels_unstarted_and_joins_active_writer(monkeypatch, tmp_path, kind):
++    first, failure, third, release, returned = (threading.Event() for _ in range(5))
++    calls, active, errors = [], set(), []
++    lock = threading.Lock()
++    def get(url, **kwargs):
++        symbols = symbols_from_request(url, kwargs)
++        with lock:
++            index = len(calls); calls.append(symbols); active.add(threading.get_ident())
++        try:
++            assert evidence.current_session.get() is not None
++            assert bot._NETWORK_DEADLINE.get() is not None
++            if index == 0:
++                first.set()
++                assert release.wait(3)
++            elif index == 1:
++                assert first.wait(3)
++                failure.set()
++                raise RuntimeError('synthetic invalid batch')
++            else:
++                third.set()
++            return response(wire(symbols))
++        finally:
++            with lock:
++                active.remove(threading.get_ident())
++    monkeypatch.setattr(bot.requests, 'get', get)
++    def observer():
++        try:
++            assert failure.wait(3)
++            assert not returned.is_set()
++            third.wait(.1)  # deterministic blocked first job exposes eager queue draining.
++        except BaseException as exc:
++            errors.append(exc)
++        finally:
++            release.set()
++    watcher = threading.Thread(target=observer)
++    watcher.start()
++    try:
++        with pytest.raises(RuntimeError, match='synthetic invalid batch'):
++            with evidence.capture_session(tmp_path, DAY, CLOCK, {}) as session:
++                session.call('scope', {}, lambda: True)
++                with bot._network_budget(45):
++                    try:
++                        run_batches(kind, identifiers(kind))
++                    finally:
++                        returned.set()
++                        assert not active
++    finally:
++        watcher.join(4)
++    assert not errors and not watcher.is_alive()
++    assert len(calls) == 2 and not third.is_set()
++    assert session.context['complete'] is False
++
++
++@pytest.mark.parametrize('kind', ['ic', 'mo'])
++def test_pool_shutdown_time_counts_against_product_budget(monkeypatch, kind):
++    tick, deadlines = [0.], []
++    monkeypatch.setattr(bot.time_module, 'monotonic', lambda: tick[0])
++    class ShutdownAfterDeadline(ThreadPoolExecutor):
++        def __exit__(self, *args):
++            result = super().__exit__(*args)
++            tick[0] = 46.  # model running-request/shutdown tail, not synthetic network speed.
++            return result
++    monkeypatch.setattr(bot, 'ThreadPoolExecutor', ShutdownAfterDeadline)
++    def get(url, **kwargs):
++        deadlines.append(bot._NETWORK_DEADLINE.get())
++        return response(wire(symbols_from_request(url, kwargs)))
++    monkeypatch.setattr(bot.requests, 'get', get)
++    with bot._network_budget(45), pytest.raises(RuntimeError, match='预算'):
++        run_batches(kind, identifiers(kind, 12 if kind == 'ic' else 128))
++    assert deadlines and set(deadlines) == {45.}
++
++
++@pytest.mark.parametrize('kind', ['ic', 'mo'])
++def test_threaded_raw_capture_is_atomic_and_replay_is_order_independent(monkeypatch, tmp_path, kind):
++    calls, workers = [], set()
++    lock = threading.Lock()
++    barrier = threading.Barrier(2)
++    def get(url, **kwargs):
++        symbols = symbols_from_request(url, kwargs)
++        with lock:
++            index = len(calls); calls.append((url, symbols)); workers.add(threading.get_ident())
++        if index < 2:
++            barrier.wait(3)
++        assert evidence.current_session.get() is not None
++        return response(wire(symbols))
++    monkeypatch.setattr(bot.requests, 'get', get)
++    ids = identifiers(kind, 18 if kind == 'ic' else 192)
++    with evidence.capture_session(tmp_path, DAY, CLOCK, {}) as session:
++        session.call('scope', {}, lambda: True)
++        with bot._network_budget(45):
++            result = run_batches(kind, ids)
++    assert len(workers) == 2 and len(session.context['raw']) == 3 and session.context['complete']
++    reader = evidence.load_session(tmp_path, DAY)
++    assert len({(r['url'], evidence.canonical_http_params(r['params'])) for r in reader.context['raw']}) == 3
++    for row in reversed(reader.context['raw']):
++        replay = reader.http_response(row['url'], evidence.decode(row['params']))
++        assert replay['body'] == evidence._verified_blob(tmp_path, row)
++    assert reader.missing_inputs == []
++    if kind == 'ic':
++        assert [sid for sid, _ in result] == ids
++
++
++@pytest.mark.parametrize('product', ['IC', 'IM'])
++@pytest.mark.parametrize('status', ['recording', 'incomplete', 'inconsistent'])
++def test_state_store_rejects_capture_integrity_without_advancing_day(monkeypatch, tmp_path, product, status):
++    from test_icim_b3adv_state_20261021 import prepare
++    from test_icim_round2_audit_lifecycle_20261021 import snapshot
++    store, current, signals = prepare(tmp_path, monkeypatch)
++    signals[product].update(persistence_eligible=True, signal_complete=True)
++    signal = signals[product]
++    clock = datetime(2026, 10, 21, 15, 40, tzinfo=bot.BEIJING)
++    before = snapshot(store.root)
++    with evidence.capture_session(tmp_path / 'evidence', clock.date(), clock, {}) as session:
++        session.call('scope', {}, lambda: True)
++        session.bind_signal(signal)
++        if status == 'recording':
++            signal['persistence_eligible'] = True  # active-session store gate is independent.
++            with pytest.raises(RuntimeError, match='采集'):
++                store.append_confirmed_signals(current, signals)
++        elif status == 'incomplete':
++            session.failures.append({'role': 'probe', 'resolved': False})
++        else:
++            session.raw_response('https://example.invalid/quote', None, response(b'a'))
++            session.raw_response('https://example.invalid/quote', None, response(b'b'))
++    if status != 'recording':
++        assert signal['input_evidence_status'] == status
++        signal['persistence_eligible'] = True  # forged boolean cannot override integrity marker.
++        with pytest.raises(RuntimeError, match='采集'):
++            store.append_confirmed_signals(current, signals)
++    assert snapshot(store.root) == before
++    latest = store.load_latest()
++    assert latest['verified_day'] == current['verified_day'] and latest['digest'] == current['digest']
++
++
++def test_sealed_complete_capture_allows_normal_state_store_advance(monkeypatch, tmp_path):
++    from test_icim_b3adv_state_20261021 import prepare
++    store, current, signals = prepare(tmp_path, monkeypatch)
++    clock = datetime(2026, 10, 21, 15, 40, tzinfo=bot.BEIJING)
++    with evidence.capture_session(tmp_path / 'evidence', clock.date(), clock, {}) as session:
++        session.call('scope', {}, lambda: True)
++        for signal in signals.values():
++            signal.update(persistence_eligible=True, signal_complete=True)
++            session.bind_signal(signal)
++    assert all(s['input_evidence_status'] == 'complete' and s['persistence_eligible'] for s in signals.values())
++    written = store.append_confirmed_signals(current, signals)
++    assert written['sequence'] == current['sequence'] + 1
++
++
++def test_collection_clock_nested_observation_batch_preserves_outer_fear_evidence():
++    fear = bot.fear_grid
++    with fear.observation_batch():
++        outer = fear._OBSERVATION_BATCH.get()
++        outer[('baifenwei', DAY, 'close')] = {'fear_greed_index': 30., 'source': 'synthetic outer evidence'}
++        with bot.collection_clock(CLOCK), fear.observation_batch():
++            assert fear._OBSERVATION_BATCH.get() is outer
++            seen = fear.observed_in_batch('baifenwei', DAY, 'close')
++            assert seen['fear_greed_index'] == 30.
++            seen['fear_greed_index'] = 999
++        assert fear.observed_in_batch('baifenwei', DAY, 'close')['fear_greed_index'] == 30.
++    assert fear._OBSERVATION_BATCH.get() is None

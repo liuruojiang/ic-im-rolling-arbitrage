@@ -1,0 +1,210 @@
+{
+  "observed_at": "2026-10-23T09:00:09.989379+08:00",
+  "days": {
+    "2026-10-22": {
+      "cycles": 58,
+      "statuses": {
+        "incomplete": 35,
+        "captured": 1,
+        "already_captured": 22
+      },
+      "products": {}
+    },
+    "2026-10-23": {
+      "cycles": 1,
+      "statuses": {
+        "waiting_for_close": 1
+      },
+      "products": {}
+    }
+  },
+  "unreadable_receipts": [
+    {
+      "receipt": "183506248119-4d4204779c0e4696b71db1127070159a.json",
+      "error_type": "ModuleNotFoundError",
+      "error": "No module named 'ic_im_signal_evidence_v1'"
+    },
+    {
+      "receipt": "184108099469-6c373453d1814cee97bdfc1d22cf201e.json",
+      "error_type": "ModuleNotFoundError",
+      "error": "No module named 'ic_im_signal_evidence_v1'"
+    },
+    {
+      "receipt": "205459768524-ffc498630f61428584ab3f59edaa5ed6.json",
+      "error_type": "ModuleNotFoundError",
+      "error": "No module named 'ic_im_signal_evidence_v1'"
+    },
+    {
+      "receipt": "210350058824-896795b3af5d47aabb52980897ce1b67.json",
+      "error_type": "ModuleNotFoundError",
+      "error": "No module named 'ic_im_signal_evidence_v1'"
+    },
+    {
+      "receipt": "211012227414-db632ec8072541e8bd33ea26a5e93064.json",
+      "error_type": "ModuleNotFoundError",
+      "error": "No module named 'ic_im_signal_evidence_v1'"
+    },
+    {
+      "receipt": "211513946327-30eee5d102694140ba165a765e94f449.json",
+      "error_type": "ModuleNotFoundError",
+      "error": "No module named 'ic_im_signal_evidence_v1'"
+    },
+    {
+      "receipt": "212040679792-b6f2213c417b407b92be61b874b34dc5.json",
+      "error_type": "ModuleNotFoundError",
+      "error": "No module named 'ic_im_signal_evidence_v1'"
+    },
+    {
+      "receipt": "212541881563-5def01e867a64ee0b47194b855cfaf46.json",
+      "error_type": "ModuleNotFoundError",
+      "error": "No module named 'ic_im_signal_evidence_v1'"
+    },
+    {
+      "receipt": "214103465214-cf5343b8bc8c4d749c2e67fa3824ded2.json",
+      "error_type": "ModuleNotFoundError",
+      "error": "No module named 'ic_im_signal_evidence_v1'"
+    },
+    {
+      "receipt": "214640313683-5e68e4d7079d4740a62e6f739f845407.json",
+      "error_type": "ModuleNotFoundError",
+      "error": "No module named 'ic_im_signal_evidence_v1'"
+    },
+    {
+      "receipt": "215141601687-310bfd8a78964231ad91e2de6e8ff267.json",
+      "error_type": "ModuleNotFoundError",
+      "error": "No module named 'ic_im_signal_evidence_v1'"
+    },
+    {
+      "receipt": "215642919977-d3d2e2dd8e514a768edf516f55cd1097.json",
+      "error_type": "ModuleNotFoundError",
+      "error": "No module named 'ic_im_signal_evidence_v1'"
+    },
+    {
+      "receipt": "220144209862-1346f89210214e35b1ad846eb0c6f104.json",
+      "error_type": "ModuleNotFoundError",
+      "error": "No module named 'ic_im_signal_evidence_v1'"
+    },
+    {
+      "receipt": "220645770783-406b81cf7b834cc799cbc6b870103260.json",
+      "error_type": "ModuleNotFoundError",
+      "error": "No module named 'ic_im_signal_evidence_v1'"
+    },
+    {
+      "receipt": "221147083143-840157a5677a48509e9a071097b3b205.json",
+      "error_type": "ModuleNotFoundError",
+      "error": "No module named 'ic_im_signal_evidence_v1'"
+    },
+    {
+      "receipt": "221648415333-1890559b52d943da9e9df39e8c5e9c15.json",
+      "error_type": "ModuleNotFoundError",
+      "error": "No module named 'ic_im_signal_evidence_v1'"
+    },
+    {
+      "receipt": "222149714311-b82b11178a2042269aa072840a173f17.json",
+      "error_type": "ModuleNotFoundError",
+      "error": "No module named 'ic_im_signal_evidence_v1'"
+    },
+    {
+      "receipt": "222651069063-aed1a53a562a4ac8a18ba41d4d58b3d6.json",
+      "error_type": "ModuleNotFoundError",
+      "error": "No module named 'ic_im_signal_evidence_v1'"
+    },
+    {
+      "receipt": "223152630001-09e12e7b60d24d6ea2288598c034d29c.json",
+      "error_type": "ModuleNotFoundError",
+      "error": "No module named 'ic_im_signal_evidence_v1'"
+    },
+    {
+      "receipt": "223654040932-66cde2b6e49e4e0b891f48dc2eb2bbf7.json",
+      "error_type": "ModuleNotFoundError",
+      "error": "No module named 'ic_im_signal_evidence_v1'"
+    },
+    {
+      "receipt": "224155477164-5276c510f8e54428bd812735aeb19539.json",
+      "error_type": "ModuleNotFoundError",
+      "error": "No module named 'ic_im_signal_evidence_v1'"
+    },
+    {
+      "receipt": "224656936199-22f961c6acb7422a8fc8c64df53e112f.json",
+      "error_type": "ModuleNotFoundError",
+      "error": "No module named 'ic_im_signal_evidence_v1'"
+    },
+    {
+      "receipt": "225158565712-c39fb7909bb241119fd1745f771b8946.json",
+      "error_type": "ModuleNotFoundError",
+      "error": "No module named 'ic_im_signal_evidence_v1'"
+    },
+    {
+      "receipt": "225700018288-103257c7da8b4f1985d850ae554649bb.json",
+      "error_type": "ModuleNotFoundError",
+      "error": "No module named 'ic_im_signal_evidence_v1'"
+    },
+    {
+      "receipt": "230201850318-88f6dd0166ed4ceebe1f95e913f9bbeb.json",
+      "error_type": "ModuleNotFoundError",
+      "error": "No module named 'ic_im_signal_evidence_v1'"
+    },
+    {
+      "receipt": "230703220706-c2e8f494604e49a8945e9b442c79a2c0.json",
+      "error_type": "ModuleNotFoundError",
+      "error": "No module named 'ic_im_signal_evidence_v1'"
+    },
+    {
+      "receipt": "231204729184-7a83981ae0ea41f4be95a6b0f88fcfb5.json",
+      "error_type": "ModuleNotFoundError",
+      "error": "No module named 'ic_im_signal_evidence_v1'"
+    },
+    {
+      "receipt": "231706236127-dc65ecd3c4324b9693641ff738545a91.json",
+      "error_type": "ModuleNotFoundError",
+      "error": "No module named 'ic_im_signal_evidence_v1'"
+    },
+    {
+      "receipt": "232208081213-c94a73f99bad49cc8e28dcc333ac196d.json",
+      "error_type": "ModuleNotFoundError",
+      "error": "No module named 'ic_im_signal_evidence_v1'"
+    },
+    {
+      "receipt": "232709601551-e4b470a801af4186b6916714e2027eb0.json",
+      "error_type": "ModuleNotFoundError",
+      "error": "No module named 'ic_im_signal_evidence_v1'"
+    },
+    {
+      "receipt": "233211195199-24d99b0d785e4243b15a0e09968920d9.json",
+      "error_type": "ModuleNotFoundError",
+      "error": "No module named 'ic_im_signal_evidence_v1'"
+    },
+    {
+      "receipt": "233713402090-ecce90ac2a454b3d91d918b079fa025f.json",
+      "error_type": "ModuleNotFoundError",
+      "error": "No module named 'ic_im_signal_evidence_v1'"
+    },
+    {
+      "receipt": "234215306084-9dea763f2935493397e8722ee03dbd87.json",
+      "error_type": "ModuleNotFoundError",
+      "error": "No module named 'ic_im_signal_evidence_v1'"
+    },
+    {
+      "receipt": "234718231155-528fb7f0434e432dafe367b0a1a9a712.json",
+      "error_type": "ModuleNotFoundError",
+      "error": "No module named 'ic_im_signal_evidence_v1'"
+    },
+    {
+      "receipt": "235219876752-5da5e916c8a34801a43ec2f7fa766eef.json",
+      "error_type": "ModuleNotFoundError",
+      "error": "No module named 'ic_im_signal_evidence_v1'"
+    },
+    {
+      "receipt": "235721444004-ac1dce4caace4396a68d28087e00da06.json",
+      "error_type": "ModuleNotFoundError",
+      "error": "No module named 'ic_im_signal_evidence_v1'"
+    }
+  ],
+  "denominator": "each sealed product capture attempt linked by a completed cycle receipt; polling/waiting excluded",
+  "limitations": [
+    "one closed market day so far",
+    "status/failure text classifies timeout attempts, not independent HTTP request rates",
+    "observed sample mixes earlier deployment versions; no causal estimate of batch-size effect",
+    "receiptless crash/unsealed attempts are outside this denominator"
+  ]
+}

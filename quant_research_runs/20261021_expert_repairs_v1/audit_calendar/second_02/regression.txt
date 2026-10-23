@@ -1,0 +1,27 @@
+........F..............................                                  [100%]
+================================== FAILURES ===================================
+_ test_actual_policy_failure_reason_is_kept_in_diagnostic_and_no_plan_is_scheduled _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001E66E805130>
+
+    def test_actual_policy_failure_reason_is_kept_in_diagnostic_and_no_plan_is_scheduled(monkeypatch):
+        legacy.wire(monkeypatch,held=False)
+        def fails(product,signal,**kwargs):
+            return dict(signal,v14_action='HOLD_FAIL_CLOSED',v14_action_reason='specific-original-market-failure')
+        monkeypatch.setattr(bot,'_apply_v14_live_policy',fails)
+        monkeypatch.setattr(bot,'_v14_schedule_ordinary_put',lambda *a:pytest.fail('failed policy must not schedule'))
+        out=bot.build_live_trade_signal('IM',legacy.CLOCK,'close')
+        no_target(out)
+>       assert 'specific-original-market-failure' in out['diagnostic_reason']
+E       AssertionError: assert 'specific-original-market-failure' in 'Put腿未完成核验，保留独立行情观察；组合目标未确认。'
+
+test_icim_expert_audit_calendar_20261021.py:129: AssertionError
+============================== warnings summary ===============================
+C:\Python314\Lib\site-packages\fastapi_poe\types.py:171
+  C:\Python314\Lib\site-packages\fastapi_poe\types.py:171: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    class RequestContext(BaseModel):
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED test_icim_expert_audit_calendar_20261021.py::test_actual_policy_failure_reason_is_kept_in_diagnostic_and_no_plan_is_scheduled
+1 failed, 38 passed, 1 warning in 2.70s

@@ -1,0 +1,66 @@
+.....FF....                                                              [100%]
+================================== FAILURES ===================================
+_________ test_bootstrap_snapshot_retains_known_single_core_identity __________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000019A0D469C50>
+record_property = <function record_property.<locals>.append_property at 0x0000019A0D4A1D20>
+
+    def test_bootstrap_snapshot_retains_known_single_core_identity(monkeypatch, record_property):
+        record = state.bootstrap_record()
+        anchors = state.anchors_from_record(record)
+        anchor = anchors['IC']
+        assert anchor.get('v14_core_put_contract') is None
+        assert bot._ic_current_quantity_breakdown(anchor)['core'] > 0
+        monkeypatch.setitem(bot.LIVE_CONTINUATION_ANCHOR, 'IC', anchor)
+        msg = Mock()
+        bot._write_last_verified_snapshot(msg, 'IC')
+        rendered = msg.write.call_args.args[0]
+        record_property('anchor_core_contract', anchor.get('v14_core_put_contract'))
+        record_property('anchor_shared_contract', anchor['post_put_contract'])
+        record_property('rendered', rendered)
+>       assert anchor['post_put_contract'] in rendered, 'Known bootstrap economic core identity lost in revised snapshot'
+E       AssertionError: Known bootstrap economic core identity lost in revised snapshot
+E       assert '510500P2612M07500' in '**最后逐腿核验快照（2026-08-24，仅研究审计）**\n\n- 0.5倍核心期货：`IC2609`（路线 `future`）\n- 动量袖：权重 0.5，期货名义 0.25倍\n- 独立网格：0倍；期货合计：0.75倍\n- Put：核心 14张 `身份待核验`；动量 0张；合计 14张；Call：无（IC禁止Call）\n- 这只是最后已核验状态，不是当前账户持仓；联网或账本续接恢复前，不生成下一交易日目标。\n\n'
+
+test_icim_redteam_display_20261021.py:86: AssertionError
+_______ test_core_overlay_failure_cannot_label_momentum_as_current_core _______
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000019A0D46AB50>
+record_property = <function record_property.<locals>.append_property at 0x0000019A0D4A2980>
+
+    def test_core_overlay_failure_cannot_label_momentum_as_current_core(monkeypatch, record_property):
+        anchor = split_anchor()
+        monkeypatch.setitem(bot.LIVE_CONTINUATION_ANCHOR, 'IC', anchor)
+        monkeypatch.setattr(bot, 'fetch_510500_chain_with_failover',
+                            Mock(side_effect=RuntimeError('dedicated core quote unavailable')))
+        out = bot._apply_v14_live_policy('IC', split_signal())
+        assert out['v14_action'] == 'HOLD_FAIL_CLOSED'
+        bot._refresh_ic_put_text(out)
+        record_property('rendered_current', out['put_current'])
+        record_property('held_core', anchor['v14_core_put_contract'])
+        record_property('held_momentum', anchor['post_put_contract'])
+        record_property('candidate_status', out.get('v14_candidate_data_status'))
+        # A failed mark does not make the held, independently verified identity unknown.
+>       assert CORE in out['put_current'], 'Core quote failure silently attaches momentum contract to held core quantity'
+E       AssertionError: Core quote failure silently attaches momentum contract to held core quantity
+E       assert '510500P2612M07500' in '核心 5张 `510500P2611M06500`；动量 3张 `510500P2611M06500`'
+
+test_icim_redteam_display_20261021.py:102: AssertionError
+============================== warnings summary ===============================
+C:\Python314\Lib\site-packages\fastapi_poe\types.py:171
+  C:\Python314\Lib\site-packages\fastapi_poe\types.py:171: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    class RequestContext(BaseModel):
+
+test_icim_redteam_display_20261021.py::test_bootstrap_snapshot_retains_known_single_core_identity
+  test_icim_redteam_display_20261021.py:73: PytestWarning: record_property is incompatible with junit_family 'xunit2' (use 'legacy' or 'xunit1')
+    def test_bootstrap_snapshot_retains_known_single_core_identity(monkeypatch, record_property):
+
+test_icim_redteam_display_20261021.py::test_core_overlay_failure_cannot_label_momentum_as_current_core
+  test_icim_redteam_display_20261021.py:89: PytestWarning: record_property is incompatible with junit_family 'xunit2' (use 'legacy' or 'xunit1')
+    def test_core_overlay_failure_cannot_label_momentum_as_current_core(monkeypatch, record_property):
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED test_icim_redteam_display_20261021.py::test_bootstrap_snapshot_retains_known_single_core_identity
+FAILED test_icim_redteam_display_20261021.py::test_core_overlay_failure_cannot_label_momentum_as_current_core
+2 failed, 9 passed, 3 warnings in 2.21s

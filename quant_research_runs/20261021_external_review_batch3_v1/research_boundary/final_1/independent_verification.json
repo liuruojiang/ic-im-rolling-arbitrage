@@ -1,0 +1,16 @@
+{
+  "passed": true,
+  "counts": {
+    "tests": 15,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "strict_receipt_validated": true,
+  "source_before_equals_after": true,
+  "current_sources_equal": true,
+  "source_files": 19,
+  "production_import_closure_files": 15,
+  "research_observed_files_unchanged": 28,
+  "research_engine_executed": false
+}

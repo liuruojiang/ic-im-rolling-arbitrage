@@ -1,0 +1,597 @@
+--- before/ic_im_fear_grid_v1.py
++++ after/ic_im_fear_grid_v1.py
+@@ -516,6 +516,13 @@
+     if key not in batch:
+         batch[key] = copy.deepcopy(fetch())
+     return copy.deepcopy(batch[key])
++
++
++def observed_in_batch(source: str, signal_day: date, mode: str | None = None) -> dict[str, Any] | None:
++    """Read already collected evidence without starting any fallback network IO."""
++    key = ("baifenwei", signal_day, mode) if source == "baifenwei" else ("jiu", signal_day)
++    batch = _OBSERVATION_BATCH.get()
++    return copy.deepcopy(batch[key]) if batch is not None and key in batch else None
+ 
+ JIU_URL = "https://ai2.jiucaishuo.com/api/fear-greed"
+ JIU_PAGE_URL = "https://jiucaishuo.com/indicators?tab=fg"
+--- before/ic_im_put_execution_v1.py
++++ after/ic_im_put_execution_v1.py
+@@ -2,12 +2,84 @@
+ from __future__ import annotations
+ 
+ import math
++import re
+ from copy import deepcopy
+ from datetime import date
+ from typing import Any
+ 
+ REVISION = "put_execution_order_and_short_basis_20261016_v1"
+ EFFECTIVE_DATE = date(2026, 10, 16)
++OPEN_EVIDENCE_REVISION = "put_open_evidence_retry_20261021_v1"
++OPEN_EVIDENCE_EFFECTIVE_DATE = date(2026, 10, 21)
++RETRY_OPEN_STATUS = "awaiting_retry_open_evidence"
++
++
++def require_supported_ic_contracts(product: str, value: dict) -> None:
++    """Do not infer adjusted strike/contract unit from a trading-code suffix.
++
++    Standard new openings remain supported. A holdings need official dated
++    contract master data before the current M-only sizing engine can use them.
++    Frozen records remain readable; this gate is only for new calculations.
++    """
++    if product != "IC":
++        return
++    for key in ("v14_core_put_contract", "post_put_contract", "put_current_contract",
++                "put_target_contract", "v14_short_put_contract", "v14_profit_old_contract",
++                "v14_profit_reentry_contract"):
++        if re.fullmatch(r"510500P\d{4}A\d{5}", str(value.get(key) or "")):
++            raise RuntimeError("IC adjusted contract master and multiplier unavailable; preserve held A identity")
++    for name in ("v14_ordinary_put_pending", "v14_short_put_open_pending"):
++        plan = value.get(name)
++        if not isinstance(plan, dict):
++            continue
++        contracts = [plan.get("new_contract")]
++        for leg in (plan.get("legs") or {}).values():
++            contracts.extend([leg.get("old_contract"), leg.get("new_contract")])
++        contracts.extend(row.get("contract") for row in plan.get("required_quotes") or [])
++        if any(re.fullmatch(r"510500P\d{4}A\d{5}", str(c or "")) for c in contracts):
++            raise RuntimeError("IC adjusted contract master and multiplier unavailable; preserve original plan")
++
++
++def require_resolved_opening_evidence(signal: dict) -> None:
++    """Unverified inputs cannot become new targets or a persisted close.
++
++    This guard concerns new computation, not reading frozen ledger records.
++    A transient failure is not an authoritative no-fill decision.
++    """
++    statuses = [signal.get("v14_ordinary_put_open_status")]
++    for event in signal.get("v14_opening_events") or []:
++        statuses.append(event.get("status"))
++    if RETRY_OPEN_STATUS in statuses:
++        raise RuntimeError("unresolved opening evidence: preserve the exact original plan and retry")
++
++
++def require_due_openings(product: str, anchor: dict, signal: dict, day: date,
++                         monthly_priority: bool) -> None:
++    """Independent new-write check, including omitted/forged closed outcomes."""
++    require_resolved_opening_evidence(signal)
++    if day < OPEN_EVIDENCE_EFFECTIVE_DATE:
++        return
++    ordinary = anchor.get("v14_ordinary_put_pending")
++    if ordinary and as_day(ordinary["execution_day"]) <= day and not monthly_priority:
++        if (signal.get("v14_ordinary_put_open_status") != "confirmed_open_research_price"
++                or not same_plan(signal.get("v14_ordinary_put_open_plan"), ordinary)):
++            raise RuntimeError(f"{product} unresolved opening evidence: ordinary Put plan is still due")
++    due = {}
++    if (anchor.get("v14_profit_pending") and anchor.get("v14_profit_execution_day")
++            and as_day(anchor["v14_profit_execution_day"]) < day):
++        raise RuntimeError(f"{product} unresolved opening evidence: replay the original 3x execution day")
++    short = anchor.get("v14_short_put_open_pending")
++    if short and as_day(short["execution_day"]) <= day:
++        due["short_put"] = short
++    profit = profit_plan(product, anchor, day)
++    if profit and not monthly_priority:
++        due["profit3x"] = profit
++    events = signal.get("v14_opening_events") or []
++    for kind, plan in due.items():
++        matches = [event for event in events if event.get("kind") == kind]
++        if (len(matches) != 1 or matches[0].get("status") != "confirmed_open_research_price"
++                or not same_plan(matches[0].get("plan"), plan)):
++            raise RuntimeError(f"{product} unresolved opening evidence: {kind} plan is still due")
+ 
+ 
+ def as_day(value: Any) -> date:
+@@ -90,6 +162,10 @@
+     plan = anchor.get("v14_short_put_open_pending")
+     if not plan or not same_plan(event.get("plan"), plan) or plan.get("product") != product:
+         raise RuntimeError("Short-Put opening event differs from the persisted plan")
++    if event["status"] == RETRY_OPEN_STATUS:
++        if day < as_day(plan["execution_day"]):
++            raise RuntimeError("Pending opening evidence has the wrong execution day")
++        return deepcopy(anchor)
+     if event["status"] == "awaiting_execution_day":
+         if day >= as_day(plan["execution_day"]):
+             raise RuntimeError("An opening due today cannot be marked as awaiting a future day")
+--- before/ic_im_v1_4_policy.py
++++ after/ic_im_v1_4_policy.py
+@@ -399,6 +399,9 @@
+     roll_candidate: dict[str, Any] | None = None,
+ ) -> dict[str, Any]:
+     """Return a v1.4 signal without mutating the v1.3 input or ledger anchor."""
++    put_execution.require_resolved_opening_evidence(signal)
++    put_execution.require_supported_ic_contracts(product, anchor)
++    put_execution.require_supported_ic_contracts(product, signal)
+     out = deepcopy(signal)
+     state = {**default_extension(product), **{
+         key: deepcopy(value) for key, value in anchor.items() if key.startswith("v14_")
+--- before/poe_ic_im_mainline_v1_4_bot.py
++++ after/poe_ic_im_mainline_v1_4_bot.py
+@@ -1015,22 +1015,37 @@
+ ) -> pd.DataFrame:
+     """Load one official completed session from CFFEX's monthly archive."""
+ 
+-    raw = _cffex_month_archive(pd.Timestamp(day))
+     member_name = f"{day:%Y%m%d}_1.csv"
+-    with zipfile.ZipFile(io.BytesIO(raw)) as archive:
+-        members = archive.infolist()
+-        if len(members) > MAX_CFFEX_ZIP_MEMBERS:
+-            raise RuntimeError("中金所月度行情包成员数量超过安全上限")
+-        if any(info.file_size > MAX_CFFEX_ZIP_MEMBER_BYTES for info in members):
+-            raise RuntimeError("中金所月度行情包单个成员超过安全上限")
+-        if sum(info.file_size for info in members) > MAX_CFFEX_ZIP_UNCOMPRESSED_BYTES:
+-            raise RuntimeError("中金所月度行情包解压体积超过安全上限")
+-        matches = [info for info in members if info.filename.endswith(member_name)]
+-        if len(matches) != 1:
+-            raise RuntimeError(f"中金所月度行情包缺少唯一日文件 {member_name}")
+-        daily = pd.read_csv(
+-            io.BytesIO(archive.read(matches[0])), encoding="gbk", low_memory=False
+-        )
++    key = f"{day:%Y%m}"
++    for attempt in range(2):
++        raw = _cffex_month_archive(pd.Timestamp(day))
++        try:
++            with zipfile.ZipFile(io.BytesIO(raw)) as archive:
++                members = archive.infolist()
++                if len(members) > MAX_CFFEX_ZIP_MEMBERS:
++                    raise RuntimeError("中金所月度行情包成员数量超过安全上限")
++                if any(info.flag_bits & 0x1 for info in members):
++                    raise RuntimeError("中金所月度行情包含加密成员")
++                if len({info.filename for info in members}) != len(members):
++                    raise RuntimeError("中金所月度行情包成员重复")
++                if any(info.file_size > MAX_CFFEX_ZIP_MEMBER_BYTES for info in members):
++                    raise RuntimeError("中金所月度行情包单个成员超过安全上限")
++                if sum(info.file_size for info in members) > MAX_CFFEX_ZIP_UNCOMPRESSED_BYTES:
++                    raise RuntimeError("中金所月度行情包解压体积超过安全上限")
++                matches = [info for info in members if info.filename.endswith(member_name)]
++                if len(matches) != 1:
++                    _CFFEX_MONTH_CACHE.pop(key, None)
++                    if not matches and attempt == 0:
++                        continue  # One bounded refresh; never use the stale body.
++                    raise RuntimeError(f"中金所月度行情包缺少唯一日文件 {member_name}")
++                daily = pd.read_csv(io.BytesIO(archive.read(matches[0])), encoding="gbk", low_memory=False)
++            break
++        except zipfile.BadZipFile as exc:
++            _CFFEX_MONTH_CACHE.pop(key, None)
++            raise RuntimeError("中金所月度行情包ZIP结构或校验异常") from exc
++        except RuntimeError:
++            _CFFEX_MONTH_CACHE.pop(key, None)
++            raise
+     daily.columns = [str(column).strip().lstrip("\ufeff") for column in daily.columns]
+     field_map = {
+         "合约代码": "instrument",
+@@ -2738,8 +2753,15 @@
+ 
+ def _response_with_size_limit(response: Any, label: str) -> bytes:
+     declared = response.headers.get("Content-Length")
+-    if declared and int(declared) > MAX_QUOTE_RESPONSE_BYTES:
+-        raise RuntimeError(f"{label}响应声明大小超过{MAX_QUOTE_RESPONSE_BYTES}字节")
++    if declared:
++        try:
++            size = int(declared)
++        except (TypeError, ValueError) as exc:
++            raise RuntimeError(f"{label}响应长度标头非法") from exc
++        if size < 0:
++            raise RuntimeError(f"{label}响应长度标头非法")
++        if size > MAX_QUOTE_RESPONSE_BYTES:
++            raise RuntimeError(f"{label}响应声明大小超过{MAX_QUOTE_RESPONSE_BYTES}字节")
+     content = response.content
+     if len(content) > MAX_QUOTE_RESPONSE_BYTES:
+         raise RuntimeError(f"{label}响应大小超过{MAX_QUOTE_RESPONSE_BYTES}字节")
+@@ -3643,7 +3665,8 @@
+     rows: list[dict[str, Any]] = []
+     stamps: list[datetime] = []
+     details = details_response.content.decode("gbk", errors="replace")
+-    for _, payload in re.findall(r'hq_str_CON_OP_(\d+)="([^"]*)"', details):
++    unresolved_adjusted: list[dict[str, Any]] = []
++    for security_id, payload in re.findall(r'hq_str_CON_OP_(\d+)="([^"]*)"', details):
+         fields = payload.split(",")
+         if len(fields) <= 46 or fields[43] not in {"M", "A"} or fields[45] != "P":
+             continue
+@@ -3652,32 +3675,50 @@
+             continue
+         try:
+             strike = float(fields[7])
+-            last = float(fields[3])
++            # CON_OP [2] is the latest trade; [3] is the current ask.
++            # Last may legitimately be outside a subsequently changed spread.
++            last = float(fields[2])
+             observed = datetime.strptime(fields[32], "%Y-%m-%d %H:%M:%S")
+         except (TypeError, ValueError) as exc:
+             raise RuntimeError("新浪510500 Put详情含无效价格或时间戳") from exc
+-        if not (math.isfinite(strike) and math.isfinite(last) and strike > 0):
++        if not (math.isfinite(strike) and math.isfinite(last) and strike > 0 and last >= 0):
+             raise RuntimeError("新浪510500 Put详情含非有限价格或行权价")
+         style = fields[43]
++        if style == "A":
++            # Adjustment changes actual strike/unit, but SSE retains the
++            # ORIGINAL strike digits in the trading code. CON_OP does not
++            # supply that code or an independently verified contract unit.
++            # Keep the raw identity for diagnosis; never manufacture a code.
++            unresolved_adjusted.append({"security_id": security_id,
++                                        "strike": strike, "expiry": expiry,
++                                        "source_stamp": observed.replace(tzinfo=BEIJING)})
++            continue
+         contract = f"510500P{yy}{month}{style}{int(round(strike * 1000)):05d}"
+         rows.append(
+             {
+                 "contract": contract,
+                 "last": last,
+                 "chg_rate": None,
+-                "pre_settle": float(fields[40]) if fields[40] else None,
++                # [40] is session low. The extended settlement field has no
++                # independently verified contract here; do not guess [44].
++                "pre_settle": None,
++                "security_id": security_id,
+                 "strike": strike,
+                 "source_stamp": observed.replace(tzinfo=BEIJING),
+             }
+         )
+         stamps.append(observed)
+     if not rows:
++        if unresolved_adjusted:
++            raise RuntimeError("510500 adjusted contract master and multiplier unavailable; cannot price held A contracts")
+         raise RuntimeError(f"新浪未返回有效510500 Put月份 {yy}{month} 行情")
+     # Keep stale rows identifiable.  Dropping one here could silently move a
+     # nearest-strike selection to another contract; selected rows are checked.
+     latest = max(stamps)
+     source_day, source_time = latest.strftime("%Y%m%d"), latest.strftime("%H%M%S")
+-    return pd.DataFrame(rows), {
++    frame = pd.DataFrame(rows)
++    frame.attrs["unresolved_adjusted_contracts"] = unresolved_adjusted
++    return frame, {
+         "date": source_day,
+         "time": source_time,
+         "source": "新浪财经期权详报价（上交所回退）",
+@@ -4859,31 +4900,53 @@
+     clock = _iv_observation_clock(clock, collection_started)
+     day = signal["market_date"]
+     if product == "IC":
+-        contract = signal.get("put_current_contract") or ""
++        evidence = signal.get("iv_monitor_evidence")
++        contract = (evidence.get("contract") if isinstance(evidence, dict)
++                    else signal.get("put_current_contract")) or ""
+         match = re.fullmatch(r"510500P(\d{2})(\d{2})M(\d{5})", contract)
+         iv = None
+         reason = ""
++        source = evidence.get("source", "IC持仓Put证据不完整") if isinstance(evidence, dict) else "上交所510500当日持仓Put报价反解IV"
++        quote_time = evidence.get("quote_time") if isinstance(evidence, dict) else signal.get("sse_time")
++        strike, expiry = None, None
+         try:
+-            option_price = float(signal.get("iv_monitor_option_price"))
+-            if not math.isfinite(option_price) or option_price <= 0:
+-                raise ValueError("IC持仓Put缺少有限正价，无法反解IV")
+-            option_stamp = _iv_monitor_stamp(day, day, signal.get("sse_time"), "IC期权")
+-            spot_stamp = _iv_monitor_stamp(day, signal.get("etf_quote_date"), signal.get("etf_quote_time"), "510500ETF")
+-            _validate_iv_monitor_times(day, option_stamp, spot_stamp, clock, signal.get("close_confirmed") is True)
+             if not match:
+                 raise ValueError("IC持仓Put合约格式无效")
+             expiry = _fourth_wednesday(2000 + int(match.group(1)), int(match.group(2)))
+-            if expiry > day:
+-                iv = _implied_volatility("P", option_price, signal["etf_price"],
+-                                         float(match.group(3))/1000., _gov10y_for_day("IC", day),
+-                                         float(FROZEN["IC"]["dividend"]), (expiry-day).days/365.)
++            strike = float(match.group(3))/1000.
++            if evidence is not None:
++                if not isinstance(evidence, dict):
++                    raise ValueError("IC监测证据格式无效")
++                option_price = float(evidence["option_price"])
++                if (not math.isclose(float(evidence["strike"]), strike, abs_tol=1e-9)
++                        or put_execution.as_day(evidence["expiry"]) != expiry
++                        or evidence["contract_unit"] != 10000
++                        or not evidence["security_id"] or not isinstance(evidence["source"], str)
++                        or not evidence["source"].strip()):
++                    raise ValueError("IC监测价格与合约主数据未绑定")
++                source_day = evidence["quote_date"]
++            else:
++                option_price = float(signal.get("iv_monitor_option_price"))
++                source_day = day
++            if not math.isfinite(option_price) or option_price <= 0:
++                raise ValueError("IC持仓Put缺少有限正价，无法反解IV")
++            option_stamp = _iv_monitor_stamp(day, source_day, quote_time, "IC期权")
++            spot_stamp = _iv_monitor_stamp(day, signal.get("etf_quote_date"), signal.get("etf_quote_time"), "510500ETF")
++            _validate_iv_monitor_times(day, option_stamp, spot_stamp, clock, signal.get("close_confirmed") is True)
++            if expiry <= day:
++                raise ValueError("IC监测Put已到期，不能反解正期限IV")
++            iv = _implied_volatility("P", option_price, signal["etf_price"],
++                                     strike, _gov10y_for_day("IC", day),
++                                     float(FROZEN["IC"]["dividend"]), (expiry-day).days/365.)
+         except (ValueError, RuntimeError, KeyError, TypeError, OverflowError) as exc:
+             reason = str(exc)
+         result = im_put_policy.iv_warning(
+-            iv, source="上交所510500当日持仓Put报价反解IV",
+-            market_date=day, snapshot_time=signal.get("sse_time"), contract=contract, reason=reason,
+-        )
+-        result["validation_clock"] = clock.isoformat()
++            iv, source=source,
++            market_date=day, snapshot_time=quote_time, contract=contract, reason=reason,
++        )
++        result.update(validation_clock=clock.isoformat(), reference_strike=strike,
++                      expiry=str(expiry) if expiry else None,
++                      contract_unit=evidence.get("contract_unit") if isinstance(evidence, dict) else 10000)
+         return result
+     source = str(quotes.attrs.get("source", "未知"))
+     contract = ""
+@@ -5092,6 +5155,8 @@
+     """
+     contract = anchor.get("v14_core_put_contract")
+     if contract:
++        if re.fullmatch(r"510500P\d{4}A\d{5}", str(contract)):
++            raise RuntimeError("IC adjusted contract master and multiplier unavailable; preserve held A identity")
+         day = signal["market_date"]
+         replay = _HISTORICAL_REPLAY_DAY.get()
+         if replay is not None:
+@@ -5105,8 +5170,22 @@
+         row = _quote_row(chain, str(contract), day)
+         if row is None or not math.isfinite(float(row["last"])) or float(row["last"]) <= 0:
+             raise RuntimeError("IC独立核心Put缺少有效当日报价")
++        if ("security_id" in row.index
++                and str(row["security_id"]) != str(anchor.get("v14_core_put_security_id"))):
++            raise RuntimeError("IC核心Put同名合约证券ID不同，禁止用重新挂牌M合约替代原持仓")
+         signal["iv_monitor_option_price"] = float(row["last"])
+         signal["v14_core_put_current_contract"] = str(contract)
++        match = re.fullmatch(r"510500P(\d{2})(\d{2})M(\d{5})", str(contract))
++        if not match:
++            raise RuntimeError("IC核心Put监测缺少标准合约主数据")
++        observed = row.get("source_stamp")
++        signal["iv_monitor_evidence"] = dict(
++            contract=str(contract), security_id=anchor.get("v14_core_put_security_id"),
++            option_price=float(row["last"]), strike=float(row.get("strike", int(match.group(3))/1000.)),
++            expiry=_fourth_wednesday(2000+int(match.group(1)), int(match.group(2))),
++            contract_unit=10000, source=stamp.get("source"), sleeve="core",
++            quote_date=observed.date() if isinstance(observed, datetime) else stamp.get("date"),
++            quote_time=observed.strftime("%H%M%S") if isinstance(observed, datetime) else stamp.get("time"))
+         signal["put_current_core_qty"] = int(anchor.get("v14_core_put_qty", 0))
+         if not signal.get("option_monthly_reset_due"):
+             target_delta = float(signal["core_put_target_delta"])
+@@ -5323,7 +5402,9 @@
+     if market_date < execution_day:
+         return {"status": "awaiting_execution_day", "plan": plan}
+     if market_date > execution_day:
+-        return {"status": "closed_missed_execution_day", "plan": plan}
++        return {"status": put_execution.RETRY_OPEN_STATUS if market_date >= put_execution.OPEN_EVIDENCE_EFFECTIVE_DATE
++                else "closed_missed_execution_day", "plan": plan,
++                "reason": "Replay the original execution day; do not execute on a later date"}
+     # A monthly reset is a same-day close event and has priority over a
+     # preselected ordinary opening change on that date.
+     if market_date == _third_friday(market_date.year, market_date.month):
+@@ -5365,7 +5446,9 @@
+                                "openprice": float(price), "source": source,
+                                "price_day": market_date})
+     except (RuntimeError, ValueError, KeyError, TypeError, requests.RequestException) as exc:
+-        return {"status": "closed_missing_open_price", "plan": plan,
++        status = (put_execution.RETRY_OPEN_STATUS if market_date >= put_execution.OPEN_EVIDENCE_EFFECTIVE_DATE
++                  else "closed_missing_open_price")
++        return {"status": status, "plan": plan,
+                 "reason": f"{type(exc).__name__}: {exc}"}
+     return {"status": "confirmed_open_research_price", "plan": plan, "prices": prices}
+ 
+@@ -5392,6 +5475,10 @@
+         if opening.get("reason"):
+             signal["v14_ordinary_put_open_reason"] = opening["reason"]
+     signal["v14_ordinary_put_pending"] = None
++    if prior and opening and opening["status"] == put_execution.RETRY_OPEN_STATUS:
++        signal.update(v14_ordinary_put_pending=prior, v14_action="HOLD_FAIL_CLOSED",
++                      v14_action_reason="unresolved opening evidence; retry original execution day")
++        return
+     day = signal["market_date"]
+     if (day < v14_policy.ORDINARY_PUT_OPEN_EFFECTIVE_SIGNAL_DATE or not signal.get("close_confirmed")
+             or signal.get("option_monthly_reset_due")
+@@ -5471,6 +5558,29 @@
+     signal["v14_ordinary_put_plan_status"] = "scheduled_t_plus_1_open"
+ 
+ 
++def _refresh_ic_put_text(signal: dict[str, Any]) -> None:
++    """Render final quantities after overlays, routes and opening projections."""
++    current_core = signal.get("v14_core_put_current_contract") or signal.get("put_current_contract")
++    target_core = signal.get("v14_core_put_contract") or signal.get("put_target_contract")
++    def quantity(qty):
++        if qty is None:
++            return "张数待核验"
++        number = float(qty)
++        if not math.isfinite(number) or number < 0:
++            return "张数待核验"
++        return f"{number:g}张"
++    def leg(qty, contract):
++        text = quantity(qty)
++        return text if text in {"0张", "张数待核验"} else f"{text} `{contract or '身份待核验'}`"
++    signal["put_current"] = (
++        f"核心 {leg(signal.get('put_current_core_qty'), current_core)}；"
++        f"动量 {leg(signal.get('put_current_momentum_qty'), signal.get('put_current_contract'))}")
++    signal["put_target"] = (
++        f"核心 {leg(signal.get('put_target_core_qty'), target_core)}；"
++        f"动量 {leg(signal.get('put_target_momentum_qty'), signal.get('put_target_contract'))}；"
++        f"合计 {quantity(signal.get('put_target_total_qty'))}")
++
++
+ def _apply_v14_live_policy(
+     product: str,
+     signal: dict[str, Any],
+@@ -5478,6 +5588,7 @@
+     mo_quotes: pd.DataFrame | None = None,
+ ) -> dict[str, Any]:
+     anchor = LIVE_CONTINUATION_ANCHOR[product]
++    put_execution.require_supported_ic_contracts(product, anchor)
+     try:
+         if product == "IC":
+             _v14_ic_core_overlay(signal, anchor)
+@@ -5578,13 +5689,17 @@
+         execution = put_execution.as_day(short["execution_day"])
+         event = dict(kind="short_put", plan=short, status="awaiting_execution_day")
+         if day > execution:
+-            event["status"] = "closed_missed_execution_day"
++            event["status"] = (put_execution.RETRY_OPEN_STATUS if day >= put_execution.OPEN_EVIDENCE_EFFECTIVE_DATE
++                               else "closed_missed_execution_day")
++            event["reason"] = "Replay the original execution day; do not execute on a later date"
+         elif day == execution:
+             try:
+                 event.update(status="confirmed_open_research_price",
+                              prices=_v14_committed_open_prices(product, short, day, clock, quote_cache))
+             except (RuntimeError, ValueError, KeyError, TypeError, requests.RequestException) as exc:
+-                event.update(status="closed_missing_open_price", reason=f"{type(exc).__name__}: {exc}")
++                status = (put_execution.RETRY_OPEN_STATUS if day >= put_execution.OPEN_EVIDENCE_EFFECTIVE_DATE
++                          else "closed_missing_open_price")
++                event.update(status=status, reason=f"{type(exc).__name__}: {exc}")
+         anchor = put_execution.project_short_open(product, anchor, event, day)
+         events.append(event)
+     plan = put_execution.profit_plan(product, anchor, day)
+@@ -5596,7 +5711,9 @@
+                          prices=_v14_committed_open_prices(product, plan, day, clock, quote_cache))
+             anchor = put_execution.project_profit_open(product, anchor, event, day)
+         except (RuntimeError, ValueError, KeyError, TypeError, requests.RequestException) as exc:
+-            event.update(status="closed_missing_open_price", reason=f"{type(exc).__name__}: {exc}")
++            status = (put_execution.RETRY_OPEN_STATUS if day >= put_execution.OPEN_EVIDENCE_EFFECTIVE_DATE
++                      else "closed_missing_open_price")
++            event.update(status=status, reason=f"{type(exc).__name__}: {exc}")
+         events.append(event)
+     LIVE_CONTINUATION_ANCHOR[product] = anchor
+     return events
+@@ -5641,12 +5758,23 @@
+         product, market_date, clock, mode
+     )
+     quote_cache: dict[str, pd.DataFrame] = {}
++    opening_anchor = LIVE_CONTINUATION_ANCHOR[product]
++    put_execution.require_supported_ic_contracts(product, opening_anchor)
+     opening = _v14_ordinary_open_evidence(product, market_date, clock, quote_cache)
++    put_execution.require_resolved_opening_evidence(
++        {"v14_ordinary_put_open_status": opening["status"] if opening else None}
++    )
+     if opening is not None and opening["status"] == "confirmed_open_research_price":
+         LIVE_CONTINUATION_ANCHOR[product] = v14_policy.project_ordinary_open(
+             product, LIVE_CONTINUATION_ANCHOR[product], opening["plan"], opening["prices"]
+         )
+     opening_events = _v14_project_committed_opens(product, market_date, clock, quote_cache)
++    put_execution.require_resolved_opening_evidence({"v14_opening_events": opening_events})
++    put_execution.require_due_openings(product, opening_anchor,
++        {"v14_ordinary_put_open_status": opening["status"] if opening else None,
++         "v14_ordinary_put_open_plan": opening["plan"] if opening else None,
++         "v14_opening_events": opening_events}, market_date,
++        market_date == _third_friday(market_date.year, market_date.month))
+     if bridge_from_anchor:
+         live = _apply_next_unverified_session_anchor(product, live)
+     elif market_date == LIVE_CONTINUATION_ANCHOR[product]["last_verified_day"]:
+@@ -6646,8 +6774,6 @@
+                     "contract": str(contract), "pricing_basis": str(row.get("pricing_basis", "source_last_quote")),
+                     "market_text": _format_market(str(contract), row),
+                 }
+-    signal["iv_warning"] = build_iv_warning(product, signal, live, mo_quotes if product == "IM" else None, clock,
+-                                            collection_started=collection_started)
+     current_momentum_units = 0.5 * float(signal["momentum_current_weight"])
+     target_momentum_units = 0.5 * float(signal["momentum_next_weight"])
+     current_total_units = 0.5 + current_momentum_units + float(signal["grid_current"])
+@@ -6679,6 +6805,10 @@
+         signal["v14_execution_revision"] = put_execution.REVISION
+         signal["v14_opening_events"] = opening_events
+     _v14_schedule_ordinary_put(product, signal, LIVE_CONTINUATION_ANCHOR[product], opening)
++    if product == "IC":
++        _refresh_ic_put_text(signal)
++    signal["iv_warning"] = build_iv_warning(product, signal, live, mo_quotes if product == "IM" else None, clock,
++                                            collection_started=collection_started)
+     if market_date >= fear_grid.CLOSE_FALLBACK_EFFECTIVE_DATE:
+         finished = datetime.now(BEIJING)
+         signal.update(signal_generated_at=finished.isoformat(timespec="seconds"),
+@@ -6722,7 +6852,13 @@
+             f"动量 {momentum_text}；合计 {put_qty:g}张"
+         )
+     else:
+-        put_snapshot = f"{put_qty:g}张 `{put_contract}`"
++        breakdown = _ic_current_quantity_breakdown(anchor)
++        core_contract = anchor.get("v14_core_put_contract")
++        core_put_text = (f"{breakdown['core']:g}张 `{core_contract or '身份待核验'}`"
++                         if breakdown["core"] > 0 else "0张")
++        momentum_text = (f"{breakdown['momentum']:g}张 `{put_contract}`"
++                         if breakdown["momentum"] > 0 else "0张")
++        put_snapshot = f"核心 {core_put_text}；动量 {momentum_text}；合计 {put_qty:g}张"
+     msg.write(
+         f"**最后逐腿核验快照（{anchor['last_verified_day']}，仅研究审计）**\n\n"
+         f"- {core_text}\n"
+@@ -6828,10 +6964,12 @@
+                     fear_line = ""
+                     if _now_beijing().date() >= fear_grid.EFFECTIVE_SIGNAL_DATE:
+                         try:
+-                            observed_fear = fear_grid.fetch_score(
++                            observed_fear = fear_grid.observed_in_batch("baifenwei",
+                                 _now_beijing().date(),
+                                 "intraday" if mode == "intraday" else "close",
+                             )
++                            if observed_fear is None:
++                                raise RuntimeError("本轮尚无已采集恐慌证据；失败兜底不另行联网")
+                             fear_line = (
+                                 f"当日恐慌指数：{observed_fear['fear_greed_index'] if observed_fear['fear_greed_index'] is not None else '未发布'}"
+                                 f"；数据日 {observed_fear['fear_data_date'] or '未发布'}；"
+@@ -6841,7 +6979,7 @@
+                         except Exception as fear_exc:  # noqa: BLE001 - warning must still render.
+                             fear_line = f"当日恐慌指数：未核验（{fear_exc}）。\n\n"
+                         if _now_beijing().date() >= fear_grid.SOURCE_POLICY_DATE:
+-                            reference = fear_grid.fetch_jiu_reference(_now_beijing().date())
++                            reference = fear_grid.observed_in_batch("jiu", _now_beijing().date()) or {}
+                             fear_line += fear_grid.reference_disclosure(reference) + "\n\n"
+                     msg.write(
+                         f"### {PRODUCT_NAMES[product]}\n\n⚠️ 当日信号警告：{exc}\n\n"
+--- before/poe_ic_im_v1_4_state.py
++++ after/poe_ic_im_v1_4_state.py
+@@ -352,6 +352,8 @@
+ 
+ def validate_v14_new_signal(signal: dict[str, Any], product: str) -> None:
+     """Strict producer and route boundary for new writes, not frozen history."""
++    put_execution.require_resolved_opening_evidence(signal)
++    put_execution.require_supported_ic_contracts(product, signal)
+     market_date = signal.get("market_date")
+     if not market_date:
+         raise RuntimeError(f"{product} v1.4信号缺少market_date")
+@@ -960,6 +962,10 @@
+     }
+     for product in PRODUCTS:
+         signal = signals[product]
++        put_execution.require_due_openings(
++            product, current_anchors[product], signal, signal_day,
++            signal_day == strategy._third_friday(signal_day.year, signal_day.month),
++        )
+         validate_delivery_values(signal, product)
+         validate_profit_open_transition(product, current_anchors[product], signal, signal_day)
+         opening_plan = current_anchors[product].get("v14_ordinary_put_pending")
+--- before/test_ic_im_v1_4_integration_guards.py
++++ after/test_ic_im_v1_4_integration_guards.py
+@@ -626,7 +626,9 @@
+ def test_sina_chain_marks_one_yesterday_row_without_reselecting_another_strike():
+     def payload(strike, observed):
+         fields = [''] * 47
+-        fields[3], fields[7], fields[32] = '0.25', str(strike), observed
++        # CON_OP latest trade is [2]; [3] is ask. This fixture checks time,
++        # not the former incorrect ask-as-trade parser.
++        fields[2], fields[3], fields[7], fields[32] = '0.25', '0.26', str(strike), observed
+         fields[40], fields[43], fields[45], fields[46] = '0.24', 'M', 'P', '2026-12-23'
+         return ','.join(fields)
+ 
+--- before/notes/mainline_registry.md
++++ after/notes/mainline_registry.md
+@@ -1,4 +1,10 @@
+ # IC / IM 系统主线登记表
++
++## 外部评审首轮修复（2026-10-21，本地核验）
++
++- 用户批准按优先级计划开工。保留原工作区改动及1113份备份；修复开盘证据瞬时失败误关闭、新浪CON_OP价格字段、IC预警合约/价格/时间绑定、月归档缺日有限重抓、Put分袖展示和失败兜底额外联网。新开盘证据门禁自2026-10-21信号日作用于新计算/写账，历史关闭状态读取不回写；fix11策略身份及schema4/r1保持。
++- A型报文会用调整后行权价制造错误交易代码的真实反例已确认，现先隔离并阻断未知主数据的新计算/写账；不能称A型持仓已完整支持。IC卖Put五次真实研究配量与当前0.5倍核心缩放一致，现实现折合账户每1倍IC约0.25 Delta；原规范0.5字面归一化争议保留，不翻倍、不改旧规范或收益。
++- 累计41文件989项通过；真实新浪字段及SSE核心监测绑定通过，真实CFFEX归档联网复验超时单独保留。正式账本、冻结输出及远端运行pin未改；未推送、部署或发送邮件。预注册：`docs/ic_im_external_review_repairs_20261021_v1_spec.md`、`docs/ic_im_external_review_display_cache_20261021_v1_spec.md`；完整证据与后续未结项：`quant_research_runs/20261021_external_review_v1/record.md`。整个评审计划尚未完成。
+ 
+ ## 日报增加月度价差（2026-10-18 用户要求）
+ 

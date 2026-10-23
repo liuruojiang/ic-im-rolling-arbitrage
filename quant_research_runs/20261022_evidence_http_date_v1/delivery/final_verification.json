@@ -1,0 +1,150 @@
+{
+  "status": "PASS",
+  "verified_at": "2026-10-22T21:46:04.667051+08:00",
+  "production_files_changed": [
+    "ic_im_signal_evidence_v1.py"
+  ],
+  "runtime_files_unchanged": 156,
+  "existing_archive_files_unchanged": 107,
+  "tests": {
+    "tests": 2959,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "source_binding_files": 1010,
+  "original_exclusions_unchanged": 22,
+  "fifth_round_tests_included": 19,
+  "new_Date_tests": 18,
+  "real_recovery_scenarios": 5,
+  "normal_recovery_external_http": 0,
+  "real_repeat_Date_probe": {
+    "status": "COMPLETE",
+    "observations": [
+      {
+        "attempt": 1,
+        "started_at": "2026-10-22T21:35:30.828497+08:00",
+        "received_at": "2026-10-22T21:35:41.271030+08:00",
+        "market_date": 20261022,
+        "market_time": 162906,
+        "body_sha256": "1585a5f2655f9572693945f21e973a8bb0729ff2d4a29f4b379220b4937015df",
+        "headers": {
+          "Date": "Thu, 22 Oct 2026 13:35:40 GMT",
+          "Content-Type": "application/json;charset=UTF-8"
+        }
+      },
+      {
+        "attempt": 2,
+        "started_at": "2026-10-22T21:35:43.271938+08:00",
+        "received_at": "2026-10-22T21:35:56.350646+08:00",
+        "market_date": 20261022,
+        "market_time": 162906,
+        "body_sha256": "1585a5f2655f9572693945f21e973a8bb0729ff2d4a29f4b379220b4937015df",
+        "headers": {
+          "Date": "Thu, 22 Oct 2026 13:35:56 GMT",
+          "Content-Type": "application/json;charset=UTF-8"
+        }
+      }
+    ],
+    "errors": [],
+    "failures": [],
+    "manifest": "D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261022_evidence_http_date_v1\\live_probe_01\\evidence\\sessions\\2026-10-22\\133556350998-736a8843555e4befb005d0900fe40c8b.json",
+    "manifest_sha256": "f1f578b4d8c86a212ba033e6ad88bbcf9a51d4cbb4fb951aa051867607c5f04f",
+    "formal_signal_generated": false,
+    "original_close": false,
+    "limitation": "one post-close repeat probe, not multi-day stability evidence",
+    "replay_matching_recordings": 2,
+    "replay_body_sha256": "1585a5f2655f9572693945f21e973a8bb0729ff2d4a29f4b379220b4937015df",
+    "distinct_dates": 2,
+    "distinct_market_bodies": 1
+  },
+  "real_recovery_facts_comparison": {
+    "status": "PASS",
+    "excluded_calculation_clocks": [
+      "fetch_time",
+      "signal_calculation_started_at",
+      "signal_generated_at"
+    ],
+    "strict_json_types": true,
+    "original_manifests_identical": true,
+    "cases": [
+      {
+        "name": "public_explicit_replay",
+        "compared_signal_fields": {
+          "IC": 212,
+          "IM": 227
+        },
+        "complete_product_states_equal": true,
+        "recovered_record_sha256": "dce60e5cadeeadd674cecd3fe27a1497ef7eb51b18a6b4485c8f9d41d5bab834"
+      },
+      {
+        "name": "automatic_recovery",
+        "compared_signal_fields": {
+          "IC": 212,
+          "IM": 227
+        },
+        "complete_product_states_equal": true,
+        "recovered_record_sha256": "0274c82712f1f7a9a22a77d04b9952a21ea8e0b16382497f088afee9e1da9e4f"
+      }
+    ],
+    "differences": []
+  },
+  "collector": {
+    "Id": 21280,
+    "ProcessName": "python",
+    "StartTime": "/Date(1792676391217)/",
+    "CPU": 4.953125
+  },
+  "latest_attempt_receipt": "D:\\动量策略\\IC和IM滚动套利\\data\\icim_v14_original_inputs\\capture_receipts\\2026-10-22\\214103465214-cf5343b8bc8c4d749c2e67fa3824ded2.json",
+  "latest_attempt_status": "incomplete",
+  "day_archive_status": "captured",
+  "statistics": {
+    "day": "2026-10-22",
+    "status": "captured",
+    "products": {
+      "IC": {
+        "attempts": 10,
+        "complete_attempts": 3,
+        "incomplete_attempts": 7,
+        "conflict_attempts": 0,
+        "conflict_requests": 0,
+        "conflict_frequency": 0.0
+      },
+      "IM": {
+        "attempts": 9,
+        "complete_attempts": 1,
+        "incomplete_attempts": 8,
+        "conflict_attempts": 0,
+        "conflict_requests": 0,
+        "conflict_frequency": 0.0
+      }
+    },
+    "missing_products": [],
+    "unreadable_manifests": [],
+    "denominator": "sealed original-close sessions per product; polling receipts excluded",
+    "recovery_warning": null
+  },
+  "available_packages": {
+    "IC": {
+      "manifest": "D:\\动量策略\\IC和IM滚动套利\\data\\icim_v14_original_inputs\\sessions\\2026-10-22\\104029320612-ea2833aff9a542968f51f66ceb0f7773.json",
+      "sha256": "fcbfda93c687bf31908b756065d7971ec25d32112e2cdf087860b27df41dbf26",
+      "all_blobs_verified": true
+    },
+    "IM": {
+      "manifest": "D:\\动量策略\\IC和IM滚动套利\\data\\icim_v14_original_inputs\\sessions\\2026-10-22\\104108069491-79037dc09f1047eb9cff9eafb29cb247.json",
+      "sha256": "fbd0247754eb1dcb80ad0a7f1cd3d068a9b10e8f9675af8ef656c160fd9ea417",
+      "all_blobs_verified": true
+    }
+  },
+  "formal_ledger": {
+    "verified_day": "2026-10-21",
+    "sequence": 19,
+    "digest": "c068710414dd9070d178faa4625d56835e67b9f2004c935a268900b9a1080342"
+  },
+  "source_pin_sha256": "f7c9750f213cb447ce9ab7aecedb6d372dc23d1e3097f88e6255118011f1cf53",
+  "generic_http_cache_added": false,
+  "strategy_calendar_sizing_changed": false,
+  "historical_results_recalculated": false,
+  "remote_poe_configuration_changed": false,
+  "network_limited_claim": "SSE repeat probe succeeded; proxy remains intermittent, not a stability guarantee"
+}

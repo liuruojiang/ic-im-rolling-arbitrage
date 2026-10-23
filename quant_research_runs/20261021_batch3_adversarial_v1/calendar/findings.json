@@ -1,0 +1,40 @@
+{
+  "status": "confirmed_repaired_targeted_final_binding_pending",
+  "severity": "P2 prepared-signal persistence boundary",
+  "title": "Consumed target grammar mismatch bypasses unknown-year calendar guard",
+  "initial_stage": "initial_01",
+  "initial_counts": {
+    "failed": 8,
+    "passed": 16
+  },
+  "repaired_stage": "repaired_02",
+  "repaired_counts": {
+    "failed": 0,
+    "passed": 24
+  },
+  "examples": [
+    "MO２７０３-P-8200",
+    "MO٢٧٠٣-P-8200",
+    "MO2703-P-８２００",
+    "MO2703-P-8200.0"
+  ],
+  "impact": "Unmocked isolated StateStore append advanced seq0 to1 and persisted an ordinary T+1 opening plan with an unknown-2027 target. No broker execution or production-runtime write was performed. Normal live provider producing such identifiers was not proven.",
+  "root_cause": "Calendar parser used ASCII fullmatch and silently ignored unmatched consumed strings, while downstream IM target syntax used Unicode digits or optional decimal strikes.",
+  "repair": "Actual consumed target syntax must be recognized or explicitly rejected; unselected diagnostic contract text remains ignored.",
+  "original_test_sha256": "78ebb7d33032c8ae204e79ba2a61c086dea60d60e12b9a5f1688c1f95582fe57",
+  "current_test_sha256": "78ebb7d33032c8ae204e79ba2a61c086dea60d60e12b9a5f1688c1f95582fe57",
+  "bindings": {
+    "poe_ic_im_mainline_v1_4_bot.py": {
+      "original": "194cb2f1dec12ed5829cbeae6957103fd69f975af919a60a28f274ad2713664e",
+      "repaired": "d9ca1facc7658650ade04f8983cc79bdfd6a08c856c58a0a4fea56bfba07fc5b"
+    },
+    "poe_ic_im_v1_4_state.py": {
+      "original": "3676ac66729e540053fdd910fff2da033813d6dd18121243addab27090ce4c07",
+      "repaired": "acd1afab319ab01da28b06317e1f0bc32d02ca8110410d17ebbb7205162e3683"
+    },
+    "test_icim_b3adv_calendar_20261021.py": {
+      "original": "78ebb7d33032c8ae204e79ba2a61c086dea60d60e12b9a5f1688c1f95582fe57",
+      "repaired": "78ebb7d33032c8ae204e79ba2a61c086dea60d60e12b9a5f1688c1f95582fe57"
+    }
+  }
+}

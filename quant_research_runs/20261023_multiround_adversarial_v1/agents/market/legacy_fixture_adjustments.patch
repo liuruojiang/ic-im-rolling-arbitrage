@@ -1,0 +1,69 @@
+--- original/test_icim_round3_source_validation_20261021.py
++++ fixture_updated/test_icim_round3_source_validation_20261021.py
+@@ -25,8 +25,8 @@
+ 
+ 
+ def months_payload():
+-    return {"date": "20261021", "time": "150000", "total": 4, "begin": 0, "end": 4,
+-            "list": [["510300", "202612"], ["510500", "202611"],
++    return {"date": "20261021", "time": "150000", "total": 5, "begin": 0, "end": 5,
++            "list": [["510300", "202612"], ["510500", "202610"], ["510500", "202611"],
+                      ["510500", "202612"], ["510500", "202703"]]}
+ 
+ 
+@@ -110,9 +110,10 @@
+     payload = months_payload()
+     payload["list"][0][1] = "an unrelated source value"
+     payload["list"].append(["510500", "202611"])
+-    payload.update(total=5, end=5)
++    payload.update(total=6, end=6)
+     wire(monkeypatch, payload)
+-    assert bot.fetch_sse_510500_expiries() == ["202611", "202612", "202703"]
++    with bot.runtime_clock(CLOCK):
++        assert bot.fetch_sse_510500_expiries() == ["202610", "202611", "202612", "202703"]
+ 
+ 
+ @pytest.mark.parametrize("source", ["etf", "months"])
+@@ -121,8 +122,12 @@
+     for field in ["total", "begin", "end"]:
+         del payload[field]
+     wire(monkeypatch, payload)
+-    result = (bot.fetch_sse_510500_quote if source == "etf" else bot.fetch_sse_510500_expiries)()
+-    assert result
++    with bot.runtime_clock(CLOCK):
++        result = (bot.fetch_sse_510500_quote if source == "etf" else bot.fetch_sse_510500_expiries)()
++    if source == "months":
++        assert result == ["202610", "202611", "202612", "202703"]
++    else:
++        assert result == {"date": "20261021", "time": "150000", "last": 7.8, "prev_close": 7.7}
+ 
+ 
+ @pytest.mark.parametrize("source", ["etf_boolean", "etf_wrong_code", "months"])
+--- original/test_icim_round5_recording_semantics_20261021.py
++++ fixture_updated/test_icim_round5_recording_semantics_20261021.py
+@@ -115,6 +115,7 @@
+         response = requests.Response()
+         response.status_code, response.encoding = 200, "utf-8"
+         response._content = json.dumps(chain_payload(day)).encode("utf-8")
++        response._content_consumed = True
+         return response
+     monkeypatch.setattr(bot.requests, "get", get)
+     with bot.runtime_clock(clock), evidence.capture_session(tmp_path, day, clock, {}):
+@@ -141,6 +142,7 @@
+         response = requests.Response()
+         response.status_code, response.encoding = 200, "utf-8"
+         response._content = json.dumps(chain_payload(day, "2701")).encode("utf-8")
++        response._content_consumed = True
+         return response
+     monkeypatch.setattr(bot.requests, "get", get)
+     monkeypatch.setattr(bot, "fetch_sina_510500_chain", lambda *a, **k: (_ for _ in ()).throw(RuntimeError("synthetic fallback unavailable")))
+--- original/test_icim_expert_followup_replay_20261022.py
++++ fixture_updated/test_icim_expert_followup_replay_20261022.py
+@@ -43,6 +43,7 @@
+         response = requests.Response()
+         response.status_code, response.encoding = 200, 'utf-8'
+         response._content = json.dumps(body).encode('utf-8')
++        response._content_consumed = True
+         calls.append((str(url), deepcopy(params)))
+         return response
+     monkeypatch.setattr(bot.requests, 'get', get)

@@ -1,0 +1,24 @@
+{
+  "captured_at_utc": "2026-10-21T05:58:04.392326+00:00",
+  "scope": "Source bytes immediately after post_fix 76-case execution; historical patch match is not a pass requirement",
+  "result": "76 passed, 1 existing Pydantic deprecation warning",
+  "regression_evidence": [
+    "post_fix.xml",
+    "post_fix.txt",
+    "post_fix.json"
+  ],
+  "files": {
+    "ic_im_put_execution_v1.py": "2e30546c65fe1991d1b96edc44afb7e2d7de103b8f236353ddd100997829e74d",
+    "ic_im_v1_4_policy.py": "7fd6feff59b625ea07f8b53b50962df76a016207bb523863bd60276059a64e86",
+    "poe_ic_im_v1_4_state.py": "78fc7211f1c709df23aed35b41db558a293be8a24c088b8e3bdf7575a0fc2bf2",
+    "poe_ic_im_mainline_v1_4_bot.py": "1be3211a2541b996dccfc69dbe67321e78bdda22cb048bf538fa1e07fbb9f708",
+    "test_icim_redteam_execution_20261021.py": "4a43283ab2e14eaef88673ce6e0e43d7a7468d412572d24210a36c7a1df7008b"
+  },
+  "changed_since_initial_audit": {
+    "ic_im_put_execution_v1.py": false,
+    "ic_im_v1_4_policy.py": false,
+    "poe_ic_im_mainline_v1_4_bot.py": true,
+    "poe_ic_im_v1_4_state.py": false
+  },
+  "limitations": "Hashes captured after execution; no exact before/after source immutability claim during this run"
+}

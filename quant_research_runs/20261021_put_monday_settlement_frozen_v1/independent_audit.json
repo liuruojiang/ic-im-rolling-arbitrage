@@ -1,0 +1,39 @@
+{
+  "ledger": {
+    "IC_baseline": {
+      "rows": 945,
+      "money_error": 1.7881393432617188e-07
+    },
+    "IC_close_frozen": {
+      "rows": 945,
+      "money_error": 1.043081283569336e-07
+    },
+    "IC_settlement_frozen": {
+      "rows": 945,
+      "money_error": 1.043081283569336e-07
+    },
+    "IM_baseline": {
+      "rows": 986,
+      "money_error": 1.043081283569336e-07
+    },
+    "IM_close_frozen": {
+      "rows": 986,
+      "money_error": 1.7881393432617188e-07
+    },
+    "IM_settlement_frozen": {
+      "rows": 986,
+      "money_error": 2.5331974029541016e-07
+    }
+  },
+  "settlement_decision_date_checks": {
+    "IC": 28,
+    "IM": 38
+  },
+  "actual_close_fill_checks": {
+    "IC": 49,
+    "IM": 68
+  },
+  "status": "PASS",
+  "protected_files_unchanged": 159,
+  "old_selection_rows_on_wrong_information_day": 6
+}

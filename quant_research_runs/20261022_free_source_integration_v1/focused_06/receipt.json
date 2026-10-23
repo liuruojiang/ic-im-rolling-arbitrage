@@ -1,0 +1,20 @@
+{
+  "exit_code": 0,
+  "source_before_equals_after": true,
+  "source_files": 1011,
+  "stage": "focused_06",
+  "counts": {
+    "tests": 152,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "artifacts": {
+    "regression.xml": "a3baba738de3acffe1889021d3408080f77e5efb55f48feabe05cb89439fe24d",
+    "regression.txt": "e5f5dd880558e06f48ac87ab667a5f54745f9b89daa9cbf4dd40ca4735d0c9fb",
+    "source_before.json": "84cfee3b179fa534c5c46ba3391b8ec6ab30744f55d06d0f43bb445e1866f223",
+    "source_after.json": "84cfee3b179fa534c5c46ba3391b8ec6ab30744f55d06d0f43bb445e1866f223",
+    "test_run.json": "92197391b095b563deb70ca1a60752fbf56154aad309a45539e02f54edbd73b1",
+    "collection.json": "0feabd9b645ba66fe134fd0e002650bb53d1ddeab0521fcdf4bce2eb1a6472a0"
+  }
+}

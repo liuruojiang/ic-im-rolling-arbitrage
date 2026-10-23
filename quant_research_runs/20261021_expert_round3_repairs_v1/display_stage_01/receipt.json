@@ -1,0 +1,32 @@
+{
+  "command": [
+    "C:\\Python314\\python.exe",
+    "-m",
+    "pytest",
+    "-q",
+    "-c",
+    "quant_research_runs/20261021_expert_repairs_v1/pytest.ini",
+    "test_icim_round3_display_repairs_20261021.py",
+    "--junitxml=D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261021_expert_round3_repairs_v1\\display_stage_01\\junit.xml"
+  ],
+  "exit_code": 0,
+  "source_before": {
+    "poe_ic_im_mainline_v1_4_bot.py": "3a89e92c32b13818b2bc1024a2d9e014a768e7c0a69a1485ecc1af6d18f9a395",
+    "test_icim_round3_display_repairs_20261021.py": "f43b13a88dceac85a0c0af2b9858b3637ad68f632b1b719c42afd8f6a18724ab",
+    "test_icim_batch3_old_call_20261021.py": "c4e32ad4b2748fd0d8501bd0e22e449703d5d0fe1895235d6d8f52adba64eb98",
+    "poe_ic_im_v1_4_state.py": "e9bf8637ae52adb70d6d6dcb89b8e48dae216f5db35a61e2d9d9a5084881b3f1",
+    "ic_im_option_maintenance_notice.py": "a2ad67732d85bad5d96444d7a74a350d3ecdf0fdb6b82b9b593ccfaf95c63746",
+    "ic_im_quarter_roll_v1_3.py": "cec4535aa0dca4200ac4e50ec91f7aa82aee12c5157f0cb350ab73c82d53457d",
+    "ic_im_v1_4_policy.py": "cd3028d36275df32550471c0d3700ca2c0420b4f6675db7225068f41029a5339"
+  },
+  "source_after": {
+    "poe_ic_im_mainline_v1_4_bot.py": "3a89e92c32b13818b2bc1024a2d9e014a768e7c0a69a1485ecc1af6d18f9a395",
+    "test_icim_round3_display_repairs_20261021.py": "f43b13a88dceac85a0c0af2b9858b3637ad68f632b1b719c42afd8f6a18724ab",
+    "test_icim_batch3_old_call_20261021.py": "c4e32ad4b2748fd0d8501bd0e22e449703d5d0fe1895235d6d8f52adba64eb98",
+    "poe_ic_im_v1_4_state.py": "e9bf8637ae52adb70d6d6dcb89b8e48dae216f5db35a61e2d9d9a5084881b3f1",
+    "ic_im_option_maintenance_notice.py": "a2ad67732d85bad5d96444d7a74a350d3ecdf0fdb6b82b9b593ccfaf95c63746",
+    "ic_im_quarter_roll_v1_3.py": "cec4535aa0dca4200ac4e50ec91f7aa82aee12c5157f0cb350ab73c82d53457d",
+    "ic_im_v1_4_policy.py": "cd3028d36275df32550471c0d3700ca2c0420b4f6675db7225068f41029a5339"
+  },
+  "source_unchanged": true
+}

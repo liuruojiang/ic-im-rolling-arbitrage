@@ -1,0 +1,11 @@
+{
+  "source_sha256": {
+    "quant_research_runs/20261021_external_review_round2_redteam_v1/run_checks.py": "c4d1dabaa26db265339857df7887e94ba2e4aed1ff8540f1bfeb46577cc83426",
+    "test_icim_round2_audit_lifecycle_20261021.py": "6f9410fd365112bebbfbd52334e81de83020a70213759b049d674479c0201a91",
+    "ic_im_put_execution_v1.py": "2e30546c65fe1991d1b96edc44afb7e2d7de103b8f236353ddd100997829e74d",
+    "poe_ic_im_v1_4_state.py": "78fc7211f1c709df23aed35b41db558a293be8a24c088b8e3bdf7575a0fc2bf2",
+    "ic_im_v1_4_policy.py": "7fd6feff59b625ea07f8b53b50962df76a016207bb523863bd60276059a64e86",
+    "poe_ic_im_mainline_v1_4_bot.py": "ed0a1417f1d663f0f95da67bda080a2b637be4f0d3b58ad4b644c5d64ed61128"
+  },
+  "before_after_equal": true
+}

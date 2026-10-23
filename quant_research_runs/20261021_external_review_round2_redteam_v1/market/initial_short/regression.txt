@@ -1,0 +1,51 @@
+F.                                                                       [100%]
+================================== FAILURES ===================================
+____ test_held_short_put_cannot_bypass_relisted_m_identity_gate[10011470] _____
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001F0F2AEB490>
+held_security = '10011470'
+
+    @pytest.mark.parametrize('held_security', ['10011470', SECURITY])
+    def test_held_short_put_cannot_bypass_relisted_m_identity_gate(monkeypatch, held_security):
+        chain, stamp = wire(monkeypatch, payload())
+        signal, anchor = signal_anchor(monkeypatch)
+        anchor.update(v14_route_state='short_put', v14_cycle_id='synthetic_stale_pre_adjustment_short',
+                      v14_core_put_contract=None, v14_core_put_security_id=None, v14_core_put_qty=0,
+                      v14_short_put_contract=CONTRACT, v14_short_put_security_id=held_security,
+                      v14_short_put_qty_normalized=5., v14_short_put_entry_premium=1.5,
+                      v14_short_put_expiry=date(2026, 12, 23),
+                      v14_short_put_cost_basis='confirmed_dated_open',
+                      v14_short_put_entry_price_day=date(2026, 7, 1),
+                      post_put_qty=0, verified_core_put_qty=0)
+        signal.update(close_confirmed=True, put_target_core_qty=0, core_put_target_delta=0.,
+                      next_trade_date=date(2026, 10, 22))
+        monkeypatch.setitem(bot.LIVE_CONTINUATION_ANCHOR, 'IC', anchor)
+        monkeypatch.setattr(bot, 'fetch_510500_chain_with_failover', lambda month: (chain, stamp))
+        # Candidate availability is independent from proving the EXISTING held leg.
+        monkeypatch.setattr(bot, '_v14_ic_short_put_candidate', lambda *a, **kw: {'tradable': False})
+        raw = next(row for row in payload()['list'] if row[5] == held_security)
+        closes = Mock(return_value=pd.Series([raw[1]], index=pd.to_datetime([DAY])))
+        monkeypatch.setattr(bot, 'fetch_option_closes', closes)
+        before = deepcopy(anchor)
+        out = bot._apply_v14_live_policy('IC', signal)
+        assert anchor == before
+        if held_security == SECURITY:
+            assert out['v14_short_put_mark'] == .75
+        else:
+            assert raw[0] == '510500P2612A07500'
+>           assert out['v14_action'] == 'HOLD_FAIL_CLOSED'
+E           AssertionError: assert 'WAIT_SHORT_PUT_ROLL' == 'HOLD_FAIL_CLOSED'
+E             
+E             - HOLD_FAIL_CLOSED
+E             + WAIT_SHORT_PUT_ROLL
+
+test_icim_round2_audit_market_20261021.py:186: AssertionError
+============================== warnings summary ===============================
+C:\Python314\Lib\site-packages\fastapi_poe\types.py:171
+  C:\Python314\Lib\site-packages\fastapi_poe\types.py:171: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    class RequestContext(BaseModel):
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED test_icim_round2_audit_market_20261021.py::test_held_short_put_cannot_bypass_relisted_m_identity_gate[10011470]
+1 failed, 1 passed, 31 deselected, 1 warning in 2.67s

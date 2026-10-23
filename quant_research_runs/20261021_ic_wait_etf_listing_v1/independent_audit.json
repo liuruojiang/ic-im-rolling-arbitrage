@@ -1,0 +1,76 @@
+{
+  "ledger": {
+    "baseline": {
+      "rows": 945,
+      "max_money_error": 1.7881393432617188e-07
+    },
+    "settlement_frozen": {
+      "rows": 945,
+      "max_money_error": 1.043081283569336e-07
+    },
+    "wait_nearest": {
+      "rows": 945,
+      "max_money_error": 1.4901161193847656e-07
+    },
+    "wait_min3": {
+      "rows": 945,
+      "max_money_error": 2.086162567138672e-07
+    }
+  },
+  "calendar": {
+    "wait_nearest": {
+      "maintenance_events": 45,
+      "real_close_trade_sides": 48
+    },
+    "wait_min3": {
+      "maintenance_events": 45,
+      "real_close_trade_sides": 52
+    }
+  },
+  "tenor": {
+    "wait_nearest": {
+      "selections": 28,
+      "under3": 23,
+      "min_days": 50,
+      "max_days": 118,
+      "mean_days": 79.57142857142857
+    },
+    "wait_min3": {
+      "selections": 28,
+      "under3": 0,
+      "min_days": 97,
+      "max_days": 181,
+      "mean_days": 149.82142857142858
+    }
+  },
+  "holding": {
+    "baseline": {
+      "put_held_sessions": 548,
+      "all_held_at_least_3m_sessions": 227,
+      "all_at_least_3m_fraction": 0.4142335766423358,
+      "min_held_days": 13
+    },
+    "settlement_frozen": {
+      "put_held_sessions": 548,
+      "all_held_at_least_3m_sessions": 218,
+      "all_at_least_3m_fraction": 0.3978102189781022,
+      "min_held_days": 12
+    },
+    "wait_nearest": {
+      "put_held_sessions": 539,
+      "all_held_at_least_3m_sessions": 76,
+      "all_at_least_3m_fraction": 0.14100185528756956,
+      "min_held_days": 1
+    },
+    "wait_min3": {
+      "put_held_sessions": 539,
+      "all_held_at_least_3m_sessions": 413,
+      "all_at_least_3m_fraction": 0.7662337662337663,
+      "min_held_days": 1
+    }
+  },
+  "listing_calendar_mismatches": [],
+  "status": "PASS",
+  "protected_files_unchanged": 154,
+  "data_files_unchanged": 59
+}

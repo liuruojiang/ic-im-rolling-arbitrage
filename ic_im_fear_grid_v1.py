@@ -517,6 +517,13 @@ def _batch_observation(key, fetch):
         batch[key] = copy.deepcopy(fetch())
     return copy.deepcopy(batch[key])
 
+
+def observed_in_batch(source: str, signal_day: date, mode: str | None = None) -> dict[str, Any] | None:
+    """Read already collected evidence without starting any fallback network IO."""
+    key = ("baifenwei", signal_day, mode) if source == "baifenwei" else ("jiu", signal_day)
+    batch = _OBSERVATION_BATCH.get()
+    return copy.deepcopy(batch[key]) if batch is not None and key in batch else None
+
 JIU_URL = "https://ai2.jiucaishuo.com/api/fear-greed"
 JIU_PAGE_URL = "https://jiucaishuo.com/indicators?tab=fg"
 

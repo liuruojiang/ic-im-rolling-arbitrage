@@ -1,0 +1,43 @@
+{
+  "verified_packages": {
+    "IC": {
+      "typed_inputs": 11,
+      "raw_responses": 8,
+      "all_blobs_verified": true
+    },
+    "IM": {
+      "typed_inputs": 7,
+      "raw_responses": 7,
+      "all_blobs_verified": true
+    }
+  },
+  "capture_rounds": 2,
+  "automatic_five_minute_retry_verified": true,
+  "checked_at": "2026-10-22T18:43:28.797216+08:00",
+  "status": "RUNNING_CAPTURE_COMPLETE",
+  "process": {
+    "Id": 14116,
+    "ProcessName": "python",
+    "StartTime": "/Date(1792665246775)/",
+    "CPU": 15.859375
+  },
+  "source_pin_sha256": "fc55321fd48d30582e22dc3e76511e6a579facff17bcaddcecf0fa3533ae87d9",
+  "latest_receipt": "D:\\动量策略\\IC和IM滚动套利\\data\\icim_v14_original_inputs\\capture_receipts\\2026-10-22\\184108099469-6c373453d1814cee97bdfc1d22cf201e.json",
+  "receipt_sha256": "adac1218c5214d3c875ec39140ad97a0e3edef8fe7793a1692d11b30d7a60bbf",
+  "capture_status": "captured",
+  "products": {
+    "IC": "captured",
+    "IM": "captured"
+  },
+  "duplicate_collector": {
+    "exit_code": 3,
+    "result": {
+      "status": "already_running",
+      "error": "another capture process owns this evidence-dir"
+    }
+  },
+  "formal_ledger_unchanged": true,
+  "restart_autostart_established": false,
+  "remote_poe_deployment": false,
+  "environment_file": "D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261022_free_source_integration_v1\\delivery\\collector_environment.env"
+}

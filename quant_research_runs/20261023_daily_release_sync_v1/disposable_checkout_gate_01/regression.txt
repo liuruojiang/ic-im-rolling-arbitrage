@@ -1,0 +1,414 @@
+........................................................................ [  7%]
+........................................................................ [ 14%]
+................................................F....................... [ 22%]
+........................................................................ [ 29%]
+........................................................................ [ 36%]
+........................................................................ [ 44%]
+........................................................................ [ 51%]
+........................................................................ [ 58%]
+........................................................................ [ 66%]
+........................................................................ [ 73%]
+........................................................................ [ 80%]
+........................................................................ [ 88%]
+........................................................FFFFF........... [ 95%]
+.............................................                            [100%]
+================================== FAILURES ===================================
+___ test_real_realtime_artifact_distinguishes_partial_from_complete[False] ____
+
+    def build_artifacts(
+        *,
+        state_dir: Path,
+        out_dir: Path,
+        clock: datetime,
+        max_sessions: int,
+        mode: str = "close",
+        expected_market_date: str = "",
+    ) -> dict[str, Any]:
+        if mode not in MODES:
+            raise ValueError(f"unsupported mode: {mode}")
+        if max_sessions <= 0:
+            raise ValueError("max_sessions必须为正")
+        if mode == "realtime" and strategy._market_phase(clock) != "盘中":
+            raise RuntimeError("盘中实时邮件只能在连续交易时段生成")
+        completed_day = strategy._latest_completed_exchange_day(clock)
+        actual_market_date = clock.date() if mode == "realtime" else completed_day
+        if expected_market_date and actual_market_date.isoformat() != expected_market_date:
+            raise RuntimeError(
+                f"日报日期不匹配：expected={expected_market_date} actual={actual_market_date}"
+            )
+        store = StateStore(state_dir)
+        coordinator = LedgerCoordinator(store)
+        advanced = coordinator.catch_up_until_current(clock, max_sessions=max_sessions)
+        health = coordinator.health(clock)
+        if health.get("status") != "ok":
+            raise _ArtifactBuildError(
+                str(health.get("refresh_error") or "账本补写状态异常"),
+                getattr(coordinator, "last_refresh_diagnostic", None),
+            )
+        if str(health.get("verified_day"))[:10] != completed_day.isoformat():
+            raise RuntimeError(
+                "账本未追平最近完成交易日："
+                f"verified={health.get('verified_day')} completed={completed_day}"
+            )
+    
+        latest = store.load_latest()
+        if mode == "realtime":
+            if strategy._market_phase(clock) != "盘中":
+                raise RuntimeError("盘中实时邮件只能在连续交易时段生成")
+            report, attachments, observed = coordinator.execute_query(
+                "实时信号", clock, persist_confirmed=False
+            )
+            _atomic_write_text(out_dir / "diagnostic_report.md", report)
+            after = store.load_latest()
+            if set(observed) != set(PRODUCTS):
+                failures = re.findall(r"(?:完整信号失败|当日信号警告)：([^\n]+)", report)
+                raise _ArtifactBuildError(
+                    "盘中产物必须同时包含IC和IM完整信号；已取得="
+                    + ",".join(sorted(observed))
+                    + "；逐品种失败=" + "；".join(failures)
+                    + "；完整诊断见 diagnostic_report.md",
+                    report,
+                )
+            try:
+>               validate_realtime_artifact(
+                    clock=clock,
+                    completed_day=completed_day,
+                    before=latest,
+                    after=after,
+                    observed=observed,
+                )
+
+run_ic_im_v1_4_github_digest.py:453: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+run_ic_im_v1_4_github_digest.py:138: in validate_realtime_artifact
+    state_module.validate_delivery_values(signal, product)
+poe_ic_im_v1_4_state.py:302: in validate_delivery_values
+    require_persistence_eligible(signal, product)
+poe_ic_im_v1_4_state.py:259: in require_persistence_eligible
+    require_confirmed_grid_target(signal, product)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+signal = {'call_action': 'HOLD', 'call_current': '无', 'call_current_contract': None, 'call_target': '无（IC 1.3明确禁止Call）', ...}
+product = 'IC'
+
+    def require_confirmed_grid_target(signal: dict[str, Any], product: str) -> None:
+        """Recompute publication eligibility instead of trusting producer markers.
+    
+        An unavailable Fear observation can legitimately preserve the internal
+        grid state for display.  That preserved state is not a confirmed complete
+        portfolio target and must not advance the shared ledger.
+        """
+        view = strategy.fear_grid.publication_view(signal)
+        if view.get("grid_target_confirmed", True) is not True:
+>           raise RuntimeError(f"{product} 网格目标未确认，禁止持久化")
+E           RuntimeError: IC 网格目标未确认，禁止持久化
+
+poe_ic_im_v1_4_state.py:235: RuntimeError
+
+The above exception was the direct cause of the following exception:
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001F0E5901080>
+tmp_path = WindowsPath('D:/动量策略/IC和IM滚动套利/quant_research_runs/20261023_daily_release_sync_v1/disposable_checkout_gate_01/isolated_temp/icim_put_810569cf/pytest/test_real_realtime_artifact_di0')
+published_fear = False
+
+    @pytest.mark.parametrize("published_fear", [False, True, "previous_session"])
+    def test_real_realtime_artifact_distinguishes_partial_from_complete(monkeypatch, tmp_path, published_fear):
+        original = _real_unpublished_result()
+        observed = copy.deepcopy(original["signals"])
+        if published_fear:
+            for signal in observed.values():
+                signal.update(fear_greed_index=40.0, fear_data_date=signal["market_date"],
+                              fear_data_status="intraday_provisional")
+        if published_fear == "previous_session":
+            _apply_previous_session_evidence(observed)
+        before_signals = copy.deepcopy(observed)
+        latest = {key: original[key] for key in ["sequence", "digest", "verified_day"]}
+    
+        class Store:
+            def __init__(self, *_args):
+                pass
+    
+            def load_latest(self):
+                return latest
+    
+        class Coordinator:
+            def __init__(self, *_args):
+                pass
+    
+            def catch_up_until_current(self, *_args, **_kwargs):
+                return 0
+    
+            def health(self, *_args):
+                return {"status": "ok", "verified_day": latest["verified_day"]}
+    
+            def execute_query(self, *_args, **_kwargs):
+                return "frozen formal-query fixture", [], observed
+    
+        monkeypatch.setattr(digest, "StateStore", Store)
+        monkeypatch.setattr(digest, "LedgerCoordinator", Coordinator)
+>       result = digest.build_artifacts(
+            state_dir=tmp_path / "isolated", out_dir=tmp_path / "out",
+            clock=datetime.fromisoformat(original["generated_at"]), max_sessions=1,
+            mode="realtime", expected_market_date=original["market_date"],
+        )
+
+test_run_ic_im_v1_4_github_digest.py:69: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+    def build_artifacts(
+        *,
+        state_dir: Path,
+        out_dir: Path,
+        clock: datetime,
+        max_sessions: int,
+        mode: str = "close",
+        expected_market_date: str = "",
+    ) -> dict[str, Any]:
+        if mode not in MODES:
+            raise ValueError(f"unsupported mode: {mode}")
+        if max_sessions <= 0:
+            raise ValueError("max_sessions必须为正")
+        if mode == "realtime" and strategy._market_phase(clock) != "盘中":
+            raise RuntimeError("盘中实时邮件只能在连续交易时段生成")
+        completed_day = strategy._latest_completed_exchange_day(clock)
+        actual_market_date = clock.date() if mode == "realtime" else completed_day
+        if expected_market_date and actual_market_date.isoformat() != expected_market_date:
+            raise RuntimeError(
+                f"日报日期不匹配：expected={expected_market_date} actual={actual_market_date}"
+            )
+        store = StateStore(state_dir)
+        coordinator = LedgerCoordinator(store)
+        advanced = coordinator.catch_up_until_current(clock, max_sessions=max_sessions)
+        health = coordinator.health(clock)
+        if health.get("status") != "ok":
+            raise _ArtifactBuildError(
+                str(health.get("refresh_error") or "账本补写状态异常"),
+                getattr(coordinator, "last_refresh_diagnostic", None),
+            )
+        if str(health.get("verified_day"))[:10] != completed_day.isoformat():
+            raise RuntimeError(
+                "账本未追平最近完成交易日："
+                f"verified={health.get('verified_day')} completed={completed_day}"
+            )
+    
+        latest = store.load_latest()
+        if mode == "realtime":
+            if strategy._market_phase(clock) != "盘中":
+                raise RuntimeError("盘中实时邮件只能在连续交易时段生成")
+            report, attachments, observed = coordinator.execute_query(
+                "实时信号", clock, persist_confirmed=False
+            )
+            _atomic_write_text(out_dir / "diagnostic_report.md", report)
+            after = store.load_latest()
+            if set(observed) != set(PRODUCTS):
+                failures = re.findall(r"(?:完整信号失败|当日信号警告)：([^\n]+)", report)
+                raise _ArtifactBuildError(
+                    "盘中产物必须同时包含IC和IM完整信号；已取得="
+                    + ",".join(sorted(observed))
+                    + "；逐品种失败=" + "；".join(failures)
+                    + "；完整诊断见 diagnostic_report.md",
+                    report,
+                )
+            try:
+                validate_realtime_artifact(
+                    clock=clock,
+                    completed_day=completed_day,
+                    before=latest,
+                    after=after,
+                    observed=observed,
+                )
+            except RuntimeError as exc:
+>               raise _ArtifactBuildError(str(exc), report) from exc
+E               run_ic_im_v1_4_github_digest._ArtifactBuildError: IC 网格目标未确认，禁止持久化
+
+run_ic_im_v1_4_github_digest.py:461: _ArtifactBuildError
+_____ test_real_mo_crosscheck_packet_still_accepts_its_requested_identity _____
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001F0895CE740>
+
+    def test_real_mo_crosscheck_packet_still_accepts_its_requested_identity(monkeypatch):
+>       packet, _, price = real_mo_packet()
+                           ^^^^^^^^^^^^^^^^
+
+test_icim_ma23_market_20261023.py:198: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+test_icim_ma23_market_20261023.py:189: in real_mo_packet
+    packet = next(value.strip() for value in source.read_bytes().split(b';') if value.strip()) + b';'
+                                             ^^^^^^^^^^^^^^^^^^^
+C:\Python314\Lib\pathlib\__init__.py:777: in read_bytes
+    with self.open(mode='rb', buffering=0) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = WindowsPath('D:/workspace/icim_release_20261023/strategy/quant_research_runs/20261022_free_source_integration_v1/wire_probe_01/response.bin')
+mode = 'rb', buffering = 0, encoding = None, errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: 'D:\\workspace\\icim_release_20261023\\strategy\\quant_research_runs\\20261022_free_source_integration_v1\\wire_probe_01\\response.bin'
+
+C:\Python314\Lib\pathlib\__init__.py:771: FileNotFoundError
+_ test_mo_crosscheck_rejects_unrequested_or_ambiguous_returned_variable[wrong_contract] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001F089BA8BB0>
+mutation = 'wrong_contract'
+
+    @pytest.mark.parametrize('mutation', ['wrong_contract', 'wrong_namespace', 'duplicate'])
+    def test_mo_crosscheck_rejects_unrequested_or_ambiguous_returned_variable(monkeypatch, mutation):
+>       packet, symbol, price = real_mo_packet()
+                                ^^^^^^^^^^^^^^^^
+
+test_icim_ma23_market_20261023.py:206: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+test_icim_ma23_market_20261023.py:189: in real_mo_packet
+    packet = next(value.strip() for value in source.read_bytes().split(b';') if value.strip()) + b';'
+                                             ^^^^^^^^^^^^^^^^^^^
+C:\Python314\Lib\pathlib\__init__.py:777: in read_bytes
+    with self.open(mode='rb', buffering=0) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = WindowsPath('D:/workspace/icim_release_20261023/strategy/quant_research_runs/20261022_free_source_integration_v1/wire_probe_01/response.bin')
+mode = 'rb', buffering = 0, encoding = None, errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: 'D:\\workspace\\icim_release_20261023\\strategy\\quant_research_runs\\20261022_free_source_integration_v1\\wire_probe_01\\response.bin'
+
+C:\Python314\Lib\pathlib\__init__.py:771: FileNotFoundError
+_ test_mo_crosscheck_rejects_unrequested_or_ambiguous_returned_variable[wrong_namespace] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001F089BAB380>
+mutation = 'wrong_namespace'
+
+    @pytest.mark.parametrize('mutation', ['wrong_contract', 'wrong_namespace', 'duplicate'])
+    def test_mo_crosscheck_rejects_unrequested_or_ambiguous_returned_variable(monkeypatch, mutation):
+>       packet, symbol, price = real_mo_packet()
+                                ^^^^^^^^^^^^^^^^
+
+test_icim_ma23_market_20261023.py:206: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+test_icim_ma23_market_20261023.py:189: in real_mo_packet
+    packet = next(value.strip() for value in source.read_bytes().split(b';') if value.strip()) + b';'
+                                             ^^^^^^^^^^^^^^^^^^^
+C:\Python314\Lib\pathlib\__init__.py:777: in read_bytes
+    with self.open(mode='rb', buffering=0) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = WindowsPath('D:/workspace/icim_release_20261023/strategy/quant_research_runs/20261022_free_source_integration_v1/wire_probe_01/response.bin')
+mode = 'rb', buffering = 0, encoding = None, errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: 'D:\\workspace\\icim_release_20261023\\strategy\\quant_research_runs\\20261022_free_source_integration_v1\\wire_probe_01\\response.bin'
+
+C:\Python314\Lib\pathlib\__init__.py:771: FileNotFoundError
+_ test_mo_crosscheck_rejects_unrequested_or_ambiguous_returned_variable[duplicate] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001F089BD8AD0>
+mutation = 'duplicate'
+
+    @pytest.mark.parametrize('mutation', ['wrong_contract', 'wrong_namespace', 'duplicate'])
+    def test_mo_crosscheck_rejects_unrequested_or_ambiguous_returned_variable(monkeypatch, mutation):
+>       packet, symbol, price = real_mo_packet()
+                                ^^^^^^^^^^^^^^^^
+
+test_icim_ma23_market_20261023.py:206: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+test_icim_ma23_market_20261023.py:189: in real_mo_packet
+    packet = next(value.strip() for value in source.read_bytes().split(b';') if value.strip()) + b';'
+                                             ^^^^^^^^^^^^^^^^^^^
+C:\Python314\Lib\pathlib\__init__.py:777: in read_bytes
+    with self.open(mode='rb', buffering=0) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = WindowsPath('D:/workspace/icim_release_20261023/strategy/quant_research_runs/20261022_free_source_integration_v1/wire_probe_01/response.bin')
+mode = 'rb', buffering = 0, encoding = None, errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: 'D:\\workspace\\icim_release_20261023\\strategy\\quant_research_runs\\20261022_free_source_integration_v1\\wire_probe_01\\response.bin'
+
+C:\Python314\Lib\pathlib\__init__.py:771: FileNotFoundError
+___ test_mo_last_trade_crosscheck_cannot_accept_same_day_future_quote_time ____
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001F089BD8520>
+
+    def test_mo_last_trade_crosscheck_cannot_accept_same_day_future_quote_time(monkeypatch):
+>       packet, _, price = real_mo_packet()
+                           ^^^^^^^^^^^^^^^^
+
+test_icim_ma23_market_20261023.py:219: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+test_icim_ma23_market_20261023.py:189: in real_mo_packet
+    packet = next(value.strip() for value in source.read_bytes().split(b';') if value.strip()) + b';'
+                                             ^^^^^^^^^^^^^^^^^^^
+C:\Python314\Lib\pathlib\__init__.py:777: in read_bytes
+    with self.open(mode='rb', buffering=0) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = WindowsPath('D:/workspace/icim_release_20261023/strategy/quant_research_runs/20261022_free_source_integration_v1/wire_probe_01/response.bin')
+mode = 'rb', buffering = 0, encoding = None, errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: 'D:\\workspace\\icim_release_20261023\\strategy\\quant_research_runs\\20261022_free_source_integration_v1\\wire_probe_01\\response.bin'
+
+C:\Python314\Lib\pathlib\__init__.py:771: FileNotFoundError
+============================== warnings summary ===============================
+C:\Python314\Lib\site-packages\fastapi_poe\types.py:171
+  C:\Python314\Lib\site-packages\fastapi_poe\types.py:171: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    class RequestContext(BaseModel):
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED test_run_ic_im_v1_4_github_digest.py::test_real_realtime_artifact_distinguishes_partial_from_complete[False]
+FAILED test_icim_ma23_market_20261023.py::test_real_mo_crosscheck_packet_still_accepts_its_requested_identity
+FAILED test_icim_ma23_market_20261023.py::test_mo_crosscheck_rejects_unrequested_or_ambiguous_returned_variable[wrong_contract]
+FAILED test_icim_ma23_market_20261023.py::test_mo_crosscheck_rejects_unrequested_or_ambiguous_returned_variable[wrong_namespace]
+FAILED test_icim_ma23_market_20261023.py::test_mo_crosscheck_rejects_unrequested_or_ambiguous_returned_variable[duplicate]
+FAILED test_icim_ma23_market_20261023.py::test_mo_last_trade_crosscheck_cannot_accept_same_day_future_quote_time
+6 failed, 975 passed, 5 deselected, 1 warning in 20.43s

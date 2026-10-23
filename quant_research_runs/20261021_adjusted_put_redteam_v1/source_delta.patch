@@ -1,0 +1,351 @@
+--- before/ic_im_adjusted_put_migration_v1.py
++++ after/ic_im_adjusted_put_migration_v1.py
+@@ -7,6 +7,7 @@
+ from __future__ import annotations
+ 
+ from dataclasses import asdict, dataclass, replace
++from copy import deepcopy
+ from datetime import date, timedelta
+ from decimal import Decimal, InvalidOperation, localcontext
+ import hashlib
+@@ -77,7 +78,8 @@
+                 or type(self.valid_from) is not date or type(self.valid_through) is not date
+                 or type(self.expiry) is not date or self.valid_from > self.valid_through
+                 or self.valid_through > self.expiry
+-                or self.expiry.strftime("%y%m") != match.group(2)):
++                or self.expiry.year != 2000+int(match.group(2)[:2])
++                or self.expiry.month != int(match.group(2)[2:])):
+             raise RuntimeError("dated terms interval/unit invalid")
+         if not isinstance(self.strike, Decimal) or number(self.strike, positive=True) != self.strike:
+             raise RuntimeError("dated terms strike invalid")
+@@ -193,8 +195,10 @@
+             or not isinstance(cost_evidence_hash, str)
+             or not re.fullmatch(r"[0-9a-f]{64}", cost_evidence_hash)):
+         raise RuntimeError("cash basis identity/date/evidence mismatch")
+-    if (entry.contract[6:11] != current.contract[6:11]
+-            or entry.valid_through < day(entry_day)):
++    if (entry.contract[:11]+entry.contract[12:] != current.contract[:11]+current.contract[12:]
++            or entry.expiry != current.expiry or entry.valid_through < day(entry_day)
++            or entry.contract[11] == "A" and (current.contract[11] != "A"
++                or entry.unit != current.unit or entry.strike != current.strike)):
+         raise RuntimeError("cash basis series changed")
+     quantity = number(contracts, positive=True, integer=True)
+     price = number(premium, positive=True)
+@@ -221,9 +225,36 @@
+             or basis.get("cost_status") != "verified_inputs_preview_only"
+             or basis.get("security_id") != current.security_id
+             or basis.get("current_contract") != current.contract
+-            or basis.get("current_unit") != current.unit
+-            or basis.get("current_terms_hash") != current.source_hash):
++            or type(basis.get("current_unit")) is not int or basis.get("current_unit") != current.unit
++            or basis.get("current_terms_hash") != current.source_hash
++            or basis.get("engine_supported") is not False or basis.get("ledger_write_authorized") is not False):
+         raise RuntimeError("cash threshold basis/terms mismatch")
++    # These are internal consistency checks, not authentication of the caller's
++    # cost evidence. A self-consistent preview still cannot enable production.
++    try:
++        for field in ("cost_evidence_hash", "entry_terms_hash"):
++            if not isinstance(basis[field], str) or not re.fullmatch(r"[0-9a-f]{64}", basis[field]):
++                raise RuntimeError("cash threshold cost provenance invalid")
++        original = basis["original_contract"]
++        original_match = CODE.fullmatch(original) if isinstance(original, str) else None
++        if (not original_match or original[:11]+original[12:] != current.contract[:11]+current.contract[12:]
++                or original[11] == "A" and current.contract[11] != "A"
++                or type(basis["original_unit"]) is not int
++                or original[11] == "M" and basis["original_unit"] != 10000
++                or original[11] == "A" and basis["original_unit"] != current.unit
++                or day(basis["entry_day"]) > day(basis["as_of"])):
++            raise RuntimeError("cash threshold original terms invalid")
++        with localcontext() as context:
++            context.prec = 50
++            cash = number(basis["original_premium"], positive=True) * number(basis["original_unit"], positive=True, integer=True)
++            total = cash * number(basis["contracts"], positive=True, integer=True)
++            equivalent = cash/current.unit
++            if (number(basis["cash_per_contract"], positive=True) != cash
++                    or number(basis["total_entry_cash"], positive=True) != total
++                    or number(basis["equivalent_current_unit_premium"], positive=True) != equivalent):
++                raise RuntimeError("cash threshold preview is self-inconsistent")
++    except KeyError as exc:
++        raise RuntimeError("cash threshold basis fields missing") from exc
+     current.on(basis["as_of"])
+     factor = number(multiple, positive=True)
+     with localcontext() as context:
+@@ -254,17 +285,19 @@
+         if not isinstance(row, dict):
+             raise RuntimeError("plan quote requirement invalid")
+         if row.get("kind") != "option":
+-            rows.append(dict(original=row.copy(), status="outside_option_scope"))
++            rows.append(dict(original=deepcopy(row), status="outside_option_scope"))
+             continue
+         security, contract = row.get("security_id"), row.get("contract")
+         if not isinstance(security, str) or security not in terms or not CODE.fullmatch(str(contract)):
+             raise RuntimeError("plan option identity unproved")
+         current = terms[security].on(execution_day)
++        if current.security_id != security:
++            raise RuntimeError("plan option security mapping conflicts with dated terms")
+         # A stable ID may support the documented M->A alias, not arbitrary codes.
+         if contract != current.contract and not (
+                 current.contract[11] == "A" and contract == current.contract[:11]+"M"+current.contract[12:]):
+             raise RuntimeError("plan option alias unproved")
+-        rows.append(dict(original=row.copy(), current_terms=current.json(),
++        rows.append(dict(original=deepcopy(row), current_terms=current.json(),
+                          status="requires_explicit_plan_migration" if contract != current.contract
+                          else "identity_unchanged"))
+     # Canonical round-trip avoids sharing mutable nested data with the caller.
+--- before/ic_im_v1_4_policy.py
++++ after/ic_im_v1_4_policy.py
+@@ -790,4 +790,5 @@
+             out[key] = target[key]
+         out["v14_short_put_open_status"] = "scheduled_t_plus_1_open"
+     validate_extension(product, target)
++    put_execution.require_supported_ic_contracts(product, out)
+     return out
+--- before/poe_ic_im_mainline_v1_4_bot.py
++++ after/poe_ic_im_mainline_v1_4_bot.py
+@@ -172,6 +172,15 @@
+ 
+ def _now_beijing() -> datetime:
+     return _RUNTIME_CLOCK.get() or datetime.now(BEIJING)
++
++
++def _beijing_clock(clock: datetime) -> datetime:
++    """Normalize aware entry clocks before any calendar-day/time decisions.
++
++    Helpers retain their existing naive-clock interpretation; runtime_clock
++    continues to reject a naive public runtime override.
++    """
++    return clock.astimezone(BEIJING) if clock.tzinfo is not None else clock
+ 
+ 
+ @contextmanager
+@@ -1179,16 +1188,32 @@
+         timeout=_bounded_timeout(8),
+         headers={"User-Agent": "Mozilla/5.0", "Cache-Control": "no-cache"},
+     )
+-    response.raise_for_status()
+-    match = re.search(r"\((\[.*\])\)\s*;?\s*$", response.text, flags=re.DOTALL)
++    try:
++        response.raise_for_status()
++        body = response.text
++    finally:
++        close = getattr(response, "close", None)
++        if callable(close):
++            close()
++    match = re.search(r"\((\[.*\])\)\s*;?\s*$", body, flags=re.DOTALL)
+     if not match:
+         raise RuntimeError(f"上交所期权 {security_id} 历史行情响应格式异常")
+     payload = json.loads(match.group(1))
+-    points = {
+-        pd.Timestamp(item["d"]): float(item["c"])
+-        for item in payload
+-        if item.get("d") and item.get("c") not in (None, "")
+-    }
++    if not isinstance(payload, list):
++        raise RuntimeError(f"上交所期权 {security_id} 历史行情结构异常")
++    points = {}
++    for item in payload:
++        if not isinstance(item, dict) or item.get("c") in (None, ""):
++            raise RuntimeError(f"上交所期权 {security_id} 历史行情字段缺失")
++        stamp = pd.Timestamp(adjusted_put_migration.day(item.get("d")))
++        if stamp in points:
++            raise RuntimeError(f"上交所期权 {security_id} 历史行情日期重复")
++        if isinstance(item["c"], bool):
++            raise RuntimeError(f"上交所期权 {security_id} 历史收盘价无效")
++        value = float(item["c"])
++        if not math.isfinite(value) or value <= 0:
++            raise RuntimeError(f"上交所期权 {security_id} 历史收盘价无效")
++        points[stamp] = value
+     if not points:
+         raise RuntimeError(f"上交所期权 {security_id} 未返回日收盘价")
+     return pd.Series(points, dtype=float, name="put_mark").sort_index()
+@@ -1692,6 +1717,7 @@
+ 
+ 
+ def _validate_v13_ohlcv(product: str, frame: pd.DataFrame, clock: datetime) -> pd.DataFrame:
++    clock = _beijing_clock(clock)
+     if frame.empty:
+         raise RuntimeError(f"{product} OHLCV为空")
+     required = ["open", "high", "low", "close", "volume"]
+@@ -1703,6 +1729,9 @@
+     if index.tz is not None:
+         index = index.tz_convert(BEIJING).tz_localize(None)
+     result.index = index.normalize()
++    placeholders = (pd.Series(frame["realtime_volume_placeholder"].fillna(False).astype(bool).to_numpy(),
++                              index=result.index)
++                    if "realtime_volume_placeholder" in frame else None)
+     if result.index.has_duplicates or not result.index.is_monotonic_increasing:
+         raise RuntimeError(f"{product} OHLCV日期重复或乱序")
+     result = result.apply(pd.to_numeric, errors="coerce").astype(float)
+@@ -1726,6 +1755,9 @@
+     if result.empty or result.index[-1].date() > clock.date():
+         raise RuntimeError(f"{product} OHLCV日期范围无效")
+     expected = _latest_completed_exchange_day(clock)
++    if (placeholders is not None and
++            (placeholders.reindex(result.index) & (result.index.date <= expected)).any()):
++        raise RuntimeError(f"{product} OHLCV含已知盘中成交量占位，禁止作为完整日线确认")
+     if result.index[-1].date() < expected:
+         message = f"{product} OHLCV已过期：最新 {result.index[-1].date()}，应覆盖 {expected}"
+         if expected == clock.date() and _market_phase(clock) == "收盘后":
+@@ -2517,7 +2549,7 @@
+ 
+ 
+ def live_proxy(product: str, clock: datetime | None = None) -> dict[str, Any]:
+-    clock = clock or _now_beijing()
++    clock = _beijing_clock(clock or _now_beijing())
+     ohlcv: pd.DataFrame | None = None
+     if product in {"IC", "IM"}:
+         with runtime_clock(clock):
+@@ -2789,6 +2821,35 @@
+     return content
+ 
+ 
++def _bounded_response_bytes(response: Any, label: str) -> bytes:
++    """Bound a streamed identity response, including the shared collection budget."""
++    declared = response.headers.get("Content-Length")
++    if declared:
++        try:
++            size = int(declared)
++        except (ValueError, TypeError) as exc:
++            raise RuntimeError(f"{label}响应长度标头非法") from exc
++        if size < 0 or size > MAX_QUOTE_RESPONSE_BYTES:
++            raise RuntimeError(f"{label}响应声明大小超过上限或非法")
++    chunks, downloaded = [], 0
++    stream = iter(response.iter_content(chunk_size=64*1024))
++    while True:
++        _bounded_timeout(8)
++        try:
++            chunk = next(stream)
++        except StopIteration:
++            break
++        _bounded_timeout(8)
++        if not chunk:
++            continue
++        downloaded += len(chunk)
++        if downloaded > MAX_QUOTE_RESPONSE_BYTES:
++            raise RuntimeError(f"{label}响应实际大小超过上限")
++        chunks.append(chunk)
++    _bounded_timeout(8)
++    return b"".join(chunks)
++
++
+ def _http_source_stamp(response: Any, label: str) -> datetime:
+     raw = response.headers.get("Last-Modified")
+     if not raw:
+@@ -3838,6 +3899,7 @@
+     try:
+         response = requests.get(
+             "https://query.sse.com.cn/commonQuery.do",
++            stream=True,
+             params={"isPagination": "false", "sqlId": adjusted_put_migration.MASTER_SQL,
+                     "securityId": "510500", "queryDate": reference.strftime("%Y%m%d"),
+                     "pageHelp.pageSize": "1000", "pageHelp.pageNo": "1"},
+@@ -3850,7 +3912,7 @@
+         raise RuntimeError("IC历史Put官方逐日身份来源不可用，禁止猜测历史条款") from exc
+     try:
+         response.raise_for_status()
+-        payload = response.json()
++        payload = json.loads(_bounded_response_bytes(response, "IC历史Put官方主表"))
+     except (requests.RequestException, ValueError) as exc:
+         raise RuntimeError("IC历史Put官方逐日身份响应无效") from exc
+     finally:
+@@ -3876,6 +3938,11 @@
+             or terms.security_id != security_id or terms.contract != contract or terms.unit != 10000):
+         raise RuntimeError("IC历史Put独立主数据与请求证券身份不一致")
+     terms.require_available(day)
++    # Keep the master expiry and every downstream tenor calculation consistent.
++    # Unknown calendar years cannot be certified through a weekday fallback.
++    _require_official_exchange_calendar(terms.expiry, "IC历史Put到期核验")
++    if terms.expiry != _fourth_wednesday(terms.expiry.year, terms.expiry.month):
++        raise RuntimeError("IC历史Put主表到期日与官方交易日历不一致")
+     closes = fetch_option_closes(security_id)
+     stamp = pd.Timestamp(day)
+     if stamp not in closes.index:
+@@ -3942,6 +4009,7 @@
+ 
+ 
+ def _latest_completed_exchange_day(clock: datetime) -> date:
++    clock = _beijing_clock(clock)
+     _require_official_exchange_calendar(clock.date(), "实时行情新鲜度校验")
+     phase = _market_phase(clock)
+     if _is_exchange_trading_day(clock.date()) and phase == "收盘后":
+@@ -4707,6 +4775,7 @@
+ 
+ 
+ def _market_phase(clock: datetime) -> str:
++    clock = _beijing_clock(clock)
+     if not _is_exchange_trading_day(clock.date()):
+         return "非交易日"
+     current = clock.time()
+@@ -5874,7 +5943,7 @@
+ def build_live_trade_signal(
+     product: str, now: datetime | None = None, mode: str = "intraday",
+ ) -> dict[str, Any]:
+-    clock = now or _now_beijing()
++    clock = _beijing_clock(now or _now_beijing())
+     with runtime_clock(clock):
+         # The exchange session ends at 15:00.  The generic snapshot route is
+         # deliberately more conservative until 15:30; these are not one gate.
+@@ -5897,7 +5966,7 @@
+     collection_started = time_module.monotonic()
+     if mode not in {"intraday", "close"}:
+         raise ValueError(f"非法信号模式: {mode}")
+-    clock = now or _now_beijing()
++    clock = _beijing_clock(now or _now_beijing())
+     _require_official_exchange_calendar(clock.date(), f"{product}信号")
+     today = clock.date()
+     live = live_proxy(product, clock)
+--- before/poe_ic_im_v1_4_server.py
++++ after/poe_ic_im_v1_4_server.py
+@@ -124,7 +124,7 @@
+         persist_confirmed: bool = True,
+         replay_day: date | None = None,
+     ) -> tuple[str, list[dict[str, Any]], dict[str, dict[str, Any]]]:
+-        clock = now or strategy._now_beijing()
++        clock = strategy._beijing_clock(now or strategy._now_beijing())
+         with strategy.collection_clock(clock), self.lock:
+             record = self._record_for_display(clock)
+             strategy.install_runtime_anchors(anchors_from_record(record))
+@@ -156,7 +156,7 @@
+             return "".join(capture.text), capture.attachments, observed
+ 
+     def catch_up_once(self, now: datetime | None = None) -> bool:
+-        clock = now or strategy._now_beijing()
++        clock = strategy._beijing_clock(now or strategy._now_beijing())
+         with self.lock:
+             self.last_refresh_diagnostic = None
+             latest = self.store.load_latest()
+@@ -211,7 +211,7 @@
+     ) -> int:
+         if max_sessions <= 0:
+             raise ValueError("max_sessions必须为正")
+-        clock = now or strategy._now_beijing()
++        clock = strategy._beijing_clock(now or strategy._now_beijing())
+         advanced = 0
+         while advanced < max_sessions:
+             latest = self.store.load_latest()
+@@ -227,7 +227,7 @@
+     def health(self, now: datetime | None = None) -> dict[str, Any]:
+         with self.lock:
+             latest = self.store.load_latest()
+-            clock = now or strategy._now_beijing()
++            clock = strategy._beijing_clock(now or strategy._now_beijing())
+             completed = strategy._latest_completed_exchange_day(clock)
+             verified = date.fromisoformat(str(latest["verified_day"])[:10])
+             stale_error = None
+--- before/test_ic_im_historical_put_identity_20261021.py
++++ after/test_ic_im_historical_put_identity_20261021.py
+@@ -124,9 +124,14 @@
+ class Response:
+     def __init__(self, payload):
+         self.payload, self.closed = payload, False
++        self.content = json.dumps(payload, ensure_ascii=False).encode('utf-8')
++        self.headers = {'Content-Length': str(len(self.content))}
+     def raise_for_status(self): pass
+     def json(self): return self.payload
+     def close(self): self.closed = True
++    def iter_content(self, chunk_size=65536):
++        for start in range(0, len(self.content), chunk_size):
++            yield self.content[start:start+chunk_size]
+ 
+ 
+ @pytest.mark.parametrize("requested", [DAY, date(2026,10,19), date(2026,10,21)])

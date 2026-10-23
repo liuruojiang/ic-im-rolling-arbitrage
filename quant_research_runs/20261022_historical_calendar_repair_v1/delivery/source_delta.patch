@@ -1,0 +1,3203 @@
+--- a/notes/mainline_registry.md
++++ b/notes/mainline_registry.md
+@@ -1,4 +1,13 @@
+ # IC / IM 系统主线登记表
++
++## 历史日历修复与完整账户重算（2026-10-22，本地）
++
++- 补齐并交叉核验 2022—2025 SSE/CFFEX 日历：四年实际交易日为 242/242/242/243，48 个实际期货到期日 oracle；原 2026 日历不变，2027 仍未核验、严格拒绝正式执行。
++- 原 10-16 历史入口恢复运行，对照 18 文件、73884 行数值零差异；另用当前规则从风险输入、选约、数量、卖方生命周期到完整理论账户重新计算，并非只复用旧目标。
++- 新重算补回旧 IC 回测漏掉的 2024-02-19 春节顺延维护，19 个目标日受影响。统一 252/N 年化口径下，IC 全期 CAGR 35.3924%→34.8145%，最大回撤均约 -9.0013%；IM 逐日收益完全一致，CAGR 29.9331%。风险公式、策略参数和卖方实际财务路径不变，不恢复新卖 Call。
++- 本轮累计 91 文件、2738 项通过，原 22 项单列保持；973 项源文件/输入/回执绑定前后一致。旧跨年缺口用例显式限制模拟覆盖年份，保留原断言并备份原文件；新增真实已覆盖跨年用例。accepted_01 的旧用例失败及 rebuilt_01 的混合生效口径记录保留，后者不用于最终比较。
++- 旧冻结输出、原始行情和正式 runtime 保持不变；独立新版本预注册及结果位于 docs/ic_im_historical_calendar_repair_20261022_v1_spec.md 和 quant_research_runs/20261022_historical_calendar_repair_v1/record.md。修复前备份、独立账户核算、补丁、测试回执和最终保护清单均存档。只修本地，未部署、未发日报、未续写正式账本；历史身份重建、后下载 Fear 和既有代理成交限制仍保留。
++
+ 
+ ## 第五轮补丁核对与完整验收（2026-10-22，本地）
+ 
+--- a/poe_ic_im_mainline_v1_4_bot.py
++++ b/poe_ic_im_mainline_v1_4_bot.py
+@@ -419,9 +419,52 @@
+ # covered years explicit so later years never masquerade as a formal calendar.
+ # TODO(calendar): add the official 2027 CFFEX/SSE closure schedule immediately
+ # after the exchanges publish it; 2027 contracts are already listed in 2026.
+-_OFFICIAL_EXCHANGE_CALENDAR_YEARS = frozenset({2026})
++# Historical years are backed by annual SSE/CFFEX notices, all four full
++# official futures session sets and 48 observed futures expiry dates. See
++# tests/fixtures/icim_historical_calendar_20261022 for source provenance/oracles.
++# Unknown years (including 2027) retain the existing strict execution gates.
++_OFFICIAL_EXCHANGE_CALENDAR_YEARS = frozenset({2022, 2023, 2024, 2025, 2026})
+ _EXCHANGE_CLOSURES = frozenset(
+     {
++        date(2022, 1, 3),
++        date(2022, 1, 31),
++        *[date(2022, 2, day) for day in range(1, 5)],
++        date(2022, 4, 4),
++        date(2022, 4, 5),
++        *[date(2022, 5, day) for day in range(2, 5)],
++        date(2022, 6, 3),
++        date(2022, 9, 12),
++        *[date(2022, 10, day) for day in range(3, 8)],
++        date(2023, 1, 2),
++        *[date(2023, 1, day) for day in range(23, 28)],
++        date(2023, 4, 5),
++        *[date(2023, 5, day) for day in range(1, 4)],
++        date(2023, 6, 22),
++        date(2023, 6, 23),
++        date(2023, 9, 29),
++        *[date(2023, 10, day) for day in range(2, 7)],
++        date(2024, 1, 1),
++        date(2024, 2, 9),
++        *[date(2024, 2, day) for day in range(12, 17)],
++        date(2024, 4, 4),
++        date(2024, 4, 5),
++        *[date(2024, 5, day) for day in range(1, 4)],
++        date(2024, 6, 10),
++        date(2024, 9, 16),
++        date(2024, 9, 17),
++        *[date(2024, 10, day) for day in range(1, 5)],
++        date(2024, 10, 7),
++        date(2025, 1, 1),
++        *[date(2025, 1, day) for day in range(28, 32)],
++        date(2025, 2, 3),
++        date(2025, 2, 4),
++        date(2025, 4, 4),
++        date(2025, 5, 1),
++        date(2025, 5, 2),
++        date(2025, 5, 5),
++        date(2025, 6, 2),
++        *[date(2025, 10, day) for day in range(1, 4)],
++        *[date(2025, 10, day) for day in range(6, 9)],
+         date(2026, 1, 1),
+         date(2026, 1, 2),
+         *[date(2026, 2, day) for day in range(16, 24)],
+--- a/test_icim_batch3_calendar_redteam_20261021.py
++++ b/test_icim_batch3_calendar_redteam_20261021.py
+@@ -122,6 +122,7 @@
+ ])
+ def test_strict_roll_rechecks_year_after_each_step(monkeypatch,direction,start,closure,unknown):
+     # Synthetic closure makes crossing unavoidable; real closures are unchanged.
++    monkeypatch.setattr(bot,'_OFFICIAL_EXCHANGE_CALENDAR_YEARS',frozenset({start.year}))
+     monkeypatch.setattr(bot,'_EXCHANGE_CLOSURES',bot._EXCHANGE_CLOSURES|{closure})
+     method=getattr(bot,'_roll_'+direction+'_exchange_day')
+     with pytest.raises(RuntimeError,match=unknown):
+--- /dev/null
++++ b/docs/ic_im_historical_calendar_repair_20261022_v1_spec.md
+@@ -0,0 +1,13 @@
++# 历史日历与完整账户重跑修复 v1
++
++预注册日期：2026-10-22。依据：五轮补丁历史影响审计和用户“补好、处理好”授权。
++
++范围：补齐并验证 2022—2025 年 SSE/CFFEX 共同交易日历，恢复现行模块被旧研究入口调用时的历史选约及完整账户计算；重建受影响的历史目标，在新目录报告原快照与修复后的日期、合约、数量、成本、逐日收益和 NAV 差异。
++
++只采纳可追溯的交易所休市通知，SSE 官网原文与 CFFEX 原通知保留转载、历史官方行情日期交叉验证。保存来源、原文件哈希和独立日期 oracle。不能用普通工作日推算冒充已核验日历。2027 年继续未覆盖，既有执行、证据、身份、完整性和持久化门槛保留。
++
++修补前备份 bot、policy、quarter_roll、历史适配器及登记表。原冻结规格、SHA、首次输出、原研究入口和正式账本均不改写。新规范与研究输出另存版本；不更改 fix11 参数、schema4/r1、配量、IC 无 Call／IM 不恢复新卖 Call及 Put 等待挂牌研究边界。
++
++验证顺序：保留修前阻断；官方通知与全年度真实期货会话对照、48 个期货月到期 oracle；修复后的同入口完整账户；重建目标与生命周期并追踪全部差异；日期及严格门禁反例、适用累计测试；最终源码和旧工件保护。若旧脚本只接受原基准，保留其差分失败，在新的版本入口检查实算结果，不删除原断言或伪装零差异。
++
++研究使用已有挂牌日线和理论账户，不提升为真实成交或点时认证。既有代理开盘、历史重建身份和后下载 Fear 局限继续单列；无法取得的原日证据不得由当前链或假日历替代。不在本轮部署、发送日报、下单或续写正式账本。
+--- /dev/null
++++ b/docs/ic_im_historical_calendar_repair_20261022_v1_spec.md.sha256
+@@ -0,0 +1 @@
++135b76da262953bdd99b18320a3e4853714171a29f8b6ef10f37372ab50755da  ic_im_historical_calendar_repair_20261022_v1_spec.md
+--- /dev/null
++++ b/quant_research_runs/20261022_historical_calendar_repair_v1/adapter_args.json
+@@ -0,0 +1,4 @@
++[
++  "test_icim_historical_calendar_20261022.py",
++  "test_icim_historical_replay_adapter_20261022.py"
++]
+--- /dev/null
++++ b/quant_research_runs/20261022_historical_calendar_repair_v1/bootstrap.py
+@@ -0,0 +1,98 @@
++"""Freeze original sources, evidence and data before historical-calendar repair."""
++from __future__ import annotations
++
++import ast
++import hashlib
++import json
++import shutil
++from datetime import date, datetime, timedelta, timezone
++from pathlib import Path
++
++HERE = Path(__file__).resolve().parent
++ROOT = HERE.parents[1]
++PRIOR = ROOT / 'quant_research_runs/20261021_round5_recording_semantics_v1'
++AUDIT = ROOT / 'quant_research_runs/20261022_five_rounds_backtest_impact_v1'
++FIXTURE = ROOT / 'tests/fixtures/icim_historical_calendar_20261022'
++
++
++def sha(p):
++    return hashlib.sha256(Path(p).read_bytes()).hexdigest()
++
++
++def read(p):
++    return json.loads(Path(p).read_text(encoding='utf-8-sig'))
++
++
++def main():
++    if (HERE / 'baseline.json').exists():
++        raise FileExistsError('baseline exists')
++    previous = read(PRIOR / 'accepted_01/source_after.json')
++    assert all(sha(ROOT / n) == h for n, h in previous.items()), 'prior sources changed'
++    sources = ['poe_ic_im_mainline_v1_4_bot.py', 'ic_im_v1_4_policy.py', 'ic_im_quarter_roll_v1_3.py',
++               'ic_im_evidence_adapter_v1.py', 'ic_im_signal_evidence_v1.py', 'notes/mainline_registry.md',
++               'quant_research_runs/20261016_put_execution_repairs_v1/run_history.py']
++    backup = {}
++    for name in sources:
++        target = HERE / 'backup' / name
++        target.parent.mkdir(parents=True, exist_ok=True)
++        shutil.copyfile(ROOT / name, target)
++        backup[name] = sha(target)
++    protected = read(AUDIT / 'protected_before.json')
++    assert all(sha(ROOT / n) == h for n, h in protected.items()), 'protected audit baseline changed'
++    for folder in [AUDIT, PRIOR]:
++        for p in folder.rglob('*'):
++            if p.is_file() and '__pycache__' not in p.parts and '.pytest_cache' not in p.parts:
++                protected[p.relative_to(ROOT).as_posix()] = sha(p)
++    raw_inputs = read(ROOT / 'quant_research_runs/20261016_put_execution_repairs_v1/independent_audit.json')['input_sha256']
++    assert all(sha(ROOT / n) == h for n, h in raw_inputs.items())
++    protected.update(raw_inputs)
++    for name in ['run_bound.py', 'run_checks.py', 'evidence_gate.py', 'pytest.ini', 'exclusions.json']:
++        shutil.copyfile(PRIOR / name, HERE / name)
++    (HERE / 'prior_args.json').write_bytes((PRIOR / 'final_args.json').read_bytes())
++    (HERE / 'focused_args.json').write_text(json.dumps(['test_icim_historical_calendar_20261022.py']) + '\n', encoding='utf-8')
++    spec = ROOT / 'docs/ic_im_historical_calendar_repair_20261022_v1_spec.md'
++    spec.with_suffix(spec.suffix + '.sha256').write_text(sha(spec) + '  ' + spec.name + '\n', encoding='utf-8')
++    # Independent oracle from dated official futures rows, not the date helper.
++    import pandas as pd
++    path = ROOT / 'data/ic_monthly_discount_roll_v1/cffex_ic_contracts.csv'
++    raw = pd.read_csv(path, parse_dates=['date'])
++    subset = raw.loc[raw.date.dt.year.between(2022, 2025)]
++    sessions = {str(y): sorted(subset.loc[subset.date.dt.year.eq(y), 'date'].dt.strftime('%Y-%m-%d').unique().tolist())
++                for y in range(2022, 2026)}
++    expiry = {}
++    for year in range(2022, 2026):
++        for month in range(1, 13):
++            contract = f'IC{year % 100:02d}{month:02d}'
++            dates = raw.loc[raw.contract.eq(contract), 'date']
++            assert not dates.empty, contract
++            expiry[contract] = dates.max().date().isoformat()
++    archives = {}
++    for p in (path.parent / 'cffex_raw').glob('*.zip'):
++        if p.name[:4] in {'2022', '2023', '2024', '2025'}:
++            archives[p.relative_to(ROOT).as_posix()] = sha(p)
++    protected[path.relative_to(ROOT).as_posix()] = sha(path)
++    protected.update(archives)
++    oracle = {'representation': 'Trading dates and last observed contract dates from frozen CFFEX historical daily rows; independent of strategy calendar functions.',
++              'source': path.relative_to(ROOT).as_posix(), 'source_sha256': sha(path),
++              'session_dates': sessions, 'contract_last_dates': expiry,
++              'official_monthly_archive_sha256': archives}
++    (FIXTURE / 'cffex_sessions_and_expiries.json').write_text(json.dumps(oracle, indent=2) + '\n', encoding='utf-8')
++    # Save every original 2026 session result as a regression boundary.
++    tree = ast.parse((ROOT / 'poe_ic_im_mainline_v1_4_bot.py').read_text(encoding='utf-8-sig'))
++    literal = next(n for n in tree.body if isinstance(n, ast.Assign) and any(isinstance(x, ast.Name) and x.id == '_EXCHANGE_CLOSURES' for x in n.targets))
++    env = {'date': date, 'frozenset': frozenset, 'range': range}
++    exec(compile(ast.Module(body=[literal], type_ignores=[]), '<frozen-calendar-literal>', 'exec'), env)
++    dates = [date(2026, 1, 1) + timedelta(days=i) for i in range(365)]
++    original_2026 = [str(d) for d in dates if d.weekday() < 5 and d not in env['_EXCHANGE_CLOSURES']]
++    (FIXTURE / 'original_2026_sessions.json').write_text(json.dumps(original_2026, indent=2) + '\n', encoding='utf-8')
++    (HERE / 'baseline.json').write_text(json.dumps({'created_at': datetime.now(timezone.utc).isoformat(),
++        'prior_bindings': previous, 'backup': backup, 'protected': protected,
++        'raw_inputs': raw_inputs, 'calendar_fixture_sha256': {p.name: sha(p) for p in FIXTURE.glob('*.json')},
++        'spec_sha256': sha(spec)}, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
++    print(json.dumps({'backups': len(backup), 'protected': len(protected),
++                      'session_counts': {y: len(x) for y, x in sessions.items()}, 'expiry_oracles': len(expiry),
++                      'raw_ic_archives': len(archives)}, ensure_ascii=False))
++
++
++if __name__ == '__main__':
++    main()
+--- /dev/null
++++ b/quant_research_runs/20261022_historical_calendar_repair_v1/configure_args.py
+@@ -0,0 +1,13 @@
++"""Create new argument manifests; retain previous-stage configurations."""
++from pathlib import Path
++import json
++
++HERE = Path(__file__).resolve().parent
++new = ['test_icim_historical_calendar_20261022.py', 'test_icim_historical_replay_adapter_20261022.py']
++for name, value in [('adapter_args.json', new),
++                    ('final_args.json', json.loads((HERE / 'prior_args.json').read_text(encoding='utf-8')) + new)]:
++    path = HERE / name
++    if path.exists():
++        raise FileExistsError(path)
++    path.write_text(json.dumps(value, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
++print('ARGS_WRITTEN', flush=True)
+--- /dev/null
++++ b/quant_research_runs/20261022_historical_calendar_repair_v1/delivery/analyze_results.py
+@@ -0,0 +1,154 @@
++"""Independent saved-output arithmetic, date attribution and frozen-file guards."""
++from __future__ import annotations
++
++import hashlib
++import importlib.util
++import json
++from datetime import datetime, timezone
++from pathlib import Path
++
++import numpy as np
++import pandas as pd
++
++HERE = Path(__file__).resolve().parent
++RUN = HERE.parent
++ROOT = RUN.parents[1]
++HIST = ROOT / 'quant_research_runs/20261016_put_execution_repairs_v1'
++NEW = RUN / 'rebuilt_02'
++PREVIOUS_AUDIT = ROOT / 'quant_research_runs/20261022_five_rounds_backtest_impact_v1'
++
++
++def sha(p):
++    return hashlib.sha256(Path(p).read_bytes()).hexdigest()
++
++
++def read(p):
++    return json.loads(Path(p).read_text(encoding='utf-8-sig'))
++
++
++def metrics(frame):
++    returns = frame.return_net.to_numpy(float)
++    nav = np.r_[1., np.cumprod(1 + returns)]
++    return {'rows': len(frame), 'start': str(frame.date.iloc[0]), 'end': str(frame.date.iloc[-1]),
++            'cagr': float(nav[-1] ** (252 / len(frame)) - 1),
++            'max_dd': float((nav / np.maximum.accumulate(nav) - 1).min()),
++            'final_nav': float(nav[-1]), 'sharpe': float(returns.mean() / returns.std(ddof=1) * np.sqrt(252)),
++            'fees': float(frame.fees_cumulative.iloc[-1])}
++
++
++def compare_columns(a, b, key):
++    if a[key].astype(str).tolist() != b[key].astype(str).tolist():
++        raise RuntimeError(f'date alignment changed: {key}')
++    result, differences = {}, []
++    for col in a.columns.intersection(b.columns):
++        x, y = a[col], b[col]
++        if pd.api.types.is_numeric_dtype(x) and pd.api.types.is_numeric_dtype(y):
++            u, v = x.to_numpy(float), y.to_numpy(float)
++            finite = np.isfinite(u) & np.isfinite(v)
++            changed = (np.isnan(u) != np.isnan(v)) | (finite & (np.abs(u - v) > 1e-12))
++            maximum = float(np.abs(u[finite] - v[finite]).max()) if finite.any() else 0.
++        else:
++            changed = x.fillna('<NA>').astype(str).ne(y.fillna('<NA>').astype(str)).to_numpy()
++            maximum = None
++        result[col] = {'different_rows': int(changed.sum()), 'max_abs_numeric_difference': maximum}
++        for index in np.flatnonzero(changed):
++            differences.append({'day': str(a[key].iloc[index]), 'field': col,
++                                'before': str(x.iloc[index]), 'after': str(y.iloc[index])})
++    return result, differences
++
++
++def write(name, obj):
++    p = HERE / name
++    if p.exists():
++        raise FileExistsError(p)
++    p.write_text(json.dumps(obj, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
++
++
++def main():
++    HERE.mkdir(exist_ok=True)
++    assert read(NEW / 'receipt.json')['status'] == 'PASS'
++    assert read(RUN / 'original_entry_runs/execution_history_after/receipt.json')['status'] == 'PASS'
++    assert read(RUN / 'rebuilt_01/interpretation.json')['comparison_eligible'] is False
++    spec = importlib.util.spec_from_file_location('calendar_output_compare', PREVIOUS_AUDIT / 'compare_and_verify.py')
++    compare = importlib.util.module_from_spec(spec)
++    spec.loader.exec_module(compare)
++    control = compare.compare_folder(HIST, RUN / 'original_entry_runs/execution_history_after')
++    assert control['status'] == 'PASS' and control['max_numeric_difference'] == 0
++    before = pd.read_csv(HIST / 'daily_paths.csv.gz')
++    before = before.loc[before.arm.eq('both')].reset_index(drop=True)
++    after = pd.read_csv(NEW / 'daily_paths.csv.gz')
++    old_events = pd.read_csv(HIST / 'events.csv.gz', low_memory=False)
++    old_events = old_events.loc[old_events.arm.eq('both')].copy()
++    new_events = pd.read_csv(NEW / 'events.csv.gz', low_memory=False)
++    windows, target_diffs, life_diffs, detail = [], [], [], {}
++    for product, version in [('IC', 'v2'), ('IM', 'v3')]:
++        p = product.lower()
++        a = before.loc[before['product'].eq(product)].reset_index(drop=True)
++        b = after.loc[after['product'].eq(product)].reset_index(drop=True)
++        assert a.date.tolist() == b.date.tolist()
++        assert np.isfinite(b.return_net).all() and b.nav.gt(0).all()
++        assert np.max(np.abs(np.cumprod(1 + b.return_net) - b.nav)) < 1e-10
++        assert (b.cash_close - b.margin_reserved).min() >= -1e-7
++        assert abs(new_events.loc[new_events['product'].eq(product), 'fee'].fillna(0).sum() - b.fees_cumulative.iloc[-1]) < 1e-6
++        old_risk = pd.read_csv(HIST / 'inputs' / p / f'native_fix4_{p}_risk_signals_v1.csv.gz')
++        new_risk = pd.read_csv(NEW / 'inputs' / f'native_fix4_{p}_risk_signals_v1.csv.gz')
++        risk_stats, risk_differences = compare_columns(old_risk, new_risk, 'signal_date')
++        assert not risk_differences, f'{product}: mathematical risk input changed'
++        old_targets = pd.read_csv(HIST / 'inputs' / p / f'native_fix4_{p}_noseller_targets_{version}.csv.gz')
++        new_targets = pd.read_csv(NEW / 'inputs' / f'native_fix4_{p}_noseller_targets_{version}.csv.gz')
++        target_stats, changes = compare_columns(old_targets, new_targets, 'signal_date')
++        for row in changes:
++            row['product'] = product
++        target_diffs.extend(changes)
++        old_life = pd.read_csv(HIST / f'{p}_seller_lifecycle_fixed.csv.gz')
++        new_life = pd.read_csv(NEW / f'{p}_seller_lifecycle.csv.gz')
++        life_stats, changes = compare_columns(old_life, new_life, 'signal_date')
++        for row in changes:
++            row['product'] = product
++        life_diffs.extend(changes)
++        # Current policy must not introduce a seller route/position/cost change.
++        money_fields = ['action', 'route_before', 'route_after_execution', 'active_contract_after',
++                        'entry_premium_state_after', 'early_roll_used_after', 'fill_old_t1', 'fill_new_t1',
++                        'settlement_value', 'cycle_pnl_reference', 'recovery_pnl_reference']
++        assert all(life_stats[c]['different_rows'] == 0 for c in money_fields)
++        ret_delta = b.return_net.to_numpy(float) - a.return_net.to_numpy(float)
++        nav_delta = b.nav.to_numpy(float) - a.nav.to_numpy(float)
++        for window, years in [('full', None), ('3Y', 3), ('1Y', 1)]:
++            start = None if years is None else pd.Timestamp(a.date.iloc[-1]) - pd.DateOffset(years=years)
++            mask = np.ones(len(a), dtype=bool) if start is None else pd.to_datetime(a.date).ge(start).to_numpy()
++            old_metrics, new_metrics = metrics(a.loc[mask]), metrics(b.loc[mask])
++            windows.append({'product': product, 'window': window,
++                            'before_cagr': old_metrics['cagr'], 'after_cagr': new_metrics['cagr'],
++                            'cagr_change_pp': 100 * (new_metrics['cagr'] - old_metrics['cagr']),
++                            'before_max_dd': old_metrics['max_dd'], 'after_max_dd': new_metrics['max_dd'],
++                            'max_dd_change_pp': 100 * (new_metrics['max_dd'] - old_metrics['max_dd'])})
++        if product == 'IM':
++            assert np.array_equal(a.return_net.to_numpy(float), b.return_net.to_numpy(float))
++        actual_trade_rows = new_events.loc[new_events['product'].eq(product) & new_events.event.eq('trade')]
++        assert not actual_trade_rows.symbol.astype(str).str.startswith('option|call|').any()
++        detail[product] = {'before': metrics(a), 'after': metrics(b),
++                           'return_changed_days': int((np.abs(ret_delta) > 1e-12).sum()),
++                           'first_return_change': next((str(a.date.iloc[i]) for i in range(len(a)) if abs(ret_delta[i]) > 1e-12), None),
++                           'max_daily_return_difference': float(np.abs(ret_delta).max()),
++                           'max_nav_difference': float(np.abs(nav_delta).max()),
++                           'risk_comparison': risk_stats, 'target_comparison': target_stats,
++                           'seller_lifecycle_comparison': life_stats,
++                           'actual_trade_rows': len(actual_trade_rows),
++                           'target_change_days_excluding_call': sorted({r['day'] for r in target_diffs if r['product'] == product and not r['field'].startswith('call_')})}
++    pd.DataFrame(windows).to_csv(HERE / 'window_metrics.csv', index=False)
++    pd.DataFrame(target_diffs).to_csv(HERE / 'target_differences.csv', index=False)
++    pd.DataFrame(life_diffs).to_csv(HERE / 'lifecycle_differences.csv', index=False)
++    write('analysis.json', {'created_at': datetime.now(timezone.utc).isoformat(),
++                           'original_unchanged_entry_control': control,
++                           'accepted_rebuilt_stage': 'rebuilt_02', 'rejected_comparison_stage': 'rebuilt_01',
++                           'source_and_data': {'bot_sha256': sha(ROOT / 'poe_ic_im_mainline_v1_4_bot.py'),
++                                               'after_receipt_sha256': sha(NEW / 'receipt.json'),
++                                               'before_daily_sha256': sha(HIST / 'daily_paths.csv.gz'),
++                                               'after_daily_sha256': sha(NEW / 'daily_paths.csv.gz')},
++                           'results': detail, 'windows': windows,
++                           'interpretation': 'Risk inputs and seller financial paths unchanged; IC buyer targets change at the 2024-02 holiday-shifted maintenance. IM Call target metadata removed because the inherited account already disables Call.'})
++    print(json.dumps({'windows': windows, 'products': {p: {k: v[k] for k in ['return_changed_days', 'first_return_change', 'actual_trade_rows', 'target_change_days_excluding_call']} for p, v in detail.items()}}, ensure_ascii=False), flush=True)
++
++
++if __name__ == '__main__':
++    main()
+--- /dev/null
++++ b/quant_research_runs/20261022_historical_calendar_repair_v1/delivery/finalize.py
+@@ -0,0 +1,226 @@
++"""Seal this local repair without modifying frozen studies or formal ledgers."""
++from __future__ import annotations
++
++import difflib
++import hashlib
++import json
++import subprocess
++from datetime import datetime, timezone
++from pathlib import Path
++
++HERE = Path(__file__).resolve().parent
++RUN = HERE.parent
++ROOT = RUN.parents[1]
++
++
++def sha(path):
++    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
++
++
++def read(path):
++    return json.loads(Path(path).read_text(encoding='utf-8-sig'))
++
++
++def save(path, value):
++    path = Path(path)
++    if path.exists():
++        raise FileExistsError(path)
++    path.write_text(json.dumps(value, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
++
++
++def main():
++    if (HERE / 'final_verification.json').exists():
++        raise FileExistsError('final verification already sealed')
++    baseline = read(RUN / 'baseline.json')
++    accepted = read(RUN / 'accepted_02/receipt.json')
++    analysis = read(HERE / 'analysis.json')
++    rebuilt = read(RUN / 'rebuilt_02/receipt.json')
++    assert accepted['exit_code'] == 0 and accepted['source_before_equals_after']
++    assert accepted['counts'] == dict(tests=2738, failures=0, errors=0, skipped=0)
++    assert rebuilt['status'] == 'PASS' and rebuilt['anchors_unchanged']
++    assert rebuilt['network_attempts'] == []
++    assert analysis['original_unchanged_entry_control']['status'] == 'PASS'
++    assert analysis['results']['IM']['return_changed_days'] == 0
++    # This manifest covers the exact tested revision, not just a reported count.
++    bindings = read(RUN / 'accepted_02/source_after.json')
++    assert len(bindings) == 973
++    assert all(sha(ROOT / n) == h for n, h in bindings.items())
++    for name, expected in accepted['artifacts'].items():
++        assert sha(RUN / 'accepted_02' / name) == expected, name
++    for name, expected in rebuilt['loaded_sources'].items():
++        assert sha(ROOT / name) == expected, name
++
++    registry = ROOT / 'notes/mainline_registry.md'
++    original_registry = (RUN / 'backup/notes/mainline_registry.md').read_bytes()
++    entry = '''
++## 历史日历修复与完整账户重算（2026-10-22，本地）
++
++- 补齐并交叉核验 2022—2025 SSE/CFFEX 日历：四年实际交易日为 242/242/242/243，48 个实际期货到期日 oracle；原 2026 日历不变，2027 仍未核验、严格拒绝正式执行。
++- 原 10-16 历史入口恢复运行，对照 18 文件、73884 行数值零差异；另用当前规则从风险输入、选约、数量、卖方生命周期到完整理论账户重新计算，并非只复用旧目标。
++- 新重算补回旧 IC 回测漏掉的 2024-02-19 春节顺延维护，19 个目标日受影响。统一 252/N 年化口径下，IC 全期 CAGR 35.3924%→34.8145%，最大回撤均约 -9.0013%；IM 逐日收益完全一致，CAGR 29.9331%。风险公式、策略参数和卖方实际财务路径不变，不恢复新卖 Call。
++- 本轮累计 91 文件、2738 项通过，原 22 项单列保持；973 项源文件/输入/回执绑定前后一致。旧跨年缺口用例显式限制模拟覆盖年份，保留原断言并备份原文件；新增真实已覆盖跨年用例。accepted_01 的旧用例失败及 rebuilt_01 的混合生效口径记录保留，后者不用于最终比较。
++- 旧冻结输出、原始行情和正式 runtime 保持不变；独立新版本预注册及结果位于 docs/ic_im_historical_calendar_repair_20261022_v1_spec.md 和 quant_research_runs/20261022_historical_calendar_repair_v1/record.md。修复前备份、独立账户核算、补丁、测试回执和最终保护清单均存档。只修本地，未部署、未发日报、未续写正式账本；历史身份重建、后下载 Fear 和既有代理成交限制仍保留。
++
++'''.encode('utf-8')
++    first, rest = original_registry.split(b'\n', 1)
++    intended_registry = first + b'\n' + entry + rest
++    if registry.read_bytes() != intended_registry:
++        assert registry.read_bytes() == original_registry
++        registry.write_bytes(intended_registry)
++    assert registry.read_bytes().replace(entry, b'', 1) == original_registry
++
++    rows = []
++    for w in analysis['windows']:
++        rows.append(f"| {w['product']} | {w['window']} | {100*w['before_cagr']:.6f}% | {100*w['after_cagr']:.6f}% | {w['cagr_change_pp']:+.6f} | {100*w['before_max_dd']:.6f}% | {100*w['after_max_dd']:.6f}% |")
++    report = '''# 历史日历修复与完整账户重算 v1
++
++2026-10-22，本地完成。历史回测入口已恢复；补齐真实历史日历后，IC 的理论回测收益需要下调，IM 逐日收益不变。原冻结研究结果保留，新的实算结果单独存档，不回写旧记录或正式账本。
++
++## 修复与日期依据
++
++生产源码只修改 poe_ic_im_mainline_v1_4_bot.py 的已核验年份集合和 2022—2025 年休市日期，覆盖扩展为 2022—2026。没有改参数、风险公式、数量算法、策略生效日期、schema 或执行/持久化门槛；2027 及其他未覆盖年份仍严格拒绝正式执行。2026 全年会话逐日与原版本一致。
++
++SSE 依据官网年度休市通知原文；CFFEX 依据其原通知的保留转载，并与冻结官方历史行情中的全年度交易日期及 48 个期货合约最后交易日交叉验证。CFFEX 官网通知请求未成功，未声称取得其官网原始 HTTP 报文。calendar_notices.json 是带来源、文号和发布日期的事实摘录，不是原始报文。四年会话数分别为 242、242、242、243；全部日期和 48 个到期日通过独立 oracle。证据见 tests/fixtures/icim_historical_calendar_20261022/，原始 IC 月归档 48 份和既有历史输入 55 份均核对 SHA-256。
++
++新研究入口 history/rebuild_history.py 同时补上旧研究适配器的持仓身份传递：由开仓时选定的 security_id 建立持仓身份，缩放张数时校验历史合约及该 ID，不从当前报价反向认领身份。调用原正式身份门槛前在 RLock 内暂投影历史持仓，finally 恢复原锚点。21 次历史 IC 缩放检查全部通过，异常、错配和并发反例另有测试。
++
++## 实算结果
++
++对照为 2026-10-16 已修复普通 Put/卖方执行成本的 both 账户。两边使用同一日收益、同一 252/N 年化、初始 NAV=1 的回撤口径；full 样本 IC 为 2022-09-19—2026-08-13（945 日），IM 为 2022-07-22—2026-08-14（986 日）。3Y/1Y 是各品种样本终点回溯的日历窗口。
++
++| 品种 | 窗口 | 修前 CAGR | 修后 CAGR | 变化（百分点） | 修前最大回撤 | 修后最大回撤 |
++| --- | --- | ---: | ---: | ---: | ---: | ---: |
++''' + '\n'.join(rows) + '''
++
++账户引擎原生 account.cagr 使用另一计数口径（N-1），其摘要数值会略有差别；本报告、receipt.phases.*_account.metrics 及 delivery/analysis.json 均统一使用旧对照入口的 252/N 口径，不混合比较。全期 IC 最大回撤不变；3Y 回撤存在约 -0.00000787 个百分点的微小变化，不能据四舍五入称所有窗口完全不变。
++
++差异集中在 IC 买 Put：旧研究路径将 2024 年 2 月月到期参照落在休市中的 2 月 16 日，漏掉实际顺延到 2 月 19 日的维护。修复后包含 2 月 8 日维护预览在内的 19 个目标日发生合约/张数变化，直至 3 月 13 日；实际收益从 2 月 19 日起产生差异，受持仓及后续状态影响共有 198 个日收益变化。逐字段差异见 delivery/target_differences.csv，逐日账户见 rebuilt_02/daily_paths.csv.gz。期末 IC NAV 从 3.115146768 调整为 3.065580541，全期 CAGR 下降约 0.577857 个百分点。
++
++估值、动量、网格和保护 Delta 风险输入均与旧对照一致（浮点误差小于 1e-12）。卖方实际动作、持仓、现金成交成本、到期结算及恢复路径一致；IC 有 34 条候选解释、22 条未改变准入结果的候选 IV 元数据差异，已保留在 delivery/lifecycle_differences.csv。IM 原目标表中的旧 Call 元数据按现行规则清除，而旧账户已经禁用这些 Call，故其 986 个日收益逐值完全一致；没有恢复新卖 Call。
++
++## 验证路径与保留记录
++
++1. calendar_before：修前 72 项中 15 失败，缺失年份阻断证据保留。补齐后该组 72 项通过；最终新增已覆盖跨年边界后为 73 项。
++2. original_entry_runs/execution_history_after：原 10-16 入口不改代码恢复运行，128.89 秒，对照 18 文件、73884 行数值零差异。这是复用原目标且沿用该入口钉住旧 policy 的对照，不能代表重新选约后的收益无变化。
++3. rebuilt_02：70.20 秒完成当前风险函数、945/986 日目标、1929 条卖方候选、完整生命周期及含费用/保证金的账户重建；零 HTTP 尝试、无缺证据目标、无 HOLD_FAIL_CLOSED 生命周期，运行后锚点恢复。重新计算日收益累乘 NAV、费用事件汇总和现金扣保证金非负，均通过独立保存文件核算。
++4. 为对齐旧研究“现行规则用于全历史”的反事实口径，仅研究进程内将 IC 动量及卖方 MOM120 生效日期置为 1900，并最终恢复；生产源码生效日期未改。rebuilt_01 遗漏卖方生效日期对齐，其算术完成记录保留，但 interpretation.json 明确 comparison_eligible=false，不能作为最终收益结论；原执行源码另存 history/rebuild_history_stage01.py.txt。
++5. accepted_01：2736 通过、1 失败，保留原失败。失败是旧测试假定 2025 永远未覆盖；原文件备份后，只显式模拟单年覆盖，原跨年拒绝断言不变，并新增真实覆盖年份双向跨年测试。
++6. accepted_02：91 文件、2738 通过，0 失败/错误/跳过，原 22 项单列不扩展。973 项源码/配置/研究输入和回执绑定前后一致；XML、退出码、收集节点及日志可追溯。本轮未新启多智能体，累计范围含此前对抗性用例。
++
++有效测试回执为 accepted_02/receipt.json；财务比较以 rebuilt_02 和 delivery/analysis.json 为准。所有失败和比较无效阶段原样保留，不覆盖重跑。
++
++## 保护与复跑
++
++补前备份七个原文件，另备份一份旧测试文件。原冻结规格/SHA、首次研究输出、既有五轮审计文件、全部原行情输入及正式 runtime 保护清单均核对；预期修改仅 bot、旧测试的缺口场景构造、登记表，以及本轮新增规范、oracle、测试和研究文件。正式 runtime 的路径集合和文件哈希均不变，155 文件（142 JSON）。最终检查见 delivery/final_verification.json，精确增量见 delivery/source_delta.patch。
++
++可在项目目录以新的 stage 名离线重跑（已存在目录会拒绝覆盖）：
++
++```powershell
++python -X utf8 -B quant_research_runs/20261022_historical_calendar_repair_v1/history/rebuild_history.py --stage rebuilt_review_03
++```
++
++研究仍属于真实挂牌日线上的理论账户：保留 30% 保证金/缓冲口径、既定交易费用和旧账户执行模型；15% 卖方 NAV 可行性是继承假设，不是券商验证。历史 IC 合约身份有重建、Fear 使用后下载数据，普通买 Put 仍继承代理定价/开盘处理，不能升级为点时或真实成交认证。没有据此调整参数，也没有部署、发送日报或续写正式账本。
++'''
++    record = RUN / 'record.md'
++    if record.exists():
++        assert record.read_text(encoding='utf-8') == report
++    else:
++        record.write_text(report, encoding='utf-8')
++
++    expected_changes = {'poe_ic_im_mainline_v1_4_bot.py',
++                        'test_icim_batch3_calendar_redteam_20261021.py', 'notes/mainline_registry.md'}
++    changes = {n.replace('\\', '/'): {'before': h, 'after': sha(ROOT / n)}
++               for n, h in baseline['protected'].items() if sha(ROOT / n) != h}
++    assert set(changes) == expected_changes, changes
++    prior_changes = [n for n, h in baseline['prior_bindings'].items() if sha(ROOT / n) != h]
++    assert set(prior_changes) == expected_changes - {'notes/mainline_registry.md'}
++    for name, expected in baseline['backup'].items():
++        assert sha(RUN / 'backup' / name) == expected
++    extra = read(HERE / 'additional_backups.json')
++    for info in extra.values():
++        assert sha(ROOT / info['backup']) == info['sha256']
++    assert all(sha(ROOT / n) == h for n, h in baseline['raw_inputs'].items())
++    fixture_dir = ROOT / 'tests/fixtures/icim_historical_calendar_20261022'
++    assert all(sha(fixture_dir / n) == h for n, h in baseline['calendar_fixture_sha256'].items())
++    oracle = read(fixture_dir / 'cffex_sessions_and_expiries.json')
++    assert all(sha(ROOT / n) == h for n, h in oracle['official_monthly_archive_sha256'].items())
++    spec = ROOT / 'docs/ic_im_historical_calendar_repair_20261022_v1_spec.md'
++    assert sha(spec) == baseline['spec_sha256'] == spec.with_suffix('.md.sha256').read_text().split()[0]
++    runtime_expected = {n.replace('\\', '/'): h for n, h in baseline['protected'].items() if n.replace('\\', '/').startswith('runtime/')}
++    runtime_now = {p.relative_to(ROOT).as_posix(): sha(p) for p in (ROOT / 'runtime').rglob('*') if p.is_file()}
++    assert runtime_now == runtime_expected
++    assert len(runtime_now) == 155
++    assert (RUN / 'exclusions.json').read_bytes() == (ROOT / 'quant_research_runs/20261021_round5_recording_semantics_v1/exclusions.json').read_bytes()
++    rejected = read(RUN / 'rebuilt_01/receipt.json')
++    original_script_key = str((RUN / 'history/rebuild_history.py').relative_to(ROOT))
++    assert sha(RUN / 'history/rebuild_history_stage01.py.txt') == rejected['loaded_sources'][original_script_key]
++
++    # Generate a reviewable delta from this repair's backups, not from an old git HEAD.
++    patch = []
++    def add_diff(before, after, old_name, new_name):
++        for line in difflib.unified_diff(before, after, fromfile=old_name, tofile=new_name):
++            patch.append(line if line.endswith('\n') else line + '\n\\ No newline at end of file\n')
++    for name in sorted(expected_changes):
++        before = (RUN / 'backup' / name).read_bytes().decode('utf-8-sig').splitlines(keepends=True)
++        after = (ROOT / name).read_bytes().decode('utf-8-sig').splitlines(keepends=True)
++        add_diff(before, after, 'a/' + name, 'b/' + name)
++    new_files = [ROOT / 'test_icim_historical_calendar_20261022.py',
++                 ROOT / 'test_icim_historical_replay_adapter_20261022.py', spec, spec.with_suffix('.md.sha256'), record]
++    new_files += sorted(fixture_dir.glob('*.json'))
++    new_files += sorted(RUN.glob('*.py'))
++    new_files += sorted(RUN.glob('*args.json'))
++    new_files += [RUN / 'pytest.ini', RUN / 'exclusions.json']
++    new_files += sorted((RUN / 'history').glob('*.py'))
++    new_files += sorted(HERE.glob('*.py'))
++    for path in sorted(set(new_files)):
++        name = path.relative_to(ROOT).as_posix()
++        after = path.read_bytes().decode('utf-8-sig').splitlines(keepends=True)
++        add_diff([], after, '/dev/null', 'b/' + name)
++    delta = HERE / 'source_delta.patch'
++    if delta.exists():
++        previous = read(HERE / 'patch_check.json')
++        assert previous['exit_code'] != 0
++        attempt = 1
++        while (HERE / f'source_delta_failed_{attempt:02d}.patch').exists():
++            attempt += 1
++        delta.rename(HERE / f'source_delta_failed_{attempt:02d}.patch')
++        (HERE / 'patch_check.json').rename(HERE / f'patch_check_failed_{attempt:02d}.json')
++    assert not delta.exists()
++    delta.write_text(''.join(patch), encoding='utf-8', newline='\n')
++    checked = subprocess.run(['git', '-c', 'safe.directory=' + ROOT.as_posix(), 'apply', '--check', '--reverse',
++                              '--whitespace=nowarn', str(delta)], cwd=ROOT, capture_output=True, text=True, encoding='utf-8')
++    save(HERE / 'patch_check.json', {'exit_code': checked.returncode, 'stdout': checked.stdout, 'stderr': checked.stderr,
++                                    'sha256': sha(delta), 'files': len(expected_changes) + len(set(new_files))})
++    assert checked.returncode == 0, checked.stderr
++    assert all(sha(ROOT / n) == h for n, h in bindings.items())
++    checks = dict(bound_test_sources_current=True, test_artifacts_verified=True,
++                  rebuilt_loaded_sources_current=True, protected_changes_allowlist_only=True,
++                  all_eight_backups_verified=True, original_55_raw_inputs_unchanged=True,
++                  original_48_ic_archives_unchanged=True, calendar_oracles_unchanged=True,
++                  preregistration_and_sha_unchanged=True, runtime_paths_and_bytes_unchanged=True,
++                  original_22_exclusions_unchanged=True, rejected_run_source_archived=True,
++                  registry_old_tail_preserved=True, patch_reverse_check_passed=True,
++                  independent_account_checks_passed=True, no_deploy_or_ledger_write=True)
++    artifacts = {}
++    for path in RUN.rglob('*'):
++        if path.is_file() and not any(x in path.parts for x in ('__pycache__', '.pytest_cache')):
++            # Disposable pytest state is not part of the deliverable.
++            relative = path.relative_to(RUN)
++            if any(x.startswith('pytest') or x in {'temporary_state', 'isolated_state'} for x in relative.parts[:-1]):
++                continue
++            artifacts[relative.as_posix()] = sha(path)
++    final = dict(status='PASS', completed_at=datetime.now(timezone.utc).isoformat(), checks=checks,
++                 protected_objects=len(baseline['protected']), expected_changes=changes,
++                 unchanged_protected_objects=len(baseline['protected']) - len(changes),
++                 runtime_files=len(runtime_now), runtime_json_files=sum(n.endswith('.json') for n in runtime_now),
++                 accepted_stage='accepted_02', accepted_tests=accepted['counts'], bound_sources=len(bindings),
++                 accepted_financial_stage='rebuilt_02', rejected_comparison_stage='rebuilt_01',
++                 bot_sha256=sha(ROOT / 'poe_ic_im_mainline_v1_4_bot.py'),
++                 financial_results={p: {k: analysis['results'][p][k] for k in ('before', 'after', 'return_changed_days')}
++                                    for p in ('IC', 'IM')}, artifacts=artifacts)
++    save(HERE / 'final_verification.json', final)
++    print(json.dumps({k: v for k, v in final.items() if k not in ('artifacts', 'financial_results')}, ensure_ascii=False, indent=2))
++
++
++if __name__ == '__main__':
++    main()
+--- /dev/null
++++ b/quant_research_runs/20261022_historical_calendar_repair_v1/evidence_gate.py
+@@ -0,0 +1,131 @@
++"""Strict test-evidence acceptance for this audit; historical receipts remain immutable."""
++from pathlib import Path
++import hashlib
++import json
++import re
++import xml.etree.ElementTree as ET
++
++def _reject(reason):
++    raise RuntimeError('audit evidence rejected: ' + reason)
++
++def _source_map(value):
++    if (not isinstance(value, dict) or not value
++            or any(not isinstance(k, str) or not k or not isinstance(v, str)
++                   or not re.fullmatch(r'[0-9a-f]{64}', v) for k, v in value.items())):
++        _reject('empty or invalid source binding')
++
++def _count(suite, name):
++    value = suite.get(name)
++    if not isinstance(value, str) or not re.fullmatch(r'[0-9]+', value):
++        _reject('missing or invalid XML count: ' + name)
++    return int(value)
++
++def validate_run(xml_path, *, process_exit_code, source_before, source_after):
++    if type(process_exit_code) is not int or process_exit_code != 0:
++        _reject('test process did not exit zero')
++    _source_map(source_before)
++    _source_map(source_after)
++    if source_before != source_after:
++        _reject('source changed during test execution')
++    try:
++        root = ET.parse(xml_path).getroot()
++    except (ET.ParseError, OSError, TypeError) as exc:
++        _reject('missing or malformed XML: ' + type(exc).__name__)
++    if root.tag == 'testsuite':
++        suites = [root]
++    elif root.tag == 'testsuites':
++        suites = list(root)
++    else:
++        _reject('invalid XML root')
++    if not suites or any(s.tag != 'testsuite' or s.find('testsuite') is not None for s in suites):
++        _reject('empty or unsupported XML suite structure')
++    keys = ['tests', 'failures', 'errors', 'skipped']
++    counts = dict.fromkeys(keys, 0)
++    seen = set()
++    for suite in suites:
++        declared = {key: _count(suite, key) for key in keys}
++        cases = suite.findall('testcase')
++        actual = dict(tests=len(cases), failures=0, errors=0, skipped=0)
++        for case in cases:
++            identity = (case.get('classname'), case.get('name'))
++            if not all(identity) or identity in seen:
++                _reject('missing or duplicate test identity')
++            seen.add(identity)
++            statuses = [name for name in ['failure', 'error', 'skipped'] if case.find(name) is not None]
++            if len(statuses) > 1:
++                _reject('contradictory testcase status')
++            if statuses:
++                actual[dict(failure='failures', error='errors', skipped='skipped')[statuses[0]]] += 1
++        if actual != declared:
++            _reject('testcase counts disagree with XML summary')
++        for key in keys:
++            counts[key] += actual[key]
++    if root.tag == 'testsuites':
++        for key in keys:
++            if key in root.attrib and _count(root, key) != counts[key]:
++                _reject('root XML summary mismatch')
++    for tag, key in [('testcase', 'tests'), ('failure', 'failures'), ('error', 'errors'), ('skipped', 'skipped')]:
++        if len(root.findall('.//' + tag)) != counts[key]:
++            _reject('unexpected or nested XML status elements')
++    if counts['tests'] <= 0 or any(counts[key] for key in ['failures', 'errors', 'skipped']):
++        _reject('requires positive test count and zero failures/errors/skips')
++    return counts
++
++def validate_receipt(directory):
++    directory = Path(directory)
++    try:
++        receipt = json.loads((directory / 'receipt.json').read_text(encoding='utf-8'))
++        before = json.loads((directory / 'source_before.json').read_text(encoding='utf-8'))
++        after = json.loads((directory / 'source_after.json').read_text(encoding='utf-8'))
++        test_run = json.loads((directory / 'test_run.json').read_text(encoding='utf-8'))
++    except (OSError, json.JSONDecodeError, TypeError) as exc:
++        _reject('receipt/source files unavailable: ' + type(exc).__name__)
++    if not isinstance(receipt, dict):
++        _reject('receipt schema invalid')
++    if (not isinstance(test_run, dict) or type(test_run.get('exit_code')) is not int
++            or test_run['exit_code'] != 0 or test_run['exit_code'] != receipt.get('exit_code')):
++        _reject('test runner exit status contradicts receipt')
++    counts = validate_run(directory / 'regression.xml', process_exit_code=receipt.get('exit_code'),
++                          source_before=before, source_after=after)
++    if (receipt.get('source_before_equals_after') is not True
++            or type(receipt.get('source_files')) is not int or receipt['source_files'] != len(before)
++            or receipt.get('counts') != counts):
++        _reject('receipt contradicts actual source binding or counts')
++    try:
++        collection = json.loads((directory/'collection.json').read_text(encoding='utf-8'))
++    except (OSError, ValueError) as exc:
++        _reject('collection manifest unavailable: ' + type(exc).__name__)
++    if not isinstance(collection, dict):
++        _reject('invalid collection manifest')
++    for key in ['collected', 'selected', 'deselected', 'executed']:
++        values = collection.get(key)
++        if (not isinstance(values, list) or any(not isinstance(v, str) or not v for v in values)
++                or len(values) != len(set(values))):
++            _reject('invalid or duplicate collection identities: ' + key)
++    selected, deselected, collected, executed = (set(collection[k]) for k in
++                                                ['selected','deselected','collected','executed'])
++    allowed = set()
++    args = test_run.get('files', [])
++    if not isinstance(args, list) or any(not isinstance(arg, str) for arg in args):
++        _reject('invalid requested test arguments')
++    for i, arg in enumerate(args):
++        if arg == '--deselect' and i+1 < len(args):
++            allowed.add(args[i+1])
++        elif isinstance(arg, str) and arg.startswith('--deselect='):
++            allowed.add(arg.split('=',1)[1])
++    if (selected & deselected or selected | deselected != collected or executed != selected
++            or deselected != allowed or len(selected) != counts['tests']):
++        _reject('executed selection or exclusions disagree with requested test collection')
++    if 'deselected' in receipt:
++        declared = receipt['deselected']
++        if not isinstance(declared, dict) or set(declared) != deselected:
++            _reject('declared exclusions disagree with actual collection')
++    required = {'regression.xml', 'regression.txt', 'source_before.json', 'source_after.json', 'test_run.json', 'collection.json'}
++    artifacts = receipt.get('artifacts')
++    if not isinstance(artifacts, dict) or set(artifacts) != required:
++        _reject('missing or unexpected receipt artifact binding')
++    for name, expected in artifacts.items():
++        path = directory / name
++        if not path.is_file() or hashlib.sha256(path.read_bytes()).hexdigest() != expected:
++            _reject('artifact hash mismatch: ' + name)
++    return counts
+--- /dev/null
++++ b/quant_research_runs/20261022_historical_calendar_repair_v1/exclusions.json
+@@ -0,0 +1,24 @@
++{
++  "test_icim_redteam_integration_20261021.py::test_frozen_source_receipt_matches_current_bytes": "Historical source equality is checked against its pre-repair backup; old receipt is not rewritten.",
++  "test_icim_round2_audit_lifecycle_20261021.py::test_historical_adapter_retains_id_already_bound_to_requested_series": "Capability probe only: a price series by ID does not establish historical code/strike/unit; reject without dated identity.",
++  "test_icim_round2_audit_lifecycle_20261021.py::test_legal_standard_core_replay_crosses_strict_boundary": "Same missing-dated-identity capability probe; unsafe ID copying is deliberately not implemented.",
++  "test_ic_im_ordinary_put_route_fix_20261013.py::test_profit_and_momentum_execute_independently_after_restart[old_core-IC]": "New-write eligibility now rejects HOLD_FAIL_CLOSED even for an older replay; original missing-core fixtures are exercised with atomic rejection in expert_contract_replacements.",
++  "test_ic_im_ordinary_put_route_fix_20261013.py::test_profit_and_momentum_execute_independently_after_restart[old_core-IM]": "New-write eligibility now rejects HOLD_FAIL_CLOSED even for an older replay; original missing-core fixtures are exercised with atomic rejection in expert_contract_replacements.",
++  "test_ic_im_ordinary_put_route_fix_20261013.py::test_profit_and_momentum_execute_independently_after_restart[new_core-IC]": "New-write eligibility now rejects HOLD_FAIL_CLOSED even for an older replay; original missing-core fixtures are exercised with atomic rejection in expert_contract_replacements.",
++  "test_ic_im_ordinary_put_route_fix_20261013.py::test_profit_and_momentum_execute_independently_after_restart[new_core-IM]": "New-write eligibility now rejects HOLD_FAIL_CLOSED even for an older replay; original missing-core fixtures are exercised with atomic rejection in expert_contract_replacements.",
++  "test_ic_im_external_review_20261021.py::test_failed_query_never_reaches_new_close_target[IC]": "Public RETRY now returns a nonpersistent waiting diagnostic instead of crashing; same original fixture and unchanged-anchor assertions are covered in expert_contract_replacements.",
++  "test_ic_im_external_review_20261021.py::test_failed_query_never_reaches_new_close_target[IM]": "Public RETRY now returns a nonpersistent waiting diagnostic instead of crashing; same original fixture and unchanged-anchor assertions are covered in expert_contract_replacements.",
++  "test_icim_redteam_execution_20261021.py::test_public_query_restores_original_anchor_when_coexisting_openings_fail[ordinary-IC]": "Public RETRY now returns a nonpersistent waiting diagnostic instead of crashing; same original fixture and unchanged-anchor assertions are covered in expert_contract_replacements.",
++  "test_icim_redteam_execution_20261021.py::test_public_query_restores_original_anchor_when_coexisting_openings_fail[ordinary-IM]": "Public RETRY now returns a nonpersistent waiting diagnostic instead of crashing; same original fixture and unchanged-anchor assertions are covered in expert_contract_replacements.",
++  "test_icim_redteam_execution_20261021.py::test_public_query_restores_original_anchor_when_coexisting_openings_fail[short_put-IC]": "Public RETRY now returns a nonpersistent waiting diagnostic instead of crashing; same original fixture and unchanged-anchor assertions are covered in expert_contract_replacements.",
++  "test_icim_redteam_execution_20261021.py::test_public_query_restores_original_anchor_when_coexisting_openings_fail[short_put-IM]": "Public RETRY now returns a nonpersistent waiting diagnostic instead of crashing; same original fixture and unchanged-anchor assertions are covered in expert_contract_replacements.",
++  "test_icim_round2_audit_lifecycle_20261021.py::test_full_builder_december_expiry_stays_closed_without_2027_calendar": "Public builder returns a nonpersistent diagnostic instead of crashing on unknown-year dates; actual corresponding states are covered in expert_calendar and expert_contract_replacements.",
++  "test_icim_batch3_calendar_redteam_20261021.py::test_public_im_builder_checks_unknown_held_core_expiry": "Public builder returns a nonpersistent diagnostic instead of crashing on unknown-year dates; actual corresponding states are covered in expert_calendar and expert_contract_replacements.",
++  "test_icim_batch3_calendar_redteam_20261021.py::test_public_im_positive_momentum_held_expiry_is_checked[2703-True]": "Public builder returns a nonpersistent diagnostic instead of crashing on unknown-year dates; actual corresponding states are covered in expert_calendar and expert_contract_replacements.",
++  "test_icim_b3adv_market_20261021.py::test_mixed_malformed_and_lag_sources_are_not_called_pure_wait[IC]": "Mixed failure now has a structured RuntimeError subclass with source/waiting evidence; the same three-adapter fixture is exercised in expert_contract_replacements.",
++  "test_icim_b3adv_market_20261021.py::test_mixed_malformed_and_lag_sources_are_not_called_pure_wait[IM]": "Mixed failure now has a structured RuntimeError subclass with source/waiting evidence; the same three-adapter fixture is exercised in expert_contract_replacements.",
++  "test_icim_batch3_calendar_20261021.py::test_selected_monthly_maintenance_date_requires_covered_year": "Superseded pure-comparison contract: a covered next session strictly precedes the unknown-year nominal expiry lower bound. round3_calendar_comparison verifies False without provisional, while actual next-session/target calendar gates remain strict.",
++  "test_icim_expert_calendar_20261021.py::test_public_unknown_positive_momentum_held_expiry_is_diagnostic_not_target": "The result remains diagnostic, but the calendar failure is now the consumed target guard rather than a mathematically invariant held-maintenance comparison. round3_calendar_comparison tests preserve the actual target rejection and remove only the obsolete purpose assertion.",
++  "test_ic_im_fear_source_delivery_20261016.py::test_both_missing_preserve_other_modules_and_never_publish_zero_hold": "Default new-signal validation now requires confirmed grid for ledger eligibility. Original partial-display behavior is exercised with require_complete=False in round3_grid_contract_replacements; direct/default persistence remains rejected.",
++  "test_icim_b3adv_state_20261021.py::test_im_short_expiry_model_branches_are_not_a_new_short_open": "Original fixture lacks a confirmed grid and is no longer a complete new ledger signal. Replacement supplies valid Fear evidence to verify the exact same expiry action, and separately verifies missing-Fear rejection and readonly partial display."
++}
+\ No newline at end of file
+--- /dev/null
++++ b/quant_research_runs/20261022_historical_calendar_repair_v1/final_args.json
+@@ -0,0 +1,137 @@
++[
++  "test_icim_round3_source_validation_20261021.py",
++  "test_delivery_transport_retry.py",
++  "test_ohlcv_provider_validation.py",
++  "test_ic_im_v1_4_policy.py",
++  "test_poe_ic_im_v1_4_state.py",
++  "test_migrate_ic_im_v1_3_r7_to_v1_4_r1_state.py",
++  "test_ic_im_v1_4_integration_guards.py",
++  "test_run_ic_im_v1_4_github_digest.py",
++  "test_adversarial_icim_delivery.py",
++  "test_im_put_policy.py",
++  "test_adversarial_im_put_execution_20260908.py",
++  "test_adversarial_im_ledger_20260908.py",
++  "test_adversarial_im_report_iv_20260908.py",
++  "test_im_put_price_basis.py",
++  "test_live_mo_put_midpoint_20260908.py",
++  "test_grid_half_release_20260913.py",
++  "test_im_grid160_half_release_20260914.py",
++  "test_ic_im_v1_4_ic_csi500_forward.py",
++  "test_adversarial_market_20261007.py",
++  "test_adversarial_state_20261007.py",
++  "test_adversarial_delivery_20261007.py",
++  "test_adversarial_policy_20261007.py",
++  "test_adversarial_cffex_transport_20261009.py",
++  "test_adversarial_cffex_close_runner_20261009.py",
++  "test_tencent_ohlcv_pagination_20261012.py",
++  "test_ic_im_v1_4_repeat_roll_20260925.py",
++  "test_ic_im_v1_4_market_maker_quotes_20260925.py",
++  "test_ic_im_fear_grid_v1.py",
++  "test_ic_im_daily_valuation.py",
++  "test_ic_im_chinabond.py",
++  "test_ic_im_quarter_roll_v1_3.py",
++  "test_ic_im_ordinary_put_route_fix_20261013.py",
++  "test_ic_im_quote_snapshot_guard_20261013.py",
++  "test_ic_im_split_put_summary_20261013.py",
++  "test_ic_im_put_execution_repairs_20261016.py",
++  "test_ic_im_option_maintenance_notice_20261016.py",
++  "test_ic_im_put_delivery_completion_20261016.py",
++  "test_ic_im_fear_source_delivery_20261016.py",
++  "test_ic_im_fear_delivery_adversarial_20261016.py",
++  "test_ic_im_month_spreads_20261018.py",
++  "test_ic_im_external_review_20261021.py",
++  "test_ic_im_external_review_display_cache_20261021.py",
++  "test_ic_im_external_review_round2_20261021.py",
++  "test_ic_im_adjusted_put_migration_20261021.py",
++  "test_ic_im_historical_put_identity_20261021.py",
++  "test_ic_im_review_ohlcv_wait_20261021.py",
++  "test_icim_redteam_display_20261021.py",
++  "test_icim_redteam_execution_20261021.py",
++  "test_icim_redteam_integration_20261021.py",
++  "test_icim_redteam_market_20261021.py",
++  "test_icim_round2_audit_evidence_20261021.py",
++  "test_icim_round2_audit_lifecycle_20261021.py",
++  "test_icim_round2_audit_market_20261021.py",
++  "test_icim_round2_audit_master_20261021.py",
++  "test_icim_a3_cash_20261021.py",
++  "test_icim_a3_history_20261021.py",
++  "test_icim_a3_integration_20261021.py",
++  "test_icim_a3_ohlcv_20261021.py",
++  "test_icim_batch3_calendar_20261021.py",
++  "test_icim_batch3_calendar_redteam_20261021.py",
++  "test_icim_batch3_concurrency_20261021.py",
++  "test_icim_batch3_old_call_20261021.py",
++  "test_icim_batch3_research_boundary_20261021.py",
++  "test_icim_batch3_valuation_20261021.py",
++  "test_icim_b3adv_calendar_20261021.py",
++  "test_icim_b3adv_concurrency_20261021.py",
++  "test_icim_b3adv_market_20261021.py",
++  "test_icim_b3adv_scope_20261021.py",
++  "test_icim_b3adv_state_20261021.py",
++  "test_icim_expert_calendar_20261021.py",
++  "test_icim_expert_market_20261021.py",
++  "test_icim_expert_state_20261021.py",
++  "test_icim_expert_ohlcv_20261021.py",
++  "test_icim_expert_display_retry_20261021.py",
++  "test_icim_expert_contract_replacements_20261021.py",
++  "test_icim_expert_audit_calendar_20261021.py",
++  "test_icim_expert_audit_integration_20261021.py",
++  "--deselect",
++  "test_icim_redteam_integration_20261021.py::test_frozen_source_receipt_matches_current_bytes",
++  "--deselect",
++  "test_icim_round2_audit_lifecycle_20261021.py::test_historical_adapter_retains_id_already_bound_to_requested_series",
++  "--deselect",
++  "test_icim_round2_audit_lifecycle_20261021.py::test_legal_standard_core_replay_crosses_strict_boundary",
++  "--deselect",
++  "test_ic_im_ordinary_put_route_fix_20261013.py::test_profit_and_momentum_execute_independently_after_restart[old_core-IC]",
++  "--deselect",
++  "test_ic_im_ordinary_put_route_fix_20261013.py::test_profit_and_momentum_execute_independently_after_restart[old_core-IM]",
++  "--deselect",
++  "test_ic_im_ordinary_put_route_fix_20261013.py::test_profit_and_momentum_execute_independently_after_restart[new_core-IC]",
++  "--deselect",
++  "test_ic_im_ordinary_put_route_fix_20261013.py::test_profit_and_momentum_execute_independently_after_restart[new_core-IM]",
++  "--deselect",
++  "test_ic_im_external_review_20261021.py::test_failed_query_never_reaches_new_close_target[IC]",
++  "--deselect",
++  "test_ic_im_external_review_20261021.py::test_failed_query_never_reaches_new_close_target[IM]",
++  "--deselect",
++  "test_icim_redteam_execution_20261021.py::test_public_query_restores_original_anchor_when_coexisting_openings_fail[ordinary-IC]",
++  "--deselect",
++  "test_icim_redteam_execution_20261021.py::test_public_query_restores_original_anchor_when_coexisting_openings_fail[ordinary-IM]",
++  "--deselect",
++  "test_icim_redteam_execution_20261021.py::test_public_query_restores_original_anchor_when_coexisting_openings_fail[short_put-IC]",
++  "--deselect",
++  "test_icim_redteam_execution_20261021.py::test_public_query_restores_original_anchor_when_coexisting_openings_fail[short_put-IM]",
++  "--deselect",
++  "test_icim_round2_audit_lifecycle_20261021.py::test_full_builder_december_expiry_stays_closed_without_2027_calendar",
++  "--deselect",
++  "test_icim_batch3_calendar_redteam_20261021.py::test_public_im_builder_checks_unknown_held_core_expiry",
++  "--deselect",
++  "test_icim_batch3_calendar_redteam_20261021.py::test_public_im_positive_momentum_held_expiry_is_checked[2703-True]",
++  "--deselect",
++  "test_icim_b3adv_market_20261021.py::test_mixed_malformed_and_lag_sources_are_not_called_pure_wait[IC]",
++  "--deselect",
++  "test_icim_b3adv_market_20261021.py::test_mixed_malformed_and_lag_sources_are_not_called_pure_wait[IM]",
++  "test_icim_round3_adversarial_p1_20261021.py",
++  "test_icim_round3_calendar_comparison_20261021.py",
++  "test_icim_round3_display_repairs_20261021.py",
++  "test_icim_round3_evidence_integration_20261021.py",
++  "test_icim_round3_evidence_store_20261021.py",
++  "test_icim_round3_grid_contract_replacements_20261021.py",
++  "test_icim_round3_grid_persistence_20261021.py",
++  "test_icim_round3_policy_repairs_20261021.py",
++  "test_icim_round3_recovery_audit_20261021.py",
++  "--deselect",
++  "test_icim_batch3_calendar_20261021.py::test_selected_monthly_maintenance_date_requires_covered_year",
++  "--deselect",
++  "test_icim_expert_calendar_20261021.py::test_public_unknown_positive_momentum_held_expiry_is_diagnostic_not_target",
++  "--deselect",
++  "test_ic_im_fear_source_delivery_20261016.py::test_both_missing_preserve_other_modules_and_never_publish_zero_hold",
++  "--deselect",
++  "test_icim_b3adv_state_20261021.py::test_im_short_expiry_model_branches_are_not_a_new_short_open",
++  "test_icim_round4_evidence_boundaries_20261021.py",
++  "test_icim_round4_recovery_20261021.py",
++  "test_icim_round5_recording_semantics_20261021.py",
++  "test_icim_historical_calendar_20261022.py",
++  "test_icim_historical_replay_adapter_20261022.py"
++]
+--- /dev/null
++++ b/quant_research_runs/20261022_historical_calendar_repair_v1/focused_args.json
+@@ -0,0 +1 @@
++["test_icim_historical_calendar_20261022.py"]
+--- /dev/null
++++ b/quant_research_runs/20261022_historical_calendar_repair_v1/history/rebuild_history.py
+@@ -0,0 +1,220 @@
++"""Rebuild dated targets/candidates and replay the current-rule research account.
++
++All writes are to a fresh run directory. Source helpers and account equations
++are reused without rewriting historical files or weakening production guards.
++"""
++from __future__ import annotations
++
++import argparse
++import hashlib
++import importlib.util
++import json
++import os
++import re
++import sys
++import time
++import traceback
++from copy import deepcopy
++from datetime import date, datetime, timezone
++from pathlib import Path
++from unittest.mock import patch
++
++ROOT = Path(__file__).resolve().parents[3]
++RUN = Path(__file__).resolve().parents[1]
++NATIVE = ROOT / 'outputs/re_certification/icim_v14_fix4_recert_20260924/l5_native_signal_reconstruction_20260925'
++STUDY = ROOT / 'quant_param_scan_runs/20260926_icim_fix8_momentum_transfer_robustness'
++HIST = ROOT / 'quant_research_runs/20261016_put_execution_repairs_v1'
++PAIRED = ROOT / 'quant_param_scan_runs/20260928_fear_entry_paired_exit_fix9_certified_v2'
++
++
++def sha(path):
++    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
++
++
++def load(name, path):
++    spec = importlib.util.spec_from_file_location(name, path)
++    module = importlib.util.module_from_spec(spec)
++    sys.modules[name] = module
++    spec.loader.exec_module(module)
++    return module
++
++
++class HistoricalICBinding:
++    """Track entry-selected security IDs; never adopt an ID from a resize quote."""
++    def __init__(self, formal):
++        self.formal = formal
++        self.selected_ids = {}
++        self.identity_checks = 0
++        self.select_id = formal._ic_put_selected_security_id
++        self.original_resize = formal._size_existing_ic_put
++
++    def selected_security(self, row):
++        security = self.select_id(row)
++        self.selected_ids[str(row['contract'])] = str(security)
++        return security
++
++    def resize(self, contract, quote, *args, **kwargs):
++        expected = self.selected_ids.get(str(contract))
++        if not expected or not re.fullmatch(r'[0-9]{8}', expected):
++            raise RuntimeError('historical held IC security was not established at entry')
++        actual_code = quote.get('contract', quote.name)
++        if str(quote.get('security_id')) != expected or str(actual_code) != str(contract):
++            raise RuntimeError('historical held IC identity changed; cannot adopt re-listed same-name M')
++        with self.formal.STRATEGY_QUERY_LOCK:
++            old = self.formal.LIVE_CONTINUATION_ANCHOR['IC']
++            projected = deepcopy(old)
++            projected.update(post_put_contract=str(contract), post_put_security_id=expected)
++            self.formal.LIVE_CONTINUATION_ANCHOR['IC'] = projected
++            try:
++                result = self.original_resize(contract, quote, *args, **kwargs)
++            finally:
++                self.formal.LIVE_CONTINUATION_ANCHOR['IC'] = old
++        self.identity_checks += 1
++        return result
++
++
++def main():
++    parser = argparse.ArgumentParser()
++    parser.add_argument('--stage', default='rebuilt_01')
++    args = parser.parse_args()
++    if not re.fullmatch(r'[A-Za-z0-9_]+', args.stage):
++        raise ValueError('invalid stage')
++    out = RUN / args.stage
++    out.mkdir(exist_ok=False)
++    inputs = out / 'inputs'
++    inputs.mkdir()
++    os.environ['ICIM_STATE_DIR'] = str(out / 'temporary_state')
++    sys.dont_write_bytecode = True
++    sys.path[:0] = [str(ROOT), str(STUDY), str(NATIVE)]
++    import numpy as np
++    import pandas as pd
++    import requests
++    network = []
++    def offline(self, method, url, *a, **kw):
++        network.append(str(url))
++        raise RuntimeError('RESEARCH_OFFLINE_NETWORK_BLOCKED: ' + str(url))
++    requests.sessions.Session.request = offline
++    import poe_ic_im_mainline_v1_4_bot as formal
++    import native_fix4_risk_signals_v1 as risk_engine
++    import native_fix4_ic_noseller_targets_v1 as ic_engine
++    import native_fix4_im_noseller_targets_v1 as im_engine
++    import native_fix4_seller_candidates_v1 as candidate_engine
++    from native_fix4_historical_sources_v2 import DatedSources
++
++    class CachedSources(DatedSources):
++        """Cache validated raw rows; return copies before any paper-fill transforms."""
++        def __init__(self):
++            super().__init__()
++            self.ic_cache, self.mo_cache, self.future_cache = {}, {}, {}
++        def ic_on(self, day):
++            if day not in self.ic_cache:
++                self.ic_cache[day] = super().ic_on(day)
++            spot, frame = self.ic_cache[day]
++            return spot, frame.copy(deep=True)
++        def im_mo_on(self, day):
++            if day not in self.mo_cache:
++                self.mo_cache[day] = super().im_mo_on(day)
++            return self.mo_cache[day].copy(deep=True)
++        def futures_on(self, product, day):
++            key = product, day
++            if key not in self.future_cache:
++                self.future_cache[key] = super().futures_on(product, day)
++            return self.future_cache[key].copy(deep=True)
++
++    source = CachedSources()
++    paired = load('calendar_repaired_fear_pairs', PAIRED / 'run_scan.py')
++    old_history = load('calendar_repaired_history_metrics', HIST / 'run_history.py')
++    lifecycle = load('calendar_repaired_execution_cost_lifecycle', HIST / 'seller_lifecycle_execution_cost.py')
++    anchor_before = deepcopy(formal.LIVE_CONTINUATION_ANCHOR)
++    start = time.monotonic()
++    receipt = {'started_at': datetime.now(timezone.utc).isoformat(),
++               'formal_bot_sha256': sha(formal.__file__), 'policy_sha256': sha(formal.v14_policy.__file__),
++               'calendar_years': sorted(formal._OFFICIAL_EXCHANGE_CALENDAR_YEARS),
++               'policy': 'current imported policy, not the pinned pre-10/16 control',
++               'scope': 'listed-history theoretical account; reconstructed IC membership, retrospective Fear and ordinary-buyer proxies remain disclosed',
++               'counterfactual_effective_dates': {'IC_momentum': '1900-01-01', 'IC_seller_MOM120': '1900-01-01'},
++               'network_attempts': network, 'phases': {}}
++    error = None
++    original_seller_effective = formal.v14_policy.IC_SELLER_MOM120_EFFECTIVE_SIGNAL_DATE
++    try:
++        # Match the 10/16 as-if-current control: IC admission uses MOM120 >= 0
++        # throughout history. Production's forward-only date remains unchanged.
++        formal.v14_policy.IC_SELLER_MOM120_EFFECTIVE_SIGNAL_DATE = date(1900, 1, 1)
++        fear = pd.read_csv(paired.listed.FEAR_FILE).set_index('date').fear_greed_index
++        risks = {}
++        for product in ['IC', 'IM']:
++            with patch.object(formal, 'IC_MOMENTUM_EFFECTIVE_SIGNAL_DATE', date(1900, 1, 1)):
++                raw, audit = risk_engine.produce(product, source)
++            risk, signals, grid_audit = paired.build_targets(raw, fear, product, 50.)
++            risks[product] = risk
++            risk.to_csv(inputs / f'native_fix4_{product.lower()}_risk_signals_v1.csv.gz', index=False, compression='gzip')
++            signals.to_csv(out / f'{product.lower()}_grid_signals.csv', index=False)
++            receipt['phases'][f'{product}_risk'] = {'raw': audit, 'grid': grid_audit}
++        binding = HistoricalICBinding(formal)
++        with patch.object(ic_engine, 'HERE', inputs), patch.object(ic_engine, 'DatedSources', return_value=source), \
++             patch.object(formal, '_ic_put_selected_security_id', side_effect=binding.selected_security), \
++             patch.object(formal, '_size_existing_ic_put', side_effect=binding.resize):
++            ic_engine.main(version='v2')
++        receipt['phases']['IC_identity_checks'] = binding.identity_checks
++        with patch.object(im_engine, 'HERE', inputs), patch.object(im_engine, 'DatedSources', return_value=source), \
++             patch.object(formal, 'select_im_call_d10', return_value=None), \
++             patch.object(formal, 'select_im_call_rescue', return_value=None):
++            im_engine.main(version='v3')
++        for product, version in [('IC', 'v2'), ('IM', 'v3')]:
++            audit = json.loads((inputs / f'native_fix4_{product.lower()}_noseller_targets_{version}.json').read_text(encoding='utf-8'))
++            receipt['phases'][f'{product}_targets'] = audit
++            if audit['fail_closed_events']:
++                raise RuntimeError(f'{product}: target evidence unresolved; refusing account replay')
++        with patch.object(candidate_engine, 'HERE', inputs), patch.object(candidate_engine, 'DatedSources', return_value=source):
++            candidate_engine.main()
++        candidates = pd.read_csv(inputs / 'native_fix4_seller_candidates_v1.csv.gz')
++        gov = pd.read_csv(ROOT / 'data/ic_im_valuation_risk_premium_forecast_v4/chinabond_government_10y.csv', parse_dates=['date']).set_index('date').gov10y_yield
++        spot = pd.read_csv(risk_engine.OHLCV['IM'], parse_dates=['date']).set_index('date').close
++        daily_frames, event_frames = [], []
++        for product in ['IC', 'IM']:
++            lifecycle.HERE, lifecycle.VERSION = inputs, 'v4'
++            life, life_audit = lifecycle.run(product, 'repeat_roll', source, gov, spot)
++            if life.action.eq('HOLD_FAIL_CLOSED').any():
++                raise RuntimeError(f'{product}: fail-closed lifecycle is not a complete research target')
++            entries = life.loc[life.action.isin(['ENTER_SHORT_PUT', 'ROLL_SHORT_PUT'])]
++            assert np.array_equal(entries.entry_premium_state_after.to_numpy(float), entries.fill_new_t1.to_numpy(float))
++            life.to_csv(out / f'{product.lower()}_seller_lifecycle.csv.gz', index=False, compression='gzip')
++            paired.listed.grid_scan.configure_account(inputs)
++            account = paired.listed.grid_scan.account_stage
++            daily, events, audit = account.replay(product, 'repeat_roll', source, life, candidates, gov, spot)
++            assert len(daily) == len(risks[product]) and daily.nav.gt(0).all() and np.isfinite(daily.nav).all()
++            assert (daily.cash_close - daily.margin_reserved).min() >= -1e-7
++            assert not events.loc[events.event.eq('trade'), 'symbol'].astype(str).str.startswith('option|call|').any()
++            r = daily.return_net.to_numpy(float)
++            assert np.max(np.abs(np.cumprod(1 + r) - daily.nav.to_numpy(float))) < 1e-10
++            daily['product'], daily['arm'] = product, 'calendar_rebuilt'
++            events['product'], events['arm'] = product, 'calendar_rebuilt'
++            daily_frames.append(daily); event_frames.append(events)
++            receipt['phases'][f'{product}_account'] = {'lifecycle': life_audit, 'account': audit, 'metrics': old_history.metrics(daily)}
++            print(json.dumps({'product': product, 'status': 'account_complete', **old_history.metrics(daily)}, ensure_ascii=False), flush=True)
++        pd.concat(daily_frames, ignore_index=True).to_csv(out / 'daily_paths.csv.gz', index=False, compression='gzip')
++        pd.concat(event_frames, ignore_index=True).to_csv(out / 'events.csv.gz', index=False, compression='gzip')
++        receipt['status'] = 'PASS'
++    except Exception as exc:
++        error = exc
++        receipt.update(status='FAIL', error_type=type(exc).__name__, error=str(exc), traceback=traceback.format_exc())
++        traceback.print_exc()
++    finally:
++        formal.v14_policy.IC_SELLER_MOM120_EFFECTIVE_SIGNAL_DATE = original_seller_effective
++        receipt['anchors_unchanged'] = formal.LIVE_CONTINUATION_ANCHOR == anchor_before
++        receipt['seconds'] = time.monotonic() - start
++        receipt['finished_at'] = datetime.now(timezone.utc).isoformat()
++        receipt['loaded_sources'] = {}
++        for module in list(sys.modules.values()):
++            p = Path(getattr(module, '__file__', '') or '.')
++            if p.is_file() and p.suffix == '.py' and p.is_relative_to(ROOT):
++                receipt['loaded_sources'][str(p.relative_to(ROOT))] = sha(p)
++        (out / 'receipt.json').write_text(json.dumps(receipt, ensure_ascii=False, indent=2, default=str) + '\n', encoding='utf-8')
++        print(json.dumps({'stage': args.stage, 'status': receipt['status'], 'seconds': receipt['seconds'],
++                          'network_attempts': len(network), 'anchors_unchanged': receipt['anchors_unchanged']}, ensure_ascii=False), flush=True)
++    if error:
++        raise SystemExit(1)
++
++
++if __name__ == '__main__':
++    main()
+--- /dev/null
++++ b/quant_research_runs/20261022_historical_calendar_repair_v1/history/run_original_entry.py
+@@ -0,0 +1,24 @@
++"""Run the previously blocked, unchanged history entry with repaired calendars."""
++from pathlib import Path
++import importlib.util
++import sys
++
++ROOT = Path(__file__).resolve().parents[3]
++RUN = Path(__file__).resolve().parents[1]
++SOURCE = ROOT / 'quant_research_runs/20261022_five_rounds_backtest_impact_v1/run_worker.py'
++
++
++def main():
++    spec = importlib.util.spec_from_file_location('calendar_original_entry_worker', SOURCE)
++    module = importlib.util.module_from_spec(spec)
++    sys.modules[spec.name] = module
++    spec.loader.exec_module(module)
++    target = RUN / 'original_entry_runs'
++    target.mkdir(exist_ok=False)
++    module.HERE = target
++    sys.argv = [str(SOURCE), 'execution_history', 'after']
++    module.main()
++
++
++if __name__ == '__main__':
++    main()
+--- /dev/null
++++ b/quant_research_runs/20261022_historical_calendar_repair_v1/prior_args.json
+@@ -0,0 +1,135 @@
++[
++  "test_icim_round3_source_validation_20261021.py",
++  "test_delivery_transport_retry.py",
++  "test_ohlcv_provider_validation.py",
++  "test_ic_im_v1_4_policy.py",
++  "test_poe_ic_im_v1_4_state.py",
++  "test_migrate_ic_im_v1_3_r7_to_v1_4_r1_state.py",
++  "test_ic_im_v1_4_integration_guards.py",
++  "test_run_ic_im_v1_4_github_digest.py",
++  "test_adversarial_icim_delivery.py",
++  "test_im_put_policy.py",
++  "test_adversarial_im_put_execution_20260908.py",
++  "test_adversarial_im_ledger_20260908.py",
++  "test_adversarial_im_report_iv_20260908.py",
++  "test_im_put_price_basis.py",
++  "test_live_mo_put_midpoint_20260908.py",
++  "test_grid_half_release_20260913.py",
++  "test_im_grid160_half_release_20260914.py",
++  "test_ic_im_v1_4_ic_csi500_forward.py",
++  "test_adversarial_market_20261007.py",
++  "test_adversarial_state_20261007.py",
++  "test_adversarial_delivery_20261007.py",
++  "test_adversarial_policy_20261007.py",
++  "test_adversarial_cffex_transport_20261009.py",
++  "test_adversarial_cffex_close_runner_20261009.py",
++  "test_tencent_ohlcv_pagination_20261012.py",
++  "test_ic_im_v1_4_repeat_roll_20260925.py",
++  "test_ic_im_v1_4_market_maker_quotes_20260925.py",
++  "test_ic_im_fear_grid_v1.py",
++  "test_ic_im_daily_valuation.py",
++  "test_ic_im_chinabond.py",
++  "test_ic_im_quarter_roll_v1_3.py",
++  "test_ic_im_ordinary_put_route_fix_20261013.py",
++  "test_ic_im_quote_snapshot_guard_20261013.py",
++  "test_ic_im_split_put_summary_20261013.py",
++  "test_ic_im_put_execution_repairs_20261016.py",
++  "test_ic_im_option_maintenance_notice_20261016.py",
++  "test_ic_im_put_delivery_completion_20261016.py",
++  "test_ic_im_fear_source_delivery_20261016.py",
++  "test_ic_im_fear_delivery_adversarial_20261016.py",
++  "test_ic_im_month_spreads_20261018.py",
++  "test_ic_im_external_review_20261021.py",
++  "test_ic_im_external_review_display_cache_20261021.py",
++  "test_ic_im_external_review_round2_20261021.py",
++  "test_ic_im_adjusted_put_migration_20261021.py",
++  "test_ic_im_historical_put_identity_20261021.py",
++  "test_ic_im_review_ohlcv_wait_20261021.py",
++  "test_icim_redteam_display_20261021.py",
++  "test_icim_redteam_execution_20261021.py",
++  "test_icim_redteam_integration_20261021.py",
++  "test_icim_redteam_market_20261021.py",
++  "test_icim_round2_audit_evidence_20261021.py",
++  "test_icim_round2_audit_lifecycle_20261021.py",
++  "test_icim_round2_audit_market_20261021.py",
++  "test_icim_round2_audit_master_20261021.py",
++  "test_icim_a3_cash_20261021.py",
++  "test_icim_a3_history_20261021.py",
++  "test_icim_a3_integration_20261021.py",
++  "test_icim_a3_ohlcv_20261021.py",
++  "test_icim_batch3_calendar_20261021.py",
++  "test_icim_batch3_calendar_redteam_20261021.py",
++  "test_icim_batch3_concurrency_20261021.py",
++  "test_icim_batch3_old_call_20261021.py",
++  "test_icim_batch3_research_boundary_20261021.py",
++  "test_icim_batch3_valuation_20261021.py",
++  "test_icim_b3adv_calendar_20261021.py",
++  "test_icim_b3adv_concurrency_20261021.py",
++  "test_icim_b3adv_market_20261021.py",
++  "test_icim_b3adv_scope_20261021.py",
++  "test_icim_b3adv_state_20261021.py",
++  "test_icim_expert_calendar_20261021.py",
++  "test_icim_expert_market_20261021.py",
++  "test_icim_expert_state_20261021.py",
++  "test_icim_expert_ohlcv_20261021.py",
++  "test_icim_expert_display_retry_20261021.py",
++  "test_icim_expert_contract_replacements_20261021.py",
++  "test_icim_expert_audit_calendar_20261021.py",
++  "test_icim_expert_audit_integration_20261021.py",
++  "--deselect",
++  "test_icim_redteam_integration_20261021.py::test_frozen_source_receipt_matches_current_bytes",
++  "--deselect",
++  "test_icim_round2_audit_lifecycle_20261021.py::test_historical_adapter_retains_id_already_bound_to_requested_series",
++  "--deselect",
++  "test_icim_round2_audit_lifecycle_20261021.py::test_legal_standard_core_replay_crosses_strict_boundary",
++  "--deselect",
++  "test_ic_im_ordinary_put_route_fix_20261013.py::test_profit_and_momentum_execute_independently_after_restart[old_core-IC]",
++  "--deselect",
++  "test_ic_im_ordinary_put_route_fix_20261013.py::test_profit_and_momentum_execute_independently_after_restart[old_core-IM]",
++  "--deselect",
++  "test_ic_im_ordinary_put_route_fix_20261013.py::test_profit_and_momentum_execute_independently_after_restart[new_core-IC]",
++  "--deselect",
++  "test_ic_im_ordinary_put_route_fix_20261013.py::test_profit_and_momentum_execute_independently_after_restart[new_core-IM]",
++  "--deselect",
++  "test_ic_im_external_review_20261021.py::test_failed_query_never_reaches_new_close_target[IC]",
++  "--deselect",
++  "test_ic_im_external_review_20261021.py::test_failed_query_never_reaches_new_close_target[IM]",
++  "--deselect",
++  "test_icim_redteam_execution_20261021.py::test_public_query_restores_original_anchor_when_coexisting_openings_fail[ordinary-IC]",
++  "--deselect",
++  "test_icim_redteam_execution_20261021.py::test_public_query_restores_original_anchor_when_coexisting_openings_fail[ordinary-IM]",
++  "--deselect",
++  "test_icim_redteam_execution_20261021.py::test_public_query_restores_original_anchor_when_coexisting_openings_fail[short_put-IC]",
++  "--deselect",
++  "test_icim_redteam_execution_20261021.py::test_public_query_restores_original_anchor_when_coexisting_openings_fail[short_put-IM]",
++  "--deselect",
++  "test_icim_round2_audit_lifecycle_20261021.py::test_full_builder_december_expiry_stays_closed_without_2027_calendar",
++  "--deselect",
++  "test_icim_batch3_calendar_redteam_20261021.py::test_public_im_builder_checks_unknown_held_core_expiry",
++  "--deselect",
++  "test_icim_batch3_calendar_redteam_20261021.py::test_public_im_positive_momentum_held_expiry_is_checked[2703-True]",
++  "--deselect",
++  "test_icim_b3adv_market_20261021.py::test_mixed_malformed_and_lag_sources_are_not_called_pure_wait[IC]",
++  "--deselect",
++  "test_icim_b3adv_market_20261021.py::test_mixed_malformed_and_lag_sources_are_not_called_pure_wait[IM]",
++  "test_icim_round3_adversarial_p1_20261021.py",
++  "test_icim_round3_calendar_comparison_20261021.py",
++  "test_icim_round3_display_repairs_20261021.py",
++  "test_icim_round3_evidence_integration_20261021.py",
++  "test_icim_round3_evidence_store_20261021.py",
++  "test_icim_round3_grid_contract_replacements_20261021.py",
++  "test_icim_round3_grid_persistence_20261021.py",
++  "test_icim_round3_policy_repairs_20261021.py",
++  "test_icim_round3_recovery_audit_20261021.py",
++  "--deselect",
++  "test_icim_batch3_calendar_20261021.py::test_selected_monthly_maintenance_date_requires_covered_year",
++  "--deselect",
++  "test_icim_expert_calendar_20261021.py::test_public_unknown_positive_momentum_held_expiry_is_diagnostic_not_target",
++  "--deselect",
++  "test_ic_im_fear_source_delivery_20261016.py::test_both_missing_preserve_other_modules_and_never_publish_zero_hold",
++  "--deselect",
++  "test_icim_b3adv_state_20261021.py::test_im_short_expiry_model_branches_are_not_a_new_short_open",
++  "test_icim_round4_evidence_boundaries_20261021.py",
++  "test_icim_round4_recovery_20261021.py",
++  "test_icim_round5_recording_semantics_20261021.py"
++]
+--- /dev/null
++++ b/quant_research_runs/20261022_historical_calendar_repair_v1/pytest.ini
+@@ -0,0 +1,4 @@
++[pytest]
++python_files = test_*.py
++python_classes = Test*
++python_functions = test_*
+--- /dev/null
++++ b/quant_research_runs/20261022_historical_calendar_repair_v1/record.md
+@@ -0,0 +1,53 @@
++# 历史日历修复与完整账户重算 v1
++
++2026-10-22，本地完成。历史回测入口已恢复；补齐真实历史日历后，IC 的理论回测收益需要下调，IM 逐日收益不变。原冻结研究结果保留，新的实算结果单独存档，不回写旧记录或正式账本。
++
++## 修复与日期依据
++
++生产源码只修改 poe_ic_im_mainline_v1_4_bot.py 的已核验年份集合和 2022—2025 年休市日期，覆盖扩展为 2022—2026。没有改参数、风险公式、数量算法、策略生效日期、schema 或执行/持久化门槛；2027 及其他未覆盖年份仍严格拒绝正式执行。2026 全年会话逐日与原版本一致。
++
++SSE 依据官网年度休市通知原文；CFFEX 依据其原通知的保留转载，并与冻结官方历史行情中的全年度交易日期及 48 个期货合约最后交易日交叉验证。CFFEX 官网通知请求未成功，未声称取得其官网原始 HTTP 报文。calendar_notices.json 是带来源、文号和发布日期的事实摘录，不是原始报文。四年会话数分别为 242、242、242、243；全部日期和 48 个到期日通过独立 oracle。证据见 tests/fixtures/icim_historical_calendar_20261022/，原始 IC 月归档 48 份和既有历史输入 55 份均核对 SHA-256。
++
++新研究入口 history/rebuild_history.py 同时补上旧研究适配器的持仓身份传递：由开仓时选定的 security_id 建立持仓身份，缩放张数时校验历史合约及该 ID，不从当前报价反向认领身份。调用原正式身份门槛前在 RLock 内暂投影历史持仓，finally 恢复原锚点。21 次历史 IC 缩放检查全部通过，异常、错配和并发反例另有测试。
++
++## 实算结果
++
++对照为 2026-10-16 已修复普通 Put/卖方执行成本的 both 账户。两边使用同一日收益、同一 252/N 年化、初始 NAV=1 的回撤口径；full 样本 IC 为 2022-09-19—2026-08-13（945 日），IM 为 2022-07-22—2026-08-14（986 日）。3Y/1Y 是各品种样本终点回溯的日历窗口。
++
++| 品种 | 窗口 | 修前 CAGR | 修后 CAGR | 变化（百分点） | 修前最大回撤 | 修后最大回撤 |
++| --- | --- | ---: | ---: | ---: | ---: | ---: |
++| IC | full | 35.392395% | 34.814538% | -0.577857 | -9.001267% | -9.001267% |
++| IC | 3Y | 47.795206% | 46.975788% | -0.819418 | -7.120496% | -7.120504% |
++| IC | 1Y | 62.424546% | 62.424546% | -0.000000 | -6.035869% | -6.035869% |
++| IM | full | 29.933061% | 29.933061% | +0.000000 | -12.918214% | -12.918214% |
++| IM | 3Y | 42.229995% | 42.229995% | +0.000000 | -12.918214% | -12.918214% |
++| IM | 1Y | 36.815853% | 36.815853% | +0.000000 | -10.149361% | -10.149361% |
++
++账户引擎原生 account.cagr 使用另一计数口径（N-1），其摘要数值会略有差别；本报告、receipt.phases.*_account.metrics 及 delivery/analysis.json 均统一使用旧对照入口的 252/N 口径，不混合比较。全期 IC 最大回撤不变；3Y 回撤存在约 -0.00000787 个百分点的微小变化，不能据四舍五入称所有窗口完全不变。
++
++差异集中在 IC 买 Put：旧研究路径将 2024 年 2 月月到期参照落在休市中的 2 月 16 日，漏掉实际顺延到 2 月 19 日的维护。修复后包含 2 月 8 日维护预览在内的 19 个目标日发生合约/张数变化，直至 3 月 13 日；实际收益从 2 月 19 日起产生差异，受持仓及后续状态影响共有 198 个日收益变化。逐字段差异见 delivery/target_differences.csv，逐日账户见 rebuilt_02/daily_paths.csv.gz。期末 IC NAV 从 3.115146768 调整为 3.065580541，全期 CAGR 下降约 0.577857 个百分点。
++
++估值、动量、网格和保护 Delta 风险输入均与旧对照一致（浮点误差小于 1e-12）。卖方实际动作、持仓、现金成交成本、到期结算及恢复路径一致；IC 有 34 条候选解释、22 条未改变准入结果的候选 IV 元数据差异，已保留在 delivery/lifecycle_differences.csv。IM 原目标表中的旧 Call 元数据按现行规则清除，而旧账户已经禁用这些 Call，故其 986 个日收益逐值完全一致；没有恢复新卖 Call。
++
++## 验证路径与保留记录
++
++1. calendar_before：修前 72 项中 15 失败，缺失年份阻断证据保留。补齐后该组 72 项通过；最终新增已覆盖跨年边界后为 73 项。
++2. original_entry_runs/execution_history_after：原 10-16 入口不改代码恢复运行，128.89 秒，对照 18 文件、73884 行数值零差异。这是复用原目标且沿用该入口钉住旧 policy 的对照，不能代表重新选约后的收益无变化。
++3. rebuilt_02：70.20 秒完成当前风险函数、945/986 日目标、1929 条卖方候选、完整生命周期及含费用/保证金的账户重建；零 HTTP 尝试、无缺证据目标、无 HOLD_FAIL_CLOSED 生命周期，运行后锚点恢复。重新计算日收益累乘 NAV、费用事件汇总和现金扣保证金非负，均通过独立保存文件核算。
++4. 为对齐旧研究“现行规则用于全历史”的反事实口径，仅研究进程内将 IC 动量及卖方 MOM120 生效日期置为 1900，并最终恢复；生产源码生效日期未改。rebuilt_01 遗漏卖方生效日期对齐，其算术完成记录保留，但 interpretation.json 明确 comparison_eligible=false，不能作为最终收益结论；原执行源码另存 history/rebuild_history_stage01.py.txt。
++5. accepted_01：2736 通过、1 失败，保留原失败。失败是旧测试假定 2025 永远未覆盖；原文件备份后，只显式模拟单年覆盖，原跨年拒绝断言不变，并新增真实覆盖年份双向跨年测试。
++6. accepted_02：91 文件、2738 通过，0 失败/错误/跳过，原 22 项单列不扩展。973 项源码/配置/研究输入和回执绑定前后一致；XML、退出码、收集节点及日志可追溯。本轮未新启多智能体，累计范围含此前对抗性用例。
++
++有效测试回执为 accepted_02/receipt.json；财务比较以 rebuilt_02 和 delivery/analysis.json 为准。所有失败和比较无效阶段原样保留，不覆盖重跑。
++
++## 保护与复跑
++
++补前备份七个原文件，另备份一份旧测试文件。原冻结规格/SHA、首次研究输出、既有五轮审计文件、全部原行情输入及正式 runtime 保护清单均核对；预期修改仅 bot、旧测试的缺口场景构造、登记表，以及本轮新增规范、oracle、测试和研究文件。正式 runtime 的路径集合和文件哈希均不变，155 文件（142 JSON）。最终检查见 delivery/final_verification.json，精确增量见 delivery/source_delta.patch。
++
++可在项目目录以新的 stage 名离线重跑（已存在目录会拒绝覆盖）：
++
++```powershell
++python -X utf8 -B quant_research_runs/20261022_historical_calendar_repair_v1/history/rebuild_history.py --stage rebuilt_review_03
++```
++
++研究仍属于真实挂牌日线上的理论账户：保留 30% 保证金/缓冲口径、既定交易费用和旧账户执行模型；15% 卖方 NAV 可行性是继承假设，不是券商验证。历史 IC 合约身份有重建、Fear 使用后下载数据，普通买 Put 仍继承代理定价/开盘处理，不能升级为点时或真实成交认证。没有据此调整参数，也没有部署、发送日报或续写正式账本。
+--- /dev/null
++++ b/quant_research_runs/20261022_historical_calendar_repair_v1/run_bound.py
+@@ -0,0 +1,70 @@
++"""Bind a fresh isolated test invocation to code and actual test selection."""
++from pathlib import Path
++import hashlib
++import json
++import os
++import subprocess
++import sys
++import xml.etree.ElementTree as ET
++
++HERE = Path(__file__).resolve().parent
++ROOT = HERE.parents[1]
++sys.path.insert(0, str(HERE))
++import evidence_gate
++
++
++def sha(path):
++    return hashlib.sha256(path.read_bytes()).hexdigest()
++
++
++def bindings():
++    paths = set(ROOT.glob("*.py"))
++    for directory in (ROOT / "cloud", ROOT / "tests"):
++        if directory.exists():
++            paths.update(p for p in directory.rglob("*") if p.is_file() and "__pycache__" not in p.parts)
++    paths.update(p for p in (ROOT / "docs").glob("*") if p.is_file() and
++                 (p.name.endswith("_spec.md") or p.name.endswith(".sha256")))
++    paths.update(p for p in HERE.glob("*") if p.is_file() and p.suffix in {".py", ".json", ".ini"})
++    paths.update(p for p in (HERE / "history").rglob("*.py") if "__pycache__" not in p.parts)
++    paths.update(p for p in (HERE / "rebuilt_02" / "inputs").glob("*") if p.is_file())
++    if (HERE / "rebuilt_02" / "receipt.json").is_file():
++        paths.add(HERE / "rebuilt_02" / "receipt.json")
++    paths.update(p for p in ROOT.glob("*") if p.name in {"pytest.ini", "pyproject.toml", "conftest.py"})
++    return {p.relative_to(ROOT).as_posix(): sha(p) for p in sorted(paths)}
++
++
++def main():
++    stage, argfile = sys.argv[1:]
++    target = HERE / stage
++    target.mkdir(exist_ok=False)
++    args = json.loads(Path(argfile).read_text(encoding="utf-8"))
++    before = bindings()
++    (target / "source_before.json").write_text(json.dumps(before, indent=2), encoding="utf-8")
++    env = dict(os.environ, ICIM_AUDIT_STAGE=stage)
++    result = subprocess.run([sys.executable, str(HERE / "run_checks.py"), *args], cwd=ROOT, env=env,
++                            stdout=subprocess.PIPE, stderr=subprocess.STDOUT, encoding="utf-8")
++    after = bindings()
++    (target / "source_after.json").write_text(json.dumps(after, indent=2), encoding="utf-8")
++    receipt = {"exit_code": result.returncode, "source_before_equals_after": before == after,
++               "source_files": len(before), "stage": stage}
++    try:
++        receipt["counts"] = evidence_gate.validate_run(target / "regression.xml", process_exit_code=result.returncode,
++                                                     source_before=before, source_after=after)
++    except Exception as exc:
++        receipt["acceptance_error"] = str(exc)
++        xml = ET.parse(target / "regression.xml").getroot() if (target / "regression.xml").exists() else None
++        if xml is not None:
++            receipt["diagnostic_counts"] = {key: sum(int(s.get(key, 0)) for s in
++                ([xml] if xml.tag == "testsuite" else list(xml))) for key in ("tests", "failures", "errors", "skipped")}
++    artifacts = ["regression.xml", "regression.txt", "source_before.json", "source_after.json", "test_run.json", "collection.json"]
++    receipt["artifacts"] = {name: sha(target / name) for name in artifacts if (target / name).exists()}
++    (target / "receipt.json").write_text(json.dumps(receipt, indent=2), encoding="utf-8")
++    if "acceptance_error" not in receipt:
++        evidence_gate.validate_receipt(target)
++    print(result.stdout[-18000:])
++    print(json.dumps({k: v for k, v in receipt.items() if k != "artifacts"}, indent=2))
++    raise SystemExit(result.returncode or (1 if "acceptance_error" in receipt else 0))
++
++
++if __name__ == "__main__":
++    main()
+--- /dev/null
++++ b/quant_research_runs/20261022_historical_calendar_repair_v1/run_checks.py
+@@ -0,0 +1,109 @@
++"""Isolated Windows test runner with sanitized output and no production state."""
++from pathlib import Path
++import contextlib
++import io
++import json
++import os
++import re
++import sys
++import uuid
++
++ROOT = Path(__file__).resolve().parents[2]
++HERE = Path(__file__).resolve().parent / os.environ.get("ICIM_AUDIT_STAGE", "cumulative")
++HERE.mkdir(parents=True, exist_ok=True)
++if any('/cloud/tests/' in arg.replace('\\', '/') for arg in sys.argv[1:]):
++    HERE = HERE / 'cloud'
++sys.path.insert(0, str(ROOT))
++# CPython 3.14 mkdir(0700) on this restricted Windows token produces a directory
++# the test process cannot reopen. Only the disposable test tree is affected.
++TASK_TEMP = Path(os.environ['TEMP']) / ('icim_put_' + uuid.uuid4().hex[:8])
++TASK_TEMP.mkdir(parents=True, exist_ok=False)
++original_mkdir = os.mkdir
++def test_mkdir(path, mode=0o777, *, dir_fd=None):
++    if mode == 0o700:
++        mode = 0o777
++    return original_mkdir(path, mode, **({} if dir_fd is None else {'dir_fd': dir_fd}))
++os.mkdir = test_mkdir
++original_chmod = os.chmod
++def test_chmod(path, mode, **kwargs):
++    return original_chmod(path, 0o777 if mode == 0o700 else mode, **kwargs)
++os.chmod = test_chmod
++os.environ.update(TEMP=str(TASK_TEMP), TMP=str(TASK_TEMP), ICIM_STATE_DIR=str(TASK_TEMP/'state'),
++                  ICIM_REQUIRE_MIGRATION='0', PYTHONDONTWRITEBYTECODE='1',
++                  ICIM_DISABLE_EVIDENCE_CAPTURE='1')
++import tempfile
++tempfile.tempdir = str(TASK_TEMP)
++import pytest
++
++class EvidenceIsolation:
++    def __init__(self):
++        self.collected = []
++        self.deselected = []
++        self.selected = []
++        self.executed = []
++
++    @pytest.hookimpl(tryfirst=True)
++    def pytest_collection_modifyitems(self, items):
++        self.collected = [item.nodeid for item in items]
++        # The old auditor hardcodes its evidence directory. Preserve its tests
++        # and assertions, but isolate newly generated receipts in this run.
++        for item in items:
++            module = item.module
++            if module.__name__ == 'test_icim_round2_audit_master_20261021':
++                module.AUDIT = HERE / 'master_bindings'
++            elif module.__name__ in {
++                'test_icim_a3_ohlcv_20261021',
++                'test_icim_batch3_calendar_redteam_20261021',
++                'test_icim_batch3_old_call_20261021',
++            }:
++                module.AUDIT = HERE / 'legacy_bindings' / module.__name__
++            elif module.__name__ == 'test_icim_b3adv_concurrency_20261021':
++                module.AUDIT = HERE / 'legacy_bindings' / module.__name__
++            elif module.__name__ == 'test_icim_b3adv_scope_20261021':
++                def observation(name, value, module_name=module.__name__):
++                    target = HERE / 'legacy_bindings' / module_name / name
++                    target.parent.mkdir(parents=True, exist_ok=True)
++                    with target.open('x', encoding='utf-8') as handle:
++                        json.dump(value, handle, ensure_ascii=False, indent=2)
++                module.observation = observation
++            elif module.__name__ == 'test_icim_batch3_research_boundary_20261021':
++                module.HERE = HERE / 'legacy_bindings' / module.__name__
++
++    def pytest_deselected(self, items):
++        self.deselected.extend(item.nodeid for item in items)
++
++    def pytest_collection_finish(self, session):
++        self.selected = [item.nodeid for item in session.items]
++
++    def pytest_runtest_logreport(self, report):
++        if report.when == 'call':
++            self.executed.append(report.nodeid)
++
++def sanitize(s):
++    for key, value in os.environ.items():
++        if re.search(r'key|token|secret|password', key, re.I) and len(value) >= 8:
++            s = s.replace(value, '[REDACTED]')
++    return re.sub(r'sk-[A-Za-z0-9_-]{10,}', '[REDACTED]', s)
++
++manifest = json.loads((ROOT/'docs/ic_im_v1_4_script_delivery_sync_20261013_source_manifest.json').read_text(encoding='utf-8'))
++tests = sys.argv[1:] or manifest['required_local_tests']+['test_ic_im_put_execution_repairs_20261016.py', 'test_ic_im_option_maintenance_notice_20261016.py', 'test_ic_im_put_delivery_completion_20261016.py']
++capture=io.StringIO()
++hidden_addopts_present = bool(os.environ.pop('PYTEST_ADDOPTS', ''))
++evidence_plugin = EvidenceIsolation()
++with contextlib.redirect_stdout(capture), contextlib.redirect_stderr(capture):
++    status=pytest.main(['-q','-p','no:cacheprovider','-c',str(Path(__file__).resolve().parent/'pytest.ini'),
++                        '--rootdir',str(ROOT),'-o','addopts=','--basetemp',str(TASK_TEMP/'pytest'),
++                        '--junitxml',str(HERE/'regression.xml')]+tests,
++                       plugins=[evidence_plugin])
++safe=sanitize(capture.getvalue())
++(HERE/'regression.txt').write_text(safe,encoding='utf-8')
++xml=HERE/'regression.xml'
++if xml.exists():xml.write_text(sanitize(xml.read_text(encoding='utf-8')),encoding='utf-8')
++(HERE/'test_run.json').write_text(json.dumps(dict(exit_code=int(status),files=tests,
++     state_dir=str(TASK_TEMP/'state'),test_only_windows_mkdir_mode_adjustment=True,
++     implicit_pytest_addopts_removed=hidden_addopts_present),indent=2),encoding='utf-8')
++(HERE/'collection.json').write_bytes((json.dumps(dict(collected=evidence_plugin.collected,
++     selected=evidence_plugin.selected,deselected=evidence_plugin.deselected,
++     executed=evidence_plugin.executed),indent=2)+'\n').encode('utf-8'))
++print(safe[-17000:])
++sys.exit(int(status))
+--- /dev/null
++++ b/test_icim_historical_calendar_20261022.py
+@@ -0,0 +1,106 @@
++"""Official historical-calendar repair: true session/expiry oracles and gates."""
++import ast
++import json
++from datetime import date, timedelta
++from pathlib import Path
++
++import pandas as pd
++import pytest
++
++import poe_ic_im_mainline_v1_4_bot as bot
++
++ROOT = Path(__file__).resolve().parent
++FIXTURE = ROOT / 'tests/fixtures/icim_historical_calendar_20261022'
++NOTICES = json.loads((FIXTURE / 'calendar_notices.json').read_text(encoding='utf-8'))
++
++
++def oracle():
++    return json.loads((FIXTURE / 'cffex_sessions_and_expiries.json').read_text(encoding='utf-8'))
++
++
++def notice_sessions(year):
++    closed = set()
++    for start, end in NOTICES['years'][str(year)]['closed_ranges']:
++        day, last = date.fromisoformat(start), date.fromisoformat(end)
++        while day <= last:
++            closed.add(day)
++            day += timedelta(days=1)
++    days = pd.date_range(f'{year}-01-01', f'{year}-12-31').date
++    return [d for d in days if d.weekday() < 5 and d not in closed]
++
++
++@pytest.mark.parametrize('year', range(2022, 2026))
++def test_official_notices_match_complete_cffex_observed_sessions(year):
++    expected = [str(d) for d in notice_sessions(year)]
++    assert expected == oracle()['session_dates'][str(year)]
++
++
++@pytest.mark.parametrize('year', range(2022, 2026))
++def test_calendar_covers_all_days_of_each_verified_year(year):
++    expected = set(notice_sessions(year))
++    for d in pd.date_range(f'{year}-01-01', f'{year}-12-31').date:
++        bot._require_official_exchange_calendar(d, 'historical oracle')
++        assert bot._is_exchange_trading_day(d) is (d in expected)
++
++
++@pytest.mark.parametrize('year,month', [(y, m) for y in range(2022, 2026) for m in range(1, 13)])
++def test_future_expiry_matches_actual_last_trading_date(year, month):
++    contract = f'IC{year % 100:02d}{month:02d}'
++    assert str(bot._third_friday(year, month)) == oracle()['contract_last_dates'][contract]
++
++
++@pytest.mark.parametrize('last,next_day', [
++    ('2022-09-09', '2022-09-13'), ('2023-06-21', '2023-06-26'),
++    ('2024-02-08', '2024-02-19'), ('2024-09-13', '2024-09-18'),
++    ('2025-01-27', '2025-02-05'), ('2025-09-30', '2025-10-09'),
++])
++def test_strict_next_session_uses_actual_exchange_holidays(last, next_day):
++    assert bot._roll_forward_exchange_day(date.fromisoformat(last) + timedelta(days=1), require_official=True) == date.fromisoformat(next_day)
++
++
++def test_january_2023_sse_expiry_and_february_2024_cffex_expiry_shift():
++    assert bot._fourth_wednesday(2023, 1) == date(2023, 1, 30)
++    assert bot._third_friday(2024, 2) == date(2024, 2, 19)
++
++
++def test_quarter_tminus3_counts_real_sessions_across_midautumn_2024():
++    state = bot.quarter_roll.roll_state('IC', 'IC2409', ['IC2409', 'IC2412'], date(2024, 9, 13), True,
++        lambda c: bot._third_friday(2000 + int(c[2:4]), int(c[4:])), bot._is_exchange_trading_day)
++    assert state['roll_execution_date'] == date(2024, 9, 13)
++    assert state['core_eod_contract'] == 'IC2412'
++
++
++@pytest.mark.parametrize('year', [2015, 2021, 2027, 2028])
++def test_unverified_years_still_fail_closed(year):
++    with pytest.raises(bot.CalendarCoverageError):
++        bot._require_official_exchange_calendar(date(year, 1, 4), 'unverified')
++
++
++def test_all_2026_sessions_unchanged():
++    expected = json.loads((FIXTURE / 'original_2026_sessions.json').read_text(encoding='utf-8'))
++    actual = [str(d) for d in pd.date_range('2026-01-01', '2026-12-31').date if bot._is_exchange_trading_day(d)]
++    assert actual == expected
++
++
++def test_actual_verified_year_boundary_remains_usable_in_both_directions():
++    assert bot._roll_backward_exchange_day(date(2026, 1, 1), require_official=True) == date(2025, 12, 31)
++    assert bot._roll_forward_exchange_day(date(2026, 1, 1), require_official=True) == date(2026, 1, 5)
++
++
++@pytest.mark.parametrize('product,day,contract', [('IC', date(2022, 9, 19), 'IC2210'), ('IM', date(2022, 7, 22), 'IM2208')])
++def test_historical_first_day_selectors_work_on_actual_quotes(product, day, contract):
++    path = (ROOT / 'data/ic_monthly_discount_roll_v1/cffex_ic_contracts.csv' if product == 'IC' else
++            ROOT / 'data/im_roll_momentum_blend_v1/upstream_im_roll_data/cffex_im_contracts.csv')
++    raw = pd.read_csv(path, parse_dates=['date'])
++    quotes = raw.loc[raw.date.eq(pd.Timestamp(day))].rename(columns={'contract': 'instrument', 'close': 'lastprice'})
++    assert bot.select_active_future(product, quotes, day).instrument == contract
++
++
++def test_core_strategy_math_did_not_change():
++    backup = ROOT / 'quant_research_runs/20261022_historical_calendar_repair_v1/backup/poe_ic_im_mainline_v1_4_bot.py'
++    def functions(p):
++        tree = ast.parse(p.read_text(encoding='utf-8-sig'))
++        return {n.name: ast.dump(n, include_attributes=False) for n in tree.body if isinstance(n, ast.FunctionDef)}
++    old, new = functions(backup), functions(ROOT / 'poe_ic_im_mainline_v1_4_bot.py')
++    for name in ['_bs_price_delta', '_implied_volatility', 'valuation_score', 'ic_targets', 'im_targets', 'v13_momentum_schedule', '_mom120_floor_state']:
++        assert old[name] == new[name], name
+--- /dev/null
++++ b/test_icim_historical_replay_adapter_20261022.py
+@@ -0,0 +1,172 @@
++"""Historical identity binding must survive failures and reject same-name swaps."""
++import importlib.util
++import threading
++from pathlib import Path
++from types import SimpleNamespace
++
++import pandas as pd
++import pytest
++import numpy as np
++import json
++
++ROOT = Path(__file__).resolve().parent
++PATH = ROOT / 'quant_research_runs/20261022_historical_calendar_repair_v1/history/rebuild_history.py'
++SPEC = importlib.util.spec_from_file_location('historical_repair_adapter_tests', PATH)
++ADAPTER = importlib.util.module_from_spec(SPEC)
++SPEC.loader.exec_module(ADAPTER)
++CONTRACT = '510500P2303M06000'
++
++
++def setup_formal(resize=None):
++    original = {'post_put_contract': '510500P2612M07500', 'post_put_security_id': '10012099',
++                'untouched_plan': {'day': '2026-10-22'}}
++    formal = SimpleNamespace(STRATEGY_QUERY_LOCK=threading.RLock(),
++        LIVE_CONTINUATION_ANCHOR={'IC': original},
++        _ic_put_selected_security_id=lambda row: str(row.security_id),
++        _size_existing_ic_put=resize or (lambda *a, **k: {'qty': 3}))
++    return formal, original, ADAPTER.HistoricalICBinding(formal)
++
++
++def selected(binding, security='10000001'):
++    return binding.selected_security(pd.Series({'contract': CONTRACT, 'security_id': security}))
++
++
++def quote(security='10000001', contract=CONTRACT):
++    return pd.Series({'security_id': security, 'last': 0.1}, name=contract)
++
++
++def test_rejects_security_id_taken_only_from_current_resize_quote():
++    formal, original, binding = setup_formal()
++    with pytest.raises(RuntimeError, match='not established'):
++        binding.resize(CONTRACT, quote())
++    assert formal.LIVE_CONTINUATION_ANCHOR['IC'] is original
++
++
++def test_relisted_same_m_name_cannot_replace_entry_security():
++    formal, original, binding = setup_formal()
++    selected(binding)
++    with pytest.raises(RuntimeError, match='identity changed'):
++        binding.resize(CONTRACT, quote('10000002'))
++    assert formal.LIVE_CONTINUATION_ANCHOR['IC'] is original
++
++
++def test_quote_index_keeps_actual_contract_identity():
++    formal, original, binding = setup_formal()
++    selected(binding)
++    assert binding.resize(CONTRACT, quote()) == {'qty': 3}
++    assert formal.LIVE_CONTINUATION_ANCHOR['IC'] is original
++
++
++def test_same_security_with_wrong_contract_is_rejected():
++    formal, original, binding = setup_formal()
++    selected(binding)
++    with pytest.raises(RuntimeError, match='identity changed'):
++        binding.resize(CONTRACT, quote(contract='510500P2306M06000'))
++    assert formal.LIVE_CONTINUATION_ANCHOR['IC'] is original
++
++
++def test_original_guard_reads_entry_bound_id_and_then_anchor_is_restored():
++    formal, original, binding = setup_formal()
++    def guard(contract, row):
++        anchor = formal.LIVE_CONTINUATION_ANCHOR['IC']
++        assert anchor['post_put_security_id'] == '10000001'
++        assert anchor['post_put_contract'] == CONTRACT
++        return {'qty': 7}
++    binding.original_resize = guard
++    selected(binding)
++    assert binding.resize(CONTRACT, quote()) == {'qty': 7}
++    assert formal.LIVE_CONTINUATION_ANCHOR['IC'] is original
++
++
++def test_failure_restores_anchor_and_deeply_isolates_nested_state():
++    formal, original, binding = setup_formal()
++    def fail(*a, **k):
++        formal.LIVE_CONTINUATION_ANCHOR['IC']['untouched_plan']['day'] = 'corrupted'
++        raise ValueError('valuation failed')
++    binding.original_resize = fail
++    selected(binding)
++    with pytest.raises(ValueError, match='valuation failed'):
++        binding.resize(CONTRACT, quote())
++    assert formal.LIVE_CONTINUATION_ANCHOR['IC'] is original
++    assert original['untouched_plan']['day'] == '2026-10-22'
++
++
++def test_explicit_new_selection_can_bind_new_leg_but_old_quote_cannot_follow():
++    formal, original, binding = setup_formal()
++    selected(binding)
++    selected(binding, '10000002')
++    with pytest.raises(RuntimeError, match='identity changed'):
++        binding.resize(CONTRACT, quote('10000001'))
++    assert binding.resize(CONTRACT, quote('10000002')) == {'qty': 3}
++    assert formal.LIVE_CONTINUATION_ANCHOR['IC'] is original
++
++
++def test_snapshot_reader_waits_for_original_anchor():
++    entered, release, read_done = threading.Event(), threading.Event(), threading.Event()
++    formal, original, binding = setup_formal()
++    observed = []
++    def resize(*a, **k):
++        entered.set()
++        assert release.wait(5)
++        return {'qty': 3}
++    def reader():
++        with formal.STRATEGY_QUERY_LOCK:
++            observed.append(formal.LIVE_CONTINUATION_ANCHOR['IC'])
++        read_done.set()
++    binding.original_resize = resize
++    selected(binding)
++    a = threading.Thread(target=lambda: binding.resize(CONTRACT, quote()))
++    b = threading.Thread(target=reader)
++    a.start()
++    try:
++        assert entered.wait(5)
++        b.start()
++        assert not read_done.wait(0.05)
++    finally:
++        release.set()
++        a.join(5)
++        if b.ident is not None:
++            b.join(5)
++    assert not a.is_alive() and not b.is_alive()
++    assert observed == [original]
++    assert formal.LIVE_CONTINUATION_ANCHOR['IC'] is original
++
++
++def test_rebuilt_current_ic_admission_uses_mom120_for_every_historical_day():
++    import poe_ic_im_mainline_v1_4_bot as bot
++    folder = ROOT / 'quant_research_runs/20261022_historical_calendar_repair_v1/rebuilt_02/inputs'
++    risk = pd.read_csv(folder / 'native_fix4_ic_risk_signals_v1.csv.gz').set_index('signal_date')
++    candidates = pd.read_csv(folder / 'native_fix4_seller_candidates_v1.csv.gz')
++    candidates = candidates.loc[candidates['product'].eq('IC')]
++    assert len(candidates) == 944
++    threshold = bot.v14_policy.PRODUCT_RULES['IC']['iv_threshold']
++    expected = (candidates.candidate_tradable.astype(bool)
++                & candidates.candidate_iv.gt(threshold)
++                & candidates.signal_date.map(risk.valuation_tier).isin([0, 1])
++                & candidates.signal_date.map(risk.momentum_120).ge(0))
++    assert candidates.seller_permission.astype(bool).tolist() == expected.tolist()
++
++
++def test_rebuilt_positive_put_quantities_always_have_actual_contract_targets():
++    folder = ROOT / 'quant_research_runs/20261022_historical_calendar_repair_v1/rebuilt_02/inputs'
++    for product, version, count in [('ic', 'v2', 945), ('im', 'v3', 986)]:
++        targets = pd.read_csv(folder / f'native_fix4_{product}_noseller_targets_{version}.csv.gz')
++        assert len(targets) == count
++        assert targets.signal_date.is_unique
++        assert targets.loc[targets.core_put_qty_target.gt(0), 'core_put_contract_target'].notna().all()
++        if product == 'ic':
++            assert (targets.core_put_qty_target + targets.momentum_put_qty_target == targets.total_put_qty_target).all()
++        else:
++            assert targets.loc[targets.momentum_put_qty_target.gt(0), 'momentum_put_contract_target'].notna().all()
++            assert targets.call_qty_normalized_target.eq(0).all()
++
++
++def test_rebuilt_receipt_does_not_hide_waiting_evidence_or_mutate_anchors():
++    path = ROOT / 'quant_research_runs/20261022_historical_calendar_repair_v1/rebuilt_02/receipt.json'
++    result = json.loads(path.read_text(encoding='utf-8'))
++    assert result['status'] == 'PASS'
++    assert result['anchors_unchanged'] is True
++    assert result['network_attempts'] == []
++    assert result['counterfactual_effective_dates'] == {'IC_momentum': '1900-01-01', 'IC_seller_MOM120': '1900-01-01'}
++    for product in ['IC', 'IM']:
++        assert result['phases'][product + '_targets']['fail_closed_events'] == []
+--- /dev/null
++++ b/tests/fixtures/icim_historical_calendar_20261022/calendar_notices.json
+@@ -0,0 +1,28 @@
++{
++  "schema": "official_historical_exchange_calendar_oracle_v1",
++  "reviewed_on": "2026-10-22",
++  "scope": ["SSE", "CFFEX"],
++  "representation": "Normalized factual dates from exchange notices; not original HTTP response bytes. CFFEX notice texts were retrieved as preserved reproductions; calendar must also match saved official CFFEX session data.",
++  "years": {
++    "2022": {
++      "sse": {"url": "https://www.sse.com.cn/disclosure/announcement/general/c/c_20211220_5662606.shtml", "document": "上证公告〔2021〕37号", "published": "2021-12-20"},
++      "cffex": {"reproduction_url": "https://bocifco.com/newsinfo.aspx?cid=3&id=46658", "document": "中金所发〔2021〕64号", "published": "2021-12-17", "host": "member_notice_reproduction"},
++      "closed_ranges": [["2022-01-01", "2022-01-03"], ["2022-01-31", "2022-02-06"], ["2022-04-03", "2022-04-05"], ["2022-04-30", "2022-05-04"], ["2022-06-03", "2022-06-05"], ["2022-09-10", "2022-09-12"], ["2022-10-01", "2022-10-07"]]
++    },
++    "2023": {
++      "sse": {"url": "https://www.sse.com.cn/disclosure/announcement/general/c/c_20221227_5714458.shtml", "document": "上证公告〔2022〕51号", "published": "2022-12-27"},
++      "cffex": {"reproduction_url": "https://www.bocifco.com/newsinfo.aspx?cid=3&id=47830", "document": "中金所发〔2022〕81号", "published": "2022-12-27", "host": "member_notice_reproduction"},
++      "closed_ranges": [["2022-12-31", "2023-01-02"], ["2023-01-21", "2023-01-27"], ["2023-04-05", "2023-04-05"], ["2023-04-29", "2023-05-03"], ["2023-06-22", "2023-06-24"], ["2023-09-29", "2023-10-06"]]
++    },
++    "2024": {
++      "sse": {"url": "https://www.sse.com.cn/disclosure/announcement/general/c/c_20231226_5733939.shtml", "document": "上证公告〔2023〕47号", "published": "2023-12-26"},
++      "cffex": {"reproduction_url": "https://www.bocifco.com/newsinfo.aspx?cid=3&id=48730", "document": "中金所发〔2023〕78号", "published": "2023-12-26", "host": "member_notice_reproduction"},
++      "closed_ranges": [["2023-12-30", "2024-01-01"], ["2024-02-09", "2024-02-17"], ["2024-04-04", "2024-04-06"], ["2024-05-01", "2024-05-05"], ["2024-06-08", "2024-06-10"], ["2024-09-15", "2024-09-17"], ["2024-10-01", "2024-10-07"]]
++    },
++    "2025": {
++      "sse": {"url": "https://www.sse.com.cn/disclosure/announcement/general/c/c_20241223_10767108.shtml", "document": "上证公告〔2024〕38号", "published": "2024-12-23"},
++      "cffex": {"reproduction_url": "https://finance.sina.com.cn/money/future/roll/2024-12-23/doc-ineancvm2467037.shtml", "original_author": "中金所发布", "document": "中金所发〔2024〕74号", "published": "2024-12-23", "host": "official_author_syndicated_notice"},
++      "closed_ranges": [["2025-01-01", "2025-01-01"], ["2025-01-28", "2025-02-04"], ["2025-04-04", "2025-04-06"], ["2025-05-01", "2025-05-05"], ["2025-05-31", "2025-06-02"], ["2025-10-01", "2025-10-08"]]
++    }
++  }
++}
+--- /dev/null
++++ b/tests/fixtures/icim_historical_calendar_20261022/cffex_sessions_and_expiries.json
+@@ -0,0 +1,1084 @@
++{
++  "representation": "Trading dates and last observed contract dates from frozen CFFEX historical daily rows; independent of strategy calendar functions.",
++  "source": "data/ic_monthly_discount_roll_v1/cffex_ic_contracts.csv",
++  "source_sha256": "4e02b889747112459125999382c3ff2fe89017aaea30df05e91bb2a7bc1e2104",
++  "session_dates": {
++    "2022": [
++      "2022-01-04",
++      "2022-01-05",
++      "2022-01-06",
++      "2022-01-07",
++      "2022-01-10",
++      "2022-01-11",
++      "2022-01-12",
++      "2022-01-13",
++      "2022-01-14",
++      "2022-01-17",
++      "2022-01-18",
++      "2022-01-19",
++      "2022-01-20",
++      "2022-01-21",
++      "2022-01-24",
++      "2022-01-25",
++      "2022-01-26",
++      "2022-01-27",
++      "2022-01-28",
++      "2022-02-07",
++      "2022-02-08",
++      "2022-02-09",
++      "2022-02-10",
++      "2022-02-11",
++      "2022-02-14",
++      "2022-02-15",
++      "2022-02-16",
++      "2022-02-17",
++      "2022-02-18",
++      "2022-02-21",
++      "2022-02-22",
++      "2022-02-23",
++      "2022-02-24",
++      "2022-02-25",
++      "2022-02-28",
++      "2022-03-01",
++      "2022-03-02",
++      "2022-03-03",
++      "2022-03-04",
++      "2022-03-07",
++      "2022-03-08",
++      "2022-03-09",
++      "2022-03-10",
++      "2022-03-11",
++      "2022-03-14",
++      "2022-03-15",
++      "2022-03-16",
++      "2022-03-17",
++      "2022-03-18",
++      "2022-03-21",
++      "2022-03-22",
++      "2022-03-23",
++      "2022-03-24",
++      "2022-03-25",
++      "2022-03-28",
++      "2022-03-29",
++      "2022-03-30",
++      "2022-03-31",
++      "2022-04-01",
++      "2022-04-06",
++      "2022-04-07",
++      "2022-04-08",
++      "2022-04-11",
++      "2022-04-12",
++      "2022-04-13",
++      "2022-04-14",
++      "2022-04-15",
++      "2022-04-18",
++      "2022-04-19",
++      "2022-04-20",
++      "2022-04-21",
++      "2022-04-22",
++      "2022-04-25",
++      "2022-04-26",
++      "2022-04-27",
++      "2022-04-28",
++      "2022-04-29",
++      "2022-05-05",
++      "2022-05-06",
++      "2022-05-09",
++      "2022-05-10",
++      "2022-05-11",
++      "2022-05-12",
++      "2022-05-13",
++      "2022-05-16",
++      "2022-05-17",
++      "2022-05-18",
++      "2022-05-19",
++      "2022-05-20",
++      "2022-05-23",
++      "2022-05-24",
++      "2022-05-25",
++      "2022-05-26",
++      "2022-05-27",
++      "2022-05-30",
++      "2022-05-31",
++      "2022-06-01",
++      "2022-06-02",
++      "2022-06-06",
++      "2022-06-07",
++      "2022-06-08",
++      "2022-06-09",
++      "2022-06-10",
++      "2022-06-13",
++      "2022-06-14",
++      "2022-06-15",
++      "2022-06-16",
++      "2022-06-17",
++      "2022-06-20",
++      "2022-06-21",
++      "2022-06-22",
++      "2022-06-23",
++      "2022-06-24",
++      "2022-06-27",
++      "2022-06-28",
++      "2022-06-29",
++      "2022-06-30",
++      "2022-07-01",
++      "2022-07-04",
++      "2022-07-05",
++      "2022-07-06",
++      "2022-07-07",
++      "2022-07-08",
++      "2022-07-11",
++      "2022-07-12",
++      "2022-07-13",
++      "2022-07-14",
++      "2022-07-15",
++      "2022-07-18",
++      "2022-07-19",
++      "2022-07-20",
++      "2022-07-21",
++      "2022-07-22",
++      "2022-07-25",
++      "2022-07-26",
++      "2022-07-27",
++      "2022-07-28",
++      "2022-07-29",
++      "2022-08-01",
++      "2022-08-02",
++      "2022-08-03",
++      "2022-08-04",
++      "2022-08-05",
++      "2022-08-08",
++      "2022-08-09",
++      "2022-08-10",
++      "2022-08-11",
++      "2022-08-12",
++      "2022-08-15",
++      "2022-08-16",
++      "2022-08-17",
++      "2022-08-18",
++      "2022-08-19",
++      "2022-08-22",
++      "2022-08-23",
++      "2022-08-24",
++      "2022-08-25",
++      "2022-08-26",
++      "2022-08-29",
++      "2022-08-30",
++      "2022-08-31",
++      "2022-09-01",
++      "2022-09-02",
++      "2022-09-05",
++      "2022-09-06",
++      "2022-09-07",
++      "2022-09-08",
++      "2022-09-09",
++      "2022-09-13",
++      "2022-09-14",
++      "2022-09-15",
++      "2022-09-16",
++      "2022-09-19",
++      "2022-09-20",
++      "2022-09-21",
++      "2022-09-22",
++      "2022-09-23",
++      "2022-09-26",
++      "2022-09-27",
++      "2022-09-28",
++      "2022-09-29",
++      "2022-09-30",
++      "2022-10-10",
++      "2022-10-11",
++      "2022-10-12",
++      "2022-10-13",
++      "2022-10-14",
++      "2022-10-17",
++      "2022-10-18",
++      "2022-10-19",
++      "2022-10-20",
++      "2022-10-21",
++      "2022-10-24",
++      "2022-10-25",
++      "2022-10-26",
++      "2022-10-27",
++      "2022-10-28",
++      "2022-10-31",
++      "2022-11-01",
++      "2022-11-02",
++      "2022-11-03",
++      "2022-11-04",
++      "2022-11-07",
++      "2022-11-08",
++      "2022-11-09",
++      "2022-11-10",
++      "2022-11-11",
++      "2022-11-14",
++      "2022-11-15",
++      "2022-11-16",
++      "2022-11-17",
++      "2022-11-18",
++      "2022-11-21",
++      "2022-11-22",
++      "2022-11-23",
++      "2022-11-24",
++      "2022-11-25",
++      "2022-11-28",
++      "2022-11-29",
++      "2022-11-30",
++      "2022-12-01",
++      "2022-12-02",
++      "2022-12-05",
++      "2022-12-06",
++      "2022-12-07",
++      "2022-12-08",
++      "2022-12-09",
++      "2022-12-12",
++      "2022-12-13",
++      "2022-12-14",
++      "2022-12-15",
++      "2022-12-16",
++      "2022-12-19",
++      "2022-12-20",
++      "2022-12-21",
++      "2022-12-22",
++      "2022-12-23",
++      "2022-12-26",
++      "2022-12-27",
++      "2022-12-28",
++      "2022-12-29",
++      "2022-12-30"
++    ],
++    "2023": [
++      "2023-01-03",
++      "2023-01-04",
++      "2023-01-05",
++      "2023-01-06",
++      "2023-01-09",
++      "2023-01-10",
++      "2023-01-11",
++      "2023-01-12",
++      "2023-01-13",
++      "2023-01-16",
++      "2023-01-17",
++      "2023-01-18",
++      "2023-01-19",
++      "2023-01-20",
++      "2023-01-30",
++      "2023-01-31",
++      "2023-02-01",
++      "2023-02-02",
++      "2023-02-03",
++      "2023-02-06",
++      "2023-02-07",
++      "2023-02-08",
++      "2023-02-09",
++      "2023-02-10",
++      "2023-02-13",
++      "2023-02-14",
++      "2023-02-15",
++      "2023-02-16",
++      "2023-02-17",
++      "2023-02-20",
++      "2023-02-21",
++      "2023-02-22",
++      "2023-02-23",
++      "2023-02-24",
++      "2023-02-27",
++      "2023-02-28",
++      "2023-03-01",
++      "2023-03-02",
++      "2023-03-03",
++      "2023-03-06",
++      "2023-03-07",
++      "2023-03-08",
++      "2023-03-09",
++      "2023-03-10",
++      "2023-03-13",
++      "2023-03-14",
++      "2023-03-15",
++      "2023-03-16",
++      "2023-03-17",
++      "2023-03-20",
++      "2023-03-21",
++      "2023-03-22",
++      "2023-03-23",
++      "2023-03-24",
++      "2023-03-27",
++      "2023-03-28",
++      "2023-03-29",
++      "2023-03-30",
++      "2023-03-31",
++      "2023-04-03",
++      "2023-04-04",
++      "2023-04-06",
++      "2023-04-07",
++      "2023-04-10",
++      "2023-04-11",
++      "2023-04-12",
++      "2023-04-13",
++      "2023-04-14",
++      "2023-04-17",
++      "2023-04-18",
++      "2023-04-19",
++      "2023-04-20",
++      "2023-04-21",
++      "2023-04-24",
++      "2023-04-25",
++      "2023-04-26",
++      "2023-04-27",
++      "2023-04-28",
++      "2023-05-04",
++      "2023-05-05",
++      "2023-05-08",
++      "2023-05-09",
++      "2023-05-10",
++      "2023-05-11",
++      "2023-05-12",
++      "2023-05-15",
++      "2023-05-16",
++      "2023-05-17",
++      "2023-05-18",
++      "2023-05-19",
++      "2023-05-22",
++      "2023-05-23",
++      "2023-05-24",
++      "2023-05-25",
++      "2023-05-26",
++      "2023-05-29",
++      "2023-05-30",
++      "2023-05-31",
++      "2023-06-01",
++      "2023-06-02",
++      "2023-06-05",
++      "2023-06-06",
++      "2023-06-07",
++      "2023-06-08",
++      "2023-06-09",
++      "2023-06-12",
++      "2023-06-13",
++      "2023-06-14",
++      "2023-06-15",
++      "2023-06-16",
++      "2023-06-19",
++      "2023-06-20",
++      "2023-06-21",
++      "2023-06-26",
++      "2023-06-27",
++      "2023-06-28",
++      "2023-06-29",
++      "2023-06-30",
++      "2023-07-03",
++      "2023-07-04",
++      "2023-07-05",
++      "2023-07-06",
++      "2023-07-07",
++      "2023-07-10",
++      "2023-07-11",
++      "2023-07-12",
++      "2023-07-13",
++      "2023-07-14",
++      "2023-07-17",
++      "2023-07-18",
++      "2023-07-19",
++      "2023-07-20",
++      "2023-07-21",
++      "2023-07-24",
++      "2023-07-25",
++      "2023-07-26",
++      "2023-07-27",
++      "2023-07-28",
++      "2023-07-31",
++      "2023-08-01",
++      "2023-08-02",
++      "2023-08-03",
++      "2023-08-04",
++      "2023-08-07",
++      "2023-08-08",
++      "2023-08-09",
++      "2023-08-10",
++      "2023-08-11",
++      "2023-08-14",
++      "2023-08-15",
++      "2023-08-16",
++      "2023-08-17",
++      "2023-08-18",
++      "2023-08-21",
++      "2023-08-22",
++      "2023-08-23",
++      "2023-08-24",
++      "2023-08-25",
++      "2023-08-28",
++      "2023-08-29",
++      "2023-08-30",
++      "2023-08-31",
++      "2023-09-01",
++      "2023-09-04",
++      "2023-09-05",
++      "2023-09-06",
++      "2023-09-07",
++      "2023-09-08",
++      "2023-09-11",
++      "2023-09-12",
++      "2023-09-13",
++      "2023-09-14",
++      "2023-09-15",
++      "2023-09-18",
++      "2023-09-19",
++      "2023-09-20",
++      "2023-09-21",
++      "2023-09-22",
++      "2023-09-25",
++      "2023-09-26",
++      "2023-09-27",
++      "2023-09-28",
++      "2023-10-09",
++      "2023-10-10",
++      "2023-10-11",
++      "2023-10-12",
++      "2023-10-13",
++      "2023-10-16",
++      "2023-10-17",
++      "2023-10-18",
++      "2023-10-19",
++      "2023-10-20",
++      "2023-10-23",
++      "2023-10-24",
++      "2023-10-25",
++      "2023-10-26",
++      "2023-10-27",
++      "2023-10-30",
++      "2023-10-31",
++      "2023-11-01",
++      "2023-11-02",
++      "2023-11-03",
++      "2023-11-06",
++      "2023-11-07",
++      "2023-11-08",
++      "2023-11-09",
++      "2023-11-10",
++      "2023-11-13",
++      "2023-11-14",
++      "2023-11-15",
++      "2023-11-16",
++      "2023-11-17",
++      "2023-11-20",
++      "2023-11-21",
++      "2023-11-22",
++      "2023-11-23",
++      "2023-11-24",
++      "2023-11-27",
++      "2023-11-28",
++      "2023-11-29",
++      "2023-11-30",
++      "2023-12-01",
++      "2023-12-04",
++      "2023-12-05",
++      "2023-12-06",
++      "2023-12-07",
++      "2023-12-08",
++      "2023-12-11",
++      "2023-12-12",
++      "2023-12-13",
++      "2023-12-14",
++      "2023-12-15",
++      "2023-12-18",
++      "2023-12-19",
++      "2023-12-20",
++      "2023-12-21",
++      "2023-12-22",
++      "2023-12-25",
++      "2023-12-26",
++      "2023-12-27",
++      "2023-12-28",
++      "2023-12-29"
++    ],
++    "2024": [
++      "2024-01-02",
++      "2024-01-03",
++      "2024-01-04",
++      "2024-01-05",
++      "2024-01-08",
++      "2024-01-09",
++      "2024-01-10",
++      "2024-01-11",
++      "2024-01-12",
++      "2024-01-15",
++      "2024-01-16",
++      "2024-01-17",
++      "2024-01-18",
++      "2024-01-19",
++      "2024-01-22",
++      "2024-01-23",
++      "2024-01-24",
++      "2024-01-25",
++      "2024-01-26",
++      "2024-01-29",
++      "2024-01-30",
++      "2024-01-31",
++      "2024-02-01",
++      "2024-02-02",
++      "2024-02-05",
++      "2024-02-06",
++      "2024-02-07",
++      "2024-02-08",
++      "2024-02-19",
++      "2024-02-20",
++      "2024-02-21",
++      "2024-02-22",
++      "2024-02-23",
++      "2024-02-26",
++      "2024-02-27",
++      "2024-02-28",
++      "2024-02-29",
++      "2024-03-01",
++      "2024-03-04",
++      "2024-03-05",
++      "2024-03-06",
++      "2024-03-07",
++      "2024-03-08",
++      "2024-03-11",
++      "2024-03-12",
++      "2024-03-13",
++      "2024-03-14",
++      "2024-03-15",
++      "2024-03-18",
++      "2024-03-19",
++      "2024-03-20",
++      "2024-03-21",
++      "2024-03-22",
++      "2024-03-25",
++      "2024-03-26",
++      "2024-03-27",
++      "2024-03-28",
++      "2024-03-29",
++      "2024-04-01",
++      "2024-04-02",
++      "2024-04-03",
++      "2024-04-08",
++      "2024-04-09",
++      "2024-04-10",
++      "2024-04-11",
++      "2024-04-12",
++      "2024-04-15",
++      "2024-04-16",
++      "2024-04-17",
++      "2024-04-18",
++      "2024-04-19",
++      "2024-04-22",
++      "2024-04-23",
++      "2024-04-24",
++      "2024-04-25",
++      "2024-04-26",
++      "2024-04-29",
++      "2024-04-30",
++      "2024-05-06",
++      "2024-05-07",
++      "2024-05-08",
++      "2024-05-09",
++      "2024-05-10",
++      "2024-05-13",
++      "2024-05-14",
++      "2024-05-15",
++      "2024-05-16",
++      "2024-05-17",
++      "2024-05-20",
++      "2024-05-21",
++      "2024-05-22",
++      "2024-05-23",
++      "2024-05-24",
++      "2024-05-27",
++      "2024-05-28",
++      "2024-05-29",
++      "2024-05-30",
++      "2024-05-31",
++      "2024-06-03",
++      "2024-06-04",
++      "2024-06-05",
++      "2024-06-06",
++      "2024-06-07",
++      "2024-06-11",
++      "2024-06-12",
++      "2024-06-13",
++      "2024-06-14",
++      "2024-06-17",
++      "2024-06-18",
++      "2024-06-19",
++      "2024-06-20",
++      "2024-06-21",
++      "2024-06-24",
++      "2024-06-25",
++      "2024-06-26",
++      "2024-06-27",
++      "2024-06-28",
++      "2024-07-01",
++      "2024-07-02",
++      "2024-07-03",
++      "2024-07-04",
++      "2024-07-05",
++      "2024-07-08",
++      "2024-07-09",
++      "2024-07-10",
++      "2024-07-11",
++      "2024-07-12",
++      "2024-07-15",
++      "2024-07-16",
++      "2024-07-17",
++      "2024-07-18",
++      "2024-07-19",
++      "2024-07-22",
++      "2024-07-23",
++      "2024-07-24",
++      "2024-07-25",
++      "2024-07-26",
++      "2024-07-29",
++      "2024-07-30",
++      "2024-07-31",
++      "2024-08-01",
++      "2024-08-02",
++      "2024-08-05",
++      "2024-08-06",
++      "2024-08-07",
++      "2024-08-08",
++      "2024-08-09",
++      "2024-08-12",
++      "2024-08-13",
++      "2024-08-14",
++      "2024-08-15",
++      "2024-08-16",
++      "2024-08-19",
++      "2024-08-20",
++      "2024-08-21",
++      "2024-08-22",
++      "2024-08-23",
++      "2024-08-26",
++      "2024-08-27",
++      "2024-08-28",
++      "2024-08-29",
++      "2024-08-30",
++      "2024-09-02",
++      "2024-09-03",
++      "2024-09-04",
++      "2024-09-05",
++      "2024-09-06",
++      "2024-09-09",
++      "2024-09-10",
++      "2024-09-11",
++      "2024-09-12",
++      "2024-09-13",
++      "2024-09-18",
++      "2024-09-19",
++      "2024-09-20",
++      "2024-09-23",
++      "2024-09-24",
++      "2024-09-25",
++      "2024-09-26",
++      "2024-09-27",
++      "2024-09-30",
++      "2024-10-08",
++      "2024-10-09",
++      "2024-10-10",
++      "2024-10-11",
++      "2024-10-14",
++      "2024-10-15",
++      "2024-10-16",
++      "2024-10-17",
++      "2024-10-18",
++      "2024-10-21",
++      "2024-10-22",
++      "2024-10-23",
++      "2024-10-24",
++      "2024-10-25",
++      "2024-10-28",
++      "2024-10-29",
++      "2024-10-30",
++      "2024-10-31",
++      "2024-11-01",
++      "2024-11-04",
++      "2024-11-05",
++      "2024-11-06",
++      "2024-11-07",
++      "2024-11-08",
++      "2024-11-11",
++      "2024-11-12",
++      "2024-11-13",
++      "2024-11-14",
++      "2024-11-15",
++      "2024-11-18",
++      "2024-11-19",
++      "2024-11-20",
++      "2024-11-21",
++      "2024-11-22",
++      "2024-11-25",
++      "2024-11-26",
++      "2024-11-27",
++      "2024-11-28",
++      "2024-11-29",
++      "2024-12-02",
++      "2024-12-03",
++      "2024-12-04",
++      "2024-12-05",
++      "2024-12-06",
++      "2024-12-09",
++      "2024-12-10",
++      "2024-12-11",
++      "2024-12-12",
++      "2024-12-13",
++      "2024-12-16",
++      "2024-12-17",
++      "2024-12-18",
++      "2024-12-19",
++      "2024-12-20",
++      "2024-12-23",
++      "2024-12-24",
++      "2024-12-25",
++      "2024-12-26",
++      "2024-12-27",
++      "2024-12-30",
++      "2024-12-31"
++    ],
++    "2025": [
++      "2025-01-02",
++      "2025-01-03",
++      "2025-01-06",
++      "2025-01-07",
++      "2025-01-08",
++      "2025-01-09",
++      "2025-01-10",
++      "2025-01-13",
++      "2025-01-14",
++      "2025-01-15",
++      "2025-01-16",
++      "2025-01-17",
++      "2025-01-20",
++      "2025-01-21",
++      "2025-01-22",
++      "2025-01-23",
++      "2025-01-24",
++      "2025-01-27",
++      "2025-02-05",
++      "2025-02-06",
++      "2025-02-07",
++      "2025-02-10",
++      "2025-02-11",
++      "2025-02-12",
++      "2025-02-13",
++      "2025-02-14",
++      "2025-02-17",
++      "2025-02-18",
++      "2025-02-19",
++      "2025-02-20",
++      "2025-02-21",
++      "2025-02-24",
++      "2025-02-25",
++      "2025-02-26",
++      "2025-02-27",
++      "2025-02-28",
++      "2025-03-03",
++      "2025-03-04",
++      "2025-03-05",
++      "2025-03-06",
++      "2025-03-07",
++      "2025-03-10",
++      "2025-03-11",
++      "2025-03-12",
++      "2025-03-13",
++      "2025-03-14",
++      "2025-03-17",
++      "2025-03-18",
++      "2025-03-19",
++      "2025-03-20",
++      "2025-03-21",
++      "2025-03-24",
++      "2025-03-25",
++      "2025-03-26",
++      "2025-03-27",
++      "2025-03-28",
++      "2025-03-31",
++      "2025-04-01",
++      "2025-04-02",
++      "2025-04-03",
++      "2025-04-07",
++      "2025-04-08",
++      "2025-04-09",
++      "2025-04-10",
++      "2025-04-11",
++      "2025-04-14",
++      "2025-04-15",
++      "2025-04-16",
++      "2025-04-17",
++      "2025-04-18",
++      "2025-04-21",
++      "2025-04-22",
++      "2025-04-23",
++      "2025-04-24",
++      "2025-04-25",
++      "2025-04-28",
++      "2025-04-29",
++      "2025-04-30",
++      "2025-05-06",
++      "2025-05-07",
++      "2025-05-08",
++      "2025-05-09",
++      "2025-05-12",
++      "2025-05-13",
++      "2025-05-14",
++      "2025-05-15",
++      "2025-05-16",
++      "2025-05-19",
++      "2025-05-20",
++      "2025-05-21",
++      "2025-05-22",
++      "2025-05-23",
++      "2025-05-26",
++      "2025-05-27",
++      "2025-05-28",
++      "2025-05-29",
++      "2025-05-30",
++      "2025-06-03",
++      "2025-06-04",
++      "2025-06-05",
++      "2025-06-06",
++      "2025-06-09",
++      "2025-06-10",
++      "2025-06-11",
++      "2025-06-12",
++      "2025-06-13",
++      "2025-06-16",
++      "2025-06-17",
++      "2025-06-18",
++      "2025-06-19",
++      "2025-06-20",
++      "2025-06-23",
++      "2025-06-24",
++      "2025-06-25",
++      "2025-06-26",
++      "2025-06-27",
++      "2025-06-30",
++      "2025-07-01",
++      "2025-07-02",
++      "2025-07-03",
++      "2025-07-04",
++      "2025-07-07",
++      "2025-07-08",
++      "2025-07-09",
++      "2025-07-10",
++      "2025-07-11",
++      "2025-07-14",
++      "2025-07-15",
++      "2025-07-16",
++      "2025-07-17",
++      "2025-07-18",
++      "2025-07-21",
++      "2025-07-22",
++      "2025-07-23",
++      "2025-07-24",
++      "2025-07-25",
++      "2025-07-28",
++      "2025-07-29",
++      "2025-07-30",
++      "2025-07-31",
++      "2025-08-01",
++      "2025-08-04",
++      "2025-08-05",
++      "2025-08-06",
++      "2025-08-07",
++      "2025-08-08",
++      "2025-08-11",
++      "2025-08-12",
++      "2025-08-13",
++      "2025-08-14",
++      "2025-08-15",
++      "2025-08-18",
++      "2025-08-19",
++      "2025-08-20",
++      "2025-08-21",
++      "2025-08-22",
++      "2025-08-25",
++      "2025-08-26",
++      "2025-08-27",
++      "2025-08-28",
++      "2025-08-29",
++      "2025-09-01",
++      "2025-09-02",
++      "2025-09-03",
++      "2025-09-04",
++      "2025-09-05",
++      "2025-09-08",
++      "2025-09-09",
++      "2025-09-10",
++      "2025-09-11",
++      "2025-09-12",
++      "2025-09-15",
++      "2025-09-16",
++      "2025-09-17",
++      "2025-09-18",
++      "2025-09-19",
++      "2025-09-22",
++      "2025-09-23",
++      "2025-09-24",
++      "2025-09-25",
++      "2025-09-26",
++      "2025-09-29",
++      "2025-09-30",
++      "2025-10-09",
++      "2025-10-10",
++      "2025-10-13",
++      "2025-10-14",
++      "2025-10-15",
++      "2025-10-16",
++      "2025-10-17",
++      "2025-10-20",
++      "2025-10-21",
++      "2025-10-22",
++      "2025-10-23",
++      "2025-10-24",
++      "2025-10-27",
++      "2025-10-28",
++      "2025-10-29",
++      "2025-10-30",
++      "2025-10-31",
++      "2025-11-03",
++      "2025-11-04",
++      "2025-11-05",
++      "2025-11-06",
++      "2025-11-07",
++      "2025-11-10",
++      "2025-11-11",
++      "2025-11-12",
++      "2025-11-13",
++      "2025-11-14",
++      "2025-11-17",
++      "2025-11-18",
++      "2025-11-19",
++      "2025-11-20",
++      "2025-11-21",
++      "2025-11-24",
++      "2025-11-25",
++      "2025-11-26",
++      "2025-11-27",
++      "2025-11-28",
++      "2025-12-01",
++      "2025-12-02",
++      "2025-12-03",
++      "2025-12-04",
++      "2025-12-05",
++      "2025-12-08",
++      "2025-12-09",
++      "2025-12-10",
++      "2025-12-11",
++      "2025-12-12",
++      "2025-12-15",
++      "2025-12-16",
++      "2025-12-17",
++      "2025-12-18",
++      "2025-12-19",
++      "2025-12-22",
++      "2025-12-23",
++      "2025-12-24",
++      "2025-12-25",
++      "2025-12-26",
++      "2025-12-29",
++      "2025-12-30",
++      "2025-12-31"
++    ]
++  },
++  "contract_last_dates": {
++    "IC2201": "2022-01-21",
++    "IC2202": "2022-02-18",
++    "IC2203": "2022-03-18",
++    "IC2204": "2022-04-15",
++    "IC2205": "2022-05-20",
++    "IC2206": "2022-06-17",
++    "IC2207": "2022-07-15",
++    "IC2208": "2022-08-19",
++    "IC2209": "2022-09-16",
++    "IC2210": "2022-10-21",
++    "IC2211": "2022-11-18",
++    "IC2212": "2022-12-16",
++    "IC2301": "2023-01-20",
++    "IC2302": "2023-02-17",
++    "IC2303": "2023-03-17",
++    "IC2304": "2023-04-21",
++    "IC2305": "2023-05-19",
++    "IC2306": "2023-06-16",
++    "IC2307": "2023-07-21",
++    "IC2308": "2023-08-18",
++    "IC2309": "2023-09-15",
++    "IC2310": "2023-10-20",
++    "IC2311": "2023-11-17",
++    "IC2312": "2023-12-15",
++    "IC2401": "2024-01-19",
++    "IC2402": "2024-02-19",
++    "IC2403": "2024-03-15",
++    "IC2404": "2024-04-19",
++    "IC2405": "2024-05-17",
++    "IC2406": "2024-06-21",
++    "IC2407": "2024-07-19",
++    "IC2408": "2024-08-16",
++    "IC2409": "2024-09-20",
++    "IC2410": "2024-10-18",
++    "IC2411": "2024-11-15",
++    "IC2412": "2024-12-20",
++    "IC2501": "2025-01-17",
++    "IC2502": "2025-02-21",
++    "IC2503": "2025-03-21",
++    "IC2504": "2025-04-18",
++    "IC2505": "2025-05-16",
++    "IC2506": "2025-06-20",
++    "IC2507": "2025-07-18",
++    "IC2508": "2025-08-15",
++    "IC2509": "2025-09-19",
++    "IC2510": "2025-10-17",
++    "IC2511": "2025-11-21",
++    "IC2512": "2025-12-19"
++  },
++  "official_monthly_archive_sha256": {
++    "data/ic_monthly_discount_roll_v1/cffex_raw/202201.zip": "b44f14eb2064cbc1e9af21e63d095271dc4c966602e6c672bc0d777fc6edde1b",
++    "data/ic_monthly_discount_roll_v1/cffex_raw/202202.zip": "10c7d17eace3201221c05daa7e944106999bbb6501ceb7e50f6bb0de4bbf6f47",
++    "data/ic_monthly_discount_roll_v1/cffex_raw/202203.zip": "0b6616d0aaf6d72667b39d4d388e7a2821cf2e1eb86dcbba7590fd4036b51a9e",
++    "data/ic_monthly_discount_roll_v1/cffex_raw/202204.zip": "512f3395d39022f6d1fc585f78197a9ba083abb8d16fa43a69bfceb7bcbc6ec9",
++    "data/ic_monthly_discount_roll_v1/cffex_raw/202205.zip": "5ffea6d7e88869afbef801aeb5a1032b106d08aca2bece1f4329d0ff4d78c895",
++    "data/ic_monthly_discount_roll_v1/cffex_raw/202206.zip": "a6c3dc78938443b4a377b830a03dee40dc6baf2c92e1dad8f88339fb19ce4728",
++    "data/ic_monthly_discount_roll_v1/cffex_raw/202207.zip": "2a23b7baf87fa932beafdd182066534ab6a455c1b9f7656445af0f25def2c18e",
++    "data/ic_monthly_discount_roll_v1/cffex_raw/202208.zip": "109890fc5c265d4c07f937e5832e9f3b3510d22a6c4439e3e50586f54f2c75ce",
++    "data/ic_monthly_discount_roll_v1/cffex_raw/202209.zip": "5a852db7f1ddbb39221e8474dabb00c9478f2cf99c07c1def7d04f7cd3a27e8e",
++    "data/ic_monthly_discount_roll_v1/cffex_raw/202210.zip": "d020681a139b57bfbde6bdd68113204652e5484df6e4363cd72e19914a9aca6d",
++    "data/ic_monthly_discount_roll_v1/cffex_raw/202211.zip": "0768bdac35ab80e21e0e351383c767d2c42964e872afe0329d06ef31296ffe25",
++    "data/ic_monthly_discount_roll_v1/cffex_raw/202212.zip": "59b3aca862139a16910d2bc732df7849ea67e530b151a30aac9c3f33fbe98ddd",
++    "data/ic_monthly_discount_roll_v1/cffex_raw/202301.zip": "d4275b11d25ff0fbec59626e22267d7a36ee6ff6077caac84bb2d4e45434be79",
++    "data/ic_monthly_discount_roll_v1/cffex_raw/202302.zip": "219ca2430e2d00cda639c48cd3f247a02946a51158e76851f0c9398df56dfa94",
++    "data/ic_monthly_discount_roll_v1/cffex_raw/202303.zip": "bc216b566a913bea589dbf50bb877240e3140ff488c398aa33b75fb0d96e5750",
++    "data/ic_monthly_discount_roll_v1/cffex_raw/202304.zip": "7a841185707f4dd696c3028af3563e551048d3d63a643c2d2a427e341a8cae6e",
++    "data/ic_monthly_discount_roll_v1/cffex_raw/202305.zip": "6d22bf5dc77153c114ed1c661cd8ea0ee61266b65fce67c3f705b567bedc8326",
++    "data/ic_monthly_discount_roll_v1/cffex_raw/202306.zip": "8a77a961125389be845eb1398c9dede591a7a7c0e2fdc47636b05162591f95ee",
++    "data/ic_monthly_discount_roll_v1/cffex_raw/202307.zip": "9ec8ce24a47406599701655264aee9728138a04fdd345918746072908cebee25",
++    "data/ic_monthly_discount_roll_v1/cffex_raw/202308.zip": "9df1a0bb03b9c7bd4d1ba28d9d0ae18998788068000ed42ed3946fdae95597ca",
++    "data/ic_monthly_discount_roll_v1/cffex_raw/202309.zip": "f9d6d232a48ab5c4721862f963a7608999694b1cbc5f0ca87ba29e4734052f7e",
++    "data/ic_monthly_discount_roll_v1/cffex_raw/202310.zip": "f47461f0bcb617eabe1c787508251c5b1f1a8b8de802cf32e2834d8abfe6c978",
++    "data/ic_monthly_discount_roll_v1/cffex_raw/202311.zip": "447cbd9d3b97a8addfc404c1bd2b994b36280bc9c0735c4aa63d61cd4d76287b",
++    "data/ic_monthly_discount_roll_v1/cffex_raw/202312.zip": "39881e480fdd5589a2cf9a92f9f6b191114b84bcaedbe342610b5deda3569022",
++    "data/ic_monthly_discount_roll_v1/cffex_raw/202401.zip": "1b6ffec1ac852f01656af5ff18c0a6cb309f7caa0cd134e139bfe8fee5b9a371",
++    "data/ic_monthly_discount_roll_v1/cffex_raw/202402.zip": "3d27b22880d26bd42bd99e56e9395dadf9af78dc28351bee290d1dedd11ce8d4",
++    "data/ic_monthly_discount_roll_v1/cffex_raw/202403.zip": "5bf6291462d1aab31a1d803501e60f6b9fd3bd7e283c325f72b644be79862617",
++    "data/ic_monthly_discount_roll_v1/cffex_raw/202404.zip": "39d61738e7fc5c497e32dcc18efdac1b8de426775908323209c644d4ba4ab196",
++    "data/ic_monthly_discount_roll_v1/cffex_raw/202405.zip": "0de71610570dd7849439e81871c336141b00d7d629698f952f8b931715971fa2",
++    "data/ic_monthly_discount_roll_v1/cffex_raw/202406.zip": "25045c26e0f52ac450eff73e35ccbea61efae3d91adc34e98ec0d522355ba953",
++    "data/ic_monthly_discount_roll_v1/cffex_raw/202407.zip": "b6f542bf35d115e7c7ebbb553025086ae5c23b66a925033dcc7a415d4b6f5e1c",
++    "data/ic_monthly_discount_roll_v1/cffex_raw/202408.zip": "cedcbfeea91732ec2e58f760a5973a5aea2ad906e915b9cd30be2ecf51bfd838",
++    "data/ic_monthly_discount_roll_v1/cffex_raw/202409.zip": "f3e0223c5c7def172e39b47fd5b6f252936522218786b9b4b5ee62698ed99367",
++    "data/ic_monthly_discount_roll_v1/cffex_raw/202410.zip": "d898052baa2fc1cb24681e28be21bf51093b2359175773c4608d295f06905fea",
++    "data/ic_monthly_discount_roll_v1/cffex_raw/202411.zip": "b39bd8b9c70d4c18beb59022f4b4441bd897e9ad53327d02f60af8f6ed52735e",
++    "data/ic_monthly_discount_roll_v1/cffex_raw/202412.zip": "b10da45825849d6f5c749fa83923d389d4cbbecb2fe958f9c2288cd8e032f19e",
++    "data/ic_monthly_discount_roll_v1/cffex_raw/202501.zip": "512324c72d833e1d45a036dbeaa133aa943163e8973623b5e5d87674b28318d5",
++    "data/ic_monthly_discount_roll_v1/cffex_raw/202502.zip": "2a2e25828029b0fc834e750d282f4461302b0f34d1a84ea33aecd74cf639a657",
++    "data/ic_monthly_discount_roll_v1/cffex_raw/202503.zip": "06414ede4a513531967b647eb21834fc859fd2ac3edcd7fd71fc46d26ff8325c",
++    "data/ic_monthly_discount_roll_v1/cffex_raw/202504.zip": "d278bda3cf19a7093cc0196be33c9425cc53d6814f7d799e309cd50546a52cc6",
++    "data/ic_monthly_discount_roll_v1/cffex_raw/202505.zip": "f223d85b9c542e52991a6da478084d81dd080e2dca306b22b7f15a2687d0cc6a",
++    "data/ic_monthly_discount_roll_v1/cffex_raw/202506.zip": "27b31853299215c45fd624da2ca4d4508fe76e91187846e1dbf5fe1b8d4b7d90",
++    "data/ic_monthly_discount_roll_v1/cffex_raw/202507.zip": "5d1d84707042318eb0edaf86f932d7d876570dc187dad3270abf6f640485b307",
++    "data/ic_monthly_discount_roll_v1/cffex_raw/202508.zip": "676d391001d90d0f36c065bccd807e94b96d76e42b300f7e1c0f12a542179758",
++    "data/ic_monthly_discount_roll_v1/cffex_raw/202509.zip": "74fa916d7c5d0b1330da0050f47468c76541f9a8ac9ed11dfe253455910ffca3",
++    "data/ic_monthly_discount_roll_v1/cffex_raw/202510.zip": "f89a692ccea05183e73cf4a2012235adba8aac8962aa94cb2040781f58c59a00",
++    "data/ic_monthly_discount_roll_v1/cffex_raw/202511.zip": "6126b8ba26c0f15b779ba6846b27c62356d2310d1726c61e50491b4801d7fa6a",
++    "data/ic_monthly_discount_roll_v1/cffex_raw/202512.zip": "ab425e58fedad5611810d4630bc6fa0c2515a340ef3f34b0ebc46a2d65183bad"
++  }
++}
+--- /dev/null
++++ b/tests/fixtures/icim_historical_calendar_20261022/original_2026_sessions.json
+@@ -0,0 +1,244 @@
++[
++  "2026-01-05",
++  "2026-01-06",
++  "2026-01-07",
++  "2026-01-08",
++  "2026-01-09",
++  "2026-01-12",
++  "2026-01-13",
++  "2026-01-14",
++  "2026-01-15",
++  "2026-01-16",
++  "2026-01-19",
++  "2026-01-20",
++  "2026-01-21",
++  "2026-01-22",
++  "2026-01-23",
++  "2026-01-26",
++  "2026-01-27",
++  "2026-01-28",
++  "2026-01-29",
++  "2026-01-30",
++  "2026-02-02",
++  "2026-02-03",
++  "2026-02-04",
++  "2026-02-05",
++  "2026-02-06",
++  "2026-02-09",
++  "2026-02-10",
++  "2026-02-11",
++  "2026-02-12",
++  "2026-02-13",
++  "2026-02-24",
++  "2026-02-25",
++  "2026-02-26",
++  "2026-02-27",
++  "2026-03-02",
++  "2026-03-03",
++  "2026-03-04",
++  "2026-03-05",
++  "2026-03-06",
++  "2026-03-09",
++  "2026-03-10",
++  "2026-03-11",
++  "2026-03-12",
++  "2026-03-13",
++  "2026-03-16",
++  "2026-03-17",
++  "2026-03-18",
++  "2026-03-19",
++  "2026-03-20",
++  "2026-03-23",
++  "2026-03-24",
++  "2026-03-25",
++  "2026-03-26",
++  "2026-03-27",
++  "2026-03-30",
++  "2026-03-31",
++  "2026-04-01",
++  "2026-04-02",
++  "2026-04-03",
++  "2026-04-07",
++  "2026-04-08",
++  "2026-04-09",
++  "2026-04-10",
++  "2026-04-13",
++  "2026-04-14",
++  "2026-04-15",
++  "2026-04-16",
++  "2026-04-17",
++  "2026-04-20",
++  "2026-04-21",
++  "2026-04-22",
++  "2026-04-23",
++  "2026-04-24",
++  "2026-04-27",
++  "2026-04-28",
++  "2026-04-29",
++  "2026-04-30",
++  "2026-05-06",
++  "2026-05-07",
++  "2026-05-08",
++  "2026-05-11",
++  "2026-05-12",
++  "2026-05-13",
++  "2026-05-14",
++  "2026-05-15",
++  "2026-05-18",
++  "2026-05-19",
++  "2026-05-20",
++  "2026-05-21",
++  "2026-05-22",
++  "2026-05-25",
++  "2026-05-26",
++  "2026-05-27",
++  "2026-05-28",
++  "2026-05-29",
++  "2026-06-01",
++  "2026-06-02",
++  "2026-06-03",
++  "2026-06-04",
++  "2026-06-05",
++  "2026-06-08",
++  "2026-06-09",
++  "2026-06-10",
++  "2026-06-11",
++  "2026-06-12",
++  "2026-06-15",
++  "2026-06-16",
++  "2026-06-17",
++  "2026-06-18",
++  "2026-06-22",
++  "2026-06-23",
++  "2026-06-24",
++  "2026-06-25",
++  "2026-06-26",
++  "2026-06-29",
++  "2026-06-30",
++  "2026-07-01",
++  "2026-07-02",
++  "2026-07-03",
++  "2026-07-06",
++  "2026-07-07",
++  "2026-07-08",
++  "2026-07-09",
++  "2026-07-10",
++  "2026-07-13",
++  "2026-07-14",
++  "2026-07-15",
++  "2026-07-16",
++  "2026-07-17",
++  "2026-07-20",
++  "2026-07-21",
++  "2026-07-22",
++  "2026-07-23",
++  "2026-07-24",
++  "2026-07-27",
++  "2026-07-28",
++  "2026-07-29",
++  "2026-07-30",
++  "2026-07-31",
++  "2026-08-03",
++  "2026-08-04",
++  "2026-08-05",
++  "2026-08-06",
++  "2026-08-07",
++  "2026-08-10",
++  "2026-08-11",
++  "2026-08-12",
++  "2026-08-13",
++  "2026-08-14",
++  "2026-08-17",
++  "2026-08-18",
++  "2026-08-19",
++  "2026-08-20",
++  "2026-08-21",
++  "2026-08-24",
++  "2026-08-25",
++  "2026-08-26",
++  "2026-08-27",
++  "2026-08-28",
++  "2026-08-31",
++  "2026-09-01",
++  "2026-09-02",
++  "2026-09-03",
++  "2026-09-04",
++  "2026-09-07",
++  "2026-09-08",
++  "2026-09-09",
++  "2026-09-10",
++  "2026-09-11",
++  "2026-09-14",
++  "2026-09-15",
++  "2026-09-16",
++  "2026-09-17",
++  "2026-09-18",
++  "2026-09-21",
++  "2026-09-22",
++  "2026-09-23",
++  "2026-09-24",
++  "2026-09-28",
++  "2026-09-29",
++  "2026-09-30",
++  "2026-10-08",
++  "2026-10-09",
++  "2026-10-12",
++  "2026-10-13",
++  "2026-10-14",
++  "2026-10-15",
++  "2026-10-16",
++  "2026-10-19",
++  "2026-10-20",
++  "2026-10-21",
++  "2026-10-22",
++  "2026-10-23",
++  "2026-10-26",
++  "2026-10-27",
++  "2026-10-28",
++  "2026-10-29",
++  "2026-10-30",
++  "2026-11-02",
++  "2026-11-03",
++  "2026-11-04",
++  "2026-11-05",
++  "2026-11-06",
++  "2026-11-09",
++  "2026-11-10",
++  "2026-11-11",
++  "2026-11-12",
++  "2026-11-13",
++  "2026-11-16",
++  "2026-11-17",
++  "2026-11-18",
++  "2026-11-19",
++  "2026-11-20",
++  "2026-11-23",
++  "2026-11-24",
++  "2026-11-25",
++  "2026-11-26",
++  "2026-11-27",
++  "2026-11-30",
++  "2026-12-01",
++  "2026-12-02",
++  "2026-12-03",
++  "2026-12-04",
++  "2026-12-07",
++  "2026-12-08",
++  "2026-12-09",
++  "2026-12-10",
++  "2026-12-11",
++  "2026-12-14",
++  "2026-12-15",
++  "2026-12-16",
++  "2026-12-17",
++  "2026-12-18",
++  "2026-12-21",
++  "2026-12-22",
++  "2026-12-23",
++  "2026-12-24",
++  "2026-12-25",
++  "2026-12-28",
++  "2026-12-29",
++  "2026-12-30",
++  "2026-12-31"
++]

@@ -1,0 +1,17 @@
+{
+  "observed_at": "2026-10-21T06:46:24.247148+00:00",
+  "previous_sequence": 17,
+  "current_sequence": 18,
+  "previous_day": "2026-10-19",
+  "current_day": "2026-10-20",
+  "record_source": "automatic_close_replay",
+  "record_updated_at": "2026-10-20T20:02:38.099610+08:00",
+  "new_head_links_to_previous_digest": true,
+  "latest_matches_journal": true,
+  "files": {
+    "runtime/ic_im_v1_4_r1/latest.json": "b0f0fa76beca9a0d2c2a715ef67c1f578fc9c4d5c73c91ae4ebd5a89c8139df6",
+    "runtime/ic_im_v1_4_r1/journal/000018-2026-10-20.json": "b0f0fa76beca9a0d2c2a715ef67c1f578fc9c4d5c73c91ae4ebd5a89c8139df6"
+  },
+  "attribution": "External concurrent change observed; writer not established. Process detail access denied. Audit runners all use explicit temporary state; do not revert.",
+  "scope": "Exception to unchanged-runtime claim; snapshots preserve observed bytes, not authorization or account execution proof."
+}

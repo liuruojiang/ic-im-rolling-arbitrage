@@ -1,0 +1,10 @@
+{
+  "exit_code": 0,
+  "files": [
+    "test_adversarial_policy_20261007.py",
+    "test_poe_ic_im_v1_4_state.py",
+    "test_ic_im_ordinary_put_route_fix_20261013.py"
+  ],
+  "state_dir": "C:\\Users\\ADMINI~1.DES\\AppData\\Local\\Temp\\icim_put_7535b98c\\state",
+  "test_only_windows_mkdir_mode_adjustment": true
+}

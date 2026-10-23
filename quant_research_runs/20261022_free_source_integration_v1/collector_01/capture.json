@@ -1,0 +1,20 @@
+{
+  "day": "2026-10-22",
+  "status": "incomplete",
+  "products": {
+    "IC": {
+      "status": "incomplete",
+      "manifest": "D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261022_free_source_integration_v1\\collector_01\\evidence\\sessions\\2026-10-22\\100920039159-4d0810972c4c43b5a72bbb9da505e59f.json",
+      "sha256": "d7e2e04312eb639682cf7c15474fc339b4ea678a4aa9fe9c9355f7b44bf26088",
+      "reason": "cffex.quotes: IC所有行情源失败｜中金所官方: ProxyError: HTTPSConnectionPool(host='www.cffex.com.cn', port=443): Max retries exceeded with url: /quote_IC.txt (Caused by ProxyError('Cannot connect to proxy.', TimeoutError('timed out')))｜新浪财经: ProxyError: HTTPSConnectionPool(host='vip.stock.finance.sina.com.cn', port=443): Max retries exceeded with url: /quotes_service/api/json_v2.php/Market_Center.getHQFuturesData?page=1&num=40&sort=position&asc=0&node=zzgz_qh&base=futures (Caused by ProxyE｜东方财富: ProxyError: HTTPSConnectionPool(host='futsseapi.eastmoney.com', port=443): Max retries exceeded with url: /list/220?orderBy=dm&sort=asc&pageSize=200&pageIndex=0&token=58b2fa8f54638b60b87d69b31969089c (Caused by ProxyError('Cannot connect to proxy.', Ti; collector: missing roles: cffex.quotes",
+      "recovery_warning": "2026-10-22原日输入不完整；补齐日历后仍可能需人工锚定，不能承诺自动恢复"
+    },
+    "IM": {
+      "status": "incomplete",
+      "manifest": "D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261022_free_source_integration_v1\\collector_01\\evidence\\sessions\\2026-10-22\\100939854961-09a6e5593d7e47fa8fe537b7d0f568e5.json",
+      "sha256": "2de5c38a4735f62487b9fcffaaa2cfe33c8cad9c35ac021956afb92bc9b850a6",
+      "reason": "cffex.quotes: IM所有行情源失败｜中金所官方: ProxyError: HTTPSConnectionPool(host='www.cffex.com.cn', port=443): Max retries exceeded with url: /quote_IM.txt (Caused by ProxyError('Cannot connect to proxy.', TimeoutError('timed out')))｜新浪财经: ProxyError: HTTPSConnectionPool(host='vip.stock.finance.sina.com.cn', port=443): Max retries exceeded with url: /quotes_service/api/json_v2.php/Market_Center.getHQFuturesData?page=1&num=40&sort=position&asc=0&node=im_qh&base=futures (Caused by ProxyErr｜东方财富: ProxyError: HTTPSConnectionPool(host='futsseapi.eastmoney.com', port=443): Max retries exceeded with url: /list/220?orderBy=dm&sort=asc&pageSize=200&pageIndex=0&token=58b2fa8f54638b60b87d69b31969089c (Caused by ProxyError('Cannot connect to proxy.', Ti; mo.replay_verification: MO原日复核报文返回标识不完整；不能承诺自动恢复",
+      "recovery_warning": "2026-10-22原日输入不完整；补齐日历后仍可能需人工锚定，不能承诺自动恢复"
+    }
+  }
+}

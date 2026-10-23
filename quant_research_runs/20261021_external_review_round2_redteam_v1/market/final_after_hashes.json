@@ -1,0 +1,30 @@
+[
+  {
+    "Path": "D:\\动量策略\\IC和IM滚动套利\\poe_ic_im_mainline_v1_4_bot.py",
+    "Hash": "0B729074DD8C0908A5049ACF08CDF17BC69A1485E8F87D15C2F59EB9A596FA14"
+  },
+  {
+    "Path": "D:\\动量策略\\IC和IM滚动套利\\ic_im_sse_contract_identity_v1.py",
+    "Hash": "47A2D81F665D2B199EAA2C2043C90271CDD242AA9776620002C833F3CDAFACC8"
+  },
+  {
+    "Path": "D:\\动量策略\\IC和IM滚动套利\\ic_im_v1_4_policy.py",
+    "Hash": "1B68C021798B4490DABCDCCF54169D7C248FDDB46937A5980DD05826CFD482AC"
+  },
+  {
+    "Path": "D:\\动量策略\\IC和IM滚动套利\\ic_im_put_execution_v1.py",
+    "Hash": "8CDDA4E3761BDA7889C16B0102EE0106D2EFAAA61088B7CB6FC83A08D67B2368"
+  },
+  {
+    "Path": "D:\\动量策略\\IC和IM滚动套利\\test_icim_round2_audit_market_20261021.py",
+    "Hash": "6EDE68BB2DFDC96135E538E80CE902CF3B32A69BB575D1117C166B78C70FE46E"
+  },
+  {
+    "Path": "D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261021_external_review_round2_redteam_v1\\market\\run_checks.py",
+    "Hash": "98C2B70D04B3B5F38620FCEBC413D86CF6E3F65F51671A0CD6EBB24CEC32643C"
+  },
+  {
+    "Path": "D:\\动量策略\\IC和IM滚动套利\\tests\\fixtures\\icim_external_review_round2_20261021\\sse_december_identity.json",
+    "Hash": "327AACD4C032BDA5BE4535AD6EF2312FE179EA791A293B81944368A0003476B7"
+  }
+]

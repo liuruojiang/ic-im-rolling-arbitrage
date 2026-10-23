@@ -1,0 +1,284 @@
+........................................................................ [ 16%]
+........................................................................ [ 32%]
+...........FF....................................F........FF............ [ 48%]
+...................F................................................F... [ 64%]
+....F................................................................... [ 80%]
+........................................................................ [ 96%]
+...............                                                          [100%]
+================================== FAILURES ===================================
+____________ test_failed_query_never_reaches_new_close_target[IC] _____________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x00000128158ED470>
+product = 'IC'
+
+    @pytest.mark.parametrize("product", ["IC", "IM"])
+    def test_failed_query_never_reaches_new_close_target(monkeypatch, product):
+        anchor = ordinary_anchor(product)
+        original = deepcopy(anchor)
+        monkeypatch.setitem(bot.LIVE_CONTINUATION_ANCHOR, product, anchor)
+        monkeypatch.setattr(bot, "live_proxy", lambda *args: {"history_date": DAY})
+        monkeypatch.setattr(bot, "_validate_signal_market_date", lambda *args: True)
+        def unavailable(*args, **kwargs):
+            raise requests.Timeout("synthetic timeout")
+        monkeypatch.setattr(bot, "fetch_option_dated_open", unavailable)
+        monkeypatch.setattr(bot, "fetch_cffex_quotes", unavailable)
+>       with pytest.raises(RuntimeError, match="unresolved opening evidence"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+test_ic_im_external_review_20261021.py:121: Failed
+____________ test_failed_query_never_reaches_new_close_target[IM] _____________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000012815E17000>
+product = 'IM'
+
+    @pytest.mark.parametrize("product", ["IC", "IM"])
+    def test_failed_query_never_reaches_new_close_target(monkeypatch, product):
+        anchor = ordinary_anchor(product)
+        original = deepcopy(anchor)
+        monkeypatch.setitem(bot.LIVE_CONTINUATION_ANCHOR, product, anchor)
+        monkeypatch.setattr(bot, "live_proxy", lambda *args: {"history_date": DAY})
+        monkeypatch.setattr(bot, "_validate_signal_market_date", lambda *args: True)
+        def unavailable(*args, **kwargs):
+            raise requests.Timeout("synthetic timeout")
+        monkeypatch.setattr(bot, "fetch_option_dated_open", unavailable)
+        monkeypatch.setattr(bot, "fetch_cffex_quotes", unavailable)
+>       with pytest.raises(RuntimeError, match="unresolved opening evidence"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+test_ic_im_external_review_20261021.py:121: Failed
+______________ test_frozen_source_receipt_matches_current_bytes _______________
+
+    def test_frozen_source_receipt_matches_current_bytes():
+        receipt = json.loads((OLD / "final_verification.json").read_text(encoding="utf-8"))
+        for relative, expected in receipt["source_sha256"].items():
+>           assert hashlib.sha256((ROOT / relative).read_bytes()).hexdigest() == expected, relative
+E           AssertionError: ic_im_put_execution_v1.py
+E           assert '8cdda4e3761b...83a08d67b2368' == '2e30546c65fe...100997829e74d'
+E             
+E             - 2e30546c65fe1991d1b96edc44afb7e2d7de103b8f236353ddd100997829e74d
+E             + 8cdda4e3761bda7889c16b0102ee0106d2efaaa61088b7cb6fc83a08d67b2368
+
+test_icim_redteam_integration_20261021.py:49: AssertionError
+____ test_historical_adapter_retains_id_already_bound_to_requested_series _____
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000012815E8ECF0>
+
+    def test_historical_adapter_retains_id_already_bound_to_requested_series(monkeypatch):
+        calls = historical_source(monkeypatch)
+>       frame, stamp = bot.fetch_sse_existing_put_historical_quote(real.M, '10012099', DAY)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_icim_round2_audit_lifecycle_20261021.py:42: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+ic_im_evidence_adapter_v1.py:267: in held_quote
+    return historical(contract, security_id, day)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+poe_ic_im_mainline_v1_4_bot.py:4110: in fetch_sse_existing_put_historical_quote
+    terms = fetch_sse_510500_dated_master(day).get(security_id)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+poe_ic_im_mainline_v1_4_bot.py:4094: in fetch_sse_510500_dated_master
+    return adjusted_put_migration.master_terms(payload, as_of=reference)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+payload = {'actionErrors': [], 'actionMessages': [], 'fieldErrors': {}, 'isPagination': 'false', ...}
+
+    def master_terms(payload: dict, *, as_of: Any) -> dict[str, Terms]:
+        """A current master proves only its actual TIMESAVE, not requested queryDate."""
+        reference = day(as_of)
+        if (not isinstance(payload, dict) or payload.get("sqlId") != MASTER_SQL
+                or not (payload.get("isPagination") is False or payload.get("isPagination") == "false")
+                or type(payload.get("actionErrors")) is not list
+                or type(payload.get("fieldErrors")) is not dict
+                or payload["actionErrors"] or payload["fieldErrors"]
+                or not isinstance(payload.get("result"), list) or not payload["result"]):
+            raise RuntimeError("official master scope/errors/schema unverified")
+        digest, result, contracts = payload_hash(payload), {}, set()
+        for row in payload["result"]:
+            try:
+                if not isinstance(row, dict):
+                    raise RuntimeError("official master row invalid")
+                contract, security = row["CONTRACT_ID"], row["SECURITY_ID"]
+                match = CODE.fullmatch(contract) if isinstance(contract, str) else None
+                if (not match or row["CALL_OR_PUT"] != {"C": "认购", "P": "认沽"}[match.group(1)]
+                        or row["OPTION_TYPE"] != "E" or row["DELISTFLAG"] != "否"
+                        or day(row["TIMESAVE"]) != reference):
+>                   raise RuntimeError("official master date/identity/listing mismatch")
+E                   RuntimeError: official master date/identity/listing mismatch
+
+ic_im_adjusted_put_migration_v1.py:150: RuntimeError
+___________ test_legal_standard_core_replay_crosses_strict_boundary ___________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000012815AC8C90>
+
+    def test_legal_standard_core_replay_crosses_strict_boundary(monkeypatch):
+        calls = historical_source(monkeypatch)
+        a = ledger._record()['products']['IC']
+        signal = dict(market_date=DAY, core_put_target_delta=.25,
+                      option_monthly_reset_due=False, put_target_momentum_qty=0,
+                      etf_price=7.8, future_last=7800.)
+        monkeypatch.setattr(bot, '_now_beijing', lambda: CLOCK)
+        token = bot._HISTORICAL_REPLAY_DAY.set(DAY)
+        try:
+>           bot._v14_ic_core_overlay(signal, a)
+
+test_icim_round2_audit_lifecycle_20261021.py:57: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_mainline_v1_4_bot.py:5750: in _v14_ic_core_overlay
+    chain, stamp = fetch_sse_existing_put_historical_quote(str(contract), str(anchor["v14_core_put_security_id"]), replay)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ic_im_evidence_adapter_v1.py:267: in held_quote
+    return historical(contract, security_id, day)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+poe_ic_im_mainline_v1_4_bot.py:4110: in fetch_sse_existing_put_historical_quote
+    terms = fetch_sse_510500_dated_master(day).get(security_id)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+poe_ic_im_mainline_v1_4_bot.py:4094: in fetch_sse_510500_dated_master
+    return adjusted_put_migration.master_terms(payload, as_of=reference)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+payload = {'actionErrors': [], 'actionMessages': [], 'fieldErrors': {}, 'isPagination': 'false', ...}
+
+    def master_terms(payload: dict, *, as_of: Any) -> dict[str, Terms]:
+        """A current master proves only its actual TIMESAVE, not requested queryDate."""
+        reference = day(as_of)
+        if (not isinstance(payload, dict) or payload.get("sqlId") != MASTER_SQL
+                or not (payload.get("isPagination") is False or payload.get("isPagination") == "false")
+                or type(payload.get("actionErrors")) is not list
+                or type(payload.get("fieldErrors")) is not dict
+                or payload["actionErrors"] or payload["fieldErrors"]
+                or not isinstance(payload.get("result"), list) or not payload["result"]):
+            raise RuntimeError("official master scope/errors/schema unverified")
+        digest, result, contracts = payload_hash(payload), {}, set()
+        for row in payload["result"]:
+            try:
+                if not isinstance(row, dict):
+                    raise RuntimeError("official master row invalid")
+                contract, security = row["CONTRACT_ID"], row["SECURITY_ID"]
+                match = CODE.fullmatch(contract) if isinstance(contract, str) else None
+                if (not match or row["CALL_OR_PUT"] != {"C": "认购", "P": "认沽"}[match.group(1)]
+                        or row["OPTION_TYPE"] != "E" or row["DELISTFLAG"] != "否"
+                        or day(row["TIMESAVE"]) != reference):
+>                   raise RuntimeError("official master date/identity/listing mismatch")
+E                   RuntimeError: official master date/identity/listing mismatch
+
+ic_im_adjusted_put_migration_v1.py:150: RuntimeError
+____ test_full_builder_december_expiry_stays_closed_without_2027_calendar _____
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_107c8cb7/pytest/test_full_builder_december_exp0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x00000128159A58D0>
+
+    def test_full_builder_december_expiry_stays_closed_without_2027_calendar(tmp_path,monkeypatch):
+        expiry=date(2026,12,23)
+        monkeypatch.setitem(globals(),'DAY',expiry)
+        monkeypatch.setitem(globals(),'PREVIOUS',date(2026,12,22))
+        monkeypatch.setitem(globals(),'CLOCK',datetime(2026,12,23,15,40,tzinfo=bot.BEIJING))
+        store,record=recent_store(tmp_path/'ledger')
+        anchors=state.anchors_from_record(record)
+        a=anchors['IC']
+        ledger._empty_core(a,'IC')
+        a.update(post_core_contract='IC2703',v14_route_state='short_put',
+            v14_cycle_id='synthetic-expiry-builder',v14_short_put_contract=real.M,
+            v14_short_put_security_id='10011470',v14_short_put_qty_normalized=5.,
+            v14_short_put_entry_premium=.4,v14_short_put_expiry=expiry,
+            v14_short_put_cost_basis='confirmed_dated_open',v14_short_put_entry_price_day=PREVIOUS,
+            verified_momentum_put_delta=0.,verified_momentum_put_qty=0)
+        record['products']['IC']=state._jsonable(a)
+        record['digest']=state._digest(record)
+        state._validate_record(record)
+        body=real.payload()
+        body['date']=20261223
+        chain,stamp=real.wire(monkeypatch,body)
+        monkeypatch.setattr(bot,'LIVE_CONTINUATION_ANCHOR',anchors)
+        builder_inputs(monkeypatch,a,chain,stamp)
+        monkeypatch.setattr(bot,'fetch_sse_510500_quote',lambda:dict(date='20261223',time='150000',last=7.8))
+        monkeypatch.setattr(bot,'fetch_option_closes',lambda security:
+            pd.Series([.01],index=pd.to_datetime([expiry])))
+        before,disk=deepcopy(a),snapshot(store.root)
+        # Do not bypass this independent gate to manufacture full-builder
+        # reachability for the adapter expiry probes above.
+>       with pytest.raises(RuntimeError,match='2027'):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+test_icim_round2_audit_lifecycle_20261021.py:505: Failed
+___________ test_public_im_builder_checks_unknown_held_core_expiry ____________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x00000128159DBE70>
+
+    def test_public_im_builder_checks_unknown_held_core_expiry(monkeypatch):
+        # Actual builder/policy with synthetic restored holding and market rows.
+        # The fixture's verified quantities are preserved; only the held month and
+        # its matching observed quote are moved across the official-year boundary.
+        import test_icim_batch3_old_call_20261021 as legacy
+        anchors,quotes=legacy.wire(monkeypatch,held=False)
+        bot.LIVE_CONTINUATION_ANCHOR['IM']['post_core_put_contract']='MO2703-P-7200'
+        quotes.loc[quotes.instrument.eq('MO2612-P-7200'),'instrument']='MO2703-P-7200'
+        quotes.attrs['listed_instruments']=list(quotes.instrument)
+>       with pytest.raises(RuntimeError,match='2027'):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+test_icim_batch3_calendar_redteam_20261021.py:115: Failed
+_____ test_public_im_positive_momentum_held_expiry_is_checked[2703-True] ______
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000012815A00C20>
+month = '2703', unknown = True
+
+    @pytest.mark.parametrize('month,unknown',[('2612',False),('2703',True)])
+    def test_public_im_positive_momentum_held_expiry_is_checked(monkeypatch,month,unknown):
+        import test_icim_batch3_old_call_20261021 as legacy
+        anchors,quotes=legacy.wire(monkeypatch,held=False)
+        contract='MO'+month+'-P-7000'
+        bot.LIVE_CONTINUATION_ANCHOR['IM'].update(
+            post_momentum_put_contract=contract,verified_momentum_put_qty_normalized=.5)
+        quotes.loc[len(quotes)]=dict(instrument=contract,lastprice=100.,bprice=99.,sprice=101.,
+                                    volume=10.,position=20.)
+        quotes.attrs['listed_instruments']=list(quotes.instrument)
+        original=bot.live_proxy
+        def positive_momentum(*args):
+            live=original(*args)
+            live.update(momentum_next_weight=.5,momentum_current_weight=.5)
+            return live
+        monkeypatch.setattr(bot,'live_proxy',positive_momentum)
+        if unknown:
+>           with pytest.raises(RuntimeError,match='2027'):
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           Failed: DID NOT RAISE <class 'RuntimeError'>
+
+test_icim_batch3_calendar_redteam_20261021.py:181: Failed
+============================== warnings summary ===============================
+C:\Python314\Lib\site-packages\fastapi_poe\types.py:171
+  C:\Python314\Lib\site-packages\fastapi_poe\types.py:171: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    class RequestContext(BaseModel):
+
+test_icim_redteam_display_20261021.py::test_bootstrap_snapshot_retains_known_single_core_identity
+  test_icim_redteam_display_20261021.py:73: PytestWarning: record_property is incompatible with junit_family 'xunit2' (use 'legacy' or 'xunit1')
+    def test_bootstrap_snapshot_retains_known_single_core_identity(monkeypatch, record_property):
+
+test_icim_redteam_display_20261021.py::test_core_overlay_failure_cannot_label_momentum_as_current_core
+  test_icim_redteam_display_20261021.py:89: PytestWarning: record_property is incompatible with junit_family 'xunit2' (use 'legacy' or 'xunit1')
+    def test_core_overlay_failure_cannot_label_momentum_as_current_core(monkeypatch, record_property):
+
+test_icim_redteam_display_20261021.py::test_core_overlay_failure_cannot_publish_momentum_iv_as_core_monitor
+  test_icim_redteam_display_20261021.py:120: PytestWarning: record_property is incompatible with junit_family 'xunit2' (use 'legacy' or 'xunit1')
+    def test_core_overlay_failure_cannot_publish_momentum_iv_as_core_monitor(monkeypatch, record_property):
+
+test_icim_redteam_display_20261021.py::test_im_snapshot_zero_core_does_not_show_residual_contract
+  test_icim_redteam_display_20261021.py:201: PytestWarning: record_property is incompatible with junit_family 'xunit2' (use 'legacy' or 'xunit1')
+    def test_im_snapshot_zero_core_does_not_show_residual_contract(monkeypatch, record_property):
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED test_ic_im_external_review_20261021.py::test_failed_query_never_reaches_new_close_target[IC]
+FAILED test_ic_im_external_review_20261021.py::test_failed_query_never_reaches_new_close_target[IM]
+FAILED test_icim_redteam_integration_20261021.py::test_frozen_source_receipt_matches_current_bytes
+FAILED test_icim_round2_audit_lifecycle_20261021.py::test_historical_adapter_retains_id_already_bound_to_requested_series
+FAILED test_icim_round2_audit_lifecycle_20261021.py::test_legal_standard_core_replay_crosses_strict_boundary
+FAILED test_icim_round2_audit_lifecycle_20261021.py::test_full_builder_december_expiry_stays_closed_without_2027_calendar
+FAILED test_icim_batch3_calendar_redteam_20261021.py::test_public_im_builder_checks_unknown_held_core_expiry
+FAILED test_icim_batch3_calendar_redteam_20261021.py::test_public_im_positive_momentum_held_expiry_is_checked[2703-True]
+8 failed, 439 passed, 2 deselected, 5 warnings in 56.57s

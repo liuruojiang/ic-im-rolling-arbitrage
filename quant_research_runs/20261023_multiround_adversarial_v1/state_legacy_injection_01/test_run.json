@@ -1,0 +1,9 @@
+{
+  "exit_code": 0,
+  "files": [
+    "test_icim_round3_recovery_audit_20261021.py::test_original_closed_at_after_session_never_becomes_original_day_evidence"
+  ],
+  "state_dir": "C:\\Users\\ADMINI~1.DES\\AppData\\Local\\Temp\\icim_put_6be3dfe9\\state",
+  "test_only_windows_mkdir_mode_adjustment": true,
+  "implicit_pytest_addopts_removed": false
+}

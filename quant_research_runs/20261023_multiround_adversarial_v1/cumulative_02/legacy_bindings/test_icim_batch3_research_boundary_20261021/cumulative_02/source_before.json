@@ -1,0 +1,23 @@
+{
+  "ic_im_adjusted_put_migration_v1.py": "f4bbdaa49225e51b83ccfe441b9c6f4dc36b7f3206acf509098f4d8628215c29",
+  "ic_im_chinabond.py": "4e1098b2f4c253d9950c084eafcc655ea8e5e820478a01a29393d638e6d40ab9",
+  "ic_im_daily_valuation.py": "b389a81475836fb3e4e96dbc92216a54afeb199029d524f51efbb8d029e4257c",
+  "ic_im_evidence_adapter_v1.py": "f22a342dcf671f7625d6861f4041cff045d698ba2ba63c8519fdfa0fd204a662",
+  "ic_im_fear_grid_v1.py": "a21578621eb7695af5dcc669670cdcfa2bef2f0d9fceb4ad40a3ddae707fcc67",
+  "ic_im_option_maintenance_notice.py": "a2ad67732d85bad5d96444d7a74a350d3ecdf0fdb6b82b9b593ccfaf95c63746",
+  "ic_im_put_execution_v1.py": "8cdda4e3761bda7889c16b0102ee0106d2efaaa61088b7cb6fc83a08d67b2368",
+  "ic_im_quarter_roll_v1_3.py": "cec4535aa0dca4200ac4e50ec91f7aa82aee12c5157f0cb350ab73c82d53457d",
+  "ic_im_quote_snapshot_guard.py": "ae22b541a1a2a6bc20d5bd23bb1fc3d275a2f3fcfce96b5345c2458cde74b9d5",
+  "ic_im_signal_evidence_v1.py": "adb241e56e9c012487a4c3837865450256c53aa1f0d1d2c0c1dc141cd1172a0f",
+  "ic_im_sse_contract_identity_v1.py": "47a2d81f665d2b199eaa2c2043c90271cdd242aa9776620002c833f3cdafacc8",
+  "ic_im_v1_4_policy.py": "b4f131bd60c596f19800d11d4c1f4eab5de0f4f4b2e935242a24ff7324827eac",
+  "im_put_policy.py": "ff9c9b1d52e4b1aa25fcb3c85e61665a4acf0a4de68272d8ddc9caaf2d4a9a9c",
+  "poe_ic_im_mainline_v1_4_bot.py": "b390575a41fe11da6da68caee551b7827f9cee28fb8ceba19432ec661e775222",
+  "poe_ic_im_v1_4_server.py": "bec2a5b20571a406af7075f9252d72181362a97e502b294d2e5c39c18ac9d5d8",
+  "poe_ic_im_v1_4_state.py": "dc11b280baf7da884c82fe52cf1866c0ac42a0b73fa9d9e6990d27c5b0ba1d4a",
+  "run_ic_im_v1_4_github_digest.py": "a016c273dbd24acc797ec3d2205abae600af4b1b14ca24969c09a8212bcdea7f",
+  "test_icim_batch3_research_boundary_20261021.py": "94c7f8d75adcbdd0e6575fdf03e3f0f51253d0d003316fc940c6b419377e18e2",
+  "docs/ic_put_wait_etf_listing_20261021_v1_spec.md": "151f3695ed04cb494cbd89d0e54b2378d7452c2978f371b826f19ca91d6bd2d8",
+  "quant_research_runs/20261021_ic_wait_etf_listing_v1/record.md": "ab6583e73569f50d2f48f813667f688c4576e20cb56388120fa55013b4b28483",
+  "quant_research_runs/20261021_ic_wait_etf_listing_v1/completed.json": "9ad90f7d280be14518e81c4c460fb5ccaef427df17047a679307616e3b196093"
+}

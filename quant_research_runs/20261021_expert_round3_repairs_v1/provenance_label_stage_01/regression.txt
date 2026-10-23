@@ -1,0 +1,61 @@
+F                                                                        [100%]
+================================== FAILURES ===================================
+_ test_original_close_replay_discloses_archive_identity_and_actual_acquisition _
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_643adb92/pytest/test_original_close_replay_dis0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x00000132E6C11BA0>
+
+    def test_original_close_replay_discloses_archive_identity_and_actual_acquisition(tmp_path, monkeypatch):
+        recovery.archive(monkeypatch, tmp_path, "IC", recovery.DAY)
+        monkeypatch.setattr(bot, "LIVE_CONTINUATION_ANCHOR", deepcopy(bot.LIVE_CONTINUATION_ANCHOR))
+        bot.install_runtime_anchors(recovery.state.anchors_from_record(recovery.prepared_record()))
+        monkeypatch.setattr(bot, "_OFFICIAL_EXCHANGE_CALENDAR_YEARS", set(bot._OFFICIAL_EXCHANGE_CALENDAR_YEARS) | {2027})
+        monkeypatch.setattr(bot, "build_iv_warning", lambda *a, **k: {"status": "audit_monitor_omitted"})
+        with adapter.evidence_location(tmp_path), bot.historical_replay(recovery.DAY):
+>           signal = bot.build_live_trade_signal("IC", recovery.clock(recovery.DAY, 15, 20), "close")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_icim_round3_evidence_integration_20261021.py:187: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_mainline_v1_4_bot.py:6454: in build_live_trade_signal
+    result = build_live_trade_signal(product, replay_clock, mode)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+poe_ic_im_mainline_v1_4_bot.py:6480: in build_live_trade_signal
+    result = _build_live_trade_signal(product, clock, mode)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+poe_ic_im_mainline_v1_4_bot.py:6586: in _build_live_trade_signal
+    fear_evidence.update(fear_grid.fetch_jiu_reference(market_date))
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ic_im_fear_grid_v1.py:568: in fetch_jiu_reference
+    return _batch_observation(("jiu", signal_day), lambda: _fetch_jiu_reference_uncached(signal_day))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ic_im_fear_grid_v1.py:515: in _batch_observation
+    return fetch()
+           ^^^^^^^
+ic_im_fear_grid_v1.py:568: in <lambda>
+    return _batch_observation(("jiu", signal_day), lambda: _fetch_jiu_reference_uncached(signal_day))
+                                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ic_im_fear_grid_v1.py:577: in _fetch_jiu_reference_uncached
+    raw = _bounded_get(JIU_URL, 2 * 1024 * 1024)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ic_im_fear_grid_v1.py:338: in _bounded_get
+    response = requests.get(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+a = ('https://ai2.jiucaishuo.com/api/fear-greed',)
+k = {'headers': {'User-Agent': 'ICIM-Fix10-Research-Signal/1.0'}, 'timeout': 8}
+
+>   monkeypatch.setattr(bot.requests, "get", lambda *a, **k: pytest.fail("network forbidden"))
+                                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: network forbidden
+
+test_icim_round3_evidence_integration_20261021.py:21: Failed
+============================== warnings summary ===============================
+C:\Python314\Lib\site-packages\fastapi_poe\types.py:171
+  C:\Python314\Lib\site-packages\fastapi_poe\types.py:171: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    class RequestContext(BaseModel):
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED test_icim_round3_evidence_integration_20261021.py::test_original_close_replay_discloses_archive_identity_and_actual_acquisition
+1 failed, 1 warning in 6.62s

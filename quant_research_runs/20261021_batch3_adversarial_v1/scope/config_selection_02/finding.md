@@ -1,0 +1,3 @@
+# 收集配置遗漏的第二轮反例
+
+本阶段2项失败，源码前后一致。新修复虽清除了PYTEST_ADDOPTS和addopts，但复制临时项目内pytest.ini或pyproject.toml通过python_functions隐藏同一请求模块的失败函数；新collection清单仍自洽，包装器给出1项PASS的严格收据。配置未包含于source map。真实复制runner及22项测试源码已保存，旧收据没有改写。结论是本轮审计工具的收集环境仍需控制，不表示上一轮1652已有证据失真。

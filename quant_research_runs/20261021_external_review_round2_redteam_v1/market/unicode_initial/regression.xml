@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="4" skipped="0" tests="4" time="2.027" timestamp="2026-10-21T14:37:26.168609+08:00" hostname="DESKTOP-95I7VVU"><testcase classname="test_icim_round2_audit_market_20261021" name="test_direct_identity_guards_require_ascii_even_without_source_parser[selected]" time="0.004"><failure message="Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x0000018240A13CE0&gt;
+entry = 'selected'
+
+    @pytest.mark.parametrize('entry', ['selected', 'held_security', 'held_contract'])
+    def test_direct_identity_guards_require_ascii_even_without_source_parser(monkeypatch, entry):
+        chain, _ = wire(monkeypatch, payload())
+        row = chain.loc[chain.contract.eq(CONTRACT)].iloc[0].copy()
+        fullwidth = ''.join(chr(0xFF10 + int(c)) for c in SECURITY)
+        contract, security = CONTRACT, SECURITY
+        if entry in ('selected', 'held_security'):
+            security = row['security_id'] = fullwidth
+        else:
+            contract = row['contract'] = CONTRACT[:-5] + '０７５００'
+&gt;       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;
+
+test_icim_round2_audit_market_20261021.py:237: Failed</failure></testcase><testcase classname="test_icim_round2_audit_market_20261021" name="test_direct_identity_guards_require_ascii_even_without_source_parser[held_security]" time="0.003"><failure message="Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x0000018240BC4640&gt;
+entry = 'held_security'
+
+    @pytest.mark.parametrize('entry', ['selected', 'held_security', 'held_contract'])
+    def test_direct_identity_guards_require_ascii_even_without_source_parser(monkeypatch, entry):
+        chain, _ = wire(monkeypatch, payload())
+        row = chain.loc[chain.contract.eq(CONTRACT)].iloc[0].copy()
+        fullwidth = ''.join(chr(0xFF10 + int(c)) for c in SECURITY)
+        contract, security = CONTRACT, SECURITY
+        if entry in ('selected', 'held_security'):
+            security = row['security_id'] = fullwidth
+        else:
+            contract = row['contract'] = CONTRACT[:-5] + '０７５００'
+&gt;       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;
+
+test_icim_round2_audit_market_20261021.py:237: Failed</failure></testcase><testcase classname="test_icim_round2_audit_market_20261021" name="test_direct_identity_guards_require_ascii_even_without_source_parser[held_contract]" time="0.002"><failure message="Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x0000018240A87890&gt;
+entry = 'held_contract'
+
+    @pytest.mark.parametrize('entry', ['selected', 'held_security', 'held_contract'])
+    def test_direct_identity_guards_require_ascii_even_without_source_parser(monkeypatch, entry):
+        chain, _ = wire(monkeypatch, payload())
+        row = chain.loc[chain.contract.eq(CONTRACT)].iloc[0].copy()
+        fullwidth = ''.join(chr(0xFF10 + int(c)) for c in SECURITY)
+        contract, security = CONTRACT, SECURITY
+        if entry in ('selected', 'held_security'):
+            security = row['security_id'] = fullwidth
+        else:
+            contract = row['contract'] = CONTRACT[:-5] + '０７５００'
+&gt;       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;
+
+test_icim_round2_audit_market_20261021.py:237: Failed</failure></testcase><testcase classname="test_icim_round2_audit_market_20261021" name="test_real_sina_packets_reject_unicode_security_syntax" time="0.004"><failure message="Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x0000018240B23790&gt;
+
+    def test_real_sina_packets_reject_unicode_security_syntax(monkeypatch):
+        raw = (FIXTURE.parents[1] / 'icim_external_review_20261021/sina_quotes_literal.bin').read_bytes().decode('gbk')
+        ids = re.findall(r'var hq_str_CON_OP_([0-9]+)=', raw)
+        malformed = ''.join(chr(0xFF10 + int(c)) for c in ids[0])
+        raw = raw.replace('CON_OP_' + ids[0], 'CON_OP_' + malformed)
+        ids[0] = malformed
+        listing = 'var hq_str_OP_DOWN_5105002611="' + ','.join('CON_OP_' + x for x in ids) + '";'
+        def response(body):
+            return SimpleNamespace(content=body.encode('gbk'), headers={}, raise_for_status=lambda: None)
+        monkeypatch.setattr(bot.requests, 'get', Mock(side_effect=[response(listing), response(raw)]))
+&gt;       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;
+
+test_icim_round2_audit_market_20261021.py:254: Failed</failure></testcase></testsuite></testsuites>

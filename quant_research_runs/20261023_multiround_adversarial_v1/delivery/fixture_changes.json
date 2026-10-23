@@ -1,0 +1,35 @@
+{
+  "changes": {
+    "test_ic_im_v1_4_integration_guards.py": {
+      "before_sha256": "39ad921eed2976fd0fc8ba8f8a17a41fbb4ec7cb914c1d3eafd8bf71d7102cb5",
+      "after_sha256": "21308871a347a739a20aa83264490ade0d51ce08bcaa08746ada2a51dcb9a637"
+    },
+    "test_icim_evidence_conflict_review_20261022.py": {
+      "before_sha256": "9db4779f4a305a0f9b7960270aae1b56d83e9ba2823a58da62428d17b1ce7ce4",
+      "after_sha256": "41ba68f37781ed92e03c9f5e55cb65923c29b695707537d6134bfc093d701f64"
+    },
+    "test_icim_expert_followup_replay_20261022.py": {
+      "before_sha256": "1a3b1904e676f16ad173ff8fd529a4814719dc1691b999e461d90a18712b6627",
+      "after_sha256": "abfcbc2ec202734ddf6d5f6894d120940c70874b8abb69a26ffe5263ab924dda"
+    },
+    "test_icim_round3_recovery_audit_20261021.py": {
+      "before_sha256": "ed439358ad1dca85cda09691c65968ee2ed84201a8e6663d589925f0546346e2",
+      "after_sha256": "f96c98ce178823be145f54f429670c5f4664c53c82f576e76036a417b10dc5a9"
+    },
+    "test_icim_round3_source_validation_20261021.py": {
+      "before_sha256": "9b02e8fbff54bdd5a0a51fc57c7579ff505ca06bf926702b617c69b154cdc67b",
+      "after_sha256": "2b8b6fb886362edacd89a457e192421948bc46549fe465db78261fc82db3b7bc"
+    },
+    "test_icim_round4_evidence_boundaries_20261021.py": {
+      "before_sha256": "454c58fec3c5ecd007d1b362b0a5ca3b948408c0fcc05544d5e0c1589b95c998",
+      "after_sha256": "a2925408e2cc81e43bc84279da36c5d413c87df65b5f85e3421518958d992c54"
+    },
+    "test_icim_round5_recording_semantics_20261021.py": {
+      "before_sha256": "17915da72da7218c04366b2b06b7b0b80b81c291cb9f227abcb77dcc72ce187f",
+      "after_sha256": "72364812d246b07e71de160e0c9acc915b70d362405b7a08ab3bc6c7148288b4"
+    }
+  },
+  "assertions_removed": 0,
+  "new_exclusions": 0,
+  "reason": "Old synthetic fixture and rejection-point contracts updated explicitly: Sina consumed-row timestamp; original-day roles/seal clock; observed four-month listing with fixed reference date and stronger result assertions; in-memory requests body consumption flag; earlier metadata rejection; cross-midnight injection at the shared reader boundary. Backups and the failed full run remain intact."
+}

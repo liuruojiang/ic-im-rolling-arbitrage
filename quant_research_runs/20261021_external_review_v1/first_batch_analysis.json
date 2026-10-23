@@ -1,0 +1,29 @@
+{
+  "quantity_source": "quant_param_scan_runs/20260918_ic_im_ic_rebuild_l9_short_put_sizing_q1_qd05_qd10/daily_outputs/quantity_sizing.csv",
+  "quantity_sha256": "c8b7280a7bf6d3d8a65951fe04b56be6921c42cf863851a4429c124daa1bd001",
+  "real_sizing_rows": 5,
+  "max_quantity_difference_from_live_formula": 3.552713678800501e-15,
+  "reported_normalized_delta_range": [
+    0.5,
+    0.5
+  ],
+  "actual_core_delta_per_account_1x_range": [
+    0.24999999999999994,
+    0.25
+  ],
+  "conclusion": "Live formula matches researched 0.5x fixed-core scaling; text normalization conflicts remain. Do not double quantity.",
+  "limitations": "Does not establish unseen user intent or re-estimate historical strategy returns.",
+  "local_checkpoint": {
+    "verified_day": "2026-10-19",
+    "sequence": 17,
+    "contracts": {
+      "v14_core_put_contract": "510500P2612M06500",
+      "post_put_contract": "510500P2612M06500",
+      "v14_short_put_contract": null,
+      "v14_profit_old_contract": null,
+      "v14_profit_reentry_contract": null
+    },
+    "adjusted_contracts_present": false,
+    "scope": "Local checkpoint only, not proof of current broker holdings or latest cloud ledger"
+  }
+}

@@ -1,0 +1,600 @@
+--- before/capture_ic_im_v1_4_inputs.py
++++ after/capture_ic_im_v1_4_inputs.py
+@@ -7,6 +7,7 @@
+ from __future__ import annotations
+ 
+ import argparse
++import ast
+ from contextlib import contextmanager
+ from copy import deepcopy
+ from datetime import datetime
+@@ -88,14 +89,39 @@
+ 
+ 
+ def loaded_sources(root: Path = SOURCE_ROOT) -> dict[str, str]:
++    # Follow the entry point's actual local import graph rather than inferring
++    # all dependencies from their names. In particular im_put_policy is a real
++    # dependency whose name does not begin with ic_im_/poe_ic_im_. Intersecting
++    # with loaded module locations avoids treating unrelated pytest/research
++    # modules as runtime dependencies merely because they share this workspace.
++    root = root.resolve(strict=True)
++    dependencies, pending = set(), [Path(__file__).resolve()]
++    while pending:
++        path = pending.pop()
++        if path in dependencies:
++            continue
++        dependencies.add(path)
++        try:
++            tree = ast.parse(path.read_text(encoding="utf-8-sig"))
++        except (OSError, SyntaxError, UnicodeError) as exc:
++            raise SourcePinError("cannot enumerate local production imports") from exc
++        for node in ast.walk(tree):
++            names = ([alias.name.split(".")[0] for alias in node.names]
++                     if isinstance(node, ast.Import) else
++                     [node.module.split(".")[0]] if isinstance(node, ast.ImportFrom) and node.module else [])
++            for name in names:
++                candidate = root / (name + ".py")
++                if candidate.is_file():
++                    candidate = candidate.resolve(strict=True)
++                    if candidate.is_relative_to(root) and candidate not in dependencies:
++                        pending.append(candidate)
+     paths = {Path(__file__).resolve()}
+     for name, module in list(sys.modules.items()):
+-        if not name.startswith(("ic_im_", "poe_ic_im_")):
+-            continue
+         location = getattr(module, "__file__", None)
+         if location:
+             path = Path(location).resolve()
+-            if path.suffix == ".py" and path.is_relative_to(root):
++            if (path.suffix == ".py" and path.is_relative_to(root)
++                    and (path in dependencies or name.startswith(("ic_im_", "poe_ic_im_")))):
+                 paths.add(path)
+     return {p.relative_to(root).as_posix(): sha(p) for p in sorted(paths)}
+ 
+@@ -199,6 +225,7 @@
+         import poe_ic_im_mainline_v1_4_bot as strategy
+         import poe_ic_im_v1_4_state as state
+         import ic_im_evidence_adapter_v1 as adapter
++        import ic_im_signal_evidence_v1 as evidence
+         clock = strategy._beijing_clock(clock or datetime.now(strategy.BEIJING))
+         result = {"schema": "icim_capture_runner_receipt_v1", "started_at": clock.isoformat(),
+                   "pid": os.getpid(), "ledger_write_requested": False, "message_send_requested": False,
+@@ -224,7 +251,8 @@
+                         try:
+                             strategy.install_runtime_anchors(anchors)
+                             with strategy.collection_clock(clock), strategy._network_budget(
+-                                    2 * strategy.SIGNAL_PRODUCT_NETWORK_BUDGET_SECONDS + 1):
++                                    2 * strategy.SIGNAL_PRODUCT_NETWORK_BUDGET_SECONDS + 1), \
++                                    evidence.publication_guard(self._verify_sources):
+                                 capture = adapter.capture_daily(strategy, self.evidence_dir, clock)
+                         finally:
+                             strategy.LIVE_CONTINUATION_ANCHOR.clear()
+@@ -233,13 +261,16 @@
+                     if capture["status"] == "captured":
+                         self.completed_bucket, self.completed_result = bucket, capture
+             result["consistency_statistics"] = adapter.capture_day_status(self.evidence_dir, clock.date())
+-            self._verify_sources()
+         except SourcePinError:
+             raise
+         except strategy.CalendarCoverageError as exc:
+             result.update(status="waiting_for_official_calendar", error_type=type(exc).__name__, error=str(exc)[:1000])
+         except Exception as exc:
+             result.update(status="incomplete", error_type=type(exc).__name__, error=str(exc)[:1000])
++        finally:
++            # A source failure discovered while sealing a session must also
++            # stop the collector if a provider/adapter handled that exception.
++            self._verify_sources()
+         after = ledger_hashes(self.state_dir)
+         result["ledger_paths_and_bytes_unchanged"] = before == after
+         if before != after:
+--- before/ic_im_evidence_adapter_v1.py
++++ after/ic_im_evidence_adapter_v1.py
+@@ -15,10 +15,11 @@
+ from concurrent.futures import FIRST_COMPLETED, ThreadPoolExecutor, wait
+ from contextlib import contextmanager
+ from copy import deepcopy
+-from datetime import date, datetime
++from datetime import date, datetime, time
+ from functools import wraps
+ from pathlib import Path
+ from typing import Any
++from zoneinfo import ZoneInfo
+ 
+ import numpy as np
+ import pandas as pd
+@@ -367,21 +368,63 @@
+     return evidence.has_session(root, day, {"product": product, "original_close": True})
+ 
+ 
+-def load_original(strategy, root, product, day):
++def _original_required_roles(product):
+     roles = {"market.live", "cffex.quotes", "rate.resolve", "fear.score"}
+     if product == "IC":
+         roles |= {"ic.months", "ic.etf", "ic.chain"}
+-    reader = evidence.load_session(root, day, required_roles=roles, metadata_filter={
+-        "product": product, "input_revision": INPUT_REVISION, "original_close": True})
+-    clock = reader.decision_at.astimezone(strategy.BEIJING)
+-    closed = reader.closed_at.astimezone(strategy.BEIJING)
+-    # A late historical download is not an original-day snapshot. Both clocks
+-    # are retained, and the actual capture finish is used without backdating.
++    return roles
++
++
++def _require_original_reader(reader, product, day, zone):
++    """Use the same replay-route scope for readiness and actual loading."""
++    if (reader.metadata.get("product") != product
++            or reader.metadata.get("input_revision") != INPUT_REVISION
++            or reader.metadata.get("original_close") is not True):
++        raise evidence.EvidenceUnavailable(f"{day} original evidence metadata/revision mismatch")
++    roles = {entry["role"] for entry in reader.context["entries"].values()}
++    missing = _original_required_roles(product) - roles
++    if missing:
++        raise evidence.EvidenceUnavailable("missing original evidence roles=" + ",".join(sorted(missing)))
++    clock = reader.decision_at.astimezone(zone)
++    closed = reader.closed_at.astimezone(zone)
+     if closed.date() != day or clock.date() != day or closed < clock:
+         raise evidence.EvidenceUnavailable(f"{day} original close acquisition time is not on that session")
+-    if closed.time() < strategy.time(15, 0):
++    if closed.time() < time(15, 0):
+         raise evidence.EvidenceUnavailable(f"{day} original evidence is not a completed close")
+-    return reader, closed
++    return closed
++
++
++def _original_session_paths(root, day):
++    root = evidence._canonical(Path(root))
++    directory = evidence._inside(root, root / "sessions" / day.isoformat())
++    try:
++        paths = sorted(directory.glob("*.json"))
++    except OSError as exc:
++        raise evidence.EvidenceUnavailable(f"{day} cannot enumerate original evidence") from exc
++    if len(paths) > evidence.MAX_SESSION_FILES:
++        raise evidence.EvidenceUnavailable(f"{day} evidence session count exceeds limit")
++    return root, paths
++
++
++def load_original(strategy, root, product, day):
++    day = evidence._day(day)
++    root, paths = _original_session_paths(root, day)
++    choices, failures = [], []
++    for path in paths:
++        try:
++            reader = evidence._load_one(root, path, day)
++            # A later packet with an invalid original-session clock must not
++            # hide an earlier valid one. Qualify before choosing the newest.
++            closed = _require_original_reader(reader, product, day, strategy.BEIJING)
++            choices.append((reader, closed))
++        except (evidence.EvidenceUnavailable, ValueError, TypeError, KeyError, AttributeError) as exc:
++            failures.append(f"{path.name}: {exc}")
++    if not choices:
++        detail = "; ".join(failures[:4]) or "no complete original session matching requested product"
++        raise evidence.EvidenceUnavailable(f"{day} original evidence unavailable: {detail}")
++    # Both clocks are retained; use the actual capture finish without backdating.
++    return max(choices, key=lambda pair: (pair[0].decision_at, pair[0].closed_at,
++                                          pair[0].manifest_path.name))
+ 
+ 
+ def _record_http_conflicts(session):
+@@ -486,6 +529,8 @@
+                                             submit_month(month)
+                                     elif label == "fear.score":
+                                         fear_value = value
++                        if callable(guard):
++                            guard(8)
+                         # All writers have finished before checking errors or
+                         # sealing the session. Compare exception identity, not
+                         # a racy before/after count of unrelated job failures.
+@@ -528,13 +573,11 @@
+ 
+ def capture_day_status(root, day):
+     """Read sealed attempts, not successful query counts or polling receipts."""
+-    root = evidence._canonical(Path(root))
++    root, paths = _original_session_paths(root, day)
+     products = {p: {"attempts": 0, "complete_attempts": 0, "incomplete_attempts": 0,
+                     "conflict_attempts": 0, "conflict_requests": 0} for p in ("IC", "IM")}
+-    errors = []
+-    paths = sorted((root / "sessions" / day.isoformat()).glob("*.json"))
+-    if len(paths) > evidence.MAX_SESSION_FILES:
+-        raise evidence.EvidenceUnavailable("evidence session count exceeds limit")
++    errors, unavailable = [], []
++    zone = ZoneInfo("Asia/Shanghai")
+     for path in paths:
+         try:
+             envelope = evidence._loads(evidence._read(evidence._inside(root, path), evidence.MAX_MANIFEST_BYTES))
+@@ -553,17 +596,45 @@
+             counts["conflict_attempts"] += int(conflicted)
+             counts["conflict_requests"] += len(conflicts)
+             try:
+-                evidence._load_one(root, path, day)
++                reader = evidence._load_one(root, path, day)
++                _require_original_reader(reader, product, day, zone)
+                 counts["complete_attempts"] += 1
+-            except evidence.EvidenceUnavailable:
++            except evidence.EvidenceUnavailable as exc:
+                 counts["incomplete_attempts"] += 1
++                unavailable.append({"manifest": path.name, "error": str(exc)[:500]})
+         except (OSError, ValueError, TypeError, KeyError, AttributeError, evidence.EvidenceUnavailable) as exc:
+             errors.append({"manifest": path.name, "error": str(exc)[:500]})
+     for value in products.values():
+         value["conflict_frequency"] = value["conflict_attempts"] / value["attempts"] if value["attempts"] else None
++    # A cycle can fail before any session is published. These receipts are
++    # advisory failure evidence, never a substitute for a valid original pack
++    # and never part of the sealed-session statistics denominator.
++    failed_receipts, receipt_errors = [], []
++    receipt_paths = sorted((root / "capture_receipts" / day.isoformat()).glob("*.json"))
++    if len(receipt_paths) > evidence.MAX_SESSION_FILES:
++        raise evidence.EvidenceUnavailable("evidence capture receipt count exceeds limit")
++    for path in receipt_paths:
++        try:
++            value = evidence._loads(evidence._read(evidence._inside(root, path), evidence.MAX_MANIFEST_BYTES))
++            if (not isinstance(value, dict) or value.get("schema") != "icim_capture_runner_receipt_v1"
++                    or value.get("status") not in {"incomplete", "source_pin_mismatch"}):
++                continue
++            started = datetime.fromisoformat(value["started_at"])
++            if started.tzinfo is None or started.astimezone(zone).date() != day:
++                raise evidence.EvidenceUnavailable("capture receipt day/time mismatch")
++            capture = value.get("capture", {})
++            if not isinstance(capture, dict) or capture.get("day", str(day)) != str(day):
++                raise evidence.EvidenceUnavailable("capture receipt scope mismatch")
++            failed_receipts.append({"receipt": path.name, "status": value["status"],
++                                    "started_at": value["started_at"]})
++        except (OSError, ValueError, TypeError, KeyError, AttributeError, evidence.EvidenceUnavailable) as exc:
++            receipt_errors.append({"receipt": path.name, "error": str(exc)[:500]})
+     missing = [p for p, c in products.items() if not c["complete_attempts"]]
+-    return {"day": str(day), "status": "captured" if not missing else "incomplete" if paths else "not_recorded",
++    attempted = bool(paths or failed_receipts or receipt_errors)
++    return {"day": str(day), "status": "captured" if not missing else "incomplete" if attempted else "not_recorded",
+             "products": products, "missing_products": missing, "unreadable_manifests": errors,
++            "unavailable_originals": unavailable, "failed_cycle_receipts": failed_receipts,
++            "unreadable_receipts": receipt_errors,
+             "denominator": "sealed original-close sessions per product; polling receipts excluded",
+             "recovery_warning": (f"{day} 当日原日存证缺失（{'/'.join(missing)}）；本轮重试后仍未取得完整包，需另行补证或人工锚定，不能承诺自动恢复。"
+-                                 if missing and paths else None)}
++                                 if missing and attempted else None)}
+--- before/ic_im_signal_evidence_v1.py
++++ after/ic_im_signal_evidence_v1.py
+@@ -38,10 +38,30 @@
+ current_reader: contextvars.ContextVar[EvidenceReader | None] = contextvars.ContextVar(
+     "icim_evidence_reader", default=None
+ )
++_publication_guard: contextvars.ContextVar[Callable[[], Any] | None] = contextvars.ContextVar(
++    "icim_evidence_publication_guard", default=None
++)
+ 
+ 
+ class EvidenceUnavailable(RuntimeError):
+     """A required original-day input is missing, invalid, or incomplete."""
++
++
++@contextmanager
++def publication_guard(callback: Callable[[], Any]) -> Iterator[None]:
++    """Validate the capture source before its manifest can become readable.
++
++    Capture sessions retain their creation scope's callback. Failure seals an
++    incomplete archive and remains available as ``session.publication_error``;
++    the collector must still perform its final source check and report errors.
++    """
++    if not callable(callback):
++        raise TypeError("evidence publication guard must be callable")
++    token = _publication_guard.set(callback)
++    try:
++        yield
++    finally:
++        _publication_guard.reset(token)
+ 
+ 
+ def _now() -> datetime:
+@@ -359,6 +379,15 @@
+     return _dumps(headers)
+ 
+ 
++def _validate_http_metadata(row):
++    # Error statuses are real source evidence too; only malformed protocol
++    # metadata is rejected. bool and integral floats are not HTTP status ints.
++    if type(row.get("status_code")) is not int or not 100 <= row["status_code"] <= 599:
++        raise EvidenceUnavailable("recorded HTTP response status invalid")
++    if row.get("encoding") is not None and not isinstance(row["encoding"], str):
++        raise EvidenceUnavailable("recorded HTTP response encoding invalid")
++
++
+ def raw_http_conflicts(rows):
+     """Report request ambiguity using the same identity as the strict reader."""
+     seen, reported, conflicts = {}, set(), []
+@@ -408,6 +437,8 @@
+         self._active_role_owners: dict[str, int] = {}
+         self._active_fetches = 0
+         self._bound_signals = []
++        self._publication_guard = _publication_guard.get()
++        self.publication_error: Exception | None = None
+ 
+     def annotate(self, name: str, value: Any) -> None:
+         with self._lock:
+@@ -552,6 +583,27 @@
+             return self.manifest_path
+         if self._active_fetches:
+             raise EvidenceUnavailable("cannot close evidence while input fetches are active")
++        if self._publication_guard is not None:
++            try:
++                self._publication_guard()
++            except Exception as exc:
++                # Do this before publishing any manifest: a reader must never
++                # observe a complete archive produced by an unverified source.
++                self.publication_error = exc
++                self.failures.append({"role": "publication_guard", "error_type": type(exc).__name__,
++                                      "error": str(exc)[:2000], "at": _now().isoformat(),
++                                      "resolved": False})
++        invalid = {row.get("raw_index") for row in self.failures
++                   if row.get("role") == "raw_http_metadata"}
++        for index, row in enumerate(self.raw):
++            try:
++                _validate_http_metadata(row)
++            except EvidenceUnavailable as exc:
++                if index not in invalid:
++                    self.failures.append({"role": "raw_http_metadata", "raw_index": index,
++                                          "url": row.get("url"), "error_type": type(exc).__name__,
++                                          "error": str(exc), "at": _now().isoformat(), "resolved": False})
++                    invalid.add(index)
+         conflicts = self.record_http_conflicts()
+         complete = bool(self.entries) and all(x["resolved"] for x in self.failures)
+         integrity = "inconsistent" if conflicts else "complete" if complete else "incomplete"
+@@ -656,8 +708,7 @@
+                 symbols = str(key["list"]).split(",")
+                 if params["list"] not in symbols:
+                     continue
+-                if type(row.get("status_code")) is not int or not 100 <= row["status_code"] <= 599:
+-                    raise EvidenceUnavailable("recorded HTTP response status invalid")
++                _validate_http_metadata(row)
+                 body = _verified_blob(self.root, row)
+                 values = list(re.finditer(rb'(?:var\s+)?hq_str_(P_OP_mo[0-9]{4}[CP][0-9]+)="([^"\r\n]*)";?', body))
+                 returned = [m[1].decode("ascii") for m in values]
+@@ -671,10 +722,7 @@
+             raise EvidenceUnavailable(f"{self.day} original evidence has no recorded HTTP request: {url}")
+         signatures = set()
+         for row in candidates:
+-            if type(row.get("status_code")) is not int or not 100 <= row["status_code"] <= 599:
+-                raise EvidenceUnavailable("recorded HTTP response status invalid")
+-            if row.get("encoding") is not None and not isinstance(row["encoding"], str):
+-                raise EvidenceUnavailable("recorded HTTP response encoding invalid")
++            _validate_http_metadata(row)
+             signatures.add((row["body"], row["status_code"], row.get("encoding"), _http_identity_headers(row)))
+         if len(signatures) != 1:
+             # URL/parameters do not identify which observation a caller used.
+@@ -714,9 +762,15 @@
+             if not isinstance(metadata, dict):
+                 raise EvidenceUnavailable("invalid evidence metadata")
+             if all(metadata.get(k) == v for k, v in metadata_filter.items()):
++                valid_http = True
++                for row in body.get("raw", []):
++                    try:
++                        _validate_http_metadata(row)
++                    except EvidenceUnavailable:
++                        valid_http = False
+                 if (body.get("complete") is True and isinstance(body.get("failures"), list)
+                         and all(row.get("resolved") is True for row in body["failures"])
+-                        and not raw_http_conflicts(body.get("raw", []))):
++                        and valid_http and not raw_http_conflicts(body.get("raw", []))):
+                     return True
+                 incomplete = True
+         except (KeyError, TypeError, ValueError, AttributeError) as exc:
+@@ -767,6 +821,7 @@
+     for entry in raw:
+         if entry.get("suffix") != ".bin":
+             raise EvidenceUnavailable("invalid raw evidence suffix")
++        _validate_http_metadata(entry)
+         acquired = _aware(entry["fetched_at"], "raw fetched_at")
+         if not opened <= acquired <= closed:
+             raise EvidenceUnavailable("raw evidence acquisition timestamp out of capture bounds")
+--- before/poe_ic_im_mainline_v1_4_bot.py
++++ after/poe_ic_im_mainline_v1_4_bot.py
+@@ -3850,13 +3850,11 @@
+         },
+     )
+     response.raise_for_status()
+-    text = _response_with_size_limit(response, f"新浪MO详报价 {contract}").decode(
+-        "gbk", errors="replace"
+-    )
+-    payload_match = re.search(r'=\"([^\"]*)\"', text)
+-    if not payload_match or not payload_match.group(1):
+-        raise RuntimeError(f"新浪MO详报价 {contract} 为空")
+-    fields = payload_match.group(1).split(",")
++    raw = _response_with_size_limit(response, f"新浪MO详报价 {contract}")
++    packets = _exact_quote_variables(raw, "hq_str_P_OP_")
++    if set(packets) != {symbol}:
++        raise RuntimeError(f"新浪MO详报价 {contract} 返回合约与请求不一致")
++    fields = packets[symbol].split(",")
+     if len(fields) <= 40:
+         raise RuntimeError(f"新浪MO详报价 {contract} 字段不足")
+     try:
+@@ -3882,6 +3880,11 @@
+     ) or not math.isfinite(lastprice) or lastprice <= 0:
+         raise RuntimeError(f"新浪MO详报价 {contract} 含NaN、无穷值或非正价格")
+     source_date = stamp.date()
++    observation_clock = _iv_observation_clock(clock)
++    if observation_clock.tzinfo is None:
++        observation_clock = observation_clock.replace(tzinfo=BEIJING)
++    if stamp > observation_clock:
++        raise RuntimeError(f"新浪MO详报价 {contract} 行情时间晚于当前运行时间")
+     if pricing_basis == "live_bid_ask_mid_estimate_zero_volume":
+         if source_date != expected_date:
+             raise RuntimeError(f"新浪Put双边报价日期 {source_date} 与 {expected_date} 不一致")
+@@ -3972,6 +3975,7 @@
+     response = _evidence_http_get(
+         f"https://yunhq.sse.com.cn:32042/{path.lstrip('/')}",
+         params=params,
++        stream=True,
+         timeout=_bounded_timeout(8),
+         headers={
+             "User-Agent": "Mozilla/5.0 POE-IC-IM-Research/1.0",
+@@ -3980,8 +3984,17 @@
+             "Pragma": "no-cache",
+         },
+     )
+-    response.raise_for_status()
+-    return response.json()
++    try:
++        response.raise_for_status()
++        if callable(getattr(response, "iter_content", None)):
++            raw = _bounded_response_bytes(response, "上交所行情")
++        else:
++            raw = _response_with_size_limit(response, "上交所行情")
++        return json.loads(raw)
++    finally:
++        close = getattr(response, "close", None)
++        if callable(close):
++            close()
+ 
+ 
+ def _sse_session_time(value: Any, label: str) -> str:
+@@ -4066,7 +4079,7 @@
+ 
+ 
+ def _exact_quote_variables(raw: bytes, prefix: str) -> dict[str, str]:
+-    packets = re.findall(re.escape(prefix) + r'([A-Za-z0-9_]+)="([^"\r\n]*)"',
++    packets = re.findall(r'(?<![A-Za-z0-9_$])' + re.escape(prefix) + r'([A-Za-z0-9_]+)="([^"\r\n]*)"',
+                          raw.decode("gb18030", errors="strict"))
+     values = {}
+     for symbol, payload in packets:
+@@ -4335,6 +4348,19 @@
+         _OPTION_CHAIN_REFERENCE_DAY.reset(token)
+ 
+ 
++def _require_current_510500_expiry_months(months: list[str]) -> None:
++    """Validate observed listings; never create an unobserved contract month."""
++    reference_day = _now_beijing().date()
++    first = (reference_day.year, reference_day.month)
++    if reference_day > _fourth_wednesday(*first):
++        first = _month_after(*first)
++    second = _month_after(*first)
++    expected = [f"{year:04d}{month:02d}" for year, month in
++                [first, second, *_following_quarter_months(*second, 2)]]
++    if months != expected:
++        raise RuntimeError("510500挂牌月份陈旧或缺少当前挂牌月份，禁止按残缺月份选约")
++
++
+ def fetch_sse_510500_expiries() -> list[str]:
+     payload = _sse_quote_json(
+         "v1/sho/list/exchange/stockexpire",
+@@ -4355,6 +4381,7 @@
+     ordered_months = sorted(months)
+     if not ordered_months:
+         raise RuntimeError("上交所未返回510500ETF期权挂牌月份")
++    _require_current_510500_expiry_months(ordered_months)
+     return ordered_months
+ 
+ 
+@@ -4378,15 +4405,7 @@
+             months = months[1:]
+         if len(months) != 4 or len(set(months)) != 4 or months != sorted(months):
+             raise ValueError("incomplete/duplicate listing")
+-        reference_day = _now_beijing().date()
+-        first = (reference_day.year, reference_day.month)
+-        if reference_day > _fourth_wednesday(*first):
+-            first = _month_after(*first)
+-        second = _month_after(*first)
+-        expected = [f"{year:04d}-{month:02d}" for year, month in
+-                    [first, second, *_following_quarter_months(*second, 2)]]
+-        if months != expected:
+-            raise ValueError("observed listing is stale or omits a current listed month")
++        _require_current_510500_expiry_months([value.replace("-", "") for value in months])
+     except (ValueError, KeyError, TypeError) as exc:
+         raise RuntimeError("新浪510500挂牌月份结构、标的或完整性未经核验") from exc
+     return [value.replace("-", "") for value in months]
+@@ -4777,9 +4796,11 @@
+ 
+ 
+ def _require_selected_510500_quote_time(
+-    row: pd.Series, clock: datetime, market_date: date | None
++    row: pd.Series, clock: datetime, market_date: date | None, *, source: str | None = None
+ ) -> None:
+     if "source_stamp" not in row.index:
++        if str(source or "").startswith("新浪"):
++            raise RuntimeError("新浪510500期权合约缺少有效逐行时间戳")
+         return
+     if market_date is None:
+         raise RuntimeError("新浪510500期权逐行报价缺少信号日，禁止校验自身日期")
+@@ -4801,7 +4822,8 @@
+ 
+ 
+ def _quote_row(
+-    frame: pd.DataFrame, contract: str, market_date: date | None = None
++    frame: pd.DataFrame, contract: str, market_date: date | None = None,
++    *, quote_source: str | None = None,
+ ) -> pd.Series | None:
+     rows = (
+         frame[frame["instrument"].eq(contract)]
+@@ -4812,7 +4834,7 @@
+         return None
+     row = rows.iloc[0]
+     try:
+-        _require_selected_510500_quote_time(row, _now_beijing(), market_date)
++        _require_selected_510500_quote_time(row, _now_beijing(), market_date, source=quote_source)
+     except RuntimeError:
+         # A stale held leg is missing market evidence, not a global lookup
+         # failure.  A changing action must still fail in _require_existing_leg_quote.
+@@ -5172,7 +5194,7 @@
+         raise RuntimeError(f"{month} 没有可用标准510500ETF Put")
+     puts["strike_error"] = (puts["strike"] - 0.95 * etf_price).abs()
+     selected = puts.sort_values(["strike_error", "contract"]).iloc[0]
+-    _require_selected_510500_quote_time(selected, _now_beijing(), today)
++    _require_selected_510500_quote_time(selected, _now_beijing(), today, source=stamp.get("source"))
+     years = max((expiry - today).days, 1) / 365.0
+     iv = _implied_volatility(
+         "P",
+@@ -5967,7 +5989,7 @@
+     puts["distance"] = (puts.strike - 0.95 * etf).abs()
+     selected = puts.sort_values(["distance", "contract"]).iloc[0]
+     _require_selected_510500_quote_time(
+-        selected, _now_beijing(), signal["market_date"]
++        selected, _now_beijing(), signal["market_date"], source=stamp.get("source")
+     )
+     years = max((expiry - signal["market_date"]).days, 1) / 365.0
+     premium = float(selected["last"])
+@@ -6125,7 +6147,7 @@
+                 raise RuntimeError("IC独立核心Put合约格式错误")
+             chain, stamp = _fetch_510500_chain_for_day(match.group(1), day)
+         _validate_chain_stamp_matches("IC独立核心Put", stamp, day, _now_beijing())
+-        row = _quote_row(chain, str(contract), day)
++        row = _quote_row(chain, str(contract), day, quote_source=stamp.get("source"))
+         if row is None or not math.isfinite(float(row["last"])) or float(row["last"]) <= 0:
+             raise RuntimeError("IC独立核心Put缺少有效当日报价")
+         _require_held_ic_put_identity(str(contract), anchor.get("v14_core_put_security_id"), row, day)
+@@ -6599,7 +6621,7 @@
+     else:
+         chain, stamp = _fetch_510500_chain_for_day(match.group(1), signal["market_date"])
+     _validate_chain_stamp_matches("IC既有卖Put", stamp, signal["market_date"], _now_beijing())
+-    row = _quote_row(chain, contract, signal["market_date"])
++    row = _quote_row(chain, contract, signal["market_date"], quote_source=stamp.get("source"))
+     if row is None:
+         raise RuntimeError("IC既有卖Put缺少可验证证券身份的行情")
+     _require_held_ic_put_identity(contract, security_id, row, signal["market_date"])
+@@ -7273,7 +7295,7 @@
+             raise RuntimeError(
+                 f"上交所ETF与期权链日期不一致：{etf_day} != {chain_day}"
+             )
+-        put_quote = _quote_row(chain, put_contract, market_date)
++        put_quote = _quote_row(chain, put_contract, market_date, quote_source=sse_stamp.get("source"))
+         if put_quote is not None and float(LIVE_CONTINUATION_ANCHOR["IC"].get("post_put_qty", 0)) > 0:
+             _require_held_ic_put_identity(
+                 put_contract, LIVE_CONTINUATION_ANCHOR["IC"].get("post_put_security_id"), put_quote, market_date
+--- before/poe_ic_im_v1_4_server.py
++++ after/poe_ic_im_v1_4_server.py
+@@ -183,8 +183,17 @@
+                 pending_day = strategy._roll_forward_exchange_day(verified + timedelta(days=1))
+                 evidence_day = min(pending_day, clock.date())
+                 archive_status = strategy.evidence_adapter.capture_day_status(self.evidence_root, evidence_day)
+-                if archive_status.get("recovery_warning"):
+-                    capture.text.append("\n\n⚠️ " + archive_status["recovery_warning"] + " 当前查询结果与该失败采集会话独立。\n")
++                warning = archive_status.get("recovery_warning")
++                due = evidence_day < clock.date() or strategy._market_phase(clock) == "收盘后"
++                failed = self.last_evidence_capture
++                if (not warning and due and archive_status.get("missing_products")
++                        and isinstance(failed, dict) and failed.get("status") == "incomplete"
++                        and str(failed.get("day")) == str(evidence_day)):
++                    missing = "/".join(archive_status["missing_products"])
++                    warning = (f"{evidence_day} 当日原日存证缺失（{missing}）；采集在完整封存前失败，"
++                               "需另行补证或人工锚定，不能承诺自动恢复。")
++                if warning and due:
++                    capture.text.append("\n\n⚠️ " + warning + " 当前查询结果与该失败采集会话独立。\n")
+             except Exception as exc:
+                 capture.text.append(f"\n\n⚠️ 原日存证状态暂不可核验：{exc}。\n")
+             return "".join(capture.text), capture.attachments, observed

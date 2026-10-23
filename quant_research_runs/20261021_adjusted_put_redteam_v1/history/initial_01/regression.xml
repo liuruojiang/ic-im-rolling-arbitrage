@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="5" skipped="0" tests="25" time="3.613" timestamp="2026-10-21T15:40:26.838777+08:00" hostname="DESKTOP-95I7VVU"><testcase classname="test_icim_a3_history_20261021" name="test_real_master_supports_independent_id_and_strike" time="0.021" /><testcase classname="test_icim_a3_history_20261021" name="test_code_year_is_20yy_not_a_century_alias[1926]" time="0.003" /><testcase classname="test_icim_a3_history_20261021" name="test_code_year_is_20yy_not_a_century_alias[2126]" time="0.004"><failure message="Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;">year = 2126
+
+    @pytest.mark.parametrize('year',[1926,2126])
+    def test_code_year_is_20yy_not_a_century_alias(year):
+        body = payload()
+        row = selected(body)
+        for key in ['EXPIRE_DATE','EXERCISE_DATE','END_DATE']:
+            row[key] = f'{year}1223'
+&gt;       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;
+
+test_icim_a3_history_20261021.py:70: Failed</failure></testcase><testcase classname="test_icim_a3_history_20261021" name="test_consistent_wrong_expiry_is_rejected_before_a_price_is_consumed" time="0.004"><failure message="Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x00000132B8E67360&gt;
+
+    def test_consistent_wrong_expiry_is_rejected_before_a_price_is_consumed(monkeypatch):
+        body = payload()
+        row = selected(body)
+        for key in ['EXPIRE_DATE','EXERCISE_DATE','END_DATE']:
+            row[key] = '20261224'
+        _,calls = bind_sources(monkeypatch,body)
+&gt;       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;
+
+test_icim_a3_history_20261021.py:80: Failed</failure></testcase><testcase classname="test_icim_a3_history_20261021" name="test_relevant_master_fields_cannot_be_weakened[SECURITY_ID-10012099]" time="0.004" /><testcase classname="test_icim_a3_history_20261021" name="test_relevant_master_fields_cannot_be_weakened[SECURITY_ID-\uff11\uff10\uff10\uff11\uff12\uff10\uff19\uff19]" time="0.003" /><testcase classname="test_icim_a3_history_20261021" name="test_relevant_master_fields_cannot_be_weakened[CONTRACT_ID-510500P\uff12\uff16\uff11\uff12M07500]" time="0.003" /><testcase classname="test_icim_a3_history_20261021" name="test_relevant_master_fields_cannot_be_weakened[CONTRACT_UNIT-False]" time="0.004" /><testcase classname="test_icim_a3_history_20261021" name="test_relevant_master_fields_cannot_be_weakened[CONTRACT_UNIT-9999]" time="0.003" /><testcase classname="test_icim_a3_history_20261021" name="test_relevant_master_fields_cannot_be_weakened[EXERCISE_PRICE-7.499]" time="0.003" /><testcase classname="test_icim_a3_history_20261021" name="test_relevant_master_fields_cannot_be_weakened[EXERCISE_PRICE-NaN]" time="0.003" /><testcase classname="test_icim_a3_history_20261021" name="test_relevant_master_fields_cannot_be_weakened[TIMESAVE-2026-10-19]" time="0.003" /><testcase classname="test_icim_a3_history_20261021" name="test_relevant_master_fields_cannot_be_weakened[START_DATE-20261021]" time="0.003" /><testcase classname="test_icim_a3_history_20261021" name="test_relevant_master_fields_cannot_be_weakened[DELISTFLAG-\u662f]" time="0.003" /><testcase classname="test_icim_a3_history_20261021" name="test_old_m_adjusted_security_is_rejected_before_price_fetch" time="0.004" /><testcase classname="test_icim_a3_history_20261021" name="test_historical_scalar_price_must_be_real_nonnegative_number[value0]" time="0.005" /><testcase classname="test_icim_a3_history_20261021" name="test_historical_scalar_price_must_be_real_nonnegative_number[True]" time="0.006" /><testcase classname="test_icim_a3_history_20261021" name="test_historical_scalar_price_must_be_real_nonnegative_number[nan]" time="0.004" /><testcase classname="test_icim_a3_history_20261021" name="test_historical_scalar_price_must_be_real_nonnegative_number[inf]" time="0.004" /><testcase classname="test_icim_a3_history_20261021" name="test_historical_scalar_price_must_be_real_nonnegative_number[-0.1]" time="0.005" /><testcase classname="test_icim_a3_history_20261021" name="test_duplicate_dated_prices_cannot_be_accepted" time="0.008" /><testcase classname="test_icim_a3_history_20261021" name="test_new_master_source_rejects_declared_oversize_before_json_parse" time="0.004"><failure message="Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x00000132B8FF4BB0&gt;
+
+    def test_new_master_source_rejects_declared_oversize_before_json_parse(monkeypatch):
+        response = Response(payload(),declared=str(bot.MAX_QUOTE_RESPONSE_BYTES+1))
+        monkeypatch.setattr(bot.requests,'get',lambda *a,**k: response)
+&gt;       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;
+
+test_icim_a3_history_20261021.py:124: Failed</failure></testcase><testcase classname="test_icim_a3_history_20261021" name="test_new_master_source_cannot_finish_after_shared_budget_expired" time="0.004"><failure message="Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x00000132B8FF5630&gt;
+
+    def test_new_master_source_cannot_finish_after_shared_budget_expired(monkeypatch):
+        response = Response(payload())
+        now = [0.]
+        monkeypatch.setattr(bot.time_module,'monotonic',lambda: now[0])
+        def get(*a,**k):
+            assert k['timeout'] &lt;= 1.
+            now[0] = 2.
+            return response
+        monkeypatch.setattr(bot.requests,'get',get)
+        token = bot._NETWORK_DEADLINE.set(1.)
+        try:
+&gt;           with pytest.raises(RuntimeError):
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;
+
+test_icim_a3_history_20261021.py:140: Failed</failure></testcase><testcase classname="test_icim_a3_history_20261021" name="test_duplicate_raw_sina_dates_cannot_disappear_before_identity_consumer" time="0.008"><failure message="Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x00000132B907E1A0&gt;
+
+    def test_duplicate_raw_sina_dates_cannot_disappear_before_identity_consumer(monkeypatch):
+        master = Response(payload())
+        sina = Response({},text='callback([{"d":"2026-10-20","c":"0.2"},{"d":"2026-10-20","c":"0.9"}]);')
+        def request(url,**kwargs):
+            if url == 'https://query.sse.com.cn/commonQuery.do': return master
+            if 'StockOptionDaylineService.getSymbolInfo' in url: return sina
+            raise RuntimeError('synthetic backup unavailable')
+        monkeypatch.setattr(bot.requests,'get',request)
+        # Real public history consumers execute; neither identity nor price loader
+        # is replaced. Only the HTTP transport is synthetic and local.
+&gt;       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;
+
+test_icim_a3_history_20261021.py:157: Failed</failure></testcase><testcase classname="test_icim_a3_history_20261021" name="test_actual_core_overlay_succeeds_with_same_day_independent_master" time="0.006" /></testsuite></testsuites>

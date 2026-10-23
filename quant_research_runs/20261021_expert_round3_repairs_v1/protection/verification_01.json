@@ -1,0 +1,33 @@
+{
+  "prior_backups": {
+    "checked": 1163,
+    "changed_or_missing": []
+  },
+  "prior_evidence": {
+    "checked": 26680,
+    "changed_or_missing": [
+      "quant_research_runs/20261016_put_delivery_completion_v1/formal_runtime/runtime/legulegu/latest.json"
+    ]
+  },
+  "prior_frozen_outputs": {
+    "checked": 6774,
+    "changed_or_missing": []
+  },
+  "current_frozen_runtime_and_reports": {
+    "checked": 7691,
+    "changed_or_missing": [
+      "quant_research_runs/20261021_expert_repairs_v1/.pytest_cache/v/cache/nodeids"
+    ]
+  },
+  "new_backups": {
+    "checked": 12,
+    "changed_or_missing": []
+  },
+  "runtime_files": {
+    "before": 155,
+    "after": 155,
+    "added": [],
+    "missing": []
+  },
+  "passed": false
+}

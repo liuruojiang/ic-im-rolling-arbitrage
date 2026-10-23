@@ -1,0 +1,25 @@
+{
+  "actual_clock": "2026-10-22T16:38:04.906308+08:00",
+  "market_phase": "收盘后",
+  "configured_paths_before_probe": {
+    "ICIM_STATE_DIR": null,
+    "ICIM_EVIDENCE_DIR": null
+  },
+  "scope": "live prerequisite probe, not a replay pass",
+  "production_ledger_write": false,
+  "requests": [
+    {
+      "url": "https://yunhq.sse.com.cn:32042/v1/sho/list/exchange/stockexpire",
+      "http_status": 200
+    }
+  ],
+  "status": "LIVE_LISTING_AVAILABLE",
+  "listed_months": [
+    "202610",
+    "202611",
+    "202612",
+    "202703"
+  ],
+  "note": "Listing alone is not a complete IC original-session package.",
+  "formal_runtime_unchanged": true
+}

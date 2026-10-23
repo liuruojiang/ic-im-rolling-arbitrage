@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="19" time="1.893" timestamp="2026-10-23T09:26:51.934249+08:00" hostname="DESKTOP-95I7VVU"><testcase classname="test_icim_ma23_clocks_20261023" name="test_confirmed_sina_candidate_cannot_omit_consumed_row_timestamp_in_capture" time="0.020"><failure message="Failed: DID NOT RAISE any of (&lt;class 'RuntimeError'&gt;, &lt;class 'ic_im_signal_evidence_v1.EvidenceUnavailable'&gt;)">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x0000017A0DE55A70&gt;
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_8971370c/pytest/test_confirmed_sina_candidate_0')
+
+    def test_confirmed_sina_candidate_cannot_omit_consumed_row_timestamp_in_capture(monkeypatch, tmp_path):
+        """Wrong/old producer, not a claim the current Sina wire parser drops this column."""
+        pricing(monkeypatch)
+        monkeypatch.setattr(bot, 'fetch_510500_chain_with_failover',
+                            lambda month: chain('2611', include_stamp=False))
+        with bot.runtime_clock(CLOCK), evidence.capture_session(tmp_path, DAY, CLOCK, {}):
+&gt;           with pytest.raises((RuntimeError, evidence.EvidenceUnavailable), match='时间|timestamp|stamp'):
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           Failed: DID NOT RAISE any of (&lt;class 'RuntimeError'&gt;, &lt;class 'ic_im_signal_evidence_v1.EvidenceUnavailable'&gt;)
+
+test_icim_ma23_clocks_20261023.py:56: Failed</failure></testcase><testcase classname="test_icim_ma23_clocks_20261023" name="test_confirmed_sina_candidate_cannot_omit_consumed_row_timestamp_in_typed_replay" time="0.067"><failure message="Failed: DID NOT RAISE any of (&lt;class 'RuntimeError'&gt;, &lt;class 'ic_im_signal_evidence_v1.EvidenceUnavailable'&gt;)">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x0000017A0DE562C0&gt;
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_8971370c/pytest/test_confirmed_sina_candidate_1')
+
+    def test_confirmed_sina_candidate_cannot_omit_consumed_row_timestamp_in_typed_replay(monkeypatch, tmp_path):
+        """A hash-valid old producer bundle must still meet today's semantic gate."""
+        pricing(monkeypatch)
+        with evidence.capture_session(tmp_path, DAY, CLOCK, {}) as session:
+            session.call('ic.chain', {'month':'2611','day':DAY}, lambda: chain('2611', include_stamp=False))
+        reader = evidence.load_session(tmp_path, DAY)
+        with bot.runtime_clock(CLOCK), bot.historical_replay(DAY), evidence.replay_session(reader):
+&gt;           with pytest.raises((RuntimeError, evidence.EvidenceUnavailable), match='时间|timestamp|stamp'):
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           Failed: DID NOT RAISE any of (&lt;class 'RuntimeError'&gt;, &lt;class 'ic_im_signal_evidence_v1.EvidenceUnavailable'&gt;)
+
+test_icim_ma23_clocks_20261023.py:67: Failed</failure></testcase><testcase classname="test_icim_ma23_clocks_20261023" name="test_sse_candidate_without_row_timestamp_keeps_aggregate_source_contract" time="0.003" /><testcase classname="test_icim_ma23_clocks_20261023" name="test_known_stale_unconsumed_row_does_not_invalidate_entire_chain" time="0.030" /><testcase classname="test_icim_ma23_clocks_20261023" name="test_stale_nearest_row_is_not_replaced_by_other_fresh_strike" time="0.013" /><testcase classname="test_icim_ma23_clocks_20261023" name="test_cached_raw_chain_rechecks_source_date_and_does_not_expose_mutable_state" time="0.005" /><testcase classname="test_icim_ma23_clocks_20261023" name="test_collection_elapsed_is_applied_once_even_through_adapter_and_validator" time="0.010" /><testcase classname="test_icim_ma23_clocks_20261023" name="test_selected_row_active_minutes_have_exact_twenty_minute_boundary[1199-True]" time="0.002" /><testcase classname="test_icim_ma23_clocks_20261023" name="test_selected_row_active_minutes_have_exact_twenty_minute_boundary[1200-True]" time="0.002" /><testcase classname="test_icim_ma23_clocks_20261023" name="test_selected_row_active_minutes_have_exact_twenty_minute_boundary[1201-False]" time="0.002" /><testcase classname="test_icim_ma23_clocks_20261023" name="test_lunch_break_does_not_age_quote_as_traded_minutes" time="0.002" /><testcase classname="test_icim_ma23_clocks_20261023" name="test_observation_clock_worker_context_advances_shared_anchor_without_changing_signal_clock" time="0.002" /><testcase classname="test_icim_ma23_clocks_20261023" name="test_replay_clock_is_immutable_while_collection_anchor_advances" time="0.001" /><testcase classname="test_icim_ma23_clocks_20261023" name="test_nested_collection_scope_restores_outer_fear_and_anchor_after_exception" time="0.001" /><testcase classname="test_icim_ma23_clocks_20261023" name="test_chain_stamp_invalid_or_future_time_cannot_hide_behind_current_market_date[]" time="0.001" /><testcase classname="test_icim_ma23_clocks_20261023" name="test_chain_stamp_invalid_or_future_time_cannot_hide_behind_current_market_date[000000]" time="0.001" /><testcase classname="test_icim_ma23_clocks_20261023" name="test_chain_stamp_invalid_or_future_time_cannot_hide_behind_current_market_date[091459]" time="0.001" /><testcase classname="test_icim_ma23_clocks_20261023" name="test_chain_stamp_invalid_or_future_time_cannot_hide_behind_current_market_date[145801]" time="0.001" /><testcase classname="test_icim_ma23_clocks_20261023" name="test_chain_stamp_invalid_or_future_time_cannot_hide_behind_current_market_date[235959]" time="0.001" /></testsuite></testsuites>

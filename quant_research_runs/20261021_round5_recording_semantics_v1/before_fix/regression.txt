@@ -1,0 +1,197 @@
+FFFF.F...........FF                                                      [100%]
+================================== FAILURES ===================================
+_ test_conflicting_same_url_parameters_are_rejected_instead_of_taking_last[body] _
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_155fde5c/pytest/test_conflicting_same_url_para0')
+difference = 'body'
+
+    @pytest.mark.parametrize("difference", ["body", "headers", "status", "encoding"])
+    def test_conflicting_same_url_parameters_are_rejected_instead_of_taking_last(tmp_path, difference):
+        first = [URL, PARAMS, b"first", {"Last-Modified": "Wed, 21 Oct 2026 07:00:00 GMT"}, 200, "utf-8"]
+        second = deepcopy(first)
+        if difference == "body":
+            second[2] = b"second"
+        elif difference == "headers":
+            second[3] = {"Last-Modified": "Wed, 21 Oct 2026 07:01:00 GMT"}
+        elif difference == "status":
+            second[4] = 503
+        else:
+            second[5] = "gbk"
+        reader = raw_archive(tmp_path, [first, second])
+>       with pytest.raises(evidence.EvidenceUnavailable, match="ambiguous"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ic_im_signal_evidence_v1.EvidenceUnavailable'>
+
+test_icim_round5_recording_semantics_20261021.py:55: Failed
+_ test_conflicting_same_url_parameters_are_rejected_instead_of_taking_last[headers] _
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_155fde5c/pytest/test_conflicting_same_url_para1')
+difference = 'headers'
+
+    @pytest.mark.parametrize("difference", ["body", "headers", "status", "encoding"])
+    def test_conflicting_same_url_parameters_are_rejected_instead_of_taking_last(tmp_path, difference):
+        first = [URL, PARAMS, b"first", {"Last-Modified": "Wed, 21 Oct 2026 07:00:00 GMT"}, 200, "utf-8"]
+        second = deepcopy(first)
+        if difference == "body":
+            second[2] = b"second"
+        elif difference == "headers":
+            second[3] = {"Last-Modified": "Wed, 21 Oct 2026 07:01:00 GMT"}
+        elif difference == "status":
+            second[4] = 503
+        else:
+            second[5] = "gbk"
+        reader = raw_archive(tmp_path, [first, second])
+>       with pytest.raises(evidence.EvidenceUnavailable, match="ambiguous"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ic_im_signal_evidence_v1.EvidenceUnavailable'>
+
+test_icim_round5_recording_semantics_20261021.py:55: Failed
+_ test_conflicting_same_url_parameters_are_rejected_instead_of_taking_last[status] _
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_155fde5c/pytest/test_conflicting_same_url_para2')
+difference = 'status'
+
+    @pytest.mark.parametrize("difference", ["body", "headers", "status", "encoding"])
+    def test_conflicting_same_url_parameters_are_rejected_instead_of_taking_last(tmp_path, difference):
+        first = [URL, PARAMS, b"first", {"Last-Modified": "Wed, 21 Oct 2026 07:00:00 GMT"}, 200, "utf-8"]
+        second = deepcopy(first)
+        if difference == "body":
+            second[2] = b"second"
+        elif difference == "headers":
+            second[3] = {"Last-Modified": "Wed, 21 Oct 2026 07:01:00 GMT"}
+        elif difference == "status":
+            second[4] = 503
+        else:
+            second[5] = "gbk"
+        reader = raw_archive(tmp_path, [first, second])
+>       with pytest.raises(evidence.EvidenceUnavailable, match="ambiguous"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ic_im_signal_evidence_v1.EvidenceUnavailable'>
+
+test_icim_round5_recording_semantics_20261021.py:55: Failed
+_ test_conflicting_same_url_parameters_are_rejected_instead_of_taking_last[encoding] _
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_155fde5c/pytest/test_conflicting_same_url_para3')
+difference = 'encoding'
+
+    @pytest.mark.parametrize("difference", ["body", "headers", "status", "encoding"])
+    def test_conflicting_same_url_parameters_are_rejected_instead_of_taking_last(tmp_path, difference):
+        first = [URL, PARAMS, b"first", {"Last-Modified": "Wed, 21 Oct 2026 07:00:00 GMT"}, 200, "utf-8"]
+        second = deepcopy(first)
+        if difference == "body":
+            second[2] = b"second"
+        elif difference == "headers":
+            second[3] = {"Last-Modified": "Wed, 21 Oct 2026 07:01:00 GMT"}
+        elif difference == "status":
+            second[4] = 503
+        else:
+            second[5] = "gbk"
+        reader = raw_archive(tmp_path, [first, second])
+>       with pytest.raises(evidence.EvidenceUnavailable, match="ambiguous"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ic_im_signal_evidence_v1.EvidenceUnavailable'>
+
+test_icim_round5_recording_semantics_20261021.py:55: Failed
+_ test_overlapping_sina_batches_must_agree_on_the_exact_projected_variable[True] _
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_155fde5c/pytest/test_overlapping_sina_batches_0')
+conflicting = True
+
+    @pytest.mark.parametrize("conflicting", [True, False])
+    def test_overlapping_sina_batches_must_agree_on_the_exact_projected_variable(tmp_path, conflicting):
+        url = "https://hq.sinajs.cn/etag.php"
+        one, two, three = "P_OP_mo2612P7200", "P_OP_mo2612P7300", "P_OP_mo2612P7400"
+        def body(other, price):
+            return f'var hq_str_{one}="{price}";\nvar hq_str_{other}="other";'.encode("ascii")
+        rows = [[url, {"list": one + "," + two}, body(two, "one"), {}, 200, "utf-8"],
+                [url, {"list": one + "," + three}, body(three, "two" if conflicting else "one"), {}, 200, "utf-8"]]
+        reader = raw_archive(tmp_path, rows)
+        if conflicting:
+>           with pytest.raises(evidence.EvidenceUnavailable, match="ambiguous"):
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           Failed: DID NOT RAISE <class 'ic_im_signal_evidence_v1.EvidenceUnavailable'>
+
+test_icim_round5_recording_semantics_20261021.py:78: Failed
+_ test_none_and_untradable_roll_candidate_leave_unneeded_gate_actions_identical[IC] _
+
+product = 'IC'
+
+    @pytest.mark.parametrize("product", ["IC", "IM"])
+    def test_none_and_untradable_roll_candidate_leave_unneeded_gate_actions_identical(product):
+        from test_ic_im_v1_4_policy import _signal, _candidate
+        from test_icim_round3_policy_repairs_20261021 import short_anchor
+        rng = random.Random(20261021)
+        checked = 0
+        for _ in range(200):
+            signal = _signal(product, market_date=date(2026, 12, 1), next_trade_date=date(2026, 12, 2),
+                             core_eod_contract=product + "2612", v14_short_put_mark=rng.choice([.1, .99, None]))
+            signal.update(close_confirmed=rng.choice([True, False]), valuation_tier=rng.randrange(4),
+                          valuation_puts_per_full_core=rng.randrange(4), momentum_next_weight=rng.choice([0., .5]))
+            contract = "510500P2612M07500" if product == "IC" else "MO2612-P-7200"
+            anchor = short_anchor(product, v14_short_put_contract=contract) if rng.choice([True, False]) else policy.default_extension(product)
+            required = policy.short_put_candidate_requirements(product, signal, anchor)
+            if required["entry"] or required["roll"]:
+                continue
+            candidate = _candidate(product, contract=contract, expiry=date(2026, 12, 23 if product == "IC" else 18))
+            none = policy.apply_policy(product, signal, anchor, candidate=candidate, roll_candidate=None)
+            blocked = policy.apply_policy(product, signal, anchor, candidate=candidate,
+                roll_candidate={"tradable": False, "reason": required["reason"]})
+>           assert none == blocked
+E           AssertionError: assert {'call_curren...ta': 0.0, ...} == {'call_curren...ta': 0.0, ...}
+E             
+E             Omitting 69 identical items, use -vv to show
+E             Differing items:
+E             {'v14_action_reason': 'valuation_not_0_or_1'} != {'v14_action_reason': 'candidate_untradable'}
+E             {'v14_roll_wait_reason': 'valuation_not_0_or_1'} != {'v14_roll_wait_reason': 'candidate_untradable'}
+E             Use -v to get more diff
+
+test_icim_round5_recording_semantics_20261021.py:272: AssertionError
+_ test_none_and_untradable_roll_candidate_leave_unneeded_gate_actions_identical[IM] _
+
+product = 'IM'
+
+    @pytest.mark.parametrize("product", ["IC", "IM"])
+    def test_none_and_untradable_roll_candidate_leave_unneeded_gate_actions_identical(product):
+        from test_ic_im_v1_4_policy import _signal, _candidate
+        from test_icim_round3_policy_repairs_20261021 import short_anchor
+        rng = random.Random(20261021)
+        checked = 0
+        for _ in range(200):
+            signal = _signal(product, market_date=date(2026, 12, 1), next_trade_date=date(2026, 12, 2),
+                             core_eod_contract=product + "2612", v14_short_put_mark=rng.choice([.1, .99, None]))
+            signal.update(close_confirmed=rng.choice([True, False]), valuation_tier=rng.randrange(4),
+                          valuation_puts_per_full_core=rng.randrange(4), momentum_next_weight=rng.choice([0., .5]))
+            contract = "510500P2612M07500" if product == "IC" else "MO2612-P-7200"
+            anchor = short_anchor(product, v14_short_put_contract=contract) if rng.choice([True, False]) else policy.default_extension(product)
+            required = policy.short_put_candidate_requirements(product, signal, anchor)
+            if required["entry"] or required["roll"]:
+                continue
+            candidate = _candidate(product, contract=contract, expiry=date(2026, 12, 23 if product == "IC" else 18))
+            none = policy.apply_policy(product, signal, anchor, candidate=candidate, roll_candidate=None)
+            blocked = policy.apply_policy(product, signal, anchor, candidate=candidate,
+                roll_candidate={"tradable": False, "reason": required["reason"]})
+>           assert none == blocked
+E           AssertionError: assert {'call_action...t': None, ...} == {'call_action...t': None, ...}
+E             
+E             Omitting 77 identical items, use -vv to show
+E             Differing items:
+E             {'v14_action_reason': 'valuation_not_0_or_1'} != {'v14_action_reason': 'candidate_untradable'}
+E             {'v14_roll_wait_reason': 'valuation_not_0_or_1'} != {'v14_roll_wait_reason': 'candidate_untradable'}
+E             Use -v to get more diff
+
+test_icim_round5_recording_semantics_20261021.py:272: AssertionError
+============================== warnings summary ===============================
+C:\Python314\Lib\site-packages\fastapi_poe\types.py:171
+  C:\Python314\Lib\site-packages\fastapi_poe\types.py:171: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    class RequestContext(BaseModel):
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED test_icim_round5_recording_semantics_20261021.py::test_conflicting_same_url_parameters_are_rejected_instead_of_taking_last[body]
+FAILED test_icim_round5_recording_semantics_20261021.py::test_conflicting_same_url_parameters_are_rejected_instead_of_taking_last[headers]
+FAILED test_icim_round5_recording_semantics_20261021.py::test_conflicting_same_url_parameters_are_rejected_instead_of_taking_last[status]
+FAILED test_icim_round5_recording_semantics_20261021.py::test_conflicting_same_url_parameters_are_rejected_instead_of_taking_last[encoding]
+FAILED test_icim_round5_recording_semantics_20261021.py::test_overlapping_sina_batches_must_agree_on_the_exact_projected_variable[True]
+FAILED test_icim_round5_recording_semantics_20261021.py::test_none_and_untradable_roll_candidate_leave_unneeded_gate_actions_identical[IC]
+FAILED test_icim_round5_recording_semantics_20261021.py::test_none_and_untradable_roll_candidate_leave_unneeded_gate_actions_identical[IM]
+7 failed, 12 passed, 1 warning in 6.87s

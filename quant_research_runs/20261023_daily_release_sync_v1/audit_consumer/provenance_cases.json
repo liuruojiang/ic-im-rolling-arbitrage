@@ -1,0 +1,51 @@
+[
+  {
+    "case": "good",
+    "accepted": true,
+    "expected_accepted": true,
+    "pass": true,
+    "reason": null
+  },
+  {
+    "case": "wrong_commit",
+    "accepted": false,
+    "expected_accepted": false,
+    "pass": true,
+    "reason": "source provenance does not match this run's execution inventory"
+  },
+  {
+    "case": "wrong_manifest",
+    "accepted": false,
+    "expected_accepted": false,
+    "pass": true,
+    "reason": "source provenance does not match this run's execution inventory"
+  },
+  {
+    "case": "missing_runner",
+    "accepted": false,
+    "expected_accepted": false,
+    "pass": true,
+    "reason": "source provenance does not match this run's execution inventory"
+  },
+  {
+    "case": "future_clock",
+    "accepted": false,
+    "expected_accepted": false,
+    "pass": true,
+    "reason": "source verification time is unverified or in the future"
+  },
+  {
+    "case": "naive_clock",
+    "accepted": false,
+    "expected_accepted": false,
+    "pass": true,
+    "reason": "source verification time is unverified or in the future"
+  },
+  {
+    "case": "wrong_status",
+    "accepted": false,
+    "expected_accepted": false,
+    "pass": true,
+    "reason": "source provenance does not match this run's execution inventory"
+  }
+]

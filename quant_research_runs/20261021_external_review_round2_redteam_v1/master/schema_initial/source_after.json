@@ -1,0 +1,8 @@
+{
+  "ic_im_sse_contract_identity_v1.py": "4974d337aec689baceff046f757d3622f7c6f3807a8cd455ec423f3f918e2359",
+  "test_icim_round2_audit_master_20261021.py": "3605c251d3108c1a6cd67ba5f19ff3a7ee6382b4a0427185376186c0ae9b0aa7",
+  "quant_research_runs\\20261021_external_review_round2_v1\\raw\\sse_adjustment_20260715.json": "85f3f74d8c088e586d7d6275697f104ad5a5774a1e32bc32217db178b5557596",
+  "quant_research_runs\\20261021_external_review_round2_v1\\raw\\sse_december_identity.json": "327aacd4c032bda5be4535ad6ef2312fe179ea791a293b81944368a0003476b7",
+  "quant_research_runs\\20261021_external_review_round2_v1\\raw\\sse_contract_master.json": "22ebf371548b9c64f0cdab36bf263aa48ad525c702a4e672d37529b0ba940425",
+  "quant_research_runs\\20261021_external_review_round2_redteam_v1\\run_checks.py": "c4d1dabaa26db265339857df7887e94ba2e4aed1ff8540f1bfeb46577cc83426"
+}

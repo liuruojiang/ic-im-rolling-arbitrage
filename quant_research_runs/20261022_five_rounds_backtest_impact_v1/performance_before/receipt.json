@@ -1,0 +1,59 @@
+{
+  "mode": "performance",
+  "version": "before",
+  "started_at": "2026-10-22T02:09:09.814949+00:00",
+  "network_requests": [],
+  "scope": "Frozen listed-history theoretical research; no production ledger writes.",
+  "loaded_bot_path": "D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261021_external_review_v1\\backup\\poe_ic_im_mainline_v1_4_bot.py",
+  "loaded_bot_sha256": "8ce635b283bbc7027c16c1d8e618d019bcff56577267fe093cc2627a5a22d1ab",
+  "products": {
+    "IC": {
+      "rows": 2756,
+      "start": "2015-04-16 00:00:00",
+      "end": "2026-08-14 00:00:00",
+      "metrics": {
+        "final_nav": 10.26886573158847,
+        "return": 9.26886573158847,
+        "cagr": 0.23734396386704004,
+        "volatility": 0.17548693608977292,
+        "sharpe": 1.2996501239386038,
+        "max_drawdown": -0.1609224886459043,
+        "observations": 2756.0
+      },
+      "sha256": "952a7596fca3d687ceeb55a8154aa0159b361db0e262477ed978ccbc3f58cd1a",
+      "IM_old_history_invalidated": false
+    },
+    "IM": {
+      "rows": 986,
+      "start": "2022-07-22 00:00:00",
+      "end": "2026-08-14 00:00:00",
+      "metrics": {
+        "final_nav": 4.674651869546301,
+        "return": 3.6746518695463006,
+        "cagr": 0.4831095873793685,
+        "volatility": 0.2869460670379411,
+        "sharpe": 1.5164875081038047,
+        "max_drawdown": -0.23298413337344348,
+        "observations": 986.0
+      },
+      "sha256": "ff21b0033ace91a21ec04e297707488cf4e6bc98876c543fee783a5c5e268bd9",
+      "IM_old_history_invalidated": true
+    }
+  },
+  "status": "PASS",
+  "finished_at": "2026-10-22T02:09:11.762329+00:00",
+  "seconds": 1.9472980000000462,
+  "loaded_local_sources": {
+    "quant_research_runs\\20261022_five_rounds_backtest_impact_v1\\run_worker.py": "8dfdd541d859a98b2ce56f1f57e9e645f29d97bcdb99ef1f66c4646b852c76db",
+    "quant_research_runs\\20261021_external_review_v1\\backup\\ic_im_daily_valuation.py": "b389a81475836fb3e4e96dbc92216a54afeb199029d524f51efbb8d029e4257c",
+    "quant_research_runs\\20261021_external_review_v1\\backup\\ic_im_chinabond.py": "4e1098b2f4c253d9950c084eafcc655ea8e5e820478a01a29393d638e6d40ab9",
+    "quant_research_runs\\20261021_external_review_v1\\backup\\ic_im_fear_grid_v1.py": "f876595216f2822eb585e11cbb8c8564f4ffd9ca33f1ef2820e0c828758430c2",
+    "quant_research_runs\\20261021_external_review_v1\\backup\\ic_im_quote_snapshot_guard.py": "ae22b541a1a2a6bc20d5bd23bb1fc3d275a2f3fcfce96b5345c2458cde74b9d5",
+    "quant_research_runs\\20261021_external_review_v1\\backup\\ic_im_option_maintenance_notice.py": "a2ad67732d85bad5d96444d7a74a350d3ecdf0fdb6b82b9b593ccfaf95c63746",
+    "quant_research_runs\\20261021_external_review_v1\\backup\\ic_im_quarter_roll_v1_3.py": "cec4535aa0dca4200ac4e50ec91f7aa82aee12c5157f0cb350ab73c82d53457d",
+    "quant_research_runs\\20261021_external_review_v1\\backup\\ic_im_put_execution_v1.py": "fbd982c570aea8a2c3a5db537263ee152434fc1a35db062ed6a793d9357d330d",
+    "quant_research_runs\\20261021_external_review_v1\\backup\\ic_im_v1_4_policy.py": "99154c02bcb64b66108d3ceae4dc59f4f0d44a406e7986ced84aa5d6788708fa",
+    "quant_research_runs\\20261021_external_review_v1\\backup\\im_put_policy.py": "ff9c9b1d52e4b1aa25fcb3c85e61665a4acf0a4de68272d8ddc9caaf2d4a9a9c",
+    "quant_research_runs\\20261021_external_review_v1\\backup\\poe_ic_im_mainline_v1_4_bot.py": "8ce635b283bbc7027c16c1d8e618d019bcff56577267fe093cc2627a5a22d1ab"
+  }
+}

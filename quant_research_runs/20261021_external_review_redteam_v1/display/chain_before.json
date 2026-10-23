@@ -1,0 +1,10 @@
+{
+  "exit_code": 1,
+  "tests": [
+    "test_icim_redteam_display_20261021.py"
+  ],
+  "root": "D:\\\u52a8\u91cf\u7b56\u7565\\IC\u548cIM\u6eda\u52a8\u5957\u5229",
+  "evidence_dir": "D:\\\u52a8\u91cf\u7b56\u7565\\IC\u548cIM\u6eda\u52a8\u5957\u5229\\quant_research_runs\\20261021_external_review_redteam_v1\\display",
+  "state_dir": "C:\\Users\\ADMINI~1.DES\\AppData\\Local\\Temp\\icim_redteam_display_c94183c7ab\\state",
+  "test_only_windows_mkdir_mode_adjustment": true
+}

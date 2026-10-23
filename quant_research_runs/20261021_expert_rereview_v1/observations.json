@@ -1,0 +1,2522 @@
+{
+  "scope": "read-only diagnosis, not repaired-code acceptance",
+  "future_data": "Listing sets generated from basic month rules; all future prices/rows synthetic, not actual future reports or a full ledger replay.",
+  "days": 56,
+  "first_block_by_component": {
+    "im_reset": "2026-10-19",
+    "im_independent": "2026-10-19",
+    "ic_reset": "2026-11-09",
+    "nearest_future": "2026-12-21",
+    "next_trade": "2026-12-31"
+  },
+  "timeline": [
+    {
+      "day": "2026-10-15",
+      "synthetic_listed_mo": [
+        "MO2610-P-7000",
+        "MO2611-P-7000",
+        "MO2612-P-7000",
+        "MO2703-P-7000",
+        "MO2706-P-7000",
+        "MO2709-P-7000"
+      ],
+      "synthetic_ic_months": [
+        "202610",
+        "202611",
+        "202612",
+        "202703"
+      ],
+      "im_reset": {
+        "status": "ok",
+        "value": "MO2612-P-7000"
+      },
+      "im_independent": {
+        "status": "ok",
+        "value": "MO2612-P-7000"
+      },
+      "ic_reset": {
+        "status": "ok",
+        "value": "510500P2612M07000"
+      },
+      "nearest_future": {
+        "status": "ok",
+        "value": "IM2610"
+      },
+      "next_trade": {
+        "status": "ok",
+        "value": "2026-10-16"
+      }
+    },
+    {
+      "day": "2026-10-16",
+      "synthetic_listed_mo": [
+        "MO2610-P-7000",
+        "MO2611-P-7000",
+        "MO2612-P-7000",
+        "MO2703-P-7000",
+        "MO2706-P-7000",
+        "MO2709-P-7000"
+      ],
+      "synthetic_ic_months": [
+        "202610",
+        "202611",
+        "202612",
+        "202703"
+      ],
+      "im_reset": {
+        "status": "ok",
+        "value": "MO2612-P-7000"
+      },
+      "im_independent": {
+        "status": "ok",
+        "value": "MO2612-P-7000"
+      },
+      "ic_reset": {
+        "status": "ok",
+        "value": "510500P2612M07000"
+      },
+      "nearest_future": {
+        "status": "ok",
+        "value": "IM2610"
+      },
+      "next_trade": {
+        "status": "ok",
+        "value": "2026-10-19"
+      }
+    },
+    {
+      "day": "2026-10-19",
+      "synthetic_listed_mo": [
+        "MO2611-P-7000",
+        "MO2612-P-7000",
+        "MO2701-P-7000",
+        "MO2703-P-7000",
+        "MO2706-P-7000",
+        "MO2709-P-7000"
+      ],
+      "synthetic_ic_months": [
+        "202610",
+        "202611",
+        "202612",
+        "202703"
+      ],
+      "im_reset": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "selected IM Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "im_independent": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "independent IM Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "ic_reset": {
+        "status": "ok",
+        "value": "510500P2612M07000"
+      },
+      "nearest_future": {
+        "status": "ok",
+        "value": "IM2611"
+      },
+      "next_trade": {
+        "status": "ok",
+        "value": "2026-10-20"
+      }
+    },
+    {
+      "day": "2026-10-20",
+      "synthetic_listed_mo": [
+        "MO2611-P-7000",
+        "MO2612-P-7000",
+        "MO2701-P-7000",
+        "MO2703-P-7000",
+        "MO2706-P-7000",
+        "MO2709-P-7000"
+      ],
+      "synthetic_ic_months": [
+        "202610",
+        "202611",
+        "202612",
+        "202703"
+      ],
+      "im_reset": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "selected IM Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "im_independent": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "independent IM Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "ic_reset": {
+        "status": "ok",
+        "value": "510500P2612M07000"
+      },
+      "nearest_future": {
+        "status": "ok",
+        "value": "IM2611"
+      },
+      "next_trade": {
+        "status": "ok",
+        "value": "2026-10-21"
+      }
+    },
+    {
+      "day": "2026-10-21",
+      "synthetic_listed_mo": [
+        "MO2611-P-7000",
+        "MO2612-P-7000",
+        "MO2701-P-7000",
+        "MO2703-P-7000",
+        "MO2706-P-7000",
+        "MO2709-P-7000"
+      ],
+      "synthetic_ic_months": [
+        "202610",
+        "202611",
+        "202612",
+        "202703"
+      ],
+      "im_reset": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "selected IM Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "im_independent": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "independent IM Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "ic_reset": {
+        "status": "ok",
+        "value": "510500P2612M07000"
+      },
+      "nearest_future": {
+        "status": "ok",
+        "value": "IM2611"
+      },
+      "next_trade": {
+        "status": "ok",
+        "value": "2026-10-22"
+      }
+    },
+    {
+      "day": "2026-10-22",
+      "synthetic_listed_mo": [
+        "MO2611-P-7000",
+        "MO2612-P-7000",
+        "MO2701-P-7000",
+        "MO2703-P-7000",
+        "MO2706-P-7000",
+        "MO2709-P-7000"
+      ],
+      "synthetic_ic_months": [
+        "202610",
+        "202611",
+        "202612",
+        "202703"
+      ],
+      "im_reset": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "selected IM Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "im_independent": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "independent IM Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "ic_reset": {
+        "status": "ok",
+        "value": "510500P2612M07000"
+      },
+      "nearest_future": {
+        "status": "ok",
+        "value": "IM2611"
+      },
+      "next_trade": {
+        "status": "ok",
+        "value": "2026-10-23"
+      }
+    },
+    {
+      "day": "2026-10-23",
+      "synthetic_listed_mo": [
+        "MO2611-P-7000",
+        "MO2612-P-7000",
+        "MO2701-P-7000",
+        "MO2703-P-7000",
+        "MO2706-P-7000",
+        "MO2709-P-7000"
+      ],
+      "synthetic_ic_months": [
+        "202610",
+        "202611",
+        "202612",
+        "202703"
+      ],
+      "im_reset": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "selected IM Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "im_independent": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "independent IM Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "ic_reset": {
+        "status": "ok",
+        "value": "510500P2612M07000"
+      },
+      "nearest_future": {
+        "status": "ok",
+        "value": "IM2611"
+      },
+      "next_trade": {
+        "status": "ok",
+        "value": "2026-10-26"
+      }
+    },
+    {
+      "day": "2026-10-26",
+      "synthetic_listed_mo": [
+        "MO2611-P-7000",
+        "MO2612-P-7000",
+        "MO2701-P-7000",
+        "MO2703-P-7000",
+        "MO2706-P-7000",
+        "MO2709-P-7000"
+      ],
+      "synthetic_ic_months": [
+        "202610",
+        "202611",
+        "202612",
+        "202703"
+      ],
+      "im_reset": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "selected IM Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "im_independent": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "independent IM Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "ic_reset": {
+        "status": "ok",
+        "value": "510500P2612M07000"
+      },
+      "nearest_future": {
+        "status": "ok",
+        "value": "IM2611"
+      },
+      "next_trade": {
+        "status": "ok",
+        "value": "2026-10-27"
+      }
+    },
+    {
+      "day": "2026-10-27",
+      "synthetic_listed_mo": [
+        "MO2611-P-7000",
+        "MO2612-P-7000",
+        "MO2701-P-7000",
+        "MO2703-P-7000",
+        "MO2706-P-7000",
+        "MO2709-P-7000"
+      ],
+      "synthetic_ic_months": [
+        "202610",
+        "202611",
+        "202612",
+        "202703"
+      ],
+      "im_reset": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "selected IM Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "im_independent": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "independent IM Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "ic_reset": {
+        "status": "ok",
+        "value": "510500P2612M07000"
+      },
+      "nearest_future": {
+        "status": "ok",
+        "value": "IM2611"
+      },
+      "next_trade": {
+        "status": "ok",
+        "value": "2026-10-28"
+      }
+    },
+    {
+      "day": "2026-10-28",
+      "synthetic_listed_mo": [
+        "MO2611-P-7000",
+        "MO2612-P-7000",
+        "MO2701-P-7000",
+        "MO2703-P-7000",
+        "MO2706-P-7000",
+        "MO2709-P-7000"
+      ],
+      "synthetic_ic_months": [
+        "202610",
+        "202611",
+        "202612",
+        "202703"
+      ],
+      "im_reset": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "selected IM Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "im_independent": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "independent IM Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "ic_reset": {
+        "status": "ok",
+        "value": "510500P2612M07000"
+      },
+      "nearest_future": {
+        "status": "ok",
+        "value": "IM2611"
+      },
+      "next_trade": {
+        "status": "ok",
+        "value": "2026-10-29"
+      }
+    },
+    {
+      "day": "2026-10-29",
+      "synthetic_listed_mo": [
+        "MO2611-P-7000",
+        "MO2612-P-7000",
+        "MO2701-P-7000",
+        "MO2703-P-7000",
+        "MO2706-P-7000",
+        "MO2709-P-7000"
+      ],
+      "synthetic_ic_months": [
+        "202611",
+        "202612",
+        "202703",
+        "202706"
+      ],
+      "im_reset": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "selected IM Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "im_independent": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "independent IM Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "ic_reset": {
+        "status": "ok",
+        "value": "510500P2612M07000"
+      },
+      "nearest_future": {
+        "status": "ok",
+        "value": "IM2611"
+      },
+      "next_trade": {
+        "status": "ok",
+        "value": "2026-10-30"
+      }
+    },
+    {
+      "day": "2026-10-30",
+      "synthetic_listed_mo": [
+        "MO2611-P-7000",
+        "MO2612-P-7000",
+        "MO2701-P-7000",
+        "MO2703-P-7000",
+        "MO2706-P-7000",
+        "MO2709-P-7000"
+      ],
+      "synthetic_ic_months": [
+        "202611",
+        "202612",
+        "202703",
+        "202706"
+      ],
+      "im_reset": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "selected IM Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "im_independent": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "independent IM Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "ic_reset": {
+        "status": "ok",
+        "value": "510500P2612M07000"
+      },
+      "nearest_future": {
+        "status": "ok",
+        "value": "IM2611"
+      },
+      "next_trade": {
+        "status": "ok",
+        "value": "2026-11-02"
+      }
+    },
+    {
+      "day": "2026-11-02",
+      "synthetic_listed_mo": [
+        "MO2611-P-7000",
+        "MO2612-P-7000",
+        "MO2701-P-7000",
+        "MO2703-P-7000",
+        "MO2706-P-7000",
+        "MO2709-P-7000"
+      ],
+      "synthetic_ic_months": [
+        "202611",
+        "202612",
+        "202703",
+        "202706"
+      ],
+      "im_reset": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "selected IM Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "im_independent": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "independent IM Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "ic_reset": {
+        "status": "ok",
+        "value": "510500P2612M07000"
+      },
+      "nearest_future": {
+        "status": "ok",
+        "value": "IM2611"
+      },
+      "next_trade": {
+        "status": "ok",
+        "value": "2026-11-03"
+      }
+    },
+    {
+      "day": "2026-11-03",
+      "synthetic_listed_mo": [
+        "MO2611-P-7000",
+        "MO2612-P-7000",
+        "MO2701-P-7000",
+        "MO2703-P-7000",
+        "MO2706-P-7000",
+        "MO2709-P-7000"
+      ],
+      "synthetic_ic_months": [
+        "202611",
+        "202612",
+        "202703",
+        "202706"
+      ],
+      "im_reset": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "selected IM Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "im_independent": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "independent IM Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "ic_reset": {
+        "status": "ok",
+        "value": "510500P2612M07000"
+      },
+      "nearest_future": {
+        "status": "ok",
+        "value": "IM2611"
+      },
+      "next_trade": {
+        "status": "ok",
+        "value": "2026-11-04"
+      }
+    },
+    {
+      "day": "2026-11-04",
+      "synthetic_listed_mo": [
+        "MO2611-P-7000",
+        "MO2612-P-7000",
+        "MO2701-P-7000",
+        "MO2703-P-7000",
+        "MO2706-P-7000",
+        "MO2709-P-7000"
+      ],
+      "synthetic_ic_months": [
+        "202611",
+        "202612",
+        "202703",
+        "202706"
+      ],
+      "im_reset": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "selected IM Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "im_independent": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "independent IM Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "ic_reset": {
+        "status": "ok",
+        "value": "510500P2612M07000"
+      },
+      "nearest_future": {
+        "status": "ok",
+        "value": "IM2611"
+      },
+      "next_trade": {
+        "status": "ok",
+        "value": "2026-11-05"
+      }
+    },
+    {
+      "day": "2026-11-05",
+      "synthetic_listed_mo": [
+        "MO2611-P-7000",
+        "MO2612-P-7000",
+        "MO2701-P-7000",
+        "MO2703-P-7000",
+        "MO2706-P-7000",
+        "MO2709-P-7000"
+      ],
+      "synthetic_ic_months": [
+        "202611",
+        "202612",
+        "202703",
+        "202706"
+      ],
+      "im_reset": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "selected IM Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "im_independent": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "independent IM Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "ic_reset": {
+        "status": "ok",
+        "value": "510500P2612M07000"
+      },
+      "nearest_future": {
+        "status": "ok",
+        "value": "IM2611"
+      },
+      "next_trade": {
+        "status": "ok",
+        "value": "2026-11-06"
+      }
+    },
+    {
+      "day": "2026-11-06",
+      "synthetic_listed_mo": [
+        "MO2611-P-7000",
+        "MO2612-P-7000",
+        "MO2701-P-7000",
+        "MO2703-P-7000",
+        "MO2706-P-7000",
+        "MO2709-P-7000"
+      ],
+      "synthetic_ic_months": [
+        "202611",
+        "202612",
+        "202703",
+        "202706"
+      ],
+      "im_reset": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "selected IM Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "im_independent": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "independent IM Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "ic_reset": {
+        "status": "ok",
+        "value": "510500P2612M07000"
+      },
+      "nearest_future": {
+        "status": "ok",
+        "value": "IM2611"
+      },
+      "next_trade": {
+        "status": "ok",
+        "value": "2026-11-09"
+      }
+    },
+    {
+      "day": "2026-11-09",
+      "synthetic_listed_mo": [
+        "MO2611-P-7000",
+        "MO2612-P-7000",
+        "MO2701-P-7000",
+        "MO2703-P-7000",
+        "MO2706-P-7000",
+        "MO2709-P-7000"
+      ],
+      "synthetic_ic_months": [
+        "202611",
+        "202612",
+        "202703",
+        "202706"
+      ],
+      "im_reset": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "selected IM Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "im_independent": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "independent IM Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "ic_reset": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "selected IC Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "nearest_future": {
+        "status": "ok",
+        "value": "IM2611"
+      },
+      "next_trade": {
+        "status": "ok",
+        "value": "2026-11-10"
+      }
+    },
+    {
+      "day": "2026-11-10",
+      "synthetic_listed_mo": [
+        "MO2611-P-7000",
+        "MO2612-P-7000",
+        "MO2701-P-7000",
+        "MO2703-P-7000",
+        "MO2706-P-7000",
+        "MO2709-P-7000"
+      ],
+      "synthetic_ic_months": [
+        "202611",
+        "202612",
+        "202703",
+        "202706"
+      ],
+      "im_reset": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "selected IM Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "im_independent": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "independent IM Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "ic_reset": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "selected IC Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "nearest_future": {
+        "status": "ok",
+        "value": "IM2611"
+      },
+      "next_trade": {
+        "status": "ok",
+        "value": "2026-11-11"
+      }
+    },
+    {
+      "day": "2026-11-11",
+      "synthetic_listed_mo": [
+        "MO2611-P-7000",
+        "MO2612-P-7000",
+        "MO2701-P-7000",
+        "MO2703-P-7000",
+        "MO2706-P-7000",
+        "MO2709-P-7000"
+      ],
+      "synthetic_ic_months": [
+        "202611",
+        "202612",
+        "202703",
+        "202706"
+      ],
+      "im_reset": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "selected IM Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "im_independent": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "independent IM Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "ic_reset": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "selected IC Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "nearest_future": {
+        "status": "ok",
+        "value": "IM2611"
+      },
+      "next_trade": {
+        "status": "ok",
+        "value": "2026-11-12"
+      }
+    },
+    {
+      "day": "2026-11-12",
+      "synthetic_listed_mo": [
+        "MO2611-P-7000",
+        "MO2612-P-7000",
+        "MO2701-P-7000",
+        "MO2703-P-7000",
+        "MO2706-P-7000",
+        "MO2709-P-7000"
+      ],
+      "synthetic_ic_months": [
+        "202611",
+        "202612",
+        "202703",
+        "202706"
+      ],
+      "im_reset": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "selected IM Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "im_independent": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "independent IM Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "ic_reset": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "selected IC Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "nearest_future": {
+        "status": "ok",
+        "value": "IM2611"
+      },
+      "next_trade": {
+        "status": "ok",
+        "value": "2026-11-13"
+      }
+    },
+    {
+      "day": "2026-11-13",
+      "synthetic_listed_mo": [
+        "MO2611-P-7000",
+        "MO2612-P-7000",
+        "MO2701-P-7000",
+        "MO2703-P-7000",
+        "MO2706-P-7000",
+        "MO2709-P-7000"
+      ],
+      "synthetic_ic_months": [
+        "202611",
+        "202612",
+        "202703",
+        "202706"
+      ],
+      "im_reset": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "selected IM Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "im_independent": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "independent IM Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "ic_reset": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "selected IC Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "nearest_future": {
+        "status": "ok",
+        "value": "IM2611"
+      },
+      "next_trade": {
+        "status": "ok",
+        "value": "2026-11-16"
+      }
+    },
+    {
+      "day": "2026-11-16",
+      "synthetic_listed_mo": [
+        "MO2611-P-7000",
+        "MO2612-P-7000",
+        "MO2701-P-7000",
+        "MO2703-P-7000",
+        "MO2706-P-7000",
+        "MO2709-P-7000"
+      ],
+      "synthetic_ic_months": [
+        "202611",
+        "202612",
+        "202703",
+        "202706"
+      ],
+      "im_reset": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "selected IM Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "im_independent": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "independent IM Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "ic_reset": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "selected IC Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "nearest_future": {
+        "status": "ok",
+        "value": "IM2611"
+      },
+      "next_trade": {
+        "status": "ok",
+        "value": "2026-11-17"
+      }
+    },
+    {
+      "day": "2026-11-17",
+      "synthetic_listed_mo": [
+        "MO2611-P-7000",
+        "MO2612-P-7000",
+        "MO2701-P-7000",
+        "MO2703-P-7000",
+        "MO2706-P-7000",
+        "MO2709-P-7000"
+      ],
+      "synthetic_ic_months": [
+        "202611",
+        "202612",
+        "202703",
+        "202706"
+      ],
+      "im_reset": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "selected IM Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "im_independent": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "independent IM Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "ic_reset": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "selected IC Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "nearest_future": {
+        "status": "ok",
+        "value": "IM2611"
+      },
+      "next_trade": {
+        "status": "ok",
+        "value": "2026-11-18"
+      }
+    },
+    {
+      "day": "2026-11-18",
+      "synthetic_listed_mo": [
+        "MO2611-P-7000",
+        "MO2612-P-7000",
+        "MO2701-P-7000",
+        "MO2703-P-7000",
+        "MO2706-P-7000",
+        "MO2709-P-7000"
+      ],
+      "synthetic_ic_months": [
+        "202611",
+        "202612",
+        "202703",
+        "202706"
+      ],
+      "im_reset": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "selected IM Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "im_independent": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "independent IM Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "ic_reset": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "selected IC Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "nearest_future": {
+        "status": "ok",
+        "value": "IM2611"
+      },
+      "next_trade": {
+        "status": "ok",
+        "value": "2026-11-19"
+      }
+    },
+    {
+      "day": "2026-11-19",
+      "synthetic_listed_mo": [
+        "MO2611-P-7000",
+        "MO2612-P-7000",
+        "MO2701-P-7000",
+        "MO2703-P-7000",
+        "MO2706-P-7000",
+        "MO2709-P-7000"
+      ],
+      "synthetic_ic_months": [
+        "202611",
+        "202612",
+        "202703",
+        "202706"
+      ],
+      "im_reset": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "selected IM Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "im_independent": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "independent IM Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "ic_reset": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "selected IC Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "nearest_future": {
+        "status": "ok",
+        "value": "IM2611"
+      },
+      "next_trade": {
+        "status": "ok",
+        "value": "2026-11-20"
+      }
+    },
+    {
+      "day": "2026-11-20",
+      "synthetic_listed_mo": [
+        "MO2611-P-7000",
+        "MO2612-P-7000",
+        "MO2701-P-7000",
+        "MO2703-P-7000",
+        "MO2706-P-7000",
+        "MO2709-P-7000"
+      ],
+      "synthetic_ic_months": [
+        "202611",
+        "202612",
+        "202703",
+        "202706"
+      ],
+      "im_reset": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "selected IM Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "im_independent": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "independent IM Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "ic_reset": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "selected IC Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "nearest_future": {
+        "status": "ok",
+        "value": "IM2611"
+      },
+      "next_trade": {
+        "status": "ok",
+        "value": "2026-11-23"
+      }
+    },
+    {
+      "day": "2026-11-23",
+      "synthetic_listed_mo": [
+        "MO2612-P-7000",
+        "MO2701-P-7000",
+        "MO2702-P-7000",
+        "MO2703-P-7000",
+        "MO2706-P-7000",
+        "MO2709-P-7000"
+      ],
+      "synthetic_ic_months": [
+        "202611",
+        "202612",
+        "202703",
+        "202706"
+      ],
+      "im_reset": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "selected IM Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "im_independent": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "independent IM Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "ic_reset": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "selected IC Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "nearest_future": {
+        "status": "ok",
+        "value": "IM2612"
+      },
+      "next_trade": {
+        "status": "ok",
+        "value": "2026-11-24"
+      }
+    },
+    {
+      "day": "2026-11-24",
+      "synthetic_listed_mo": [
+        "MO2612-P-7000",
+        "MO2701-P-7000",
+        "MO2702-P-7000",
+        "MO2703-P-7000",
+        "MO2706-P-7000",
+        "MO2709-P-7000"
+      ],
+      "synthetic_ic_months": [
+        "202611",
+        "202612",
+        "202703",
+        "202706"
+      ],
+      "im_reset": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "selected IM Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "im_independent": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "independent IM Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "ic_reset": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "selected IC Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "nearest_future": {
+        "status": "ok",
+        "value": "IM2612"
+      },
+      "next_trade": {
+        "status": "ok",
+        "value": "2026-11-25"
+      }
+    },
+    {
+      "day": "2026-11-25",
+      "synthetic_listed_mo": [
+        "MO2612-P-7000",
+        "MO2701-P-7000",
+        "MO2702-P-7000",
+        "MO2703-P-7000",
+        "MO2706-P-7000",
+        "MO2709-P-7000"
+      ],
+      "synthetic_ic_months": [
+        "202611",
+        "202612",
+        "202703",
+        "202706"
+      ],
+      "im_reset": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "selected IM Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "im_independent": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "independent IM Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "ic_reset": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "selected IC Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "nearest_future": {
+        "status": "ok",
+        "value": "IM2612"
+      },
+      "next_trade": {
+        "status": "ok",
+        "value": "2026-11-26"
+      }
+    },
+    {
+      "day": "2026-11-26",
+      "synthetic_listed_mo": [
+        "MO2612-P-7000",
+        "MO2701-P-7000",
+        "MO2702-P-7000",
+        "MO2703-P-7000",
+        "MO2706-P-7000",
+        "MO2709-P-7000"
+      ],
+      "synthetic_ic_months": [
+        "202612",
+        "202701",
+        "202703",
+        "202706"
+      ],
+      "im_reset": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "selected IM Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "im_independent": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "independent IM Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "ic_reset": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "selected IC Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "nearest_future": {
+        "status": "ok",
+        "value": "IM2612"
+      },
+      "next_trade": {
+        "status": "ok",
+        "value": "2026-11-27"
+      }
+    },
+    {
+      "day": "2026-11-27",
+      "synthetic_listed_mo": [
+        "MO2612-P-7000",
+        "MO2701-P-7000",
+        "MO2702-P-7000",
+        "MO2703-P-7000",
+        "MO2706-P-7000",
+        "MO2709-P-7000"
+      ],
+      "synthetic_ic_months": [
+        "202612",
+        "202701",
+        "202703",
+        "202706"
+      ],
+      "im_reset": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "selected IM Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "im_independent": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "independent IM Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "ic_reset": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "selected IC Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "nearest_future": {
+        "status": "ok",
+        "value": "IM2612"
+      },
+      "next_trade": {
+        "status": "ok",
+        "value": "2026-11-30"
+      }
+    },
+    {
+      "day": "2026-11-30",
+      "synthetic_listed_mo": [
+        "MO2612-P-7000",
+        "MO2701-P-7000",
+        "MO2702-P-7000",
+        "MO2703-P-7000",
+        "MO2706-P-7000",
+        "MO2709-P-7000"
+      ],
+      "synthetic_ic_months": [
+        "202612",
+        "202701",
+        "202703",
+        "202706"
+      ],
+      "im_reset": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "selected IM Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "im_independent": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "independent IM Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "ic_reset": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "selected IC Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "nearest_future": {
+        "status": "ok",
+        "value": "IM2612"
+      },
+      "next_trade": {
+        "status": "ok",
+        "value": "2026-12-01"
+      }
+    },
+    {
+      "day": "2026-12-01",
+      "synthetic_listed_mo": [
+        "MO2612-P-7000",
+        "MO2701-P-7000",
+        "MO2702-P-7000",
+        "MO2703-P-7000",
+        "MO2706-P-7000",
+        "MO2709-P-7000"
+      ],
+      "synthetic_ic_months": [
+        "202612",
+        "202701",
+        "202703",
+        "202706"
+      ],
+      "im_reset": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "selected IM Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "im_independent": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "independent IM Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "ic_reset": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "selected IC Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "nearest_future": {
+        "status": "ok",
+        "value": "IM2612"
+      },
+      "next_trade": {
+        "status": "ok",
+        "value": "2026-12-02"
+      }
+    },
+    {
+      "day": "2026-12-02",
+      "synthetic_listed_mo": [
+        "MO2612-P-7000",
+        "MO2701-P-7000",
+        "MO2702-P-7000",
+        "MO2703-P-7000",
+        "MO2706-P-7000",
+        "MO2709-P-7000"
+      ],
+      "synthetic_ic_months": [
+        "202612",
+        "202701",
+        "202703",
+        "202706"
+      ],
+      "im_reset": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "selected IM Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "im_independent": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "independent IM Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "ic_reset": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "selected IC Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "nearest_future": {
+        "status": "ok",
+        "value": "IM2612"
+      },
+      "next_trade": {
+        "status": "ok",
+        "value": "2026-12-03"
+      }
+    },
+    {
+      "day": "2026-12-03",
+      "synthetic_listed_mo": [
+        "MO2612-P-7000",
+        "MO2701-P-7000",
+        "MO2702-P-7000",
+        "MO2703-P-7000",
+        "MO2706-P-7000",
+        "MO2709-P-7000"
+      ],
+      "synthetic_ic_months": [
+        "202612",
+        "202701",
+        "202703",
+        "202706"
+      ],
+      "im_reset": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "selected IM Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "im_independent": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "independent IM Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "ic_reset": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "selected IC Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "nearest_future": {
+        "status": "ok",
+        "value": "IM2612"
+      },
+      "next_trade": {
+        "status": "ok",
+        "value": "2026-12-04"
+      }
+    },
+    {
+      "day": "2026-12-04",
+      "synthetic_listed_mo": [
+        "MO2612-P-7000",
+        "MO2701-P-7000",
+        "MO2702-P-7000",
+        "MO2703-P-7000",
+        "MO2706-P-7000",
+        "MO2709-P-7000"
+      ],
+      "synthetic_ic_months": [
+        "202612",
+        "202701",
+        "202703",
+        "202706"
+      ],
+      "im_reset": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "selected IM Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "im_independent": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "independent IM Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "ic_reset": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "selected IC Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "nearest_future": {
+        "status": "ok",
+        "value": "IM2612"
+      },
+      "next_trade": {
+        "status": "ok",
+        "value": "2026-12-07"
+      }
+    },
+    {
+      "day": "2026-12-07",
+      "synthetic_listed_mo": [
+        "MO2612-P-7000",
+        "MO2701-P-7000",
+        "MO2702-P-7000",
+        "MO2703-P-7000",
+        "MO2706-P-7000",
+        "MO2709-P-7000"
+      ],
+      "synthetic_ic_months": [
+        "202612",
+        "202701",
+        "202703",
+        "202706"
+      ],
+      "im_reset": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "selected IM Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "im_independent": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "independent IM Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "ic_reset": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "selected IC Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "nearest_future": {
+        "status": "ok",
+        "value": "IM2612"
+      },
+      "next_trade": {
+        "status": "ok",
+        "value": "2026-12-08"
+      }
+    },
+    {
+      "day": "2026-12-08",
+      "synthetic_listed_mo": [
+        "MO2612-P-7000",
+        "MO2701-P-7000",
+        "MO2702-P-7000",
+        "MO2703-P-7000",
+        "MO2706-P-7000",
+        "MO2709-P-7000"
+      ],
+      "synthetic_ic_months": [
+        "202612",
+        "202701",
+        "202703",
+        "202706"
+      ],
+      "im_reset": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "selected IM Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "im_independent": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "independent IM Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "ic_reset": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "selected IC Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "nearest_future": {
+        "status": "ok",
+        "value": "IM2612"
+      },
+      "next_trade": {
+        "status": "ok",
+        "value": "2026-12-09"
+      }
+    },
+    {
+      "day": "2026-12-09",
+      "synthetic_listed_mo": [
+        "MO2612-P-7000",
+        "MO2701-P-7000",
+        "MO2702-P-7000",
+        "MO2703-P-7000",
+        "MO2706-P-7000",
+        "MO2709-P-7000"
+      ],
+      "synthetic_ic_months": [
+        "202612",
+        "202701",
+        "202703",
+        "202706"
+      ],
+      "im_reset": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "selected IM Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "im_independent": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "independent IM Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "ic_reset": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "selected IC Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "nearest_future": {
+        "status": "ok",
+        "value": "IM2612"
+      },
+      "next_trade": {
+        "status": "ok",
+        "value": "2026-12-10"
+      }
+    },
+    {
+      "day": "2026-12-10",
+      "synthetic_listed_mo": [
+        "MO2612-P-7000",
+        "MO2701-P-7000",
+        "MO2702-P-7000",
+        "MO2703-P-7000",
+        "MO2706-P-7000",
+        "MO2709-P-7000"
+      ],
+      "synthetic_ic_months": [
+        "202612",
+        "202701",
+        "202703",
+        "202706"
+      ],
+      "im_reset": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "selected IM Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "im_independent": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "independent IM Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "ic_reset": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "selected IC Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "nearest_future": {
+        "status": "ok",
+        "value": "IM2612"
+      },
+      "next_trade": {
+        "status": "ok",
+        "value": "2026-12-11"
+      }
+    },
+    {
+      "day": "2026-12-11",
+      "synthetic_listed_mo": [
+        "MO2612-P-7000",
+        "MO2701-P-7000",
+        "MO2702-P-7000",
+        "MO2703-P-7000",
+        "MO2706-P-7000",
+        "MO2709-P-7000"
+      ],
+      "synthetic_ic_months": [
+        "202612",
+        "202701",
+        "202703",
+        "202706"
+      ],
+      "im_reset": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "selected IM Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "im_independent": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "independent IM Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "ic_reset": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "selected IC Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "nearest_future": {
+        "status": "ok",
+        "value": "IM2612"
+      },
+      "next_trade": {
+        "status": "ok",
+        "value": "2026-12-14"
+      }
+    },
+    {
+      "day": "2026-12-14",
+      "synthetic_listed_mo": [
+        "MO2612-P-7000",
+        "MO2701-P-7000",
+        "MO2702-P-7000",
+        "MO2703-P-7000",
+        "MO2706-P-7000",
+        "MO2709-P-7000"
+      ],
+      "synthetic_ic_months": [
+        "202612",
+        "202701",
+        "202703",
+        "202706"
+      ],
+      "im_reset": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "selected IM Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "im_independent": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "independent IM Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "ic_reset": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "selected IC Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "nearest_future": {
+        "status": "ok",
+        "value": "IM2612"
+      },
+      "next_trade": {
+        "status": "ok",
+        "value": "2026-12-15"
+      }
+    },
+    {
+      "day": "2026-12-15",
+      "synthetic_listed_mo": [
+        "MO2612-P-7000",
+        "MO2701-P-7000",
+        "MO2702-P-7000",
+        "MO2703-P-7000",
+        "MO2706-P-7000",
+        "MO2709-P-7000"
+      ],
+      "synthetic_ic_months": [
+        "202612",
+        "202701",
+        "202703",
+        "202706"
+      ],
+      "im_reset": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "selected IM Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "im_independent": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "independent IM Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "ic_reset": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "selected IC Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "nearest_future": {
+        "status": "ok",
+        "value": "IM2612"
+      },
+      "next_trade": {
+        "status": "ok",
+        "value": "2026-12-16"
+      }
+    },
+    {
+      "day": "2026-12-16",
+      "synthetic_listed_mo": [
+        "MO2612-P-7000",
+        "MO2701-P-7000",
+        "MO2702-P-7000",
+        "MO2703-P-7000",
+        "MO2706-P-7000",
+        "MO2709-P-7000"
+      ],
+      "synthetic_ic_months": [
+        "202612",
+        "202701",
+        "202703",
+        "202706"
+      ],
+      "im_reset": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "selected IM Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "im_independent": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "independent IM Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "ic_reset": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "selected IC Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "nearest_future": {
+        "status": "ok",
+        "value": "IM2612"
+      },
+      "next_trade": {
+        "status": "ok",
+        "value": "2026-12-17"
+      }
+    },
+    {
+      "day": "2026-12-17",
+      "synthetic_listed_mo": [
+        "MO2612-P-7000",
+        "MO2701-P-7000",
+        "MO2702-P-7000",
+        "MO2703-P-7000",
+        "MO2706-P-7000",
+        "MO2709-P-7000"
+      ],
+      "synthetic_ic_months": [
+        "202612",
+        "202701",
+        "202703",
+        "202706"
+      ],
+      "im_reset": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "selected IM Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "im_independent": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "independent IM Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "ic_reset": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "selected IC Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "nearest_future": {
+        "status": "ok",
+        "value": "IM2612"
+      },
+      "next_trade": {
+        "status": "ok",
+        "value": "2026-12-18"
+      }
+    },
+    {
+      "day": "2026-12-18",
+      "synthetic_listed_mo": [
+        "MO2612-P-7000",
+        "MO2701-P-7000",
+        "MO2702-P-7000",
+        "MO2703-P-7000",
+        "MO2706-P-7000",
+        "MO2709-P-7000"
+      ],
+      "synthetic_ic_months": [
+        "202612",
+        "202701",
+        "202703",
+        "202706"
+      ],
+      "im_reset": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "selected IM Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "im_independent": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "independent IM Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "ic_reset": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "selected IC Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "nearest_future": {
+        "status": "ok",
+        "value": "IM2612"
+      },
+      "next_trade": {
+        "status": "ok",
+        "value": "2026-12-21"
+      }
+    },
+    {
+      "day": "2026-12-21",
+      "synthetic_listed_mo": [
+        "MO2701-P-7000",
+        "MO2702-P-7000",
+        "MO2703-P-7000",
+        "MO2706-P-7000",
+        "MO2709-P-7000",
+        "MO2712-P-7000"
+      ],
+      "synthetic_ic_months": [
+        "202612",
+        "202701",
+        "202703",
+        "202706"
+      ],
+      "im_reset": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "selected IM Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "im_independent": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "independent IM Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "ic_reset": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "selected IC Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "nearest_future": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "selected future expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "next_trade": {
+        "status": "ok",
+        "value": "2026-12-22"
+      }
+    },
+    {
+      "day": "2026-12-22",
+      "synthetic_listed_mo": [
+        "MO2701-P-7000",
+        "MO2702-P-7000",
+        "MO2703-P-7000",
+        "MO2706-P-7000",
+        "MO2709-P-7000",
+        "MO2712-P-7000"
+      ],
+      "synthetic_ic_months": [
+        "202612",
+        "202701",
+        "202703",
+        "202706"
+      ],
+      "im_reset": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "selected IM Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "im_independent": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "independent IM Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "ic_reset": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "selected IC Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "nearest_future": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "selected future expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "next_trade": {
+        "status": "ok",
+        "value": "2026-12-23"
+      }
+    },
+    {
+      "day": "2026-12-23",
+      "synthetic_listed_mo": [
+        "MO2701-P-7000",
+        "MO2702-P-7000",
+        "MO2703-P-7000",
+        "MO2706-P-7000",
+        "MO2709-P-7000",
+        "MO2712-P-7000"
+      ],
+      "synthetic_ic_months": [
+        "202612",
+        "202701",
+        "202703",
+        "202706"
+      ],
+      "im_reset": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "selected IM Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "im_independent": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "independent IM Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "ic_reset": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "selected IC Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "nearest_future": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "selected future expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "next_trade": {
+        "status": "ok",
+        "value": "2026-12-24"
+      }
+    },
+    {
+      "day": "2026-12-24",
+      "synthetic_listed_mo": [
+        "MO2701-P-7000",
+        "MO2702-P-7000",
+        "MO2703-P-7000",
+        "MO2706-P-7000",
+        "MO2709-P-7000",
+        "MO2712-P-7000"
+      ],
+      "synthetic_ic_months": [
+        "202701",
+        "202702",
+        "202703",
+        "202706"
+      ],
+      "im_reset": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "selected IM Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "im_independent": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "independent IM Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "ic_reset": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "selected IC Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "nearest_future": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "selected future expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "next_trade": {
+        "status": "ok",
+        "value": "2026-12-25"
+      }
+    },
+    {
+      "day": "2026-12-25",
+      "synthetic_listed_mo": [
+        "MO2701-P-7000",
+        "MO2702-P-7000",
+        "MO2703-P-7000",
+        "MO2706-P-7000",
+        "MO2709-P-7000",
+        "MO2712-P-7000"
+      ],
+      "synthetic_ic_months": [
+        "202701",
+        "202702",
+        "202703",
+        "202706"
+      ],
+      "im_reset": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "selected IM Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "im_independent": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "independent IM Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "ic_reset": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "selected IC Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "nearest_future": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "selected future expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "next_trade": {
+        "status": "ok",
+        "value": "2026-12-28"
+      }
+    },
+    {
+      "day": "2026-12-28",
+      "synthetic_listed_mo": [
+        "MO2701-P-7000",
+        "MO2702-P-7000",
+        "MO2703-P-7000",
+        "MO2706-P-7000",
+        "MO2709-P-7000",
+        "MO2712-P-7000"
+      ],
+      "synthetic_ic_months": [
+        "202701",
+        "202702",
+        "202703",
+        "202706"
+      ],
+      "im_reset": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "selected IM Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "im_independent": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "independent IM Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "ic_reset": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "selected IC Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "nearest_future": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "selected future expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "next_trade": {
+        "status": "ok",
+        "value": "2026-12-29"
+      }
+    },
+    {
+      "day": "2026-12-29",
+      "synthetic_listed_mo": [
+        "MO2701-P-7000",
+        "MO2702-P-7000",
+        "MO2703-P-7000",
+        "MO2706-P-7000",
+        "MO2709-P-7000",
+        "MO2712-P-7000"
+      ],
+      "synthetic_ic_months": [
+        "202701",
+        "202702",
+        "202703",
+        "202706"
+      ],
+      "im_reset": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "selected IM Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "im_independent": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "independent IM Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "ic_reset": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "selected IC Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "nearest_future": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "selected future expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "next_trade": {
+        "status": "ok",
+        "value": "2026-12-30"
+      }
+    },
+    {
+      "day": "2026-12-30",
+      "synthetic_listed_mo": [
+        "MO2701-P-7000",
+        "MO2702-P-7000",
+        "MO2703-P-7000",
+        "MO2706-P-7000",
+        "MO2709-P-7000",
+        "MO2712-P-7000"
+      ],
+      "synthetic_ic_months": [
+        "202701",
+        "202702",
+        "202703",
+        "202706"
+      ],
+      "im_reset": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "selected IM Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "im_independent": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "independent IM Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "ic_reset": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "selected IC Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "nearest_future": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "selected future expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "next_trade": {
+        "status": "ok",
+        "value": "2026-12-31"
+      }
+    },
+    {
+      "day": "2026-12-31",
+      "synthetic_listed_mo": [
+        "MO2701-P-7000",
+        "MO2702-P-7000",
+        "MO2703-P-7000",
+        "MO2706-P-7000",
+        "MO2709-P-7000",
+        "MO2712-P-7000"
+      ],
+      "synthetic_ic_months": [
+        "202701",
+        "202702",
+        "202703",
+        "202706"
+      ],
+      "im_reset": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "selected IM Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "im_independent": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "independent IM Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "ic_reset": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "selected IC Put expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "nearest_future": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "selected future expiry需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      },
+      "next_trade": {
+        "status": "blocked",
+        "type": "RuntimeError",
+        "reason": "next exchange session需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+      }
+    }
+  ],
+  "missing_sse_time": {
+    "status": "ok",
+    "value": "2026-10-21",
+    "normalized": "000000"
+  },
+  "real_sina_standard_count": 15,
+  "real_sina_last_outside_current_spread": [
+    {
+      "id": "CON_OP_10012098",
+      "bid": 0.5535,
+      "last": 0.5471,
+      "ask": 0.5583,
+      "inside_current_spread": false,
+      "underlying": "510500",
+      "expiry": "2026-12-23"
+    },
+    {
+      "id": "CON_OP_10012099",
+      "bid": 0.7489,
+      "last": 0.743,
+      "ask": 0.755,
+      "inside_current_spread": false,
+      "underlying": "510500",
+      "expiry": "2026-12-23"
+    },
+    {
+      "id": "CON_OP_10012101",
+      "bid": 1.1966,
+      "last": 1.1892,
+      "ask": 1.2052,
+      "inside_current_spread": false,
+      "underlying": "510500",
+      "expiry": "2026-12-23"
+    },
+    {
+      "id": "CON_OP_10012103",
+      "bid": 1.6764,
+      "last": 1.67,
+      "ask": 1.6864,
+      "inside_current_spread": false,
+      "underlying": "510500",
+      "expiry": "2026-12-23"
+    },
+    {
+      "id": "CON_OP_10012104",
+      "bid": 1.9216,
+      "last": 1.92,
+      "ask": 1.9328,
+      "inside_current_spread": false,
+      "underlying": "510500",
+      "expiry": "2026-12-23"
+    },
+    {
+      "id": "CON_OP_10012105",
+      "bid": 2.1689,
+      "last": 2.1841,
+      "ask": 2.1802,
+      "inside_current_spread": false,
+      "underlying": "510500",
+      "expiry": "2026-12-23"
+    },
+    {
+      "id": "CON_OP_10012106",
+      "bid": 2.414,
+      "last": 2.3931,
+      "ask": 2.4278,
+      "inside_current_spread": false,
+      "underlying": "510500",
+      "expiry": "2026-12-23"
+    },
+    {
+      "id": "CON_OP_10012120",
+      "bid": 0.3883,
+      "last": 0.3816,
+      "ask": 0.3913,
+      "inside_current_spread": false,
+      "underlying": "510500",
+      "expiry": "2026-12-23"
+    },
+    {
+      "id": "CON_OP_10012149",
+      "bid": 0.1657,
+      "last": 0.1648,
+      "ask": 0.167,
+      "inside_current_spread": false,
+      "underlying": "510500",
+      "expiry": "2026-12-23"
+    },
+    {
+      "id": "CON_OP_10012150",
+      "bid": 0.2584,
+      "last": 0.2522,
+      "ask": 0.2606,
+      "inside_current_spread": false,
+      "underlying": "510500",
+      "expiry": "2026-12-23"
+    },
+    {
+      "id": "CON_OP_10012600",
+      "bid": 0.0622,
+      "last": 0.0621,
+      "ask": 0.0628,
+      "inside_current_spread": false,
+      "underlying": "510500",
+      "expiry": "2026-12-23"
+    },
+    {
+      "id": "CON_OP_10012632",
+      "bid": 0.0376,
+      "last": 0.0368,
+      "ask": 0.0378,
+      "inside_current_spread": false,
+      "underlying": "510500",
+      "expiry": "2026-12-23"
+    }
+  ],
+  "real_sina_field_checks": [
+    {
+      "id": "CON_OP_10012098",
+      "bid": 0.5535,
+      "last": 0.5471,
+      "ask": 0.5583,
+      "inside_current_spread": false,
+      "underlying": "510500",
+      "expiry": "2026-12-23"
+    },
+    {
+      "id": "CON_OP_10012099",
+      "bid": 0.7489,
+      "last": 0.743,
+      "ask": 0.755,
+      "inside_current_spread": false,
+      "underlying": "510500",
+      "expiry": "2026-12-23"
+    },
+    {
+      "id": "CON_OP_10012100",
+      "bid": 0.9668,
+      "last": 0.973,
+      "ask": 0.973,
+      "inside_current_spread": true,
+      "underlying": "510500",
+      "expiry": "2026-12-23"
+    },
+    {
+      "id": "CON_OP_10012101",
+      "bid": 1.1966,
+      "last": 1.1892,
+      "ask": 1.2052,
+      "inside_current_spread": false,
+      "underlying": "510500",
+      "expiry": "2026-12-23"
+    },
+    {
+      "id": "CON_OP_10012102",
+      "bid": 1.4327,
+      "last": 1.4414,
+      "ask": 1.4445,
+      "inside_current_spread": true,
+      "underlying": "510500",
+      "expiry": "2026-12-23"
+    },
+    {
+      "id": "CON_OP_10012103",
+      "bid": 1.6764,
+      "last": 1.67,
+      "ask": 1.6864,
+      "inside_current_spread": false,
+      "underlying": "510500",
+      "expiry": "2026-12-23"
+    },
+    {
+      "id": "CON_OP_10012104",
+      "bid": 1.9216,
+      "last": 1.92,
+      "ask": 1.9328,
+      "inside_current_spread": false,
+      "underlying": "510500",
+      "expiry": "2026-12-23"
+    },
+    {
+      "id": "CON_OP_10012105",
+      "bid": 2.1689,
+      "last": 2.1841,
+      "ask": 2.1802,
+      "inside_current_spread": false,
+      "underlying": "510500",
+      "expiry": "2026-12-23"
+    },
+    {
+      "id": "CON_OP_10012106",
+      "bid": 2.414,
+      "last": 2.3931,
+      "ask": 2.4278,
+      "inside_current_spread": false,
+      "underlying": "510500",
+      "expiry": "2026-12-23"
+    },
+    {
+      "id": "CON_OP_10012120",
+      "bid": 0.3883,
+      "last": 0.3816,
+      "ask": 0.3913,
+      "inside_current_spread": false,
+      "underlying": "510500",
+      "expiry": "2026-12-23"
+    },
+    {
+      "id": "CON_OP_10012149",
+      "bid": 0.1657,
+      "last": 0.1648,
+      "ask": 0.167,
+      "inside_current_spread": false,
+      "underlying": "510500",
+      "expiry": "2026-12-23"
+    },
+    {
+      "id": "CON_OP_10012150",
+      "bid": 0.2584,
+      "last": 0.2522,
+      "ask": 0.2606,
+      "inside_current_spread": false,
+      "underlying": "510500",
+      "expiry": "2026-12-23"
+    },
+    {
+      "id": "CON_OP_10012282",
+      "bid": 0.1034,
+      "last": 0.1038,
+      "ask": 0.1038,
+      "inside_current_spread": true,
+      "underlying": "510500",
+      "expiry": "2026-12-23"
+    },
+    {
+      "id": "CON_OP_10012600",
+      "bid": 0.0622,
+      "last": 0.0621,
+      "ask": 0.0628,
+      "inside_current_spread": false,
+      "underlying": "510500",
+      "expiry": "2026-12-23"
+    },
+    {
+      "id": "CON_OP_10012632",
+      "bid": 0.0376,
+      "last": 0.0368,
+      "ask": 0.0378,
+      "inside_current_spread": false,
+      "underlying": "510500",
+      "expiry": "2026-12-23"
+    }
+  ],
+  "retry_guard": {
+    "status": "blocked",
+    "type": "RuntimeError",
+    "reason": "unresolved opening evidence: preserve the exact original plan and retry"
+  },
+  "public_im_unknown_held_month": {
+    "status": "blocked",
+    "type": "RuntimeError",
+    "reason": "held IM core Put maintenance需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号"
+  },
+  "source_before": {
+    "poe_ic_im_mainline_v1_4_bot.py": "7b90d988a3645e8ee79a75cb0d4c999469c9e65c391b40b12313daef8415d05d",
+    "poe_ic_im_v1_4_server.py": "ef9d25e3fadd6b71ddde26bff4c7e137297e76b9741d6dab35c4a29bb6a32866",
+    "poe_ic_im_v1_4_state.py": "5d6e7644e5b7dddce75a38b574ce3d285dd467ff24ea7a5eeade313f540d7b02",
+    "ic_im_put_execution_v1.py": "8cdda4e3761bda7889c16b0102ee0106d2efaaa61088b7cb6fc83a08d67b2368",
+    "ic_im_v1_4_policy.py": "f7e3ad9ddfb83935b47c6af5b5b22bcd28b5c6912b3bd14cec158a7de7f07fff",
+    "ic_im_option_maintenance_notice.py": "a2ad67732d85bad5d96444d7a74a350d3ecdf0fdb6b82b9b593ccfaf95c63746"
+  },
+  "source_after": {
+    "poe_ic_im_mainline_v1_4_bot.py": "7b90d988a3645e8ee79a75cb0d4c999469c9e65c391b40b12313daef8415d05d",
+    "poe_ic_im_v1_4_server.py": "ef9d25e3fadd6b71ddde26bff4c7e137297e76b9741d6dab35c4a29bb6a32866",
+    "poe_ic_im_v1_4_state.py": "5d6e7644e5b7dddce75a38b574ce3d285dd467ff24ea7a5eeade313f540d7b02",
+    "ic_im_put_execution_v1.py": "8cdda4e3761bda7889c16b0102ee0106d2efaaa61088b7cb6fc83a08d67b2368",
+    "ic_im_v1_4_policy.py": "f7e3ad9ddfb83935b47c6af5b5b22bcd28b5c6912b3bd14cec158a7de7f07fff",
+    "ic_im_option_maintenance_notice.py": "a2ad67732d85bad5d96444d7a74a350d3ecdf0fdb6b82b9b593ccfaf95c63746"
+  }
+}

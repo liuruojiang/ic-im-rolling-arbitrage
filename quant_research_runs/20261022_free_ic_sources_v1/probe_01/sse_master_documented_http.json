@@ -1,0 +1,15 @@
+{
+  "name": "sse_master_documented_http",
+  "family": "SSE",
+  "url": "http://query.sse.com.cn/commonQuery.do",
+  "params": {
+    "isPagination": "false",
+    "expireDate": "",
+    "securityId": "",
+    "sqlId": "SSE_ZQPZ_YSP_GGQQZSXT_XXPL_DRHY_SEARCH_L"
+  },
+  "started_at": "2026-10-22T16:56:13.224739+08:00",
+  "status": "FAILED",
+  "error_type": "ReadTimeout",
+  "seconds": 6.013
+}

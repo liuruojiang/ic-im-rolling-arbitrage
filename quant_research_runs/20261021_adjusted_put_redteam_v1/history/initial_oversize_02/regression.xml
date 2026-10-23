@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="1.925" timestamp="2026-10-21T15:41:43.866735+08:00" hostname="DESKTOP-95I7VVU"><testcase classname="test_icim_a3_history_20261021" name="test_new_master_source_rejects_a_complete_oversize_json_body" time="0.058"><failure message="Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x0000019382862FD0&gt;
+
+    def test_new_master_source_rejects_a_complete_oversize_json_body(monkeypatch):
+        body = payload()
+        body['synthetic_ignored_field'] = 'x'*(bot.MAX_QUOTE_RESPONSE_BYTES+1)
+        response = Response(body)
+        assert len(response.content) &gt; bot.MAX_QUOTE_RESPONSE_BYTES
+        monkeypatch.setattr(bot.requests,'get',lambda *a,**k: response)
+&gt;       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;
+
+test_icim_a3_history_20261021.py:135: Failed</failure></testcase></testsuite></testsuites>

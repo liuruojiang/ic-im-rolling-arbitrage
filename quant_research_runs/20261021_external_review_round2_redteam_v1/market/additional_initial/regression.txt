@@ -1,0 +1,52 @@
+FF...                                                                    [100%]
+================================== FAILURES ===================================
+________ test_new_candidate_never_publishes_unicode_security_id[reset] ________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x00000214F7CE35C0>
+consumer = 'reset'
+
+    @pytest.mark.parametrize('consumer', ['reset', 'short'])
+    def test_new_candidate_never_publishes_unicode_security_id(monkeypatch, consumer):
+        body = payload()
+        row = next(row for row in body['list'] if row[0] == CONTRACT)
+        row[5] = ''.join(chr(0xFF10 + int(c)) for c in row[5])
+        monkeypatch.setattr(bot, '_sse_quote_json', lambda *a, **kw: deepcopy(body))
+        monkeypatch.setattr(bot, 'fetch_sina_510500_chain', Mock(side_effect=RuntimeError('synthetic unavailable backup')))
+        signal, _ = signal_anchor(monkeypatch)
+        monkeypatch.setattr(bot, '_gov10y_for_day', lambda *a: .02)
+        monkeypatch.setattr(bot, 'fetch_sse_510500_expiries', lambda: ['202612'])
+>       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+test_icim_round2_audit_market_20261021.py:200: Failed
+________ test_new_candidate_never_publishes_unicode_security_id[short] ________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x00000214F7CE3BB0>
+consumer = 'short'
+
+    @pytest.mark.parametrize('consumer', ['reset', 'short'])
+    def test_new_candidate_never_publishes_unicode_security_id(monkeypatch, consumer):
+        body = payload()
+        row = next(row for row in body['list'] if row[0] == CONTRACT)
+        row[5] = ''.join(chr(0xFF10 + int(c)) for c in row[5])
+        monkeypatch.setattr(bot, '_sse_quote_json', lambda *a, **kw: deepcopy(body))
+        monkeypatch.setattr(bot, 'fetch_sina_510500_chain', Mock(side_effect=RuntimeError('synthetic unavailable backup')))
+        signal, _ = signal_anchor(monkeypatch)
+        monkeypatch.setattr(bot, '_gov10y_for_day', lambda *a: .02)
+        monkeypatch.setattr(bot, 'fetch_sse_510500_expiries', lambda: ['202612'])
+>       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+test_icim_round2_audit_market_20261021.py:200: Failed
+============================== warnings summary ===============================
+C:\Python314\Lib\site-packages\fastapi_poe\types.py:171
+  C:\Python314\Lib\site-packages\fastapi_poe\types.py:171: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    class RequestContext(BaseModel):
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED test_icim_round2_audit_market_20261021.py::test_new_candidate_never_publishes_unicode_security_id[reset]
+FAILED test_icim_round2_audit_market_20261021.py::test_new_candidate_never_publishes_unicode_security_id[short]
+2 failed, 3 passed, 33 deselected, 1 warning in 2.21s

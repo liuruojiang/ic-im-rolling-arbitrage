@@ -223,15 +223,58 @@ def _finite_float(value: Any, label: str) -> float:
     return number
 
 
-def validate_delivery_values(signal: dict[str, Any], product: str, *, historical_record: bool = False) -> None:
+def require_confirmed_grid_target(signal: dict[str, Any], product: str) -> None:
+    """Recompute publication eligibility instead of trusting producer markers.
+
+    An unavailable Fear observation can legitimately preserve the internal
+    grid state for display.  That preserved state is not a confirmed complete
+    portfolio target and must not advance the shared ledger.
+    """
+    view = strategy.fear_grid.publication_view(signal)
+    if view.get("grid_target_confirmed", True) is not True:
+        raise RuntimeError(f"{product} 网格目标未确认，禁止持久化")
+
+
+def require_persistence_eligible(
+    signal: dict[str, Any], product: str, *, check_grid: bool = True
+) -> None:
+    """Reject diagnostic/incomplete results at new-write boundaries only.
+
+    Older hash-verified records are still read with their original schema.  An
+    omitted new marker remains compatible, but a present marker must be bool.
+    """
+    if strategy.signal_evidence.current_session.get() is not None:
+        raise RuntimeError(f"{product} 采集会话尚未退出，禁止提前持久化")
+    if "input_evidence_status" in signal and signal["input_evidence_status"] != "complete":
+        raise RuntimeError(f"{product} 采集存证未完整封存，禁止持久化")
+    for field in ("calendar_provisional", "diagnostic_only"):
+        if field in signal and (type(signal[field]) is not bool or signal[field]):
+            raise RuntimeError(f"{product} {field}诊断信号禁止持久化")
+    for field in ("signal_complete", "persistence_eligible"):
+        if field in signal and (type(signal[field]) is not bool or signal[field] is not True):
+            raise RuntimeError(f"{product} {field}未确认，禁止持久化")
+    if signal.get("v14_action") == "HOLD_FAIL_CLOSED":
+        raise RuntimeError(f"{product} HOLD_FAIL_CLOSED目标未确认，禁止持久化")
+    if check_grid:
+        require_confirmed_grid_target(signal, product)
+
+
+def validate_delivery_values(
+    signal: dict[str, Any], product: str, *, historical_record: bool = False,
+    require_complete: bool = True,
+) -> None:
     """Reject malformed boundary values before JSON can turn NaN into null.
 
     Sparse historical bootstrap/test records may omit display exposures; when
     present, exposures must be real finite nonnegative numbers. No optional
     diagnostic metric is coerced into a trading value here.
+
+    A partial publication may explicitly validate its model values with
+    require_complete=False.  All append paths use the default strict complete
+    boundary; this flag is not a persistence authorization.
     """
     if not historical_record:
-        validate_v14_new_signal(signal, product)
+        validate_v14_new_signal(signal, product, check_grid=False)
     if type(signal.get("close_confirmed")) is not bool:
         raise RuntimeError(f"{product} close_confirmed必须为布尔值")
     for field in ("total_units_current", "total_units_target"):
@@ -245,13 +288,30 @@ def validate_delivery_values(signal: dict[str, Any], product: str, *, historical
     # delivery and ledger writes share the same option boundary checks.
     day = signal.get("market_date")
     if day is not None and _as_day(day, "网格信号日") >= strategy.fear_grid.EFFECTIVE_SIGNAL_DATE:
-        validate_fear_grid_signal(signal, product)
+        validate_fear_grid_signal(
+            signal, product, historical_record=historical_record, check_grid=False
+        )
     validate_replay_plan_evidence(signal)
     if product == "IM" and day is not None and strategy.im_put_policy.active(day):
         if not historical_record:
             validate_im_execution_fix_revision(signal)
         validate_im_put_execution_evidence(signal)
         validate_im_option_values(signal)
+    if not historical_record:
+        if require_complete:
+            require_persistence_eligible(signal, product)
+        else:
+            # A realtime report can contain a valid partial model and a false
+            # persistence marker.  It still cannot publish a calendar/Put
+            # diagnostic as if its financial values were fully verified.
+            for field in ("calendar_provisional", "diagnostic_only"):
+                if field in signal and (type(signal[field]) is not bool or signal[field]):
+                    raise RuntimeError(f"{product} {field}诊断信号禁止正式交付")
+            for field in ("signal_complete", "persistence_eligible"):
+                if field in signal and type(signal[field]) is not bool:
+                    raise RuntimeError(f"{product} {field}必须为布尔值")
+            if signal.get("v14_action") == "HOLD_FAIL_CLOSED":
+                raise RuntimeError(f"{product} HOLD_FAIL_CLOSED目标未确认，禁止正式交付")
 
 
 def validate_replay_plan_evidence(signal: dict[str, Any]) -> None:
@@ -281,7 +341,10 @@ def validate_replay_plan_evidence(signal: dict[str, Any]) -> None:
         raise RuntimeError("补录普通Put计划创建时间不在真实采集至完成区间内")
 
 
-def validate_fear_grid_signal(signal: dict[str, Any], product: str) -> None:
+def validate_fear_grid_signal(
+    signal: dict[str, Any], product: str, *, historical_record: bool = False,
+    check_grid: bool = True,
+) -> None:
     day = _as_day(signal.get("market_date"), "网格信号日")
     strategy.fear_grid.validate_observation_clock(signal)
     if signal.get("grid_policy_revision") != strategy.grid_policy_revision(day):
@@ -348,14 +411,30 @@ def validate_fear_grid_signal(signal: dict[str, Any], product: str) -> None:
     action = "ADD_GRID" if target > current else "EXIT_GRID" if target < current else "HOLD"
     if signal.get("grid_action") != action:
         raise RuntimeError(f"{product}恐慌网格动作与仓位变化不符")
+    # Preserve specific evidence/transition failures before completeness.
+    # Frozen reads retain their original contract; new writes are still strict.
+    if not historical_record and check_grid:
+        require_confirmed_grid_target(signal, product)
 
 
-def validate_v14_new_signal(signal: dict[str, Any], product: str) -> None:
+def validate_v14_new_signal(
+    signal: dict[str, Any], product: str, *, check_grid: bool = True
+) -> None:
     """Strict producer and route boundary for new writes, not frozen history."""
+    put_execution.require_resolved_opening_evidence(signal)
+    put_execution.require_resolved_held_identity(product, signal)
+    put_execution.require_supported_ic_contracts(product, signal)
     market_date = signal.get("market_date")
     if not market_date:
         raise RuntimeError(f"{product} v1.4信号缺少market_date")
+    strategy.require_signal_calendar(product, signal)
     expected_build_id, expected_rule_revision = v14_policy.identity_for_signal_day(market_date)
+    if signal.get("v14_profit_pending"):
+        trigger_day = _as_day(signal.get("v14_profit_trigger_day"), "三倍兑现触发日")
+        execution_day = _as_day(signal.get("v14_profit_execution_day"), "三倍兑现执行日")
+        expected_day = strategy._roll_forward_exchange_day(trigger_day + timedelta(days=1), require_official=True)
+        if execution_day != expected_day:
+            raise RuntimeError(f"{product} 三倍兑现计划未指向触发日的下一实际交易日")
     for field, expected in (
         ("strategy_version", STRATEGY_VERSION),
         ("strategy_revision", STRATEGY_REVISION),
@@ -380,7 +459,7 @@ def validate_v14_new_signal(signal: dict[str, Any], product: str) -> None:
     short_open = signal.get("v14_short_put_open_pending")
     if short_open is not None:
         day = _as_day(market_date, "卖Put信号日")
-        expected_day = strategy._roll_forward_exchange_day(day + timedelta(days=1))
+        expected_day = strategy._roll_forward_exchange_day(day + timedelta(days=1), require_official=True)
         if (_as_day(short_open.get("signal_day"), "卖Put计划日") != day
                 or _as_day(short_open.get("execution_day"), "卖Put开盘执行日") != expected_day):
             raise RuntimeError(f"{product} 卖Put待执行成本计划未指向下一交易日")
@@ -491,6 +570,8 @@ def validate_v14_new_signal(signal: dict[str, Any], product: str) -> None:
                    _option_number(signal.get("v14_short_put_entry_premium"), f"{product}卖Put入场权利金"))
         if qty <= 0 or (not pending_cost and premium <= 0):
             raise RuntimeError(f"{product}卖Put数量/权利金必须为正")
+    if check_grid:
+        require_persistence_eligible(signal, product)
 
 
 def validate_im_execution_fix_revision(signal: dict[str, Any]) -> None:
@@ -838,6 +919,14 @@ def validate_ordinary_put_plan(product: str, anchor: dict[str, Any],
 def validate_profit_open_transition(product: str, anchor: dict[str, Any],
                                     signal: dict[str, Any], signal_day: date) -> None:
     """Bind a new paper execution to the prior close's exact committed plan."""
+    if signal_day >= v14_policy.PROFIT_OPEN_EFFECTIVE_SIGNAL_DATE and signal.get("v14_profit_pending"):
+        fields = ("v14_profit_trigger_day", "v14_profit_execution_day", "v14_profit_old_contract",
+                  "v14_profit_old_security_id", "v14_profit_old_qty", "v14_profit_reentry_contract",
+                  "v14_profit_reentry_security_id", "v14_profit_reentry_qty")
+        new_plan = not anchor.get("v14_profit_pending") or any(
+            _jsonable(signal.get(key)) != _jsonable(anchor.get(key)) for key in fields)
+        if new_plan and _as_day(signal.get("v14_profit_trigger_day"), "新3倍兑现触发日") != signal_day:
+            raise RuntimeError(f"{product} 新3倍兑现计划必须由当前信号日触发，不能补造旧日承诺")
     if (signal_day < v14_policy.PROFIT_OPEN_EFFECTIVE_SIGNAL_DATE
             or signal.get("v14_action") != "EXECUTE_CORE_PUT_PROFIT3X_REENTER"):
         return
@@ -923,6 +1012,10 @@ def derive_next_anchors(
     _validate_record(current)
     if set(signals) != set(PRODUCTS):
         raise RuntimeError("只有IC/IM均完整成功，才允许推进统一审计账本")
+    for product in PRODUCTS:
+        # Keep marker rejection early, but validate the actual session and
+        # contract/opening/source evidence before reporting a grid-only defect.
+        require_persistence_eligible(signals[product], product, check_grid=False)
     current_anchors = anchors_from_record(current)
     signal_days = {signal.get("market_date") for signal in signals.values()}
     if len(signal_days) != 1:
@@ -960,7 +1053,11 @@ def derive_next_anchors(
     }
     for product in PRODUCTS:
         signal = signals[product]
-        validate_delivery_values(signal, product)
+        put_execution.require_due_openings(
+            product, current_anchors[product], signal, signal_day,
+            signal_day == strategy._third_friday(signal_day.year, signal_day.month),
+        )
+        validate_delivery_values(signal, product, require_complete=False)
         validate_profit_open_transition(product, current_anchors[product], signal, signal_day)
         opening_plan = current_anchors[product].get("v14_ordinary_put_pending")
         if signal.get("v14_ordinary_put_open_status") == "confirmed_open_research_price":
@@ -1007,7 +1104,7 @@ def derive_next_anchors(
             raise RuntimeError(f"{product}仅允许收盘后信号写入账本")
         if _as_day(signal.get("state_anchor_day"), f"{product} state_anchor_day") != previous_day:
             raise RuntimeError(f"{product}信号未从当前账本锚点续接")
-        expected_next_day = strategy._roll_forward_exchange_day(signal_day + timedelta(days=1))
+        expected_next_day = strategy._roll_forward_exchange_day(signal_day + timedelta(days=1), require_official=True)
         if _as_day(signal.get("next_trade_date"), f"{product} next_trade_date") != expected_next_day:
             raise RuntimeError(f"{product}下一交易日不正确")
         anchor = result[product]
@@ -1316,6 +1413,10 @@ def derive_next_anchors(
                     anchor.update(post_put_equivalent_units=.5 * total_qty,
                                   verified_put_qty_normalized=total_qty, verified_total_put_qty_normalized=total_qty)
         v14_policy.validate_extension(product, anchor)
+    # No successor anchors escape until both legs have passed all original
+    # identity/opening/quantity/source checks and the independent grid gate.
+    for product in PRODUCTS:
+        require_persistence_eligible(signals[product], product)
     return result
 
 
@@ -1331,11 +1432,11 @@ class StateStore:
     def _exclusive_lock(self):
         self.root.mkdir(parents=True, exist_ok=True)
         stream = self.lock_path.open("a+b")
+        acquired = False
         try:
             stream.seek(0)
-            stream.write(b"\0")
-            stream.flush()
-            stream.seek(0)
+            # Windows can lock a byte beyond EOF. Writing before acquiring the
+            # lock races with another opener and can fail on its locked byte.
             if os.name == "nt":
                 import msvcrt
 
@@ -1344,18 +1445,22 @@ class StateStore:
                 import fcntl
 
                 fcntl.flock(stream.fileno(), fcntl.LOCK_EX)
+            acquired = True
             yield
         finally:
-            stream.seek(0)
-            if os.name == "nt":
-                import msvcrt
+            try:
+                if acquired:
+                    stream.seek(0)
+                    if os.name == "nt":
+                        import msvcrt
 
-                msvcrt.locking(stream.fileno(), msvcrt.LK_UNLCK, 1)
-            else:
-                import fcntl
+                        msvcrt.locking(stream.fileno(), msvcrt.LK_UNLCK, 1)
+                    else:
+                        import fcntl
 
-                fcntl.flock(stream.fileno(), fcntl.LOCK_UN)
-            stream.close()
+                        fcntl.flock(stream.fileno(), fcntl.LOCK_UN)
+            finally:
+                stream.close()
 
     def _atomic_write(self, path: Path, record: dict[str, Any]) -> None:
         path.parent.mkdir(parents=True, exist_ok=True)
@@ -1464,13 +1569,16 @@ class StateStore:
             if (
                 existing.get("previous_digest") != current["digest"]
                 or str(existing.get("verified_day")) != str(record["verified_day"])
+                or int(existing["sequence"]) != sequence
             ):
                 raise RuntimeError(f"{record['verified_day']}账本已存在但内容冲突")
             # Recover a crash that completed the append-only journal write but
             # happened before latest.json was atomically replaced.
             # Validate the recovered day's policy too: its journal may have
             # been written by an obsolete producer before the process restart.
-            derive_next_anchors(current, existing.get("signals", {}))
+            recovered_anchors = derive_next_anchors(current, existing.get("signals", {}))
+            if _jsonable(recovered_anchors) != existing.get("products"):
+                raise RuntimeError("恢复journal的持仓与其信号推导不一致，拒绝更新账本head")
             self._atomic_write(self.latest_path, existing)
             return existing
         self._atomic_write(journal, record)

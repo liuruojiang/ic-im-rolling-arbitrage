@@ -1,0 +1,9 @@
+{
+  "exit_code": 1,
+  "files": [
+    "test_icim_round3_evidence_integration_20261021.py::test_original_close_replay_discloses_archive_identity_and_actual_acquisition"
+  ],
+  "state_dir": "C:\\Users\\ADMINI~1.DES\\AppData\\Local\\Temp\\icim_put_643adb92\\state",
+  "test_only_windows_mkdir_mode_adjustment": true,
+  "implicit_pytest_addopts_removed": false
+}

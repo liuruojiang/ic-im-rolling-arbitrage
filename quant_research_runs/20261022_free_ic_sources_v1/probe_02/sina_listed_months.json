@@ -1,0 +1,53 @@
+{
+  "name": "sina_listed_months",
+  "family": "Sina",
+  "url": "https://stock.finance.sina.com.cn/futures/api/openapi.php/StockOptionService.getStockName",
+  "params": {
+    "exchange": "null",
+    "cate": "500ETF"
+  },
+  "started_at": "2026-10-22T16:59:23.251961+08:00",
+  "status": "RECEIVED",
+  "http_status": 200,
+  "bytes": 245,
+  "sha256": "8dfeabde741a5fca430cd77c2eab607f17608e00cfcb066b5045a45f7c453d04",
+  "encoding": "utf-8",
+  "headers": {
+    "Date": "Thu, 22 Oct 2026 08:59:31 GMT",
+    "Content-Type": "application/json; charset=utf-8"
+  },
+  "summary": {
+    "format": "json",
+    "type": "dict",
+    "top_keys": [
+      "result"
+    ],
+    "payload": {
+      "result": {
+        "status": {
+          "code": 0
+        },
+        "data": {
+          "cateList": [
+            "500ETF",
+            "50ETF",
+            "300ETF",
+            "500ETF",
+            "科创50",
+            "科创板50"
+          ],
+          "contractMonth": [
+            "2026-10",
+            "2026-10",
+            "2026-11",
+            "2026-12",
+            "2027-03"
+          ],
+          "stockId": "510500",
+          "cateId": "510500C2612A07500"
+        }
+      }
+    }
+  },
+  "seconds": 8.667
+}

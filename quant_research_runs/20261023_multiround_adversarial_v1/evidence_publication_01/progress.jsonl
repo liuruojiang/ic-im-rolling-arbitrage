@@ -1,0 +1,7 @@
+{"nodeid": "test_icim_ma23_publication_guard_20261023.py::test_publication_guard_rejects_before_any_complete_manifest_is_visible", "started_at": "2026-10-23T09:41:39.100651+08:00"}
+{"nodeid": "test_icim_ma23_publication_guard_20261023.py::test_publication_guard_fresh_retry_scope_is_not_poisoned", "started_at": "2026-10-23T09:41:39.357142+08:00"}
+{"nodeid": "test_icim_ma23_publication_guard_20261023.py::test_publication_guard_nested_scopes_restore_outer_callback", "started_at": "2026-10-23T09:41:39.412308+08:00"}
+{"nodeid": "test_icim_ma23_publication_guard_20261023.py::test_publication_guard_copy_context_worker_inherits_callback", "started_at": "2026-10-23T09:41:39.448471+08:00"}
+{"nodeid": "test_icim_ma23_publication_guard_20261023.py::test_publication_guard_retained_when_session_outlives_callback_scope", "started_at": "2026-10-23T09:41:39.464905+08:00"}
+{"nodeid": "test_icim_ma23_publication_guard_20261023.py::test_publication_guard_does_not_mask_original_computation_exception", "started_at": "2026-10-23T09:41:39.478480+08:00"}
+{"nodeid": "test_icim_ma23_publication_guard_20261023.py::test_publication_guard_invalid_callback_does_not_replace_active_scope", "started_at": "2026-10-23T09:41:39.494755+08:00"}

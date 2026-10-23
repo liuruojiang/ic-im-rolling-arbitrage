@@ -1,0 +1,23 @@
+{
+  "field": "actionErrors",
+  "injected": [
+    "official query failed"
+  ],
+  "actual": {
+    "returned_count": 114,
+    "target": {
+      "security_id": "10011470",
+      "contract": "510500P2612A07500",
+      "previous_contract": "510500P2612M07500",
+      "previous_strike": 7.5,
+      "strike": 7.367,
+      "previous_unit": 10000,
+      "contract_unit": 10180,
+      "effective_date": "2026-07-15",
+      "expiry": "2026-12-23"
+    }
+  },
+  "severity": "P2 diagnostic integrity; no production A execution",
+  "reproduction": "parse_adjustment_events(real_raw_with_single_field_mutation, effective_date=2026-07-15)",
+  "trust_boundary": "single internal contradiction, not forged consistent authority data"
+}

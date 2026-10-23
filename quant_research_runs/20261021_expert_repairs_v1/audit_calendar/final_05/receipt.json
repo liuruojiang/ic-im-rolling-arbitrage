@@ -1,0 +1,12 @@
+{
+  "exit_code": 0,
+  "source_before_equals_after": true,
+  "source_files": 10,
+  "counts": {
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "tests": 40
+  },
+  "scope": "Independent restored-state calendar/builder/persistence/display and zero-exposure tests; synthetic future observations; not continuous 56-day ledger replay."
+}

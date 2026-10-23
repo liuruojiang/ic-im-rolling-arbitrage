@@ -1,0 +1,8 @@
+{
+  "unsupported_recursive_body": true,
+  "text": "before:A|after:A",
+  "outer_observed": {},
+  "anchor_after": "A",
+  "observer_cleared": true,
+  "production_reachability_established": false
+}

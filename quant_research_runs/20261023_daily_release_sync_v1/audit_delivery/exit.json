@@ -1,0 +1,1 @@
+{"exit_code": 0, "files": ["test_ic_im_v1_4_workflow.py", "test_ic_im_v1_4_result_day_delivery.py", "test_ic_im_v1_4_readiness.py", "test_ic_im_v1_4_daily_digest.py", "test_adversarial_delivery.py"], "scope": "offline mocked delivery audit; no real SMTP or production writes"}

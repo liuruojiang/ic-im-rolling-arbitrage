@@ -1,0 +1,38 @@
+{
+  "checked_at": "2026-10-21T07:25:55.375198+00:00",
+  "counts": {
+    "tests": 1412,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "source_binding_files": 885,
+  "changed_bound": [],
+  "backup_files": 1139,
+  "bad_backups": [],
+  "protected_outputs": 6795,
+  "bad_outputs": [],
+  "protected_prior_evidence": 465,
+  "bad_prior": [],
+  "changed_existing": [
+    "notes/mainline_registry.md",
+    "poe_ic_im_mainline_v1_4_bot.py"
+  ],
+  "unexpected_existing_changes": [],
+  "runtime_unchanged": true,
+  "git_diff_check_exit": 0,
+  "production_dependency_hashes": {
+    "poe_ic_im_mainline_v1_4_bot.py": "b4f674544a776ff1161ccc922280e7545eb0717d9bfa8ee27e143ce4b71491fe",
+    "ic_im_adjusted_put_migration_v1.py": "c3d5e408c700653aeb4029008e83f95fbd7f26668e3342ea1919d44e22962466",
+    "ic_im_sse_contract_identity_v1.py": "47a2d81f665d2b199eaa2c2043c90271cdd242aa9776620002c833f3cdafacc8"
+  },
+  "deployed": false,
+  "a_engine_supported": false,
+  "historical_dates_fully_covered": false,
+  "remaining_deselected": {
+    "test_icim_redteam_integration_20261021.py::test_frozen_source_receipt_matches_current_bytes": "Historical source equality is checked against its pre-repair backup; old receipt is not rewritten.",
+    "test_icim_round2_audit_lifecycle_20261021.py::test_historical_adapter_retains_id_already_bound_to_requested_series": "Capability probe only: a price series by ID does not establish historical code/strike/unit; reject without dated identity.",
+    "test_icim_round2_audit_lifecycle_20261021.py::test_legal_standard_core_replay_crosses_strict_boundary": "Same missing-dated-identity capability probe; unsafe ID copying is deliberately not implemented."
+  },
+  "passed": true
+}

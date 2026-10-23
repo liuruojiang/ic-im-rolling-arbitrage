@@ -1,0 +1,42 @@
+*** Begin Patch
+*** Update File: D:\动量策略\IC和IM滚动套利\poe_ic_im_mainline_v1_4_bot.py
+@@
+-def _is_pre_expiry_close(today: date, active_expiry: date, close_confirmed: bool) -> bool:
+-    # The expiry may be a diagnostic estimate. The comparison session itself
+-    # remains strict, and any estimate prevents formal signal delivery.
+-    _require_model_expiry_calendar(active_expiry, "option maintenance expiry")
+-    next_trading_day = _roll_forward_exchange_day(today + timedelta(days=1), require_official=True)
+-    return next_trading_day == active_expiry and close_confirmed is True
++def _expiry_definitely_after_reference(expiry: date, reference: date) -> bool:
++    """Prove a pure comparison from a nominal expiry's lower bound.
++
++    The callers supply a rule-based expiry which exchange holidays can only
++    postpone.  For an officially covered reference date in an earlier year,
++    that unknown future year's expiry is therefore strictly later regardless
++    of its final holiday adjustment.  This does not verify the expiry or
++    authorize its use for ranking, sizing, scheduling or formal targets.
++    """
++    _require_official_exchange_calendar(reference, "expiry comparison reference")
++    return (expiry.year not in _OFFICIAL_EXCHANGE_CALENDAR_YEARS
++            and expiry.year > reference.year and expiry > reference)
++
++
++def _is_pre_expiry_close(today: date, active_expiry: date, close_confirmed: bool) -> bool:
++    _require_official_exchange_calendar(today, "option maintenance reference")
++    next_trading_day = _roll_forward_exchange_day(today + timedelta(days=1), require_official=True)
++    if _expiry_definitely_after_reference(active_expiry, next_trading_day):
++        return False
++    _require_model_expiry_calendar(active_expiry, "option maintenance expiry")
++    return next_trading_day == active_expiry and close_confirmed is True
+@@
+         if core_put_contract is not None and core_put_current_normalized > 0.0:
+             core_put_expiry = _third_friday(*_contract_month(core_put_contract))
+-            _require_model_expiry_calendar(core_put_expiry, "held IM core Put maintenance")
++            if not _expiry_definitely_after_reference(core_put_expiry, market_date):
++                _require_model_expiry_calendar(core_put_expiry, "held IM core Put maintenance")
+@@
+             if current_expiry is not None:
+-                _require_model_expiry_calendar(current_expiry, "held IM momentum Put maintenance")
++                if not _expiry_definitely_after_reference(current_expiry, market_date):
++                    _require_model_expiry_calendar(current_expiry, "held IM momentum Put maintenance")
+*** End Patch

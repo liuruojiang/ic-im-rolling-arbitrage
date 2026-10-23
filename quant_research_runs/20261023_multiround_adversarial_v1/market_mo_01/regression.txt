@@ -1,0 +1,73 @@
+.FFF                                                                     [100%]
+================================== FAILURES ===================================
+_ test_mo_crosscheck_rejects_unrequested_or_ambiguous_returned_variable[wrong_contract] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000027E08596060>
+mutation = 'wrong_contract'
+
+    @pytest.mark.parametrize('mutation', ['wrong_contract', 'wrong_namespace', 'duplicate'])
+    def test_mo_crosscheck_rejects_unrequested_or_ambiguous_returned_variable(monkeypatch, mutation):
+        packet, symbol, price = real_mo_packet()
+        if mutation == 'wrong_contract':
+            packet = packet.replace(symbol, b'P_OP_mo2611P6100', 1)
+        elif mutation == 'wrong_namespace':
+            packet = packet.replace(b'hq_str_', b'not_hq_str_', 1)
+        else:
+            packet = packet + packet
+        monkeypatch.setattr(bot.requests, 'get', lambda *a, **k: response(packet))
+>       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+test_icim_ma23_market_20261023.py:214: Failed
+_ test_mo_crosscheck_rejects_unrequested_or_ambiguous_returned_variable[wrong_namespace] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000027E0857B770>
+mutation = 'wrong_namespace'
+
+    @pytest.mark.parametrize('mutation', ['wrong_contract', 'wrong_namespace', 'duplicate'])
+    def test_mo_crosscheck_rejects_unrequested_or_ambiguous_returned_variable(monkeypatch, mutation):
+        packet, symbol, price = real_mo_packet()
+        if mutation == 'wrong_contract':
+            packet = packet.replace(symbol, b'P_OP_mo2611P6100', 1)
+        elif mutation == 'wrong_namespace':
+            packet = packet.replace(b'hq_str_', b'not_hq_str_', 1)
+        else:
+            packet = packet + packet
+        monkeypatch.setattr(bot.requests, 'get', lambda *a, **k: response(packet))
+>       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+test_icim_ma23_market_20261023.py:214: Failed
+_ test_mo_crosscheck_rejects_unrequested_or_ambiguous_returned_variable[duplicate] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000027E0862D370>
+mutation = 'duplicate'
+
+    @pytest.mark.parametrize('mutation', ['wrong_contract', 'wrong_namespace', 'duplicate'])
+    def test_mo_crosscheck_rejects_unrequested_or_ambiguous_returned_variable(monkeypatch, mutation):
+        packet, symbol, price = real_mo_packet()
+        if mutation == 'wrong_contract':
+            packet = packet.replace(symbol, b'P_OP_mo2611P6100', 1)
+        elif mutation == 'wrong_namespace':
+            packet = packet.replace(b'hq_str_', b'not_hq_str_', 1)
+        else:
+            packet = packet + packet
+        monkeypatch.setattr(bot.requests, 'get', lambda *a, **k: response(packet))
+>       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+test_icim_ma23_market_20261023.py:214: Failed
+============================== warnings summary ===============================
+C:\Python314\Lib\site-packages\fastapi_poe\types.py:171
+  C:\Python314\Lib\site-packages\fastapi_poe\types.py:171: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    class RequestContext(BaseModel):
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED test_icim_ma23_market_20261023.py::test_mo_crosscheck_rejects_unrequested_or_ambiguous_returned_variable[wrong_contract]
+FAILED test_icim_ma23_market_20261023.py::test_mo_crosscheck_rejects_unrequested_or_ambiguous_returned_variable[wrong_namespace]
+FAILED test_icim_ma23_market_20261023.py::test_mo_crosscheck_rejects_unrequested_or_ambiguous_returned_variable[duplicate]
+3 failed, 1 passed, 31 deselected, 1 warning in 1.92s

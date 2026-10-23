@@ -1,0 +1,21 @@
+{
+  "collected": [
+    "test_icim_ma23_state_selection_20261023.py::test_newer_cross_midnight_packet_cannot_hide_valid_original[IC]",
+    "test_icim_ma23_state_selection_20261023.py::test_newer_cross_midnight_packet_cannot_hide_valid_original[IM]",
+    "test_icim_ma23_state_selection_20261023.py::test_original_selection_still_chooses_latest_eligible_packet[IC]",
+    "test_icim_ma23_state_selection_20261023.py::test_original_selection_still_chooses_latest_eligible_packet[IM]"
+  ],
+  "selected": [
+    "test_icim_ma23_state_selection_20261023.py::test_newer_cross_midnight_packet_cannot_hide_valid_original[IC]",
+    "test_icim_ma23_state_selection_20261023.py::test_newer_cross_midnight_packet_cannot_hide_valid_original[IM]",
+    "test_icim_ma23_state_selection_20261023.py::test_original_selection_still_chooses_latest_eligible_packet[IC]",
+    "test_icim_ma23_state_selection_20261023.py::test_original_selection_still_chooses_latest_eligible_packet[IM]"
+  ],
+  "deselected": [],
+  "executed": [
+    "test_icim_ma23_state_selection_20261023.py::test_newer_cross_midnight_packet_cannot_hide_valid_original[IC]",
+    "test_icim_ma23_state_selection_20261023.py::test_newer_cross_midnight_packet_cannot_hide_valid_original[IM]",
+    "test_icim_ma23_state_selection_20261023.py::test_original_selection_still_chooses_latest_eligible_packet[IC]",
+    "test_icim_ma23_state_selection_20261023.py::test_original_selection_still_chooses_latest_eligible_packet[IM]"
+  ]
+}

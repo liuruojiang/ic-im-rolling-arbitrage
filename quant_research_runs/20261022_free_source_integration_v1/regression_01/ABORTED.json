@@ -1,0 +1,6 @@
+{
+  "status": "ABORTED_NOT_ACCEPTED",
+  "reason": "Independent audit found reproducible invalid-month/clock/listing defects and new audit tests were being added; stop this pre-fix run and lock final sources before cumulative acceptance.",
+  "at": "2026-10-22T17:47:34.747157+08:00",
+  "no_pass_claim": true
+}

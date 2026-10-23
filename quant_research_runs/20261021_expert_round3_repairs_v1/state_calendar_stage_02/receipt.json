@@ -1,0 +1,37 @@
+{
+  "command": [
+    "C:\\Python314\\python.exe",
+    "-m",
+    "pytest",
+    "-c",
+    "quant_research_runs/20261021_expert_repairs_v1/pytest.ini",
+    "test_icim_round3_grid_persistence_20261021.py",
+    "test_icim_round3_calendar_comparison_20261021.py",
+    "--basetemp=quant_research_runs\\20261021_expert_round3_repairs_v1\\state_calendar_stage_02\\tmp",
+    "--junitxml=quant_research_runs\\20261021_expert_round3_repairs_v1\\state_calendar_stage_02\\junit.xml",
+    "-p",
+    "no:cacheprovider",
+    "-q"
+  ],
+  "exit_code": 0,
+  "counts": {
+    "tests": 44,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "source_before": {
+    "poe_ic_im_mainline_v1_4_bot.py": "c8d474fc05647464cec7713e2f1901af8d64949882323dade5846129b371ebe7",
+    "poe_ic_im_v1_4_state.py": "e9bf8637ae52adb70d6d6dcb89b8e48dae216f5db35a61e2d9d9a5084881b3f1",
+    "test_icim_round3_grid_persistence_20261021.py": "fda45993d919dabd7ee81e0c2fba6e2edcf814cb3d0365ceb12a1127ed984edf",
+    "test_icim_round3_calendar_comparison_20261021.py": "29e21dc8dcc3380c96a26ac65ade6dde1783049eaa7135132b82bad728f2c3f4"
+  },
+  "source_after": {
+    "poe_ic_im_mainline_v1_4_bot.py": "c8d474fc05647464cec7713e2f1901af8d64949882323dade5846129b371ebe7",
+    "poe_ic_im_v1_4_state.py": "e9bf8637ae52adb70d6d6dcb89b8e48dae216f5db35a61e2d9d9a5084881b3f1",
+    "test_icim_round3_grid_persistence_20261021.py": "fda45993d919dabd7ee81e0c2fba6e2edcf814cb3d0365ceb12a1127ed984edf",
+    "test_icim_round3_calendar_comparison_20261021.py": "29e21dc8dcc3380c96a26ac65ade6dde1783049eaa7135132b82bad728f2c3f4"
+  },
+  "source_unchanged": true,
+  "scope": "isolated 24 state gates and 20 calendar comparisons; synthetic integration, no production state/no network"
+}

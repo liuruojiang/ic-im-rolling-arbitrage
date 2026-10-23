@@ -1,0 +1,19 @@
+{
+  "status": "PASS",
+  "new_functions": [
+    "_validate_http_metadata"
+  ],
+  "changed_functions": [
+    "CaptureSession._finish_locked",
+    "EvidenceReader.http_response",
+    "_load_one",
+    "has_session"
+  ],
+  "malformed_capture_nonthrowing_and_ineligible": true,
+  "legacy_complete_but_bad_metadata_rejected": [
+    "load",
+    "has"
+  ],
+  "before_sha256": "bdf2a4879a64977361bfa550eb0cf5129933b4adf3b4704fef87e12ab9b48b3a",
+  "after_sha256": "6afb37ddfc61b67e023214f339cd67d358d16971cae2ea11ba2e3465a8ae18a6"
+}

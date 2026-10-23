@@ -1,0 +1,4 @@
+{"nodeid": "test_icim_ma23_market_20261023.py::test_real_mo_crosscheck_packet_still_accepts_its_requested_identity", "started_at": "2026-10-23T09:28:50.315826+08:00"}
+{"nodeid": "test_icim_ma23_market_20261023.py::test_mo_crosscheck_rejects_unrequested_or_ambiguous_returned_variable[wrong_contract]", "started_at": "2026-10-23T09:28:50.325042+08:00"}
+{"nodeid": "test_icim_ma23_market_20261023.py::test_mo_crosscheck_rejects_unrequested_or_ambiguous_returned_variable[wrong_namespace]", "started_at": "2026-10-23T09:28:50.661549+08:00"}
+{"nodeid": "test_icim_ma23_market_20261023.py::test_mo_crosscheck_rejects_unrequested_or_ambiguous_returned_variable[duplicate]", "started_at": "2026-10-23T09:28:50.671886+08:00"}

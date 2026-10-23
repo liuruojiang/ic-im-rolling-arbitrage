@@ -1,0 +1,557 @@
+{
+  "observed_at": "2026-10-21T07:15:25.448155+00:00",
+  "runtime_before": {
+    "runtime/ic_im_v1_4_r1/latest.json": "b0f0fa76beca9a0d2c2a715ef67c1f578fc9c4d5c73c91ae4ebd5a89c8139df6",
+    "runtime/ic_im_v1_4_r1/migration_record.json": "bae64e783e57e87227b54b463d8046638df5e27adbdd2c61b1d5ff0af90cf53d",
+    "runtime/ic_im_v1_4_r1/journal/000000-2026-09-16.json": "57827b22c2f31cb1319fa7504f2fdbdcf08acafa24d26202c272ec9bef813384",
+    "runtime/ic_im_v1_4_r1/journal/000001-2026-09-17.json": "800143c188e86de97585edddc949d0fbd0d2cdc958ced8e79397dbf9bce210d2",
+    "runtime/ic_im_v1_4_r1/journal/000002-2026-09-18.json": "877c633301a7429a7cf1f7f6e96e17f6723500dad4fbcc870f600b3600ed43b8",
+    "runtime/ic_im_v1_4_r1/journal/000003-2026-09-21.json": "e17f5919c1b4eb44374ebcd3a170f10ee1daeaa719d817c9c40a5ca0ab204c8b",
+    "runtime/ic_im_v1_4_r1/journal/000004-2026-09-22.json": "0d4d1dfa206f65f5e774a185b03e8b7de0aba4b73a0953b22276287dfdfa2665",
+    "runtime/ic_im_v1_4_r1/journal/000005-2026-09-23.json": "7906d585439c83700a6182763d90d28e2ec5b1a8768fb935c7aa2ce31028de27",
+    "runtime/ic_im_v1_4_r1/journal/000006-2026-09-24.json": "ad1d6e7f475e65650e5c04a5291045264088ec69139bea6e63c91c12824bf808",
+    "runtime/ic_im_v1_4_r1/journal/000007-2026-09-28.json": "962e610468dc895decbe6881f9b786572910444c26f24c33c7591f18833e2ccc",
+    "runtime/ic_im_v1_4_r1/journal/000008-2026-09-29.json": "cd2a85ba963589450511d43fb6915011680c099a416ecb8803dda846eb643386",
+    "runtime/ic_im_v1_4_r1/journal/000009-2026-09-30.json": "cbec96a645d691822a85c640330a45502629529fdc6c46af69d26f02c53d710d",
+    "runtime/ic_im_v1_4_r1/journal/000010-2026-10-08.json": "5210a2e8c04c23577a1baa444effa41f072f34d48d19bc28e751ae62064e614d",
+    "runtime/ic_im_v1_4_r1/journal/000011-2026-10-09.json": "e7368caec1bd52580ae618afb703ed858b8ade4b280af5daac134448339aaaae",
+    "runtime/ic_im_v1_4_r1/journal/000012-2026-10-12.json": "0541e10a66f334be3f5b6c5cac144e42a50b0755b0e05aad33793d908f9a5913",
+    "runtime/ic_im_v1_4_r1/journal/000013-2026-10-13.json": "e1398eca76bb891fdc5c27c185ce02a162e02313e0db22f1336d540877fd8e5b",
+    "runtime/ic_im_v1_4_r1/journal/000014-2026-10-14.json": "cc3f616ba404750c81afb6a6c35c3d2de42e90dc9a4b31f589fc53cdced4f37d",
+    "runtime/ic_im_v1_4_r1/journal/000015-2026-10-15.json": "6f5cdf16e3f412f36c59e476411994a0b8eb3e487cc42d2142841214ff779e06",
+    "runtime/ic_im_v1_4_r1/journal/000016-2026-10-16.json": "edad4fea50c266959cbb2c515bc5a26bae832f9627c430f0aa80dfeade68d707",
+    "runtime/ic_im_v1_4_r1/journal/000017-2026-10-19.json": "cb72267c5ab6a82c5f9c4ae78b2824536656319e3c03b4397a67ae4345d3bfce",
+    "runtime/ic_im_v1_4_r1/journal/000018-2026-10-20.json": "b0f0fa76beca9a0d2c2a715ef67c1f578fc9c4d5c73c91ae4ebd5a89c8139df6"
+  },
+  "runtime_after": {
+    "runtime/ic_im_v1_4_r1/latest.json": "b0f0fa76beca9a0d2c2a715ef67c1f578fc9c4d5c73c91ae4ebd5a89c8139df6",
+    "runtime/ic_im_v1_4_r1/migration_record.json": "bae64e783e57e87227b54b463d8046638df5e27adbdd2c61b1d5ff0af90cf53d",
+    "runtime/ic_im_v1_4_r1/journal/000000-2026-09-16.json": "57827b22c2f31cb1319fa7504f2fdbdcf08acafa24d26202c272ec9bef813384",
+    "runtime/ic_im_v1_4_r1/journal/000001-2026-09-17.json": "800143c188e86de97585edddc949d0fbd0d2cdc958ced8e79397dbf9bce210d2",
+    "runtime/ic_im_v1_4_r1/journal/000002-2026-09-18.json": "877c633301a7429a7cf1f7f6e96e17f6723500dad4fbcc870f600b3600ed43b8",
+    "runtime/ic_im_v1_4_r1/journal/000003-2026-09-21.json": "e17f5919c1b4eb44374ebcd3a170f10ee1daeaa719d817c9c40a5ca0ab204c8b",
+    "runtime/ic_im_v1_4_r1/journal/000004-2026-09-22.json": "0d4d1dfa206f65f5e774a185b03e8b7de0aba4b73a0953b22276287dfdfa2665",
+    "runtime/ic_im_v1_4_r1/journal/000005-2026-09-23.json": "7906d585439c83700a6182763d90d28e2ec5b1a8768fb935c7aa2ce31028de27",
+    "runtime/ic_im_v1_4_r1/journal/000006-2026-09-24.json": "ad1d6e7f475e65650e5c04a5291045264088ec69139bea6e63c91c12824bf808",
+    "runtime/ic_im_v1_4_r1/journal/000007-2026-09-28.json": "962e610468dc895decbe6881f9b786572910444c26f24c33c7591f18833e2ccc",
+    "runtime/ic_im_v1_4_r1/journal/000008-2026-09-29.json": "cd2a85ba963589450511d43fb6915011680c099a416ecb8803dda846eb643386",
+    "runtime/ic_im_v1_4_r1/journal/000009-2026-09-30.json": "cbec96a645d691822a85c640330a45502629529fdc6c46af69d26f02c53d710d",
+    "runtime/ic_im_v1_4_r1/journal/000010-2026-10-08.json": "5210a2e8c04c23577a1baa444effa41f072f34d48d19bc28e751ae62064e614d",
+    "runtime/ic_im_v1_4_r1/journal/000011-2026-10-09.json": "e7368caec1bd52580ae618afb703ed858b8ade4b280af5daac134448339aaaae",
+    "runtime/ic_im_v1_4_r1/journal/000012-2026-10-12.json": "0541e10a66f334be3f5b6c5cac144e42a50b0755b0e05aad33793d908f9a5913",
+    "runtime/ic_im_v1_4_r1/journal/000013-2026-10-13.json": "e1398eca76bb891fdc5c27c185ce02a162e02313e0db22f1336d540877fd8e5b",
+    "runtime/ic_im_v1_4_r1/journal/000014-2026-10-14.json": "cc3f616ba404750c81afb6a6c35c3d2de42e90dc9a4b31f589fc53cdced4f37d",
+    "runtime/ic_im_v1_4_r1/journal/000015-2026-10-15.json": "6f5cdf16e3f412f36c59e476411994a0b8eb3e487cc42d2142841214ff779e06",
+    "runtime/ic_im_v1_4_r1/journal/000016-2026-10-16.json": "edad4fea50c266959cbb2c515bc5a26bae832f9627c430f0aa80dfeade68d707",
+    "runtime/ic_im_v1_4_r1/journal/000017-2026-10-19.json": "cb72267c5ab6a82c5f9c4ae78b2824536656319e3c03b4397a67ae4345d3bfce",
+    "runtime/ic_im_v1_4_r1/journal/000018-2026-10-20.json": "b0f0fa76beca9a0d2c2a715ef67c1f578fc9c4d5c73c91ae4ebd5a89c8139df6"
+  },
+  "runtime_unchanged": true,
+  "records": [
+    {
+      "file": "000000-2026-09-16.json",
+      "sequence": 0,
+      "verified_day": "2026-09-16",
+      "digest": "5f1761230e3681cdf0b8c09edb535c30b8b1e265978dcecfd319fc574d59a651",
+      "active_positions": [
+        {
+          "sleeve": "core",
+          "contract": "510500P2612M07500",
+          "security_id": "10012099",
+          "quantity": 12,
+          "quantity_field": "v14_core_put_qty",
+          "known_july_adjusted_id": false,
+          "label_is_a": false,
+          "exact_dated_master_verified": false
+        }
+      ],
+      "pending_plan_types": [],
+      "profit_pending": false
+    },
+    {
+      "file": "000001-2026-09-17.json",
+      "sequence": 1,
+      "verified_day": "2026-09-17",
+      "digest": "34627f62203522fdac96c9feeb36ea33f8648da3e6ae08930474bb0bac4f3fef",
+      "active_positions": [
+        {
+          "sleeve": "core",
+          "contract": "510500P2612M07500",
+          "security_id": "10012099",
+          "quantity": 12,
+          "quantity_field": "v14_core_put_qty",
+          "known_july_adjusted_id": false,
+          "label_is_a": false,
+          "exact_dated_master_verified": false
+        }
+      ],
+      "pending_plan_types": [],
+      "profit_pending": false
+    },
+    {
+      "file": "000002-2026-09-18.json",
+      "sequence": 2,
+      "verified_day": "2026-09-18",
+      "digest": "cfe99ad9c82a6748d6305beaf406f15b97ffbf0816f01ae6c87497bdf8a10791",
+      "active_positions": [
+        {
+          "sleeve": "core",
+          "contract": "510500P2612M07500",
+          "security_id": "10012099",
+          "quantity": 14,
+          "quantity_field": "v14_core_put_qty",
+          "known_july_adjusted_id": false,
+          "label_is_a": false,
+          "exact_dated_master_verified": false
+        }
+      ],
+      "pending_plan_types": [],
+      "profit_pending": false
+    },
+    {
+      "file": "000003-2026-09-21.json",
+      "sequence": 3,
+      "verified_day": "2026-09-21",
+      "digest": "3c7fff94e7cb3f29d0671c0bfa6506f1f98f46e2b75149b2ece92d391ef71ef0",
+      "active_positions": [
+        {
+          "sleeve": "core",
+          "contract": "510500P2612M07500",
+          "security_id": "10012099",
+          "quantity": 14,
+          "quantity_field": "v14_core_put_qty",
+          "known_july_adjusted_id": false,
+          "label_is_a": false,
+          "exact_dated_master_verified": false
+        }
+      ],
+      "pending_plan_types": [],
+      "profit_pending": false
+    },
+    {
+      "file": "000004-2026-09-22.json",
+      "sequence": 4,
+      "verified_day": "2026-09-22",
+      "digest": "9578e7ff8b7225c1b512625fd2d9c0fcee4e253afbcda76461fbc72e5b813431",
+      "active_positions": [],
+      "pending_plan_types": [],
+      "profit_pending": false
+    },
+    {
+      "file": "000005-2026-09-23.json",
+      "sequence": 5,
+      "verified_day": "2026-09-23",
+      "digest": "ede04639f0ceec7ab3fd438c675c29dc2b3a24bc71bea02f5a7321fd51bbf4e2",
+      "active_positions": [],
+      "pending_plan_types": [],
+      "profit_pending": false
+    },
+    {
+      "file": "000006-2026-09-24.json",
+      "sequence": 6,
+      "verified_day": "2026-09-24",
+      "digest": "83791979486516a8e567bc51493663a8dc515f2c62f938d47d19f823c05c1d95",
+      "active_positions": [],
+      "pending_plan_types": [],
+      "profit_pending": false
+    },
+    {
+      "file": "000007-2026-09-28.json",
+      "sequence": 7,
+      "verified_day": "2026-09-28",
+      "digest": "0472627afc272bcadb5114d6b72d52edd0a732a76a5ec87764469dcbd6dd0329",
+      "active_positions": [],
+      "pending_plan_types": [],
+      "profit_pending": false
+    },
+    {
+      "file": "000008-2026-09-29.json",
+      "sequence": 8,
+      "verified_day": "2026-09-29",
+      "digest": "8d67b1f48928dc49db8e769dafd125fd8a4d9d89c22627aeecf794f6c1d19ed2",
+      "active_positions": [],
+      "pending_plan_types": [
+        "v14_ordinary_put_pending"
+      ],
+      "profit_pending": false
+    },
+    {
+      "file": "000009-2026-09-30.json",
+      "sequence": 9,
+      "verified_day": "2026-09-30",
+      "digest": "f279667c5fd2cb39c0410ab62a5d026bdde69582f6968a417c17d3d47621f450",
+      "active_positions": [
+        {
+          "sleeve": "core",
+          "contract": "510500P2612M07500",
+          "security_id": "10012099",
+          "quantity": 10,
+          "quantity_field": "v14_core_put_qty",
+          "known_july_adjusted_id": false,
+          "label_is_a": false,
+          "exact_dated_master_verified": false
+        }
+      ],
+      "pending_plan_types": [],
+      "profit_pending": false
+    },
+    {
+      "file": "000010-2026-10-08.json",
+      "sequence": 10,
+      "verified_day": "2026-10-08",
+      "digest": "8b6e07f348fa372668fe312f83830b8c2e766934dfcc26023b5cd44485b3d4bb",
+      "active_positions": [
+        {
+          "sleeve": "core",
+          "contract": "510500P2612M07500",
+          "security_id": "10012099",
+          "quantity": 10,
+          "quantity_field": "v14_core_put_qty",
+          "known_july_adjusted_id": false,
+          "label_is_a": false,
+          "exact_dated_master_verified": false
+        }
+      ],
+      "pending_plan_types": [],
+      "profit_pending": false
+    },
+    {
+      "file": "000011-2026-10-09.json",
+      "sequence": 11,
+      "verified_day": "2026-10-09",
+      "digest": "605191012a20af54bad401993e0fb75e60ec26c0ef13f4ba11cd2ea52a314fe3",
+      "active_positions": [
+        {
+          "sleeve": "core",
+          "contract": "510500P2612M07500",
+          "security_id": "10012099",
+          "quantity": 10,
+          "quantity_field": "v14_core_put_qty",
+          "known_july_adjusted_id": false,
+          "label_is_a": false,
+          "exact_dated_master_verified": false
+        }
+      ],
+      "pending_plan_types": [],
+      "profit_pending": false
+    },
+    {
+      "file": "000012-2026-10-12.json",
+      "sequence": 12,
+      "verified_day": "2026-10-12",
+      "digest": "06f14b267ad55d307145cd47c273d359095eb49bbd466bd4980d06f2b7c47d32",
+      "active_positions": [
+        {
+          "sleeve": "core",
+          "contract": "510500P2612M07500",
+          "security_id": "10012099",
+          "quantity": 10,
+          "quantity_field": "v14_core_put_qty",
+          "known_july_adjusted_id": false,
+          "label_is_a": false,
+          "exact_dated_master_verified": false
+        }
+      ],
+      "pending_plan_types": [],
+      "profit_pending": false
+    },
+    {
+      "file": "000013-2026-10-13.json",
+      "sequence": 13,
+      "verified_day": "2026-10-13",
+      "digest": "4878c7b2bfdea824330aa43031e3675ee0fefbecd8790bb2cdbb811cf57685d7",
+      "active_positions": [
+        {
+          "sleeve": "core",
+          "contract": "510500P2612M07500",
+          "security_id": "10012099",
+          "quantity": 10,
+          "quantity_field": "v14_core_put_qty",
+          "known_july_adjusted_id": false,
+          "label_is_a": false,
+          "exact_dated_master_verified": false
+        }
+      ],
+      "pending_plan_types": [],
+      "profit_pending": false
+    },
+    {
+      "file": "000014-2026-10-14.json",
+      "sequence": 14,
+      "verified_day": "2026-10-14",
+      "digest": "ae7f11593d7e483e1706b1209130b04c9e3e4877358cfca0baf97b395944adfc",
+      "active_positions": [
+        {
+          "sleeve": "core",
+          "contract": "510500P2612M07500",
+          "security_id": "10012099",
+          "quantity": 10,
+          "quantity_field": "v14_core_put_qty",
+          "known_july_adjusted_id": false,
+          "label_is_a": false,
+          "exact_dated_master_verified": false
+        }
+      ],
+      "pending_plan_types": [],
+      "profit_pending": false
+    },
+    {
+      "file": "000015-2026-10-15.json",
+      "sequence": 15,
+      "verified_day": "2026-10-15",
+      "digest": "ea18004690504420ce43a69aad809b005c9663e57a50f6ee78a75b6f631971a3",
+      "active_positions": [
+        {
+          "sleeve": "core",
+          "contract": "510500P2612M07500",
+          "security_id": "10012099",
+          "quantity": 10,
+          "quantity_field": "v14_core_put_qty",
+          "known_july_adjusted_id": false,
+          "label_is_a": false,
+          "exact_dated_master_verified": false
+        }
+      ],
+      "pending_plan_types": [],
+      "profit_pending": false
+    },
+    {
+      "file": "000016-2026-10-16.json",
+      "sequence": 16,
+      "verified_day": "2026-10-16",
+      "digest": "c5094a973b0276621b1200facc49ef08bcfd7bc968f9b7b12b17e5cf3a9dc7e6",
+      "active_positions": [
+        {
+          "sleeve": "core",
+          "contract": "510500P2612M06500",
+          "security_id": "10012149",
+          "quantity": 15,
+          "quantity_field": "v14_core_put_qty",
+          "known_july_adjusted_id": false,
+          "label_is_a": false,
+          "exact_dated_master_verified": false
+        }
+      ],
+      "pending_plan_types": [],
+      "profit_pending": false
+    },
+    {
+      "file": "000017-2026-10-19.json",
+      "sequence": 17,
+      "verified_day": "2026-10-19",
+      "digest": "b7ec318cfee37dff1ae4b45e5d33f2920bef37047aa9dec9a72068d58bb34e89",
+      "active_positions": [
+        {
+          "sleeve": "core",
+          "contract": "510500P2612M06500",
+          "security_id": "10012149",
+          "quantity": 15,
+          "quantity_field": "v14_core_put_qty",
+          "known_july_adjusted_id": false,
+          "label_is_a": false,
+          "exact_dated_master_verified": false
+        }
+      ],
+      "pending_plan_types": [],
+      "profit_pending": false
+    },
+    {
+      "file": "000018-2026-10-20.json",
+      "sequence": 18,
+      "verified_day": "2026-10-20",
+      "digest": "3067a5402c01e39ad5a5a2783183067a7daf442a19769e43d0fc845bb31fc013",
+      "active_positions": [
+        {
+          "sleeve": "core",
+          "contract": "510500P2612M06500",
+          "security_id": "10012149",
+          "quantity": 15,
+          "quantity_field": "v14_core_put_qty",
+          "known_july_adjusted_id": false,
+          "label_is_a": false,
+          "exact_dated_master_verified": true
+        }
+      ],
+      "pending_plan_types": [],
+      "profit_pending": false
+    }
+  ],
+  "record_count": 19,
+  "latest_sequence": 18,
+  "latest_day": "2026-10-20",
+  "known_july_adjustment_exposures": [],
+  "real_a_quote_crosschecks": [
+    {
+      "security_id": "10011470",
+      "contract": "510500P2612A07500",
+      "strike": "7.367",
+      "unit": 10180,
+      "valid_from": "2026-07-15",
+      "valid_through": "2026-12-23",
+      "source_hash": "5db1ed7e256d62749c3ee02e0492dda54078ddabba9d1fc032eae78a891933ae",
+      "expiry": "2026-12-23",
+      "availability_day": "2026-10-21"
+    },
+    {
+      "security_id": "10011471",
+      "contract": "510500P2612A07750",
+      "strike": "7.613",
+      "unit": 10180,
+      "valid_from": "2026-07-15",
+      "valid_through": "2026-12-23",
+      "source_hash": "5db1ed7e256d62749c3ee02e0492dda54078ddabba9d1fc032eae78a891933ae",
+      "expiry": "2026-12-23",
+      "availability_day": "2026-10-21"
+    },
+    {
+      "security_id": "10011472",
+      "contract": "510500P2612A08000",
+      "strike": "7.859",
+      "unit": 10180,
+      "valid_from": "2026-07-15",
+      "valid_through": "2026-12-23",
+      "source_hash": "5db1ed7e256d62749c3ee02e0492dda54078ddabba9d1fc032eae78a891933ae",
+      "expiry": "2026-12-23",
+      "availability_day": "2026-10-21"
+    },
+    {
+      "security_id": "10011473",
+      "contract": "510500P2612A08250",
+      "strike": "8.104",
+      "unit": 10180,
+      "valid_from": "2026-07-15",
+      "valid_through": "2026-12-23",
+      "source_hash": "5db1ed7e256d62749c3ee02e0492dda54078ddabba9d1fc032eae78a891933ae",
+      "expiry": "2026-12-23",
+      "availability_day": "2026-10-21"
+    },
+    {
+      "security_id": "10011474",
+      "contract": "510500P2612A08500",
+      "strike": "8.350",
+      "unit": 10180,
+      "valid_from": "2026-07-15",
+      "valid_through": "2026-12-23",
+      "source_hash": "5db1ed7e256d62749c3ee02e0492dda54078ddabba9d1fc032eae78a891933ae",
+      "expiry": "2026-12-23",
+      "availability_day": "2026-10-21"
+    },
+    {
+      "security_id": "10011475",
+      "contract": "510500P2612A08750",
+      "strike": "8.595",
+      "unit": 10180,
+      "valid_from": "2026-07-15",
+      "valid_through": "2026-12-23",
+      "source_hash": "5db1ed7e256d62749c3ee02e0492dda54078ddabba9d1fc032eae78a891933ae",
+      "expiry": "2026-12-23",
+      "availability_day": "2026-10-21"
+    },
+    {
+      "security_id": "10011476",
+      "contract": "510500P2612A09000",
+      "strike": "8.841",
+      "unit": 10180,
+      "valid_from": "2026-07-15",
+      "valid_through": "2026-12-23",
+      "source_hash": "5db1ed7e256d62749c3ee02e0492dda54078ddabba9d1fc032eae78a891933ae",
+      "expiry": "2026-12-23",
+      "availability_day": "2026-10-21"
+    },
+    {
+      "security_id": "10011477",
+      "contract": "510500P2612A09250",
+      "strike": "9.086",
+      "unit": 10180,
+      "valid_from": "2026-07-15",
+      "valid_through": "2026-12-23",
+      "source_hash": "5db1ed7e256d62749c3ee02e0492dda54078ddabba9d1fc032eae78a891933ae",
+      "expiry": "2026-12-23",
+      "availability_day": "2026-10-21"
+    },
+    {
+      "security_id": "10011478",
+      "contract": "510500P2612A09500",
+      "strike": "9.332",
+      "unit": 10180,
+      "valid_from": "2026-07-15",
+      "valid_through": "2026-12-23",
+      "source_hash": "5db1ed7e256d62749c3ee02e0492dda54078ddabba9d1fc032eae78a891933ae",
+      "expiry": "2026-12-23",
+      "availability_day": "2026-10-21"
+    },
+    {
+      "security_id": "10011520",
+      "contract": "510500P2612A07250",
+      "strike": "7.122",
+      "unit": 10180,
+      "valid_from": "2026-07-15",
+      "valid_through": "2026-12-23",
+      "source_hash": "5db1ed7e256d62749c3ee02e0492dda54078ddabba9d1fc032eae78a891933ae",
+      "expiry": "2026-12-23",
+      "availability_day": "2026-10-21"
+    },
+    {
+      "security_id": "10011552",
+      "contract": "510500P2612A09750",
+      "strike": "9.578",
+      "unit": 10180,
+      "valid_from": "2026-07-15",
+      "valid_through": "2026-12-23",
+      "source_hash": "5db1ed7e256d62749c3ee02e0492dda54078ddabba9d1fc032eae78a891933ae",
+      "expiry": "2026-12-23",
+      "availability_day": "2026-10-21"
+    },
+    {
+      "security_id": "10011600",
+      "contract": "510500P2612A10000",
+      "strike": "9.823",
+      "unit": 10180,
+      "valid_from": "2026-07-15",
+      "valid_through": "2026-12-23",
+      "source_hash": "5db1ed7e256d62749c3ee02e0492dda54078ddabba9d1fc032eae78a891933ae",
+      "expiry": "2026-12-23",
+      "availability_day": "2026-10-21"
+    },
+    {
+      "security_id": "10011810",
+      "contract": "510500P2612A07000",
+      "strike": "6.876",
+      "unit": 10180,
+      "valid_from": "2026-07-15",
+      "valid_through": "2026-12-23",
+      "source_hash": "5db1ed7e256d62749c3ee02e0492dda54078ddabba9d1fc032eae78a891933ae",
+      "expiry": "2026-12-23",
+      "availability_day": "2026-10-21"
+    },
+    {
+      "security_id": "10012002",
+      "contract": "510500P2612A10500",
+      "strike": "10.314",
+      "unit": 10180,
+      "valid_from": "2026-07-15",
+      "valid_through": "2026-12-23",
+      "source_hash": "5db1ed7e256d62749c3ee02e0492dda54078ddabba9d1fc032eae78a891933ae",
+      "expiry": "2026-12-23",
+      "availability_day": "2026-10-21"
+    }
+  ],
+  "real_a_put_crosscheck_count": 14,
+  "fixture_hashes": {
+    "sse_december_identity.json": "327aacd4c032bda5be4535ad6ef2312fe179ea791a293b81944368a0003476b7",
+    "sse_adjustment_20260715.json": "85f3f74d8c088e586d7d6275697f104ad5a5774a1e32bc32217db178b5557596",
+    "sse_contract_master.json": "22ebf371548b9c64f0cdab36bf263aa48ad525c702a4e672d37529b0ba940425",
+    "official_adjustment.bin": "1042ff0c9e5b8237ca2ef9e75cfd7d4809571f94c87ebc6f984e1d11c11dcf6f"
+  },
+  "master_actual_date": "2026-10-20",
+  "quote_actual_date": "2026-10-21",
+  "quote_is_intraday": true,
+  "cost_examples_are_synthetic": true,
+  "engine_a_supported": false,
+  "blockers": [
+    "No independently verified daily master for the other historical dates",
+    "A unit/cash/plan migration is not wired into the production engine",
+    "Normalized short quantity is not an account contract count",
+    "Local inventory does not establish broker or remote holdings"
+  ]
+}

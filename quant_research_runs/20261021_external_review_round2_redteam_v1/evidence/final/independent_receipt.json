@@ -1,0 +1,29 @@
+{
+  "started_at": "2026-10-21T06:46:21.230168+00:00",
+  "finished_at": "2026-10-21T06:46:22.847153+00:00",
+  "process_exit_code": 0,
+  "source_before_equals_after": true,
+  "bound_files": 10,
+  "counts": {
+    "tests": 27,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "extra_ast_check_passed": true,
+  "runtime_observation": {
+    "sha256": "b0f0fa76beca9a0d2c2a715ef67c1f578fc9c4d5c73c91ae4ebd5a89c8139df6",
+    "sequence": 18,
+    "verified_day": "2026-10-20",
+    "exception": "Concurrent seq18 differs from audit-start seq17; this auditor performed no runtime write or restore."
+  },
+  "passed": true,
+  "artifacts": {
+    "integration_mock_ast.json": "f914e0c8ab05645e9fed6ff712fd66d19ec7bd42d08b39a3b3cfa4a9870fdf20",
+    "regression.txt": "cc68703183ac36d8b154e4479a56591b767eb5e02bbcdf16c5ee84cc56a9d986",
+    "regression.xml": "1b4b3bdcd11d1f503ef9cf319f866415c54d8affcd715fb950f821f43f10a520",
+    "source_after.json": "b3429b1bde61c21ecec53c10c9cfd46e9a74530fe71f09fbc110a43cf90f0c57",
+    "source_before.json": "b3429b1bde61c21ecec53c10c9cfd46e9a74530fe71f09fbc110a43cf90f0c57",
+    "test_run.json": "407ce6c6986fff597063a1dbe5a34a6746239d151c35550ed5baeabf99e32772"
+  }
+}

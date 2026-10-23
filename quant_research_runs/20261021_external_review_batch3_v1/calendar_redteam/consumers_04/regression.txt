@@ -1,0 +1,56 @@
+FF                                                                       [100%]
+================================== FAILURES ===================================
+_____ test_dedicated_ic_core_delta_sizing_checks_expiry_before_arithmetic _____
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001BD65F47100>
+
+    def test_dedicated_ic_core_delta_sizing_checks_expiry_before_arithmetic(monkeypatch):
+        day=date(2026,10,21)
+        stamp=dict(date=day,time='154000',source='synthetic_calendar_boundary')
+        chain=pd.DataFrame([dict(contract='510500P2703M07500',security_id='10012099',
+            strike=7.5,last=.5,source_stamp=datetime(2026,10,21,15,0,tzinfo=bot.BEIJING))])
+        monkeypatch.setattr(bot,'_fetch_510500_chain_for_day',lambda *a:(chain,stamp))
+        monkeypatch.setattr(bot,'_now_beijing',lambda:datetime(2026,10,21,15,40,tzinfo=bot.BEIJING))
+        monkeypatch.setattr(bot,'_validate_chain_stamp_matches',lambda *a:None)
+        monkeypatch.setattr(bot,'_gov10y_for_day',lambda *a:.02)
+        monkeypatch.setattr(bot,'_implied_volatility',lambda *a:.2)
+        monkeypatch.setattr(bot,'_bs_price_delta',lambda *a:(.5,-.25))
+        anchor=dict(v14_core_put_contract='510500P2703M07500',
+                    v14_core_put_security_id='10012099',v14_core_put_qty=5,
+                    verified_core_put_delta=.25)
+        signal=dict(market_date=day,option_monthly_reset_due=False,
+                    core_put_target_delta=.5,etf_price=7.5,future_last=7500.,
+                    put_target_momentum_qty=0)
+>       with pytest.raises(RuntimeError,match='2027'):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+test_icim_batch3_calendar_redteam_20261021.py:102: Failed
+___________ test_public_im_builder_checks_unknown_held_core_expiry ____________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001BD65F47820>
+
+    def test_public_im_builder_checks_unknown_held_core_expiry(monkeypatch):
+        # Actual builder/policy with synthetic restored holding and market rows.
+        # The fixture's verified quantities are preserved; only the held month and
+        # its matching observed quote are moved across the official-year boundary.
+        import test_icim_batch3_old_call_20261021 as legacy
+        anchors,quotes=legacy.wire(monkeypatch,held=False)
+        bot.LIVE_CONTINUATION_ANCHOR['IM']['post_core_put_contract']='MO2703-P-7200'
+        quotes.loc[quotes.instrument.eq('MO2612-P-7200'),'instrument']='MO2703-P-7200'
+        quotes.attrs['listed_instruments']=list(quotes.instrument)
+>       with pytest.raises(RuntimeError,match='2027'):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+test_icim_batch3_calendar_redteam_20261021.py:115: Failed
+============================== warnings summary ===============================
+C:\Python314\Lib\site-packages\fastapi_poe\types.py:171
+  C:\Python314\Lib\site-packages\fastapi_poe\types.py:171: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    class RequestContext(BaseModel):
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED test_icim_batch3_calendar_redteam_20261021.py::test_dedicated_ic_core_delta_sizing_checks_expiry_before_arithmetic
+FAILED test_icim_batch3_calendar_redteam_20261021.py::test_public_im_builder_checks_unknown_held_core_expiry
+2 failed, 7 deselected, 1 warning in 2.02s

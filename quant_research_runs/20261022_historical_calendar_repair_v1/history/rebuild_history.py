@@ -1,0 +1,220 @@
+"""Rebuild dated targets/candidates and replay the current-rule research account.
+
+All writes are to a fresh run directory. Source helpers and account equations
+are reused without rewriting historical files or weakening production guards.
+"""
+from __future__ import annotations
+
+import argparse
+import hashlib
+import importlib.util
+import json
+import os
+import re
+import sys
+import time
+import traceback
+from copy import deepcopy
+from datetime import date, datetime, timezone
+from pathlib import Path
+from unittest.mock import patch
+
+ROOT = Path(__file__).resolve().parents[3]
+RUN = Path(__file__).resolve().parents[1]
+NATIVE = ROOT / 'outputs/re_certification/icim_v14_fix4_recert_20260924/l5_native_signal_reconstruction_20260925'
+STUDY = ROOT / 'quant_param_scan_runs/20260926_icim_fix8_momentum_transfer_robustness'
+HIST = ROOT / 'quant_research_runs/20261016_put_execution_repairs_v1'
+PAIRED = ROOT / 'quant_param_scan_runs/20260928_fear_entry_paired_exit_fix9_certified_v2'
+
+
+def sha(path):
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+
+
+def load(name, path):
+    spec = importlib.util.spec_from_file_location(name, path)
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[name] = module
+    spec.loader.exec_module(module)
+    return module
+
+
+class HistoricalICBinding:
+    """Track entry-selected security IDs; never adopt an ID from a resize quote."""
+    def __init__(self, formal):
+        self.formal = formal
+        self.selected_ids = {}
+        self.identity_checks = 0
+        self.select_id = formal._ic_put_selected_security_id
+        self.original_resize = formal._size_existing_ic_put
+
+    def selected_security(self, row):
+        security = self.select_id(row)
+        self.selected_ids[str(row['contract'])] = str(security)
+        return security
+
+    def resize(self, contract, quote, *args, **kwargs):
+        expected = self.selected_ids.get(str(contract))
+        if not expected or not re.fullmatch(r'[0-9]{8}', expected):
+            raise RuntimeError('historical held IC security was not established at entry')
+        actual_code = quote.get('contract', quote.name)
+        if str(quote.get('security_id')) != expected or str(actual_code) != str(contract):
+            raise RuntimeError('historical held IC identity changed; cannot adopt re-listed same-name M')
+        with self.formal.STRATEGY_QUERY_LOCK:
+            old = self.formal.LIVE_CONTINUATION_ANCHOR['IC']
+            projected = deepcopy(old)
+            projected.update(post_put_contract=str(contract), post_put_security_id=expected)
+            self.formal.LIVE_CONTINUATION_ANCHOR['IC'] = projected
+            try:
+                result = self.original_resize(contract, quote, *args, **kwargs)
+            finally:
+                self.formal.LIVE_CONTINUATION_ANCHOR['IC'] = old
+        self.identity_checks += 1
+        return result
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--stage', default='rebuilt_01')
+    args = parser.parse_args()
+    if not re.fullmatch(r'[A-Za-z0-9_]+', args.stage):
+        raise ValueError('invalid stage')
+    out = RUN / args.stage
+    out.mkdir(exist_ok=False)
+    inputs = out / 'inputs'
+    inputs.mkdir()
+    os.environ['ICIM_STATE_DIR'] = str(out / 'temporary_state')
+    sys.dont_write_bytecode = True
+    sys.path[:0] = [str(ROOT), str(STUDY), str(NATIVE)]
+    import numpy as np
+    import pandas as pd
+    import requests
+    network = []
+    def offline(self, method, url, *a, **kw):
+        network.append(str(url))
+        raise RuntimeError('RESEARCH_OFFLINE_NETWORK_BLOCKED: ' + str(url))
+    requests.sessions.Session.request = offline
+    import poe_ic_im_mainline_v1_4_bot as formal
+    import native_fix4_risk_signals_v1 as risk_engine
+    import native_fix4_ic_noseller_targets_v1 as ic_engine
+    import native_fix4_im_noseller_targets_v1 as im_engine
+    import native_fix4_seller_candidates_v1 as candidate_engine
+    from native_fix4_historical_sources_v2 import DatedSources
+
+    class CachedSources(DatedSources):
+        """Cache validated raw rows; return copies before any paper-fill transforms."""
+        def __init__(self):
+            super().__init__()
+            self.ic_cache, self.mo_cache, self.future_cache = {}, {}, {}
+        def ic_on(self, day):
+            if day not in self.ic_cache:
+                self.ic_cache[day] = super().ic_on(day)
+            spot, frame = self.ic_cache[day]
+            return spot, frame.copy(deep=True)
+        def im_mo_on(self, day):
+            if day not in self.mo_cache:
+                self.mo_cache[day] = super().im_mo_on(day)
+            return self.mo_cache[day].copy(deep=True)
+        def futures_on(self, product, day):
+            key = product, day
+            if key not in self.future_cache:
+                self.future_cache[key] = super().futures_on(product, day)
+            return self.future_cache[key].copy(deep=True)
+
+    source = CachedSources()
+    paired = load('calendar_repaired_fear_pairs', PAIRED / 'run_scan.py')
+    old_history = load('calendar_repaired_history_metrics', HIST / 'run_history.py')
+    lifecycle = load('calendar_repaired_execution_cost_lifecycle', HIST / 'seller_lifecycle_execution_cost.py')
+    anchor_before = deepcopy(formal.LIVE_CONTINUATION_ANCHOR)
+    start = time.monotonic()
+    receipt = {'started_at': datetime.now(timezone.utc).isoformat(),
+               'formal_bot_sha256': sha(formal.__file__), 'policy_sha256': sha(formal.v14_policy.__file__),
+               'calendar_years': sorted(formal._OFFICIAL_EXCHANGE_CALENDAR_YEARS),
+               'policy': 'current imported policy, not the pinned pre-10/16 control',
+               'scope': 'listed-history theoretical account; reconstructed IC membership, retrospective Fear and ordinary-buyer proxies remain disclosed',
+               'counterfactual_effective_dates': {'IC_momentum': '1900-01-01', 'IC_seller_MOM120': '1900-01-01'},
+               'network_attempts': network, 'phases': {}}
+    error = None
+    original_seller_effective = formal.v14_policy.IC_SELLER_MOM120_EFFECTIVE_SIGNAL_DATE
+    try:
+        # Match the 10/16 as-if-current control: IC admission uses MOM120 >= 0
+        # throughout history. Production's forward-only date remains unchanged.
+        formal.v14_policy.IC_SELLER_MOM120_EFFECTIVE_SIGNAL_DATE = date(1900, 1, 1)
+        fear = pd.read_csv(paired.listed.FEAR_FILE).set_index('date').fear_greed_index
+        risks = {}
+        for product in ['IC', 'IM']:
+            with patch.object(formal, 'IC_MOMENTUM_EFFECTIVE_SIGNAL_DATE', date(1900, 1, 1)):
+                raw, audit = risk_engine.produce(product, source)
+            risk, signals, grid_audit = paired.build_targets(raw, fear, product, 50.)
+            risks[product] = risk
+            risk.to_csv(inputs / f'native_fix4_{product.lower()}_risk_signals_v1.csv.gz', index=False, compression='gzip')
+            signals.to_csv(out / f'{product.lower()}_grid_signals.csv', index=False)
+            receipt['phases'][f'{product}_risk'] = {'raw': audit, 'grid': grid_audit}
+        binding = HistoricalICBinding(formal)
+        with patch.object(ic_engine, 'HERE', inputs), patch.object(ic_engine, 'DatedSources', return_value=source), \
+             patch.object(formal, '_ic_put_selected_security_id', side_effect=binding.selected_security), \
+             patch.object(formal, '_size_existing_ic_put', side_effect=binding.resize):
+            ic_engine.main(version='v2')
+        receipt['phases']['IC_identity_checks'] = binding.identity_checks
+        with patch.object(im_engine, 'HERE', inputs), patch.object(im_engine, 'DatedSources', return_value=source), \
+             patch.object(formal, 'select_im_call_d10', return_value=None), \
+             patch.object(formal, 'select_im_call_rescue', return_value=None):
+            im_engine.main(version='v3')
+        for product, version in [('IC', 'v2'), ('IM', 'v3')]:
+            audit = json.loads((inputs / f'native_fix4_{product.lower()}_noseller_targets_{version}.json').read_text(encoding='utf-8'))
+            receipt['phases'][f'{product}_targets'] = audit
+            if audit['fail_closed_events']:
+                raise RuntimeError(f'{product}: target evidence unresolved; refusing account replay')
+        with patch.object(candidate_engine, 'HERE', inputs), patch.object(candidate_engine, 'DatedSources', return_value=source):
+            candidate_engine.main()
+        candidates = pd.read_csv(inputs / 'native_fix4_seller_candidates_v1.csv.gz')
+        gov = pd.read_csv(ROOT / 'data/ic_im_valuation_risk_premium_forecast_v4/chinabond_government_10y.csv', parse_dates=['date']).set_index('date').gov10y_yield
+        spot = pd.read_csv(risk_engine.OHLCV['IM'], parse_dates=['date']).set_index('date').close
+        daily_frames, event_frames = [], []
+        for product in ['IC', 'IM']:
+            lifecycle.HERE, lifecycle.VERSION = inputs, 'v4'
+            life, life_audit = lifecycle.run(product, 'repeat_roll', source, gov, spot)
+            if life.action.eq('HOLD_FAIL_CLOSED').any():
+                raise RuntimeError(f'{product}: fail-closed lifecycle is not a complete research target')
+            entries = life.loc[life.action.isin(['ENTER_SHORT_PUT', 'ROLL_SHORT_PUT'])]
+            assert np.array_equal(entries.entry_premium_state_after.to_numpy(float), entries.fill_new_t1.to_numpy(float))
+            life.to_csv(out / f'{product.lower()}_seller_lifecycle.csv.gz', index=False, compression='gzip')
+            paired.listed.grid_scan.configure_account(inputs)
+            account = paired.listed.grid_scan.account_stage
+            daily, events, audit = account.replay(product, 'repeat_roll', source, life, candidates, gov, spot)
+            assert len(daily) == len(risks[product]) and daily.nav.gt(0).all() and np.isfinite(daily.nav).all()
+            assert (daily.cash_close - daily.margin_reserved).min() >= -1e-7
+            assert not events.loc[events.event.eq('trade'), 'symbol'].astype(str).str.startswith('option|call|').any()
+            r = daily.return_net.to_numpy(float)
+            assert np.max(np.abs(np.cumprod(1 + r) - daily.nav.to_numpy(float))) < 1e-10
+            daily['product'], daily['arm'] = product, 'calendar_rebuilt'
+            events['product'], events['arm'] = product, 'calendar_rebuilt'
+            daily_frames.append(daily); event_frames.append(events)
+            receipt['phases'][f'{product}_account'] = {'lifecycle': life_audit, 'account': audit, 'metrics': old_history.metrics(daily)}
+            print(json.dumps({'product': product, 'status': 'account_complete', **old_history.metrics(daily)}, ensure_ascii=False), flush=True)
+        pd.concat(daily_frames, ignore_index=True).to_csv(out / 'daily_paths.csv.gz', index=False, compression='gzip')
+        pd.concat(event_frames, ignore_index=True).to_csv(out / 'events.csv.gz', index=False, compression='gzip')
+        receipt['status'] = 'PASS'
+    except Exception as exc:
+        error = exc
+        receipt.update(status='FAIL', error_type=type(exc).__name__, error=str(exc), traceback=traceback.format_exc())
+        traceback.print_exc()
+    finally:
+        formal.v14_policy.IC_SELLER_MOM120_EFFECTIVE_SIGNAL_DATE = original_seller_effective
+        receipt['anchors_unchanged'] = formal.LIVE_CONTINUATION_ANCHOR == anchor_before
+        receipt['seconds'] = time.monotonic() - start
+        receipt['finished_at'] = datetime.now(timezone.utc).isoformat()
+        receipt['loaded_sources'] = {}
+        for module in list(sys.modules.values()):
+            p = Path(getattr(module, '__file__', '') or '.')
+            if p.is_file() and p.suffix == '.py' and p.is_relative_to(ROOT):
+                receipt['loaded_sources'][str(p.relative_to(ROOT))] = sha(p)
+        (out / 'receipt.json').write_text(json.dumps(receipt, ensure_ascii=False, indent=2, default=str) + '\n', encoding='utf-8')
+        print(json.dumps({'stage': args.stage, 'status': receipt['status'], 'seconds': receipt['seconds'],
+                          'network_attempts': len(network), 'anchors_unchanged': receipt['anchors_unchanged']}, ensure_ascii=False), flush=True)
+    if error:
+        raise SystemExit(1)
+
+
+if __name__ == '__main__':
+    main()

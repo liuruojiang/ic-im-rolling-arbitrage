@@ -1,0 +1,10 @@
+{
+  "config_sha256": "a949cd5d59670391889a230a8fd70640dd4972dce5583d7a7f7e8471acf1e3dc",
+  "status": "ACTIVE",
+  "rrule": "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR;BYHOUR=14;BYMINUTE=30;BYSECOND=0",
+  "model": "gpt-6.1-sol",
+  "mentions_runbook": true,
+  "mentions_old_38_files": true,
+  "mentions_new_runner": false,
+  "mentions_current_workflow_pin": true
+}

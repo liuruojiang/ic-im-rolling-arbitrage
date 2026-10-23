@@ -1,0 +1,18 @@
+{
+  "checked_at": "2026-10-21T09:49:53.608844+00:00",
+  "backup_files": 1163,
+  "bad_backups": [],
+  "protected_outputs": 6795,
+  "bad_outputs": [],
+  "protected_prior_evidence": 26680,
+  "bad_prior": [],
+  "changed_existing": [
+    "poe_ic_im_mainline_v1_4_bot.py",
+    "poe_ic_im_v1_4_server.py",
+    "poe_ic_im_v1_4_state.py"
+  ],
+  "runtime_ledger_count": 142,
+  "runtime_ledger_unchanged": true,
+  "runtime_json_added": [],
+  "runtime_json_missing": []
+}

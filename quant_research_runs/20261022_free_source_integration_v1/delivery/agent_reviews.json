@@ -1,0 +1,33 @@
+{
+  "recorded_at": "2026-10-22T18:39:43.901698+08:00",
+  "scope": "correctness, evidence replay, historical isolation and local read-only deployment; not a security scan",
+  "reviews": [
+    {
+      "agent": "free_sources_audit",
+      "findings_fixed": [
+        "actual observation clock",
+        "canonical month aliases before cache",
+        "stale four-month listing rejection"
+      ],
+      "final_wire_review": "no new blocker; exact Sina endpoints only, logical dict evidence key unchanged; real 64-ID batch exact"
+    },
+    {
+      "agent": "free_replay_audit",
+      "findings_fixed": [
+        "serial capture budget starvation",
+        "strict fact-vs-metadata replay comparison",
+        "archive locking and same-key fetch coalescing",
+        "nested legacy role double-accounting"
+      ],
+      "final_review": "no current lock or evidence-integrity bypass in present call DAG",
+      "limitation": "third-party fixed HTTP timeout means configured budgets are not absolute wall-clock guarantees"
+    },
+    {
+      "agent": "free_history_deploy_audit",
+      "historical_review": "math/historical functions unchanged; protected historical artifacts unchanged",
+      "deployment_finding_fixed": "pin omitted im_put_policy.py; first process stopped, original pin preserved, 28-file replacement covers all 16 local dependencies",
+      "final_review": "no new path, pin coverage or read-only boundary blocker",
+      "machine_acceptance": "deployment_acceptance.json is independent process/capture verification"
+    }
+  ]
+}

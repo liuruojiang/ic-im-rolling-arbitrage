@@ -1,0 +1,16 @@
+[
+  {
+    "case": "valid",
+    "expected_exit": 0,
+    "exit": 0,
+    "network_attempts": 0,
+    "status": "PASS"
+  },
+  {
+    "case": "missing",
+    "expected_exit": 2,
+    "exit": 2,
+    "network_attempts": 0,
+    "status": "PASS"
+  }
+]

@@ -1,0 +1,43 @@
+{
+  "created_at": "2026-10-22T01:41:24.684569+00:00",
+  "current_prior_artifacts_and_runtime": {
+    "checked": 265,
+    "unchanged": true,
+    "differences": []
+  },
+  "preceding_protected_set": {
+    "checked": 231,
+    "unchanged": true,
+    "differences": []
+  },
+  "earlier_protected_set": {
+    "checked": 2421,
+    "unchanged": true,
+    "differences": []
+  },
+  "oldest_protected_set": {
+    "checked": 7691,
+    "unchanged": true,
+    "differences": []
+  },
+  "backup": {
+    "checked": 6,
+    "unchanged": true,
+    "differences": []
+  },
+  "source_delta": {
+    "changed_prior_bound_files": [
+      "ic_im_signal_evidence_v1.py"
+    ],
+    "unexpected_changes": []
+  },
+  "runtime": {
+    "files": 155,
+    "json_files": 142,
+    "paths_equal": true,
+    "added": [],
+    "missing": []
+  },
+  "quarter_roll_copy_matches_source": true,
+  "passed": true
+}

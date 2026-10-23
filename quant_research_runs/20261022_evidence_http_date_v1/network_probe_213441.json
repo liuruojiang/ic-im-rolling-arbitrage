@@ -1,0 +1,62 @@
+{
+  "observed_at": "2026-10-22T21:34:24.669326+08:00",
+  "proxies": [
+    {
+      "name": "HTTP_PROXY",
+      "scheme": "http",
+      "host": "127.0.0.1",
+      "port": 3128,
+      "contains_auth": false,
+      "tcp_reachable": true
+    },
+    {
+      "name": "HTTPS_PROXY",
+      "scheme": "http",
+      "host": "127.0.0.1",
+      "port": 3128,
+      "contains_auth": false,
+      "tcp_reachable": true
+    },
+    {
+      "name": "ALL_PROXY",
+      "scheme": "socks5h",
+      "host": "127.0.0.1",
+      "port": 8081,
+      "contains_auth": false,
+      "tcp_reachable": true
+    }
+  ],
+  "requests": [
+    {
+      "url": "https://www.rfc-editor.org/rfc/rfc9110.html",
+      "started_at": "2026-10-22T21:34:24.731392+08:00",
+      "status": 200,
+      "server": "cloudflare",
+      "content_type": "text/html",
+      "finished_at": "2026-10-22T21:34:32.989501+08:00"
+    },
+    {
+      "url": "https://yunhq.sse.com.cn:32042/v1/sho/list/tstyle/510500_12",
+      "started_at": "2026-10-22T21:34:24.731878+08:00",
+      "error_type": "ProxyError",
+      "error": "HTTPSConnectionPool(host='yunhq.sse.com.cn', port=32042): Max retries exceeded with url: /v1/sho/list/tstyle/510500_12 (Caused by ProxyError('Cannot connect to proxy.', TimeoutError('timed out')))",
+      "finished_at": "2026-10-22T21:34:36.741902+08:00"
+    },
+    {
+      "url": "https://hq.sinajs.cn/etag.php?list=sh510500",
+      "started_at": "2026-10-22T21:34:24.732329+08:00",
+      "status": 403,
+      "server": null,
+      "content_type": null,
+      "finished_at": "2026-10-22T21:34:41.243874+08:00"
+    },
+    {
+      "url": "http://www.cffex.com.cn/quote_IC.txt",
+      "started_at": "2026-10-22T21:34:24.732862+08:00",
+      "status": 200,
+      "server": null,
+      "content_type": "text/plain",
+      "finished_at": "2026-10-22T21:34:35.503369+08:00"
+    }
+  ]
+}

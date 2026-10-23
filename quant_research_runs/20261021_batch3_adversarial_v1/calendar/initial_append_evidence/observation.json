@@ -1,0 +1,38 @@
+{
+  "source_stage": "calendar/initial_01",
+  "note": "Synthetic records through unmocked real StateStore append in temporary directories. No production ledger write.",
+  "counterexamples": [
+    {
+      "case": "test_pending_target_with_alter1",
+      "contract": "MO２７０３-P-8200",
+      "sequence": 1,
+      "verified_day": "2026-09-30",
+      "digest": "26489c4bb18ef9368dc78eb5fbc3950c0c617e6aff32e7e3e089eab238ad5d92",
+      "synthetic": true
+    },
+    {
+      "case": "test_pending_target_with_alter2",
+      "contract": "MO٢٧٠٣-P-8200",
+      "sequence": 1,
+      "verified_day": "2026-09-30",
+      "digest": "6f18a4e72b3d1c16c2c505b3e9cc18bd824b291570f28feea8163e4c7dfd2bfd",
+      "synthetic": true
+    },
+    {
+      "case": "test_pending_target_with_alter3",
+      "contract": "MO2703-P-８２００",
+      "sequence": 1,
+      "verified_day": "2026-09-30",
+      "digest": "1d2930f148206339942790f55ebd1e0b8c98db1e28550cf9057fc39cc1f896cf",
+      "synthetic": true
+    },
+    {
+      "case": "test_pending_target_with_alter4",
+      "contract": "MO2703-P-8200.0",
+      "sequence": 1,
+      "verified_day": "2026-09-30",
+      "digest": "9043eddcc470d6b6318609f79738bb9f8ed85ce4bda1297d74cfc0db5035b366",
+      "synthetic": true
+    }
+  ]
+}

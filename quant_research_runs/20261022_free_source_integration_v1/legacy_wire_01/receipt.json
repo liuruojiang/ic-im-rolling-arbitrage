@@ -1,0 +1,20 @@
+{
+  "exit_code": 0,
+  "source_before_equals_after": true,
+  "source_files": 1012,
+  "stage": "legacy_wire_01",
+  "counts": {
+    "tests": 1,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "artifacts": {
+    "regression.xml": "3d72c652f7b5f0f02e23abda678ad3ed51381b9e62638edbcdc099892da5d1a4",
+    "regression.txt": "e511a51c4ec6889f77986f4a1371139479f184100a1e5d4cd65c4c163b78e49d",
+    "source_before.json": "e1240349bc22e9fa8cb77dda6a4ddac3ccbf9fb5ddf3f444fbb06d21cb433407",
+    "source_after.json": "e1240349bc22e9fa8cb77dda6a4ddac3ccbf9fb5ddf3f444fbb06d21cb433407",
+    "test_run.json": "eaf32fc286234b6dfed6eb85bcedafa4cd89074d8711dac701ad048242dd5815",
+    "collection.json": "ff43459017c757c8b80e0c21bb36330e7dc9c8ca00da73ff71a37c72ac03ac8d"
+  }
+}

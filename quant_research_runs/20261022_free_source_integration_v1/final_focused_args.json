@@ -1,0 +1,10 @@
+[
+  "test_icim_free_sources_20261022.py",
+  "test_icim_free_sources_adversarial_market_20261022.py",
+  "test_icim_free_sources_adversarial_history_20261022.py",
+  "test_icim_free_sources_adversarial_replay_20261022.py",
+  "test_icim_free_sources_parallel_capture_20261022.py",
+  "test_icim_evidence_parallel_20261022.py",
+  "test_icim_free_sources_capture_runner_20261022.py",
+  "test_icim_sina_literal_transport_20261022.py"
+]

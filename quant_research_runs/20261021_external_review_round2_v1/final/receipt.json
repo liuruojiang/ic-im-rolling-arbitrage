@@ -1,0 +1,23 @@
+{
+  "started_at": "2026-10-21T06:19:31.307629+00:00",
+  "finished_at": "2026-10-21T06:19:55.709689+00:00",
+  "exit_code": 0,
+  "source_before_equals_after": true,
+  "source_files": 845,
+  "counts": {
+    "tests": 1192,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "deselected": {
+    "test_icim_redteam_integration_20261021.py::test_frozen_source_receipt_matches_current_bytes": "Historical byte equality is valid for the pre-audit backup, not repaired source; retained unchanged."
+  },
+  "artifacts": {
+    "regression.txt": "3f3f013adce5fb1d7429a8c9c9075637536129186af42c95bbda99ee5c480239",
+    "regression.xml": "e27340d444621b43d8bc46325b96239d59014bb9a7020c2b23d7912e6b0d8175",
+    "source_after.json": "1cfa53fd7ff9852ef8cc7c0872af4afacedce4cd3ae9a9aceafd162fd91a493c",
+    "source_before.json": "1cfa53fd7ff9852ef8cc7c0872af4afacedce4cd3ae9a9aceafd162fd91a493c",
+    "test_run.json": "fed9744f38f086d9064f3a65f5feadb00e3fd1e620bed493860713cbcff99c0a"
+  }
+}

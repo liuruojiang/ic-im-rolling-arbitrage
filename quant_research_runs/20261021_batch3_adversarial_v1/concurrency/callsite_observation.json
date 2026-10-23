@@ -1,0 +1,31 @@
+{
+  "callsites": [
+    {
+      "file": "poe_ic_im_v1_4_server.py",
+      "line": 124,
+      "code": "def execute_query("
+    },
+    {
+      "file": "poe_ic_im_v1_4_server.py",
+      "line": 184,
+      "code": "text, _, observed = self.execute_query("
+    },
+    {
+      "file": "run_ic_im_v1_2_github_digest.py",
+      "line": 170,
+      "code": "report, attachments, observed = coordinator.execute_query("
+    },
+    {
+      "file": "run_ic_im_v1_3_github_digest.py",
+      "line": 256,
+      "code": "report, attachments, observed = coordinator.execute_query("
+    },
+    {
+      "file": "run_ic_im_v1_4_github_digest.py",
+      "line": 438,
+      "code": "report, attachments, observed = coordinator.execute_query("
+    }
+  ],
+  "scope": "current v1.4 coordinators and digest call sites; no current body/provider/observer calls execute_query recursively",
+  "initial_probe_classification": "6 unsupported-capability expectations failed; 5 supported lifecycle/locking probes passed; no current supported reentrant call topology established"
+}

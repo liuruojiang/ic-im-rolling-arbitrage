@@ -1,0 +1,53 @@
+{
+  "name": "sse_chain_primary",
+  "family": "SSE",
+  "url": "https://yunhq.sse.com.cn:32042/v1/sho/list/tstyle/510500_12",
+  "params": {
+    "select": "contractid,last,chg_rate,presetpx,exepx,code",
+    "order": "contractid,ase"
+  },
+  "started_at": "2026-10-22T16:59:25.479275+08:00",
+  "status": "RECEIVED",
+  "http_status": 200,
+  "bytes": 3568,
+  "sha256": "dfd0b211707cb4f1e9c12cafc9cb9edb74f7ef9aa58c6c491bd44e840f76f466",
+  "encoding": "UTF-8",
+  "headers": {
+    "Date": "Thu, 22 Oct 2026 08:59:34 GMT",
+    "Content-Type": "application/json;charset=UTF-8"
+  },
+  "summary": {
+    "format": "json",
+    "type": "dict",
+    "top_keys": [
+      "date",
+      "time",
+      "total",
+      "begin",
+      "end",
+      "list"
+    ],
+    "date": 20261022,
+    "time": 162906,
+    "returned": 58,
+    "first_rows": [
+      [
+        "510500C2612A07000",
+        0.2009,
+        -22.55,
+        0.2594,
+        6.876,
+        "10011809"
+      ],
+      [
+        "510500C2612A07250",
+        0.1254,
+        -22.5,
+        0.1618,
+        7.122,
+        "10011519"
+      ]
+    ]
+  },
+  "seconds": 8.803
+}

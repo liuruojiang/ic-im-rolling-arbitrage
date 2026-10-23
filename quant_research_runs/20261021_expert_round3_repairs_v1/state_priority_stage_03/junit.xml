@@ -1,0 +1,351 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="4" skipped="0" tests="66" time="4.606" timestamp="2026-10-21T20:00:39.466349+08:00" hostname="DESKTOP-95I7VVU"><testcase classname="" name="test_each_new_write_validator_recomputes_unconfirmed_grid[require_persistence_eligible-IC]" time="0.016" /><testcase classname="" name="test_each_new_write_validator_recomputes_unconfirmed_grid[require_persistence_eligible-IM]" time="0.016" /><testcase classname="" name="test_each_new_write_validator_recomputes_unconfirmed_grid[validate_fear_grid_signal-IC]" time="0.015" /><testcase classname="" name="test_each_new_write_validator_recomputes_unconfirmed_grid[validate_fear_grid_signal-IM]" time="0.015" /><testcase classname="" name="test_each_new_write_validator_recomputes_unconfirmed_grid[validate_v14_new_signal-IC]" time="0.014" /><testcase classname="" name="test_each_new_write_validator_recomputes_unconfirmed_grid[validate_v14_new_signal-IM]" time="0.013" /><testcase classname="" name="test_each_new_write_validator_recomputes_unconfirmed_grid[validate_delivery_values-IC]" time="0.015" /><testcase classname="" name="test_each_new_write_validator_recomputes_unconfirmed_grid[validate_delivery_values-IM]" time="0.019" /><testcase classname="" name="test_producer_flags_cannot_override_unconfirmed_publication[markers0-IC]" time="0.016" /><testcase classname="" name="test_producer_flags_cannot_override_unconfirmed_publication[markers0-IM]" time="0.020" /><testcase classname="" name="test_producer_flags_cannot_override_unconfirmed_publication[markers1-IC]" time="0.017" /><testcase classname="" name="test_producer_flags_cannot_override_unconfirmed_publication[markers1-IM]" time="0.020" /><testcase classname="" name="test_producer_flags_cannot_override_unconfirmed_publication[markers2-IC]" time="0.017" /><testcase classname="" name="test_producer_flags_cannot_override_unconfirmed_publication[markers2-IM]" time="0.016" /><testcase classname="" name="test_producer_flags_cannot_override_unconfirmed_publication[markers3-IC]" time="0.024" /><testcase classname="" name="test_producer_flags_cannot_override_unconfirmed_publication[markers3-IM]" time="0.019" /><testcase classname="" name="test_direct_append_unconfirmed_leg_leaves_shared_ledger_unchanged[IC]" time="0.023" /><testcase classname="" name="test_direct_append_unconfirmed_leg_leaves_shared_ledger_unchanged[IM]" time="0.023" /><testcase classname="" name="test_frozen_historical_values_keep_original_validation_contract[IC]" time="0.017" /><testcase classname="" name="test_frozen_historical_values_keep_original_validation_contract[IM]" time="0.017" /><testcase classname="" name="test_hash_verified_historical_record_read_does_not_apply_new_gate" time="0.036" /><testcase classname="" name="test_confirmed_pair_still_commits_and_recovers_existing_complete_journal" time="0.050" /><testcase classname="" name="test_sparse_pre_policy_signal_keeps_legacy_eligibility" time="0.001" /><testcase classname="" name="test_public_builder_unavailable_fear_is_independently_rejected" time="0.027" /><testcase classname="" name="test_future_lower_bound_proves_comparison_without_provisional_record[expiry0-reference0]" time="0.001" /><testcase classname="" name="test_future_lower_bound_proves_comparison_without_provisional_record[expiry0-reference1]" time="0.001" /><testcase classname="" name="test_future_lower_bound_proves_comparison_without_provisional_record[expiry0-reference2]" time="0.002" /><testcase classname="" name="test_future_lower_bound_proves_comparison_without_provisional_record[expiry1-reference0]" time="0.002" /><testcase classname="" name="test_future_lower_bound_proves_comparison_without_provisional_record[expiry1-reference1]" time="0.001" /><testcase classname="" name="test_future_lower_bound_proves_comparison_without_provisional_record[expiry1-reference2]" time="0.001" /><testcase classname="" name="test_helper_does_not_claim_other_cases_are_verified[expiry0-reference0]" time="0.001" /><testcase classname="" name="test_helper_does_not_claim_other_cases_are_verified[expiry1-reference1]" time="0.001" /><testcase classname="" name="test_helper_does_not_claim_other_cases_are_verified[expiry2-reference2]" time="0.001" /><testcase classname="" name="test_unknown_reference_is_not_accepted_from_its_weekday" time="0.001" /><testcase classname="" name="test_pre_expiry_false_is_proven_against_official_next_session[False-today0]" time="0.001" /><testcase classname="" name="test_pre_expiry_false_is_proven_against_official_next_session[False-today1]" time="0.001" /><testcase classname="" name="test_pre_expiry_false_is_proven_against_official_next_session[True-today0]" time="0.001" /><testcase classname="" name="test_pre_expiry_false_is_proven_against_official_next_session[True-today1]" time="0.001" /><testcase classname="" name="test_pre_expiry_does_not_guess_next_session_across_year" time="0.001" /><testcase classname="" name="test_covered_pre_expiry_behavior_is_preserved[False-False]" time="0.001" /><testcase classname="" name="test_covered_pre_expiry_behavior_is_preserved[True-True]" time="0.001" /><testcase classname="" name="test_model_use_and_formal_target_are_still_strict" time="0.001" /><testcase classname="" name="test_public_held_maintenance_comparisons_do_not_record_estimates_but_delivery_stays_strict[False]" time="0.026" /><testcase classname="" name="test_public_held_maintenance_comparisons_do_not_record_estimates_but_delivery_stays_strict[True]" time="0.024" /><testcase classname="" name="test_required_put_evidence_is_reported_before_grid_completeness[opening-unresolved opening evidence-producer-IC]" time="0.063" /><testcase classname="" name="test_required_put_evidence_is_reported_before_grid_completeness[opening-unresolved opening evidence-producer-IM]" time="0.016" /><testcase classname="" name="test_required_put_evidence_is_reported_before_grid_completeness[opening-unresolved opening evidence-delivery-IC]" time="0.016" /><testcase classname="" name="test_required_put_evidence_is_reported_before_grid_completeness[opening-unresolved opening evidence-delivery-IM]" time="0.018" /><testcase classname="" name="test_required_put_evidence_is_reported_before_grid_completeness[opening-unresolved opening evidence-append-IC]" time="0.020" /><testcase classname="" name="test_required_put_evidence_is_reported_before_grid_completeness[opening-unresolved opening evidence-append-IM]" time="0.021"><failure message="AssertionError: Regex pattern did not match.&#10;  Expected regex: 'unresolved opening evidence'&#10;  Actual message: 'IC 网格目标未确认，禁止持久化'">tmp_path = WindowsPath('D:/动量策略/IC和IM滚动套利/quant_research_runs/20261021_expert_round3_repairs_v1/state_priority_stage_03/tmp/test_required_put_evidence_is_5')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x0000016AFDF88280&gt;
+product = 'IM', boundary = 'append', problem = 'opening'
+reason = 'unresolved opening evidence'
+
+    @pytest.mark.parametrize("product", ["IC", "IM"])
+    @pytest.mark.parametrize("boundary", ["producer", "delivery", "append"])
+    @pytest.mark.parametrize("problem,reason", [
+        ("opening", "unresolved opening evidence"),
+        ("identity", "unresolved held Put identity"),
+    ])
+    def test_required_put_evidence_is_reported_before_grid_completeness(
+            tmp_path, monkeypatch, product, boundary, problem, reason):
+        store, current, signals = prepare(tmp_path, monkeypatch)
+        for signal in signals.values():
+            unavailable_fear(signal)
+        signal = signals[product]
+        if problem == "opening":
+            signal["v14_ordinary_put_open_status"] = bot.put_execution.RETRY_OPEN_STATUS
+        else:
+            signal["v14_held_put_identity_status"] = "unverified"
+        before = snapshot(store.root)
+        with pytest.raises(RuntimeError, match=reason):
+            if boundary == "producer":
+                state.validate_v14_new_signal(signal, product)
+            elif boundary == "delivery":
+                state.validate_delivery_values(signal, product)
+            else:
+&gt;               store.append_confirmed_signals(current, signals)
+
+test_icim_round3_grid_contract_replacements_20261021.py:38: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_v1_4_state.py:1537: in append_confirmed_signals
+    return self._append_locked(current, signals)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+poe_ic_im_v1_4_state.py:1540: in _append_locked
+    anchors = derive_next_anchors(current, signals)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+poe_ic_im_v1_4_state.py:1056: in derive_next_anchors
+    validate_delivery_values(signal, product)
+poe_ic_im_v1_4_state.py:298: in validate_delivery_values
+    require_persistence_eligible(signal, product)
+poe_ic_im_v1_4_state.py:255: in require_persistence_eligible
+    require_confirmed_grid_target(signal, product)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+signal = {'call_action': 'HOLD', 'call_current_contract': None, 'call_target_contract': None, 'call_target_expiry': None, ...}
+product = 'IC'
+
+    def require_confirmed_grid_target(signal: dict[str, Any], product: str) -&gt; None:
+        """Recompute publication eligibility instead of trusting producer markers.
+    
+        An unavailable Fear observation can legitimately preserve the internal
+        grid state for display.  That preserved state is not a confirmed complete
+        portfolio target and must not advance the shared ledger.
+        """
+        view = strategy.fear_grid.publication_view(signal)
+        if view.get("grid_target_confirmed", True) is not True:
+&gt;           raise RuntimeError(f"{product} 网格目标未确认，禁止持久化")
+E           RuntimeError: IC 网格目标未确认，禁止持久化
+
+poe_ic_im_v1_4_state.py:235: RuntimeError
+
+During handling of the above exception, another exception occurred:
+
+tmp_path = WindowsPath('D:/动量策略/IC和IM滚动套利/quant_research_runs/20261021_expert_round3_repairs_v1/state_priority_stage_03/tmp/test_required_put_evidence_is_5')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x0000016AFDF88280&gt;
+product = 'IM', boundary = 'append', problem = 'opening'
+reason = 'unresolved opening evidence'
+
+    @pytest.mark.parametrize("product", ["IC", "IM"])
+    @pytest.mark.parametrize("boundary", ["producer", "delivery", "append"])
+    @pytest.mark.parametrize("problem,reason", [
+        ("opening", "unresolved opening evidence"),
+        ("identity", "unresolved held Put identity"),
+    ])
+    def test_required_put_evidence_is_reported_before_grid_completeness(
+            tmp_path, monkeypatch, product, boundary, problem, reason):
+        store, current, signals = prepare(tmp_path, monkeypatch)
+        for signal in signals.values():
+            unavailable_fear(signal)
+        signal = signals[product]
+        if problem == "opening":
+            signal["v14_ordinary_put_open_status"] = bot.put_execution.RETRY_OPEN_STATUS
+        else:
+            signal["v14_held_put_identity_status"] = "unverified"
+        before = snapshot(store.root)
+&gt;       with pytest.raises(RuntimeError, match=reason):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: Regex pattern did not match.
+E         Expected regex: 'unresolved opening evidence'
+E         Actual message: 'IC 网格目标未确认，禁止持久化'
+
+test_icim_round3_grid_contract_replacements_20261021.py:32: AssertionError</failure></testcase><testcase classname="" name="test_required_put_evidence_is_reported_before_grid_completeness[identity-unresolved held Put identity-producer-IC]" time="0.025" /><testcase classname="" name="test_required_put_evidence_is_reported_before_grid_completeness[identity-unresolved held Put identity-producer-IM]" time="0.016"><failure message="AssertionError: Regex pattern did not match.&#10;  Expected regex: 'unresolved held Put identity'&#10;  Actual message: 'IM 网格目标未确认，禁止持久化'">tmp_path = WindowsPath('D:/动量策略/IC和IM滚动套利/quant_research_runs/20261021_expert_round3_repairs_v1/state_priority_stage_03/tmp/test_required_put_evidence_is_7')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x0000016AFF03E580&gt;
+product = 'IM', boundary = 'producer', problem = 'identity'
+reason = 'unresolved held Put identity'
+
+    @pytest.mark.parametrize("product", ["IC", "IM"])
+    @pytest.mark.parametrize("boundary", ["producer", "delivery", "append"])
+    @pytest.mark.parametrize("problem,reason", [
+        ("opening", "unresolved opening evidence"),
+        ("identity", "unresolved held Put identity"),
+    ])
+    def test_required_put_evidence_is_reported_before_grid_completeness(
+            tmp_path, monkeypatch, product, boundary, problem, reason):
+        store, current, signals = prepare(tmp_path, monkeypatch)
+        for signal in signals.values():
+            unavailable_fear(signal)
+        signal = signals[product]
+        if problem == "opening":
+            signal["v14_ordinary_put_open_status"] = bot.put_execution.RETRY_OPEN_STATUS
+        else:
+            signal["v14_held_put_identity_status"] = "unverified"
+        before = snapshot(store.root)
+        with pytest.raises(RuntimeError, match=reason):
+            if boundary == "producer":
+&gt;               state.validate_v14_new_signal(signal, product)
+
+test_icim_round3_grid_contract_replacements_20261021.py:34: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_v1_4_state.py:570: in validate_v14_new_signal
+    require_persistence_eligible(signal, product)
+poe_ic_im_v1_4_state.py:255: in require_persistence_eligible
+    require_confirmed_grid_target(signal, product)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+signal = {'call_action': 'HOLD', 'call_current_contract': None, 'call_target': '目标空仓（fix6停止卖Call）', 'call_target_contract': None, ...}
+product = 'IM'
+
+    def require_confirmed_grid_target(signal: dict[str, Any], product: str) -&gt; None:
+        """Recompute publication eligibility instead of trusting producer markers.
+    
+        An unavailable Fear observation can legitimately preserve the internal
+        grid state for display.  That preserved state is not a confirmed complete
+        portfolio target and must not advance the shared ledger.
+        """
+        view = strategy.fear_grid.publication_view(signal)
+        if view.get("grid_target_confirmed", True) is not True:
+&gt;           raise RuntimeError(f"{product} 网格目标未确认，禁止持久化")
+E           RuntimeError: IM 网格目标未确认，禁止持久化
+
+poe_ic_im_v1_4_state.py:235: RuntimeError
+
+During handling of the above exception, another exception occurred:
+
+tmp_path = WindowsPath('D:/动量策略/IC和IM滚动套利/quant_research_runs/20261021_expert_round3_repairs_v1/state_priority_stage_03/tmp/test_required_put_evidence_is_7')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x0000016AFF03E580&gt;
+product = 'IM', boundary = 'producer', problem = 'identity'
+reason = 'unresolved held Put identity'
+
+    @pytest.mark.parametrize("product", ["IC", "IM"])
+    @pytest.mark.parametrize("boundary", ["producer", "delivery", "append"])
+    @pytest.mark.parametrize("problem,reason", [
+        ("opening", "unresolved opening evidence"),
+        ("identity", "unresolved held Put identity"),
+    ])
+    def test_required_put_evidence_is_reported_before_grid_completeness(
+            tmp_path, monkeypatch, product, boundary, problem, reason):
+        store, current, signals = prepare(tmp_path, monkeypatch)
+        for signal in signals.values():
+            unavailable_fear(signal)
+        signal = signals[product]
+        if problem == "opening":
+            signal["v14_ordinary_put_open_status"] = bot.put_execution.RETRY_OPEN_STATUS
+        else:
+            signal["v14_held_put_identity_status"] = "unverified"
+        before = snapshot(store.root)
+&gt;       with pytest.raises(RuntimeError, match=reason):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: Regex pattern did not match.
+E         Expected regex: 'unresolved held Put identity'
+E         Actual message: 'IM 网格目标未确认，禁止持久化'
+
+test_icim_round3_grid_contract_replacements_20261021.py:32: AssertionError</failure></testcase><testcase classname="" name="test_required_put_evidence_is_reported_before_grid_completeness[identity-unresolved held Put identity-delivery-IC]" time="0.065" /><testcase classname="" name="test_required_put_evidence_is_reported_before_grid_completeness[identity-unresolved held Put identity-delivery-IM]" time="0.018"><failure message="AssertionError: Regex pattern did not match.&#10;  Expected regex: 'unresolved held Put identity'&#10;  Actual message: 'IM 网格目标未确认，禁止持久化'">tmp_path = WindowsPath('D:/动量策略/IC和IM滚动套利/quant_research_runs/20261021_expert_round3_repairs_v1/state_priority_stage_03/tmp/test_required_put_evidence_is_9')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x0000016AFF03F0E0&gt;
+product = 'IM', boundary = 'delivery', problem = 'identity'
+reason = 'unresolved held Put identity'
+
+    @pytest.mark.parametrize("product", ["IC", "IM"])
+    @pytest.mark.parametrize("boundary", ["producer", "delivery", "append"])
+    @pytest.mark.parametrize("problem,reason", [
+        ("opening", "unresolved opening evidence"),
+        ("identity", "unresolved held Put identity"),
+    ])
+    def test_required_put_evidence_is_reported_before_grid_completeness(
+            tmp_path, monkeypatch, product, boundary, problem, reason):
+        store, current, signals = prepare(tmp_path, monkeypatch)
+        for signal in signals.values():
+            unavailable_fear(signal)
+        signal = signals[product]
+        if problem == "opening":
+            signal["v14_ordinary_put_open_status"] = bot.put_execution.RETRY_OPEN_STATUS
+        else:
+            signal["v14_held_put_identity_status"] = "unverified"
+        before = snapshot(store.root)
+        with pytest.raises(RuntimeError, match=reason):
+            if boundary == "producer":
+                state.validate_v14_new_signal(signal, product)
+            elif boundary == "delivery":
+&gt;               state.validate_delivery_values(signal, product)
+
+test_icim_round3_grid_contract_replacements_20261021.py:36: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_v1_4_state.py:298: in validate_delivery_values
+    require_persistence_eligible(signal, product)
+poe_ic_im_v1_4_state.py:255: in require_persistence_eligible
+    require_confirmed_grid_target(signal, product)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+signal = {'call_action': 'HOLD', 'call_current_contract': None, 'call_target': '目标空仓（fix6停止卖Call）', 'call_target_contract': None, ...}
+product = 'IM'
+
+    def require_confirmed_grid_target(signal: dict[str, Any], product: str) -&gt; None:
+        """Recompute publication eligibility instead of trusting producer markers.
+    
+        An unavailable Fear observation can legitimately preserve the internal
+        grid state for display.  That preserved state is not a confirmed complete
+        portfolio target and must not advance the shared ledger.
+        """
+        view = strategy.fear_grid.publication_view(signal)
+        if view.get("grid_target_confirmed", True) is not True:
+&gt;           raise RuntimeError(f"{product} 网格目标未确认，禁止持久化")
+E           RuntimeError: IM 网格目标未确认，禁止持久化
+
+poe_ic_im_v1_4_state.py:235: RuntimeError
+
+During handling of the above exception, another exception occurred:
+
+tmp_path = WindowsPath('D:/动量策略/IC和IM滚动套利/quant_research_runs/20261021_expert_round3_repairs_v1/state_priority_stage_03/tmp/test_required_put_evidence_is_9')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x0000016AFF03F0E0&gt;
+product = 'IM', boundary = 'delivery', problem = 'identity'
+reason = 'unresolved held Put identity'
+
+    @pytest.mark.parametrize("product", ["IC", "IM"])
+    @pytest.mark.parametrize("boundary", ["producer", "delivery", "append"])
+    @pytest.mark.parametrize("problem,reason", [
+        ("opening", "unresolved opening evidence"),
+        ("identity", "unresolved held Put identity"),
+    ])
+    def test_required_put_evidence_is_reported_before_grid_completeness(
+            tmp_path, monkeypatch, product, boundary, problem, reason):
+        store, current, signals = prepare(tmp_path, monkeypatch)
+        for signal in signals.values():
+            unavailable_fear(signal)
+        signal = signals[product]
+        if problem == "opening":
+            signal["v14_ordinary_put_open_status"] = bot.put_execution.RETRY_OPEN_STATUS
+        else:
+            signal["v14_held_put_identity_status"] = "unverified"
+        before = snapshot(store.root)
+&gt;       with pytest.raises(RuntimeError, match=reason):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: Regex pattern did not match.
+E         Expected regex: 'unresolved held Put identity'
+E         Actual message: 'IM 网格目标未确认，禁止持久化'
+
+test_icim_round3_grid_contract_replacements_20261021.py:32: AssertionError</failure></testcase><testcase classname="" name="test_required_put_evidence_is_reported_before_grid_completeness[identity-unresolved held Put identity-append-IC]" time="0.019" /><testcase classname="" name="test_required_put_evidence_is_reported_before_grid_completeness[identity-unresolved held Put identity-append-IM]" time="0.020"><failure message="AssertionError: Regex pattern did not match.&#10;  Expected regex: 'unresolved held Put identity'&#10;  Actual message: 'IC 网格目标未确认，禁止持久化'">tmp_path = WindowsPath('D:/动量策略/IC和IM滚动套利/quant_research_runs/20261021_expert_round3_repairs_v1/state_priority_stage_03/tmp/test_required_put_evidence_is_11')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x0000016AFF03FA80&gt;
+product = 'IM', boundary = 'append', problem = 'identity'
+reason = 'unresolved held Put identity'
+
+    @pytest.mark.parametrize("product", ["IC", "IM"])
+    @pytest.mark.parametrize("boundary", ["producer", "delivery", "append"])
+    @pytest.mark.parametrize("problem,reason", [
+        ("opening", "unresolved opening evidence"),
+        ("identity", "unresolved held Put identity"),
+    ])
+    def test_required_put_evidence_is_reported_before_grid_completeness(
+            tmp_path, monkeypatch, product, boundary, problem, reason):
+        store, current, signals = prepare(tmp_path, monkeypatch)
+        for signal in signals.values():
+            unavailable_fear(signal)
+        signal = signals[product]
+        if problem == "opening":
+            signal["v14_ordinary_put_open_status"] = bot.put_execution.RETRY_OPEN_STATUS
+        else:
+            signal["v14_held_put_identity_status"] = "unverified"
+        before = snapshot(store.root)
+        with pytest.raises(RuntimeError, match=reason):
+            if boundary == "producer":
+                state.validate_v14_new_signal(signal, product)
+            elif boundary == "delivery":
+                state.validate_delivery_values(signal, product)
+            else:
+&gt;               store.append_confirmed_signals(current, signals)
+
+test_icim_round3_grid_contract_replacements_20261021.py:38: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_v1_4_state.py:1537: in append_confirmed_signals
+    return self._append_locked(current, signals)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+poe_ic_im_v1_4_state.py:1540: in _append_locked
+    anchors = derive_next_anchors(current, signals)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+poe_ic_im_v1_4_state.py:1056: in derive_next_anchors
+    validate_delivery_values(signal, product)
+poe_ic_im_v1_4_state.py:298: in validate_delivery_values
+    require_persistence_eligible(signal, product)
+poe_ic_im_v1_4_state.py:255: in require_persistence_eligible
+    require_confirmed_grid_target(signal, product)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+signal = {'call_action': 'HOLD', 'call_current_contract': None, 'call_target_contract': None, 'call_target_expiry': None, ...}
+product = 'IC'
+
+    def require_confirmed_grid_target(signal: dict[str, Any], product: str) -&gt; None:
+        """Recompute publication eligibility instead of trusting producer markers.
+    
+        An unavailable Fear observation can legitimately preserve the internal
+        grid state for display.  That preserved state is not a confirmed complete
+        portfolio target and must not advance the shared ledger.
+        """
+        view = strategy.fear_grid.publication_view(signal)
+        if view.get("grid_target_confirmed", True) is not True:
+&gt;           raise RuntimeError(f"{product} 网格目标未确认，禁止持久化")
+E           RuntimeError: IC 网格目标未确认，禁止持久化
+
+poe_ic_im_v1_4_state.py:235: RuntimeError
+
+During handling of the above exception, another exception occurred:
+
+tmp_path = WindowsPath('D:/动量策略/IC和IM滚动套利/quant_research_runs/20261021_expert_round3_repairs_v1/state_priority_stage_03/tmp/test_required_put_evidence_is_11')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x0000016AFF03FA80&gt;
+product = 'IM', boundary = 'append', problem = 'identity'
+reason = 'unresolved held Put identity'
+
+    @pytest.mark.parametrize("product", ["IC", "IM"])
+    @pytest.mark.parametrize("boundary", ["producer", "delivery", "append"])
+    @pytest.mark.parametrize("problem,reason", [
+        ("opening", "unresolved opening evidence"),
+        ("identity", "unresolved held Put identity"),
+    ])
+    def test_required_put_evidence_is_reported_before_grid_completeness(
+            tmp_path, monkeypatch, product, boundary, problem, reason):
+        store, current, signals = prepare(tmp_path, monkeypatch)
+        for signal in signals.values():
+            unavailable_fear(signal)
+        signal = signals[product]
+        if problem == "opening":
+            signal["v14_ordinary_put_open_status"] = bot.put_execution.RETRY_OPEN_STATUS
+        else:
+            signal["v14_held_put_identity_status"] = "unverified"
+        before = snapshot(store.root)
+&gt;       with pytest.raises(RuntimeError, match=reason):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: Regex pattern did not match.
+E         Expected regex: 'unresolved held Put identity'
+E         Actual message: 'IC 网格目标未确认，禁止持久化'
+
+test_icim_round3_grid_contract_replacements_20261021.py:32: AssertionError</failure></testcase><testcase classname="" name="test_calendar_error_retains_priority_over_unconfirmed_grid" time="0.020" /><testcase classname="" name="test_invalid_source_is_reported_before_grid_completeness[fear]" time="0.016" /><testcase classname="" name="test_invalid_source_is_reported_before_grid_completeness[delivery]" time="0.020" /><testcase classname="" name="test_partial_model_delivery_stays_valid_but_cannot_be_appended" time="0.023" /><testcase classname="" name="test_partial_publication_is_not_a_diagnostic_or_bad_marker_bypass[change0-calendar_provisional]" time="0.020" /><testcase classname="" name="test_partial_publication_is_not_a_diagnostic_or_bad_marker_bypass[change1-diagnostic_only]" time="0.015" /><testcase classname="" name="test_partial_publication_is_not_a_diagnostic_or_bad_marker_bypass[change2-signal_complete]" time="0.014" /><testcase classname="" name="test_partial_publication_is_not_a_diagnostic_or_bad_marker_bypass[change3-\u76ee\u6807\u672a\u786e\u8ba4]" time="0.017" /><testcase classname="" name="test_old_both_missing_fixture_is_valid_partial_model_but_not_complete_new_signal" time="0.054" /><testcase classname="" name="test_old_short_expiry_fixture_needs_grid_confirmation_without_becoming_new_short_open" time="0.003" /></testsuite></testsuites>

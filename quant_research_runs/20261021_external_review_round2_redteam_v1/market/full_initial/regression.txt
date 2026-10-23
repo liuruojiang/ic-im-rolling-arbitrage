@@ -1,0 +1,404 @@
+.FFFFFFFFFFF...FF..............F.                                        [100%]
+================================== FAILURES ===================================
+_ test_unusable_primary_date_uses_available_fresh_backup_for_held_core[20261020] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000019A63B3F6F0>
+bad_date = 20261020
+
+    @pytest.mark.parametrize('bad_date', [20261020, 20261022, 'invalid'])
+    def test_unusable_primary_date_uses_available_fresh_backup_for_held_core(monkeypatch, bad_date):
+        good_chain, good_stamp = wire(monkeypatch, payload())
+        fallback = Mock(return_value=(good_chain, dict(good_stamp, source='synthetic_fresh_backup')))
+        body = payload()
+        body['date'] = bad_date
+        monkeypatch.setattr(bot, '_sse_quote_json', lambda *a, **kw: deepcopy(body))
+        monkeypatch.setattr(bot, 'fetch_sina_510500_chain', fallback)
+        signal, anchor = signal_anchor(monkeypatch)
+>       bot._v14_ic_core_overlay(signal, anchor)
+
+test_icim_round2_audit_market_20261021.py:62: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_mainline_v1_4_bot.py:5186: in _v14_ic_core_overlay
+    _validate_chain_stamp_matches("IC独立核心Put", stamp, day, _now_beijing())
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+label = 'IC独立核心Put'
+stamp = {'date': '20261020', 'source': '上交所行情接口', 'time': '141123'}
+reference_day = datetime.date(2026, 10, 21)
+clock = datetime.datetime(2026, 10, 21, 14, 15, tzinfo=zoneinfo.ZoneInfo(key='Asia/Shanghai'))
+
+    def _validate_chain_stamp_matches(
+        label: str,
+        stamp: dict[str, str],
+        reference_day: date,
+        clock: datetime,
+    ) -> date:
+        chain_day = _validate_market_stamp(label, stamp.get("date", ""), clock)
+        if chain_day != reference_day:
+>           raise RuntimeError(
+                f"{label}与参考行情日期不一致：{chain_day} != {reference_day}"
+            )
+E           RuntimeError: IC独立核心Put与参考行情日期不一致：2026-10-20 != 2026-10-21
+
+poe_ic_im_mainline_v1_4_bot.py:4691: RuntimeError
+_ test_unusable_primary_date_uses_available_fresh_backup_for_held_core[20261022] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000019A63E60170>
+bad_date = 20261022
+
+    @pytest.mark.parametrize('bad_date', [20261020, 20261022, 'invalid'])
+    def test_unusable_primary_date_uses_available_fresh_backup_for_held_core(monkeypatch, bad_date):
+        good_chain, good_stamp = wire(monkeypatch, payload())
+        fallback = Mock(return_value=(good_chain, dict(good_stamp, source='synthetic_fresh_backup')))
+        body = payload()
+        body['date'] = bad_date
+        monkeypatch.setattr(bot, '_sse_quote_json', lambda *a, **kw: deepcopy(body))
+        monkeypatch.setattr(bot, 'fetch_sina_510500_chain', fallback)
+        signal, anchor = signal_anchor(monkeypatch)
+>       bot._v14_ic_core_overlay(signal, anchor)
+
+test_icim_round2_audit_market_20261021.py:62: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_mainline_v1_4_bot.py:5186: in _v14_ic_core_overlay
+    _validate_chain_stamp_matches("IC独立核心Put", stamp, day, _now_beijing())
+poe_ic_im_mainline_v1_4_bot.py:4689: in _validate_chain_stamp_matches
+    chain_day = _validate_market_stamp(label, stamp.get("date", ""), clock)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+label = 'IC独立核心Put', value = '20261022'
+clock = datetime.datetime(2026, 10, 21, 14, 15, tzinfo=zoneinfo.ZoneInfo(key='Asia/Shanghai'))
+
+    def _validate_market_stamp(label: str, value: str, clock: datetime) -> date:
+        cleaned = str(value).strip()
+        try:
+            stamp_day = (
+                datetime.strptime(cleaned, "%Y%m%d").date()
+                if re.fullmatch(r"\d{8}", cleaned)
+                else date.fromisoformat(cleaned)
+            )
+        except ValueError as exc:
+            raise RuntimeError(f"{label}缺少可验证的行情日期") from exc
+        expected = _latest_completed_exchange_day(clock)
+        if stamp_day > clock.date():
+>           raise RuntimeError(f"{label}行情日期 {stamp_day} 晚于北京时间 {clock.date()}")
+E           RuntimeError: IC独立核心Put行情日期 2026-10-22 晚于北京时间 2026-10-21
+
+poe_ic_im_mainline_v1_4_bot.py:4675: RuntimeError
+_ test_unusable_primary_date_uses_available_fresh_backup_for_held_core[invalid] _
+
+label = 'IC独立核心Put', value = 'invalid'
+clock = datetime.datetime(2026, 10, 21, 14, 15, tzinfo=zoneinfo.ZoneInfo(key='Asia/Shanghai'))
+
+    def _validate_market_stamp(label: str, value: str, clock: datetime) -> date:
+        cleaned = str(value).strip()
+        try:
+            stamp_day = (
+                datetime.strptime(cleaned, "%Y%m%d").date()
+                if re.fullmatch(r"\d{8}", cleaned)
+>               else date.fromisoformat(cleaned)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            )
+E           ValueError: Invalid isoformat string: 'invalid'
+
+poe_ic_im_mainline_v1_4_bot.py:4669: ValueError
+
+The above exception was the direct cause of the following exception:
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000019A45CC0E20>
+bad_date = 'invalid'
+
+    @pytest.mark.parametrize('bad_date', [20261020, 20261022, 'invalid'])
+    def test_unusable_primary_date_uses_available_fresh_backup_for_held_core(monkeypatch, bad_date):
+        good_chain, good_stamp = wire(monkeypatch, payload())
+        fallback = Mock(return_value=(good_chain, dict(good_stamp, source='synthetic_fresh_backup')))
+        body = payload()
+        body['date'] = bad_date
+        monkeypatch.setattr(bot, '_sse_quote_json', lambda *a, **kw: deepcopy(body))
+        monkeypatch.setattr(bot, 'fetch_sina_510500_chain', fallback)
+        signal, anchor = signal_anchor(monkeypatch)
+>       bot._v14_ic_core_overlay(signal, anchor)
+
+test_icim_round2_audit_market_20261021.py:62: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_mainline_v1_4_bot.py:5186: in _v14_ic_core_overlay
+    _validate_chain_stamp_matches("IC独立核心Put", stamp, day, _now_beijing())
+poe_ic_im_mainline_v1_4_bot.py:4689: in _validate_chain_stamp_matches
+    chain_day = _validate_market_stamp(label, stamp.get("date", ""), clock)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+label = 'IC独立核心Put', value = 'invalid'
+clock = datetime.datetime(2026, 10, 21, 14, 15, tzinfo=zoneinfo.ZoneInfo(key='Asia/Shanghai'))
+
+    def _validate_market_stamp(label: str, value: str, clock: datetime) -> date:
+        cleaned = str(value).strip()
+        try:
+            stamp_day = (
+                datetime.strptime(cleaned, "%Y%m%d").date()
+                if re.fullmatch(r"\d{8}", cleaned)
+                else date.fromisoformat(cleaned)
+            )
+        except ValueError as exc:
+>           raise RuntimeError(f"{label}缺少可验证的行情日期") from exc
+E           RuntimeError: IC独立核心Put缺少可验证的行情日期
+
+poe_ic_im_mainline_v1_4_bot.py:4672: RuntimeError
+_____ test_future_or_invalid_primary_time_cannot_be_consumed[235959-core] _____
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000019A63E68D10>
+consumer = 'core', bad_time = 235959
+
+    @pytest.mark.parametrize('consumer', ['core', 'short'])
+    @pytest.mark.parametrize('bad_time', [235959, 246001, 'invalid', None])
+    def test_future_or_invalid_primary_time_cannot_be_consumed(monkeypatch, consumer, bad_time):
+        body = payload()
+        body['time'] = bad_time
+        monkeypatch.setattr(bot, '_sse_quote_json', lambda *a, **kw: deepcopy(body))
+        monkeypatch.setattr(bot, 'fetch_sina_510500_chain', Mock(side_effect=RuntimeError('synthetic unavailable backup')))
+        signal, anchor = signal_anchor(monkeypatch)
+        signal['next_trade_date'] = date(2026, 10, 22)
+        monkeypatch.setattr(bot, '_gov10y_for_day', lambda *a: .02)
+>       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+test_icim_round2_audit_market_20261021.py:77: Failed
+____ test_future_or_invalid_primary_time_cannot_be_consumed[235959-short] _____
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000019A63E4D650>
+consumer = 'short', bad_time = 235959
+
+    @pytest.mark.parametrize('consumer', ['core', 'short'])
+    @pytest.mark.parametrize('bad_time', [235959, 246001, 'invalid', None])
+    def test_future_or_invalid_primary_time_cannot_be_consumed(monkeypatch, consumer, bad_time):
+        body = payload()
+        body['time'] = bad_time
+        monkeypatch.setattr(bot, '_sse_quote_json', lambda *a, **kw: deepcopy(body))
+        monkeypatch.setattr(bot, 'fetch_sina_510500_chain', Mock(side_effect=RuntimeError('synthetic unavailable backup')))
+        signal, anchor = signal_anchor(monkeypatch)
+        signal['next_trade_date'] = date(2026, 10, 22)
+        monkeypatch.setattr(bot, '_gov10y_for_day', lambda *a: .02)
+>       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+test_icim_round2_audit_market_20261021.py:77: Failed
+_____ test_future_or_invalid_primary_time_cannot_be_consumed[246001-core] _____
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000019A63E4DE50>
+consumer = 'core', bad_time = 246001
+
+    @pytest.mark.parametrize('consumer', ['core', 'short'])
+    @pytest.mark.parametrize('bad_time', [235959, 246001, 'invalid', None])
+    def test_future_or_invalid_primary_time_cannot_be_consumed(monkeypatch, consumer, bad_time):
+        body = payload()
+        body['time'] = bad_time
+        monkeypatch.setattr(bot, '_sse_quote_json', lambda *a, **kw: deepcopy(body))
+        monkeypatch.setattr(bot, 'fetch_sina_510500_chain', Mock(side_effect=RuntimeError('synthetic unavailable backup')))
+        signal, anchor = signal_anchor(monkeypatch)
+        signal['next_trade_date'] = date(2026, 10, 22)
+        monkeypatch.setattr(bot, '_gov10y_for_day', lambda *a: .02)
+>       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+test_icim_round2_audit_market_20261021.py:77: Failed
+____ test_future_or_invalid_primary_time_cannot_be_consumed[246001-short] _____
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000019A63E6C320>
+consumer = 'short', bad_time = 246001
+
+    @pytest.mark.parametrize('consumer', ['core', 'short'])
+    @pytest.mark.parametrize('bad_time', [235959, 246001, 'invalid', None])
+    def test_future_or_invalid_primary_time_cannot_be_consumed(monkeypatch, consumer, bad_time):
+        body = payload()
+        body['time'] = bad_time
+        monkeypatch.setattr(bot, '_sse_quote_json', lambda *a, **kw: deepcopy(body))
+        monkeypatch.setattr(bot, 'fetch_sina_510500_chain', Mock(side_effect=RuntimeError('synthetic unavailable backup')))
+        signal, anchor = signal_anchor(monkeypatch)
+        signal['next_trade_date'] = date(2026, 10, 22)
+        monkeypatch.setattr(bot, '_gov10y_for_day', lambda *a: .02)
+>       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+test_icim_round2_audit_market_20261021.py:77: Failed
+____ test_future_or_invalid_primary_time_cannot_be_consumed[invalid-core] _____
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000019A63E6D310>
+consumer = 'core', bad_time = 'invalid'
+
+    @pytest.mark.parametrize('consumer', ['core', 'short'])
+    @pytest.mark.parametrize('bad_time', [235959, 246001, 'invalid', None])
+    def test_future_or_invalid_primary_time_cannot_be_consumed(monkeypatch, consumer, bad_time):
+        body = payload()
+        body['time'] = bad_time
+        monkeypatch.setattr(bot, '_sse_quote_json', lambda *a, **kw: deepcopy(body))
+        monkeypatch.setattr(bot, 'fetch_sina_510500_chain', Mock(side_effect=RuntimeError('synthetic unavailable backup')))
+        signal, anchor = signal_anchor(monkeypatch)
+        signal['next_trade_date'] = date(2026, 10, 22)
+        monkeypatch.setattr(bot, '_gov10y_for_day', lambda *a: .02)
+>       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+test_icim_round2_audit_market_20261021.py:77: Failed
+____ test_future_or_invalid_primary_time_cannot_be_consumed[invalid-short] ____
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000019A63E4A0B0>
+consumer = 'short', bad_time = 'invalid'
+
+    @pytest.mark.parametrize('consumer', ['core', 'short'])
+    @pytest.mark.parametrize('bad_time', [235959, 246001, 'invalid', None])
+    def test_future_or_invalid_primary_time_cannot_be_consumed(monkeypatch, consumer, bad_time):
+        body = payload()
+        body['time'] = bad_time
+        monkeypatch.setattr(bot, '_sse_quote_json', lambda *a, **kw: deepcopy(body))
+        monkeypatch.setattr(bot, 'fetch_sina_510500_chain', Mock(side_effect=RuntimeError('synthetic unavailable backup')))
+        signal, anchor = signal_anchor(monkeypatch)
+        signal['next_trade_date'] = date(2026, 10, 22)
+        monkeypatch.setattr(bot, '_gov10y_for_day', lambda *a: .02)
+>       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+test_icim_round2_audit_market_20261021.py:77: Failed
+______ test_future_or_invalid_primary_time_cannot_be_consumed[None-core] ______
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000019A63E4A430>
+consumer = 'core', bad_time = None
+
+    @pytest.mark.parametrize('consumer', ['core', 'short'])
+    @pytest.mark.parametrize('bad_time', [235959, 246001, 'invalid', None])
+    def test_future_or_invalid_primary_time_cannot_be_consumed(monkeypatch, consumer, bad_time):
+        body = payload()
+        body['time'] = bad_time
+        monkeypatch.setattr(bot, '_sse_quote_json', lambda *a, **kw: deepcopy(body))
+        monkeypatch.setattr(bot, 'fetch_sina_510500_chain', Mock(side_effect=RuntimeError('synthetic unavailable backup')))
+        signal, anchor = signal_anchor(monkeypatch)
+        signal['next_trade_date'] = date(2026, 10, 22)
+        monkeypatch.setattr(bot, '_gov10y_for_day', lambda *a: .02)
+>       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+test_icim_round2_audit_market_20261021.py:77: Failed
+_____ test_future_or_invalid_primary_time_cannot_be_consumed[None-short] ______
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000019A62E9B6C0>
+consumer = 'short', bad_time = None
+
+    @pytest.mark.parametrize('consumer', ['core', 'short'])
+    @pytest.mark.parametrize('bad_time', [235959, 246001, 'invalid', None])
+    def test_future_or_invalid_primary_time_cannot_be_consumed(monkeypatch, consumer, bad_time):
+        body = payload()
+        body['time'] = bad_time
+        monkeypatch.setattr(bot, '_sse_quote_json', lambda *a, **kw: deepcopy(body))
+        monkeypatch.setattr(bot, 'fetch_sina_510500_chain', Mock(side_effect=RuntimeError('synthetic unavailable backup')))
+        signal, anchor = signal_anchor(monkeypatch)
+        signal['next_trade_date'] = date(2026, 10, 22)
+        monkeypatch.setattr(bot, '_gov10y_for_day', lambda *a: .02)
+>       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+test_icim_round2_audit_market_20261021.py:77: Failed
+____ test_non_ascii_identity_syntax_is_not_a_real_exchange_code[security] _____
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000019A63043540>
+field = 'security'
+
+    @pytest.mark.parametrize('field', ['security', 'strike_digits'])
+    def test_non_ascii_identity_syntax_is_not_a_real_exchange_code(monkeypatch, field):
+        body = payload()
+        row = next(row for row in body['list'] if row[0] == CONTRACT)
+        if field == 'security':
+            row[5] = ''.join(chr(0xFF10 + int(c)) for c in row[5])
+        else:
+            row[0] = row[0][:-5] + ''.join(chr(0xFF10 + int(c)) for c in row[0][-5:])
+>       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+test_icim_round2_audit_market_20261021.py:115: Failed
+__ test_non_ascii_identity_syntax_is_not_a_real_exchange_code[strike_digits] __
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000019A63E51270>
+field = 'strike_digits'
+
+    @pytest.mark.parametrize('field', ['security', 'strike_digits'])
+    def test_non_ascii_identity_syntax_is_not_a_real_exchange_code(monkeypatch, field):
+        body = payload()
+        row = next(row for row in body['list'] if row[0] == CONTRACT)
+        if field == 'security':
+            row[5] = ''.join(chr(0xFF10 + int(c)) for c in row[5])
+        else:
+            row[0] = row[0][:-5] + ''.join(chr(0xFF10 + int(c)) for c in row[0][-5:])
+>       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+test_icim_round2_audit_market_20261021.py:115: Failed
+____ test_held_short_put_cannot_bypass_relisted_m_identity_gate[10011470] _____
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000019A63BB2900>
+held_security = '10011470'
+
+    @pytest.mark.parametrize('held_security', ['10011470', SECURITY])
+    def test_held_short_put_cannot_bypass_relisted_m_identity_gate(monkeypatch, held_security):
+        chain, stamp = wire(monkeypatch, payload())
+        signal, anchor = signal_anchor(monkeypatch)
+        anchor.update(v14_route_state='short_put', v14_cycle_id='synthetic_stale_pre_adjustment_short',
+                      v14_core_put_contract=None, v14_core_put_security_id=None, v14_core_put_qty=0,
+                      v14_short_put_contract=CONTRACT, v14_short_put_security_id=held_security,
+                      v14_short_put_qty_normalized=5., v14_short_put_entry_premium=1.5,
+                      v14_short_put_expiry=date(2026, 12, 23),
+                      v14_short_put_cost_basis='confirmed_dated_open',
+                      v14_short_put_entry_price_day=date(2026, 7, 1),
+                      post_put_qty=0, verified_core_put_qty=0)
+        signal.update(close_confirmed=True, put_target_core_qty=0, core_put_target_delta=0.,
+                      next_trade_date=date(2026, 10, 22))
+        monkeypatch.setitem(bot.LIVE_CONTINUATION_ANCHOR, 'IC', anchor)
+        monkeypatch.setattr(bot, 'fetch_510500_chain_with_failover', lambda month: (chain, stamp))
+        # Candidate availability is independent from proving the EXISTING held leg.
+        monkeypatch.setattr(bot, '_v14_ic_short_put_candidate', lambda *a, **kw: {'tradable': False})
+        raw = next(row for row in payload()['list'] if row[5] == held_security)
+        closes = Mock(return_value=pd.Series([raw[1]], index=pd.to_datetime([DAY])))
+        monkeypatch.setattr(bot, 'fetch_option_closes', closes)
+        before = deepcopy(anchor)
+        out = bot._apply_v14_live_policy('IC', signal)
+        assert anchor == before
+        if held_security == SECURITY:
+            assert out['v14_short_put_mark'] == .75
+        else:
+            assert raw[0] == '510500P2612A07500'
+>           assert out['v14_action'] == 'HOLD_FAIL_CLOSED'
+E           AssertionError: assert 'WAIT_SHORT_PUT_ROLL' == 'HOLD_FAIL_CLOSED'
+E             
+E             - HOLD_FAIL_CLOSED
+E             + WAIT_SHORT_PUT_ROLL
+
+test_icim_round2_audit_market_20261021.py:186: AssertionError
+============================== warnings summary ===============================
+C:\Python314\Lib\site-packages\fastapi_poe\types.py:171
+  C:\Python314\Lib\site-packages\fastapi_poe\types.py:171: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    class RequestContext(BaseModel):
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED test_icim_round2_audit_market_20261021.py::test_unusable_primary_date_uses_available_fresh_backup_for_held_core[20261020]
+FAILED test_icim_round2_audit_market_20261021.py::test_unusable_primary_date_uses_available_fresh_backup_for_held_core[20261022]
+FAILED test_icim_round2_audit_market_20261021.py::test_unusable_primary_date_uses_available_fresh_backup_for_held_core[invalid]
+FAILED test_icim_round2_audit_market_20261021.py::test_future_or_invalid_primary_time_cannot_be_consumed[235959-core]
+FAILED test_icim_round2_audit_market_20261021.py::test_future_or_invalid_primary_time_cannot_be_consumed[235959-short]
+FAILED test_icim_round2_audit_market_20261021.py::test_future_or_invalid_primary_time_cannot_be_consumed[246001-core]
+FAILED test_icim_round2_audit_market_20261021.py::test_future_or_invalid_primary_time_cannot_be_consumed[246001-short]
+FAILED test_icim_round2_audit_market_20261021.py::test_future_or_invalid_primary_time_cannot_be_consumed[invalid-core]
+FAILED test_icim_round2_audit_market_20261021.py::test_future_or_invalid_primary_time_cannot_be_consumed[invalid-short]
+FAILED test_icim_round2_audit_market_20261021.py::test_future_or_invalid_primary_time_cannot_be_consumed[None-core]
+FAILED test_icim_round2_audit_market_20261021.py::test_future_or_invalid_primary_time_cannot_be_consumed[None-short]
+FAILED test_icim_round2_audit_market_20261021.py::test_non_ascii_identity_syntax_is_not_a_real_exchange_code[security]
+FAILED test_icim_round2_audit_market_20261021.py::test_non_ascii_identity_syntax_is_not_a_real_exchange_code[strike_digits]
+FAILED test_icim_round2_audit_market_20261021.py::test_held_short_put_cannot_bypass_relisted_m_identity_gate[10011470]
+14 failed, 19 passed, 1 warning in 4.38s

@@ -1,0 +1,106 @@
+{
+  "checked_at": "2026-10-21T09:54:12.600193+00:00",
+  "counts": {
+    "tests": 1767,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "test_files": 68,
+  "source_files": 906,
+  "source_binding_changed": [],
+  "independent": {
+    "calendar/final_03": {
+      "counts": {
+        "tests": 24,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "source_files": 902,
+      "shared_files": 902,
+      "shared_match": true,
+      "current_changed": [],
+      "independent_only": []
+    },
+    "state/final_03": {
+      "counts": {
+        "tests": 26,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "source_files": 902,
+      "shared_files": 902,
+      "shared_match": true,
+      "current_changed": [],
+      "independent_only": []
+    },
+    "market/final_03": {
+      "counts": {
+        "tests": 20,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "source_files": 902,
+      "shared_files": 902,
+      "shared_match": true,
+      "current_changed": [],
+      "independent_only": []
+    },
+    "scope/final_03": {
+      "counts": {
+        "tests": 25,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "source_files": 902,
+      "shared_files": 902,
+      "shared_match": true,
+      "current_changed": [],
+      "independent_only": []
+    },
+    "concurrency/final_02": {
+      "counts": {
+        "tests": 20,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "source_files": 902,
+      "shared_files": 902,
+      "shared_match": true,
+      "current_changed": [],
+      "independent_only": []
+    }
+  },
+  "collection_counts": {
+    "collected": 1770,
+    "selected": 1767,
+    "deselected": 3,
+    "executed": 1767
+  },
+  "backup_files": 1163,
+  "bad_backups": [],
+  "protected_outputs": 6795,
+  "bad_outputs": [],
+  "protected_prior_evidence": 26680,
+  "bad_prior": [],
+  "changed_existing": [
+    "notes/mainline_registry.md",
+    "poe_ic_im_mainline_v1_4_bot.py",
+    "poe_ic_im_v1_4_server.py",
+    "poe_ic_im_v1_4_state.py"
+  ],
+  "unexpected_changes": [],
+  "frozen_specs_changed": [],
+  "new_spec_sha256_ok": true,
+  "runtime_ledger_json_count": 142,
+  "runtime_ledger_added": [],
+  "runtime_ledger_missing": [],
+  "runtime_ledger_unchanged": true,
+  "git_diff_check_exit": 0,
+  "passed": true
+}

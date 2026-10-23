@@ -1,0 +1,48 @@
+.............F.                                                          [100%]
+================================== FAILURES ===================================
+___________ test_admission_priority_avoids_unconsumed_profit_expiry ___________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000028356656B10>
+
+    def test_admission_priority_avoids_unconsumed_profit_expiry(monkeypatch):
+        """Seller admission precedes a newly triggered 3x plan in the real policy."""
+        profit_preparer = bot._v14_prepare_profit_open_plan
+        anchor = policy.default_extension("IM")
+        anchor.update(v14_core_put_entry_premium=1., v14_core_put_profit3x_eligible=True)
+        _anchor, frame = wire_adapter(monkeypatch, "IM", anchor)
+        monkeypatch.setattr(bot, "_v14_prepare_profit_open_plan", profit_preparer)
+        monkeypatch.setattr(bot, "_v14_option_mark", lambda *a: (3.5, None))
+        def unused_profit_selection(*args):
+            bot._require_model_expiry_calendar(date(2027, 3, 19), "unused profit candidate")
+            return pd.Series(dict(instrument="MO2703-P-7200", lastprice=10.))
+        monkeypatch.setattr(bot, "select_im_put_for_reset", unused_profit_selection)
+        candidate = _candidate("IM", contract="MO2612-P-7200", expiry=date(2026, 12, 18))
+        monkeypatch.setattr(bot, "_v14_im_short_put_candidate", lambda *a, **k: candidate)
+        signal = _signal("IM", market_date=date(2026, 11, 2), next_trade_date=date(2026, 11, 3),
+                         core_eod_contract="IM2612", core_put_current_contract="MO2612-P-7200",
+                         core_put_current_qty_normalized=1.5, core_put_target_qty_normalized=1.5,
+                         put_reference_price=7200.)
+        context = {"expiries": [], "failures": [], "signal": signal, "future": {}, "anchor": anchor}
+        token = bot._SIGNAL_CALENDAR_DIAGNOSTICS.set(context)
+        try:
+            out = bot._apply_v14_live_policy("IM", signal, mo_quotes=frame)
+        finally:
+            bot._SIGNAL_CALENDAR_DIAGNOSTICS.reset(token)
+        assert out["v14_action"] == "ENTER_SHORT_PUT"
+>       assert context["expiries"] == [], "unused 3x reselection must not poison admitted short-Put route"
+E       AssertionError: unused 3x reselection must not poison admitted short-Put route
+E       assert [{'date': '20..._unverified'}] == []
+E         
+E         Left contains one more item: {'date': '2027-03-19', 'officially_verified': False, 'purpose': 'unused profit candidate', 'source': 'weekday_rule_unverified'}
+E         Use -v to get more diff
+
+test_icim_round3_adversarial_p1_20261021.py:96: AssertionError
+============================== warnings summary ===============================
+C:\Python314\Lib\site-packages\fastapi_poe\types.py:171
+  C:\Python314\Lib\site-packages\fastapi_poe\types.py:171: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    class RequestContext(BaseModel):
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED test_icim_round3_adversarial_p1_20261021.py::test_admission_priority_avoids_unconsumed_profit_expiry
+1 failed, 14 passed, 1 warning in 3.30s

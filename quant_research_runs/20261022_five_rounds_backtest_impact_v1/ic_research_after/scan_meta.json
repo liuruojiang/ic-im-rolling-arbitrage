@@ -1,0 +1,332 @@
+{
+  "run_id": "20260917_ic_im_ic_v1_3_to_v1_4_final_joint_upgrade_gate_redteam_v3",
+  "created_at": "2026-09-17T09:34:13+08:00",
+  "phase": "complete",
+  "project": "IC和IM滚动套利",
+  "strategy": "IC v1.3 to v1.4 redteam corrected",
+  "subsystem": "final joint promotion gate",
+  "repo_root": "D:\\动量策略\\IC和IM滚动套利",
+  "entrypoint": "research_ic_v13_to_v14_final_joint_gate_v1.py",
+  "git_branch": "main",
+  "git_commit": "9ebc6f2c227035e0f05e81305782e642d21e1ac5",
+  "git_status_before": "?? adversarial_imc_short_put_robustness_audit.py\n?? analyze_grid_scale_ablation_20260911.py\n?? analyze_im_unified_debounce_cost_stress_v2.py\n?? analyze_no_grid_annual_20260912.py\n?? analyze_real_annual_drawdowns_20260911.py\n?? analyze_v13_component_attribution_20260912.py\n?? analyze_v13_exposure_and_fixed_core_basis_20260912.py\n?? audit_adversarial_v3_early_valuation.py\n?? docs/ic_core_put_profit_restrike_v1_spec.md\n?? docs/ic_coreput_highiv_short95_router_v1_spec.md\n?? docs/ic_coreput_highiv_short95_router_v1_spec.md.sha256\n?? docs/ic_im_grid_stop_falling_entry_v1_spec.md\n?? docs/ic_im_v1_4_upgrade_candidate_draft_20260917.md\n?? docs/ic_short95_catastrophe_put_scan_v1_spec.md\n?? docs/ic_short95_maturity_scan_v1_spec.md\n?? docs/ic_short95_relative_iv_scan_v1_spec.md\n?? docs/ic_short95_unified_valuation_debounce_v1_spec.md\n?? docs/ic_v13_decay50_vs60_cost_cycle_final_v1_spec.md\n?? docs/ic_v13_final_decay_50_80_recheck_v1_spec.md\n?? docs/ic_v13_final_joint_neighborhood_v1_spec.md\n?? docs/ic_v13_full_roll_day_v1_postrun_audit.md\n?? docs/ic_v13_full_roll_day_v1_spec.md\n?? docs/ic_v13_full_roll_day_v1_spec.md.sha256\n?? docs/ic_v13_full_roll_tenor_timing_v2_failure_disclosure.md\n?? docs/ic_v13_full_roll_tenor_timing_v2_postrun_audit.md\n?? docs/ic_v13_full_roll_tenor_timing_v2_spec.md\n?? docs/ic_v13_full_roll_tenor_timing_v2_spec.md.sha256\n?? docs/ic_v13_full_short95_profit_restrike_v1_spec.md\n?? docs/ic_v13_joint3x_q1_cost_cycle_robustness_v1_spec.md\n?? docs/ic_v13_momentum_short95_full_joint_v1_spec.md\n?? docs/ic_v13_momentum_short95_full_joint_v1_spec.md.sha256\n?? docs/ic_v13_short95_quantity_delta_scan_v1_spec.md\n?? docs/ic_v13_to_v14_final_joint_gate_v1_spec.md\n?? docs/ic_v13_to_v14_final_joint_gate_v1_spec.md.sha256\n?? docs/ic_v14_redteam_correction_rerun_v1_spec.md\n?? docs/ic_v14_redteam_correction_rerun_v1_spec.md.sha256\n?? docs/im_core_put_profit_restrike_causal_v3_spec.md\n?? docs/im_core_put_profit_restrike_full_v1_failure_disclosure.md\n?? docs/im_core_put_profit_restrike_v1_spec.md\n?? docs/im_futures_roll_t02_followup_v2_spec.md\n?? docs/im_futures_roll_t02_followup_v2_spec.md.sha256\n?? docs/im_futures_roll_tenor_timing_scan_v1_spec.md\n?? docs/im_futures_roll_tenor_timing_scan_v1_spec.md.sha256\n?? docs/im_short95_catastrophe_put_scan_v1_spec.md\n?? docs/im_short95_maturity_corrected_mixed_v1_spec.md\n?? docs/im_short95_maturity_scan_v1_spec.md\n?? docs/im_short95_premium_decay_early_roll_scan_v1_spec.md\n?? docs/im_short95_profit3x_joint_v1_spec.md\n?? docs/im_short95_relative_iv_scan_v1_postrun_audit.md\n?? docs/im_short95_relative_iv_scan_v1_spec.md\n?? docs/im_short95_unified_valuation_debounce_v2_postrun_audit.md\n?? docs/im_short95_unified_valuation_debounce_v2_spec.md\n?? docs/im_short95_valuation_debounce_scan_v1_postrun_audit.md\n?? docs/im_short95_valuation_debounce_scan_v1_spec.md\n?? docs/im_v13_call_external_modules_scan_v1_postrun_audit.md\n?? docs/im_v13_call_external_modules_scan_v1_spec.md\n?? docs/im_v13_call_external_modules_scan_v1_spec.md.sha256\n?? docs/im_v13_call_followup_battery_v3_postrun_audit.md\n?? docs/im_v13_call_followup_battery_v3_spec.md\n?? docs/im_v13_call_followup_battery_v3_spec.md.sha256\n?? docs/im_v13_call_iv_fine_scan_v2_postrun_audit.md\n?? docs/im_v13_call_iv_fine_scan_v2_spec.md\n?? docs/im_v13_call_iv_fine_scan_v2_spec.md.sha256\n?? docs/im_v13_call_iv_plateau_uniform_safety_v4_postrun_audit.md\n?? docs/im_v13_call_iv_plateau_uniform_safety_v4_spec.md\n?? docs/im_v13_call_iv_plateau_uniform_safety_v4_spec.md.sha256\n?? docs/im_v13_core_put_profit_restrike_full_reintegration_v1_spec.md\n?? docs/im_v13_core_put_profit_restrike_robustness_v2_spec.md\n?? docs/im_v13_external_price_grid_replacement_v1_postrun_audit.md\n?? docs/im_v13_external_price_grid_replacement_v1_spec.md\n?? docs/im_v13_external_price_grid_replacement_v1_spec.md.sha256\n?? docs/im_v13_full_short95_profit3x_joint_v1_spec.md\n?? docs/im_v13_momentum_short95_full_joint_v1_spec.md\n?? docs/im_v13_momentum_short95_full_joint_v1_spec.md.sha256\n?? docs/im_v13_quarter_t3_close_impact_v4_postrun_audit.md\n?? docs/im_v13_quarter_t3_close_impact_v4_spec.md\n?? docs/im_v13_quarter_t3_close_impact_v4_spec.md.sha256\n?? docs/im_v13_r6_full_roll_timing_tenor_v1_spec.md\n?? docs/im_v13_r6_full_roll_timing_tenor_v1_spec.md.sha256\n?? docs/im_v13_r6_full_roll_timing_tenor_v2_spec.md\n?? docs/im_v13_r6_full_roll_timing_tenor_v2_spec.md.sha256\n?? docs/im_v13_r6_full_spread_roll_v3_spec.md\n?? docs/im_v13_r6_full_spread_roll_v3_spec.md.sha256\n?? docs/im_v13_short95_quantity_delta_scan_v1_spec.md\n?? docs/im_v14_redteam_correction_rerun_v1_spec.md\n?? docs/im_v14_redteam_correction_rerun_v1_spec.md.sha256\n?? docs/imc_high_iv_short95_router_model_v1_spec.md\n?? docs/imc_high_iv_short95_router_v1_spec.md\n?? docs/rmb_icim_v13_account_survival_stress_v1_spec.md\n?? docs/rmb_icim_v13_account_survival_stress_v1_spec.md.sha256\n?? docs/rmb_icim_v13_exchange_margin_replay_v2_spec.md\n?? docs/rmb_icim_v13_exchange_margin_replay_v2_spec.md.sha256\n?? docs/rmb_icim_v13_exchange_margin_replay_v2_spec.sha256\n?? docs/rmb_icim_v13_extreme_path_stress_v3_spec.md\n?? docs/rmb_icim_v13_extreme_path_stress_v3_spec.md.sha256\n?? docs/rmb_icim_v13_extreme_path_stress_v4_spec.md\n?? docs/rmb_icim_v13_extreme_path_stress_v4_spec.md.sha256\n?? docs/rmb_icim_v13_integer_put_liquidation_delay_stress_v5_spec.md\n?? docs/rmb_icim_v13_integer_put_liquidation_delay_stress_v5_spec.md.sha256\n?? docs/rmb_v13_a_icim_weight_scan_v1_spec.md\n?? docs/rmb_v13_a_icim_weight_scan_v1_spec.md.sha256\n?? finalize_ic_im_v13_r7_r2_full_components_width_scan.py\n?? notes/ic_followup_layers_after_im_20260916.md\n?? notes/im_iv_research_directions_20260907.md\n?? notes/im_put_monthly_reset_mismatch_20260907.md\n?? notes/im_put_revalidation_candidate_decisions_20260908.md\n?? notes/im_revalidation_decisions_20260907.md\n?? notes/im_revalidation_dependency_order_20260907.md\n?? notes/im_short95_core_put_portfolio_decisions_20260914.md\n?? notes/short_put_tests_20260914.md\n?? refresh_nav_r7_complete_20260911.py\n?? refresh_nav_r7_complete_20260912.py\n?? report_ic_r2_full_real_comparison.py\n?? research_core_admission_discount_profit_v1.py\n?? research_ic_core_put_profit_restrike_v1.py\n?? research_ic_coreput_highiv_short95_router_v1.py\n?? research_ic_im_buy_put_mom_period_v1.py\n?? research_ic_im_grid_mom120_entry_v1.py\n?? research_ic_im_grid_stop_falling_entry_v1.py\n?? research_ic_im_valuation_duration_20260914.py\n?? research_ic_mom120_debounce_v1.py\n?? research_ic_put_discount_gate_5pct_v1.py\n?? research_ic_short95_cash_secured_put_v1.py\n?? research_ic_short95_catastrophe_put_scan_v1.py\n?? research_ic_short95_maturity_scan_v1.py\n?? research_ic_short95_native_momentum_v1.py\n?? research_ic_short95_premium_decay_reentry_scan_v1.py\n?? research_ic_short95_put_entry_gates_v1.py\n?? research_ic_short95_put_mom_positive_valuation_tier_expansion_v1.py\n?? research_ic_short95_put_to_ic_recovery_full_model_v1.py\n?? research_ic_short95_put_to_ic_recovery_v1.py\n?? research_ic_short95_put_to_ic_vs_pure_roll_v1.py\n?? research_ic_short95_put_valuation_tier_expansion_v1.py\n?? research_ic_short95_relative_iv_scan_v1.py\n?? research_ic_short95_unified_valuation_debounce_v1.py\n?? research_ic_short95_valuation_native_momentum_v2.py\n?? research_ic_v13_decay50_vs60_cost_cycle_final_v1.py\n?? research_ic_v13_final_decay_50_80_recheck_v1.py\n?? research_ic_v13_final_joint_neighborhood_v1.py\n?? research_ic_v13_full_short95_profit_restrike_v1.py\n?? research_ic_v13_joint3x_q1_cost_cycle_robustness_v1.py\n?? research_ic_v13_momentum_short95_full_joint_v1.py\n?? research_ic_v13_short95_quantity_delta_scan_v1.py\n?? research_ic_v13_short_momentum_debounce_v1.py\n?? research_ic_v13_to_v14_final_joint_gate_v1.py\n?? research_im_core_put_profit_restrike_v1.py\n?? research_im_core_put_profit_restrike_v2.py\n?? research_im_core_put_profit_restrike_v3.py\n?? research_im_core_short95_portfolio_v1.py\n?? research_im_grid160_half_mom120_v2.py\n?? research_im_grid_half_full_audit_v3.py\n?? research_im_mom120_debounce_v1.py\n?? research_im_original_core_put_vs_short95_v2.py\n?? research_im_put_discount_gate_5pct_v1.py\n?? research_im_short95_entry_gate_v1.py\n?? research_im_short95_entry_valuation_0123_v2.py\n?? research_im_short95_le1_mom_then_put102_v3.py\n?? research_im_short95_maturity_scan_v1.py\n?? research_im_short95_maturity_scan_v2.py\n?? research_im_short95_native_momentum_v1.py\n?? research_im_short95_percentile_entry_v1.py\n?? research_im_short95_premium_decay_reentry_scan_v1.py\n?? research_im_short95_premium_decay_roll_scan_v1.py\n?? research_im_short95_premium_decay_roll_scan_v2.py\n?? research_im_short95_profit3x_joint_v1.py\n?? research_im_short95_remove_mom_v1.py\n?? research_im_short95_then_icm_put102_audit_v2.py\n?? research_im_short95_then_icm_put102_v1.py\n?? research_im_short_otm_roll_v1.py\n?? research_im_short_put_recovery_atm_full_model_v1.py\n?? research_im_short_put_recovery_atm_real_v1.py\n?? research_im_short_put_recovery_full_model_v1.py\n?? research_im_short_put_recovery_v1.py\n?? research_im_transfer_put_pairing_v1.py\n?? research_im_v13_core_put_profit_restrike_full_v1.py\n?? research_im_v13_core_put_profit_restrike_robustness_v2.py\n?? research_im_v13_full_short95_profit3x_joint_v1.py\n?? research_im_v13_momentum_short95_full_joint_v1.py\n?? research_im_v13_short95_quantity_delta_scan_v1.py\n?? research_im_v13_short_momentum_debounce_v1.py\n?? research_im_valuation_entry_semantics_audit_v1.py\n?? research_imc_current_core_put_decay50_60_router_fresh_v1.py\n?? research_imc_current_core_put_decay50_60_router_parityfix_v2.py\n?? research_imc_current_core_put_decay60_router_fresh_v1.py\n?? research_imc_current_core_put_short95_earlyvaluation_v4.py\n?? research_imc_current_core_put_short95_iv20_40_v5.py\n?? research_imc_high_iv_short95_router_decay60_v1.py\n?? research_imc_high_iv_short95_router_model_v1.py\n?? research_imc_high_iv_short95_router_v1.py\n?? research_imc_short95_catastrophe_put_scan_v1.py\n?? research_imc_short95_maturity_corrected_v1.py\n?? research_imc_short95_maturity_corrected_v2.py\n?? research_imc_short95_relative_iv_scan_v1.py\n?? research_imc_short95_unified_valuation_debounce_v2.py\n?? research_imc_short95_valuation_debounce_scan_v1.py\n?? research_roll_put_vs_short95_v1.py\n?? run_ic_im_v13_r7_r2_current_f_base_width_scan.py\n?? run_ic_im_v13_r7_r2_full_components_width_scan.py\n?? runs/\n?? scan_im_v13_volume_hysteresis_confirmation_v1.py\n?? tmp/\n?? tmp_router_source.txt",
+  "git_status_after": "M ic_im_fear_grid_v1.py\n M ic_im_put_execution_v1.py\n M ic_im_quarter_roll_v1_3.py\n M ic_im_v1_4_policy.py\n M notes/mainline_registry.md\n M poe_ic_im_mainline_v1_4_bot.py\n M poe_ic_im_v1_4_server.py\n M poe_ic_im_v1_4_state.py\n M run_ic_im_v1_4_github_digest.py\n M test_adversarial_policy_20261007.py\n M test_ic_im_put_delivery_completion_20261016.py\n M test_ic_im_v1_4_integration_guards.py\n?? docs/ic_im_adjusted_put_migration_20261021_v1_spec.md\n?? docs/ic_im_adjusted_put_migration_20261021_v1_spec.md.sha256\n?? docs/ic_im_adjusted_put_redteam_20261021_v1_spec.md\n?? docs/ic_im_adjusted_put_redteam_20261021_v1_spec.md.sha256\n?? docs/ic_im_batch3_adversarial_20261021_v1_spec.md\n?? docs/ic_im_batch3_adversarial_20261021_v1_spec.md.sha256\n?? docs/ic_im_expert_repairs_20261021_v1_spec.md\n?? docs/ic_im_expert_repairs_20261021_v1_spec.md.sha256\n?? docs/ic_im_expert_round3_repairs_20261021_v1_spec.md\n?? docs/ic_im_expert_round3_repairs_20261021_v1_spec.md.sha256\n?? docs/ic_im_external_review_batch3_20261021_v1_spec.md\n?? docs/ic_im_external_review_batch3_20261021_v1_spec.md.sha256\n?? docs/ic_im_external_review_display_cache_20261021_v1_spec.md\n?? docs/ic_im_external_review_display_cache_20261021_v1_spec.md.sha256\n?? docs/ic_im_external_review_redteam_20261021_v1_spec.md\n?? docs/ic_im_external_review_redteam_20261021_v1_spec.md.sha256\n?? docs/ic_im_external_review_repairs_20261021_v1_spec.md\n?? docs/ic_im_external_review_repairs_20261021_v1_spec.md.sha256\n?? docs/ic_im_external_review_round2_20261021_v1_spec.md\n?? docs/ic_im_external_review_round2_20261021_v1_spec.md.sha256\n?? docs/ic_im_external_review_round2_redteam_20261021_v1_spec.md\n?? docs/ic_im_external_review_round2_redteam_20261021_v1_spec.md.sha256\n?? docs/ic_im_historical_put_identity_20261021_v1_spec.md\n?? docs/ic_im_historical_put_identity_20261021_v1_spec.md.sha256\n?? docs/ic_im_month_spread_adversarial_20261018.md\n?? docs/ic_im_month_spread_delivery_20261018.md\n?? docs/ic_im_ohlcv_waiting_20261021_v1_spec.md\n?? docs/ic_im_ohlcv_waiting_20261021_v1_spec.md.sha256\n?? docs/ic_im_put_after_settlement_monday_20261021_v1_spec.md\n?? docs/ic_im_put_after_settlement_monday_20261021_v2_spec.md\n?? docs/ic_im_put_monday_close_20261021_v1_spec.md\n?? docs/ic_im_put_monday_settlement_frozen_20261021_v1_spec.md\n?? docs/ic_im_round3_source_validation_20261021_v1_spec.md\n?? docs/ic_im_round3_source_validation_20261021_v1_spec.md.sha256\n?? docs/ic_im_round4_evidence_calendar_20261021_v1_spec.md\n?? docs/ic_im_round4_evidence_calendar_20261021_v1_spec.md.sha256\n?? docs/ic_im_round5_recording_semantics_20261021_v1_spec.md\n?? docs/ic_im_round5_recording_semantics_20261021_v1_spec.md.sha256\n?? docs/ic_put_wait_etf_listing_20261021_v1_spec.md\n?? ic_im_adjusted_put_migration_v1.py\n?? ic_im_evidence_adapter_v1.py\n?? ic_im_signal_evidence_v1.py\n?? ic_im_sse_contract_identity_v1.py\n?? quant_research_runs/20261018_monthly_spreads_adversarial_v1/\n?? quant_research_runs/20261018_monthly_spreads_v1/\n?? quant_research_runs/20261021_adjusted_put_migration_v1/\n?? quant_research_runs/20261021_adjusted_put_redteam_v1/\n?? quant_research_runs/20261021_batch3_adversarial_v1/\n?? quant_research_runs/20261021_expert_repairs_v1/\n?? quant_research_runs/20261021_expert_rereview_v1/\n?? quant_research_runs/20261021_expert_round3_repairs_v1/\n?? quant_research_runs/20261021_expert_round3_review_v1/\n?? quant_research_runs/20261021_external_review_batch3_v1/\n?? quant_research_runs/20261021_external_review_redteam_v1/\n?? quant_research_runs/20261021_external_review_round2_redteam_v1/\n?? quant_research_runs/20261021_external_review_round2_v1/\n?? quant_research_runs/20261021_external_review_v1/\n?? quant_research_runs/20261021_ic_wait_etf_listing_v1/\n?? quant_research_runs/20261021_put_after_settlement_monday_v1/\n?? quant_research_runs/20261021_put_after_settlement_monday_v2/\n?? quant_research_runs/20261021_put_monday_close_v1/\n?? quant_research_runs/20261021_put_monday_settlement_frozen_v1/\n?? quant_research_runs/20261021_round3_source_validation_v1/\n?? quant_research_runs/20261021_round4_evidence_calendar_v1/\n?? quant_research_runs/20261021_round5_recording_semantics_v1/\n?? quant_research_runs/20261022_five_rounds_backtest_impact_v1/\n?? test_ic_im_adjusted_put_migration_20261021.py\n?? test_ic_im_external_review_20261021.py\n?? test_ic_im_external_review_display_cache_20261021.py\n?? test_ic_im_external_review_round2_20261021.py\n?? test_ic_im_historical_put_identity_20261021.py\n?? test_ic_im_month_spreads_20261018.py\n?? test_ic_im_review_ohlcv_wait_20261021.py\n?? test_icim_a3_cash_20261021.py\n?? test_icim_a3_history_20261021.py\n?? test_icim_a3_integration_20261021.py\n?? test_icim_a3_ohlcv_20261021.py\n?? test_icim_b3adv_calendar_20261021.py\n?? test_icim_b3adv_concurrency_20261021.py\n?? test_icim_b3adv_market_20261021.py\n?? test_icim_b3adv_scope_20261021.py\n?? test_icim_b3adv_state_20261021.py\n?? test_icim_batch3_calendar_20261021.py\n?? test_icim_batch3_calendar_redteam_20261021.py\n?? test_icim_batch3_concurrency_20261021.py\n?? test_icim_batch3_old_call_20261021.py\n?? test_icim_batch3_research_boundary_20261021.py\n?? test_icim_batch3_valuation_20261021.py\n?? test_icim_expert_audit_calendar_20261021.py\n?? test_icim_expert_audit_integration_20261021.py\n?? test_icim_expert_calendar_20261021.py\n?? test_icim_expert_contract_replacements_20261021.py\n?? test_icim_expert_display_retry_20261021.py\n?? test_icim_expert_market_20261021.py\n?? test_icim_expert_ohlcv_20261021.py\n?? test_icim_expert_state_20261021.py\n?? test_icim_redteam_display_20261021.py\n?? test_icim_redteam_execution_20261021.py\n?? test_icim_redteam_integration_20261021.py\n?? test_icim_redteam_market_20261021.py\n?? test_icim_round2_audit_evidence_20261021.py\n?? test_icim_round2_audit_lifecycle_20261021.py\n?? test_icim_round2_audit_market_20261021.py\n?? test_icim_round2_audit_master_20261021.py\n?? test_icim_round3_adversarial_p1_20261021.py\n?? test_icim_round3_calendar_comparison_20261021.py\n?? test_icim_round3_display_repairs_20261021.py\n?? test_icim_round3_evidence_integration_20261021.py\n?? test_icim_round3_evidence_store_20261021.py\n?? test_icim_round3_grid_contract_replacements_20261021.py\n?? test_icim_round3_grid_persistence_20261021.py\n?? test_icim_round3_policy_repairs_20261021.py\n?? test_icim_round3_recovery_audit_20261021.py\n?? test_icim_round3_source_validation_20261021.py\n?? test_icim_round4_evidence_boundaries_20261021.py\n?? test_icim_round4_recovery_20261021.py\n?? test_icim_round5_recording_semantics_20261021.py\n?? tests/fixtures/icim_external_review_20261021/\n?? tests/fixtures/icim_external_review_round2_20261021/",
+  "scan_type": "IC_v1_3_to_v1_4_final_joint_upgrade_gate",
+  "parameter_group": "current profit3x fixed short95 final joint",
+  "baseline": {
+    "candidate": "current_v13",
+    "reference_run": "D:\\动量策略\\IC和IM滚动套利\\quant_param_scan_runs\\20260917_ic_v13_full_short95_profit_restrike_2x_3x_redteam_v2",
+    "daily_parity": {
+      "real": {
+        "current_v13": 9.974659986866641e-17,
+        "profit3x_only": 9.974659986866641e-17
+      },
+      "model": {
+        "current_v13": 9.974659986866641e-17,
+        "profit3x_only": 9.974659986866641e-17
+      }
+    },
+    "frozen_quarter_T3_composition_parity": 5.282232984349378e-16
+  },
+  "candidate_grid": [
+    {
+      "variant": "current_v13"
+    },
+    {
+      "variant": "profit3x_only"
+    },
+    {
+      "variant": "fixed_short95_only"
+    },
+    {
+      "variant": "final_joint"
+    }
+  ],
+  "data_snapshot": {
+    "real": "2022-09-19..2026-08-14 listed 510500 options",
+    "model": "2015-04-16..2026-08-14 theoretical extension"
+  },
+  "cost_model": {
+    "all_510500_put_one_way_bp": 5,
+    "IC_one_way_bp": 1,
+    "futures_buffer_per_1x": 0.3,
+    "cash_annual": 0.03
+  },
+  "outputs": {
+    "daily": "D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261022_five_rounds_backtest_impact_v1\\ic_research_after\\daily_outputs\\daily.csv.gz",
+    "trades": "D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261022_five_rounds_backtest_impact_v1\\ic_research_after\\daily_outputs\\trades.csv",
+    "signals": "D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261022_five_rounds_backtest_impact_v1\\ic_research_after\\daily_outputs\\signals.csv",
+    "events": "D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261022_five_rounds_backtest_impact_v1\\ic_research_after\\daily_outputs\\router_events.csv",
+    "cycles": "D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261022_five_rounds_backtest_impact_v1\\ic_research_after\\daily_outputs\\cycles.csv",
+    "gates": "D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261022_five_rounds_backtest_impact_v1\\ic_research_after\\promotion_gates.csv",
+    "integrity": "D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261022_five_rounds_backtest_impact_v1\\ic_research_after\\integrity_checks.csv",
+    "annual": "D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261022_five_rounds_backtest_impact_v1\\ic_research_after\\annual_attribution.csv",
+    "cycle_robustness": "D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261022_five_rounds_backtest_impact_v1\\ic_research_after\\referenced_cycle_robustness.csv",
+    "executed": "D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261022_five_rounds_backtest_impact_v1\\ic_research_after\\executed_state_machines.py"
+  },
+  "decision": "ic_v14_final_joint_gate_failed_keep_v13",
+  "stability_label": "final_joint_gate_failed",
+  "final_policy": {
+    "maturity": "M+1",
+    "iv_threshold": 0.375,
+    "premium_decay": 0.5,
+    "quantity": "q1 equal notional",
+    "core_put_profit_multiple": 3.0,
+    "momentum_short_put": "excluded",
+    "call": "excluded"
+  },
+  "promotion_gate_passed": false,
+  "cost_selection_gate_passed": false,
+  "theoretical_cycle_concentration_gate_passed": false,
+  "audit": {
+    "real": {
+      "short_router": {
+        "rows": 946,
+        "cycles": 16,
+        "assignments": 5,
+        "early_rolls": 11,
+        "ledger_max_abs_error": 1.7780915628762273e-17,
+        "entry_skips": 0
+      },
+      "route_switches": 11,
+      "variants": {
+        "current_v13": {
+          "core_trade_events": 83,
+          "momentum_trade_events": 30,
+          "profit_restrikes": 0,
+          "core_put_route_exits": 0,
+          "duplicate_route_profit_days": 0,
+          "min_cash_weight": 0.5679361612175873,
+          "put_cost_rate_sum_5bp": 0.05585358160664833
+        },
+        "profit3x_only": {
+          "core_trade_events": 85,
+          "momentum_trade_events": 30,
+          "profit_restrikes": 2,
+          "core_put_route_exits": 0,
+          "duplicate_route_profit_days": 0,
+          "min_cash_weight": 0.5679361612175873,
+          "put_cost_rate_sum_5bp": 0.05743252897506934
+        },
+        "fixed_short95_only": {
+          "core_trade_events": 39,
+          "momentum_trade_events": 30,
+          "profit_restrikes": 0,
+          "core_put_route_exits": 7,
+          "duplicate_route_profit_days": 0,
+          "min_cash_weight": 0.5547749906050357,
+          "put_cost_rate_sum_5bp": 0.03129507681440391
+        },
+        "final_joint": {
+          "core_trade_events": 39,
+          "momentum_trade_events": 30,
+          "profit_restrikes": 0,
+          "core_put_route_exits": 7,
+          "duplicate_route_profit_days": 0,
+          "min_cash_weight": 0.5547749906050357,
+          "put_cost_rate_sum_5bp": 0.03129507681440391
+        }
+      }
+    },
+    "model": {
+      "short_router": {
+        "rows": 2756,
+        "cycles": 3,
+        "assignments": 1,
+        "early_rolls": 2,
+        "ledger_max_abs_error": 1.1102230246251565e-16
+      },
+      "route_switches": 3,
+      "variants": {
+        "current_v13": {
+          "core_trade_events": 167,
+          "momentum_trade_events": 128,
+          "profit_restrikes": 0,
+          "core_put_route_exits": 0,
+          "duplicate_route_profit_days": 0,
+          "min_cash_weight": 0.148484380509884,
+          "put_cost_rate_sum_5bp": 0.19902096598540908
+        },
+        "profit3x_only": {
+          "core_trade_events": 178,
+          "momentum_trade_events": 128,
+          "profit_restrikes": 11,
+          "core_put_route_exits": 0,
+          "duplicate_route_profit_days": 0,
+          "min_cash_weight": 0.3863280659661852,
+          "put_cost_rate_sum_5bp": 0.21348931195486232
+        },
+        "fixed_short95_only": {
+          "core_trade_events": 165,
+          "momentum_trade_events": 128,
+          "profit_restrikes": 0,
+          "core_put_route_exits": 2,
+          "duplicate_route_profit_days": 0,
+          "min_cash_weight": 0.148484380509884,
+          "put_cost_rate_sum_5bp": 0.1976506404803683
+        },
+        "final_joint": {
+          "core_trade_events": 176,
+          "momentum_trade_events": 128,
+          "profit_restrikes": 11,
+          "core_put_route_exits": 2,
+          "duplicate_route_profit_days": 0,
+          "min_cash_weight": 0.3863280659661852,
+          "put_cost_rate_sum_5bp": 0.21211898644982152
+        }
+      }
+    }
+  },
+  "promotion_gates": [
+    {
+      "scope": "real",
+      "segment": "full",
+      "current_ann_return": 0.26893042514095056,
+      "joint_ann_return": 0.30382627256675243,
+      "joint_minus_current_ann_pp": 3.4895847425801874,
+      "current_sharpe": 1.5105109146961115,
+      "joint_sharpe": 1.8326807758812165,
+      "joint_minus_current_sharpe": 0.32216986118510493,
+      "current_max_dd": -0.11065636006875657,
+      "joint_max_dd": -0.11936546551250815,
+      "joint_mdd_abs_worsening_pp": 0.8709105443751586,
+      "baseline_gate": false,
+      "best_single_gate": true,
+      "gate": false
+    },
+    {
+      "scope": "real",
+      "segment": "last_3y",
+      "current_ann_return": 0.3496310068954478,
+      "joint_ann_return": 0.37785160290772146,
+      "joint_minus_current_ann_pp": 2.822059601227367,
+      "current_sharpe": 1.7349582118236995,
+      "joint_sharpe": 2.001812335944279,
+      "joint_minus_current_sharpe": 0.26685412412057974,
+      "current_max_dd": -0.11065636006875612,
+      "joint_max_dd": -0.11936546551250782,
+      "joint_mdd_abs_worsening_pp": 0.8709105443751697,
+      "baseline_gate": false,
+      "best_single_gate": true,
+      "gate": false
+    },
+    {
+      "scope": "real",
+      "segment": "last_1y",
+      "current_ann_return": 0.46266435411907003,
+      "joint_ann_return": 0.4524998300615579,
+      "joint_minus_current_ann_pp": -1.0164524057512114,
+      "current_sharpe": 2.4537192692902763,
+      "joint_sharpe": 3.215303525687686,
+      "joint_minus_current_sharpe": 0.7615842563974096,
+      "current_max_dd": -0.06603175413503448,
+      "joint_max_dd": -0.039097936844252,
+      "joint_mdd_abs_worsening_pp": -2.693381729078248,
+      "baseline_gate": true,
+      "best_single_gate": true,
+      "gate": true
+    },
+    {
+      "scope": "model",
+      "segment": "full",
+      "current_ann_return": 0.1861545578209769,
+      "joint_ann_return": 0.213173740865221,
+      "joint_minus_current_ann_pp": 2.701918304424411,
+      "current_sharpe": 1.1185366635520895,
+      "joint_sharpe": 1.2794587970176492,
+      "joint_minus_current_sharpe": 0.16092213346555972,
+      "current_max_dd": -0.19577640309071742,
+      "joint_max_dd": -0.12124063971933752,
+      "joint_mdd_abs_worsening_pp": -7.45357633713799,
+      "baseline_gate": true,
+      "best_single_gate": true,
+      "gate": true
+    },
+    {
+      "scope": "model",
+      "segment": "last_3y",
+      "current_ann_return": 0.34516941190891504,
+      "joint_ann_return": 0.41458247453515984,
+      "joint_minus_current_ann_pp": 6.94130626262448,
+      "current_sharpe": 1.646589912005302,
+      "joint_sharpe": 1.8992310528998613,
+      "joint_minus_current_sharpe": 0.25264114089455925,
+      "current_max_dd": -0.1146569067895693,
+      "joint_max_dd": -0.08890874118484604,
+      "joint_mdd_abs_worsening_pp": -2.574816560472326,
+      "baseline_gate": true,
+      "best_single_gate": true,
+      "gate": true
+    },
+    {
+      "scope": "model",
+      "segment": "last_1y",
+      "current_ann_return": 0.44917610423469756,
+      "joint_ann_return": 0.44917610423469756,
+      "joint_minus_current_ann_pp": 0.0,
+      "current_sharpe": 2.2532299165596212,
+      "joint_sharpe": 2.2532299165596212,
+      "joint_minus_current_sharpe": 0.0,
+      "current_max_dd": -0.06603175413503448,
+      "joint_max_dd": -0.06603175413503448,
+      "joint_mdd_abs_worsening_pp": 0.0,
+      "baseline_gate": true,
+      "best_single_gate": true,
+      "gate": true
+    }
+  ],
+  "integrity_checks": [
+    {
+      "scope": "real",
+      "max_reference_parity_error": 9.974659986866641e-17,
+      "min_cash_weight": 0.5547749906050357,
+      "duplicate_route_profit_days": 0,
+      "momentum_short_put_events": 0,
+      "route_cycles": 16,
+      "core_profit_restrikes": 0
+    },
+    {
+      "scope": "model",
+      "max_reference_parity_error": 9.974659986866641e-17,
+      "min_cash_weight": 0.3863280659661852,
+      "duplicate_route_profit_days": 0,
+      "momentum_short_put_events": 0,
+      "route_cycles": 3,
+      "core_profit_restrikes": 11
+    }
+  ],
+  "unavailable_segments": {
+    "real_current_v13": {
+      "last_10y": "history shorter than requested window",
+      "last_5y": "history shorter than requested window"
+    },
+    "real_profit3x_only": {
+      "last_10y": "history shorter than requested window",
+      "last_5y": "history shorter than requested window"
+    },
+    "real_fixed_short95_only": {
+      "last_10y": "history shorter than requested window",
+      "last_5y": "history shorter than requested window"
+    },
+    "real_final_joint": {
+      "last_10y": "history shorter than requested window",
+      "last_5y": "history shorter than requested window"
+    }
+  },
+  "source_hashes": {
+    "script": "8bec95657aa4a662925922d20f5fda982b1eced26954d0637655417b93ec5047",
+    "spec": "f2cdd24646232a060c10af1c7674ba28f5935b9c787c39ad89a9084cbe95a244",
+    "baseline_daily": "c1922f31f491354d73f61e48a12f230817742ab4b13523ac2b6bf13956783539",
+    "invalidated_final_reference_daily": "ea986d629d0e076ea4a2a0899db41eeead104322ae0b5e98d096ffb1b558b896",
+    "momentum_rejection_record": "e115c1ca119148b7c87ecc3b9957da58980c03b15d4d689711c8c43f1d58874d",
+    "quarter": "fd6bc4be29d8f6f35875affb8dd0efc1498346625fcbe26d34b1b6fc9ef1d3af",
+    "grid": "0661046969144da2af5081bf87366043dc2365507dcf88e6e8fd76d257c3d1f4"
+  },
+  "warnings": [
+    "Research-only; no production, digest, ledger, or trading changes.",
+    "Model 510500 Put is theoretical.",
+    "The prior decay/cycle robustness result is invalid after correcting sample-end pseudo-expiry and is not carried forward.",
+    "No dynamic margin, forced liquidation, tax, capacity, integer sizing, or explicit fill delay."
+  ],
+  "finalized_at": "2026-10-22T10:15:55.960890+08:00"
+}

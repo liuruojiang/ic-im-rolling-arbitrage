@@ -1,0 +1,6 @@
+{
+  "returncode": 0,
+  "accepted_receipt": "{\n  \"started_at\": \"2026-10-21T09:30:56.177110+00:00\",\n  \"finished_at\": \"2026-10-21T09:30:57.104104+00:00\",\n  \"exit_code\": 0,\n  \"source_before_equals_after\": true,\n  \"source_files\": 4,\n  \"counts\": {\n    \"tests\": 1,\n    \"failures\": 0,\n    \"errors\": 0,\n    \"skipped\": 0\n  },\n  \"artifacts\": {\n    \"regression.xml\": \"b3af6f43f934c736a76c86b965a81a018aed7e3c2e8110f5ad9ecf66f9281d5b\",\n    \"regression.txt\": \"188c7d2c78e3347bd0649f49b266c0cd289fd68f9cfe0221f5ea1989c86953ff\",\n    \"source_before.json\": \"cd88f542af75e33e87b0cdbe9b03d504dde1c94918a4ea1dbd6503db10050a92\",\n    \"source_after.json\": \"cd88f542af75e33e87b0cdbe9b03d504dde1c94918a4ea1dbd6503db10050a92\",\n    \"test_run.json\": \"6fce91909cf7331df3987a97489c681d31787a308024e36c11ed6e79d3e28629\",\n    \"collection.json\": \"c636d0c4af2e0d396f9eadbc4c79e3b7d5e84a5d66382446182d96e8c96db30b\"\n  }\n}\n",
+  "child_output": ".                                                                        [100%]\n1 passed in 0.30s\n\n{\"stage\": \"config_selection\", \"counts\": {\"tests\": 1, \"failures\": 0, \"errors\": 0, \"skipped\": 0}, \"source_files\": 4}\n",
+  "child_error": ""
+}

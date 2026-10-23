@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="4" skipped="0" tests="14" time="1.827" timestamp="2026-10-23T09:27:24.694272+08:00" hostname="DESKTOP-95I7VVU"><testcase classname="test_icim_ma23_history_20261023" name="test_receipt_identity_mapping_preserves_class_cloud_and_parameter_boundaries[test_m.py::test_x[a::b.c]]" time="0.046" /><testcase classname="test_icim_ma23_history_20261023" name="test_receipt_identity_mapping_preserves_class_cloud_and_parameter_boundaries[cloud/tests/test_m.py::TestC::test_x[folder/a.py::fn]]" time="0.011" /><testcase classname="test_icim_ma23_history_20261023" name="test_receipt_identity_mapping_preserves_class_cloud_and_parameter_boundaries[test_nested.py::Outer::Inner::test_method[case.with.dots]]" time="0.012" /><testcase classname="test_icim_ma23_history_20261023" name="test_receipt_identity_mapping_preserves_class_cloud_and_parameter_boundaries[tests/test_win.py::test_x[C:\\tmp\\folder.a]]" time="0.011" /><testcase classname="test_icim_ma23_history_20261023" name="test_receipt_identity_mapping_preserves_class_cloud_and_parameter_boundaries[test_unicode.py::test_contract[\u5408\u7ea62703::\u65e5\u671f]]" time="0.011" /><testcase classname="test_icim_ma23_history_20261023" name="test_receipt_rejects_xml_test_identity_not_in_executed_collection" time="0.062"><failure message="Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;">tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_e97fec3f/pytest/test_receipt_rejects_xml_test_0')
+
+    def test_receipt_rejects_xml_test_identity_not_in_executed_collection(tmp_path):
+        target = copied_receipt(tmp_path)
+        tree = ET.parse(target / 'regression.xml')
+        case = tree.getroot().find('.//testcase')
+        case.set('name', 'test_synthetic_success_from_another_run')
+        tree.write(target / 'regression.xml', encoding='utf-8', xml_declaration=True)
+        rebind_artifact(target, 'regression.xml')
+        # Counts, exit status and every artifact hash are internally consistent;
+        # the XML identity contradicts the supposedly executed nodeid list.
+&gt;       with pytest.raises(RuntimeError, match='identity|identit|用例|执行|XML|collection'):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;
+
+test_icim_ma23_history_20261023.py:93: Failed</failure></testcase><testcase classname="test_icim_ma23_history_20261023" name="test_receipt_rejects_wrong_collection_identity_even_with_same_xml_count" time="0.068"><failure message="Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;">tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_e97fec3f/pytest/test_receipt_rejects_wrong_col0')
+
+    def test_receipt_rejects_wrong_collection_identity_even_with_same_xml_count(tmp_path):
+        target = copied_receipt(tmp_path)
+        collection = read(target / 'collection.json')
+        old = collection['selected'][0]
+        replacement = 'test_unexecuted_synthetic_module.py::test_unexecuted_synthetic_case'
+        for key in ['collected', 'selected', 'executed']:
+            collection[key] = [replacement if node == old else node for node in collection[key]]
+        (target / 'collection.json').write_text(json.dumps(collection), encoding='utf-8')
+        rebind_artifact(target, 'collection.json')
+&gt;       with pytest.raises(RuntimeError, match='identity|identit|用例|执行|XML|collection'):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;
+
+test_icim_ma23_history_20261023.py:106: Failed</failure></testcase><testcase classname="test_icim_ma23_history_20261023" name="test_previous_accepted_receipt_has_matching_real_case_inventory" time="0.041" /><testcase classname="test_icim_ma23_history_20261023" name="test_22_exclusions_have_not_grown_across_the_four_recent_rounds" time="0.005" /><testcase classname="test_icim_ma23_history_20261023" name="test_A_to_H_provenance_snapshots_match_the_original_accepted_code" time="0.006" /><testcase classname="test_icim_ma23_history_20261023" name="test_current_28_file_pin_covers_actual_static_capture_dependency_closure" time="0.644" /><testcase classname="test_icim_ma23_history_20261023" name="test_loaded_inventory_includes_actual_nonprefixed_production_dependency" time="0.004"><failure message="AssertionError: assert 'im_put_policy.py' in {'capture_ic_im_v1_4_inputs.py': 'e8faad38e6528c652f92f9bd2b257277faae2087dc7cc9c047b12a6c209fcdc2'}&#10; +  where {'capture_ic_im_v1_4_inputs.py': 'e8faad38e6528c652f92f9bd2b257277faae2087dc7cc9c047b12a6c209fcdc2'} = &lt;function loaded_sources at 0x0000018F77597D70&gt;()&#10; +    where &lt;function loaded_sources at 0x0000018F77597D70&gt; = &lt;module 'capture_ic_im_v1_4_inputs' from 'D:\\动量策略\\IC和IM滚动套利\\capture_ic_im_v1_4_inputs.py'&gt;.loaded_sources">def test_loaded_inventory_includes_actual_nonprefixed_production_dependency():
+        import capture_ic_im_v1_4_inputs as capture
+        import im_put_policy  # real production module, not an injected fake.
+        assert Path(im_put_policy.__file__).resolve() == ROOT / 'im_put_policy.py'
+&gt;       assert 'im_put_policy.py' in capture.loaded_sources()
+E       AssertionError: assert 'im_put_policy.py' in {'capture_ic_im_v1_4_inputs.py': 'e8faad38e6528c652f92f9bd2b257277faae2087dc7cc9c047b12a6c209fcdc2'}
+E        +  where {'capture_ic_im_v1_4_inputs.py': 'e8faad38e6528c652f92f9bd2b257277faae2087dc7cc9c047b12a6c209fcdc2'} = &lt;function loaded_sources at 0x0000018F77597D70&gt;()
+E        +    where &lt;function loaded_sources at 0x0000018F77597D70&gt; = &lt;module 'capture_ic_im_v1_4_inputs' from 'D:\\动量策略\\IC和IM滚动套利\\capture_ic_im_v1_4_inputs.py'&gt;.loaded_sources
+
+test_icim_ma23_history_20261023.py:175: AssertionError</failure></testcase><testcase classname="test_icim_ma23_history_20261023" name="test_pin_missing_real_loaded_im_policy_is_rejected" time="0.039"><failure message="Failed: DID NOT RAISE &lt;class 'capture_ic_im_v1_4_inputs.SourcePinError'&gt;">tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_e97fec3f/pytest/test_pin_missing_real_loaded_i0')
+
+    def test_pin_missing_real_loaded_im_policy_is_rejected(tmp_path):
+        import capture_ic_im_v1_4_inputs as capture
+        import im_put_policy
+        pin = read(PREV / 'delivery/capture_source_pin.json')
+        pin['files'] = {n:sha(ROOT/n) for n in pin['files'] if n != 'im_put_policy.py'}
+        path = tmp_path / 'deliberately_incomplete_pin.json'
+        path.write_text(json.dumps(pin), encoding='utf-8')
+        active = capture.SourcePin(path)
+        assert Path(im_put_policy.__file__).resolve().is_file()
+&gt;       with pytest.raises(capture.SourcePinError, match='im_put_policy'):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'capture_ic_im_v1_4_inputs.SourcePinError'&gt;
+
+test_icim_ma23_history_20261023.py:187: Failed</failure></testcase><testcase classname="test_icim_ma23_history_20261023" name="test_historical_numeric_functions_and_inputs_remain_bound_to_prior_versions" time="0.722" /></testsuite></testsuites>

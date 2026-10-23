@@ -1,0 +1,238 @@
+{
+  "method": "UTF-8 decode and splitlines normalize only line endings; compare every recorded after-hunk",
+  "source_delta_sha256": "1e05631057f204f550bb6edf68cd3605756e8111a3c0a349e0f29c73f50a2633",
+  "files": {
+    "ic_im_put_execution_v1.py": "2e30546c65fe1991d1b96edc44afb7e2d7de103b8f236353ddd100997829e74d",
+    "ic_im_v1_4_policy.py": "7fd6feff59b625ea07f8b53b50962df76a016207bb523863bd60276059a64e86",
+    "poe_ic_im_mainline_v1_4_bot.py": "010b56719875d8f55590d184e134c61c30afe16a67ea020ca874808ae8f48c73",
+    "poe_ic_im_v1_4_state.py": "78fc7211f1c709df23aed35b41db558a293be8a24c088b8e3bdf7575a0fc2bf2"
+  },
+  "hunks": [
+    {
+      "file": "ic_im_put_execution_v1.py",
+      "recorded_after_start": 2,
+      "lines": 84,
+      "exact_at_recorded_line": true,
+      "matching_locations": [
+        2
+      ]
+    },
+    {
+      "file": "ic_im_put_execution_v1.py",
+      "recorded_after_start": 162,
+      "lines": 10,
+      "exact_at_recorded_line": true,
+      "matching_locations": [
+        162
+      ]
+    },
+    {
+      "file": "ic_im_v1_4_policy.py",
+      "recorded_after_start": 399,
+      "lines": 9,
+      "exact_at_recorded_line": true,
+      "matching_locations": [
+        399
+      ]
+    },
+    {
+      "file": "poe_ic_im_mainline_v1_4_bot.py",
+      "recorded_after_start": 1015,
+      "lines": 37,
+      "exact_at_recorded_line": true,
+      "matching_locations": [
+        1015
+      ]
+    },
+    {
+      "file": "poe_ic_im_mainline_v1_4_bot.py",
+      "recorded_after_start": 2753,
+      "lines": 15,
+      "exact_at_recorded_line": true,
+      "matching_locations": [
+        2753
+      ]
+    },
+    {
+      "file": "poe_ic_im_mainline_v1_4_bot.py",
+      "recorded_after_start": 3665,
+      "lines": 8,
+      "exact_at_recorded_line": true,
+      "matching_locations": [
+        3665
+      ]
+    },
+    {
+      "file": "poe_ic_im_mainline_v1_4_bot.py",
+      "recorded_after_start": 3675,
+      "lines": 50,
+      "exact_at_recorded_line": true,
+      "matching_locations": [
+        3675
+      ]
+    },
+    {
+      "file": "poe_ic_im_mainline_v1_4_bot.py",
+      "recorded_after_start": 4900,
+      "lines": 53,
+      "exact_at_recorded_line": true,
+      "matching_locations": [
+        4900
+      ]
+    },
+    {
+      "file": "poe_ic_im_mainline_v1_4_bot.py",
+      "recorded_after_start": 5155,
+      "lines": 8,
+      "exact_at_recorded_line": true,
+      "matching_locations": [
+        5155
+      ]
+    },
+    {
+      "file": "poe_ic_im_mainline_v1_4_bot.py",
+      "recorded_after_start": 5170,
+      "lines": 22,
+      "exact_at_recorded_line": true,
+      "matching_locations": [
+        5170
+      ]
+    },
+    {
+      "file": "poe_ic_im_mainline_v1_4_bot.py",
+      "recorded_after_start": 5402,
+      "lines": 9,
+      "exact_at_recorded_line": true,
+      "matching_locations": [
+        5402
+      ]
+    },
+    {
+      "file": "poe_ic_im_mainline_v1_4_bot.py",
+      "recorded_after_start": 5446,
+      "lines": 9,
+      "exact_at_recorded_line": true,
+      "matching_locations": [
+        5446
+      ]
+    },
+    {
+      "file": "poe_ic_im_mainline_v1_4_bot.py",
+      "recorded_after_start": 5475,
+      "lines": 10,
+      "exact_at_recorded_line": true,
+      "matching_locations": [
+        5475
+      ]
+    },
+    {
+      "file": "poe_ic_im_mainline_v1_4_bot.py",
+      "recorded_after_start": 5558,
+      "lines": 29,
+      "exact_at_recorded_line": true,
+      "matching_locations": [
+        5558
+      ]
+    },
+    {
+      "file": "poe_ic_im_mainline_v1_4_bot.py",
+      "recorded_after_start": 5588,
+      "lines": 7,
+      "exact_at_recorded_line": true,
+      "matching_locations": [
+        5588
+      ]
+    },
+    {
+      "file": "poe_ic_im_mainline_v1_4_bot.py",
+      "recorded_after_start": 5689,
+      "lines": 17,
+      "exact_at_recorded_line": true,
+      "matching_locations": [
+        5689
+      ]
+    },
+    {
+      "file": "poe_ic_im_mainline_v1_4_bot.py",
+      "recorded_after_start": 5711,
+      "lines": 9,
+      "exact_at_recorded_line": true,
+      "matching_locations": [
+        5711
+      ]
+    },
+    {
+      "file": "poe_ic_im_mainline_v1_4_bot.py",
+      "recorded_after_start": 5758,
+      "lines": 23,
+      "exact_at_recorded_line": true,
+      "matching_locations": [
+        5758
+      ]
+    },
+    {
+      "file": "poe_ic_im_mainline_v1_4_bot.py",
+      "recorded_after_start": 6774,
+      "lines": 6,
+      "exact_at_recorded_line": true,
+      "matching_locations": [
+        6774
+      ]
+    },
+    {
+      "file": "poe_ic_im_mainline_v1_4_bot.py",
+      "recorded_after_start": 6805,
+      "lines": 10,
+      "exact_at_recorded_line": true,
+      "matching_locations": [
+        6805
+      ]
+    },
+    {
+      "file": "poe_ic_im_mainline_v1_4_bot.py",
+      "recorded_after_start": 6852,
+      "lines": 13,
+      "exact_at_recorded_line": true,
+      "matching_locations": [
+        6852
+      ]
+    },
+    {
+      "file": "poe_ic_im_mainline_v1_4_bot.py",
+      "recorded_after_start": 6964,
+      "lines": 12,
+      "exact_at_recorded_line": true,
+      "matching_locations": [
+        6964
+      ]
+    },
+    {
+      "file": "poe_ic_im_mainline_v1_4_bot.py",
+      "recorded_after_start": 6979,
+      "lines": 7,
+      "exact_at_recorded_line": true,
+      "matching_locations": [
+        6979
+      ]
+    },
+    {
+      "file": "poe_ic_im_v1_4_state.py",
+      "recorded_after_start": 352,
+      "lines": 8,
+      "exact_at_recorded_line": true,
+      "matching_locations": [
+        352
+      ]
+    },
+    {
+      "file": "poe_ic_im_v1_4_state.py",
+      "recorded_after_start": 962,
+      "lines": 10,
+      "exact_at_recorded_line": true,
+      "matching_locations": [
+        962
+      ]
+    }
+  ],
+  "all_match": true
+}

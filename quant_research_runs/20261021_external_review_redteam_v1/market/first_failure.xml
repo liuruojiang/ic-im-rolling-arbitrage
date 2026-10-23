@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="6" skipped="0" tests="11" time="1.925" timestamp="2026-10-21T13:52:08.188172+08:00" hostname="DESKTOP-95I7VVU"><testcase classname="test_icim_redteam_market_20261021" name="test_real_three_packet_baseline_uses_trade_field" time="0.003" /><testcase classname="test_icim_redteam_market_20261021" name="test_listing_and_contract_identity_fail_closed[unrequested_security]" time="0.002"><failure message="Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x0000027BF1CFEEA0&gt;
+mutation = 'unrequested_security'
+
+    @pytest.mark.parametrize('mutation', ['unrequested_security', 'wrong_underlying', 'wrong_expiry_day',
+                                         'duplicate_security', 'duplicate_contract', 'missing_security'])
+    def test_listing_and_contract_identity_fail_closed(monkeypatch, mutation):
+        rows = [(security, payload.split(',')) for security, payload in PACKETS]
+        if mutation == 'unrequested_security':
+            rows[0] = ('99999999', rows[0][1])
+        elif mutation == 'wrong_underlying':
+            rows[0][1][36] = '510300'
+        elif mutation == 'wrong_expiry_day':
+            rows[0][1][46] = '2026-11-01'
+        elif mutation == 'duplicate_security':
+            rows.append((rows[0][0], rows[0][1].copy()))
+            rows[-1][1][2] = '1.5000'
+        elif mutation == 'duplicate_contract':
+            rows[1][1][7] = rows[0][1][7]
+        elif mutation == 'missing_security':
+            rows.pop(0)
+&gt;       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;
+
+test_icim_redteam_market_20261021.py:58: Failed</failure></testcase><testcase classname="test_icim_redteam_market_20261021" name="test_listing_and_contract_identity_fail_closed[wrong_underlying]" time="0.002"><failure message="Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x0000027BF1D597F0&gt;
+mutation = 'wrong_underlying'
+
+    @pytest.mark.parametrize('mutation', ['unrequested_security', 'wrong_underlying', 'wrong_expiry_day',
+                                         'duplicate_security', 'duplicate_contract', 'missing_security'])
+    def test_listing_and_contract_identity_fail_closed(monkeypatch, mutation):
+        rows = [(security, payload.split(',')) for security, payload in PACKETS]
+        if mutation == 'unrequested_security':
+            rows[0] = ('99999999', rows[0][1])
+        elif mutation == 'wrong_underlying':
+            rows[0][1][36] = '510300'
+        elif mutation == 'wrong_expiry_day':
+            rows[0][1][46] = '2026-11-01'
+        elif mutation == 'duplicate_security':
+            rows.append((rows[0][0], rows[0][1].copy()))
+            rows[-1][1][2] = '1.5000'
+        elif mutation == 'duplicate_contract':
+            rows[1][1][7] = rows[0][1][7]
+        elif mutation == 'missing_security':
+            rows.pop(0)
+&gt;       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;
+
+test_icim_redteam_market_20261021.py:58: Failed</failure></testcase><testcase classname="test_icim_redteam_market_20261021" name="test_listing_and_contract_identity_fail_closed[wrong_expiry_day]" time="0.001"><failure message="Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x0000027BF1DF29C0&gt;
+mutation = 'wrong_expiry_day'
+
+    @pytest.mark.parametrize('mutation', ['unrequested_security', 'wrong_underlying', 'wrong_expiry_day',
+                                         'duplicate_security', 'duplicate_contract', 'missing_security'])
+    def test_listing_and_contract_identity_fail_closed(monkeypatch, mutation):
+        rows = [(security, payload.split(',')) for security, payload in PACKETS]
+        if mutation == 'unrequested_security':
+            rows[0] = ('99999999', rows[0][1])
+        elif mutation == 'wrong_underlying':
+            rows[0][1][36] = '510300'
+        elif mutation == 'wrong_expiry_day':
+            rows[0][1][46] = '2026-11-01'
+        elif mutation == 'duplicate_security':
+            rows.append((rows[0][0], rows[0][1].copy()))
+            rows[-1][1][2] = '1.5000'
+        elif mutation == 'duplicate_contract':
+            rows[1][1][7] = rows[0][1][7]
+        elif mutation == 'missing_security':
+            rows.pop(0)
+&gt;       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;
+
+test_icim_redteam_market_20261021.py:58: Failed</failure></testcase><testcase classname="test_icim_redteam_market_20261021" name="test_listing_and_contract_identity_fail_closed[duplicate_security]" time="0.002"><failure message="Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x0000027BF1DF2BE0&gt;
+mutation = 'duplicate_security'
+
+    @pytest.mark.parametrize('mutation', ['unrequested_security', 'wrong_underlying', 'wrong_expiry_day',
+                                         'duplicate_security', 'duplicate_contract', 'missing_security'])
+    def test_listing_and_contract_identity_fail_closed(monkeypatch, mutation):
+        rows = [(security, payload.split(',')) for security, payload in PACKETS]
+        if mutation == 'unrequested_security':
+            rows[0] = ('99999999', rows[0][1])
+        elif mutation == 'wrong_underlying':
+            rows[0][1][36] = '510300'
+        elif mutation == 'wrong_expiry_day':
+            rows[0][1][46] = '2026-11-01'
+        elif mutation == 'duplicate_security':
+            rows.append((rows[0][0], rows[0][1].copy()))
+            rows[-1][1][2] = '1.5000'
+        elif mutation == 'duplicate_contract':
+            rows[1][1][7] = rows[0][1][7]
+        elif mutation == 'missing_security':
+            rows.pop(0)
+&gt;       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;
+
+test_icim_redteam_market_20261021.py:58: Failed</failure></testcase><testcase classname="test_icim_redteam_market_20261021" name="test_listing_and_contract_identity_fail_closed[duplicate_contract]" time="0.001"><failure message="Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x0000027BF1E22750&gt;
+mutation = 'duplicate_contract'
+
+    @pytest.mark.parametrize('mutation', ['unrequested_security', 'wrong_underlying', 'wrong_expiry_day',
+                                         'duplicate_security', 'duplicate_contract', 'missing_security'])
+    def test_listing_and_contract_identity_fail_closed(monkeypatch, mutation):
+        rows = [(security, payload.split(',')) for security, payload in PACKETS]
+        if mutation == 'unrequested_security':
+            rows[0] = ('99999999', rows[0][1])
+        elif mutation == 'wrong_underlying':
+            rows[0][1][36] = '510300'
+        elif mutation == 'wrong_expiry_day':
+            rows[0][1][46] = '2026-11-01'
+        elif mutation == 'duplicate_security':
+            rows.append((rows[0][0], rows[0][1].copy()))
+            rows[-1][1][2] = '1.5000'
+        elif mutation == 'duplicate_contract':
+            rows[1][1][7] = rows[0][1][7]
+        elif mutation == 'missing_security':
+            rows.pop(0)
+&gt;       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;
+
+test_icim_redteam_market_20261021.py:58: Failed</failure></testcase><testcase classname="test_icim_redteam_market_20261021" name="test_listing_and_contract_identity_fail_closed[missing_security]" time="0.001"><failure message="Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x0000027BF1E23250&gt;
+mutation = 'missing_security'
+
+    @pytest.mark.parametrize('mutation', ['unrequested_security', 'wrong_underlying', 'wrong_expiry_day',
+                                         'duplicate_security', 'duplicate_contract', 'missing_security'])
+    def test_listing_and_contract_identity_fail_closed(monkeypatch, mutation):
+        rows = [(security, payload.split(',')) for security, payload in PACKETS]
+        if mutation == 'unrequested_security':
+            rows[0] = ('99999999', rows[0][1])
+        elif mutation == 'wrong_underlying':
+            rows[0][1][36] = '510300'
+        elif mutation == 'wrong_expiry_day':
+            rows[0][1][46] = '2026-11-01'
+        elif mutation == 'duplicate_security':
+            rows.append((rows[0][0], rows[0][1].copy()))
+            rows[-1][1][2] = '1.5000'
+        elif mutation == 'duplicate_contract':
+            rows[1][1][7] = rows[0][1][7]
+        elif mutation == 'missing_security':
+            rows.pop(0)
+&gt;       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;
+
+test_icim_redteam_market_20261021.py:58: Failed</failure></testcase><testcase classname="test_icim_redteam_market_20261021" name="test_nonfinite_and_negative_market_fields_are_rejected[2-NaN]" time="0.001" /><testcase classname="test_icim_redteam_market_20261021" name="test_nonfinite_and_negative_market_fields_are_rejected[2-inf]" time="0.001" /><testcase classname="test_icim_redteam_market_20261021" name="test_nonfinite_and_negative_market_fields_are_rejected[7-NaN]" time="0.001" /><testcase classname="test_icim_redteam_market_20261021" name="test_nonfinite_and_negative_market_fields_are_rejected[7--1]" time="0.001" /></testsuite></testsuites>

@@ -1,0 +1,13 @@
+{
+  "name": "sse_chain_documented_http",
+  "family": "SSE",
+  "url": "http://yunhq.sse.com.cn:32041/v1/sho/list/tstyle/510500_12",
+  "params": {
+    "select": "contractid,last,chg_rate,presetpx,exepx,code",
+    "order": "contractid,ase"
+  },
+  "started_at": "2026-10-22T16:56:24.882765+08:00",
+  "status": "FAILED",
+  "error_type": "ReadTimeout",
+  "seconds": 6.016
+}

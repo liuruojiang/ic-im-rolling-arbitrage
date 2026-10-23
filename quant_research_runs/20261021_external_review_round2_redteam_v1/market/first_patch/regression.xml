@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="44" time="2.135" timestamp="2026-10-21T14:39:09.113009+08:00" hostname="DESKTOP-95I7VVU"><testcase classname="test_icim_round2_audit_market_20261021" name="test_baseline_real_58_rows_and_held_core_keep_same_security" time="0.007" /><testcase classname="test_icim_round2_audit_market_20261021" name="test_unusable_primary_date_uses_available_fresh_backup_for_held_core[20261020]" time="0.004" /><testcase classname="test_icim_round2_audit_market_20261021" name="test_unusable_primary_date_uses_available_fresh_backup_for_held_core[20261022]" time="0.004" /><testcase classname="test_icim_round2_audit_market_20261021" name="test_unusable_primary_date_uses_available_fresh_backup_for_held_core[invalid]" time="0.005" /><testcase classname="test_icim_round2_audit_market_20261021" name="test_future_or_invalid_primary_time_cannot_be_consumed[235959-core]" time="0.002" /><testcase classname="test_icim_round2_audit_market_20261021" name="test_future_or_invalid_primary_time_cannot_be_consumed[235959-short]" time="0.002" /><testcase classname="test_icim_round2_audit_market_20261021" name="test_future_or_invalid_primary_time_cannot_be_consumed[246001-core]" time="0.002" /><testcase classname="test_icim_round2_audit_market_20261021" name="test_future_or_invalid_primary_time_cannot_be_consumed[246001-short]" time="0.002" /><testcase classname="test_icim_round2_audit_market_20261021" name="test_future_or_invalid_primary_time_cannot_be_consumed[invalid-core]" time="0.002" /><testcase classname="test_icim_round2_audit_market_20261021" name="test_future_or_invalid_primary_time_cannot_be_consumed[invalid-short]" time="0.003" /><testcase classname="test_icim_round2_audit_market_20261021" name="test_future_or_invalid_primary_time_cannot_be_consumed[None-core]" time="0.002" /><testcase classname="test_icim_round2_audit_market_20261021" name="test_future_or_invalid_primary_time_cannot_be_consumed[None-short]" time="0.002" /><testcase classname="test_icim_round2_audit_market_20261021" name="test_valid_real_sse_identity_survives_primary_transport_failure[core]" time="0.003" /><testcase classname="test_icim_round2_audit_market_20261021" name="test_valid_real_sse_identity_survives_primary_transport_failure[short]" time="0.033" /><testcase classname="test_icim_round2_audit_market_20261021" name="test_valid_real_sse_identity_survives_primary_transport_failure[reset]" time="0.005" /><testcase classname="test_icim_round2_audit_market_20261021" name="test_non_ascii_identity_syntax_is_not_a_real_exchange_code[security]" time="0.001" /><testcase classname="test_icim_round2_audit_market_20261021" name="test_non_ascii_identity_syntax_is_not_a_real_exchange_code[strike_digits]" time="0.001" /><testcase classname="test_icim_round2_audit_market_20261021" name="test_bound_holding_rejects_independent_identity_corruption_before_pricing[identity-security_id-10011470]" time="0.003" /><testcase classname="test_icim_round2_audit_market_20261021" name="test_bound_holding_rejects_independent_identity_corruption_before_pricing[identity-contract-510500P2612M07250]" time="0.003" /><testcase classname="test_icim_round2_audit_market_20261021" name="test_bound_holding_rejects_independent_identity_corruption_before_pricing[identity-strike-7.367]" time="0.002" /><testcase classname="test_icim_round2_audit_market_20261021" name="test_bound_holding_rejects_independent_identity_corruption_before_pricing[sizing-security_id-10011470]" time="0.002" /><testcase classname="test_icim_round2_audit_market_20261021" name="test_bound_holding_rejects_independent_identity_corruption_before_pricing[sizing-contract-510500P2612M07250]" time="0.003" /><testcase classname="test_icim_round2_audit_market_20261021" name="test_bound_holding_rejects_independent_identity_corruption_before_pricing[sizing-strike-7.367]" time="0.002" /><testcase classname="test_icim_round2_audit_market_20261021" name="test_bound_holding_rejects_independent_identity_corruption_before_pricing[core-security_id-10011470]" time="0.003" /><testcase classname="test_icim_round2_audit_market_20261021" name="test_bound_holding_rejects_independent_identity_corruption_before_pricing[core-contract-510500P2612M07250]" time="0.003" /><testcase classname="test_icim_round2_audit_market_20261021" name="test_bound_holding_rejects_independent_identity_corruption_before_pricing[core-strike-7.367]" time="0.004" /><testcase classname="test_icim_round2_audit_market_20261021" name="test_additional_structural_corruptions_cannot_silently_reduce_universe[last_boolean]" time="0.001" /><testcase classname="test_icim_round2_audit_market_20261021" name="test_additional_structural_corruptions_cannot_silently_reduce_universe[strike_boolean]" time="0.001" /><testcase classname="test_icim_round2_audit_market_20261021" name="test_additional_structural_corruptions_cannot_silently_reduce_universe[fractional_total]" time="0.001" /><testcase classname="test_icim_round2_audit_market_20261021" name="test_additional_structural_corruptions_cannot_silently_reduce_universe[overflow_last]" time="0.001" /><testcase classname="test_icim_round2_audit_market_20261021" name="test_additional_structural_corruptions_cannot_silently_reduce_universe[dict_row]" time="0.001" /><testcase classname="test_icim_round2_audit_market_20261021" name="test_held_short_put_cannot_bypass_relisted_m_identity_gate[10011470]" time="0.004" /><testcase classname="test_icim_round2_audit_market_20261021" name="test_held_short_put_cannot_bypass_relisted_m_identity_gate[10012099]" time="0.004" /><testcase classname="test_icim_round2_audit_market_20261021" name="test_new_candidate_never_publishes_unicode_security_id[reset]" time="0.001" /><testcase classname="test_icim_round2_audit_market_20261021" name="test_new_candidate_never_publishes_unicode_security_id[short]" time="0.001" /><testcase classname="test_icim_round2_audit_market_20261021" name="test_structural_primary_failure_preserves_fresh_backup_identity[security_id]" time="0.004" /><testcase classname="test_icim_round2_audit_market_20261021" name="test_structural_primary_failure_preserves_fresh_backup_identity[strike]" time="0.004" /><testcase classname="test_icim_round2_audit_market_20261021" name="test_structural_primary_failure_preserves_fresh_backup_identity[last]" time="0.004" /><testcase classname="test_icim_round2_audit_market_20261021" name="test_direct_identity_guards_require_ascii_even_without_source_parser[selected]" time="0.002" /><testcase classname="test_icim_round2_audit_market_20261021" name="test_direct_identity_guards_require_ascii_even_without_source_parser[held_security]" time="0.002" /><testcase classname="test_icim_round2_audit_market_20261021" name="test_direct_identity_guards_require_ascii_even_without_source_parser[held_contract]" time="0.002" /><testcase classname="test_icim_round2_audit_market_20261021" name="test_real_sina_packets_reject_unicode_security_syntax" time="0.001" /><testcase classname="test_icim_round2_audit_market_20261021" name="test_failed_short_identity_cannot_survive_through_lifecycle_fallback[expiry]" time="0.004"><failure message="AssertionError: assert 'PUBLISH_SHOR...PIRY_BRANCHES' == 'HOLD_FAIL_CLOSED'&#10;  &#10;  - HOLD_FAIL_CLOSED&#10;  + PUBLISH_SHORT_PUT_EXPIRY_BRANCHES">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x0000022048CB34D0&gt;
+scenario = 'expiry'
+
+    @pytest.mark.parametrize('scenario', ['expiry', 'preloaded_mark'])
+    def test_failed_short_identity_cannot_survive_through_lifecycle_fallback(monkeypatch, scenario):
+        chain, stamp = wire(monkeypatch, payload())
+        signal, anchor = signal_anchor(monkeypatch)
+        anchor.update(v14_route_state='short_put', v14_cycle_id='synthetic_stale_pre_adjustment_short',
+                      v14_core_put_contract=None, v14_core_put_security_id=None, v14_core_put_qty=0,
+                      v14_short_put_contract=CONTRACT, v14_short_put_security_id='10011470',
+                      v14_short_put_qty_normalized=5., v14_short_put_entry_premium=1.5,
+                      v14_short_put_expiry=date(2026, 12, 23),
+                      v14_short_put_cost_basis='confirmed_dated_open',
+                      v14_short_put_entry_price_day=date(2026, 7, 1),
+                      post_put_qty=0, verified_core_put_qty=0)
+        signal.update(close_confirmed=True, put_target_core_qty=0, core_put_target_delta=0.,
+                      next_trade_date=date(2026, 10, 22))
+        if scenario == 'expiry':
+            # Synthetic future date, with real unchanged identity fixture: this is
+            # lifecycle error injection, not a claim of a December market capture.
+            expiry = date(2026, 12, 23)
+            signal.update(market_date=expiry, next_trade_date=date(2026, 12, 24))
+            stamp = dict(stamp, date='20261223', time='150000')
+            monkeypatch.setattr(bot, '_now_beijing', lambda: datetime(2026, 12, 23, 15, 30, tzinfo=bot.BEIJING))
+        else:
+            signal['v14_short_put_mark'] = .01
+        monkeypatch.setitem(bot.LIVE_CONTINUATION_ANCHOR, 'IC', anchor)
+        monkeypatch.setattr(bot, 'fetch_510500_chain_with_failover', lambda month: (chain, stamp))
+        monkeypatch.setattr(bot, '_v14_ic_short_put_candidate', lambda *a, **kw: {'tradable': False})
+        closes = Mock(return_value=pd.Series([.67], index=pd.to_datetime([signal['market_date']])))
+        monkeypatch.setattr(bot, 'fetch_option_closes', closes)
+        before = deepcopy(anchor)
+        out = bot._apply_v14_live_policy('IC', signal)
+        assert anchor == before
+&gt;       assert out['v14_action'] == 'HOLD_FAIL_CLOSED'
+E       AssertionError: assert 'PUBLISH_SHOR...PIRY_BRANCHES' == 'HOLD_FAIL_CLOSED'
+E         
+E         - HOLD_FAIL_CLOSED
+E         + PUBLISH_SHORT_PUT_EXPIRY_BRANCHES
+
+test_icim_round2_audit_market_20261021.py:289: AssertionError</failure></testcase><testcase classname="test_icim_round2_audit_market_20261021" name="test_failed_short_identity_cannot_survive_through_lifecycle_fallback[preloaded_mark]" time="0.003"><failure message="assert True is False">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x0000022048EF7310&gt;
+scenario = 'preloaded_mark'
+
+    @pytest.mark.parametrize('scenario', ['expiry', 'preloaded_mark'])
+    def test_failed_short_identity_cannot_survive_through_lifecycle_fallback(monkeypatch, scenario):
+        chain, stamp = wire(monkeypatch, payload())
+        signal, anchor = signal_anchor(monkeypatch)
+        anchor.update(v14_route_state='short_put', v14_cycle_id='synthetic_stale_pre_adjustment_short',
+                      v14_core_put_contract=None, v14_core_put_security_id=None, v14_core_put_qty=0,
+                      v14_short_put_contract=CONTRACT, v14_short_put_security_id='10011470',
+                      v14_short_put_qty_normalized=5., v14_short_put_entry_premium=1.5,
+                      v14_short_put_expiry=date(2026, 12, 23),
+                      v14_short_put_cost_basis='confirmed_dated_open',
+                      v14_short_put_entry_price_day=date(2026, 7, 1),
+                      post_put_qty=0, verified_core_put_qty=0)
+        signal.update(close_confirmed=True, put_target_core_qty=0, core_put_target_delta=0.,
+                      next_trade_date=date(2026, 10, 22))
+        if scenario == 'expiry':
+            # Synthetic future date, with real unchanged identity fixture: this is
+            # lifecycle error injection, not a claim of a December market capture.
+            expiry = date(2026, 12, 23)
+            signal.update(market_date=expiry, next_trade_date=date(2026, 12, 24))
+            stamp = dict(stamp, date='20261223', time='150000')
+            monkeypatch.setattr(bot, '_now_beijing', lambda: datetime(2026, 12, 23, 15, 30, tzinfo=bot.BEIJING))
+        else:
+            signal['v14_short_put_mark'] = .01
+        monkeypatch.setitem(bot.LIVE_CONTINUATION_ANCHOR, 'IC', anchor)
+        monkeypatch.setattr(bot, 'fetch_510500_chain_with_failover', lambda month: (chain, stamp))
+        monkeypatch.setattr(bot, '_v14_ic_short_put_candidate', lambda *a, **kw: {'tradable': False})
+        closes = Mock(return_value=pd.Series([.67], index=pd.to_datetime([signal['market_date']])))
+        monkeypatch.setattr(bot, 'fetch_option_closes', closes)
+        before = deepcopy(anchor)
+        out = bot._apply_v14_live_policy('IC', signal)
+        assert anchor == before
+        assert out['v14_action'] == 'HOLD_FAIL_CLOSED'
+&gt;       assert out['v14_roll_pending'] is False
+E       assert True is False
+
+test_icim_round2_audit_market_20261021.py:290: AssertionError</failure></testcase></testsuite></testsuites>

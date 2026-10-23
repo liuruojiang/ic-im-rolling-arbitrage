@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="4" skipped="0" tests="4" time="3.800" timestamp="2026-10-23T09:42:51.536101+08:00" hostname="DESKTOP-95I7VVU"><testcase classname="test_icim_ma23_state_selection_20261023" name="test_newer_cross_midnight_packet_cannot_hide_valid_original[IC]" time="0.372"><failure message="ic_im_signal_evidence_v1.EvidenceUnavailable: 2026-10-22 original close acquisition time is not on that session">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x00000217281A4FC0&gt;
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_21ebff64/pytest/test_newer_cross_midnight_pack0')
+product = 'IC'
+
+    @pytest.mark.parametrize('product', ['IC', 'IM'])
+    def test_newer_cross_midnight_packet_cannot_hide_valid_original(monkeypatch, tmp_path, product):
+        day = bot.date(2026, 10, 22)
+        first = datetime(2026, 10, 22, 16, 0, tzinfo=bot.BEIJING)
+        good = _packet(monkeypatch, tmp_path, product, first, first + timedelta(seconds=5))
+        late = first.replace(hour=23, minute=59, second=50)
+        _packet(monkeypatch, tmp_path, product, late, late + timedelta(seconds=20))
+        status = adapter.capture_day_status(tmp_path, day)
+        assert status['products'][product]['complete_attempts'] == 1
+&gt;       reader, closed = adapter.load_original(bot, tmp_path, product, day)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_icim_ma23_state_selection_20261023.py:32: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+ic_im_evidence_adapter_v1.py:403: in load_original
+    closed = _require_original_reader(reader, product, day, strategy.BEIJING)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+reader = &lt;ic_im_signal_evidence_v1.EvidenceReader object at 0x0000021709304CD0&gt;
+product = 'IC', day = datetime.date(2026, 10, 22)
+zone = zoneinfo.ZoneInfo(key='Asia/Shanghai')
+
+    def _require_original_reader(reader, product, day, zone):
+        """Use the same replay-route scope for readiness and actual loading."""
+        if (reader.metadata.get("product") != product
+                or reader.metadata.get("input_revision") != INPUT_REVISION
+                or reader.metadata.get("original_close") is not True):
+            raise evidence.EvidenceUnavailable(f"{day} original evidence metadata/revision mismatch")
+        roles = {entry["role"] for entry in reader.context["entries"].values()}
+        missing = _original_required_roles(product) - roles
+        if missing:
+            raise evidence.EvidenceUnavailable("missing original evidence roles=" + ",".join(sorted(missing)))
+        clock = reader.decision_at.astimezone(zone)
+        closed = reader.closed_at.astimezone(zone)
+        if closed.date() != day or clock.date() != day or closed &lt; clock:
+&gt;           raise evidence.EvidenceUnavailable(f"{day} original close acquisition time is not on that session")
+E           ic_im_signal_evidence_v1.EvidenceUnavailable: 2026-10-22 original close acquisition time is not on that session
+
+ic_im_evidence_adapter_v1.py:391: EvidenceUnavailable</failure></testcase><testcase classname="test_icim_ma23_state_selection_20261023" name="test_newer_cross_midnight_packet_cannot_hide_valid_original[IM]" time="0.223"><failure message="ic_im_signal_evidence_v1.EvidenceUnavailable: 2026-10-22 original close acquisition time is not on that session">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x00000217281A56E0&gt;
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_21ebff64/pytest/test_newer_cross_midnight_pack1')
+product = 'IM'
+
+    @pytest.mark.parametrize('product', ['IC', 'IM'])
+    def test_newer_cross_midnight_packet_cannot_hide_valid_original(monkeypatch, tmp_path, product):
+        day = bot.date(2026, 10, 22)
+        first = datetime(2026, 10, 22, 16, 0, tzinfo=bot.BEIJING)
+        good = _packet(monkeypatch, tmp_path, product, first, first + timedelta(seconds=5))
+        late = first.replace(hour=23, minute=59, second=50)
+        _packet(monkeypatch, tmp_path, product, late, late + timedelta(seconds=20))
+        status = adapter.capture_day_status(tmp_path, day)
+        assert status['products'][product]['complete_attempts'] == 1
+&gt;       reader, closed = adapter.load_original(bot, tmp_path, product, day)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_icim_ma23_state_selection_20261023.py:32: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+ic_im_evidence_adapter_v1.py:403: in load_original
+    closed = _require_original_reader(reader, product, day, strategy.BEIJING)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+reader = &lt;ic_im_signal_evidence_v1.EvidenceReader object at 0x00000217281AC9E0&gt;
+product = 'IM', day = datetime.date(2026, 10, 22)
+zone = zoneinfo.ZoneInfo(key='Asia/Shanghai')
+
+    def _require_original_reader(reader, product, day, zone):
+        """Use the same replay-route scope for readiness and actual loading."""
+        if (reader.metadata.get("product") != product
+                or reader.metadata.get("input_revision") != INPUT_REVISION
+                or reader.metadata.get("original_close") is not True):
+            raise evidence.EvidenceUnavailable(f"{day} original evidence metadata/revision mismatch")
+        roles = {entry["role"] for entry in reader.context["entries"].values()}
+        missing = _original_required_roles(product) - roles
+        if missing:
+            raise evidence.EvidenceUnavailable("missing original evidence roles=" + ",".join(sorted(missing)))
+        clock = reader.decision_at.astimezone(zone)
+        closed = reader.closed_at.astimezone(zone)
+        if closed.date() != day or clock.date() != day or closed &lt; clock:
+&gt;           raise evidence.EvidenceUnavailable(f"{day} original close acquisition time is not on that session")
+E           ic_im_signal_evidence_v1.EvidenceUnavailable: 2026-10-22 original close acquisition time is not on that session
+
+ic_im_evidence_adapter_v1.py:391: EvidenceUnavailable</failure></testcase><testcase classname="test_icim_ma23_state_selection_20261023" name="test_original_selection_still_chooses_latest_eligible_packet[IC]" time="0.514"><failure message="ic_im_signal_evidence_v1.EvidenceUnavailable: 2026-10-22 original close acquisition time is not on that session">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000002172819EE70&gt;
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_21ebff64/pytest/test_original_selection_still_0')
+product = 'IC'
+
+    @pytest.mark.parametrize('product', ['IC', 'IM'])
+    def test_original_selection_still_chooses_latest_eligible_packet(monkeypatch, tmp_path, product):
+        first = datetime(2026, 10, 22, 16, 0, tzinfo=bot.BEIJING)
+        _packet(monkeypatch, tmp_path, product, first, first + timedelta(seconds=5))
+        latest = first + timedelta(hours=1)
+        good = _packet(monkeypatch, tmp_path, product, latest, latest + timedelta(seconds=5))
+        late = first.replace(hour=23, minute=59, second=50)
+        _packet(monkeypatch, tmp_path, product, late, late + timedelta(seconds=20))
+&gt;       reader, closed = adapter.load_original(bot, tmp_path, product, first.date())
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_icim_ma23_state_selection_20261023.py:46: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+ic_im_evidence_adapter_v1.py:403: in load_original
+    closed = _require_original_reader(reader, product, day, strategy.BEIJING)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+reader = &lt;ic_im_signal_evidence_v1.EvidenceReader object at 0x00000217281AB350&gt;
+product = 'IC', day = datetime.date(2026, 10, 22)
+zone = zoneinfo.ZoneInfo(key='Asia/Shanghai')
+
+    def _require_original_reader(reader, product, day, zone):
+        """Use the same replay-route scope for readiness and actual loading."""
+        if (reader.metadata.get("product") != product
+                or reader.metadata.get("input_revision") != INPUT_REVISION
+                or reader.metadata.get("original_close") is not True):
+            raise evidence.EvidenceUnavailable(f"{day} original evidence metadata/revision mismatch")
+        roles = {entry["role"] for entry in reader.context["entries"].values()}
+        missing = _original_required_roles(product) - roles
+        if missing:
+            raise evidence.EvidenceUnavailable("missing original evidence roles=" + ",".join(sorted(missing)))
+        clock = reader.decision_at.astimezone(zone)
+        closed = reader.closed_at.astimezone(zone)
+        if closed.date() != day or clock.date() != day or closed &lt; clock:
+&gt;           raise evidence.EvidenceUnavailable(f"{day} original close acquisition time is not on that session")
+E           ic_im_signal_evidence_v1.EvidenceUnavailable: 2026-10-22 original close acquisition time is not on that session
+
+ic_im_evidence_adapter_v1.py:391: EvidenceUnavailable</failure></testcase><testcase classname="test_icim_ma23_state_selection_20261023" name="test_original_selection_still_chooses_latest_eligible_packet[IM]" time="0.223"><failure message="ic_im_signal_evidence_v1.EvidenceUnavailable: 2026-10-22 original close acquisition time is not on that session">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x0000021728364490&gt;
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_21ebff64/pytest/test_original_selection_still_1')
+product = 'IM'
+
+    @pytest.mark.parametrize('product', ['IC', 'IM'])
+    def test_original_selection_still_chooses_latest_eligible_packet(monkeypatch, tmp_path, product):
+        first = datetime(2026, 10, 22, 16, 0, tzinfo=bot.BEIJING)
+        _packet(monkeypatch, tmp_path, product, first, first + timedelta(seconds=5))
+        latest = first + timedelta(hours=1)
+        good = _packet(monkeypatch, tmp_path, product, latest, latest + timedelta(seconds=5))
+        late = first.replace(hour=23, minute=59, second=50)
+        _packet(monkeypatch, tmp_path, product, late, late + timedelta(seconds=20))
+&gt;       reader, closed = adapter.load_original(bot, tmp_path, product, first.date())
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_icim_ma23_state_selection_20261023.py:46: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+ic_im_evidence_adapter_v1.py:403: in load_original
+    closed = _require_original_reader(reader, product, day, strategy.BEIJING)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+reader = &lt;ic_im_signal_evidence_v1.EvidenceReader object at 0x000002172837CD70&gt;
+product = 'IM', day = datetime.date(2026, 10, 22)
+zone = zoneinfo.ZoneInfo(key='Asia/Shanghai')
+
+    def _require_original_reader(reader, product, day, zone):
+        """Use the same replay-route scope for readiness and actual loading."""
+        if (reader.metadata.get("product") != product
+                or reader.metadata.get("input_revision") != INPUT_REVISION
+                or reader.metadata.get("original_close") is not True):
+            raise evidence.EvidenceUnavailable(f"{day} original evidence metadata/revision mismatch")
+        roles = {entry["role"] for entry in reader.context["entries"].values()}
+        missing = _original_required_roles(product) - roles
+        if missing:
+            raise evidence.EvidenceUnavailable("missing original evidence roles=" + ",".join(sorted(missing)))
+        clock = reader.decision_at.astimezone(zone)
+        closed = reader.closed_at.astimezone(zone)
+        if closed.date() != day or clock.date() != day or closed &lt; clock:
+&gt;           raise evidence.EvidenceUnavailable(f"{day} original close acquisition time is not on that session")
+E           ic_im_signal_evidence_v1.EvidenceUnavailable: 2026-10-22 original close acquisition time is not on that session
+
+ic_im_evidence_adapter_v1.py:391: EvidenceUnavailable</failure></testcase></testsuite></testsuites>

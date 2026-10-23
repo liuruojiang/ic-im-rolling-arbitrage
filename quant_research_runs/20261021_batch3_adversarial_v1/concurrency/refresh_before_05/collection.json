@@ -1,0 +1,12 @@
+{
+  "collected": [
+    "test_icim_b3adv_concurrency_20261021.py::test_background_refresh_retries_after_a_transient_head_read_error"
+  ],
+  "selected": [
+    "test_icim_b3adv_concurrency_20261021.py::test_background_refresh_retries_after_a_transient_head_read_error"
+  ],
+  "deselected": [],
+  "executed": [
+    "test_icim_b3adv_concurrency_20261021.py::test_background_refresh_retries_after_a_transient_head_read_error"
+  ]
+}

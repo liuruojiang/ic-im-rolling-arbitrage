@@ -1,0 +1,18 @@
+[
+  {
+    "file": "test_new_profit_plan_cannot_sk0.json",
+    "sha256": "cef01280149275db5f2572550f5f20bb731e5678e9c48a7ae6e8af7e4c226cd4",
+    "sequence": 1,
+    "verified_day": "2026-10-21",
+    "trigger": "2026-10-21",
+    "execution": "2026-10-23"
+  },
+  {
+    "file": "test_new_profit_plan_cannot_sk1.json",
+    "sha256": "0b0cac68f78f447c3e7285534aa75cb0453501f2c3a1c660f344a6177ca332d9",
+    "sequence": 1,
+    "verified_day": "2026-10-21",
+    "trigger": "2026-10-21",
+    "execution": "2026-10-24"
+  }
+]

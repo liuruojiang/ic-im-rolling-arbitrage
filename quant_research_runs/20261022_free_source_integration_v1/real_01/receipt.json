@@ -1,0 +1,33 @@
+{
+  "started_at": "2026-10-22T17:36:30.774692+08:00",
+  "clock_is_actual": true,
+  "synthetic_market_inputs": false,
+  "formal_runtime_write": false,
+  "anchor_day": "2026-10-21",
+  "core_contract": "510500P2612M06500",
+  "stages": {
+    "IC": {
+      "error_type": "SignalTransportError",
+      "error": "IC所有行情源失败｜中金所官方: RuntimeError: 剩余联网预算10.4秒，已跳过官方源并为备用源预留时间｜新浪财经: ProxyError: HTTPSConnectionPool(host='vip.stock.finance.sina.com.cn', port=443): Max retries exceeded with url: /quotes_service/api/json_v2.php/Market_Center.getHQFuturesData?page=1&num=40&sort=position&asc=0&node=zzgz_qh&base=futures (Caused by ProxyE｜东方财富: ProxyError: HTTPSConnectionPool(host='futsseapi.eastmoney.com', port=443): Max retries exceeded with url: /list/220?orderBy=dm&sort=asc&pageSize=200&pageIndex=0&token=58b2fa8f54638b60b87d69b31969089c (Caused by ProxyError('Cannot connect to proxy.', Ti",
+      "traceback": "Traceback (most recent call last):\n  File \"D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261022_free_source_integration_v1\\real_capture.py\", line 63, in main\n    signal = bot.build_live_trade_signal(product, clock, 'close')\n  File \"D:\\动量策略\\IC和IM滚动套利\\poe_ic_im_mainline_v1_4_bot.py\", line 6793, in build_live_trade_signal\n    result = _build_live_trade_signal(product, clock, mode)\n  File \"D:\\动量策略\\IC和IM滚动套利\\poe_ic_im_mainline_v1_4_bot.py\", line 6914, in _build_live_trade_signal\n    future_quotes = fetch_cffex_quotes(product, clock)\n  File \"D:\\动量策略\\IC和IM滚动套利\\ic_im_evidence_adapter_v1.py\", line 174, in adapted\n    return capture.call(role, key, lambda: _validate_value(\n           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n        strategy, role, key, original(*args, **kwargs)))\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"D:\\动量策略\\IC和IM滚动套利\\ic_im_signal_evidence_v1.py\", line 390, in call\n    value = fetcher()\n  File \"D:\\动量策略\\IC和IM滚动套利\\ic_im_evidence_adapter_v1.py\", line 175, in <lambda>\n    strategy, role, key, original(*args, **kwargs)))\n                         ~~~~~~~~^^^^^^^^^^^^^^^^^\n  File \"D:\\动量策略\\IC和IM滚动套利\\poe_ic_im_mainline_v1_4_bot.py\", line 3768, in fetch_cffex_quotes\n    raise error_type(f\"{product}所有行情源失败｜\" + \"｜\".join(failures))\npoe_ic_im_mainline_v1_4_bot.SignalTransportError: IC所有行情源失败｜中金所官方: RuntimeError: 剩余联网预算10.4秒，已跳过官方源并为备用源预留时间｜新浪财经: ProxyError: HTTPSConnectionPool(host='vip.stock.finance.sina.com.cn', port=443): Max retries exceeded with url: /quotes_service/api/json_v2.php/Market_Center.getHQFuturesData?page=1&num=40&sort=position&asc=0&node=zzgz_qh&base=futures (Caused by ProxyE｜东方财富: ProxyError: HTTPSConnectionPool(host='futsseapi.eastmoney.com', port=443): Max retries exceeded with url: /list/220?orderBy=dm&sort=asc&pageSize=200&pageIndex=0&token=58b2fa8f54638b60b87d69b31969089c (Caused by ProxyError('Cannot connect to proxy.', Ti\n"
+    },
+    "IM": {
+      "error_type": "SignalTransportError",
+      "error": "MO所有行情源失败｜中金所官方: RuntimeError: 剩余联网预算4.1秒，已跳过官方源并为备用源预留时间｜东方财富: ProxyError: HTTPSConnectionPool(host='futsseapi.eastmoney.com', port=443): Max retries exceeded with url: /list/option/221?orderBy=dm&sort=asc&pageSize=20000&pageIndex=0&token=58b2fa8f54638b60b87d69b31969089c (Caused by ProxyError('Cannot connect to pr",
+      "traceback": "Traceback (most recent call last):\n  File \"D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261022_free_source_integration_v1\\real_capture.py\", line 63, in main\n    signal = bot.build_live_trade_signal(product, clock, 'close')\n  File \"D:\\动量策略\\IC和IM滚动套利\\poe_ic_im_mainline_v1_4_bot.py\", line 6793, in build_live_trade_signal\n    result = _build_live_trade_signal(product, clock, mode)\n  File \"D:\\动量策略\\IC和IM滚动套利\\poe_ic_im_mainline_v1_4_bot.py\", line 7464, in _build_live_trade_signal\n    mo_quotes = fetch_cffex_quotes(\"MO\", clock)\n  File \"D:\\动量策略\\IC和IM滚动套利\\ic_im_evidence_adapter_v1.py\", line 174, in adapted\n    return capture.call(role, key, lambda: _validate_value(\n           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n        strategy, role, key, original(*args, **kwargs)))\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"D:\\动量策略\\IC和IM滚动套利\\ic_im_signal_evidence_v1.py\", line 390, in call\n    value = fetcher()\n  File \"D:\\动量策略\\IC和IM滚动套利\\ic_im_evidence_adapter_v1.py\", line 175, in <lambda>\n    strategy, role, key, original(*args, **kwargs)))\n                         ~~~~~~~~^^^^^^^^^^^^^^^^^\n  File \"D:\\动量策略\\IC和IM滚动套利\\poe_ic_im_mainline_v1_4_bot.py\", line 3768, in fetch_cffex_quotes\n    raise error_type(f\"{product}所有行情源失败｜\" + \"｜\".join(failures))\npoe_ic_im_mainline_v1_4_bot.SignalTransportError: MO所有行情源失败｜中金所官方: RuntimeError: 剩余联网预算4.1秒，已跳过官方源并为备用源预留时间｜东方财富: ProxyError: HTTPSConnectionPool(host='futsseapi.eastmoney.com', port=443): Max retries exceeded with url: /list/option/221?orderBy=dm&sort=asc&pageSize=20000&pageIndex=0&token=58b2fa8f54638b60b87d69b31969089c (Caused by ProxyError('Cannot connect to pr\n"
+    }
+  },
+  "source_sha256": {
+    "poe_ic_im_mainline_v1_4_bot.py": "75ccf4325f32c1742715d13e914de8d5a8504c153f8dff2d0e47b2a0e2127512",
+    "ic_im_evidence_adapter_v1.py": "2182e85380a969f2d741529c73bca5e5b479aed9977313466de58df5bbe06224",
+    "ic_im_signal_evidence_v1.py": "0b7ad7d0d7528c67bb06bdc59971fa09897d1e7b19aa37d8603637e342a7bd4a",
+    "poe_ic_im_v1_4_state.py": "9244c7f1d8bbb138e8e86246261fad13e90058f42764b855f8219aa1596c1067"
+  },
+  "status": "NOT_ACCEPTED",
+  "error_type": "RuntimeError",
+  "error": "Both real original signals must pass normal eligibility before isolated ledger append",
+  "traceback": "Traceback (most recent call last):\n  File \"D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261022_free_source_integration_v1\\real_capture.py\", line 85, in main\n    raise RuntimeError('Both real original signals must pass normal eligibility before isolated ledger append')\nRuntimeError: Both real original signals must pass normal eligibility before isolated ledger append\n",
+  "formal_runtime_unchanged": true,
+  "anchors_restored": true,
+  "finished_at": "2026-10-22T17:38:00.941709+08:00"
+}

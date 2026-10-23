@@ -1,0 +1,18 @@
+{
+  "status": "PASS",
+  "differences": [],
+  "excluded_calculation_clocks": [
+    "fetch_time",
+    "signal_calculation_started_at",
+    "signal_generated_at"
+  ],
+  "strict_json_types": true,
+  "compared_signal_fields": {
+    "IC": 212,
+    "IM": 227
+  },
+  "complete_product_states_compared": true,
+  "direct_record_digest": "c606f7a42d3f1ffb127161a916414538a3c2edf39b5d1b24e7889a5147a6a381",
+  "automatic_record_digest": "152fc7c37a45a96d85e0cd65d1c288d6863ad1b5dcdef456cd75be5e6d50c19d",
+  "comparison_source_sha256": "6e0cf32f83515523cb67ba9788fd7439d36004400d8a1e24dd890110842573df"
+}

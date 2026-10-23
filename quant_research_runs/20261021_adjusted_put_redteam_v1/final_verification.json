@@ -1,0 +1,28 @@
+{
+  "checked_at": "2026-10-21T08:13:03.353459+00:00",
+  "counts": {
+    "tests": 1544,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "source_files": 889,
+  "source_binding_changed": [],
+  "backup_files": 1149,
+  "bad_backups": [],
+  "protected_outputs": 6795,
+  "bad_outputs": [],
+  "protected_prior_evidence": 543,
+  "bad_prior": [],
+  "changed_existing": [
+    "ic_im_adjusted_put_migration_v1.py",
+    "ic_im_v1_4_policy.py",
+    "poe_ic_im_mainline_v1_4_bot.py",
+    "poe_ic_im_v1_4_server.py",
+    "test_ic_im_historical_put_identity_20261021.py"
+  ],
+  "unexpected_changes": [],
+  "runtime_unchanged": true,
+  "git_diff_check_exit": 0,
+  "passed": true
+}

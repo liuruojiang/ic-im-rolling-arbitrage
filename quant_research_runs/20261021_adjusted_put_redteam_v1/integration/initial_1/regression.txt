@@ -1,0 +1,24 @@
+............................F.                                           [100%]
+================================== FAILURES ===================================
+______ test_unsupported_a_candidate_cannot_become_a_policy_opening_plan _______
+
+    def test_unsupported_a_candidate_cannot_become_a_policy_opening_plan():
+        anchor = {**policy.default_extension('IC'),'post_core_contract':'IC2612'}
+        signal = policy_seed._signal('IC',market_date=DAY,next_trade_date=date(2026,10,22))
+        candidate = policy_seed._candidate('IC',contract=A,security_id='10011470',
+                                           expiry=date(2026,12,23))
+        candidate['migration_preview'] = dict(engine_supported=False,ledger_write_authorized=False)
+>       with pytest.raises(RuntimeError,match='adjusted|supported|identity'):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+test_icim_a3_integration_20261021.py:164: Failed
+============================== warnings summary ===============================
+C:\Python314\Lib\site-packages\fastapi_poe\types.py:171
+  C:\Python314\Lib\site-packages\fastapi_poe\types.py:171: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    class RequestContext(BaseModel):
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED test_icim_a3_integration_20261021.py::test_unsupported_a_candidate_cannot_become_a_policy_opening_plan
+1 failed, 29 passed, 1 warning in 5.66s

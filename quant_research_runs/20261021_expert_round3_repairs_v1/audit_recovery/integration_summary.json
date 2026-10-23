@@ -1,0 +1,27 @@
+{
+  "stage": "integration_before_root_final_freeze",
+  "production_edits": false,
+  "test_file": "test_icim_round3_recovery_audit_20261021.py",
+  "test_sha256": "ed439358ad1dca85cda09691c65968ee2ed84201a8e6663d589925f0546346e2",
+  "stages": {
+    "stage_07.xml": {
+      "sha256": "9bd809f2d236d721807be144f0a5c0a3f64efef8f32c141cc8463bccc8596310",
+      "cases": 7,
+      "failed": 0,
+      "errors": 0
+    },
+    "stage_08.xml": {
+      "sha256": "c15a4679a8b9bd36cf7b2bf95ca7e59388e971fbea93cab30e22765ea49d18d7",
+      "cases": 20,
+      "failed": 0,
+      "errors": 0
+    },
+    "stage_09.xml": {
+      "sha256": "e899121653af97e55362509e56773ddfcc3e71c80aa5cc02a845fa76049b3bd5",
+      "cases": 2,
+      "failed": 0,
+      "errors": 0
+    }
+  },
+  "warning": "overlapping stages are not additive; root final run must rebind all final sources"
+}

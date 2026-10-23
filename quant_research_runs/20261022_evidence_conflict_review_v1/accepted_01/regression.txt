@@ -1,0 +1,132 @@
+........................................................................ [  2%]
+........................................................................ [  4%]
+........................................................................ [  7%]
+........................................................................ [  9%]
+........................................................................ [ 12%]
+........................................................................ [ 14%]
+........................................................................ [ 17%]
+........................................................................ [ 19%]
+........................................................................ [ 22%]
+........................................................................ [ 24%]
+........................................................................ [ 26%]
+........................................................................ [ 29%]
+........................................................................ [ 31%]
+........................................................................ [ 34%]
+........................................................................ [ 36%]
+........................................................................ [ 39%]
+........................................................................ [ 41%]
+........................................................................ [ 44%]
+........................................................................ [ 46%]
+........................................................................ [ 49%]
+........................................................................ [ 51%]
+........................................................................ [ 53%]
+........................................................................ [ 56%]
+........................................................................ [ 58%]
+........................................................................ [ 61%]
+........................................................................ [ 63%]
+........................................................................ [ 66%]
+........................................................................ [ 68%]
+........................................................................ [ 71%]
+........................................................................ [ 73%]
+........................................................................ [ 75%]
+........................................................................ [ 78%]
+........................................................................ [ 80%]
+........................................................................ [ 83%]
+........................................................................ [ 85%]
+........................................................................ [ 88%]
+...........F............................................................ [ 90%]
+........................................................................ [ 93%]
+........................................................................ [ 95%]
+........................................................................ [ 98%]
+..........................................................               [100%]
+================================== FAILURES ===================================
+__ test_original_presence_is_per_product_even_for_incomplete_capture[False] ___
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_5dbac06e/pytest/test_original_presence_is_per_1')
+complete = False
+
+    @pytest.mark.parametrize("complete", [True, False])
+    def test_original_presence_is_per_product_even_for_incomplete_capture(tmp_path, complete):
+        with evidence.capture_session(tmp_path, DAY, CLOCK, {"product": "IC", "original_close": True}) as session:
+            session.call("probe", {}, lambda: True)
+            if not complete:
+                session.failures.append({"role": "synthetic", "resolved": False})
+>       assert adapter.has_original(tmp_path, "IC", DAY)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_icim_round4_evidence_boundaries_20261021.py:123: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+ic_im_evidence_adapter_v1.py:364: in has_original
+    return evidence.has_session(root, day, {"product": product, "original_close": True})
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+root = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_5dbac06e/pytest/test_original_presence_is_per_1')
+day = datetime.date(2026, 10, 21)
+metadata_filter = {'original_close': True, 'product': 'IC'}
+
+    def has_session(root: str | Path, day: date, metadata_filter: dict[str, Any]) -> bool:
+        """Check verified manifest scope, including failed captures, before routing.
+    
+        An unreadable manifest remains an error rather than permission to replace
+        unknown original evidence. Valid other-product and supplement manifests do
+        not disable an independent dated historical provider.
+        """
+        root, day = _canonical(Path(root)), _day(day)
+        directory = _inside(root, root / "sessions" / day.isoformat())
+        try:
+            paths = list(directory.glob("*.json"))
+        except OSError as exc:
+            raise EvidenceUnavailable(f"{day} cannot enumerate original evidence") from exc
+        if len(paths) > MAX_SESSION_FILES:
+            raise EvidenceUnavailable("evidence session count exceeds limit")
+        incomplete = False
+        for path in paths:
+            try:
+                envelope = _loads(_read(_inside(root, path), MAX_MANIFEST_BYTES))
+                body = envelope["body"]
+                if (not isinstance(body, dict) or body.get("schema") != SCHEMA
+                        or body.get("day") != day.isoformat()
+                        or hashlib.sha256(_dumps(body)).hexdigest() != envelope.get("sha256")):
+                    raise EvidenceUnavailable("evidence manifest scope/hash invalid")
+                metadata = decode(body["metadata"])
+                if not isinstance(metadata, dict):
+                    raise EvidenceUnavailable("invalid evidence metadata")
+                if all(metadata.get(k) == v for k, v in metadata_filter.items()):
+                    if (body.get("complete") is True and isinstance(body.get("failures"), list)
+                            and all(row.get("resolved") is True for row in body["failures"])
+                            and not raw_http_conflicts(body.get("raw", []))):
+                        return True
+                    incomplete = True
+            except (KeyError, TypeError, ValueError, AttributeError) as exc:
+                raise EvidenceUnavailable("cannot verify original evidence scope") from exc
+        if incomplete:
+>           raise EvidenceUnavailable(f"{day} original evidence capture incomplete; new session required")
+E           ic_im_signal_evidence_v1.EvidenceUnavailable: 2026-10-21 original evidence capture incomplete; new session required
+
+ic_im_signal_evidence_v1.py:698: EvidenceUnavailable
+============================== warnings summary ===============================
+C:\Python314\Lib\site-packages\fastapi_poe\types.py:171
+  C:\Python314\Lib\site-packages\fastapi_poe\types.py:171: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    class RequestContext(BaseModel):
+
+test_icim_redteam_display_20261021.py::test_bootstrap_snapshot_retains_known_single_core_identity
+  test_icim_redteam_display_20261021.py:73: PytestWarning: record_property is incompatible with junit_family 'xunit2' (use 'legacy' or 'xunit1')
+    def test_bootstrap_snapshot_retains_known_single_core_identity(monkeypatch, record_property):
+
+test_icim_redteam_display_20261021.py::test_core_overlay_failure_cannot_label_momentum_as_current_core
+  test_icim_redteam_display_20261021.py:89: PytestWarning: record_property is incompatible with junit_family 'xunit2' (use 'legacy' or 'xunit1')
+    def test_core_overlay_failure_cannot_label_momentum_as_current_core(monkeypatch, record_property):
+
+test_icim_redteam_display_20261021.py::test_core_overlay_failure_cannot_publish_momentum_iv_as_core_monitor
+  test_icim_redteam_display_20261021.py:120: PytestWarning: record_property is incompatible with junit_family 'xunit2' (use 'legacy' or 'xunit1')
+    def test_core_overlay_failure_cannot_publish_momentum_iv_as_core_monitor(monkeypatch, record_property):
+
+test_icim_redteam_display_20261021.py::test_im_snapshot_zero_core_does_not_show_residual_contract
+  test_icim_redteam_display_20261021.py:201: PytestWarning: record_property is incompatible with junit_family 'xunit2' (use 'legacy' or 'xunit1')
+    def test_im_snapshot_zero_core_does_not_show_residual_contract(monkeypatch, record_property):
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED test_icim_round4_evidence_boundaries_20261021.py::test_original_presence_is_per_product_even_for_incomplete_capture[False]
+1 failed, 2937 passed, 22 deselected, 5 warnings in 262.33s (0:04:22)

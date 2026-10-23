@@ -1,0 +1,104 @@
+............FF...                                                        [100%]
+================================== FAILURES ===================================
+_ test_real_independent_collector_survives_calendar_diagnostic_then_server_recovers[day0-previous0-later0] _
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_490a26e7/pytest/test_real_independent_collecto0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000012D799E7CB0>
+day = datetime.date(2026, 11, 20), previous = datetime.date(2026, 11, 19)
+later = datetime.date(2026, 11, 24)
+
+    @pytest.mark.parametrize("day,previous,later", [
+        (date(2026, 11, 20), date(2026, 11, 19), date(2026, 11, 24)),
+        (date(2026, 12, 31), date(2026, 12, 30), date(2027, 1, 5)),
+    ])
+    def test_real_independent_collector_survives_calendar_diagnostic_then_server_recovers(tmp_path, monkeypatch, day, previous, later):
+        monkeypatch.setattr(bot.requests, "get", lambda *a, **k: pytest.fail("network escaped stored inputs"))
+        now = wall(monkeypatch, day)
+        store, record = seed_store(tmp_path / "state", previous, day)
+        bot.install_runtime_anchors(state.anchors_from_record(record))
+        providers(monkeypatch, day)
+        builder = bot._build_live_trade_signal
+        monkeypatch.setattr(bot, "_build_live_trade_signal", lambda *a, **k: pytest.fail("collector must not depend on signal conclusion"))
+        root = tmp_path / "evidence"
+        result = adapter.capture_daily(bot, root, now)
+        assert result["status"] == "captured"
+        for product in ["IC", "IM"]:
+            reader, _ = adapter.load_original(bot, root, product, day)
+            annotation = evidence.decode(reader.context["annotations"]["replay_completeness"])
+            assert annotation["input_capture_complete"] is True
+            assert annotation["missing_roles"] == []
+        monkeypatch.setattr(bot, "_build_live_trade_signal", builder)
+        with adapter.evidence_location(root), bot.historical_replay(day):
+            before = bot.build_live_trade_signal("IM", seed.clock(day), "close")
+        assert before["diagnostic_only"] and before["persistence_eligible"] is False
+        assert store.load_latest()["digest"] == record["digest"]
+>       oracle(monkeypatch)
+
+test_icim_round4_recovery_20261021.py:105: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000012D799E7CB0>
+
+    def oracle(monkeypatch):
+        monkeypatch.setattr(bot, "_OFFICIAL_EXCHANGE_CALENDAR_YEARS", bot._OFFICIAL_EXCHANGE_CALENDAR_YEARS | {2027})
+>       monkeypatch.setattr(bot, "_EXCHANGE_CLOSURES", {**bot._EXCHANGE_CLOSURES, 2027: {date(2027, 1, 1)}})
+                                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: 'frozenset' object is not a mapping
+
+test_icim_round4_recovery_20261021.py:77: TypeError
+_ test_real_independent_collector_survives_calendar_diagnostic_then_server_recovers[day1-previous1-later1] _
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_490a26e7/pytest/test_real_independent_collecto1')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000012D79B3E8F0>
+day = datetime.date(2026, 12, 31), previous = datetime.date(2026, 12, 30)
+later = datetime.date(2027, 1, 5)
+
+    @pytest.mark.parametrize("day,previous,later", [
+        (date(2026, 11, 20), date(2026, 11, 19), date(2026, 11, 24)),
+        (date(2026, 12, 31), date(2026, 12, 30), date(2027, 1, 5)),
+    ])
+    def test_real_independent_collector_survives_calendar_diagnostic_then_server_recovers(tmp_path, monkeypatch, day, previous, later):
+        monkeypatch.setattr(bot.requests, "get", lambda *a, **k: pytest.fail("network escaped stored inputs"))
+        now = wall(monkeypatch, day)
+        store, record = seed_store(tmp_path / "state", previous, day)
+        bot.install_runtime_anchors(state.anchors_from_record(record))
+        providers(monkeypatch, day)
+        builder = bot._build_live_trade_signal
+        monkeypatch.setattr(bot, "_build_live_trade_signal", lambda *a, **k: pytest.fail("collector must not depend on signal conclusion"))
+        root = tmp_path / "evidence"
+        result = adapter.capture_daily(bot, root, now)
+        assert result["status"] == "captured"
+        for product in ["IC", "IM"]:
+            reader, _ = adapter.load_original(bot, root, product, day)
+            annotation = evidence.decode(reader.context["annotations"]["replay_completeness"])
+            assert annotation["input_capture_complete"] is True
+            assert annotation["missing_roles"] == []
+        monkeypatch.setattr(bot, "_build_live_trade_signal", builder)
+        with adapter.evidence_location(root), bot.historical_replay(day):
+            before = bot.build_live_trade_signal("IM", seed.clock(day), "close")
+        assert before["diagnostic_only"] and before["persistence_eligible"] is False
+        assert store.load_latest()["digest"] == record["digest"]
+>       oracle(monkeypatch)
+
+test_icim_round4_recovery_20261021.py:105: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000012D79B3E8F0>
+
+    def oracle(monkeypatch):
+        monkeypatch.setattr(bot, "_OFFICIAL_EXCHANGE_CALENDAR_YEARS", bot._OFFICIAL_EXCHANGE_CALENDAR_YEARS | {2027})
+>       monkeypatch.setattr(bot, "_EXCHANGE_CLOSURES", {**bot._EXCHANGE_CLOSURES, 2027: {date(2027, 1, 1)}})
+                                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: 'frozenset' object is not a mapping
+
+test_icim_round4_recovery_20261021.py:77: TypeError
+============================== warnings summary ===============================
+C:\Python314\Lib\site-packages\fastapi_poe\types.py:171
+  C:\Python314\Lib\site-packages\fastapi_poe\types.py:171: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    class RequestContext(BaseModel):
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED test_icim_round4_recovery_20261021.py::test_real_independent_collector_survives_calendar_diagnostic_then_server_recovers[day0-previous0-later0]
+FAILED test_icim_round4_recovery_20261021.py::test_real_independent_collector_survives_calendar_diagnostic_then_server_recovers[day1-previous1-later1]
+2 failed, 15 passed, 1 warning in 5.87s

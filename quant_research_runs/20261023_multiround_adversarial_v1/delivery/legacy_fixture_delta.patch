@@ -1,0 +1,130 @@
+--- before/test_ic_im_v1_4_integration_guards.py
++++ after/test_ic_im_v1_4_integration_guards.py
+@@ -344,7 +344,8 @@
+ def test_ic_candidate_falls_back_to_sina_when_sse_times_out(monkeypatch):
+     signal={'market_date':date(2026,9,18),'next_trade_date':date(2026,9,21),
+             'etf_price':7.83,'future_last':7641.0}
+-    chain=pd.DataFrame([{'contract':'510500P2610M07500','last':.1237,'strike':7.5}])
++    chain=pd.DataFrame([{'contract':'510500P2610M07500','last':.1237,'strike':7.5,
++                         'source_stamp':datetime(2026,9,18,15,tzinfo=bot.BEIJING)}])
+     monkeypatch.setattr(bot, 'fetch_sse_510500_chain', lambda _month: (_ for _ in ()).throw(TimeoutError('SSE timeout')))
+     monkeypatch.setattr(bot, 'fetch_sina_510500_chain', lambda _month: (chain, {'date':'20260918','time':'150000','source':'新浪财经期权详报价（上交所回退）'}))
+     monkeypatch.setattr(bot, 'fetch_sina_510500_security_id', lambda _contract: '10012357')
+--- before/test_icim_evidence_conflict_review_20261022.py
++++ after/test_icim_evidence_conflict_review_20261022.py
+@@ -193,10 +193,18 @@
+         adapter.has_original(tmp_path, "IC", DAY)
+ 
+ 
+-def test_sealed_attempt_statistics_count_conflicts_not_polling_receipts(tmp_path):
++def test_sealed_attempt_statistics_count_conflicts_not_polling_receipts(tmp_path, monkeypatch):
++    # These synthetic sessions test counting, not real market data. Give them
++    # the original-day seal time and role inventory required for readiness.
++    monkeypatch.setattr(evidence, "_now", lambda: CLOCK)
+     for product, bodies in [("IC", [b"A", b"B"]), ("IC", [b"C"]), ("IM", [b"D"])]:
+         with evidence.capture_session(tmp_path, DAY, CLOCK, {**META, "product": product}) as session:
+             minimum(session)
++            roles = {"market.live", "cffex.quotes", "rate.resolve", "fear.score"}
++            if product == "IC":
++                roles |= {"ic.months", "ic.etf", "ic.chain"}
++            for role in sorted(roles):
++                session.call(role, {}, lambda: True)
+             for body in bodies:
+                 session.raw_response(URL, None, response(body))
+     polling = tmp_path / "capture_receipts" / str(DAY)
+--- before/test_icim_expert_followup_replay_20261022.py
++++ after/test_icim_expert_followup_replay_20261022.py
+@@ -43,6 +43,7 @@
+         response = requests.Response()
+         response.status_code, response.encoding = 200, 'utf-8'
+         response._content = json.dumps(body).encode('utf-8')
++        response._content_consumed = True
+         calls.append((str(url), deepcopy(params)))
+         return response
+     monkeypatch.setattr(bot.requests, 'get', get)
+--- before/test_icim_round3_recovery_audit_20261021.py
++++ after/test_icim_round3_recovery_audit_20261021.py
+@@ -178,7 +178,7 @@
+     archive(monkeypatch, tmp_path, "IM", DAY)
+     reader = evidence.load_session(tmp_path, DAY)
+     reader.closed_at = clock(NEXT)
+-    monkeypatch.setattr(evidence, "load_session", lambda *a, **k: reader)
++    monkeypatch.setattr(evidence, "_load_one", lambda *a, **k: reader)
+     with pytest.raises(evidence.EvidenceUnavailable, match="acquisition time"):
+         adapter.load_original(bot, tmp_path, "IM", DAY)
+ 
+--- before/test_icim_round3_source_validation_20261021.py
++++ after/test_icim_round3_source_validation_20261021.py
+@@ -25,8 +25,8 @@
+ 
+ 
+ def months_payload():
+-    return {"date": "20261021", "time": "150000", "total": 4, "begin": 0, "end": 4,
+-            "list": [["510300", "202612"], ["510500", "202611"],
++    return {"date": "20261021", "time": "150000", "total": 5, "begin": 0, "end": 5,
++            "list": [["510300", "202612"], ["510500", "202610"], ["510500", "202611"],
+                      ["510500", "202612"], ["510500", "202703"]]}
+ 
+ 
+@@ -110,9 +110,10 @@
+     payload = months_payload()
+     payload["list"][0][1] = "an unrelated source value"
+     payload["list"].append(["510500", "202611"])
+-    payload.update(total=5, end=5)
++    payload.update(total=6, end=6)
+     wire(monkeypatch, payload)
+-    assert bot.fetch_sse_510500_expiries() == ["202611", "202612", "202703"]
++    with bot.runtime_clock(CLOCK):
++        assert bot.fetch_sse_510500_expiries() == ["202610", "202611", "202612", "202703"]
+ 
+ 
+ @pytest.mark.parametrize("source", ["etf", "months"])
+@@ -121,8 +122,12 @@
+     for field in ["total", "begin", "end"]:
+         del payload[field]
+     wire(monkeypatch, payload)
+-    result = (bot.fetch_sse_510500_quote if source == "etf" else bot.fetch_sse_510500_expiries)()
+-    assert result
++    with bot.runtime_clock(CLOCK):
++        result = (bot.fetch_sse_510500_quote if source == "etf" else bot.fetch_sse_510500_expiries)()
++    if source == "months":
++        assert result == ["202610", "202611", "202612", "202703"]
++    else:
++        assert result == {"date": "20261021", "time": "150000", "last": 7.8, "prev_close": 7.7}
+ 
+ 
+ @pytest.mark.parametrize("source", ["etf_boolean", "etf_wrong_code", "months"])
+--- before/test_icim_round4_evidence_boundaries_20261021.py
++++ after/test_icim_round4_evidence_boundaries_20261021.py
+@@ -185,8 +185,11 @@
+         session.call("probe", {}, lambda: True)
+         session.raw_response("https://hq.sinajs.cn/etag.php",
+             {"list": "P_OP_mo2612P7200,P_OP_mo2612P7300"}, response)
+-    reader = evidence.load_session(tmp_path, DAY)
+-    with pytest.raises(evidence.EvidenceUnavailable, match="status invalid"):
++    # HTTP metadata is now rejected while sealing/loading, before projection.
++    assert session.context["complete"] is False
++    assert any(failure["role"] == "raw_http_metadata" for failure in session.failures)
++    with pytest.raises(evidence.EvidenceUnavailable, match="status invalid|incomplete"):
++        reader = evidence.load_session(tmp_path, DAY)
+         reader.http_response("https://hq.sinajs.cn/etag.php", {"list": "P_OP_mo2612P7200"})
+ 
+ 
+--- before/test_icim_round5_recording_semantics_20261021.py
++++ after/test_icim_round5_recording_semantics_20261021.py
+@@ -115,6 +115,7 @@
+         response = requests.Response()
+         response.status_code, response.encoding = 200, "utf-8"
+         response._content = json.dumps(chain_payload(day)).encode("utf-8")
++        response._content_consumed = True
+         return response
+     monkeypatch.setattr(bot.requests, "get", get)
+     with bot.runtime_clock(clock), evidence.capture_session(tmp_path, day, clock, {}):
+@@ -141,6 +142,7 @@
+         response = requests.Response()
+         response.status_code, response.encoding = 200, "utf-8"
+         response._content = json.dumps(chain_payload(day, "2701")).encode("utf-8")
++        response._content_consumed = True
+         return response
+     monkeypatch.setattr(bot.requests, "get", get)
+     monkeypatch.setattr(bot, "fetch_sina_510500_chain", lambda *a, **k: (_ for _ in ()).throw(RuntimeError("synthetic fallback unavailable")))

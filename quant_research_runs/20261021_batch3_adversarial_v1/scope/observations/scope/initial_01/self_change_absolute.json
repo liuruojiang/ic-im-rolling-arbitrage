@@ -1,0 +1,6 @@
+{
+  "returncode": 0,
+  "accepted_receipt": "{\n  \"started_at\": \"2026-10-21T09:25:18.455196+00:00\",\n  \"finished_at\": \"2026-10-21T09:25:19.410608+00:00\",\n  \"exit_code\": 0,\n  \"source_before_equals_after\": true,\n  \"source_files\": 3,\n  \"counts\": {\n    \"tests\": 1,\n    \"failures\": 0,\n    \"errors\": 0,\n    \"skipped\": 0\n  },\n  \"artifacts\": {\n    \"regression.xml\": \"9ad804d0df252cc8c655075af760f8540e47c8b1859308349a7e61d211dd065d\",\n    \"regression.txt\": \"88bd8dfdb7a94b6010ba5e505610de7af6f1c0243a48a0fdf1fe146c619a4fa4\",\n    \"source_before.json\": \"466b7a693dc93c88418770ba7b1f9326009091434d357a0b835b1d5a68f6cf42\",\n    \"source_after.json\": \"466b7a693dc93c88418770ba7b1f9326009091434d357a0b835b1d5a68f6cf42\",\n    \"test_run.json\": \"3ef04ea85976444979bc88a12f40e49d76c58dafd1903e6095e1c3fe42119962\"\n  }\n}\n",
+  "child_output": ".                                                                        [100%]\n1 passed in 0.28s\n\n{\"stage\": \"self_change\", \"counts\": {\"tests\": 1, \"failures\": 0, \"errors\": 0, \"skipped\": 0}, \"source_files\": 3}\n",
+  "child_error": ""
+}

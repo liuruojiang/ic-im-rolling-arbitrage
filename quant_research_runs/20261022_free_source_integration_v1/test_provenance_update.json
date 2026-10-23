@@ -1,0 +1,6 @@
+{
+  "file": "test_icim_calendar_capture_review_20261022.py",
+  "before_sha256": "9848d43d3673b745512203516b07e5881a5563a0d09cd657b83ce1c9ca0d8f11",
+  "after_sha256": "59089bc792970e4c6e4831c2f411f4b55c8fbd2312abf4c39bd0eff0ea618dd2",
+  "reason": "Retain the frozen prior-round source equality against its backed-up source; additionally require current official calendar AST unchanged. No exclusion added; original 22 remain."
+}

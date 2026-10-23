@@ -1,0 +1,174 @@
+--- before/ic_im_signal_evidence_v1.py
++++ after/ic_im_signal_evidence_v1.py
+@@ -346,13 +346,26 @@
+     return _dumps(encode(ordered(decode(encoded))))
+ 
+ 
++def _http_identity_headers(row):
++    headers = row.get("headers", {})
++    # This audited SSE endpoint stamps each HTTP message with a new Date even
++    # when its market body (including date/time) is unchanged. RFC 9110 6.6.1:
++    # Date describes message origination, not the quote observation time. Keep
++    # every original header in raw evidence; only identity comparison omits it.
++    # Other endpoints and representation metadata remain strictly compared.
++    if re.fullmatch(r"https://yunhq\.sse\.com\.cn:32042/v1/sho/list/tstyle/510500_(?:0[1-9]|1[0-2])",
++                    row.get("url", "")):
++        headers = {name: value for name, value in headers.items() if name.lower() != "date"}
++    return _dumps(headers)
++
++
+ def raw_http_conflicts(rows):
+     """Report request ambiguity using the same identity as the strict reader."""
+     seen, reported, conflicts = {}, set(), []
+     for row in rows:
+         request = (row.get("url"), canonical_http_params(row.get("params")))
+         response = (row.get("sha256"), row.get("status_code"), row.get("encoding"),
+-                    _dumps(row.get("headers", {})))
++                    _http_identity_headers(row))
+         if request in seen and seen[request] != response and request not in reported:
+             conflicts.append({"role": "raw_http_conflict", "url": row.get("url"),
+                 "request_signature": hashlib.sha256(_dumps(request[0]) + request[1]).hexdigest(),
+@@ -662,7 +675,7 @@
+                 raise EvidenceUnavailable("recorded HTTP response status invalid")
+             if row.get("encoding") is not None and not isinstance(row["encoding"], str):
+                 raise EvidenceUnavailable("recorded HTTP response encoding invalid")
+-            signatures.add((row["body"], row["status_code"], row.get("encoding"), _dumps(row.get("headers", {}))))
++            signatures.add((row["body"], row["status_code"], row.get("encoding"), _http_identity_headers(row)))
+         if len(signatures) != 1:
+             # URL/parameters do not identify which observation a caller used.
+             # Never invent FIFO correspondence or silently choose a later price.
+--- before/notes/mainline_registry.md
++++ after/notes/mainline_registry.md
+@@ -1,4 +1,10 @@
+ # IC / IM 系统主线登记表
++
++## SSE HTTP Date 误冲突修订（2026-10-22，独立后续轮）
++
++- 实测同一SSE月链正文与行情date/time完全相同、HTTP Date相差11秒。仅精确SSE 510500_MM月链在一致性比较中忽略HTTP Date；原始头逐次完整留存，Last-Modified/ETag/正文/状态/编码仍严格。其他URL不放宽，不增加通用网络缓存，不解除旧失败包。
++- 生产改动仅存证模块的响应身份比较；策略/日历/历史公式与正式账本不变。规范docs/ic_im_evidence_http_date_20261022_v1_spec.md；测试、真实原日包隔离恢复、代理及采集状态以quant_research_runs/20261022_evidence_http_date_v1中的独立回执为准，不套用上一轮计数。
++- 最终103文件2959通过、原22单列不变，1010绑定前后相同；新增18项、原第五轮19项包含。真实SSE双响应封存回放及服务端5场景通过，IC212/IM227事实字段与旧版本一致；正式runtime156、原归档107字节不变。采集PID21280/28模块pin，最新尝试仍因代理超时不完整，但当日早前完整IC/IM包可恢复；不声称网络稳定或远端部署完成。
+ 
+ ## 同址报文冲突与封存门禁（2026-10-22，专家四点复核）
+ 
+--- /dev/null
++++ after/test_icim_evidence_http_date_20261022.py
+@@ -0,0 +1,119 @@
++"""Real SSE Date-only variability must not conceal any market-input conflict."""
++from datetime import date, datetime
++import hashlib
++import json
++from pathlib import Path
++
++import pytest
++import requests
++
++import ic_im_signal_evidence_v1 as evidence
++
++ROOT = Path(__file__).resolve().parent
++PROBE = ROOT / 'quant_research_runs/20261022_evidence_conflict_review_v1/delivery/time_probe_02'
++URL = 'https://yunhq.sse.com.cn:32042/v1/sho/list/tstyle/510500_12'
++DAY = date(2026, 10, 22)
++CLOCK = datetime.fromisoformat('2026-10-22T21:00:00+08:00')
++
++
++def reply(body=b'{"date":20261022,"time":162906,"price":7.8}', *, headers=None,
++          status=200, encoding='utf-8'):
++    value = requests.Response()
++    value.status_code, value.encoding, value._content = status, encoding, body
++    value.headers.update(headers or {})
++    value._content_consumed = True
++    return value
++
++
++def raw_pair():
++    receipt = json.loads((PROBE / 'receipt.json').read_text(encoding='utf-8'))
++    path = Path(receipt['manifest'])
++    packet = json.loads(path.read_text(encoding='utf-8'))
++    assert hashlib.sha256(evidence._dumps(packet['body'])).hexdigest() == packet['sha256']
++    rows = packet['body']['raw']
++    assert len(rows) == 2
++    assert rows[0]['sha256'] == rows[1]['sha256']
++    return [(row, evidence._verified_blob(PROBE / 'evidence', row)) for row in rows]
++
++
++def test_real_sse_identical_market_inputs_with_different_http_dates_seal_and_replay(tmp_path):
++    pair = raw_pair()
++    assert pair[0][0]['headers']['Date'] != pair[1][0]['headers']['Date']
++    signal = {'persistence_eligible': True}
++    with evidence.capture_session(tmp_path, DAY, CLOCK, {'scope': 'real_Date_pair'}) as session:
++        session.call('probe', {}, lambda: True)
++        session.bind_signal(signal)
++        for row, body in pair:
++            session.raw_response(row['url'], evidence.decode(row['params']),
++                                 reply(body, headers=row['headers'], status=row['status_code'], encoding=row['encoding']))
++            assert not session.failures
++    assert session.context['complete'] and signal['persistence_eligible']
++    reader = evidence.load_session(tmp_path, DAY)
++    observed = reader.http_response(URL, evidence.decode(pair[0][0]['params']))
++    assert observed['body'] == pair[0][1] == pair[1][1]
++    assert observed['matching_recordings'] == 2
++    assert observed['headers'] == pair[-1][0]['headers']
++    assert [row['headers'] for row in reader.context['raw']] == [r['headers'] for r, _ in pair]
++    assert reader.missing_inputs == []
++
++
++@pytest.mark.parametrize('change', ['price', 'market_time', 'market_date', 'status', 'encoding',
++                                   'Last-Modified', 'ETag', 'Content-Type'])
++def test_date_exemption_preserves_all_market_and_representation_conflicts(tmp_path, change):
++    original = {'Date': 'Thu, 22 Oct 2026 13:00:00 GMT',
++                'Last-Modified': 'Thu, 22 Oct 2026 07:00:00 GMT', 'ETag': 'a', 'Content-Type': 'application/json'}
++    later = {**original, 'Date': 'Thu, 22 Oct 2026 13:00:01 GMT'}
++    options = {'headers': later}
++    if change in {'Last-Modified', 'ETag', 'Content-Type'}:
++        later[change] = 'changed'
++    elif change in {'status', 'encoding'}:
++        options[change] = 503 if change == 'status' else 'gbk'
++    else:
++        values = {'price': b'{"date":20261022,"time":162906,"price":7.9}',
++                  'market_time': b'{"date":20261022,"time":162907,"price":7.8}',
++                  'market_date': b'{"date":20261023,"time":162906,"price":7.8}'}
++        options['body'] = values[change]
++    signal = {'persistence_eligible': True}
++    with evidence.capture_session(tmp_path, DAY, CLOCK, {}) as session:
++        session.call('probe', {}, lambda: True)
++        session.bind_signal(signal)
++        session.raw_response(URL, None, reply(headers=original))
++        session.raw_response(URL, None, reply(**options))
++        assert any(f['role'] == 'raw_http_conflict' for f in session.failures)
++    assert not session.context['complete'] and not signal['persistence_eligible']
++    with pytest.raises(evidence.EvidenceUnavailable, match='incomplete'):
++        evidence.load_session(tmp_path, DAY)
++
++
++@pytest.mark.parametrize('url', [
++    'https://example.invalid/tstyle/510500_12',
++    'http://yunhq.sse.com.cn:32042/v1/sho/list/tstyle/510500_12',
++    'https://yunhq.sse.com.cn:32042/v1/sho/list/tstyle/510500_13',
++    'https://yunhq.sse.com.cn:32042/v1/sho/list/tstyle/510500_00',
++    'https://yunhq.sse.com.cn:32042/v1/sho/list/tstyle/510500_12/extra',
++    'https://yunhq.sse.com.cn:32042/v1/sho/list/tstyle/510500_12?different=1',
++    'https://yunhq.sse.com.cn:32042/v1/sho/list/other/510500_12'])
++def test_other_endpoints_keep_strict_date_identity(tmp_path, url):
++    with evidence.capture_session(tmp_path, DAY, CLOCK, {}) as session:
++        session.call('probe', {}, lambda: True)
++        for value in ['Thu, 22 Oct 2026 13:00:00 GMT', 'Thu, 22 Oct 2026 13:00:01 GMT']:
++            session.raw_response(url, None, reply(headers={'Date': value}))
++    assert not session.context['complete']
++
++
++def test_previous_date_conflict_archive_is_not_retroactively_promoted():
++    with pytest.raises(evidence.EvidenceUnavailable, match='incomplete'):
++        evidence.load_session(PROBE / 'evidence', DAY)
++
++
++def test_reader_rejects_market_conflict_even_if_forged_manifest_claims_complete(tmp_path):
++    with evidence.capture_session(tmp_path, DAY, CLOCK, {}) as session:
++        session.call('probe', {}, lambda: True)
++        session.raw_response(URL, None, reply(headers={'Date': 'a'}))
++        session.raw_response(URL, None, reply(b'changed market data', headers={'Date': 'b'}))
++    packet = json.loads(session.manifest_path.read_text(encoding='utf-8'))
++    packet['body'].update(complete=True, failures=[])
++    packet['sha256'] = hashlib.sha256(evidence._dumps(packet['body'])).hexdigest()
++    session.manifest_path.write_bytes(evidence._dumps(packet))
++    with pytest.raises(evidence.EvidenceUnavailable, match='ambiguous'):
++        evidence.load_session(tmp_path, DAY)

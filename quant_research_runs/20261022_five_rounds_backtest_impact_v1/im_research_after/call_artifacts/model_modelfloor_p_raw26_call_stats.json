@@ -1,0 +1,12 @@
+{
+  "final_pending": 0,
+  "scheduled_execution_failures": 0,
+  "delayed_trading_days": 0,
+  "threat_signals": 33,
+  "threat_rolls": 32,
+  "threat_no_contract_stops": 1,
+  "threat_max5_stops": 0,
+  "blocked_days": 21,
+  "reenable_events": 1,
+  "max_consecutive_threat_rolls": 3
+}

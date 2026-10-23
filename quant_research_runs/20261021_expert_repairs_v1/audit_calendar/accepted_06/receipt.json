@@ -1,0 +1,22 @@
+{
+  "exit_code": 0,
+  "source_before_equals_after": true,
+  "source_files": 10,
+  "counts": {
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "tests": 40
+  },
+  "scope": "Independent restored-state calendar/builder/persistence/display and zero-exposure tests; synthetic future observations; not continuous 56-day ledger replay.",
+  "execution_source": "audit_calendar/final_05 (same execution; this is an artifact-bound acceptance receipt, not another test run)",
+  "deselected": {},
+  "artifacts": {
+    "regression.xml": "fdf7d62f4046fd40fc16daa00d1c0c3d9beda8c3afeca925f70931bb25affc78",
+    "regression.txt": "9d87d5da17a9837061e6dec010b4aac86aae4444df454aba2697e01c0a21cfcc",
+    "source_before.json": "3ca085b4657b02e221f8e67e54979ca363cecc08b5dc98af1a0caf49104b9a4a",
+    "source_after.json": "3ca085b4657b02e221f8e67e54979ca363cecc08b5dc98af1a0caf49104b9a4a",
+    "test_run.json": "4d108d2b5c74e25e59c8430a0fa55c4fc938d85ab95dd8cd0abc657bbf9f37b8",
+    "collection.json": "020fceabfbecaa9873b61ce297fe3ddf18455f13d4c4871616f0b735a9c8db4e"
+  }
+}

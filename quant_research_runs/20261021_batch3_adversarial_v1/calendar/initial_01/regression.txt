@@ -1,0 +1,162 @@
+.FFFF.FFFF..............                                                 [100%]
+================================== FAILURES ===================================
+_ test_unknown_year_target_cannot_hide_behind_a_second_accepted_grammar[MO\uff12\uff17\uff10\uff13-P-8200] _
+
+contract = 'MO２７０３-P-8200'
+
+    @pytest.mark.parametrize('contract', TARGETS)
+    def test_unknown_year_target_cannot_hide_behind_a_second_accepted_grammar(contract):
+        # Rejection may be unknown year or invalid contract syntax. Neither a
+        # Unicode digit nor decimal strike should bypass an adopted-target gate.
+>       with pytest.raises((RuntimeError, ValueError)):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+
+test_icim_b3adv_calendar_20261021.py:34: Failed
+_ test_unknown_year_target_cannot_hide_behind_a_second_accepted_grammar[MO\u0662\u0667\u0660\u0663-P-8200] _
+
+contract = 'MO٢٧٠٣-P-8200'
+
+    @pytest.mark.parametrize('contract', TARGETS)
+    def test_unknown_year_target_cannot_hide_behind_a_second_accepted_grammar(contract):
+        # Rejection may be unknown year or invalid contract syntax. Neither a
+        # Unicode digit nor decimal strike should bypass an adopted-target gate.
+>       with pytest.raises((RuntimeError, ValueError)):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+
+test_icim_b3adv_calendar_20261021.py:34: Failed
+_ test_unknown_year_target_cannot_hide_behind_a_second_accepted_grammar[MO2703-P-\uff18\uff12\uff10\uff10] _
+
+contract = 'MO2703-P-８２００'
+
+    @pytest.mark.parametrize('contract', TARGETS)
+    def test_unknown_year_target_cannot_hide_behind_a_second_accepted_grammar(contract):
+        # Rejection may be unknown year or invalid contract syntax. Neither a
+        # Unicode digit nor decimal strike should bypass an adopted-target gate.
+>       with pytest.raises((RuntimeError, ValueError)):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+
+test_icim_b3adv_calendar_20261021.py:34: Failed
+_ test_unknown_year_target_cannot_hide_behind_a_second_accepted_grammar[MO2703-P-8200.0] _
+
+contract = 'MO2703-P-8200.0'
+
+    @pytest.mark.parametrize('contract', TARGETS)
+    def test_unknown_year_target_cannot_hide_behind_a_second_accepted_grammar(contract):
+        # Rejection may be unknown year or invalid contract syntax. Neither a
+        # Unicode digit nor decimal strike should bypass an adopted-target gate.
+>       with pytest.raises((RuntimeError, ValueError)):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+
+test_icim_b3adv_calendar_20261021.py:34: Failed
+_ test_pending_target_with_alternate_numeric_grammar_is_rejected_before_write[MO\uff12\uff17\uff10\uff13-P-8200] _
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_0ee6c6eb/pytest/test_pending_target_with_alter1')
+contract = 'MO２７０３-P-8200'
+
+    @pytest.mark.parametrize('contract', TARGETS)
+    def test_pending_target_with_alternate_numeric_grammar_is_rejected_before_write(tmp_path, contract):
+        record = seed._record()
+        store, record = seed._persist(tmp_path/'ledger', record)
+        anchors = state.anchors_from_record(record)
+        signals = {
+            'IC': seed._signal('IC', anchors['IC']),
+            'IM': seed._signal('IM', anchors['IM'], momentum=True,
+                               extra={'momentum_put_target_contract': contract}),
+        }
+        assert signals['IM']['v14_ordinary_put_pending']['legs']['momentum']['new_contract'] == contract
+        before = {p.name: p.read_bytes() for p in store.journal_dir.glob('*.json')}
+        head = store.latest_path.read_bytes()
+>       with pytest.raises((RuntimeError, ValueError)):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+
+test_icim_b3adv_calendar_20261021.py:51: Failed
+_ test_pending_target_with_alternate_numeric_grammar_is_rejected_before_write[MO\u0662\u0667\u0660\u0663-P-8200] _
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_0ee6c6eb/pytest/test_pending_target_with_alter2')
+contract = 'MO٢٧٠٣-P-8200'
+
+    @pytest.mark.parametrize('contract', TARGETS)
+    def test_pending_target_with_alternate_numeric_grammar_is_rejected_before_write(tmp_path, contract):
+        record = seed._record()
+        store, record = seed._persist(tmp_path/'ledger', record)
+        anchors = state.anchors_from_record(record)
+        signals = {
+            'IC': seed._signal('IC', anchors['IC']),
+            'IM': seed._signal('IM', anchors['IM'], momentum=True,
+                               extra={'momentum_put_target_contract': contract}),
+        }
+        assert signals['IM']['v14_ordinary_put_pending']['legs']['momentum']['new_contract'] == contract
+        before = {p.name: p.read_bytes() for p in store.journal_dir.glob('*.json')}
+        head = store.latest_path.read_bytes()
+>       with pytest.raises((RuntimeError, ValueError)):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+
+test_icim_b3adv_calendar_20261021.py:51: Failed
+_ test_pending_target_with_alternate_numeric_grammar_is_rejected_before_write[MO2703-P-\uff18\uff12\uff10\uff10] _
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_0ee6c6eb/pytest/test_pending_target_with_alter3')
+contract = 'MO2703-P-８２００'
+
+    @pytest.mark.parametrize('contract', TARGETS)
+    def test_pending_target_with_alternate_numeric_grammar_is_rejected_before_write(tmp_path, contract):
+        record = seed._record()
+        store, record = seed._persist(tmp_path/'ledger', record)
+        anchors = state.anchors_from_record(record)
+        signals = {
+            'IC': seed._signal('IC', anchors['IC']),
+            'IM': seed._signal('IM', anchors['IM'], momentum=True,
+                               extra={'momentum_put_target_contract': contract}),
+        }
+        assert signals['IM']['v14_ordinary_put_pending']['legs']['momentum']['new_contract'] == contract
+        before = {p.name: p.read_bytes() for p in store.journal_dir.glob('*.json')}
+        head = store.latest_path.read_bytes()
+>       with pytest.raises((RuntimeError, ValueError)):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+
+test_icim_b3adv_calendar_20261021.py:51: Failed
+_ test_pending_target_with_alternate_numeric_grammar_is_rejected_before_write[MO2703-P-8200.0] _
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_0ee6c6eb/pytest/test_pending_target_with_alter4')
+contract = 'MO2703-P-8200.0'
+
+    @pytest.mark.parametrize('contract', TARGETS)
+    def test_pending_target_with_alternate_numeric_grammar_is_rejected_before_write(tmp_path, contract):
+        record = seed._record()
+        store, record = seed._persist(tmp_path/'ledger', record)
+        anchors = state.anchors_from_record(record)
+        signals = {
+            'IC': seed._signal('IC', anchors['IC']),
+            'IM': seed._signal('IM', anchors['IM'], momentum=True,
+                               extra={'momentum_put_target_contract': contract}),
+        }
+        assert signals['IM']['v14_ordinary_put_pending']['legs']['momentum']['new_contract'] == contract
+        before = {p.name: p.read_bytes() for p in store.journal_dir.glob('*.json')}
+        head = store.latest_path.read_bytes()
+>       with pytest.raises((RuntimeError, ValueError)):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ValueError'>)
+
+test_icim_b3adv_calendar_20261021.py:51: Failed
+============================== warnings summary ===============================
+C:\Python314\Lib\site-packages\fastapi_poe\types.py:171
+  C:\Python314\Lib\site-packages\fastapi_poe\types.py:171: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    class RequestContext(BaseModel):
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED test_icim_b3adv_calendar_20261021.py::test_unknown_year_target_cannot_hide_behind_a_second_accepted_grammar[MO\uff12\uff17\uff10\uff13-P-8200]
+FAILED test_icim_b3adv_calendar_20261021.py::test_unknown_year_target_cannot_hide_behind_a_second_accepted_grammar[MO\u0662\u0667\u0660\u0663-P-8200]
+FAILED test_icim_b3adv_calendar_20261021.py::test_unknown_year_target_cannot_hide_behind_a_second_accepted_grammar[MO2703-P-\uff18\uff12\uff10\uff10]
+FAILED test_icim_b3adv_calendar_20261021.py::test_unknown_year_target_cannot_hide_behind_a_second_accepted_grammar[MO2703-P-8200.0]
+FAILED test_icim_b3adv_calendar_20261021.py::test_pending_target_with_alternate_numeric_grammar_is_rejected_before_write[MO\uff12\uff17\uff10\uff13-P-8200]
+FAILED test_icim_b3adv_calendar_20261021.py::test_pending_target_with_alternate_numeric_grammar_is_rejected_before_write[MO\u0662\u0667\u0660\u0663-P-8200]
+FAILED test_icim_b3adv_calendar_20261021.py::test_pending_target_with_alternate_numeric_grammar_is_rejected_before_write[MO2703-P-\uff18\uff12\uff10\uff10]
+FAILED test_icim_b3adv_calendar_20261021.py::test_pending_target_with_alternate_numeric_grammar_is_rejected_before_write[MO2703-P-8200.0]
+8 failed, 16 passed, 1 warning in 2.71s

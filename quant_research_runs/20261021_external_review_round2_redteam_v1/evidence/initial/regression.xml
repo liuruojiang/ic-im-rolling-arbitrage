@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="6" time="0.393" timestamp="2026-10-21T14:30:08.458727+08:00" hostname="DESKTOP-95I7VVU"><testcase classname="test_icim_round2_audit_evidence_20261021" name="test_historical_1192_receipt_matches_actual_cases_and_46_files" time="0.005" /><testcase classname="test_icim_round2_audit_evidence_20261021" name="test_historical_source_and_artifact_bindings_are_internally_consistent" time="0.004" /><testcase classname="test_icim_round2_audit_evidence_20261021" name="test_fixture_bytes_match_saved_raw_payloads_and_manifest" time="0.064" /><testcase classname="test_icim_round2_audit_evidence_20261021" name="test_old_display_test_changed_only_to_supply_the_holding_security_id" time="0.006"><failure message="assert [&quot;'10012099'&quot;...ecurity_id']&quot;] == [&quot;anchor['v14...ecurity_id']&quot;]&#10;  &#10;  At index 0 diff: &quot;'10012099'&quot; != &quot;anchor['v14_core_put_security_id']&quot;&#10;  Left contains one more item: &quot;anchor['v14_core_put_security_id']&quot;&#10;  Use -v to get more diff">def test_old_display_test_changed_only_to_supply_the_holding_security_id():
+        name = 'test_ic_im_external_review_display_cache_20261021.py'
+        old = ast.parse((OLD / 'backup' / name).read_text(encoding='utf-8'))
+        new = ast.parse((ROOT / name).read_text(encoding='utf-8'))
+        removed = []
+        for node in ast.walk(new):
+            if isinstance(node, ast.Call):
+                for kw in list(node.keywords):
+                    if kw.arg == 'security_id':
+                        removed.append(ast.unparse(kw.value))
+                        node.keywords.remove(kw)
+&gt;       assert removed == ["anchor['v14_core_put_security_id']"]
+E       assert ["'10012099'"...ecurity_id']"] == ["anchor['v14...ecurity_id']"]
+E         
+E         At index 0 diff: "'10012099'" != "anchor['v14_core_put_security_id']"
+E         Left contains one more item: "anchor['v14_core_put_security_id']"
+E         Use -v to get more diff
+
+test_icim_round2_audit_evidence_20261021.py:79: AssertionError</failure></testcase><testcase classname="test_icim_round2_audit_evidence_20261021" name="test_new_identity_dependency_is_importable_and_has_no_filesystem_write_api" time="0.004" /><testcase classname="test_icim_round2_audit_evidence_20261021" name="test_formal_runtime_and_older_evidence_unchanged_from_second_round_baseline" time="0.005"><failure message="assert False&#10; +  where False = all(&lt;generator object test_formal_runtime_and_older_evidence_unchanged_from_second_round_baseline.&lt;locals&gt;.&lt;genexpr&gt; at 0x000002864DC594E0&gt;)">def test_formal_runtime_and_older_evidence_unchanged_from_second_round_baseline():
+        baseline = read(OLD / 'baseline.json')
+        protected = {p: h for p, h in baseline['backed_up'].items() if p.startswith('runtime/')}
+        assert protected
+&gt;       assert all(sha(ROOT / p) == h for p, h in protected.items())
+E       assert False
+E        +  where False = all(&lt;generator object test_formal_runtime_and_older_evidence_unchanged_from_second_round_baseline.&lt;locals&gt;.&lt;genexpr&gt; at 0x000002864DC594E0&gt;)
+
+test_icim_round2_audit_evidence_20261021.py:95: AssertionError</failure></testcase></testsuite></testsuites>

@@ -1,0 +1,624 @@
+........................................................................ [  3%]
+........................................................................ [  7%]
+........................................................................ [ 11%]
+........................................................................ [ 14%]
+........................................................................ [ 18%]
+........................................................................ [ 22%]
+........................................................................ [ 25%]
+........................................................................ [ 29%]
+........................................................................ [ 33%]
+........................................................................ [ 36%]
+FFFF.................................................................... [ 40%]
+........................................................................ [ 44%]
+........................................................................ [ 47%]
+.................FF..................................................... [ 51%]
+........................................................................ [ 55%]
+........................................................................ [ 58%]
+.............................................FFFF....................... [ 62%]
+........................................................................ [ 66%]
+...........................F........F................................... [ 69%]
+........................................................................ [ 73%]
+........................................................................ [ 77%]
+......................................................F.......F......... [ 80%]
+........................................................................ [ 84%]
+..............................................FF........................ [ 88%]
+........................................................................ [ 92%]
+........................................................................ [ 95%]
+........................................................................ [ 99%]
+............                                                             [100%]
+================================== FAILURES ===================================
+__ test_profit_and_momentum_execute_independently_after_restart[old_core-IC] __
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_d8e4c0b5/pytest/test_profit_and_momentum_execu2')
+product = 'IC', missing = 'old_core'
+
+    @pytest.mark.parametrize("product", ["IC", "IM"])
+    @pytest.mark.parametrize("missing", [None, "old_core", "new_core", "momentum"])
+    def test_profit_and_momentum_execute_independently_after_restart(tmp_path, product, missing):
+        store, record = _persist(tmp_path, _profit_record(product))
+        anchor = state.anchors_from_record(record)[product]
+        initial = _profit_trigger(product, anchor)
+        assert initial["v14_action"] == "CORE_PUT_PROFIT3X_REENTER"
+        ordinary = initial["v14_ordinary_put_pending"]
+        assert ordinary["legs"]["momentum"]["changed"] is True
+        assert ordinary["legs"]["core"]["changed"] is False
+        record = _profit_append(store, record, product, initial)
+        anchor = state.anchors_from_record(record)[product]
+        field = "verified_momentum_put_qty" if product == "IC" else "verified_momentum_put_qty_normalized"
+        assert anchor[field] == 0
+        assert anchor["v14_profit_pending"] is True
+        day = bot._roll_forward_exchange_day(DAY + timedelta(days=1))
+        signal = _profit_session(product, anchor, day, missing=missing)
+>       result = _profit_append(store, record, product, signal)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_ic_im_ordinary_put_route_fix_20261013.py:486: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+test_ic_im_ordinary_put_route_fix_20261013.py:412: in _profit_append
+    result = store.append_confirmed_signals(record, pair)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+poe_ic_im_v1_4_state.py:1484: in append_confirmed_signals
+    return self._append_locked(current, signals)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+poe_ic_im_v1_4_state.py:1487: in _append_locked
+    anchors = derive_next_anchors(current, signals)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+poe_ic_im_v1_4_state.py:961: in derive_next_anchors
+    require_persistence_eligible(signals[product], product)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+signal = {'call_action': 'HOLD', 'call_current_contract': None, 'call_target_contract': None, 'call_target_expiry': None, ...}
+product = 'IC'
+
+    def require_persistence_eligible(signal: dict[str, Any], product: str) -> None:
+        """Reject diagnostic/incomplete results at new-write boundaries only.
+    
+        Older hash-verified records are still read with their original schema.  An
+        omitted new marker remains compatible, but a present marker must be bool.
+        """
+        for field in ("calendar_provisional", "diagnostic_only"):
+            if field in signal and (type(signal[field]) is not bool or signal[field]):
+                raise RuntimeError(f"{product} {field}诊断信号禁止持久化")
+        for field in ("signal_complete", "persistence_eligible"):
+            if field in signal and (type(signal[field]) is not bool or signal[field] is not True):
+                raise RuntimeError(f"{product} {field}未确认，禁止持久化")
+        if signal.get("v14_action") == "HOLD_FAIL_CLOSED":
+>           raise RuntimeError(f"{product} HOLD_FAIL_CLOSED信号禁止持久化")
+E           RuntimeError: IC HOLD_FAIL_CLOSED信号禁止持久化
+
+poe_ic_im_v1_4_state.py:239: RuntimeError
+__ test_profit_and_momentum_execute_independently_after_restart[old_core-IM] __
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_d8e4c0b5/pytest/test_profit_and_momentum_execu3')
+product = 'IM', missing = 'old_core'
+
+    @pytest.mark.parametrize("product", ["IC", "IM"])
+    @pytest.mark.parametrize("missing", [None, "old_core", "new_core", "momentum"])
+    def test_profit_and_momentum_execute_independently_after_restart(tmp_path, product, missing):
+        store, record = _persist(tmp_path, _profit_record(product))
+        anchor = state.anchors_from_record(record)[product]
+        initial = _profit_trigger(product, anchor)
+        assert initial["v14_action"] == "CORE_PUT_PROFIT3X_REENTER"
+        ordinary = initial["v14_ordinary_put_pending"]
+        assert ordinary["legs"]["momentum"]["changed"] is True
+        assert ordinary["legs"]["core"]["changed"] is False
+        record = _profit_append(store, record, product, initial)
+        anchor = state.anchors_from_record(record)[product]
+        field = "verified_momentum_put_qty" if product == "IC" else "verified_momentum_put_qty_normalized"
+        assert anchor[field] == 0
+        assert anchor["v14_profit_pending"] is True
+        day = bot._roll_forward_exchange_day(DAY + timedelta(days=1))
+        signal = _profit_session(product, anchor, day, missing=missing)
+>       result = _profit_append(store, record, product, signal)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_ic_im_ordinary_put_route_fix_20261013.py:486: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+test_ic_im_ordinary_put_route_fix_20261013.py:412: in _profit_append
+    result = store.append_confirmed_signals(record, pair)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+poe_ic_im_v1_4_state.py:1484: in append_confirmed_signals
+    return self._append_locked(current, signals)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+poe_ic_im_v1_4_state.py:1487: in _append_locked
+    anchors = derive_next_anchors(current, signals)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+poe_ic_im_v1_4_state.py:961: in derive_next_anchors
+    require_persistence_eligible(signals[product], product)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+signal = {'call_action': 'HOLD', 'call_current_contract': None, 'call_target': '目标空仓（fix6停止卖Call）', 'call_target_contract': None, ...}
+product = 'IM'
+
+    def require_persistence_eligible(signal: dict[str, Any], product: str) -> None:
+        """Reject diagnostic/incomplete results at new-write boundaries only.
+    
+        Older hash-verified records are still read with their original schema.  An
+        omitted new marker remains compatible, but a present marker must be bool.
+        """
+        for field in ("calendar_provisional", "diagnostic_only"):
+            if field in signal and (type(signal[field]) is not bool or signal[field]):
+                raise RuntimeError(f"{product} {field}诊断信号禁止持久化")
+        for field in ("signal_complete", "persistence_eligible"):
+            if field in signal and (type(signal[field]) is not bool or signal[field] is not True):
+                raise RuntimeError(f"{product} {field}未确认，禁止持久化")
+        if signal.get("v14_action") == "HOLD_FAIL_CLOSED":
+>           raise RuntimeError(f"{product} HOLD_FAIL_CLOSED信号禁止持久化")
+E           RuntimeError: IM HOLD_FAIL_CLOSED信号禁止持久化
+
+poe_ic_im_v1_4_state.py:239: RuntimeError
+__ test_profit_and_momentum_execute_independently_after_restart[new_core-IC] __
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_d8e4c0b5/pytest/test_profit_and_momentum_execu4')
+product = 'IC', missing = 'new_core'
+
+    @pytest.mark.parametrize("product", ["IC", "IM"])
+    @pytest.mark.parametrize("missing", [None, "old_core", "new_core", "momentum"])
+    def test_profit_and_momentum_execute_independently_after_restart(tmp_path, product, missing):
+        store, record = _persist(tmp_path, _profit_record(product))
+        anchor = state.anchors_from_record(record)[product]
+        initial = _profit_trigger(product, anchor)
+        assert initial["v14_action"] == "CORE_PUT_PROFIT3X_REENTER"
+        ordinary = initial["v14_ordinary_put_pending"]
+        assert ordinary["legs"]["momentum"]["changed"] is True
+        assert ordinary["legs"]["core"]["changed"] is False
+        record = _profit_append(store, record, product, initial)
+        anchor = state.anchors_from_record(record)[product]
+        field = "verified_momentum_put_qty" if product == "IC" else "verified_momentum_put_qty_normalized"
+        assert anchor[field] == 0
+        assert anchor["v14_profit_pending"] is True
+        day = bot._roll_forward_exchange_day(DAY + timedelta(days=1))
+        signal = _profit_session(product, anchor, day, missing=missing)
+>       result = _profit_append(store, record, product, signal)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_ic_im_ordinary_put_route_fix_20261013.py:486: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+test_ic_im_ordinary_put_route_fix_20261013.py:412: in _profit_append
+    result = store.append_confirmed_signals(record, pair)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+poe_ic_im_v1_4_state.py:1484: in append_confirmed_signals
+    return self._append_locked(current, signals)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+poe_ic_im_v1_4_state.py:1487: in _append_locked
+    anchors = derive_next_anchors(current, signals)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+poe_ic_im_v1_4_state.py:961: in derive_next_anchors
+    require_persistence_eligible(signals[product], product)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+signal = {'call_action': 'HOLD', 'call_current_contract': None, 'call_target_contract': None, 'call_target_expiry': None, ...}
+product = 'IC'
+
+    def require_persistence_eligible(signal: dict[str, Any], product: str) -> None:
+        """Reject diagnostic/incomplete results at new-write boundaries only.
+    
+        Older hash-verified records are still read with their original schema.  An
+        omitted new marker remains compatible, but a present marker must be bool.
+        """
+        for field in ("calendar_provisional", "diagnostic_only"):
+            if field in signal and (type(signal[field]) is not bool or signal[field]):
+                raise RuntimeError(f"{product} {field}诊断信号禁止持久化")
+        for field in ("signal_complete", "persistence_eligible"):
+            if field in signal and (type(signal[field]) is not bool or signal[field] is not True):
+                raise RuntimeError(f"{product} {field}未确认，禁止持久化")
+        if signal.get("v14_action") == "HOLD_FAIL_CLOSED":
+>           raise RuntimeError(f"{product} HOLD_FAIL_CLOSED信号禁止持久化")
+E           RuntimeError: IC HOLD_FAIL_CLOSED信号禁止持久化
+
+poe_ic_im_v1_4_state.py:239: RuntimeError
+__ test_profit_and_momentum_execute_independently_after_restart[new_core-IM] __
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_d8e4c0b5/pytest/test_profit_and_momentum_execu5')
+product = 'IM', missing = 'new_core'
+
+    @pytest.mark.parametrize("product", ["IC", "IM"])
+    @pytest.mark.parametrize("missing", [None, "old_core", "new_core", "momentum"])
+    def test_profit_and_momentum_execute_independently_after_restart(tmp_path, product, missing):
+        store, record = _persist(tmp_path, _profit_record(product))
+        anchor = state.anchors_from_record(record)[product]
+        initial = _profit_trigger(product, anchor)
+        assert initial["v14_action"] == "CORE_PUT_PROFIT3X_REENTER"
+        ordinary = initial["v14_ordinary_put_pending"]
+        assert ordinary["legs"]["momentum"]["changed"] is True
+        assert ordinary["legs"]["core"]["changed"] is False
+        record = _profit_append(store, record, product, initial)
+        anchor = state.anchors_from_record(record)[product]
+        field = "verified_momentum_put_qty" if product == "IC" else "verified_momentum_put_qty_normalized"
+        assert anchor[field] == 0
+        assert anchor["v14_profit_pending"] is True
+        day = bot._roll_forward_exchange_day(DAY + timedelta(days=1))
+        signal = _profit_session(product, anchor, day, missing=missing)
+>       result = _profit_append(store, record, product, signal)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_ic_im_ordinary_put_route_fix_20261013.py:486: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+test_ic_im_ordinary_put_route_fix_20261013.py:412: in _profit_append
+    result = store.append_confirmed_signals(record, pair)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+poe_ic_im_v1_4_state.py:1484: in append_confirmed_signals
+    return self._append_locked(current, signals)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+poe_ic_im_v1_4_state.py:1487: in _append_locked
+    anchors = derive_next_anchors(current, signals)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+poe_ic_im_v1_4_state.py:961: in derive_next_anchors
+    require_persistence_eligible(signals[product], product)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+signal = {'call_action': 'HOLD', 'call_current_contract': None, 'call_target': '目标空仓（fix6停止卖Call）', 'call_target_contract': None, ...}
+product = 'IM'
+
+    def require_persistence_eligible(signal: dict[str, Any], product: str) -> None:
+        """Reject diagnostic/incomplete results at new-write boundaries only.
+    
+        Older hash-verified records are still read with their original schema.  An
+        omitted new marker remains compatible, but a present marker must be bool.
+        """
+        for field in ("calendar_provisional", "diagnostic_only"):
+            if field in signal and (type(signal[field]) is not bool or signal[field]):
+                raise RuntimeError(f"{product} {field}诊断信号禁止持久化")
+        for field in ("signal_complete", "persistence_eligible"):
+            if field in signal and (type(signal[field]) is not bool or signal[field] is not True):
+                raise RuntimeError(f"{product} {field}未确认，禁止持久化")
+        if signal.get("v14_action") == "HOLD_FAIL_CLOSED":
+>           raise RuntimeError(f"{product} HOLD_FAIL_CLOSED信号禁止持久化")
+E           RuntimeError: IM HOLD_FAIL_CLOSED信号禁止持久化
+
+poe_ic_im_v1_4_state.py:239: RuntimeError
+____________ test_failed_query_never_reaches_new_close_target[IC] _____________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001DBD532D860>
+product = 'IC'
+
+    @pytest.mark.parametrize("product", ["IC", "IM"])
+    def test_failed_query_never_reaches_new_close_target(monkeypatch, product):
+        anchor = ordinary_anchor(product)
+        original = deepcopy(anchor)
+        monkeypatch.setitem(bot.LIVE_CONTINUATION_ANCHOR, product, anchor)
+        monkeypatch.setattr(bot, "live_proxy", lambda *args: {"history_date": DAY})
+        monkeypatch.setattr(bot, "_validate_signal_market_date", lambda *args: True)
+        def unavailable(*args, **kwargs):
+            raise requests.Timeout("synthetic timeout")
+        monkeypatch.setattr(bot, "fetch_option_dated_open", unavailable)
+        monkeypatch.setattr(bot, "fetch_cffex_quotes", unavailable)
+>       with pytest.raises(RuntimeError, match="unresolved opening evidence"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+test_ic_im_external_review_20261021.py:121: Failed
+____________ test_failed_query_never_reaches_new_close_target[IM] _____________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001DBD51AA9E0>
+product = 'IM'
+
+    @pytest.mark.parametrize("product", ["IC", "IM"])
+    def test_failed_query_never_reaches_new_close_target(monkeypatch, product):
+        anchor = ordinary_anchor(product)
+        original = deepcopy(anchor)
+        monkeypatch.setitem(bot.LIVE_CONTINUATION_ANCHOR, product, anchor)
+        monkeypatch.setattr(bot, "live_proxy", lambda *args: {"history_date": DAY})
+        monkeypatch.setattr(bot, "_validate_signal_market_date", lambda *args: True)
+        def unavailable(*args, **kwargs):
+            raise requests.Timeout("synthetic timeout")
+        monkeypatch.setattr(bot, "fetch_option_dated_open", unavailable)
+        monkeypatch.setattr(bot, "fetch_cffex_quotes", unavailable)
+>       with pytest.raises(RuntimeError, match="unresolved opening evidence"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+test_ic_im_external_review_20261021.py:121: Failed
+_ test_public_query_restores_original_anchor_when_coexisting_openings_fail[ordinary-IC] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001DBD5E25860>
+product = 'IC', failed = 'ordinary'
+
+    @pytest.mark.parametrize("product", PRODUCTS)
+    @pytest.mark.parametrize("failed", ["ordinary", "short_put"])
+    def test_public_query_restores_original_anchor_when_coexisting_openings_fail(monkeypatch, product, failed):
+        a = with_independent_momentum(seed.short_anchor(product), product)
+        policy.validate_extension(product, a)
+        original = deepcopy(a)
+        monkeypatch.setitem(bot.LIVE_CONTINUATION_ANCHOR, product, a)
+        monkeypatch.setattr(bot, "_require_official_exchange_calendar", lambda *args: None)
+        monkeypatch.setattr(bot, "live_proxy", lambda *args: {"history_date": DAY})
+        monkeypatch.setattr(bot, "_validate_signal_market_date", lambda *args: True)
+        p = a["v14_ordinary_put_pending"]
+        opening = dict(status=execution.RETRY_OPEN_STATUS if failed == "ordinary" else "confirmed_open_research_price",
+                       plan=p, prices=ordinary_prices(p, DAY))
+        monkeypatch.setattr(bot, "_v14_ordinary_open_evidence", lambda *args: deepcopy(opening))
+        calls = []
+        def failed_short(*args):
+            calls.append(args)
+            raise requests.Timeout("synthetic short failure after independent momentum projection")
+        monkeypatch.setattr(bot, "_v14_committed_open_prices", failed_short)
+>       with pytest.raises(RuntimeError, match="unresolved opening evidence"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+test_icim_redteam_execution_20261021.py:227: Failed
+_ test_public_query_restores_original_anchor_when_coexisting_openings_fail[ordinary-IM] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001DBD3471240>
+product = 'IM', failed = 'ordinary'
+
+    @pytest.mark.parametrize("product", PRODUCTS)
+    @pytest.mark.parametrize("failed", ["ordinary", "short_put"])
+    def test_public_query_restores_original_anchor_when_coexisting_openings_fail(monkeypatch, product, failed):
+        a = with_independent_momentum(seed.short_anchor(product), product)
+        policy.validate_extension(product, a)
+        original = deepcopy(a)
+        monkeypatch.setitem(bot.LIVE_CONTINUATION_ANCHOR, product, a)
+        monkeypatch.setattr(bot, "_require_official_exchange_calendar", lambda *args: None)
+        monkeypatch.setattr(bot, "live_proxy", lambda *args: {"history_date": DAY})
+        monkeypatch.setattr(bot, "_validate_signal_market_date", lambda *args: True)
+        p = a["v14_ordinary_put_pending"]
+        opening = dict(status=execution.RETRY_OPEN_STATUS if failed == "ordinary" else "confirmed_open_research_price",
+                       plan=p, prices=ordinary_prices(p, DAY))
+        monkeypatch.setattr(bot, "_v14_ordinary_open_evidence", lambda *args: deepcopy(opening))
+        calls = []
+        def failed_short(*args):
+            calls.append(args)
+            raise requests.Timeout("synthetic short failure after independent momentum projection")
+        monkeypatch.setattr(bot, "_v14_committed_open_prices", failed_short)
+>       with pytest.raises(RuntimeError, match="unresolved opening evidence"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+test_icim_redteam_execution_20261021.py:227: Failed
+_ test_public_query_restores_original_anchor_when_coexisting_openings_fail[short_put-IC] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001DBD34729E0>
+product = 'IC', failed = 'short_put'
+
+    @pytest.mark.parametrize("product", PRODUCTS)
+    @pytest.mark.parametrize("failed", ["ordinary", "short_put"])
+    def test_public_query_restores_original_anchor_when_coexisting_openings_fail(monkeypatch, product, failed):
+        a = with_independent_momentum(seed.short_anchor(product), product)
+        policy.validate_extension(product, a)
+        original = deepcopy(a)
+        monkeypatch.setitem(bot.LIVE_CONTINUATION_ANCHOR, product, a)
+        monkeypatch.setattr(bot, "_require_official_exchange_calendar", lambda *args: None)
+        monkeypatch.setattr(bot, "live_proxy", lambda *args: {"history_date": DAY})
+        monkeypatch.setattr(bot, "_validate_signal_market_date", lambda *args: True)
+        p = a["v14_ordinary_put_pending"]
+        opening = dict(status=execution.RETRY_OPEN_STATUS if failed == "ordinary" else "confirmed_open_research_price",
+                       plan=p, prices=ordinary_prices(p, DAY))
+        monkeypatch.setattr(bot, "_v14_ordinary_open_evidence", lambda *args: deepcopy(opening))
+        calls = []
+        def failed_short(*args):
+            calls.append(args)
+            raise requests.Timeout("synthetic short failure after independent momentum projection")
+        monkeypatch.setattr(bot, "_v14_committed_open_prices", failed_short)
+>       with pytest.raises(RuntimeError, match="unresolved opening evidence"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+test_icim_redteam_execution_20261021.py:227: Failed
+_ test_public_query_restores_original_anchor_when_coexisting_openings_fail[short_put-IM] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001DBD344A040>
+product = 'IM', failed = 'short_put'
+
+    @pytest.mark.parametrize("product", PRODUCTS)
+    @pytest.mark.parametrize("failed", ["ordinary", "short_put"])
+    def test_public_query_restores_original_anchor_when_coexisting_openings_fail(monkeypatch, product, failed):
+        a = with_independent_momentum(seed.short_anchor(product), product)
+        policy.validate_extension(product, a)
+        original = deepcopy(a)
+        monkeypatch.setitem(bot.LIVE_CONTINUATION_ANCHOR, product, a)
+        monkeypatch.setattr(bot, "_require_official_exchange_calendar", lambda *args: None)
+        monkeypatch.setattr(bot, "live_proxy", lambda *args: {"history_date": DAY})
+        monkeypatch.setattr(bot, "_validate_signal_market_date", lambda *args: True)
+        p = a["v14_ordinary_put_pending"]
+        opening = dict(status=execution.RETRY_OPEN_STATUS if failed == "ordinary" else "confirmed_open_research_price",
+                       plan=p, prices=ordinary_prices(p, DAY))
+        monkeypatch.setattr(bot, "_v14_ordinary_open_evidence", lambda *args: deepcopy(opening))
+        calls = []
+        def failed_short(*args):
+            calls.append(args)
+            raise requests.Timeout("synthetic short failure after independent momentum projection")
+        monkeypatch.setattr(bot, "_v14_committed_open_prices", failed_short)
+>       with pytest.raises(RuntimeError, match="unresolved opening evidence"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+test_icim_redteam_execution_20261021.py:227: Failed
+__ test_actual_short_mark_must_not_trust_stale_m_label_for_adjusted_security __
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_d8e4c0b5/pytest/test_actual_short_mark_must_no0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001DBD37030E0>
+
+    def test_actual_short_mark_must_not_trust_stale_m_label_for_adjusted_security(tmp_path,monkeypatch):
+        store,record=recent_store(tmp_path/'ledger')
+        anchors=state.anchors_from_record(record)
+        a=anchors['IC']
+        ledger._empty_core(a,'IC')
+        a.update(v14_route_state='short_put',v14_cycle_id='synthetic-stale-m-held-identity',
+            v14_short_put_contract=real.M,v14_short_put_security_id='10011470',
+            v14_short_put_qty_normalized=5.,v14_short_put_entry_premium=.4,
+            v14_short_put_expiry=date(2026,12,23),v14_short_put_cost_basis='confirmed_dated_open',
+            v14_short_put_entry_price_day=PREVIOUS,
+            verified_momentum_put_delta=0.,verified_momentum_put_qty=0)
+        # This is a synthetic accepted legacy anchor, not a claim of an actual
+        # July trade. Official raw data, unlike its stale M label, identifies A.
+        record['products']['IC']=state._jsonable(a)
+        record['digest']=state._digest(record)
+        state._validate_record(record)
+        chain,stamp=real.wire(monkeypatch)
+        monkeypatch.setattr(bot,'LIVE_CONTINUATION_ANCHOR',anchors)
+        builder_inputs(monkeypatch,a,chain,stamp)
+        live=bot.live_proxy('IC',CLOCK)
+        live.update(momentum_120=.1,valuation_tier=1)
+        monkeypatch.setattr(bot,'live_proxy',lambda *args:deepcopy(live))
+        candidate=dict(tradable=True,contract='510500P2701M06500',security_id='10015000',
+            expiry=date(2027,1,27),premium=.3,iv=.8,qty_normalized=5.)
+        monkeypatch.setattr(bot,'_v14_ic_short_put_candidate',lambda *args,**kw:candidate)
+        monkeypatch.setattr(bot,'fetch_option_closes',lambda security:
+            pd.Series([.01],index=pd.to_datetime([DAY])))
+        before=deepcopy(a)
+        disk=snapshot(store.root)
+        # The producer rejects its marked adapter fallback before returning any
+        # new signal. Adapter HOLD assertions remain independently tested below.
+>       with pytest.raises(RuntimeError,match='unresolved held Put identity'):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+test_icim_round2_audit_lifecycle_20261021.py:396: Failed
+____ test_full_builder_december_expiry_stays_closed_without_2027_calendar _____
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_d8e4c0b5/pytest/test_full_builder_december_exp0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001DBD3759400>
+
+    def test_full_builder_december_expiry_stays_closed_without_2027_calendar(tmp_path,monkeypatch):
+        expiry=date(2026,12,23)
+        monkeypatch.setitem(globals(),'DAY',expiry)
+        monkeypatch.setitem(globals(),'PREVIOUS',date(2026,12,22))
+        monkeypatch.setitem(globals(),'CLOCK',datetime(2026,12,23,15,40,tzinfo=bot.BEIJING))
+        store,record=recent_store(tmp_path/'ledger')
+        anchors=state.anchors_from_record(record)
+        a=anchors['IC']
+        ledger._empty_core(a,'IC')
+        a.update(post_core_contract='IC2703',v14_route_state='short_put',
+            v14_cycle_id='synthetic-expiry-builder',v14_short_put_contract=real.M,
+            v14_short_put_security_id='10011470',v14_short_put_qty_normalized=5.,
+            v14_short_put_entry_premium=.4,v14_short_put_expiry=expiry,
+            v14_short_put_cost_basis='confirmed_dated_open',v14_short_put_entry_price_day=PREVIOUS,
+            verified_momentum_put_delta=0.,verified_momentum_put_qty=0)
+        record['products']['IC']=state._jsonable(a)
+        record['digest']=state._digest(record)
+        state._validate_record(record)
+        body=real.payload()
+        body['date']=20261223
+        chain,stamp=real.wire(monkeypatch,body)
+        monkeypatch.setattr(bot,'LIVE_CONTINUATION_ANCHOR',anchors)
+        builder_inputs(monkeypatch,a,chain,stamp)
+        monkeypatch.setattr(bot,'fetch_sse_510500_quote',lambda:dict(date='20261223',time='150000',last=7.8))
+        monkeypatch.setattr(bot,'fetch_option_closes',lambda security:
+            pd.Series([.01],index=pd.to_datetime([expiry])))
+        before,disk=deepcopy(a),snapshot(store.root)
+        # Do not bypass this independent gate to manufacture full-builder
+        # reachability for the adapter expiry probes above.
+>       with pytest.raises(RuntimeError,match='2027'):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+test_icim_round2_audit_lifecycle_20261021.py:505: Failed
+___________ test_public_im_builder_checks_unknown_held_core_expiry ____________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001DBD3917F50>
+
+    def test_public_im_builder_checks_unknown_held_core_expiry(monkeypatch):
+        # Actual builder/policy with synthetic restored holding and market rows.
+        # The fixture's verified quantities are preserved; only the held month and
+        # its matching observed quote are moved across the official-year boundary.
+        import test_icim_batch3_old_call_20261021 as legacy
+        anchors,quotes=legacy.wire(monkeypatch,held=False)
+        bot.LIVE_CONTINUATION_ANCHOR['IM']['post_core_put_contract']='MO2703-P-7200'
+        quotes.loc[quotes.instrument.eq('MO2612-P-7200'),'instrument']='MO2703-P-7200'
+        quotes.attrs['listed_instruments']=list(quotes.instrument)
+>       with pytest.raises(RuntimeError,match='2027'):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+test_icim_batch3_calendar_redteam_20261021.py:115: Failed
+_____ test_public_im_positive_momentum_held_expiry_is_checked[2703-True] ______
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001DBD3950C20>
+month = '2703', unknown = True
+
+    @pytest.mark.parametrize('month,unknown',[('2612',False),('2703',True)])
+    def test_public_im_positive_momentum_held_expiry_is_checked(monkeypatch,month,unknown):
+        import test_icim_batch3_old_call_20261021 as legacy
+        anchors,quotes=legacy.wire(monkeypatch,held=False)
+        contract='MO'+month+'-P-7000'
+        bot.LIVE_CONTINUATION_ANCHOR['IM'].update(
+            post_momentum_put_contract=contract,verified_momentum_put_qty_normalized=.5)
+        quotes.loc[len(quotes)]=dict(instrument=contract,lastprice=100.,bprice=99.,sprice=101.,
+                                    volume=10.,position=20.)
+        quotes.attrs['listed_instruments']=list(quotes.instrument)
+        original=bot.live_proxy
+        def positive_momentum(*args):
+            live=original(*args)
+            live.update(momentum_next_weight=.5,momentum_current_weight=.5)
+            return live
+        monkeypatch.setattr(bot,'live_proxy',positive_momentum)
+        if unknown:
+>           with pytest.raises(RuntimeError,match='2027'):
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           Failed: DID NOT RAISE <class 'RuntimeError'>
+
+test_icim_batch3_calendar_redteam_20261021.py:181: Failed
+______ test_mixed_malformed_and_lag_sources_are_not_called_pure_wait[IC] ______
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001DBD3A07460>
+product = 'IC'
+
+    @pytest.mark.parametrize('product', ['IC', 'IM'])
+    def test_mixed_malformed_and_lag_sources_are_not_called_pure_wait(monkeypatch, product):
+        source_parsers(monkeypatch, product, bad_primary=True)
+        with pytest.raises(RuntimeError) as caught:
+            bot.fetch_ohlcv_history(product)
+>       assert type(caught.value) is RuntimeError
+E       assert <class 'poe_ic_im_mainline_v1_4_bot.DailyOHLCVSourcesUnavailable'> is RuntimeError
+E        +  where <class 'poe_ic_im_mainline_v1_4_bot.DailyOHLCVSourcesUnavailable'> = type(DailyOHLCVSourcesUnavailable("IC OHLCV全部来源失败：Sina: KeyError: 'open'；Eastmoney: DailyOHLCVNotReady: IC OHLCV已过期：最新 2026...21；等待当日完整日线（含成交量）更新，暂停收盘确认；Tencent: DailyOHLCVNotReady: IC Tencent最新日线尚未更新：最新2026-10-20，应覆盖2026-10-21；等待完整日线（含成交量）后重试"))
+E        +    where DailyOHLCVSourcesUnavailable("IC OHLCV全部来源失败：Sina: KeyError: 'open'；Eastmoney: DailyOHLCVNotReady: IC OHLCV已过期：最新 2026...21；等待当日完整日线（含成交量）更新，暂停收盘确认；Tencent: DailyOHLCVNotReady: IC Tencent最新日线尚未更新：最新2026-10-20，应覆盖2026-10-21；等待完整日线（含成交量）后重试") = <ExceptionInfo DailyOHLCVSourcesUnavailable("IC OHLCV全部来源失败：Sina: KeyError: 'open'；Eastmoney: DailyOHLCVNotReady: IC O...日线（含成交量）更新，暂停收盘确认；Tencent: DailyOHLCVNotReady: IC Tencent最新日线尚未更新：最新2026-10-20，应覆盖2026-10-21；等待完整日线（含成交量）后重试") tblen=2>.value
+
+test_icim_b3adv_market_20261021.py:130: AssertionError
+______ test_mixed_malformed_and_lag_sources_are_not_called_pure_wait[IM] ______
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001DBD37ED010>
+product = 'IM'
+
+    @pytest.mark.parametrize('product', ['IC', 'IM'])
+    def test_mixed_malformed_and_lag_sources_are_not_called_pure_wait(monkeypatch, product):
+        source_parsers(monkeypatch, product, bad_primary=True)
+        with pytest.raises(RuntimeError) as caught:
+            bot.fetch_ohlcv_history(product)
+>       assert type(caught.value) is RuntimeError
+E       assert <class 'poe_ic_im_mainline_v1_4_bot.DailyOHLCVSourcesUnavailable'> is RuntimeError
+E        +  where <class 'poe_ic_im_mainline_v1_4_bot.DailyOHLCVSourcesUnavailable'> = type(DailyOHLCVSourcesUnavailable("IM OHLCV全部来源失败：Sina: KeyError: 'open'；Eastmoney: DailyOHLCVNotReady: IM OHLCV已过期：最新 2026...21；等待当日完整日线（含成交量）更新，暂停收盘确认；Tencent: DailyOHLCVNotReady: IM Tencent最新日线尚未更新：最新2026-10-20，应覆盖2026-10-21；等待完整日线（含成交量）后重试"))
+E        +    where DailyOHLCVSourcesUnavailable("IM OHLCV全部来源失败：Sina: KeyError: 'open'；Eastmoney: DailyOHLCVNotReady: IM OHLCV已过期：最新 2026...21；等待当日完整日线（含成交量）更新，暂停收盘确认；Tencent: DailyOHLCVNotReady: IM Tencent最新日线尚未更新：最新2026-10-20，应覆盖2026-10-21；等待完整日线（含成交量）后重试") = <ExceptionInfo DailyOHLCVSourcesUnavailable("IM OHLCV全部来源失败：Sina: KeyError: 'open'；Eastmoney: DailyOHLCVNotReady: IM O...日线（含成交量）更新，暂停收盘确认；Tencent: DailyOHLCVNotReady: IM Tencent最新日线尚未更新：最新2026-10-20，应覆盖2026-10-21；等待完整日线（含成交量）后重试") tblen=2>.value
+
+test_icim_b3adv_market_20261021.py:130: AssertionError
+============================== warnings summary ===============================
+C:\Python314\Lib\site-packages\fastapi_poe\types.py:171
+  C:\Python314\Lib\site-packages\fastapi_poe\types.py:171: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    class RequestContext(BaseModel):
+
+test_icim_redteam_display_20261021.py::test_bootstrap_snapshot_retains_known_single_core_identity
+  test_icim_redteam_display_20261021.py:73: PytestWarning: record_property is incompatible with junit_family 'xunit2' (use 'legacy' or 'xunit1')
+    def test_bootstrap_snapshot_retains_known_single_core_identity(monkeypatch, record_property):
+
+test_icim_redteam_display_20261021.py::test_core_overlay_failure_cannot_label_momentum_as_current_core
+  test_icim_redteam_display_20261021.py:89: PytestWarning: record_property is incompatible with junit_family 'xunit2' (use 'legacy' or 'xunit1')
+    def test_core_overlay_failure_cannot_label_momentum_as_current_core(monkeypatch, record_property):
+
+test_icim_redteam_display_20261021.py::test_core_overlay_failure_cannot_publish_momentum_iv_as_core_monitor
+  test_icim_redteam_display_20261021.py:120: PytestWarning: record_property is incompatible with junit_family 'xunit2' (use 'legacy' or 'xunit1')
+    def test_core_overlay_failure_cannot_publish_momentum_iv_as_core_monitor(monkeypatch, record_property):
+
+test_icim_redteam_display_20261021.py::test_im_snapshot_zero_core_does_not_show_residual_contract
+  test_icim_redteam_display_20261021.py:201: PytestWarning: record_property is incompatible with junit_family 'xunit2' (use 'legacy' or 'xunit1')
+    def test_im_snapshot_zero_core_does_not_show_residual_contract(monkeypatch, record_property):
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED test_ic_im_ordinary_put_route_fix_20261013.py::test_profit_and_momentum_execute_independently_after_restart[old_core-IC]
+FAILED test_ic_im_ordinary_put_route_fix_20261013.py::test_profit_and_momentum_execute_independently_after_restart[old_core-IM]
+FAILED test_ic_im_ordinary_put_route_fix_20261013.py::test_profit_and_momentum_execute_independently_after_restart[new_core-IC]
+FAILED test_ic_im_ordinary_put_route_fix_20261013.py::test_profit_and_momentum_execute_independently_after_restart[new_core-IM]
+FAILED test_ic_im_external_review_20261021.py::test_failed_query_never_reaches_new_close_target[IC]
+FAILED test_ic_im_external_review_20261021.py::test_failed_query_never_reaches_new_close_target[IM]
+FAILED test_icim_redteam_execution_20261021.py::test_public_query_restores_original_anchor_when_coexisting_openings_fail[ordinary-IC]
+FAILED test_icim_redteam_execution_20261021.py::test_public_query_restores_original_anchor_when_coexisting_openings_fail[ordinary-IM]
+FAILED test_icim_redteam_execution_20261021.py::test_public_query_restores_original_anchor_when_coexisting_openings_fail[short_put-IC]
+FAILED test_icim_redteam_execution_20261021.py::test_public_query_restores_original_anchor_when_coexisting_openings_fail[short_put-IM]
+FAILED test_icim_round2_audit_lifecycle_20261021.py::test_actual_short_mark_must_not_trust_stale_m_label_for_adjusted_security
+FAILED test_icim_round2_audit_lifecycle_20261021.py::test_full_builder_december_expiry_stays_closed_without_2027_calendar
+FAILED test_icim_batch3_calendar_redteam_20261021.py::test_public_im_builder_checks_unknown_held_core_expiry
+FAILED test_icim_batch3_calendar_redteam_20261021.py::test_public_im_positive_momentum_held_expiry_is_checked[2703-True]
+FAILED test_icim_b3adv_market_20261021.py::test_mixed_malformed_and_lag_sources_are_not_called_pure_wait[IC]
+FAILED test_icim_b3adv_market_20261021.py::test_mixed_malformed_and_lag_sources_are_not_called_pure_wait[IM]
+16 failed, 1940 passed, 3 deselected, 5 warnings in 89.10s (0:01:29)

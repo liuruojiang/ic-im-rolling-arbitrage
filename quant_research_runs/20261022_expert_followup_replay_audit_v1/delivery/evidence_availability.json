@@ -1,0 +1,9 @@
+{
+  "scope": "current workspace only; remote server volumes not inspected",
+  "configured_evidence_root": null,
+  "default_or_configured_root": "D:\\动量策略\\IC和IM滚动套利\\runtime\\ic_im_v1_4_r1\\input_evidence",
+  "root_exists": false,
+  "matching_local_manifests": 0,
+  "real_original_day_acceptance": "NOT_PROVEN",
+  "reason": "No verified real original-session IC bundle was supplied to this acceptance; fixtures are synthetic."
+}

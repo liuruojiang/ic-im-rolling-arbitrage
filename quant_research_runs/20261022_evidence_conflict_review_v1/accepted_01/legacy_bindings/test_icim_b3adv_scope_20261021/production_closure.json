@@ -1,0 +1,38 @@
+{
+  "sources": {
+    "ic_im_v1_4_policy.py": "b4f131bd60c596f19800d11d4c1f4eab5de0f4f4b2e935242a24ff7324827eac",
+    "ic_im_signal_evidence_v1.py": "9da13f0b4dc9fa21dc57dcdf2e846bc719d533da0170db40681f4bf4b36cdfa8",
+    "run_ic_im_v1_4_github_digest.py": "a016c273dbd24acc797ec3d2205abae600af4b1b14ca24969c09a8212bcdea7f",
+    "ic_im_quote_snapshot_guard.py": "ae22b541a1a2a6bc20d5bd23bb1fc3d275a2f3fcfce96b5345c2458cde74b9d5",
+    "ic_im_adjusted_put_migration_v1.py": "f4bbdaa49225e51b83ccfe441b9c6f4dc36b7f3206acf509098f4d8628215c29",
+    "ic_im_fear_grid_v1.py": "a21578621eb7695af5dcc669670cdcfa2bef2f0d9fceb4ad40a3ddae707fcc67",
+    "ic_im_evidence_adapter_v1.py": "e784a17743b8441c981975753273637922569b9ce2d2977652bafb5c9f4b933f",
+    "ic_im_daily_valuation.py": "b389a81475836fb3e4e96dbc92216a54afeb199029d524f51efbb8d029e4257c",
+    "ic_im_option_maintenance_notice.py": "a2ad67732d85bad5d96444d7a74a350d3ecdf0fdb6b82b9b593ccfaf95c63746",
+    "im_put_policy.py": "ff9c9b1d52e4b1aa25fcb3c85e61665a4acf0a4de68272d8ddc9caaf2d4a9a9c",
+    "ic_im_quarter_roll_v1_3.py": "cec4535aa0dca4200ac4e50ec91f7aa82aee12c5157f0cb350ab73c82d53457d",
+    "poe_ic_im_v1_4_server.py": "5fbbeb8427f1e8b8d2b70836df25307c1062a482c0138d48ad51fe3c0dcd99c7",
+    "ic_im_chinabond.py": "4e1098b2f4c253d9950c084eafcc655ea8e5e820478a01a29393d638e6d40ab9",
+    "poe_ic_im_v1_4_state.py": "dc11b280baf7da884c82fe52cf1866c0ac42a0b73fa9d9e6990d27c5b0ba1d4a",
+    "poe_ic_im_mainline_v1_4_bot.py": "46c617cc2a8c397a478b2e0035670995ad6e4228da77de675653da0529a45e99",
+    "ic_im_sse_contract_identity_v1.py": "47a2d81f665d2b199eaa2c2043c90271cdd242aa9776620002c833f3cdafacc8",
+    "ic_im_put_execution_v1.py": "8cdda4e3761bda7889c16b0102ee0106d2efaaa61088b7cb6fc83a08d67b2368"
+  },
+  "research_modules": [
+    "account_close_isolated",
+    "account_monday_isolated",
+    "audit_close",
+    "audit_frozen",
+    "audit_study",
+    "audit_wait",
+    "build_report",
+    "close_controller",
+    "listing_controller",
+    "monday_controller",
+    "run_close",
+    "run_frozen",
+    "run_study",
+    "run_wait"
+  ],
+  "dynamic_calls": []
+}

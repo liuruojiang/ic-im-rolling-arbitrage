@@ -1,0 +1,25 @@
+{
+  "started_at": "2026-10-21T07:23:57.283426+00:00",
+  "finished_at": "2026-10-21T07:24:23.914269+00:00",
+  "exit_code": 0,
+  "source_before_equals_after": true,
+  "source_files": 885,
+  "counts": {
+    "tests": 1412,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "deselected": {
+    "test_icim_redteam_integration_20261021.py::test_frozen_source_receipt_matches_current_bytes": "Historical source equality is checked against its pre-repair backup; old receipt is not rewritten.",
+    "test_icim_round2_audit_lifecycle_20261021.py::test_historical_adapter_retains_id_already_bound_to_requested_series": "Capability probe only: a price series by ID does not establish historical code/strike/unit; reject without dated identity.",
+    "test_icim_round2_audit_lifecycle_20261021.py::test_legal_standard_core_replay_crosses_strict_boundary": "Same missing-dated-identity capability probe; unsafe ID copying is deliberately not implemented."
+  },
+  "artifacts": {
+    "regression.xml": "3862ae856c20942fc8188e1eb1c3810a5b691e1c9b402d4e1496e61506e61869",
+    "regression.txt": "3395caff3291dcfa9c9486b462b92a5ebc0fc8764dd376917d5aead52083aef5",
+    "source_before.json": "9f671bba89acfc170850ee72db22f1d8f4ab7a524fec0e6a6a506ff675765451",
+    "source_after.json": "9f671bba89acfc170850ee72db22f1d8f4ab7a524fec0e6a6a506ff675765451",
+    "test_run.json": "2284d08b830cef408e39a247a028f6ddade08d787b9ddc39cae253dacecd8cc9"
+  }
+}

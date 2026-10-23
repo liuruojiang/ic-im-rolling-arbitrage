@@ -1,0 +1,186 @@
+{
+  "status": "PASS",
+  "snapshots": [
+    {
+      "path": "D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261022_free_source_integration_v1\\backup\\poe_ic_im_mainline_v1_4_bot.py",
+      "sha256": "0075c16aec68cb56b49569d03c1b89bb2707873fbd309971461082b623d0d19f"
+    },
+    {
+      "path": "D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261022_evidence_conflict_review_v1\\backup\\poe_ic_im_mainline_v1_4_bot.py",
+      "sha256": "565d719cf7ae5b7c6b4fe8c922536cf5e7bde7d485c2b293f4cec1ba86b63af4"
+    },
+    {
+      "path": "D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261023_production_provenance_v1\\backup\\poe_ic_im_mainline_v1_4_bot.py",
+      "sha256": "46c617cc2a8c397a478b2e0035670995ad6e4228da77de675653da0529a45e99"
+    }
+  ],
+  "changes": [
+    {
+      "item": "A",
+      "origin_round": "20261022_free_source_integration_v1",
+      "source_at_origin": "D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261022_evidence_conflict_review_v1\\backup\\poe_ic_im_mainline_v1_4_bot.py",
+      "source_sha256": "565d719cf7ae5b7c6b4fe8c922536cf5e7bde7d485c2b293f4cec1ba86b63af4",
+      "functions": [
+        {
+          "name": "fetch_510500_quote_with_failover",
+          "present_before_free_source": false,
+          "changed_in_free_source": true,
+          "free_source_equals_received": true,
+          "received_equals_this_round": true
+        },
+        {
+          "name": "fetch_tencent_510500_quote",
+          "present_before_free_source": false,
+          "changed_in_free_source": true,
+          "free_source_equals_received": true,
+          "received_equals_this_round": true
+        },
+        {
+          "name": "fetch_sina_510500_quote",
+          "present_before_free_source": false,
+          "changed_in_free_source": true,
+          "free_source_equals_received": true,
+          "received_equals_this_round": true
+        }
+      ]
+    },
+    {
+      "item": "B",
+      "origin_round": "20261022_free_source_integration_v1",
+      "source_at_origin": "D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261022_evidence_conflict_review_v1\\backup\\poe_ic_im_mainline_v1_4_bot.py",
+      "source_sha256": "565d719cf7ae5b7c6b4fe8c922536cf5e7bde7d485c2b293f4cec1ba86b63af4",
+      "functions": [
+        {
+          "name": "fetch_sina_510500_expiries",
+          "present_before_free_source": false,
+          "changed_in_free_source": true,
+          "free_source_equals_received": true,
+          "received_equals_this_round": true
+        },
+        {
+          "name": "fetch_510500_expiries_with_failover",
+          "present_before_free_source": false,
+          "changed_in_free_source": true,
+          "free_source_equals_received": true,
+          "received_equals_this_round": true
+        },
+        {
+          "name": "select_ic_put_for_reset",
+          "present_before_free_source": true,
+          "changed_in_free_source": true,
+          "free_source_equals_received": true,
+          "received_equals_this_round": true
+        }
+      ]
+    },
+    {
+      "item": "C",
+      "origin_round": "20261022_free_source_integration_v1",
+      "source_at_origin": "D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261022_evidence_conflict_review_v1\\backup\\poe_ic_im_mainline_v1_4_bot.py",
+      "source_sha256": "565d719cf7ae5b7c6b4fe8c922536cf5e7bde7d485c2b293f4cec1ba86b63af4",
+      "functions": [
+        {
+          "name": "_sina_put_detail_batches",
+          "present_before_free_source": false,
+          "changed_in_free_source": true,
+          "free_source_equals_received": true,
+          "received_equals_this_round": false
+        }
+      ]
+    },
+    {
+      "item": "D",
+      "origin_round": "20261022_free_source_integration_v1",
+      "source_at_origin": "D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261022_evidence_conflict_review_v1\\backup\\poe_ic_im_mainline_v1_4_bot.py",
+      "source_sha256": "565d719cf7ae5b7c6b4fe8c922536cf5e7bde7d485c2b293f4cec1ba86b63af4",
+      "functions": [
+        {
+          "name": "_prefetch_mo_replay_verification",
+          "present_before_free_source": true,
+          "changed_in_free_source": true,
+          "free_source_equals_received": true,
+          "received_equals_this_round": false
+        }
+      ]
+    },
+    {
+      "item": "E",
+      "origin_round": "20261022_free_source_integration_v1",
+      "source_at_origin": "D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261022_evidence_conflict_review_v1\\backup\\poe_ic_im_mainline_v1_4_bot.py",
+      "source_sha256": "565d719cf7ae5b7c6b4fe8c922536cf5e7bde7d485c2b293f4cec1ba86b63af4",
+      "functions": [
+        {
+          "name": "_fetch_510500_chain_for_day",
+          "present_before_free_source": true,
+          "changed_in_free_source": true,
+          "free_source_equals_received": true,
+          "received_equals_this_round": false
+        }
+      ]
+    },
+    {
+      "item": "F",
+      "origin_round": "20261022_free_source_integration_v1",
+      "source_at_origin": "D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261022_evidence_conflict_review_v1\\backup\\poe_ic_im_mainline_v1_4_bot.py",
+      "source_sha256": "565d719cf7ae5b7c6b4fe8c922536cf5e7bde7d485c2b293f4cec1ba86b63af4",
+      "functions": [
+        {
+          "name": "_validate_chain_stamp_matches",
+          "present_before_free_source": true,
+          "changed_in_free_source": true,
+          "free_source_equals_received": true,
+          "received_equals_this_round": true
+        },
+        {
+          "name": "_require_selected_510500_quote_time",
+          "present_before_free_source": true,
+          "changed_in_free_source": true,
+          "free_source_equals_received": true,
+          "received_equals_this_round": true
+        }
+      ]
+    },
+    {
+      "item": "G",
+      "origin_round": "20261022_free_source_integration_v1",
+      "source_at_origin": "D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261022_evidence_conflict_review_v1\\backup\\poe_ic_im_mainline_v1_4_bot.py",
+      "source_sha256": "565d719cf7ae5b7c6b4fe8c922536cf5e7bde7d485c2b293f4cec1ba86b63af4",
+      "functions": [
+        {
+          "name": "_evidence_http_get",
+          "present_before_free_source": true,
+          "changed_in_free_source": true,
+          "free_source_equals_received": true,
+          "received_equals_this_round": true
+        }
+      ]
+    },
+    {
+      "item": "H",
+      "origin_round": "20261022_evidence_conflict_review_v1",
+      "source_at_origin": "D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261023_production_provenance_v1\\backup\\poe_ic_im_mainline_v1_4_bot.py",
+      "source_sha256": "46c617cc2a8c397a478b2e0035670995ad6e4228da77de675653da0529a45e99",
+      "functions": [
+        {
+          "name": "build_live_trade_signal",
+          "present_before_free_source": true,
+          "changed_in_free_source": true,
+          "free_source_equals_received": false,
+          "received_equals_this_round": true
+        }
+      ]
+    }
+  ],
+  "F_note": "clock helpers pre-existed; public builder wrapping and chain/row clock consumers changed in free-source round",
+  "previous_acceptance_counts": {
+    "free_source": 2918,
+    "conflict": 2941,
+    "HTTP_Date": 2959
+  },
+  "current_production_changes": [
+    "query/capture ic.chain cache revalidation",
+    "exhausted replay retains EvidenceUnavailable",
+    "two in-flight batches and shutdown deadline check"
+  ],
+  "new_round_does_not_claim_old_features_as_new": true
+}

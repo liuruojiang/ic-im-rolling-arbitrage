@@ -1,0 +1,10 @@
+{
+  "exit_code": 1,
+  "files": [
+    "test_icim_batch3_calendar_redteam_20261021.py",
+    "-k",
+    "dedicated_ic or public_im"
+  ],
+  "state_dir": "C:\\Users\\ADMINI~1.DES\\AppData\\Local\\Temp\\icim_put_1bf52c07\\state",
+  "test_only_windows_mkdir_mode_adjustment": true
+}

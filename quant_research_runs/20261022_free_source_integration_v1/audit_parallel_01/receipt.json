@@ -1,0 +1,20 @@
+{
+  "exit_code": 0,
+  "source_before_equals_after": true,
+  "source_files": 1005,
+  "stage": "audit_parallel_01",
+  "counts": {
+    "tests": 7,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "artifacts": {
+    "regression.xml": "375fa4d2fd90212d2536b2b2ea49db4119069deaf376e73e04c5d95a04ccd0ae",
+    "regression.txt": "16c070cd0ce5a968e657965663d573b0a20b076a364f386f490a0d96cadb547f",
+    "source_before.json": "92051a2e2ce405064e3391b42c453d1bc9fc1d08c4459aa884d7919e2f901d9e",
+    "source_after.json": "92051a2e2ce405064e3391b42c453d1bc9fc1d08c4459aa884d7919e2f901d9e",
+    "test_run.json": "153794bf9d44d64d07490f2f56c49a4a68e77d068b5316e60d05175b01eb217d",
+    "collection.json": "51e368bf09670e4bdb650ab2c67a4c3b360db6f88e7100e2203481451febeef6"
+  }
+}

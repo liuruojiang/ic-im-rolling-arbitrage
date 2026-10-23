@@ -1,0 +1,50 @@
+{
+  "verified_at": "2026-10-21T06:29:56.141560+00:00",
+  "passed": true,
+  "checks": {
+    "backup_mismatches": [],
+    "prior_evidence_mismatches": [],
+    "selected_immutable_mismatches": [],
+    "previous_source_receipt_backup_mismatches": [],
+    "cumulative_bound_source_mismatches": [],
+    "cumulative_artifact_mismatches": [],
+    "prospective_outputs_mismatches": [],
+    "unexpected_changes": [],
+    "prospective_output_path_delta": [],
+    "fixture_mismatches": [],
+    "fixture_raw_mismatches": [],
+    "spec_mismatches": []
+  },
+  "changed_baseline_files": [],
+  "new_runtime_and_test_files": [
+    "ic_im_sse_contract_identity_v1.py",
+    "test_ic_im_external_review_round2_20261021.py"
+  ],
+  "backups": 0,
+  "protected_prior_evidence": 0,
+  "original_selected_immutable": 0,
+  "prospective_outputs": 0,
+  "prospective_outputs_bytes": 0,
+  "prospective_scope": "isolated synthetic fixture",
+  "previous_source_receipt_backed_up_entries": 0,
+  "cumulative": {
+    "tests": 2,
+    "failures": 1,
+    "errors": 0,
+    "skipped": 1
+  },
+  "source_before_equals_after": false,
+  "compiled_files": [
+    "poe_ic_im_mainline_v1_4_bot.py",
+    "ic_im_sse_contract_identity_v1.py",
+    "test_ic_im_external_review_round2_20261021.py",
+    "test_ic_im_external_review_display_cache_20261021.py"
+  ],
+  "git_diff_check_exit": 0,
+  "git_diff_check_output": "",
+  "source_delta_sha256": "9b81905a717b822c04e96c75188522290b29b6d52a07ff49d16a98727c1c6059",
+  "final_sha256": {
+    "ic_im_sse_contract_identity_v1.py": "4b1d5ab4a30f74b9b99cc9fed3e7f8f7e423a10b45ed7091c2368e2d9f17427a",
+    "test_ic_im_external_review_round2_20261021.py": "4b1d5ab4a30f74b9b99cc9fed3e7f8f7e423a10b45ed7091c2368e2d9f17427a"
+  }
+}

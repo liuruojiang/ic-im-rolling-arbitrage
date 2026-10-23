@@ -1,0 +1,14 @@
+{
+  "exit_code": 0,
+  "files": [
+    "test_icim_round3_evidence_store_20261021.py",
+    "test_icim_round3_policy_repairs_20261021.py",
+    "test_icim_round3_display_repairs_20261021.py",
+    "test_icim_round3_grid_persistence_20261021.py",
+    "test_icim_round3_calendar_comparison_20261021.py",
+    "test_ic_im_v1_4_policy.py"
+  ],
+  "state_dir": "C:\\Users\\ADMINI~1.DES\\AppData\\Local\\Temp\\icim_put_ea8225f5\\state",
+  "test_only_windows_mkdir_mode_adjustment": true,
+  "implicit_pytest_addopts_removed": false
+}

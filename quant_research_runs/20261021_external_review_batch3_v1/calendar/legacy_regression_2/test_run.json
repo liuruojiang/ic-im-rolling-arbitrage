@@ -1,0 +1,9 @@
+{
+  "exit_code": 0,
+  "files": [
+    "test_ic_im_put_delivery_completion_20261016.py",
+    "test_icim_redteam_display_20261021.py"
+  ],
+  "state_dir": "C:\\Users\\ADMINI~1.DES\\AppData\\Local\\Temp\\icim_put_392f4bd0\\state",
+  "test_only_windows_mkdir_mode_adjustment": true
+}

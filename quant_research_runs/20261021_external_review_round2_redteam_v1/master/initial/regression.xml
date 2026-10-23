@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="3" skipped="0" tests="28" time="0.483" timestamp="2026-10-21T14:28:56.410062+08:00" hostname="DESKTOP-95I7VVU"><testcase classname="test_icim_round2_audit_master_20261021" name="test_real_raw_source_bytes_match_previously_saved_capture" time="0.006" /><testcase classname="test_icim_round2_audit_master_20261021" name="test_all_114_events_independently_match_raw_identity_dates_units" time="0.006" /><testcase classname="test_icim_round2_audit_master_20261021" name="test_real_58_quotes_bind_to_actual_master_and_14_put_diagnostics" time="0.010" /><testcase classname="test_icim_round2_audit_master_20261021" name="test_parser_rejects_nonfinite_type_precision_unit_or_interval[EXERCISE_PRICE-nan]" time="0.002" /><testcase classname="test_icim_round2_audit_master_20261021" name="test_parser_rejects_nonfinite_type_precision_unit_or_interval[EXERCISE_PRICE-inf]" time="0.002" /><testcase classname="test_icim_round2_audit_master_20261021" name="test_parser_rejects_nonfinite_type_precision_unit_or_interval[EXERCISE_PRICE-True]" time="0.003" /><testcase classname="test_icim_round2_audit_master_20261021" name="test_parser_rejects_nonfinite_type_precision_unit_or_interval[EXERCISE_PRICE-0]" time="0.003" /><testcase classname="test_icim_round2_audit_master_20261021" name="test_parser_rejects_nonfinite_type_precision_unit_or_interval[ORG_EXERCISE_PRICE-7.499]" time="0.002" /><testcase classname="test_icim_round2_audit_master_20261021" name="test_parser_rejects_nonfinite_type_precision_unit_or_interval[CONTRACT_UNIT-NaN]" time="0.002" /><testcase classname="test_icim_round2_audit_master_20261021" name="test_parser_rejects_nonfinite_type_precision_unit_or_interval[CONTRACT_UNIT-Infinity]" time="0.002" /><testcase classname="test_icim_round2_audit_master_20261021" name="test_parser_rejects_nonfinite_type_precision_unit_or_interval[CONTRACT_UNIT-False]" time="0.003" /><testcase classname="test_icim_round2_audit_master_20261021" name="test_parser_rejects_nonfinite_type_precision_unit_or_interval[CONTRACT_UNIT-10180.00001]" time="0.002" /><testcase classname="test_icim_round2_audit_master_20261021" name="test_parser_rejects_nonfinite_type_precision_unit_or_interval[CONTRACT_UNIT--1]" time="0.002" /><testcase classname="test_icim_round2_audit_master_20261021" name="test_parser_rejects_nonfinite_type_precision_unit_or_interval[ORG_CONTRACT_UNIT-10180]" time="0.002" /><testcase classname="test_icim_round2_audit_master_20261021" name="test_parser_rejects_nonfinite_type_precision_unit_or_interval[EXPIRE_MONTH-202611]" time="0.002" /><testcase classname="test_icim_round2_audit_master_20261021" name="test_parser_rejects_nonfinite_type_precision_unit_or_interval[ADJUST_DATE-20260716]" time="0.002" /><testcase classname="test_icim_round2_audit_master_20261021" name="test_parser_rejects_nonfinite_type_precision_unit_or_interval[EXERCISE_DATE-20261224]" time="0.002" /><testcase classname="test_icim_round2_audit_master_20261021" name="test_parser_rejects_nonfinite_type_precision_unit_or_interval[END_DATE-20261222]" time="0.002" /><testcase classname="test_icim_round2_audit_master_20261021" name="test_parser_rejects_nonfinite_type_precision_unit_or_interval[SECURITY_ID-10011470]" time="0.003" /><testcase classname="test_icim_round2_audit_master_20261021" name="test_resolver_rejects_ambiguity_unproved_alias_or_time[duplicate]" time="0.004" /><testcase classname="test_icim_round2_audit_master_20261021" name="test_resolver_rejects_ambiguity_unproved_alias_or_time[wrong_alias]" time="0.003" /><testcase classname="test_icim_round2_audit_master_20261021" name="test_resolver_rejects_ambiguity_unproved_alias_or_time[future]" time="0.004" /><testcase classname="test_icim_round2_audit_master_20261021" name="test_resolver_rejects_ambiguity_unproved_alias_or_time[expired]" time="0.004" /><testcase classname="test_icim_round2_audit_master_20261021" name="test_resolver_rejects_ambiguity_unproved_alias_or_time[stale_quote]" time="0.003" /><testcase classname="test_icim_round2_audit_master_20261021" name="test_diagnostic_is_read_only_and_retains_guard_for_old_and_new_alias" time="0.005" /><testcase classname="test_icim_round2_audit_master_20261021" name="test_explicit_response_errors_or_impossible_listing_interval_are_rejected[actionErrors-value0]" time="0.005"><failure message="AssertionError: explicit source error or listing-after-adjustment must not produce a verified event&#10;assert None&#10; +  where None = &lt;built-in method get of dict object at 0x000001C358221280&gt;('rejected')&#10; +    where &lt;built-in method get of dict object at 0x000001C358221280&gt; = {'returned_count': 114, 'target': {'contract': '510500P2612A07500', 'contract_unit': 10180, 'effective_date': datetime.date(2026, 7, 15), 'expiry': datetime.date(2026, 12, 23), ...}}.get">field = 'actionErrors', value = ['official query failed']
+
+    @pytest.mark.parametrize('field,value', [('actionErrors',['official query failed']),
+        ('fieldErrors',{'securityCode':['invalid scope']}), ('START_DATE','20260716')])
+    def test_explicit_response_errors_or_impossible_listing_interval_are_rejected(field, value):
+        body = event_body()
+        if field == 'START_DATE':
+            next(r for r in body['result'] if r['SECURITY_ID'] == SECURITY)[field] = value
+        else:
+            body[field] = value
+        actual = {}
+        try:
+            result=identity.parse_adjustment_events(body, effective_date=EFFECTIVE)
+            actual = dict(returned_count=len(result), target=next(r for r in result if r['security_id']==SECURITY))
+        except RuntimeError as error:
+            actual = dict(rejected=True, error=str(error))
+        save_new('contradiction_'+field+'.json', dict(field=field, injected=value, actual=actual,
+                 severity='P2 diagnostic integrity; no production A execution',
+                 reproduction='parse_adjustment_events(real_raw_with_single_field_mutation, effective_date=2026-07-15)',
+                 trust_boundary='single internal contradiction, not forged consistent authority data'))
+&gt;       assert actual.get('rejected'), 'explicit source error or listing-after-adjustment must not produce a verified event'
+E       AssertionError: explicit source error or listing-after-adjustment must not produce a verified event
+E       assert None
+E        +  where None = &lt;built-in method get of dict object at 0x000001C358221280&gt;('rejected')
+E        +    where &lt;built-in method get of dict object at 0x000001C358221280&gt; = {'returned_count': 114, 'target': {'contract': '510500P2612A07500', 'contract_unit': 10180, 'effective_date': datetime.date(2026, 7, 15), 'expiry': datetime.date(2026, 12, 23), ...}}.get
+
+test_icim_round2_audit_master_20261021.py:179: AssertionError</failure></testcase><testcase classname="test_icim_round2_audit_master_20261021" name="test_explicit_response_errors_or_impossible_listing_interval_are_rejected[fieldErrors-value1]" time="0.004"><failure message="AssertionError: explicit source error or listing-after-adjustment must not produce a verified event&#10;assert None&#10; +  where None = &lt;built-in method get of dict object at 0x000001C358244600&gt;('rejected')&#10; +    where &lt;built-in method get of dict object at 0x000001C358244600&gt; = {'returned_count': 114, 'target': {'contract': '510500P2612A07500', 'contract_unit': 10180, 'effective_date': datetime.date(2026, 7, 15), 'expiry': datetime.date(2026, 12, 23), ...}}.get">field = 'fieldErrors', value = {'securityCode': ['invalid scope']}
+
+    @pytest.mark.parametrize('field,value', [('actionErrors',['official query failed']),
+        ('fieldErrors',{'securityCode':['invalid scope']}), ('START_DATE','20260716')])
+    def test_explicit_response_errors_or_impossible_listing_interval_are_rejected(field, value):
+        body = event_body()
+        if field == 'START_DATE':
+            next(r for r in body['result'] if r['SECURITY_ID'] == SECURITY)[field] = value
+        else:
+            body[field] = value
+        actual = {}
+        try:
+            result=identity.parse_adjustment_events(body, effective_date=EFFECTIVE)
+            actual = dict(returned_count=len(result), target=next(r for r in result if r['security_id']==SECURITY))
+        except RuntimeError as error:
+            actual = dict(rejected=True, error=str(error))
+        save_new('contradiction_'+field+'.json', dict(field=field, injected=value, actual=actual,
+                 severity='P2 diagnostic integrity; no production A execution',
+                 reproduction='parse_adjustment_events(real_raw_with_single_field_mutation, effective_date=2026-07-15)',
+                 trust_boundary='single internal contradiction, not forged consistent authority data'))
+&gt;       assert actual.get('rejected'), 'explicit source error or listing-after-adjustment must not produce a verified event'
+E       AssertionError: explicit source error or listing-after-adjustment must not produce a verified event
+E       assert None
+E        +  where None = &lt;built-in method get of dict object at 0x000001C358244600&gt;('rejected')
+E        +    where &lt;built-in method get of dict object at 0x000001C358244600&gt; = {'returned_count': 114, 'target': {'contract': '510500P2612A07500', 'contract_unit': 10180, 'effective_date': datetime.date(2026, 7, 15), 'expiry': datetime.date(2026, 12, 23), ...}}.get
+
+test_icim_round2_audit_master_20261021.py:179: AssertionError</failure></testcase><testcase classname="test_icim_round2_audit_master_20261021" name="test_explicit_response_errors_or_impossible_listing_interval_are_rejected[START_DATE-20260716]" time="0.006"><failure message="AssertionError: explicit source error or listing-after-adjustment must not produce a verified event&#10;assert None&#10; +  where None = &lt;built-in method get of dict object at 0x000001C358228900&gt;('rejected')&#10; +    where &lt;built-in method get of dict object at 0x000001C358228900&gt; = {'returned_count': 114, 'target': {'contract': '510500P2612A07500', 'contract_unit': 10180, 'effective_date': datetime.date(2026, 7, 15), 'expiry': datetime.date(2026, 12, 23), ...}}.get">field = 'START_DATE', value = '20260716'
+
+    @pytest.mark.parametrize('field,value', [('actionErrors',['official query failed']),
+        ('fieldErrors',{'securityCode':['invalid scope']}), ('START_DATE','20260716')])
+    def test_explicit_response_errors_or_impossible_listing_interval_are_rejected(field, value):
+        body = event_body()
+        if field == 'START_DATE':
+            next(r for r in body['result'] if r['SECURITY_ID'] == SECURITY)[field] = value
+        else:
+            body[field] = value
+        actual = {}
+        try:
+            result=identity.parse_adjustment_events(body, effective_date=EFFECTIVE)
+            actual = dict(returned_count=len(result), target=next(r for r in result if r['security_id']==SECURITY))
+        except RuntimeError as error:
+            actual = dict(rejected=True, error=str(error))
+        save_new('contradiction_'+field+'.json', dict(field=field, injected=value, actual=actual,
+                 severity='P2 diagnostic integrity; no production A execution',
+                 reproduction='parse_adjustment_events(real_raw_with_single_field_mutation, effective_date=2026-07-15)',
+                 trust_boundary='single internal contradiction, not forged consistent authority data'))
+&gt;       assert actual.get('rejected'), 'explicit source error or listing-after-adjustment must not produce a verified event'
+E       AssertionError: explicit source error or listing-after-adjustment must not produce a verified event
+E       assert None
+E        +  where None = &lt;built-in method get of dict object at 0x000001C358228900&gt;('rejected')
+E        +    where &lt;built-in method get of dict object at 0x000001C358228900&gt; = {'returned_count': 114, 'target': {'contract': '510500P2612A07500', 'contract_unit': 10180, 'effective_date': datetime.date(2026, 7, 15), 'expiry': datetime.date(2026, 12, 23), ...}}.get
+
+test_icim_round2_audit_master_20261021.py:179: AssertionError</failure></testcase></testsuite></testsuites>

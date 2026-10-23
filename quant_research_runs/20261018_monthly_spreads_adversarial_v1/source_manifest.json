@@ -1,0 +1,47 @@
+{
+  "ic_im_quarter_roll_v1_3.py": {
+    "sha256_raw": "cec4535aa0dca4200ac4e50ec91f7aa82aee12c5157f0cb350ab73c82d53457d",
+    "sha256_lf": "cec4535aa0dca4200ac4e50ec91f7aa82aee12c5157f0cb350ab73c82d53457d",
+    "git_blob_lf": "9369fe494d6f81fc993cdf8507937f3dac47e82b"
+  },
+  "poe_ic_im_mainline_v1_4_bot.py": {
+    "sha256_raw": "8ce635b283bbc7027c16c1d8e618d019bcff56577267fe093cc2627a5a22d1ab",
+    "sha256_lf": "8ce635b283bbc7027c16c1d8e618d019bcff56577267fe093cc2627a5a22d1ab",
+    "git_blob_lf": "b5adb09b223f1e9b5f6d8e10e9cf16f796349a01"
+  },
+  "run_ic_im_v1_4_github_digest.py": {
+    "sha256_raw": "b4f3a18c480f61e46b5729f2b01cf21fb79a2735a1f131e853129ed3dbb12a83",
+    "sha256_lf": "b4f3a18c480f61e46b5729f2b01cf21fb79a2735a1f131e853129ed3dbb12a83",
+    "git_blob_lf": "b7823e8cee52fdcd6081eb8ff79362c7caa131c9"
+  },
+  "test_ic_im_month_spreads_20261018.py": {
+    "sha256_raw": "225ddce62fefe5df8f017b452a448e81448b5e555d819ecd94bfad8d246fba42",
+    "sha256_lf": "2d6331b407cb7c563400291d720a321656b9e143f75e46528664e690fb62c2c8",
+    "git_blob_lf": "59a624b636b192daa6f575fe3bf34612c9314d6d"
+  },
+  "quant_research_runs/20261018_monthly_spreads_adversarial_v1/data/test_independent_numeric_isolation.py": {
+    "sha256_raw": "05d222aec3d67b52fab8053250f35830b278b7ecb7263a06612d30ca42cd719d",
+    "sha256_lf": "05d222aec3d67b52fab8053250f35830b278b7ecb7263a06612d30ca42cd719d",
+    "git_blob_lf": "fc9bae66cdc871e8faf2de036b3d19f7cb82ff1b"
+  },
+  "automation/scripts/build_ic_im_v1_4_digest.py": {
+    "sha256_lf": "92993db692bde7485698b5cb4fb4a394795dbd5909b36407f634406e85c4c143",
+    "git_blob_lf": "9381da95474480cea3d4d4a46d25eea796b25005"
+  },
+  "automation/tests/test_ic_im_v1_4_month_spreads.py": {
+    "sha256_lf": "eb6f496ef032918829a314ad443c6633f06f568124fff008e6ccc2ae5cafe087",
+    "git_blob_lf": "cd401d0e90d32ab4c161da239071cc677420bf13"
+  },
+  "automation/tests/test_ic_im_v1_4_workflow.py": {
+    "sha256_lf": "39889fc5fa802789499dc6f84fa55c6e5ae2b17f117fc47f1da6ff5035336663",
+    "git_blob_lf": "dda9c4b4c804e9d714dd2af96c8048d6ceb0aafd"
+  },
+  "automation/.github/workflows/ic-im-v1-4-daily-digest.yml": {
+    "sha256_lf": "6b5c08d5b446dd5e39000262b85b4e38532ae2cb8d7fe1a88d155321c655ab2b",
+    "git_blob_lf": "03b7a4e7eae358abfffca89239cf20da43230f97"
+  },
+  "automation/.github/workflows/delivery-regression.yml": {
+    "sha256_lf": "f9939c07c2a6e99e71e2570fa01e0e09caa013b31f3c9f9b26cbef3359f0c1aa",
+    "git_blob_lf": "3d85cee8a022b5035064697eaf7d2a44633b846d"
+  }
+}

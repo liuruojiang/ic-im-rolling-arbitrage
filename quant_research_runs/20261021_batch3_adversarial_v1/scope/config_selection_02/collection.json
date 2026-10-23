@@ -1,0 +1,15 @@
+{
+  "collected": [
+    "test_icim_b3adv_scope_20261021.py::test_external_collection_configuration_cannot_hide_requested_test_functions[pytest.ini]",
+    "test_icim_b3adv_scope_20261021.py::test_external_collection_configuration_cannot_hide_requested_test_functions[pyproject.toml]"
+  ],
+  "selected": [
+    "test_icim_b3adv_scope_20261021.py::test_external_collection_configuration_cannot_hide_requested_test_functions[pytest.ini]",
+    "test_icim_b3adv_scope_20261021.py::test_external_collection_configuration_cannot_hide_requested_test_functions[pyproject.toml]"
+  ],
+  "deselected": [],
+  "executed": [
+    "test_icim_b3adv_scope_20261021.py::test_external_collection_configuration_cannot_hide_requested_test_functions[pytest.ini]",
+    "test_icim_b3adv_scope_20261021.py::test_external_collection_configuration_cannot_hide_requested_test_functions[pyproject.toml]"
+  ]
+}

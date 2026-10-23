@@ -1,0 +1,8 @@
+{
+  "public_snapshot_during_projection": "## 最近已核验研究账本快照\n\n今日完整收盘数据尚未核验。\n\n**最后逐腿核验快照（2026-10-20，仅研究审计）**\n\n- 0.5倍核心期货：`IM_UNVERIFIED_PROJECTION`（路线 `future`）\n- 动量袖：权重 0，期货名义 0倍\n- 独立网格：0倍；期货合计：0.5倍\n- Put：核心 1.5张 `MO2612-P-7200`；动量 0张；合计 1.5张；Call：规范化 0张\n- 这只是最后已核验状态，不是当前账户持仓；联网或账本续接恢复前，不生成下一交易日目标。\n\n",
+  "unverified_projection_shown_as_last_verified": true,
+  "locked_copy_waited_for_build": true,
+  "builder_restored_original": true,
+  "locked_copy_contract_after_build": "IM2612",
+  "locked_copy_is_original": true
+}

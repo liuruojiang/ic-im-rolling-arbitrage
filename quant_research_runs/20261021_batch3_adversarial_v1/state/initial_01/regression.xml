@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="9" time="5.466" timestamp="2026-10-21T17:22:00.288347+08:00" hostname="DESKTOP-95I7VVU"><testcase classname="test_icim_b3adv_state_20261021" name="test_valid_prepared_same_day_pair_persists_and_reopens" time="0.061" /><testcase classname="test_icim_b3adv_state_20261021" name="test_expired_adopted_long_put_cannot_be_committed_as_next_open_plan[MO2601-P-7200]" time="0.054"><failure message="Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;">tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_51ec0f15/pytest/test_expired_adopted_long_put_0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000001BA96C4A060&gt;
+contract = 'MO2601-P-7200'
+
+    @pytest.mark.parametrize('contract', ['MO2601-P-7200', 'MO2609-P-7200'])
+    def test_expired_adopted_long_put_cannot_be_committed_as_next_open_plan(tmp_path, monkeypatch, contract):
+        store, record, signals = prepare(tmp_path, monkeypatch, dict(
+            core_put_target_contract=contract, put_target_contract=contract))
+        assert signals['IM']['v14_ordinary_put_pending']['legs']['core']['new_contract'] == contract
+        before = prior.snapshot(store.root)
+&gt;       with pytest.raises(RuntimeError, match='expir|到期|expired'):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;
+
+test_icim_b3adv_state_20261021.py:40: Failed</failure></testcase><testcase classname="test_icim_b3adv_state_20261021" name="test_expired_adopted_long_put_cannot_be_committed_as_next_open_plan[MO2609-P-7200]" time="1.032"><failure message="Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;">tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_51ec0f15/pytest/test_expired_adopted_long_put_1')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000001BA96CC5370&gt;
+contract = 'MO2609-P-7200'
+
+    @pytest.mark.parametrize('contract', ['MO2601-P-7200', 'MO2609-P-7200'])
+    def test_expired_adopted_long_put_cannot_be_committed_as_next_open_plan(tmp_path, monkeypatch, contract):
+        store, record, signals = prepare(tmp_path, monkeypatch, dict(
+            core_put_target_contract=contract, put_target_contract=contract))
+        assert signals['IM']['v14_ordinary_put_pending']['legs']['core']['new_contract'] == contract
+        before = prior.snapshot(store.root)
+&gt;       with pytest.raises(RuntimeError, match='expir|到期|expired'):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;
+
+test_icim_b3adv_state_20261021.py:40: Failed</failure></testcase><testcase classname="test_icim_b3adv_state_20261021" name="test_unknown_year_adopted_long_put_remains_rejected" time="0.020" /><testcase classname="test_icim_b3adv_state_20261021" name="test_in_year_closed_signal_or_next_session_does_not_append[next_trade_date]" time="0.020" /><testcase classname="test_icim_b3adv_state_20261021" name="test_in_year_closed_signal_or_next_session_does_not_append[market_date]" time="0.018" /><testcase classname="test_icim_b3adv_state_20261021" name="test_unused_unknown_year_maintenance_diagnostic_does_not_block[option_monthly_reset_execution_date]" time="0.029" /><testcase classname="test_icim_b3adv_state_20261021" name="test_unused_unknown_year_maintenance_diagnostic_does_not_block[put_monthly_reset_execution_date]" time="0.028" /><testcase classname="test_icim_b3adv_state_20261021" name="test_prepared_short_expiry_month_identity_mismatch_rejected" time="0.002" /></testsuite></testsuites>

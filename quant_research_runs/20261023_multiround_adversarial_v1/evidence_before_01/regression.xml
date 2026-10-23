@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="6" skipped="0" tests="28" time="2.756" timestamp="2026-10-23T09:27:14.672925+08:00" hostname="DESKTOP-95I7VVU"><testcase classname="test_icim_ma23_evidence_20261023" name="test_raw_http_metadata_must_be_valid_before_complete_loader_acceptance[status-None]" time="0.048"><failure message="Failed: DID NOT RAISE &lt;class 'ic_im_signal_evidence_v1.EvidenceUnavailable'&gt;">tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_7eaa1b72/pytest/test_raw_http_metadata_must_be0')
+field = 'status', value = None
+
+    @pytest.mark.parametrize('field,value', [('status', None), ('status', True), ('status', 200.0),
+                                           ('status', 99), ('status', 600), ('encoding', 42)])
+    def test_raw_http_metadata_must_be_valid_before_complete_loader_acceptance(tmp_path, field, value):
+        """A normal capture API can currently seal malformed HTTP metadata.
+    
+        This is a format-consistency test, not a claim requests normally emits it.
+        Typed-role-only replay otherwise never reaches http_response's validation.
+        """
+        packet = response(**{field: value})
+        session = capture(tmp_path, [(URL, {'list': ONE}, packet)])
+        # No forged SHA or mutation: the production recorder produced this archive.
+&gt;       with pytest.raises(evidence.EvidenceUnavailable, match='invalid|status|encoding|incomplete'):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'ic_im_signal_evidence_v1.EvidenceUnavailable'&gt;
+
+test_icim_ma23_evidence_20261023.py:64: Failed</failure></testcase><testcase classname="test_icim_ma23_evidence_20261023" name="test_raw_http_metadata_must_be_valid_before_complete_loader_acceptance[status-True]" time="0.048"><failure message="Failed: DID NOT RAISE &lt;class 'ic_im_signal_evidence_v1.EvidenceUnavailable'&gt;">tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_7eaa1b72/pytest/test_raw_http_metadata_must_be1')
+field = 'status', value = True
+
+    @pytest.mark.parametrize('field,value', [('status', None), ('status', True), ('status', 200.0),
+                                           ('status', 99), ('status', 600), ('encoding', 42)])
+    def test_raw_http_metadata_must_be_valid_before_complete_loader_acceptance(tmp_path, field, value):
+        """A normal capture API can currently seal malformed HTTP metadata.
+    
+        This is a format-consistency test, not a claim requests normally emits it.
+        Typed-role-only replay otherwise never reaches http_response's validation.
+        """
+        packet = response(**{field: value})
+        session = capture(tmp_path, [(URL, {'list': ONE}, packet)])
+        # No forged SHA or mutation: the production recorder produced this archive.
+&gt;       with pytest.raises(evidence.EvidenceUnavailable, match='invalid|status|encoding|incomplete'):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'ic_im_signal_evidence_v1.EvidenceUnavailable'&gt;
+
+test_icim_ma23_evidence_20261023.py:64: Failed</failure></testcase><testcase classname="test_icim_ma23_evidence_20261023" name="test_raw_http_metadata_must_be_valid_before_complete_loader_acceptance[status-200.0]" time="0.048"><failure message="Failed: DID NOT RAISE &lt;class 'ic_im_signal_evidence_v1.EvidenceUnavailable'&gt;">tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_7eaa1b72/pytest/test_raw_http_metadata_must_be2')
+field = 'status', value = 200.0
+
+    @pytest.mark.parametrize('field,value', [('status', None), ('status', True), ('status', 200.0),
+                                           ('status', 99), ('status', 600), ('encoding', 42)])
+    def test_raw_http_metadata_must_be_valid_before_complete_loader_acceptance(tmp_path, field, value):
+        """A normal capture API can currently seal malformed HTTP metadata.
+    
+        This is a format-consistency test, not a claim requests normally emits it.
+        Typed-role-only replay otherwise never reaches http_response's validation.
+        """
+        packet = response(**{field: value})
+        session = capture(tmp_path, [(URL, {'list': ONE}, packet)])
+        # No forged SHA or mutation: the production recorder produced this archive.
+&gt;       with pytest.raises(evidence.EvidenceUnavailable, match='invalid|status|encoding|incomplete'):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'ic_im_signal_evidence_v1.EvidenceUnavailable'&gt;
+
+test_icim_ma23_evidence_20261023.py:64: Failed</failure></testcase><testcase classname="test_icim_ma23_evidence_20261023" name="test_raw_http_metadata_must_be_valid_before_complete_loader_acceptance[status-99]" time="0.042"><failure message="Failed: DID NOT RAISE &lt;class 'ic_im_signal_evidence_v1.EvidenceUnavailable'&gt;">tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_7eaa1b72/pytest/test_raw_http_metadata_must_be3')
+field = 'status', value = 99
+
+    @pytest.mark.parametrize('field,value', [('status', None), ('status', True), ('status', 200.0),
+                                           ('status', 99), ('status', 600), ('encoding', 42)])
+    def test_raw_http_metadata_must_be_valid_before_complete_loader_acceptance(tmp_path, field, value):
+        """A normal capture API can currently seal malformed HTTP metadata.
+    
+        This is a format-consistency test, not a claim requests normally emits it.
+        Typed-role-only replay otherwise never reaches http_response's validation.
+        """
+        packet = response(**{field: value})
+        session = capture(tmp_path, [(URL, {'list': ONE}, packet)])
+        # No forged SHA or mutation: the production recorder produced this archive.
+&gt;       with pytest.raises(evidence.EvidenceUnavailable, match='invalid|status|encoding|incomplete'):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'ic_im_signal_evidence_v1.EvidenceUnavailable'&gt;
+
+test_icim_ma23_evidence_20261023.py:64: Failed</failure></testcase><testcase classname="test_icim_ma23_evidence_20261023" name="test_raw_http_metadata_must_be_valid_before_complete_loader_acceptance[status-600]" time="0.039"><failure message="Failed: DID NOT RAISE &lt;class 'ic_im_signal_evidence_v1.EvidenceUnavailable'&gt;">tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_7eaa1b72/pytest/test_raw_http_metadata_must_be4')
+field = 'status', value = 600
+
+    @pytest.mark.parametrize('field,value', [('status', None), ('status', True), ('status', 200.0),
+                                           ('status', 99), ('status', 600), ('encoding', 42)])
+    def test_raw_http_metadata_must_be_valid_before_complete_loader_acceptance(tmp_path, field, value):
+        """A normal capture API can currently seal malformed HTTP metadata.
+    
+        This is a format-consistency test, not a claim requests normally emits it.
+        Typed-role-only replay otherwise never reaches http_response's validation.
+        """
+        packet = response(**{field: value})
+        session = capture(tmp_path, [(URL, {'list': ONE}, packet)])
+        # No forged SHA or mutation: the production recorder produced this archive.
+&gt;       with pytest.raises(evidence.EvidenceUnavailable, match='invalid|status|encoding|incomplete'):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'ic_im_signal_evidence_v1.EvidenceUnavailable'&gt;
+
+test_icim_ma23_evidence_20261023.py:64: Failed</failure></testcase><testcase classname="test_icim_ma23_evidence_20261023" name="test_raw_http_metadata_must_be_valid_before_complete_loader_acceptance[encoding-42]" time="0.041"><failure message="Failed: DID NOT RAISE &lt;class 'ic_im_signal_evidence_v1.EvidenceUnavailable'&gt;">tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_7eaa1b72/pytest/test_raw_http_metadata_must_be5')
+field = 'encoding', value = 42
+
+    @pytest.mark.parametrize('field,value', [('status', None), ('status', True), ('status', 200.0),
+                                           ('status', 99), ('status', 600), ('encoding', 42)])
+    def test_raw_http_metadata_must_be_valid_before_complete_loader_acceptance(tmp_path, field, value):
+        """A normal capture API can currently seal malformed HTTP metadata.
+    
+        This is a format-consistency test, not a claim requests normally emits it.
+        Typed-role-only replay otherwise never reaches http_response's validation.
+        """
+        packet = response(**{field: value})
+        session = capture(tmp_path, [(URL, {'list': ONE}, packet)])
+        # No forged SHA or mutation: the production recorder produced this archive.
+&gt;       with pytest.raises(evidence.EvidenceUnavailable, match='invalid|status|encoding|incomplete'):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'ic_im_signal_evidence_v1.EvidenceUnavailable'&gt;
+
+test_icim_ma23_evidence_20261023.py:64: Failed</failure></testcase><testcase classname="test_icim_ma23_evidence_20261023" name="test_valid_original_http_error_status_remains_recordable_for_fallback_audit[100]" time="0.048" /><testcase classname="test_icim_ma23_evidence_20261023" name="test_valid_original_http_error_status_remains_recordable_for_fallback_audit[200]" time="0.049" /><testcase classname="test_icim_ma23_evidence_20261023" name="test_valid_original_http_error_status_remains_recordable_for_fallback_audit[302]" time="0.048" /><testcase classname="test_icim_ma23_evidence_20261023" name="test_valid_original_http_error_status_remains_recordable_for_fallback_audit[404]" time="0.049" /><testcase classname="test_icim_ma23_evidence_20261023" name="test_valid_original_http_error_status_remains_recordable_for_fallback_audit[503]" time="0.050" /><testcase classname="test_icim_ma23_evidence_20261023" name="test_valid_original_http_error_status_remains_recordable_for_fallback_audit[599]" time="0.046" /><testcase classname="test_icim_ma23_evidence_20261023" name="test_rehashed_structural_or_blob_corruption_is_rejected[typed_blob]" time="0.031" /><testcase classname="test_icim_ma23_evidence_20261023" name="test_rehashed_structural_or_blob_corruption_is_rejected[raw_blob]" time="0.038" /><testcase classname="test_icim_ma23_evidence_20261023" name="test_rehashed_structural_or_blob_corruption_is_rejected[manifest_hash]" time="0.023" /><testcase classname="test_icim_ma23_evidence_20261023" name="test_rehashed_structural_or_blob_corruption_is_rejected[total]" time="0.038" /><testcase classname="test_icim_ma23_evidence_20261023" name="test_rehashed_structural_or_blob_corruption_is_rejected[role]" time="0.024" /><testcase classname="test_icim_ma23_evidence_20261023" name="test_rehashed_structural_or_blob_corruption_is_rejected[fetched_at]" time="0.033" /><testcase classname="test_icim_ma23_evidence_20261023" name="test_exact_request_retains_its_observation_over_different_batch_prefetch" time="0.063" /><testcase classname="test_icim_ma23_evidence_20261023" name="test_missing_exact_request_requires_all_possible_projections_to_agree" time="0.070" /><testcase classname="test_icim_ma23_evidence_20261023" name="test_reader_does_not_alias_parameter_types_or_fabricate_missing_batches[parameters0]" time="0.069" /><testcase classname="test_icim_ma23_evidence_20261023" name="test_reader_does_not_alias_parameter_types_or_fabricate_missing_batches[parameters1]" time="0.037" /><testcase classname="test_icim_ma23_evidence_20261023" name="test_reader_does_not_alias_parameter_types_or_fabricate_missing_batches[parameters2]" time="0.037" /><testcase classname="test_icim_ma23_evidence_20261023" name="test_reader_does_not_alias_parameter_types_or_fabricate_missing_batches[parameters3]" time="0.038" /><testcase classname="test_icim_ma23_evidence_20261023" name="test_query_order_is_irrelevant_but_original_body_is_not" time="0.077" /><testcase classname="test_icim_ma23_evidence_20261023" name="test_sealed_archive_cannot_be_extended_or_reannotated" time="0.046" /><testcase classname="test_icim_ma23_evidence_20261023" name="test_conflicted_session_stays_unusable_when_same_body_is_seen_again" time="0.035" /><testcase classname="test_icim_ma23_evidence_20261023" name="test_real_accepted_pack_verifies_all_original_blob_bytes_without_http" time="0.594" /></testsuite></testsuites>

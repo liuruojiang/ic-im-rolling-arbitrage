@@ -1,0 +1,145 @@
+FFFFFFF........................                                          [100%]
+================================== FAILURES ===================================
+_ test_sse_explicit_full_page_cannot_admit_stale_or_partial_listing[months0] __
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000002288DCE3CE0>
+months = ['202609', '202610', '202611', '202612']
+
+    @pytest.mark.parametrize('months', [
+        ['202609', '202610', '202611', '202612'],
+        ['202611', '202612'],
+        ['202611', '202612', '202703'],
+    ])
+    def test_sse_explicit_full_page_cannot_admit_stale_or_partial_listing(monkeypatch, months):
+        monkeypatch.setattr(bot, '_sse_quote_json', lambda *a, **k: sse_months(months))
+        clock = datetime(2026, 11, 20, 18, tzinfo=bot.BEIJING)
+>       with bot.runtime_clock(clock), pytest.raises(RuntimeError):
+                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+test_icim_ma23_market_20261023.py:54: Failed
+_ test_sse_explicit_full_page_cannot_admit_stale_or_partial_listing[months1] __
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000002288DE943E0>
+months = ['202611', '202612']
+
+    @pytest.mark.parametrize('months', [
+        ['202609', '202610', '202611', '202612'],
+        ['202611', '202612'],
+        ['202611', '202612', '202703'],
+    ])
+    def test_sse_explicit_full_page_cannot_admit_stale_or_partial_listing(monkeypatch, months):
+        monkeypatch.setattr(bot, '_sse_quote_json', lambda *a, **k: sse_months(months))
+        clock = datetime(2026, 11, 20, 18, tzinfo=bot.BEIJING)
+>       with bot.runtime_clock(clock), pytest.raises(RuntimeError):
+                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+test_icim_ma23_market_20261023.py:54: Failed
+_ test_sse_explicit_full_page_cannot_admit_stale_or_partial_listing[months2] __
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000002288DD532F0>
+months = ['202611', '202612', '202703']
+
+    @pytest.mark.parametrize('months', [
+        ['202609', '202610', '202611', '202612'],
+        ['202611', '202612'],
+        ['202611', '202612', '202703'],
+    ])
+    def test_sse_explicit_full_page_cannot_admit_stale_or_partial_listing(monkeypatch, months):
+        monkeypatch.setattr(bot, '_sse_quote_json', lambda *a, **k: sse_months(months))
+        clock = datetime(2026, 11, 20, 18, tzinfo=bot.BEIJING)
+>       with bot.runtime_clock(clock), pytest.raises(RuntimeError):
+                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+test_icim_ma23_market_20261023.py:54: Failed
+__ test_stale_sse_listing_cannot_bypass_sina_and_change_adopted_reset_expiry __
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000002288DEFC5A0>
+
+    def test_stale_sse_listing_cannot_bypass_sina_and_change_adopted_reset_expiry(monkeypatch):
+        monkeypatch.setattr(bot, '_sse_quote_json', lambda *a, **k: sse_months(
+            ['202609', '202610', '202611', '202612']))
+        fallback_calls = []
+        def current_sina():
+            fallback_calls.append(True)
+            return ['202611', '202612', '202703', '202706']
+        monkeypatch.setattr(bot, 'fetch_sina_510500_expiries', current_sina)
+        class SelectedExpiry(Exception):
+            pass
+        # Observe the real selector immediately BEFORE the adopted-date gate and
+        # quote/sizing stages. This test produces no formal signal or position.
+        def observe(expiry, purpose):
+            raise SelectedExpiry(expiry)
+        monkeypatch.setattr(bot, '_require_model_expiry_calendar', observe)
+        day = date(2026, 11, 20)
+        with bot.runtime_clock(CLOCK.replace(month=11, day=20)), pytest.raises(SelectedExpiry) as caught:
+            bot.select_ic_put_for_reset(day, 6.7, 6500., .25)
+>       assert caught.value.args[0] == date(2027, 3, 24)
+E       assert datetime.date(2026, 12, 23) == datetime.date(2027, 3, 24)
+E        +  where datetime.date(2027, 3, 24) = date(2027, 3, 24)
+
+test_icim_ma23_market_20261023.py:76: AssertionError
+_ test_wrong_identifier_namespace_cannot_be_accepted_as_exact_etf_variable[tencent-v_sh510500=] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000002288DEFCF30>
+vendor = 'tencent', prefix = b'v_sh510500='
+
+    @pytest.mark.parametrize('vendor,prefix', [('tencent', b'v_sh510500='), ('sina', b'hq_str_sh510500=')])
+    def test_wrong_identifier_namespace_cannot_be_accepted_as_exact_etf_variable(monkeypatch, vendor, prefix):
+        original = (SAVED / (vendor + '_etf.bin')).read_bytes()
+        corrupted = original.replace(prefix, b'not_' + prefix, 1)
+        assert corrupted != original
+        monkeypatch.setattr(bot.requests, 'get', lambda *a, **k: response(corrupted))
+>       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+test_icim_ma23_market_20261023.py:86: Failed
+_ test_wrong_identifier_namespace_cannot_be_accepted_as_exact_etf_variable[sina-hq_str_sh510500=] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000002288DE6EF50>
+vendor = 'sina', prefix = b'hq_str_sh510500='
+
+    @pytest.mark.parametrize('vendor,prefix', [('tencent', b'v_sh510500='), ('sina', b'hq_str_sh510500=')])
+    def test_wrong_identifier_namespace_cannot_be_accepted_as_exact_etf_variable(monkeypatch, vendor, prefix):
+        original = (SAVED / (vendor + '_etf.bin')).read_bytes()
+        corrupted = original.replace(prefix, b'not_' + prefix, 1)
+        assert corrupted != original
+        monkeypatch.setattr(bot.requests, 'get', lambda *a, **k: response(corrupted))
+>       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+test_icim_ma23_market_20261023.py:86: Failed
+___________ test_sse_json_source_respects_actual_quote_byte_budget ____________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000002288DE6F650>
+
+    def test_sse_json_source_respects_actual_quote_byte_budget(monkeypatch):
+        # Tiny patched limit avoids allocating huge input. Bytes are syntactically
+        # valid JSON; status/JSON success alone cannot establish bounded transport.
+        monkeypatch.setattr(bot, 'MAX_QUOTE_RESPONSE_BYTES', 32)
+        body = b' ' * 40 + b'{"list":[]}'
+        monkeypatch.setattr(bot.requests, 'get', lambda *a, **k: response(body))
+>       with pytest.raises(RuntimeError, match='超过|上限|大小'):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+test_icim_ma23_market_20261023.py:96: Failed
+============================== warnings summary ===============================
+C:\Python314\Lib\site-packages\fastapi_poe\types.py:171
+  C:\Python314\Lib\site-packages\fastapi_poe\types.py:171: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    class RequestContext(BaseModel):
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED test_icim_ma23_market_20261023.py::test_sse_explicit_full_page_cannot_admit_stale_or_partial_listing[months0]
+FAILED test_icim_ma23_market_20261023.py::test_sse_explicit_full_page_cannot_admit_stale_or_partial_listing[months1]
+FAILED test_icim_ma23_market_20261023.py::test_sse_explicit_full_page_cannot_admit_stale_or_partial_listing[months2]
+FAILED test_icim_ma23_market_20261023.py::test_stale_sse_listing_cannot_bypass_sina_and_change_adopted_reset_expiry
+FAILED test_icim_ma23_market_20261023.py::test_wrong_identifier_namespace_cannot_be_accepted_as_exact_etf_variable[tencent-v_sh510500=]
+FAILED test_icim_ma23_market_20261023.py::test_wrong_identifier_namespace_cannot_be_accepted_as_exact_etf_variable[sina-hq_str_sh510500=]
+FAILED test_icim_ma23_market_20261023.py::test_sse_json_source_respects_actual_quote_byte_budget
+7 failed, 24 passed, 1 warning in 2.20s

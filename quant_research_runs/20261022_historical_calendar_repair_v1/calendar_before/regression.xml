@@ -1,0 +1,416 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="15" skipped="0" tests="72" time="10.133" timestamp="2026-10-22T10:39:07.218639+08:00" hostname="DESKTOP-95I7VVU"><testcase classname="test_icim_historical_calendar_20261022" name="test_official_notices_match_complete_cffex_observed_sessions[2022]" time="0.008" /><testcase classname="test_icim_historical_calendar_20261022" name="test_official_notices_match_complete_cffex_observed_sessions[2023]" time="0.001" /><testcase classname="test_icim_historical_calendar_20261022" name="test_official_notices_match_complete_cffex_observed_sessions[2024]" time="0.001" /><testcase classname="test_icim_historical_calendar_20261022" name="test_official_notices_match_complete_cffex_observed_sessions[2025]" time="0.001" /><testcase classname="test_icim_historical_calendar_20261022" name="test_calendar_covers_all_days_of_each_verified_year[2022]" time="0.001"><failure message="poe_ic_im_mainline_v1_4_bot.CalendarCoverageError: historical oracle需要2022年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号">year = 2022
+
+    @pytest.mark.parametrize('year', range(2022, 2026))
+    def test_calendar_covers_all_days_of_each_verified_year(year):
+        expected = set(notice_sessions(year))
+        for d in pd.date_range(f'{year}-01-01', f'{year}-12-31').date:
+&gt;           bot._require_official_exchange_calendar(d, 'historical oracle')
+
+test_icim_historical_calendar_20261022.py:42: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+day = datetime.date(2022, 1, 1), label = 'historical oracle'
+
+    def _require_official_exchange_calendar(day: date, label: str) -&gt; None:
+        if day.year not in _OFFICIAL_EXCHANGE_CALENDAR_YEARS:
+            context = _SIGNAL_CALENDAR_DIAGNOSTICS.get()
+            if context is not None:
+                item = {"date": day.isoformat(), "purpose": label,
+                        "source": "missing_official_calendar", "officially_verified": False}
+                if item not in context["failures"]:
+                    context["failures"].append(item)
+            covered = "/".join(str(year) for year in sorted(_OFFICIAL_EXCHANGE_CALENDAR_YEARS))
+&gt;           raise CalendarCoverageError(
+                f"{label}需要{day.year}年官方交易日历，但脚本仅覆盖{covered}年；"
+                "暂停实时新鲜度判定和新增信号"
+            )
+E           poe_ic_im_mainline_v1_4_bot.CalendarCoverageError: historical oracle需要2022年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号
+
+poe_ic_im_mainline_v1_4_bot.py:4284: CalendarCoverageError</failure></testcase><testcase classname="test_icim_historical_calendar_20261022" name="test_calendar_covers_all_days_of_each_verified_year[2023]" time="0.001"><failure message="poe_ic_im_mainline_v1_4_bot.CalendarCoverageError: historical oracle需要2023年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号">year = 2023
+
+    @pytest.mark.parametrize('year', range(2022, 2026))
+    def test_calendar_covers_all_days_of_each_verified_year(year):
+        expected = set(notice_sessions(year))
+        for d in pd.date_range(f'{year}-01-01', f'{year}-12-31').date:
+&gt;           bot._require_official_exchange_calendar(d, 'historical oracle')
+
+test_icim_historical_calendar_20261022.py:42: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+day = datetime.date(2023, 1, 1), label = 'historical oracle'
+
+    def _require_official_exchange_calendar(day: date, label: str) -&gt; None:
+        if day.year not in _OFFICIAL_EXCHANGE_CALENDAR_YEARS:
+            context = _SIGNAL_CALENDAR_DIAGNOSTICS.get()
+            if context is not None:
+                item = {"date": day.isoformat(), "purpose": label,
+                        "source": "missing_official_calendar", "officially_verified": False}
+                if item not in context["failures"]:
+                    context["failures"].append(item)
+            covered = "/".join(str(year) for year in sorted(_OFFICIAL_EXCHANGE_CALENDAR_YEARS))
+&gt;           raise CalendarCoverageError(
+                f"{label}需要{day.year}年官方交易日历，但脚本仅覆盖{covered}年；"
+                "暂停实时新鲜度判定和新增信号"
+            )
+E           poe_ic_im_mainline_v1_4_bot.CalendarCoverageError: historical oracle需要2023年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号
+
+poe_ic_im_mainline_v1_4_bot.py:4284: CalendarCoverageError</failure></testcase><testcase classname="test_icim_historical_calendar_20261022" name="test_calendar_covers_all_days_of_each_verified_year[2024]" time="0.001"><failure message="poe_ic_im_mainline_v1_4_bot.CalendarCoverageError: historical oracle需要2024年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号">year = 2024
+
+    @pytest.mark.parametrize('year', range(2022, 2026))
+    def test_calendar_covers_all_days_of_each_verified_year(year):
+        expected = set(notice_sessions(year))
+        for d in pd.date_range(f'{year}-01-01', f'{year}-12-31').date:
+&gt;           bot._require_official_exchange_calendar(d, 'historical oracle')
+
+test_icim_historical_calendar_20261022.py:42: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+day = datetime.date(2024, 1, 1), label = 'historical oracle'
+
+    def _require_official_exchange_calendar(day: date, label: str) -&gt; None:
+        if day.year not in _OFFICIAL_EXCHANGE_CALENDAR_YEARS:
+            context = _SIGNAL_CALENDAR_DIAGNOSTICS.get()
+            if context is not None:
+                item = {"date": day.isoformat(), "purpose": label,
+                        "source": "missing_official_calendar", "officially_verified": False}
+                if item not in context["failures"]:
+                    context["failures"].append(item)
+            covered = "/".join(str(year) for year in sorted(_OFFICIAL_EXCHANGE_CALENDAR_YEARS))
+&gt;           raise CalendarCoverageError(
+                f"{label}需要{day.year}年官方交易日历，但脚本仅覆盖{covered}年；"
+                "暂停实时新鲜度判定和新增信号"
+            )
+E           poe_ic_im_mainline_v1_4_bot.CalendarCoverageError: historical oracle需要2024年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号
+
+poe_ic_im_mainline_v1_4_bot.py:4284: CalendarCoverageError</failure></testcase><testcase classname="test_icim_historical_calendar_20261022" name="test_calendar_covers_all_days_of_each_verified_year[2025]" time="0.002"><failure message="poe_ic_im_mainline_v1_4_bot.CalendarCoverageError: historical oracle需要2025年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号">year = 2025
+
+    @pytest.mark.parametrize('year', range(2022, 2026))
+    def test_calendar_covers_all_days_of_each_verified_year(year):
+        expected = set(notice_sessions(year))
+        for d in pd.date_range(f'{year}-01-01', f'{year}-12-31').date:
+&gt;           bot._require_official_exchange_calendar(d, 'historical oracle')
+
+test_icim_historical_calendar_20261022.py:42: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+day = datetime.date(2025, 1, 1), label = 'historical oracle'
+
+    def _require_official_exchange_calendar(day: date, label: str) -&gt; None:
+        if day.year not in _OFFICIAL_EXCHANGE_CALENDAR_YEARS:
+            context = _SIGNAL_CALENDAR_DIAGNOSTICS.get()
+            if context is not None:
+                item = {"date": day.isoformat(), "purpose": label,
+                        "source": "missing_official_calendar", "officially_verified": False}
+                if item not in context["failures"]:
+                    context["failures"].append(item)
+            covered = "/".join(str(year) for year in sorted(_OFFICIAL_EXCHANGE_CALENDAR_YEARS))
+&gt;           raise CalendarCoverageError(
+                f"{label}需要{day.year}年官方交易日历，但脚本仅覆盖{covered}年；"
+                "暂停实时新鲜度判定和新增信号"
+            )
+E           poe_ic_im_mainline_v1_4_bot.CalendarCoverageError: historical oracle需要2025年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号
+
+poe_ic_im_mainline_v1_4_bot.py:4284: CalendarCoverageError</failure></testcase><testcase classname="test_icim_historical_calendar_20261022" name="test_future_expiry_matches_actual_last_trading_date[2022-1]" time="0.001" /><testcase classname="test_icim_historical_calendar_20261022" name="test_future_expiry_matches_actual_last_trading_date[2022-2]" time="0.001" /><testcase classname="test_icim_historical_calendar_20261022" name="test_future_expiry_matches_actual_last_trading_date[2022-3]" time="0.001" /><testcase classname="test_icim_historical_calendar_20261022" name="test_future_expiry_matches_actual_last_trading_date[2022-4]" time="0.001" /><testcase classname="test_icim_historical_calendar_20261022" name="test_future_expiry_matches_actual_last_trading_date[2022-5]" time="0.001" /><testcase classname="test_icim_historical_calendar_20261022" name="test_future_expiry_matches_actual_last_trading_date[2022-6]" time="0.001" /><testcase classname="test_icim_historical_calendar_20261022" name="test_future_expiry_matches_actual_last_trading_date[2022-7]" time="0.001" /><testcase classname="test_icim_historical_calendar_20261022" name="test_future_expiry_matches_actual_last_trading_date[2022-8]" time="0.001" /><testcase classname="test_icim_historical_calendar_20261022" name="test_future_expiry_matches_actual_last_trading_date[2022-9]" time="0.001" /><testcase classname="test_icim_historical_calendar_20261022" name="test_future_expiry_matches_actual_last_trading_date[2022-10]" time="0.001" /><testcase classname="test_icim_historical_calendar_20261022" name="test_future_expiry_matches_actual_last_trading_date[2022-11]" time="0.001" /><testcase classname="test_icim_historical_calendar_20261022" name="test_future_expiry_matches_actual_last_trading_date[2022-12]" time="0.001" /><testcase classname="test_icim_historical_calendar_20261022" name="test_future_expiry_matches_actual_last_trading_date[2023-1]" time="0.001" /><testcase classname="test_icim_historical_calendar_20261022" name="test_future_expiry_matches_actual_last_trading_date[2023-2]" time="0.001" /><testcase classname="test_icim_historical_calendar_20261022" name="test_future_expiry_matches_actual_last_trading_date[2023-3]" time="0.001" /><testcase classname="test_icim_historical_calendar_20261022" name="test_future_expiry_matches_actual_last_trading_date[2023-4]" time="0.001" /><testcase classname="test_icim_historical_calendar_20261022" name="test_future_expiry_matches_actual_last_trading_date[2023-5]" time="0.001" /><testcase classname="test_icim_historical_calendar_20261022" name="test_future_expiry_matches_actual_last_trading_date[2023-6]" time="0.001" /><testcase classname="test_icim_historical_calendar_20261022" name="test_future_expiry_matches_actual_last_trading_date[2023-7]" time="0.001" /><testcase classname="test_icim_historical_calendar_20261022" name="test_future_expiry_matches_actual_last_trading_date[2023-8]" time="0.001" /><testcase classname="test_icim_historical_calendar_20261022" name="test_future_expiry_matches_actual_last_trading_date[2023-9]" time="0.001" /><testcase classname="test_icim_historical_calendar_20261022" name="test_future_expiry_matches_actual_last_trading_date[2023-10]" time="0.001" /><testcase classname="test_icim_historical_calendar_20261022" name="test_future_expiry_matches_actual_last_trading_date[2023-11]" time="0.001" /><testcase classname="test_icim_historical_calendar_20261022" name="test_future_expiry_matches_actual_last_trading_date[2023-12]" time="0.001" /><testcase classname="test_icim_historical_calendar_20261022" name="test_future_expiry_matches_actual_last_trading_date[2024-1]" time="0.001" /><testcase classname="test_icim_historical_calendar_20261022" name="test_future_expiry_matches_actual_last_trading_date[2024-2]" time="0.015"><failure message="AssertionError: assert '2024-02-16' == '2024-02-19'&#10;  &#10;  - 2024-02-19&#10;  ?          ^&#10;  + 2024-02-16&#10;  ?          ^">year = 2024, month = 2
+
+    @pytest.mark.parametrize('year,month', [(y, m) for y in range(2022, 2026) for m in range(1, 13)])
+    def test_future_expiry_matches_actual_last_trading_date(year, month):
+        contract = f'IC{year % 100:02d}{month:02d}'
+&gt;       assert str(bot._third_friday(year, month)) == oracle()['contract_last_dates'][contract]
+E       AssertionError: assert '2024-02-16' == '2024-02-19'
+E         
+E         - 2024-02-19
+E         ?          ^
+E         + 2024-02-16
+E         ?          ^
+
+test_icim_historical_calendar_20261022.py:49: AssertionError</failure></testcase><testcase classname="test_icim_historical_calendar_20261022" name="test_future_expiry_matches_actual_last_trading_date[2024-3]" time="0.001" /><testcase classname="test_icim_historical_calendar_20261022" name="test_future_expiry_matches_actual_last_trading_date[2024-4]" time="0.001" /><testcase classname="test_icim_historical_calendar_20261022" name="test_future_expiry_matches_actual_last_trading_date[2024-5]" time="0.001" /><testcase classname="test_icim_historical_calendar_20261022" name="test_future_expiry_matches_actual_last_trading_date[2024-6]" time="0.001" /><testcase classname="test_icim_historical_calendar_20261022" name="test_future_expiry_matches_actual_last_trading_date[2024-7]" time="0.001" /><testcase classname="test_icim_historical_calendar_20261022" name="test_future_expiry_matches_actual_last_trading_date[2024-8]" time="0.001" /><testcase classname="test_icim_historical_calendar_20261022" name="test_future_expiry_matches_actual_last_trading_date[2024-9]" time="0.001" /><testcase classname="test_icim_historical_calendar_20261022" name="test_future_expiry_matches_actual_last_trading_date[2024-10]" time="0.001" /><testcase classname="test_icim_historical_calendar_20261022" name="test_future_expiry_matches_actual_last_trading_date[2024-11]" time="0.001" /><testcase classname="test_icim_historical_calendar_20261022" name="test_future_expiry_matches_actual_last_trading_date[2024-12]" time="0.001" /><testcase classname="test_icim_historical_calendar_20261022" name="test_future_expiry_matches_actual_last_trading_date[2025-1]" time="0.001" /><testcase classname="test_icim_historical_calendar_20261022" name="test_future_expiry_matches_actual_last_trading_date[2025-2]" time="0.001" /><testcase classname="test_icim_historical_calendar_20261022" name="test_future_expiry_matches_actual_last_trading_date[2025-3]" time="0.001" /><testcase classname="test_icim_historical_calendar_20261022" name="test_future_expiry_matches_actual_last_trading_date[2025-4]" time="0.001" /><testcase classname="test_icim_historical_calendar_20261022" name="test_future_expiry_matches_actual_last_trading_date[2025-5]" time="0.001" /><testcase classname="test_icim_historical_calendar_20261022" name="test_future_expiry_matches_actual_last_trading_date[2025-6]" time="0.001" /><testcase classname="test_icim_historical_calendar_20261022" name="test_future_expiry_matches_actual_last_trading_date[2025-7]" time="0.001" /><testcase classname="test_icim_historical_calendar_20261022" name="test_future_expiry_matches_actual_last_trading_date[2025-8]" time="0.001" /><testcase classname="test_icim_historical_calendar_20261022" name="test_future_expiry_matches_actual_last_trading_date[2025-9]" time="0.001" /><testcase classname="test_icim_historical_calendar_20261022" name="test_future_expiry_matches_actual_last_trading_date[2025-10]" time="0.001" /><testcase classname="test_icim_historical_calendar_20261022" name="test_future_expiry_matches_actual_last_trading_date[2025-11]" time="0.001" /><testcase classname="test_icim_historical_calendar_20261022" name="test_future_expiry_matches_actual_last_trading_date[2025-12]" time="0.001" /><testcase classname="test_icim_historical_calendar_20261022" name="test_strict_next_session_uses_actual_exchange_holidays[2022-09-09-2022-09-13]" time="0.001"><failure message="poe_ic_im_mainline_v1_4_bot.CalendarCoverageError: next exchange session需要2022年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号">last = '2022-09-09', next_day = '2022-09-13'
+
+    @pytest.mark.parametrize('last,next_day', [
+        ('2022-09-09', '2022-09-13'), ('2023-06-21', '2023-06-26'),
+        ('2024-02-08', '2024-02-19'), ('2024-09-13', '2024-09-18'),
+        ('2025-01-27', '2025-02-05'), ('2025-09-30', '2025-10-09'),
+    ])
+    def test_strict_next_session_uses_actual_exchange_holidays(last, next_day):
+&gt;       assert bot._roll_forward_exchange_day(date.fromisoformat(last) + timedelta(days=1), require_official=True) == date.fromisoformat(next_day)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_icim_historical_calendar_20261022.py:58: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_mainline_v1_4_bot.py:4412: in _roll_forward_exchange_day
+    _require_official_exchange_calendar(candidate, "next exchange session")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+day = datetime.date(2022, 9, 10), label = 'next exchange session'
+
+    def _require_official_exchange_calendar(day: date, label: str) -&gt; None:
+        if day.year not in _OFFICIAL_EXCHANGE_CALENDAR_YEARS:
+            context = _SIGNAL_CALENDAR_DIAGNOSTICS.get()
+            if context is not None:
+                item = {"date": day.isoformat(), "purpose": label,
+                        "source": "missing_official_calendar", "officially_verified": False}
+                if item not in context["failures"]:
+                    context["failures"].append(item)
+            covered = "/".join(str(year) for year in sorted(_OFFICIAL_EXCHANGE_CALENDAR_YEARS))
+&gt;           raise CalendarCoverageError(
+                f"{label}需要{day.year}年官方交易日历，但脚本仅覆盖{covered}年；"
+                "暂停实时新鲜度判定和新增信号"
+            )
+E           poe_ic_im_mainline_v1_4_bot.CalendarCoverageError: next exchange session需要2022年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号
+
+poe_ic_im_mainline_v1_4_bot.py:4284: CalendarCoverageError</failure></testcase><testcase classname="test_icim_historical_calendar_20261022" name="test_strict_next_session_uses_actual_exchange_holidays[2023-06-21-2023-06-26]" time="0.001"><failure message="poe_ic_im_mainline_v1_4_bot.CalendarCoverageError: next exchange session需要2023年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号">last = '2023-06-21', next_day = '2023-06-26'
+
+    @pytest.mark.parametrize('last,next_day', [
+        ('2022-09-09', '2022-09-13'), ('2023-06-21', '2023-06-26'),
+        ('2024-02-08', '2024-02-19'), ('2024-09-13', '2024-09-18'),
+        ('2025-01-27', '2025-02-05'), ('2025-09-30', '2025-10-09'),
+    ])
+    def test_strict_next_session_uses_actual_exchange_holidays(last, next_day):
+&gt;       assert bot._roll_forward_exchange_day(date.fromisoformat(last) + timedelta(days=1), require_official=True) == date.fromisoformat(next_day)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_icim_historical_calendar_20261022.py:58: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_mainline_v1_4_bot.py:4412: in _roll_forward_exchange_day
+    _require_official_exchange_calendar(candidate, "next exchange session")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+day = datetime.date(2023, 6, 22), label = 'next exchange session'
+
+    def _require_official_exchange_calendar(day: date, label: str) -&gt; None:
+        if day.year not in _OFFICIAL_EXCHANGE_CALENDAR_YEARS:
+            context = _SIGNAL_CALENDAR_DIAGNOSTICS.get()
+            if context is not None:
+                item = {"date": day.isoformat(), "purpose": label,
+                        "source": "missing_official_calendar", "officially_verified": False}
+                if item not in context["failures"]:
+                    context["failures"].append(item)
+            covered = "/".join(str(year) for year in sorted(_OFFICIAL_EXCHANGE_CALENDAR_YEARS))
+&gt;           raise CalendarCoverageError(
+                f"{label}需要{day.year}年官方交易日历，但脚本仅覆盖{covered}年；"
+                "暂停实时新鲜度判定和新增信号"
+            )
+E           poe_ic_im_mainline_v1_4_bot.CalendarCoverageError: next exchange session需要2023年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号
+
+poe_ic_im_mainline_v1_4_bot.py:4284: CalendarCoverageError</failure></testcase><testcase classname="test_icim_historical_calendar_20261022" name="test_strict_next_session_uses_actual_exchange_holidays[2024-02-08-2024-02-19]" time="0.001"><failure message="poe_ic_im_mainline_v1_4_bot.CalendarCoverageError: next exchange session需要2024年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号">last = '2024-02-08', next_day = '2024-02-19'
+
+    @pytest.mark.parametrize('last,next_day', [
+        ('2022-09-09', '2022-09-13'), ('2023-06-21', '2023-06-26'),
+        ('2024-02-08', '2024-02-19'), ('2024-09-13', '2024-09-18'),
+        ('2025-01-27', '2025-02-05'), ('2025-09-30', '2025-10-09'),
+    ])
+    def test_strict_next_session_uses_actual_exchange_holidays(last, next_day):
+&gt;       assert bot._roll_forward_exchange_day(date.fromisoformat(last) + timedelta(days=1), require_official=True) == date.fromisoformat(next_day)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_icim_historical_calendar_20261022.py:58: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_mainline_v1_4_bot.py:4412: in _roll_forward_exchange_day
+    _require_official_exchange_calendar(candidate, "next exchange session")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+day = datetime.date(2024, 2, 9), label = 'next exchange session'
+
+    def _require_official_exchange_calendar(day: date, label: str) -&gt; None:
+        if day.year not in _OFFICIAL_EXCHANGE_CALENDAR_YEARS:
+            context = _SIGNAL_CALENDAR_DIAGNOSTICS.get()
+            if context is not None:
+                item = {"date": day.isoformat(), "purpose": label,
+                        "source": "missing_official_calendar", "officially_verified": False}
+                if item not in context["failures"]:
+                    context["failures"].append(item)
+            covered = "/".join(str(year) for year in sorted(_OFFICIAL_EXCHANGE_CALENDAR_YEARS))
+&gt;           raise CalendarCoverageError(
+                f"{label}需要{day.year}年官方交易日历，但脚本仅覆盖{covered}年；"
+                "暂停实时新鲜度判定和新增信号"
+            )
+E           poe_ic_im_mainline_v1_4_bot.CalendarCoverageError: next exchange session需要2024年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号
+
+poe_ic_im_mainline_v1_4_bot.py:4284: CalendarCoverageError</failure></testcase><testcase classname="test_icim_historical_calendar_20261022" name="test_strict_next_session_uses_actual_exchange_holidays[2024-09-13-2024-09-18]" time="0.001"><failure message="poe_ic_im_mainline_v1_4_bot.CalendarCoverageError: next exchange session需要2024年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号">last = '2024-09-13', next_day = '2024-09-18'
+
+    @pytest.mark.parametrize('last,next_day', [
+        ('2022-09-09', '2022-09-13'), ('2023-06-21', '2023-06-26'),
+        ('2024-02-08', '2024-02-19'), ('2024-09-13', '2024-09-18'),
+        ('2025-01-27', '2025-02-05'), ('2025-09-30', '2025-10-09'),
+    ])
+    def test_strict_next_session_uses_actual_exchange_holidays(last, next_day):
+&gt;       assert bot._roll_forward_exchange_day(date.fromisoformat(last) + timedelta(days=1), require_official=True) == date.fromisoformat(next_day)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_icim_historical_calendar_20261022.py:58: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_mainline_v1_4_bot.py:4412: in _roll_forward_exchange_day
+    _require_official_exchange_calendar(candidate, "next exchange session")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+day = datetime.date(2024, 9, 14), label = 'next exchange session'
+
+    def _require_official_exchange_calendar(day: date, label: str) -&gt; None:
+        if day.year not in _OFFICIAL_EXCHANGE_CALENDAR_YEARS:
+            context = _SIGNAL_CALENDAR_DIAGNOSTICS.get()
+            if context is not None:
+                item = {"date": day.isoformat(), "purpose": label,
+                        "source": "missing_official_calendar", "officially_verified": False}
+                if item not in context["failures"]:
+                    context["failures"].append(item)
+            covered = "/".join(str(year) for year in sorted(_OFFICIAL_EXCHANGE_CALENDAR_YEARS))
+&gt;           raise CalendarCoverageError(
+                f"{label}需要{day.year}年官方交易日历，但脚本仅覆盖{covered}年；"
+                "暂停实时新鲜度判定和新增信号"
+            )
+E           poe_ic_im_mainline_v1_4_bot.CalendarCoverageError: next exchange session需要2024年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号
+
+poe_ic_im_mainline_v1_4_bot.py:4284: CalendarCoverageError</failure></testcase><testcase classname="test_icim_historical_calendar_20261022" name="test_strict_next_session_uses_actual_exchange_holidays[2025-01-27-2025-02-05]" time="0.001"><failure message="poe_ic_im_mainline_v1_4_bot.CalendarCoverageError: next exchange session需要2025年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号">last = '2025-01-27', next_day = '2025-02-05'
+
+    @pytest.mark.parametrize('last,next_day', [
+        ('2022-09-09', '2022-09-13'), ('2023-06-21', '2023-06-26'),
+        ('2024-02-08', '2024-02-19'), ('2024-09-13', '2024-09-18'),
+        ('2025-01-27', '2025-02-05'), ('2025-09-30', '2025-10-09'),
+    ])
+    def test_strict_next_session_uses_actual_exchange_holidays(last, next_day):
+&gt;       assert bot._roll_forward_exchange_day(date.fromisoformat(last) + timedelta(days=1), require_official=True) == date.fromisoformat(next_day)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_icim_historical_calendar_20261022.py:58: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_mainline_v1_4_bot.py:4412: in _roll_forward_exchange_day
+    _require_official_exchange_calendar(candidate, "next exchange session")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+day = datetime.date(2025, 1, 28), label = 'next exchange session'
+
+    def _require_official_exchange_calendar(day: date, label: str) -&gt; None:
+        if day.year not in _OFFICIAL_EXCHANGE_CALENDAR_YEARS:
+            context = _SIGNAL_CALENDAR_DIAGNOSTICS.get()
+            if context is not None:
+                item = {"date": day.isoformat(), "purpose": label,
+                        "source": "missing_official_calendar", "officially_verified": False}
+                if item not in context["failures"]:
+                    context["failures"].append(item)
+            covered = "/".join(str(year) for year in sorted(_OFFICIAL_EXCHANGE_CALENDAR_YEARS))
+&gt;           raise CalendarCoverageError(
+                f"{label}需要{day.year}年官方交易日历，但脚本仅覆盖{covered}年；"
+                "暂停实时新鲜度判定和新增信号"
+            )
+E           poe_ic_im_mainline_v1_4_bot.CalendarCoverageError: next exchange session需要2025年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号
+
+poe_ic_im_mainline_v1_4_bot.py:4284: CalendarCoverageError</failure></testcase><testcase classname="test_icim_historical_calendar_20261022" name="test_strict_next_session_uses_actual_exchange_holidays[2025-09-30-2025-10-09]" time="0.001"><failure message="poe_ic_im_mainline_v1_4_bot.CalendarCoverageError: next exchange session需要2025年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号">last = '2025-09-30', next_day = '2025-10-09'
+
+    @pytest.mark.parametrize('last,next_day', [
+        ('2022-09-09', '2022-09-13'), ('2023-06-21', '2023-06-26'),
+        ('2024-02-08', '2024-02-19'), ('2024-09-13', '2024-09-18'),
+        ('2025-01-27', '2025-02-05'), ('2025-09-30', '2025-10-09'),
+    ])
+    def test_strict_next_session_uses_actual_exchange_holidays(last, next_day):
+&gt;       assert bot._roll_forward_exchange_day(date.fromisoformat(last) + timedelta(days=1), require_official=True) == date.fromisoformat(next_day)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_icim_historical_calendar_20261022.py:58: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_mainline_v1_4_bot.py:4412: in _roll_forward_exchange_day
+    _require_official_exchange_calendar(candidate, "next exchange session")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+day = datetime.date(2025, 10, 1), label = 'next exchange session'
+
+    def _require_official_exchange_calendar(day: date, label: str) -&gt; None:
+        if day.year not in _OFFICIAL_EXCHANGE_CALENDAR_YEARS:
+            context = _SIGNAL_CALENDAR_DIAGNOSTICS.get()
+            if context is not None:
+                item = {"date": day.isoformat(), "purpose": label,
+                        "source": "missing_official_calendar", "officially_verified": False}
+                if item not in context["failures"]:
+                    context["failures"].append(item)
+            covered = "/".join(str(year) for year in sorted(_OFFICIAL_EXCHANGE_CALENDAR_YEARS))
+&gt;           raise CalendarCoverageError(
+                f"{label}需要{day.year}年官方交易日历，但脚本仅覆盖{covered}年；"
+                "暂停实时新鲜度判定和新增信号"
+            )
+E           poe_ic_im_mainline_v1_4_bot.CalendarCoverageError: next exchange session需要2025年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号
+
+poe_ic_im_mainline_v1_4_bot.py:4284: CalendarCoverageError</failure></testcase><testcase classname="test_icim_historical_calendar_20261022" name="test_january_2023_sse_expiry_and_february_2024_cffex_expiry_shift" time="0.001"><failure message="assert datetime.date(2023, 1, 25) == datetime.date(2023, 1, 30)&#10; +  where datetime.date(2023, 1, 25) = &lt;function _fourth_wednesday at 0x000002699132B950&gt;(2023, 1)&#10; +    where &lt;function _fourth_wednesday at 0x000002699132B950&gt; = bot._fourth_wednesday&#10; +  and   datetime.date(2023, 1, 30) = date(2023, 1, 30)">def test_january_2023_sse_expiry_and_february_2024_cffex_expiry_shift():
+&gt;       assert bot._fourth_wednesday(2023, 1) == date(2023, 1, 30)
+E       assert datetime.date(2023, 1, 25) == datetime.date(2023, 1, 30)
+E        +  where datetime.date(2023, 1, 25) = &lt;function _fourth_wednesday at 0x000002699132B950&gt;(2023, 1)
+E        +    where &lt;function _fourth_wednesday at 0x000002699132B950&gt; = bot._fourth_wednesday
+E        +  and   datetime.date(2023, 1, 30) = date(2023, 1, 30)
+
+test_icim_historical_calendar_20261022.py:62: AssertionError</failure></testcase><testcase classname="test_icim_historical_calendar_20261022" name="test_quarter_tminus3_counts_real_sessions_across_midautumn_2024" time="0.001"><failure message="assert datetime.date(2024, 9, 17) == datetime.date(2024, 9, 13)&#10; +  where datetime.date(2024, 9, 13) = date(2024, 9, 13)">def test_quarter_tminus3_counts_real_sessions_across_midautumn_2024():
+        state = bot.quarter_roll.roll_state('IC', 'IC2409', ['IC2409', 'IC2412'], date(2024, 9, 13), True,
+            lambda c: bot._third_friday(2000 + int(c[2:4]), int(c[4:])), bot._is_exchange_trading_day)
+&gt;       assert state['roll_execution_date'] == date(2024, 9, 13)
+E       assert datetime.date(2024, 9, 17) == datetime.date(2024, 9, 13)
+E        +  where datetime.date(2024, 9, 13) = date(2024, 9, 13)
+
+test_icim_historical_calendar_20261022.py:69: AssertionError</failure></testcase><testcase classname="test_icim_historical_calendar_20261022" name="test_unverified_years_still_fail_closed[2015]" time="0.001" /><testcase classname="test_icim_historical_calendar_20261022" name="test_unverified_years_still_fail_closed[2021]" time="0.001" /><testcase classname="test_icim_historical_calendar_20261022" name="test_unverified_years_still_fail_closed[2027]" time="0.001" /><testcase classname="test_icim_historical_calendar_20261022" name="test_unverified_years_still_fail_closed[2028]" time="0.001" /><testcase classname="test_icim_historical_calendar_20261022" name="test_all_2026_sessions_unchanged" time="0.003" /><testcase classname="test_icim_historical_calendar_20261022" name="test_historical_first_day_selectors_work_on_actual_quotes[IC-day0-IC2210]" time="0.023"><failure message="poe_ic_im_mainline_v1_4_bot.CalendarCoverageError: selected future expiry需要2022年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号">product = 'IC', day = datetime.date(2022, 9, 19), contract = 'IC2210'
+
+    @pytest.mark.parametrize('product,day,contract', [('IC', date(2022, 9, 19), 'IC2210'), ('IM', date(2022, 7, 22), 'IM2208')])
+    def test_historical_first_day_selectors_work_on_actual_quotes(product, day, contract):
+        path = (ROOT / 'data/ic_monthly_discount_roll_v1/cffex_ic_contracts.csv' if product == 'IC' else
+                ROOT / 'data/im_roll_momentum_blend_v1/upstream_im_roll_data/cffex_im_contracts.csv')
+        raw = pd.read_csv(path, parse_dates=['date'])
+        quotes = raw.loc[raw.date.eq(pd.Timestamp(day))].rename(columns={'contract': 'instrument', 'close': 'lastprice'})
+&gt;       assert bot.select_active_future(product, quotes, day).instrument == contract
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_icim_historical_calendar_20261022.py:91: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_mainline_v1_4_bot.py:4478: in select_active_future
+    _require_model_expiry_calendar(selected["expiry"], "selected future expiry")
+poe_ic_im_mainline_v1_4_bot.py:4301: in _require_model_expiry_calendar
+    _require_official_exchange_calendar(day, label)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+day = datetime.date(2022, 10, 21), label = 'selected future expiry'
+
+    def _require_official_exchange_calendar(day: date, label: str) -&gt; None:
+        if day.year not in _OFFICIAL_EXCHANGE_CALENDAR_YEARS:
+            context = _SIGNAL_CALENDAR_DIAGNOSTICS.get()
+            if context is not None:
+                item = {"date": day.isoformat(), "purpose": label,
+                        "source": "missing_official_calendar", "officially_verified": False}
+                if item not in context["failures"]:
+                    context["failures"].append(item)
+            covered = "/".join(str(year) for year in sorted(_OFFICIAL_EXCHANGE_CALENDAR_YEARS))
+&gt;           raise CalendarCoverageError(
+                f"{label}需要{day.year}年官方交易日历，但脚本仅覆盖{covered}年；"
+                "暂停实时新鲜度判定和新增信号"
+            )
+E           poe_ic_im_mainline_v1_4_bot.CalendarCoverageError: selected future expiry需要2022年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号
+
+poe_ic_im_mainline_v1_4_bot.py:4284: CalendarCoverageError</failure></testcase><testcase classname="test_icim_historical_calendar_20261022" name="test_historical_first_day_selectors_work_on_actual_quotes[IM-day1-IM2208]" time="0.014"><failure message="poe_ic_im_mainline_v1_4_bot.CalendarCoverageError: selected future expiry需要2022年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号">product = 'IM', day = datetime.date(2022, 7, 22), contract = 'IM2208'
+
+    @pytest.mark.parametrize('product,day,contract', [('IC', date(2022, 9, 19), 'IC2210'), ('IM', date(2022, 7, 22), 'IM2208')])
+    def test_historical_first_day_selectors_work_on_actual_quotes(product, day, contract):
+        path = (ROOT / 'data/ic_monthly_discount_roll_v1/cffex_ic_contracts.csv' if product == 'IC' else
+                ROOT / 'data/im_roll_momentum_blend_v1/upstream_im_roll_data/cffex_im_contracts.csv')
+        raw = pd.read_csv(path, parse_dates=['date'])
+        quotes = raw.loc[raw.date.eq(pd.Timestamp(day))].rename(columns={'contract': 'instrument', 'close': 'lastprice'})
+&gt;       assert bot.select_active_future(product, quotes, day).instrument == contract
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_icim_historical_calendar_20261022.py:91: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_mainline_v1_4_bot.py:4478: in select_active_future
+    _require_model_expiry_calendar(selected["expiry"], "selected future expiry")
+poe_ic_im_mainline_v1_4_bot.py:4301: in _require_model_expiry_calendar
+    _require_official_exchange_calendar(day, label)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+day = datetime.date(2022, 8, 19), label = 'selected future expiry'
+
+    def _require_official_exchange_calendar(day: date, label: str) -&gt; None:
+        if day.year not in _OFFICIAL_EXCHANGE_CALENDAR_YEARS:
+            context = _SIGNAL_CALENDAR_DIAGNOSTICS.get()
+            if context is not None:
+                item = {"date": day.isoformat(), "purpose": label,
+                        "source": "missing_official_calendar", "officially_verified": False}
+                if item not in context["failures"]:
+                    context["failures"].append(item)
+            covered = "/".join(str(year) for year in sorted(_OFFICIAL_EXCHANGE_CALENDAR_YEARS))
+&gt;           raise CalendarCoverageError(
+                f"{label}需要{day.year}年官方交易日历，但脚本仅覆盖{covered}年；"
+                "暂停实时新鲜度判定和新增信号"
+            )
+E           poe_ic_im_mainline_v1_4_bot.CalendarCoverageError: selected future expiry需要2022年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号
+
+poe_ic_im_mainline_v1_4_bot.py:4284: CalendarCoverageError</failure></testcase><testcase classname="test_icim_historical_calendar_20261022" name="test_core_strategy_math_did_not_change" time="0.929" /></testsuite></testsuites>

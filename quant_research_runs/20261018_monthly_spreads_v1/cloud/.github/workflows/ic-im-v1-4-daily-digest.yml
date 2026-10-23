@@ -1,0 +1,440 @@
+name: IC IM v1.4-r1 Post-Close Digest
+
+on:
+  schedule:
+    # 12:00 UTC = 20:00 Asia/Shanghai.  Cloudflare is the normal external
+    # trigger; this remains a secondary GitHub fallback.
+    - cron: "0 12 * * *"
+  workflow_dispatch:
+    inputs:
+      ledger_only:
+        description: "Repair and persist the verified close ledger without SMTP, send intent or delivered marker"
+        required: false
+        type: boolean
+        default: false
+      correction:
+        description: "Bypass today's delivery marker and label the email as corrected"
+        required: false
+        type: boolean
+        default: false
+      external_schedule:
+        description: "Apply the trading-day guard used by an external scheduler"
+        required: false
+        type: boolean
+        default: false
+      publication_mode:
+        description: "Post-close is the default; realtime remains available only for explicit diagnostics"
+        required: true
+        type: choice
+        options:
+          - realtime
+          - close_confirmed
+        default: close_confirmed
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: ic-im-v1-4-r1-post-close-digest
+  cancel-in-progress: false
+
+jobs:
+  regression:
+    uses: ./.github/workflows/delivery-regression.yml
+    with:
+      family: icim
+
+  send:
+    needs: regression
+    runs-on: ubuntu-latest
+    timeout-minutes: 85
+    env:
+      TZ: Asia/Shanghai
+      PLANNED_BJ: "20:00 Asia/Shanghai"
+      GITHUB_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+    steps:
+      - name: Check out automation repository
+        uses: actions/checkout@v6
+        with:
+          path: automation
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+
+      - name: Classify attempt
+        id: attempt
+        shell: bash
+        env:
+          LEDGER_ONLY: ${{ inputs.ledger_only && 'true' || 'false' }}
+          REQUESTED_MODE: ${{ inputs.publication_mode || 'close_confirmed' }}
+          CORRECTION: ${{ inputs.correction && 'true' || 'false' }}
+          EXTERNAL_SCHEDULE: ${{ inputs.external_schedule && 'true' || 'false' }}
+        run: python automation/scripts/resolve_ic_im_v1_4_attempt.py
+
+      - name: Resolve publication mode
+        id: publication_mode
+        shell: bash
+        env:
+          REQUESTED_MODE: ${{ github.event_name == 'workflow_dispatch' && inputs.publication_mode || 'close_confirmed' }}
+        run: python automation/scripts/resolve_cn_publication_mode.py --requested "${REQUESTED_MODE}"
+
+      - name: Check delivery marker
+        id: delivery_gate
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          CORRECTION: ${{ github.event_name == 'workflow_dispatch' && inputs.correction && 'true' || 'false' }}
+          SCHEDULED_ATTEMPT: ${{ github.event_name == 'schedule' || inputs.external_schedule == true }}
+        run: |
+          # Ignore stale external 18:00 dispatches; manual diagnostics remain available.
+          if [[ "${SCHEDULED_ATTEMPT}" == "true" && "$(date +%H)" -lt 20 ]]; then
+            echo "should_send=false" >> "${GITHUB_OUTPUT}"
+            echo "Scheduled ICIM delivery is not due before 20:00 Asia/Shanghai"
+            exit 0
+          fi
+          args=()
+          if [[ "${CORRECTION}" == "true" ]]; then
+            args+=(--correction)
+          fi
+          python automation/scripts/check_ic_im_v1_4_delivery.py \
+            --publication-mode "${{ steps.publication_mode.outputs.mode }}" \
+            "${args[@]}"
+
+      - name: Check out public IC/IM strategy repository
+        if: steps.delivery_gate.outputs.should_send == 'true'
+        uses: actions/checkout@v6
+        with:
+          repository: liuruojiang/ic-im-rolling-arbitrage
+          ref: fe63e1870b6f28c41fdd0959f06092c8b710e892
+          path: strategy
+
+      - name: Record exact ICIM strategy revision
+        if: steps.delivery_gate.outputs.should_send == 'true'
+        shell: bash
+        run: |
+          mkdir -p strategy-artifacts
+          git -C strategy rev-parse HEAD > strategy-artifacts/strategy-sha.txt
+          echo "strategy_sha=$(git -C strategy rev-parse HEAD)" >> "${GITHUB_STEP_SUMMARY}"
+
+      - name: Install strategy dependencies
+        if: steps.delivery_gate.outputs.should_send == 'true'
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r strategy/requirements-poe-v1.4-server.txt
+
+      - name: Verify IC/IM fix11 build and historical identities
+        if: steps.delivery_gate.outputs.should_send == 'true'
+        shell: bash
+        run: |
+          python - <<'PY'
+          import sys
+          sys.path.insert(0, "strategy")
+          import poe_ic_im_mainline_v1_4_bot as strategy
+          assert strategy.BUILD_ID == "v1.4-20261008-r1-ic-csi500-abs40-fix11"
+          sys.path.insert(0, "automation/scripts")
+          import ic_im_v1_4_delivery_contract as delivery_contract
+          assert delivery_contract.CALENDAR_YEARS == strategy._OFFICIAL_EXCHANGE_CALENDAR_YEARS
+          assert delivery_contract.EXCHANGE_CLOSURES == strategy._EXCHANGE_CLOSURES
+          import ic_im_v1_4_policy as policy
+          assert policy.RULE_REVISION == "ic_im_v1_4_ic_csi500_ma105_w16_abs40_static_20261008_v1"
+          assert policy.IC_CSI500_EFFECTIVE_SIGNAL_DATE.isoformat() == "2026-10-08"
+          assert policy.IC_SELLER_MOM120_EFFECTIVE_SIGNAL_DATE.isoformat() == "2026-09-29"
+          assert policy.EFFECTIVE_SIGNAL_DATE.isoformat() == "2026-09-18"
+          assert policy.REPEAT_ROLL_EFFECTIVE_SIGNAL_DATE.isoformat() == "2026-09-26"
+          assert policy.NO_CALL_EFFECTIVE_SIGNAL_DATE.isoformat() == "2026-09-26"
+          assert policy.PROFIT_OPEN_EFFECTIVE_SIGNAL_DATE.isoformat() == "2026-09-28"
+          assert policy.ORDINARY_PUT_OPEN_EFFECTIVE_SIGNAL_DATE.isoformat() == "2026-09-29"
+          assert policy.PROFIT_MULTIPLE == 3.0
+          assert policy.identity_for_signal_day("2026-09-25") == (policy.FIX4_BUILD_ID, policy.FIX4_RULE_REVISION)
+          assert policy.identity_for_signal_day("2026-09-26") == (policy.FIX6_BUILD_ID, policy.FIX6_RULE_REVISION)
+          assert policy.identity_for_signal_day("2026-09-28") == (policy.FIX7_BUILD_ID, policy.FIX7_RULE_REVISION)
+          assert policy.identity_for_signal_day("2026-09-29") == (policy.FIX9_BUILD_ID, policy.FIX9_RULE_REVISION)
+          assert policy.identity_for_signal_day("2026-10-08") == (policy.BUILD_ID, policy.RULE_REVISION)
+          assert strategy.GRID_POLICY_REVISION == "ic_im_or_fear25_paired_exit50_20261008_v1"
+          assert strategy.V13_GRID_RULES == {"IC": {"entry": 0.5, "exit": 1.0, "units": 0.5}, "IM": {"entry": 1.6, "exit": 2.0, "units": 0.5}}
+          from datetime import date
+          assert strategy.grid_rule("IM", date(2026, 9, 14)) == {"entry": 0.9, "exit": 1.7, "units": 0.5}
+          assert strategy.grid_rule("IM", date(2026, 9, 15)) == {"entry": 1.6, "exit": 2.0, "units": 0.5}
+          assert strategy.IM_EXECUTION_FIX_REVISION == "im_put_execution_guards_20260908_v2"
+          assert strategy.IM_PUT_EXECUTION_REVISION == "im_monthly_reset_20260907_v1"
+          assert strategy.IM_PUT_POLICY_REVISION == "im_mom120_put102_20260908_v1"
+          assert strategy.MOMENTUM_DEBOUNCE_POLICY_REVISION == "ic_im_mom120_abs20_2d_plus1_20260915_v1"
+          assert strategy.MOMENTUM_DEBOUNCE_EFFECTIVE_DATE.isoformat() == "2026-09-16"
+          assert strategy.IC_MOMENTUM_POLICY_REVISION == "ic_csi500_ma105_mom24_w16_abs40_static_navdd6_20261008_v1"
+          assert strategy.MOMENTUM_RULES["IC"]["ma"] == 105
+          assert strategy.MOMENTUM_RULES["IC"]["days"] == 24
+          assert strategy.MOMENTUM_RULES["IC"]["weight_end"] == 1.6
+          assert strategy.MOMENTUM_RULES["IC"]["nav_decay_threshold"] == 0.06
+          assert strategy.MOMENTUM_RULES["IC"]["nav_decay_scale"] == 0.5
+          assert strategy.IC_MOMENTUM_PREVIOUS_RULE == {"ma": 110, "days": 24, "weight_end": 2.0}
+          assert {key: strategy.MOMENTUM_RULES["IM"][key] for key in ("ma", "days", "weight_end", "volume_ma", "volume_ratio_threshold", "hot_score_threshold")} == {"ma": 35, "days": 18, "weight_end": 2.5, "volume_ma": 160, "volume_ratio_threshold": 0.85, "hot_score_threshold": 150.0}
+          assert strategy.im_put_policy.TARGET_MONEYNESS == 1.02
+          PY
+
+      - name: Check A-share trading day
+        if: steps.delivery_gate.outputs.should_send == 'true'
+        id: calendar
+        shell: bash
+        run: |
+          python - <<'PY' | tee calendar.env
+          import sys
+          from datetime import datetime
+          from zoneinfo import ZoneInfo
+          sys.path.insert(0, "strategy")
+          import poe_ic_im_mainline_v1_4_bot as strategy
+          clock = datetime.now(ZoneInfo("Asia/Shanghai"))
+          today = clock.date()
+          print(f"trade_day={str(strategy._is_exchange_trading_day(today)).lower()}")
+          print(f"today={today.isoformat()}")
+          print(f"completed_day={strategy._latest_completed_exchange_day(clock).isoformat()}")
+          PY
+          cat calendar.env >> "${GITHUB_OUTPUT}"
+
+      - name: Restore latest v1.4-r1 hash-chained ledger
+        if: steps.delivery_gate.outputs.should_send == 'true' && ((github.event_name == 'workflow_dispatch' && inputs.external_schedule != true) || steps.calendar.outputs.trade_day == 'true')
+        id: restore_ledger
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          python automation/scripts/restore_ic_im_v1_4_ledger.py \
+            --state-dir state \
+            --artifact-name ic-im-v1-4-r1-ledger
+
+      - name: Restore latest verified v1.3-r7 seed for first migration
+        if: steps.delivery_gate.outputs.should_send == 'true' && ((github.event_name == 'workflow_dispatch' && inputs.external_schedule != true) || steps.calendar.outputs.trade_day == 'true') && steps.restore_ledger.outputs.restored != 'true'
+        id: restore_v13_seed
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          python automation/scripts/restore_ic_im_v1_3_ledger.py \
+            --state-dir legacy-state \
+            --artifact-name ic-im-v1-3-r7-put-monthly-fix1-ledger
+
+      - name: Restore last pre-fix r7 seed when current r7 artifact is absent
+        if: steps.delivery_gate.outputs.should_send == 'true' && ((github.event_name == 'workflow_dispatch' && inputs.external_schedule != true) || steps.calendar.outputs.trade_day == 'true') && steps.restore_ledger.outputs.restored != 'true' && steps.restore_v13_seed.outputs.restored != 'true'
+        id: restore_prefx_ledger
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          python automation/scripts/restore_ic_im_v1_3_ledger.py \
+            --state-dir legacy-state \
+            --artifact-name ic-im-v1-3-r7-ledger \
+            --before-created-at 2026-09-07T00:00:00Z \
+            --required
+
+      - name: Migrate verified r7 seed to independent v1.4-r1 ledger
+        if: steps.delivery_gate.outputs.should_send == 'true' && ((github.event_name == 'workflow_dispatch' && inputs.external_schedule != true) || steps.calendar.outputs.trade_day == 'true') && steps.restore_ledger.outputs.restored != 'true'
+        run: |
+          test "${{ steps.restore_v13_seed.outputs.restored }}" = "true" || test "${{ steps.restore_prefx_ledger.outputs.restored }}" = "true"
+          python strategy/migrate_ic_im_v1_3_r7_to_v1_4_r1_state.py \
+            --source legacy-state \
+            --target state
+
+      - name: Verify v1.4 ledger chain and migration proof before runner import
+        if: steps.delivery_gate.outputs.should_send == 'true' && ((github.event_name == 'workflow_dispatch' && inputs.external_schedule != true) || steps.calendar.outputs.trade_day == 'true')
+        env:
+          ICIM_REQUIRE_MIGRATION: "1"
+          ICIM_STATE_DIR: state
+        run: |
+          python - <<'PY'
+          import json, sys
+          from pathlib import Path
+          sys.path.insert(0, "strategy")
+          import poe_ic_im_v1_4_state as state
+          import run_ic_im_v1_4_github_digest as runner
+          assert runner.DELIVERY_REVISION == "20261008-v14-ic-csi500-abs40-fix11"
+          store = state.StateStore("state")
+          latest = store.load_latest()
+          state.anchors_from_record(latest)
+          migration = json.loads(Path("state/migration_record.json").read_text(encoding="utf-8"))
+          assert migration["new_ledger"]["strategy_revision"] == "r1"
+          assert migration["new_ledger"]["digest"] == store.load_sequence(0)["digest"]
+          import hashlib
+          Path("strategy-artifacts").mkdir(exist_ok=True)
+          before = {p.relative_to(Path("state")).as_posix(): hashlib.sha256(p.read_bytes()).hexdigest()
+                    for p in Path("state").rglob("*.json")}
+          Path("strategy-artifacts/ledger-before.json").write_text(json.dumps(before))
+          PY
+
+      - name: Run IC/IM signal
+        if: steps.delivery_gate.outputs.should_send == 'true' && ((github.event_name == 'workflow_dispatch' && inputs.external_schedule != true) || steps.calendar.outputs.trade_day == 'true')
+        id: run_signal
+        shell: bash
+        env:
+          ICIM_REQUIRE_MIGRATION: "1"
+          ICIM_STATE_DIR: state
+          ICIM_LEGULEGU_DAILY_SNAPSHOT: ${{ secrets.ICIM_LEGULEGU_DAILY_SNAPSHOT }}
+          ICIM_CHINABOND_SNAPSHOT_FILE: strategy-artifacts/chinabond.json
+        run: |
+          # A failed/late bond source falls back explicitly; never stop the
+          # existing market/ledger gates or relabel old yield as today's rate.
+          mkdir -p strategy-artifacts
+          rm -f strategy-artifacts/chinabond.json
+          timeout --foreground 90s python -u strategy/ic_im_chinabond.py \
+            --expected-date "${{ steps.calendar.outputs.today }}" \
+            --output strategy-artifacts/chinabond.json || echo "ChinaBond fetch unavailable; use disclosed frozen fallback"
+          set +e
+          timeout --foreground 65m python -u strategy/run_ic_im_v1_4_github_digest.py \
+            --state-dir state \
+            --out-dir strategy-artifacts \
+            --mode "${{ steps.publication_mode.outputs.runner_mode }}" \
+            --max-sessions 20 \
+            --network-budget-per-product 180 \
+            --expected-market-date "${{ steps.publication_mode.outputs.mode == 'realtime' && steps.calendar.outputs.today || steps.calendar.outputs.completed_day }}" 2>&1 | tee strategy-run.log
+          status=${PIPESTATUS[0]}
+          echo "exit_code=${status}" >> "${GITHUB_OUTPUT}"
+          exit 0
+
+      - name: Build Gmail digest
+        id: build_digest
+        if: always() && steps.delivery_gate.outputs.should_send == 'true' && ((github.event_name == 'workflow_dispatch' && inputs.external_schedule != true) || steps.calendar.outputs.trade_day == 'true') && steps.run_signal.outcome != 'skipped'
+        run: |
+          python automation/scripts/build_ic_im_v1_4_digest.py \
+            --result strategy-artifacts/result.json \
+            --out-dir mail-artifacts \
+            --subject-prefix "${{ steps.delivery_gate.outputs.subject_prefix }}"
+
+      - name: Prepare delivery marker
+        id: prepare_marker
+        if: steps.run_signal.outcome == 'success' && steps.run_signal.outputs.exit_code == '0' && steps.build_digest.outcome == 'success'
+        shell: bash
+        run: |
+          python automation/scripts/prepare_ic_im_v1_4_marker.py \
+            --result strategy-artifacts/result.json \
+            --marker-dir delivery-marker
+
+      - name: Recheck delivery against actual signal day
+        id: result_day_gate
+        if: steps.prepare_marker.outcome == 'success'
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          CORRECTION: ${{ github.event_name == 'workflow_dispatch' && inputs.correction && 'true' || 'false' }}
+        run: |
+          args=()
+          if [[ "${CORRECTION}" == "true" ]]; then
+            args+=(--correction)
+          fi
+          python automation/scripts/check_ic_im_v1_4_result_day_delivery.py \
+            --result strategy-artifacts/result.json \
+            "${args[@]}"
+
+      - name: Persist normal-send intent before SMTP
+        id: send_intent
+        if: steps.attempt.outcome == 'success' && steps.attempt.outputs.final_attempt == 'true' && steps.attempt.outputs.ledger_only == 'false' && steps.attempt.outputs.smtp_enabled == 'true' && steps.delivery_gate.outputs.should_send == 'true' && steps.run_signal.outputs.exit_code == '0' && steps.build_digest.outcome == 'success' && steps.prepare_marker.outcome == 'success' && steps.result_day_gate.outputs.should_send_result_day == 'true'
+        uses: actions/upload-artifact@v7
+        with:
+          name: ${{ steps.prepare_marker.outputs.marker_name }}-send-intent
+          path: mail-artifacts/metadata.json
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Send Gmail
+        id: send_gmail
+        if: always() && steps.attempt.outcome == 'success' && steps.attempt.outputs.final_attempt == 'true' && steps.attempt.outputs.ledger_only == 'false' && steps.attempt.outputs.smtp_enabled == 'true' && steps.delivery_gate.outputs.should_send == 'true' && ((github.event_name == 'workflow_dispatch' && inputs.external_schedule != true) || steps.calendar.outputs.trade_day == 'true') && steps.run_signal.outcome != 'skipped' && steps.build_digest.outcome == 'success' && ((steps.run_signal.outputs.exit_code == '0' && steps.send_intent.outcome == 'success') || (steps.run_signal.outputs.exit_code != '0' && steps.attempt.outputs.final_attempt == 'true'))
+        env:
+          MAIL_SERVER: ${{ secrets.MAIL_SERVER }}
+          MAIL_PORT: ${{ secrets.MAIL_PORT }}
+          MAIL_USERNAME: ${{ secrets.MAIL_USERNAME }}
+          MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
+          MAIL_FROM: ${{ secrets.MAIL_FROM }}
+          MAIL_TO: ${{ secrets.MAIL_TO }}
+          MAIL_USE_SSL: ${{ secrets.MAIL_USE_SSL }}
+        run: python automation/scripts/send_report.py mail-artifacts/metadata.json
+
+      - name: Verify ledger-only recovery before artifact promotion
+        id: verify_recovery
+        if: steps.attempt.outputs.ledger_only == 'true' && steps.run_signal.outputs.exit_code == '0' && steps.build_digest.outcome == 'success' && steps.prepare_marker.outcome == 'success' && steps.result_day_gate.outcome == 'success'
+        env:
+          ICIM_REQUIRE_MIGRATION: "1"
+          ICIM_STATE_DIR: state
+        run: |
+          python -B -X utf8 - <<'PY'
+          import hashlib, json, sys
+          from pathlib import Path
+          sys.path.insert(0, "strategy")
+          import poe_ic_im_v1_4_state as state
+          import run_ic_im_v1_4_github_digest as runner
+          store = state.StateStore("state")
+          latest = store.load_latest()
+          state.anchors_from_record(latest)
+          result = json.loads(Path("strategy-artifacts/result.json").read_text())
+          assert result["status"] in {"ok", "partial"} and result["publication_mode"] == "close_confirmed"
+          assert all(result[key] == latest[key] for key in ("verified_day", "sequence", "digest"))
+          assert result["market_date"] == latest["verified_day"] and result["signals"] == {p: runner.strategy.fear_grid.publication_view(s) for p, s in latest["signals"].items()}
+          migration = json.loads(Path("state/migration_record.json").read_text())
+          assert migration["new_ledger"]["digest"] == store.load_sequence(0)["digest"]
+          before = json.loads(Path("strategy-artifacts/ledger-before.json").read_text())
+          assert all(hashlib.sha256((Path("state") / name).read_bytes()).hexdigest() == digest
+                     for name, digest in before.items() if name != "latest.json")
+          assert len(list(Path("state/journal").glob("*.json"))) == latest["sequence"] + 1
+          Path("strategy-artifacts/ledger-recovery.json").write_text(json.dumps({
+              "verified_day": latest["verified_day"], "sequence": latest["sequence"], "digest": latest["digest"],
+              "full_chain_verified": True, "old_journals_unchanged": True, "message_sent": False}))
+          PY
+
+      - name: Upload successful ledger
+        if: steps.attempt.outcome == 'success' && steps.attempt.outputs.final_attempt == 'true' && steps.run_signal.outcome == 'success' && steps.run_signal.outputs.exit_code == '0' && steps.build_digest.outcome == 'success' && steps.prepare_marker.outcome == 'success' && steps.result_day_gate.outcome == 'success' && ((steps.attempt.outputs.ledger_only == 'false' && steps.attempt.outputs.smtp_enabled == 'true') || (steps.attempt.outputs.ledger_only == 'true' && steps.attempt.outputs.smtp_enabled == 'false' && steps.verify_recovery.outcome == 'success'))
+        uses: actions/upload-artifact@v7
+        with:
+          name: ic-im-v1-4-r1-ledger
+          path: |
+            state/latest.json
+            state/journal/
+            state/migration_record.json
+          if-no-files-found: error
+          retention-days: 90
+
+      - name: Mark digest delivered
+        if: steps.attempt.outcome == 'success' && steps.attempt.outputs.final_attempt == 'true' && steps.attempt.outputs.ledger_only == 'false' && steps.attempt.outputs.smtp_enabled == 'true' && steps.run_signal.outcome == 'success' && steps.run_signal.outputs.exit_code == '0' && steps.send_gmail.outcome == 'success'
+        uses: actions/upload-artifact@v7
+        with:
+          name: ${{ steps.prepare_marker.outputs.marker_name }}
+          path: delivery-marker/delivery.json
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Upload audit artifacts
+        if: always() && steps.delivery_gate.outputs.should_send == 'true' && ((github.event_name == 'workflow_dispatch' && inputs.external_schedule != true) || steps.calendar.outputs.trade_day == 'true')
+        uses: actions/upload-artifact@v7
+        with:
+          name: ic-im-v1-4-r1-post-close-digest
+          path: |
+            strategy-run.log
+            strategy-artifacts/
+            mail-artifacts/
+          if-no-files-found: warn
+          retention-days: 30
+
+      - name: Add run summary
+        if: always() && steps.delivery_gate.outputs.should_send == 'true'
+        shell: bash
+        run: |
+          {
+            echo "## IC/IM v1.4-r1 post-close digest"
+            echo
+            echo "- Publication mode: ${{ steps.publication_mode.outputs.mode }}"
+            echo "- Publication mode basis: ${{ steps.publication_mode.outputs.basis }}"
+            echo "- Resolved at: ${{ steps.publication_mode.outputs.beijing_time }}"
+            echo "- Planned: ${PLANNED_BJ}"
+            echo "- Trading day: ${{ steps.calendar.outputs.trade_day }}"
+            echo "- Final attempt: ${{ steps.attempt.outputs.final_attempt }}"
+            echo "- Ledger only: ${{ steps.attempt.outputs.ledger_only }}"
+            echo "- SMTP enabled: ${{ steps.attempt.outputs.smtp_enabled }}"
+            echo "- Ledger restored: ${{ steps.restore_ledger.outputs.restored }}"
+            echo "- Current r7 migration seed restored: ${{ steps.restore_v13_seed.outputs.restored }}"
+            echo "- Pre-fix r7 fallback seed restored: ${{ steps.restore_prefx_ledger.outputs.restored }}"
+            echo "- Signal exit code: ${{ steps.run_signal.outputs.exit_code }}"
+            echo "- Actual signal-day delivery gate: ${{ steps.result_day_gate.outputs.should_send_result_day }}"
+            echo "- Gmail outcome: ${{ steps.send_gmail.outcome }}"
+          } >> "${GITHUB_STEP_SUMMARY}"
+
+      - name: Fail when signal publication failed
+        if: always() && steps.run_signal.outputs.exit_code != '' && steps.run_signal.outputs.exit_code != '0'
+        run: exit 1
+
+
+

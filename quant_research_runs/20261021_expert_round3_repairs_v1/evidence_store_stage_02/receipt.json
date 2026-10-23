@@ -1,0 +1,35 @@
+{
+  "command": [
+    "C:\\Python314\\python.exe",
+    "-m",
+    "pytest",
+    "-q",
+    "test_icim_round3_evidence_store_20261021.py",
+    "-p",
+    "no:cacheprovider",
+    "--basetemp=D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261021_expert_round3_repairs_v1\\evidence_store_stage_02\\temp-1478de49b6a54fcdbea66a8e7236c2de",
+    "--junitxml=D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261021_expert_round3_repairs_v1\\evidence_store_stage_02\\results.xml",
+    "--tb=short"
+  ],
+  "exit_code": 1,
+  "source_before": {
+    "ic_im_signal_evidence_v1.py": "57ce19da4447dcc26b26f43778ee4cb5e2345220932a03192d7e38fe817fd4fc",
+    "test_icim_round3_evidence_store_20261021.py": "731854c05f9ccfee5f3f8b4ba0c0bd658814020a1a64190fd8a55cbdf63fe3fc"
+  },
+  "source_after": {
+    "ic_im_signal_evidence_v1.py": "57ce19da4447dcc26b26f43778ee4cb5e2345220932a03192d7e38fe817fd4fc",
+    "test_icim_round3_evidence_store_20261021.py": "731854c05f9ccfee5f3f8b4ba0c0bd658814020a1a64190fd8a55cbdf63fe3fc"
+  },
+  "source_unchanged": true,
+  "note": "Only new archive module/tests bound; other repair agents can modify unrelated files.",
+  "junit": {
+    "name": "pytest",
+    "errors": "0",
+    "failures": "2",
+    "skipped": "0",
+    "tests": "57",
+    "time": "1.856",
+    "timestamp": "2026-10-21T19:37:31.027783+08:00",
+    "hostname": "DESKTOP-95I7VVU"
+  }
+}

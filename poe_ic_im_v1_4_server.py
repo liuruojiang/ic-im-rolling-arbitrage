@@ -11,10 +11,11 @@ from __future__ import annotations
 import asyncio
 import os
 import re
-import threading
 import types
+from copy import deepcopy
 from contextlib import asynccontextmanager, suppress
 from datetime import date, datetime, timedelta
+from pathlib import Path
 from typing import Any, AsyncIterable
 
 import fastapi_poe as fp
@@ -74,12 +75,21 @@ class _CaptureOutput:
         pass
 
 
+# Coordinators share strategy module globals (Poe output, observers and anchors).
+# A per-store or per-instance lock cannot protect those request-scoped swaps.
+_STRATEGY_QUERY_LOCK = strategy.STRATEGY_QUERY_LOCK
+
+
 class LedgerCoordinator:
     def __init__(self, store: StateStore | None = None) -> None:
         self.store = store or StateStore()
-        self.lock = threading.RLock()
+        self.lock = _STRATEGY_QUERY_LOCK
         self.last_refresh_error: str | None = None
         self.last_refresh_diagnostic: str | None = None
+        self.evidence_root = Path(os.environ.get("ICIM_EVIDENCE_DIR", str(
+            self.store.root / "input_evidence")))
+        self.last_evidence_capture: dict[str, Any] | None = None
+        self._evidence_capture_bucket: tuple[date, bool] | None = None
         require_migration = os.environ.get("ICIM_REQUIRE_MIGRATION", "0") == "1"
         if require_migration and not self.store.latest_path.is_file():
             raise RuntimeError("部署卷缺少已迁移的v1.4账本，禁止静默创建创世状态")
@@ -102,7 +112,12 @@ class LedgerCoordinator:
     def _record_for_display(self, now: datetime) -> dict[str, Any]:
         latest = self.store.load_latest()
         phase = strategy._market_phase(now)
-        completed = strategy._latest_completed_exchange_day(now)
+        try:
+            completed = strategy._latest_completed_exchange_day(now)
+        except strategy.CalendarCoverageError:
+            # Display remains useful when new sessions cannot be certified.
+            # The builder and StateStore still reject new unverified signals.
+            return latest
         verified = date.fromisoformat(str(latest["verified_day"])[:10])
         live_session = (
             strategy._is_exchange_trading_day(now.date())
@@ -124,7 +139,7 @@ class LedgerCoordinator:
         persist_confirmed: bool = True,
         replay_day: date | None = None,
     ) -> tuple[str, list[dict[str, Any]], dict[str, dict[str, Any]]]:
-        clock = now or strategy._now_beijing()
+        clock = strategy._beijing_clock(now or strategy._now_beijing())
         with strategy.collection_clock(clock), self.lock:
             record = self._record_for_display(clock)
             strategy.install_runtime_anchors(anchors_from_record(record))
@@ -136,7 +151,7 @@ class LedgerCoordinator:
                 lambda product, signal: observed.__setitem__(product, signal)
             )
             try:
-                with strategy.runtime_clock(clock), strategy.historical_replay(
+                with strategy.evidence_adapter.evidence_location(self.evidence_root), strategy.runtime_clock(clock), strategy.historical_replay(
                     replay_day
                 ):
                     strategy.ICIMMainlinesBot().run()
@@ -144,19 +159,68 @@ class LedgerCoordinator:
                 strategy.install_signal_observer(None)
                 strategy.poe = original_poe
             if persist_confirmed and set(observed) == {"IC", "IM"} and all(
-                bool(item.get("close_confirmed")) for item in observed.values()
+                item.get("close_confirmed") is True for item in observed.values()
             ):
-                latest = self.store.load_latest()
-                observed_day = next(
-                    iter({str(item["market_date"]) for item in observed.values()})
-                )
-                if observed_day > str(latest["verified_day"]):
-                    self.store.append_confirmed_signals(latest, observed)
-                    self.last_refresh_error = None
+                stage = "持久化资格校验"
+                try:
+                    for product, signal in observed.items():
+                        state.require_persistence_eligible(signal, product)
+                    stage = "持久化"
+                    latest = self.store.load_latest()
+                    observed_day = next(
+                        iter({str(item["market_date"]) for item in observed.values()})
+                    )
+                    if observed_day > str(latest["verified_day"]):
+                        self.store.append_confirmed_signals(latest, observed)
+                        self.last_refresh_error = None
+                except Exception as exc:  # preserve already-calculated research results.
+                    self.last_refresh_error = f"{stage}失败：{type(exc).__name__}: {exc}"
+                    message = ("信号已生成，但持久化失败" if stage == "持久化"
+                               else "诊断结果已生成，但尚不具备持久化资格")
+                    capture.text.append(f"\n\n⚠️ {message}：{exc}。账本未确认推进。\n\n")
+            try:
+                verified = date.fromisoformat(str(self.store.load_latest()["verified_day"])[:10])
+                pending_day = strategy._roll_forward_exchange_day(verified + timedelta(days=1))
+                evidence_day = min(pending_day, clock.date())
+                archive_status = strategy.evidence_adapter.capture_day_status(self.evidence_root, evidence_day)
+                warning = archive_status.get("recovery_warning")
+                due = evidence_day < clock.date() or strategy._market_phase(clock) == "收盘后"
+                failed = self.last_evidence_capture
+                if (not warning and due and archive_status.get("missing_products")
+                        and isinstance(failed, dict) and failed.get("status") == "incomplete"
+                        and str(failed.get("day")) == str(evidence_day)):
+                    missing = "/".join(archive_status["missing_products"])
+                    warning = (f"{evidence_day} 当日原日存证缺失（{missing}）；采集在完整封存前失败，"
+                               "需另行补证或人工锚定，不能承诺自动恢复。")
+                if warning and due:
+                    capture.text.append("\n\n⚠️ " + warning + " 当前查询结果与该失败采集会话独立。\n")
+            except Exception as exc:
+                capture.text.append(f"\n\n⚠️ 原日存证状态暂不可核验：{exc}。\n")
             return "".join(capture.text), capture.attachments, observed
 
+    def capture_current_inputs(self, now: datetime | None = None) -> dict[str, Any]:
+        """Prospective evidence collection must continue behind a ledger gap."""
+        clock = strategy._beijing_clock(now or strategy._now_beijing())
+        if os.environ.get("ICIM_DISABLE_EVIDENCE_CAPTURE") == "1":
+            return {"day": str(clock.date()), "status": "disabled"}
+        # Capture one early close and one after the official-rate publication
+        # window. Failed/incomplete attempts can be retried by the same loop.
+        bucket = (clock.date(), clock.time() >= strategy.time(17, 30))
+        with self.lock:
+            if self._evidence_capture_bucket == bucket:
+                return self.last_evidence_capture or {}
+            try:
+                result = strategy.evidence_adapter.capture_daily(strategy, self.evidence_root, clock)
+            except Exception as exc:
+                result = {"day": str(clock.date()), "status": "incomplete",
+                          "reason": f"{type(exc).__name__}: {exc}"}
+            self.last_evidence_capture = result
+            if result.get("status") == "captured":
+                self._evidence_capture_bucket = bucket
+            return result
+
     def catch_up_once(self, now: datetime | None = None) -> bool:
-        clock = now or strategy._now_beijing()
+        clock = strategy._beijing_clock(now or strategy._now_beijing())
         with self.lock:
             self.last_refresh_diagnostic = None
             latest = self.store.load_latest()
@@ -190,6 +254,12 @@ class LedgerCoordinator:
                     raise RuntimeError(
                         f"自动补账未同时得到IC/IM完整信号｜诊断交易日{next_day}｜{detail}"
                     )
+                unresolved = [f"{product}: {signal.get('diagnostic_reason') or signal.get('reason') or signal.get('diagnostic_status') or '信号未完整核验'}"
+                              for product, signal in observed.items()
+                              if signal.get("diagnostic_only") or signal.get("signal_complete") is False
+                              or signal.get("persistence_eligible") is False]
+                if unresolved:
+                    raise RuntimeError(f"补录 {next_day} 尚未具备落账资格｜" + "；".join(unresolved))
                 after = self.store.load_latest()
                 after_day = date.fromisoformat(str(after["verified_day"])[:10])
                 if (
@@ -211,7 +281,7 @@ class LedgerCoordinator:
     ) -> int:
         if max_sessions <= 0:
             raise ValueError("max_sessions必须为正")
-        clock = now or strategy._now_beijing()
+        clock = strategy._beijing_clock(now or strategy._now_beijing())
         advanced = 0
         while advanced < max_sessions:
             latest = self.store.load_latest()
@@ -227,15 +297,22 @@ class LedgerCoordinator:
     def health(self, now: datetime | None = None) -> dict[str, Any]:
         with self.lock:
             latest = self.store.load_latest()
-            clock = now or strategy._now_beijing()
-            completed = strategy._latest_completed_exchange_day(clock)
+            clock = strategy._beijing_clock(now or strategy._now_beijing())
+            calendar_error = None
+            try:
+                completed = strategy._latest_completed_exchange_day(clock)
+            except strategy.CalendarCoverageError as exc:
+                completed = None
+                calendar_error = str(exc)
             verified = date.fromisoformat(str(latest["verified_day"])[:10])
             stale_error = None
-            if verified < completed:
+            if completed is not None and verified < completed:
                 stale_error = f"账本滞后：verified={verified} completed={completed}"
-            elif verified > completed:
+            elif completed is not None and verified > completed:
                 stale_error = f"账本日期超前：verified={verified} completed={completed}"
-            error = self.last_refresh_error or stale_error
+            evidence_error = ("原日证据存档不完整：" + str(self.last_evidence_capture.get("day"))
+                              if self.last_evidence_capture and self.last_evidence_capture.get("status") == "incomplete" else None)
+            error = self.last_refresh_error or calendar_error or stale_error or evidence_error
             return {
                 "status": "ok" if error is None else "degraded",
                 "strategy": "IC/IM research signal 1.4",
@@ -244,8 +321,9 @@ class LedgerCoordinator:
                 "verified_day": latest["verified_day"],
                 "sequence": latest["sequence"],
                 "digest_prefix": str(latest["digest"])[:12],
-                "completed_day": completed.isoformat(),
+                "completed_day": completed.isoformat() if completed is not None else None,
                 "refresh_error": error,
+                "evidence_capture": deepcopy(self.last_evidence_capture),
             }
 
 
@@ -285,9 +363,21 @@ poe_access_key = os.environ.get("POE_ACCESS_KEY")
 server_bot = PersistentICIMBot(coordinator, poe_access_key)
 async def _refresh_loop() -> None:
     while True:
-        now = strategy._now_beijing()
-        if now.time() >= close_clock(now.date()).time():
-            await asyncio.to_thread(coordinator.catch_up_once, now)
+        try:
+            now = strategy._now_beijing()
+            if now.time() >= close_clock(now.date()).time():
+                try:
+                    await asyncio.to_thread(coordinator.catch_up_once, now)
+                except Exception as exc:
+                    coordinator.last_refresh_error = f"{type(exc).__name__}: {exc}"
+                # This runs even when catch-up failed. Cancellation escapes
+                # before starting further I/O, and the sole scheduler stays.
+                await asyncio.to_thread(coordinator.capture_current_inputs, now)
+        except Exception as exc:
+            # Calendar/head checks can fail before catch_up_once's replay try.
+            # Keep the sole scheduler alive for later retries, without making
+            # an unverified session executable. Task cancellation still escapes.
+            coordinator.last_refresh_error = f"{type(exc).__name__}: {exc}"
         await asyncio.sleep(300)
 
 

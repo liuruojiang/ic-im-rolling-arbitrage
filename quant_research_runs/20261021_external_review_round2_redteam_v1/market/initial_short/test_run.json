@@ -1,0 +1,10 @@
+{
+  "exit_code": 1,
+  "files": [
+    "test_icim_round2_audit_market_20261021.py",
+    "-k",
+    "held_short_put"
+  ],
+  "state_dir": "C:\\Users\\ADMINI~1.DES\\AppData\\Local\\Temp\\icim_put_4feadba7\\state",
+  "test_only_windows_mkdir_mode_adjustment": true
+}

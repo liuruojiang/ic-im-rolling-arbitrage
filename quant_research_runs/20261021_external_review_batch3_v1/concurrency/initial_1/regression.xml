@@ -1,0 +1,396 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="6" skipped="0" tests="9" time="10.887" timestamp="2026-10-21T16:20:57.016885+08:00" hostname="DESKTOP-95I7VVU"><testcase classname="test_icim_batch3_concurrency_20261021" name="test_actual_execute_query_context_isolated_across_public_coordinators[one_coordinator]" time="0.299" /><testcase classname="test_icim_batch3_concurrency_20261021" name="test_actual_execute_query_context_isolated_across_public_coordinators[two_same_store]" time="0.058"><failure message="AssertionError: {'outputs': {'A': ('', [], {}), 'B': ('A:A', [], {'IC': {'anchor_label': 'A', 'close_confirmed': False, 'market_date': datetime.date(2026, 10, 21), 'request_label': 'A'}})}, 'overlapped': True}&#10;assert '' == 'A:A'&#10;  &#10;  - A:A">tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_15efb1e4/pytest/test_actual_execute_query_cont1')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000001CEF31CC510&gt;
+relationship = 'two_same_store'
+
+    @pytest.mark.parametrize('relationship',['one_coordinator','two_same_store','two_distinct_stores'])
+    def test_actual_execute_query_context_isolated_across_public_coordinators(tmp_path,monkeypatch,relationship):
+        module = server(monkeypatch,tmp_path)
+        first_store,_ = store(tmp_path/'first','A')
+        first = module.LedgerCoordinator(first_store)
+        if relationship == 'one_coordinator':
+            second = first
+        elif relationship == 'two_same_store':
+            second = module.LedgerCoordinator(state.StateStore(first_store.root))
+        else:
+            second_store,_ = store(tmp_path/'second','B')
+            second = module.LedgerCoordinator(second_store)
+        baseline_capture = module._CaptureOutput('baseline')
+        monkeypatch.setattr(bot,'poe',baseline_capture)
+        monkeypatch.setattr(bot,'_SIGNAL_OBSERVER',None)
+        monkeypatch.setattr(bot,'LIVE_CONTINUATION_ANCHOR',deepcopy(bot.LIVE_CONTINUATION_ANCHOR))
+        a_entered,b_entered,release_a,a_done = [threading.Event() for _ in range(4)]
+        errors,outputs = {},{}
+        before_first = lifecycle.snapshot(first_store.root)
+        before_second = lifecycle.snapshot(second.store.root)
+    
+        def run_fake(self):
+            # Synthetic business body only: real execute_query still installs all
+            # anchors, capture and observer and performs its real finally cleanup.
+            label = threading.current_thread().name
+            if label == 'A':
+                a_entered.set()
+                assert release_a.wait(4),'main test did not release first query'
+            else:
+                b_entered.set()
+                assert a_done.wait(4),'first query did not complete synthetic body'
+            actual = bot.LIVE_CONTINUATION_ANCHOR['IC']['audit_context_label']
+            output = bot.poe
+            if isinstance(output,module._CaptureOutput):
+                with output.start_message() as message:
+                    message.write(label+':'+actual)
+            observer = bot._SIGNAL_OBSERVER
+            if observer is not None:
+                observer('IC',dict(request_label=label,anchor_label=actual,market_date=DAY,close_confirmed=False))
+            if label == 'A':
+                a_done.set()
+    
+        monkeypatch.setattr(bot.ICIMMainlinesBot,'run',run_fake)
+        def query(label,coordinator):
+            try:
+                outputs[label] = coordinator.execute_query('实时信号',CLOCK,persist_confirmed=False)
+            except BaseException as exc:
+                errors[label] = repr(exc)
+                if label == 'A':a_done.set()
+        a = threading.Thread(target=query,args=('A',first),name='A')
+        b = threading.Thread(target=query,args=('B',second),name='B')
+        a.start()
+        assert a_entered.wait(4)
+        b.start()
+        overlapped = b_entered.wait(.2)
+        release_a.set()
+        a.join(6);b.join(6)
+        assert not a.is_alive() and not b.is_alive(), 'query thread did not terminate'
+        assert not errors
+        assert lifecycle.snapshot(first_store.root) == before_first
+        assert lifecycle.snapshot(second.store.root) == before_second
+        expected_b = 'B' if relationship == 'two_distinct_stores' else 'A'
+&gt;       assert outputs['A'][0] == 'A:A',dict(overlapped=overlapped,outputs=outputs)
+E       AssertionError: {'outputs': {'A': ('', [], {}), 'B': ('A:A', [], {'IC': {'anchor_label': 'A', 'close_confirmed': False, 'market_date': datetime.date(2026, 10, 21), 'request_label': 'A'}})}, 'overlapped': True}
+E       assert '' == 'A:A'
+E         
+E         - A:A
+
+test_icim_batch3_concurrency_20261021.py:115: AssertionError</failure></testcase><testcase classname="test_icim_batch3_concurrency_20261021" name="test_actual_execute_query_context_isolated_across_public_coordinators[two_distinct_stores]" time="0.067"><failure message="AssertionError: {'outputs': {'A': ('', [], {}), 'B': ('A:B', [], {'IC': {'anchor_label': 'B', 'close_confirmed': False, 'market_date': datetime.date(2026, 10, 21), 'request_label': 'A'}})}, 'overlapped': True}&#10;assert '' == 'A:A'&#10;  &#10;  - A:A">tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_15efb1e4/pytest/test_actual_execute_query_cont2')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000001CEF33168D0&gt;
+relationship = 'two_distinct_stores'
+
+    @pytest.mark.parametrize('relationship',['one_coordinator','two_same_store','two_distinct_stores'])
+    def test_actual_execute_query_context_isolated_across_public_coordinators(tmp_path,monkeypatch,relationship):
+        module = server(monkeypatch,tmp_path)
+        first_store,_ = store(tmp_path/'first','A')
+        first = module.LedgerCoordinator(first_store)
+        if relationship == 'one_coordinator':
+            second = first
+        elif relationship == 'two_same_store':
+            second = module.LedgerCoordinator(state.StateStore(first_store.root))
+        else:
+            second_store,_ = store(tmp_path/'second','B')
+            second = module.LedgerCoordinator(second_store)
+        baseline_capture = module._CaptureOutput('baseline')
+        monkeypatch.setattr(bot,'poe',baseline_capture)
+        monkeypatch.setattr(bot,'_SIGNAL_OBSERVER',None)
+        monkeypatch.setattr(bot,'LIVE_CONTINUATION_ANCHOR',deepcopy(bot.LIVE_CONTINUATION_ANCHOR))
+        a_entered,b_entered,release_a,a_done = [threading.Event() for _ in range(4)]
+        errors,outputs = {},{}
+        before_first = lifecycle.snapshot(first_store.root)
+        before_second = lifecycle.snapshot(second.store.root)
+    
+        def run_fake(self):
+            # Synthetic business body only: real execute_query still installs all
+            # anchors, capture and observer and performs its real finally cleanup.
+            label = threading.current_thread().name
+            if label == 'A':
+                a_entered.set()
+                assert release_a.wait(4),'main test did not release first query'
+            else:
+                b_entered.set()
+                assert a_done.wait(4),'first query did not complete synthetic body'
+            actual = bot.LIVE_CONTINUATION_ANCHOR['IC']['audit_context_label']
+            output = bot.poe
+            if isinstance(output,module._CaptureOutput):
+                with output.start_message() as message:
+                    message.write(label+':'+actual)
+            observer = bot._SIGNAL_OBSERVER
+            if observer is not None:
+                observer('IC',dict(request_label=label,anchor_label=actual,market_date=DAY,close_confirmed=False))
+            if label == 'A':
+                a_done.set()
+    
+        monkeypatch.setattr(bot.ICIMMainlinesBot,'run',run_fake)
+        def query(label,coordinator):
+            try:
+                outputs[label] = coordinator.execute_query('实时信号',CLOCK,persist_confirmed=False)
+            except BaseException as exc:
+                errors[label] = repr(exc)
+                if label == 'A':a_done.set()
+        a = threading.Thread(target=query,args=('A',first),name='A')
+        b = threading.Thread(target=query,args=('B',second),name='B')
+        a.start()
+        assert a_entered.wait(4)
+        b.start()
+        overlapped = b_entered.wait(.2)
+        release_a.set()
+        a.join(6);b.join(6)
+        assert not a.is_alive() and not b.is_alive(), 'query thread did not terminate'
+        assert not errors
+        assert lifecycle.snapshot(first_store.root) == before_first
+        assert lifecycle.snapshot(second.store.root) == before_second
+        expected_b = 'B' if relationship == 'two_distinct_stores' else 'A'
+&gt;       assert outputs['A'][0] == 'A:A',dict(overlapped=overlapped,outputs=outputs)
+E       AssertionError: {'outputs': {'A': ('', [], {}), 'B': ('A:B', [], {'IC': {'anchor_label': 'B', 'close_confirmed': False, 'market_date': datetime.date(2026, 10, 21), 'request_label': 'A'}})}, 'overlapped': True}
+E       assert '' == 'A:A'
+E         
+E         - A:A
+
+test_icim_batch3_concurrency_20261021.py:115: AssertionError</failure></testcase><testcase classname="test_icim_batch3_concurrency_20261021" name="test_actual_execute_query_restores_globals_after_business_exception" time="0.017" /><testcase classname="test_icim_batch3_concurrency_20261021" name="test_nonpersistent_query_cannot_write_even_two_complete_observations" time="0.015" /><testcase classname="test_icim_batch3_concurrency_20261021" name="test_actual_concurrent_store_objects_append_exactly_once" time="1.017"><failure message="ValueError: Invalid isoformat string: 'None'">tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_15efb1e4/pytest/test_actual_concurrent_store_o0')
+
+    def test_actual_concurrent_store_objects_append_exactly_once(tmp_path):
+        isolated,current = store(tmp_path/'state')
+        prepared = signals(current)
+        ready = threading.Barrier(2)
+        def append():
+            local = state.StateStore(isolated.root)
+            ready.wait(timeout=3)
+            try:
+                local.append_confirmed_signals(current,deepcopy(prepared))
+                return 'appended'
+            except RuntimeError as exc:
+                assert '另一请求推进' in str(exc)
+                return 'stale_rejected'
+        with ThreadPoolExecutor(max_workers=2) as pool:
+&gt;           result = list(pool.map(lambda _:append(),range(2)))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_icim_batch3_concurrency_20261021.py:172: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+C:\Python314\Lib\concurrent\futures\_base.py:639: in result_iterator
+    yield _result_or_cancel(fs.pop())
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Python314\Lib\concurrent\futures\_base.py:311: in _result_or_cancel
+    return fut.result(timeout)
+           ^^^^^^^^^^^^^^^^^^^
+C:\Python314\Lib\concurrent\futures\_base.py:450: in result
+    return self.__get_result()
+           ^^^^^^^^^^^^^^^^^^^
+C:\Python314\Lib\concurrent\futures\_base.py:395: in __get_result
+    raise self._exception
+C:\Python314\Lib\concurrent\futures\thread.py:86: in run
+    result = ctx.run(self.task)
+             ^^^^^^^^^^^^^^^^^^
+C:\Python314\Lib\concurrent\futures\thread.py:73: in run
+    return fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^
+test_icim_batch3_concurrency_20261021.py:172: in &lt;lambda&gt;
+    result = list(pool.map(lambda _:append(),range(2)))
+                                    ^^^^^^^^
+test_icim_batch3_concurrency_20261021.py:166: in append
+    local.append_confirmed_signals(current,deepcopy(prepared))
+poe_ic_im_v1_4_state.py:1447: in append_confirmed_signals
+    return self._append_locked(current, signals)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+poe_ic_im_v1_4_state.py:1450: in _append_locked
+    anchors = derive_next_anchors(current, signals)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+poe_ic_im_v1_4_state.py:970: in derive_next_anchors
+    validate_delivery_values(signal, product)
+poe_ic_im_v1_4_state.py:248: in validate_delivery_values
+    validate_fear_grid_signal(signal, product)
+poe_ic_im_v1_4_state.py:286: in validate_fear_grid_signal
+    strategy.fear_grid.validate_observation_clock(signal)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+signal = {'call_action': 'HOLD', 'call_current_contract': None, 'call_target_contract': None, 'call_target_expiry': None, ...}
+
+    def validate_observation_clock(
+        signal: dict[str, Any], *, validation_clock: datetime | None = None,
+    ) -&gt; None:
+        """Bind new evidence to completed retrieval, never a frozen request clock."""
+        if signal.get("fear_source_policy_revision") is not None and not flexible_source(signal):
+            raise RuntimeError("恐贪取数修订身份无效")
+        if flexible_source(signal):
+            validate_source_evidence(signal, validation_clock=validation_clock)
+            return
+        day = date.fromisoformat(str(signal.get("market_date"))[:10])
+        if day &lt; INTRADAY_FALLBACK_EFFECTIVE_DATE:
+            return
+        status = signal.get("fear_data_status")
+        carried = status in {INTRADAY_FALLBACK_STATUS, CLOSE_FALLBACK_STATUS}
+        applied = signal.get("fear_fallback_applied")
+        if applied is not None and type(applied) is not bool:
+            raise RuntimeError("恐慌沿用标识必须是布尔值")
+        if not carried and (applied is True or signal.get("fear_fallback_reason") is not None
+                            or signal.get("fear_fallback_timing") is not None):
+            raise RuntimeError("恐慌非沿用状态夹带矛盾的沿用证明")
+        value = signal.get("fear_greed_index")
+        if value is not None and (isinstance(value, bool) or not math.isfinite(float(value))
+                                  or not 0 &lt;= float(value) &lt;= 100):
+            raise RuntimeError("恐慌读数不是合格的有限数值")
+        stamps = {}
+        fields = ["fear_retrieved_at", "fear_page_updated_at"]
+        if carried or signal.get("fear_fetch_started_at") is not None:
+            fields.append("fear_fetch_started_at")
+        if signal.get("signal_generated_at") is not None:
+            fields.append("signal_generated_at")
+        for field in fields:
+&gt;           stamp = datetime.fromisoformat(str(signal.get(field)))
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           ValueError: Invalid isoformat string: 'None'
+
+ic_im_fear_grid_v1.py:136: ValueError</failure></testcase><testcase classname="test_icim_batch3_concurrency_20261021" name="test_cross_process_append_serializes_header_compare_and_write" time="3.000"><failure message="AssertionError: Traceback (most recent call last):&#10;    File &quot;&lt;string&gt;&quot;, line 15, in &lt;module&gt;&#10;      result=store.append_confirmed_signals(current,signals)&#10;    File &quot;D:\动量策略\IC和IM滚动套利\poe_ic_im_v1_4_state.py&quot;, line 1447, in append_confirmed_signals&#10;      return self._append_locked(current, signals)&#10;             ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^&#10;    File &quot;D:\动量策略\IC和IM滚动套利\poe_ic_im_v1_4_state.py&quot;, line 1450, in _append_locked&#10;      anchors = derive_next_anchors(current, signals)&#10;    File &quot;D:\动量策略\IC和IM滚动套利\poe_ic_im_v1_4_state.py&quot;, line 970, in derive_next_anchors&#10;      validate_delivery_values(signal, product)&#10;      ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^&#10;    File &quot;D:\动量策略\IC和IM滚动套利\poe_ic_im_v1_4_state.py&quot;, line 248, in validate_delivery_values&#10;      validate_fear_grid_signal(signal, product)&#10;      ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^&#10;    File &quot;D:\动量策略\IC和IM滚动套利\poe_ic_im_v1_4_state.py&quot;, line 286, in validate_fear_grid_signal&#10;      strategy.fear_grid.validate_observation_clock(signal)&#10;      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^&#10;    File &quot;D:\动量策略\IC和IM滚动套利\ic_im_fear_grid_v1.py&quot;, line 136, in validate_observation_clock&#10;      stamp = datetime.fromisoformat(str(signal.get(field)))&#10;  ValueError: Invalid isoformat string: 'None'&#10;  &#10;assert 1 == 0&#10; +  where 1 = &lt;Popen: returncode: 1 args: ['C:\\Python314\\python.exe', '-c', &quot;\nimport js...&gt;.returncode">tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_15efb1e4/pytest/test_cross_process_append_seri0')
+
+    def test_cross_process_append_serializes_header_compare_and_write(tmp_path):
+        isolated,current = store(tmp_path/'state')
+        # Both children load the SAME head before receiving GO. Their imports and
+        # all ledger writes are restricted to this test's explicitly supplied root.
+        script = r'''
+    import json,sys
+    from pathlib import Path
+    sys.path.insert(0,sys.argv[1])
+    import poe_ic_im_v1_4_state as state
+    import test_ic_im_ordinary_put_route_fix_20261013 as ledger
+    from datetime import date
+    store=state.StateStore(Path(sys.argv[2]))
+    current=store.load_latest()
+    anchors=state.anchors_from_record(current)
+    signals={p:ledger._signal(p,anchors[p],date(2026,10,21)) for p in state.PRODUCTS}
+    print('READY',flush=True)
+    assert sys.stdin.readline().strip()=='GO'
+    try:
+     result=store.append_confirmed_signals(current,signals)
+     print(json.dumps({'outcome':'appended','sequence':result['sequence']}),flush=True)
+    except RuntimeError as exc:
+     print(json.dumps({'outcome':'rejected','reason':str(exc)},ensure_ascii=False),flush=True)
+    '''
+        env = dict(os.environ,ICIM_STATE_DIR=str(tmp_path/'unused_child_default'),
+                   ICIM_REQUIRE_MIGRATION='0',PYTHONIOENCODING='utf-8',PYTHONDONTWRITEBYTECODE='1')
+        children = [subprocess.Popen([sys.executable,'-c',script,str(ROOT),str(isolated.root)],
+                                    stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE,
+                                    text=True,encoding='utf-8',env=env,cwd=ROOT) for _ in range(2)]
+        try:
+            for child in children:
+                assert child.stdout.readline().strip() == 'READY'
+            for child in children:
+                child.stdin.write('GO\n');child.stdin.flush()
+            result = []
+            for child in children:
+                stdout,stderr = child.communicate(timeout=20)
+&gt;               assert child.returncode == 0,stderr
+E               AssertionError: Traceback (most recent call last):
+E                   File "&lt;string&gt;", line 15, in &lt;module&gt;
+E                     result=store.append_confirmed_signals(current,signals)
+E                   File "D:\动量策略\IC和IM滚动套利\poe_ic_im_v1_4_state.py", line 1447, in append_confirmed_signals
+E                     return self._append_locked(current, signals)
+E                            ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+E                   File "D:\动量策略\IC和IM滚动套利\poe_ic_im_v1_4_state.py", line 1450, in _append_locked
+E                     anchors = derive_next_anchors(current, signals)
+E                   File "D:\动量策略\IC和IM滚动套利\poe_ic_im_v1_4_state.py", line 970, in derive_next_anchors
+E                     validate_delivery_values(signal, product)
+E                     ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+E                   File "D:\动量策略\IC和IM滚动套利\poe_ic_im_v1_4_state.py", line 248, in validate_delivery_values
+E                     validate_fear_grid_signal(signal, product)
+E                     ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+E                   File "D:\动量策略\IC和IM滚动套利\poe_ic_im_v1_4_state.py", line 286, in validate_fear_grid_signal
+E                     strategy.fear_grid.validate_observation_clock(signal)
+E                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^
+E                   File "D:\动量策略\IC和IM滚动套利\ic_im_fear_grid_v1.py", line 136, in validate_observation_clock
+E                     stamp = datetime.fromisoformat(str(signal.get(field)))
+E                 ValueError: Invalid isoformat string: 'None'
+E                 
+E               assert 1 == 0
+E                +  where 1 = &lt;Popen: returncode: 1 args: ['C:\\Python314\\python.exe', '-c', "\nimport js...&gt;.returncode
+
+test_icim_batch3_concurrency_20261021.py:216: AssertionError</failure></testcase><testcase classname="test_icim_batch3_concurrency_20261021" name="test_reader_sees_valid_old_head_while_new_journal_precedes_atomic_head" time="4.018"><failure message="assert False&#10; +  where False = wait(4)&#10; +    where wait = &lt;threading.Event at 0x1cef33ba7b0: unset&gt;.wait">tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_15efb1e4/pytest/test_reader_sees_valid_old_hea0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000001CEF2477150&gt;
+
+    def test_reader_sees_valid_old_head_while_new_journal_precedes_atomic_head(tmp_path,monkeypatch):
+        isolated,current = store(tmp_path/'state')
+        prepared = signals(current)
+        journal_written,release_head = threading.Event(),threading.Event()
+        original = isolated._atomic_write
+        errors = []
+        def paused(path,record):
+            original(path,record)
+            if path.parent == isolated.journal_dir and record['sequence']==1:
+                journal_written.set()
+                assert release_head.wait(4)
+        monkeypatch.setattr(isolated,'_atomic_write',paused)
+        def append():
+            try:isolated.append_confirmed_signals(current,prepared)
+            except BaseException as exc:errors.append(repr(exc))
+        thread = threading.Thread(target=append)
+        thread.start()
+        try:
+&gt;           assert journal_written.wait(4)
+E           assert False
+E            +  where False = wait(4)
+E            +    where wait = &lt;threading.Event at 0x1cef33ba7b0: unset&gt;.wait
+
+test_icim_batch3_concurrency_20261021.py:247: AssertionError</failure></testcase><testcase classname="test_icim_batch3_concurrency_20261021" name="test_crash_after_journal_write_recovers_under_append_lock_without_duplicate" time="0.062"><failure message="ValueError: Invalid isoformat string: 'None'">tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_15efb1e4/pytest/test_crash_after_journal_write0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000001CEF3598750&gt;
+
+    def test_crash_after_journal_write_recovers_under_append_lock_without_duplicate(tmp_path,monkeypatch):
+        isolated,current = store(tmp_path/'state')
+        prepared = signals(current)
+        original = isolated._atomic_write
+        def crash(path,record):
+            if path == isolated.latest_path and record['sequence']==1:
+                raise RuntimeError('synthetic crash before atomic head')
+            original(path,record)
+        monkeypatch.setattr(isolated,'_atomic_write',crash)
+        with pytest.raises(RuntimeError,match='synthetic crash'):
+&gt;           isolated.append_confirmed_signals(current,prepared)
+
+test_icim_batch3_concurrency_20261021.py:266: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_v1_4_state.py:1447: in append_confirmed_signals
+    return self._append_locked(current, signals)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+poe_ic_im_v1_4_state.py:1450: in _append_locked
+    anchors = derive_next_anchors(current, signals)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+poe_ic_im_v1_4_state.py:970: in derive_next_anchors
+    validate_delivery_values(signal, product)
+poe_ic_im_v1_4_state.py:248: in validate_delivery_values
+    validate_fear_grid_signal(signal, product)
+poe_ic_im_v1_4_state.py:286: in validate_fear_grid_signal
+    strategy.fear_grid.validate_observation_clock(signal)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+signal = {'call_action': 'HOLD', 'call_current_contract': None, 'call_target_contract': None, 'call_target_expiry': None, ...}
+
+    def validate_observation_clock(
+        signal: dict[str, Any], *, validation_clock: datetime | None = None,
+    ) -&gt; None:
+        """Bind new evidence to completed retrieval, never a frozen request clock."""
+        if signal.get("fear_source_policy_revision") is not None and not flexible_source(signal):
+            raise RuntimeError("恐贪取数修订身份无效")
+        if flexible_source(signal):
+            validate_source_evidence(signal, validation_clock=validation_clock)
+            return
+        day = date.fromisoformat(str(signal.get("market_date"))[:10])
+        if day &lt; INTRADAY_FALLBACK_EFFECTIVE_DATE:
+            return
+        status = signal.get("fear_data_status")
+        carried = status in {INTRADAY_FALLBACK_STATUS, CLOSE_FALLBACK_STATUS}
+        applied = signal.get("fear_fallback_applied")
+        if applied is not None and type(applied) is not bool:
+            raise RuntimeError("恐慌沿用标识必须是布尔值")
+        if not carried and (applied is True or signal.get("fear_fallback_reason") is not None
+                            or signal.get("fear_fallback_timing") is not None):
+            raise RuntimeError("恐慌非沿用状态夹带矛盾的沿用证明")
+        value = signal.get("fear_greed_index")
+        if value is not None and (isinstance(value, bool) or not math.isfinite(float(value))
+                                  or not 0 &lt;= float(value) &lt;= 100):
+            raise RuntimeError("恐慌读数不是合格的有限数值")
+        stamps = {}
+        fields = ["fear_retrieved_at", "fear_page_updated_at"]
+        if carried or signal.get("fear_fetch_started_at") is not None:
+            fields.append("fear_fetch_started_at")
+        if signal.get("signal_generated_at") is not None:
+            fields.append("signal_generated_at")
+        for field in fields:
+&gt;           stamp = datetime.fromisoformat(str(signal.get(field)))
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           ValueError: Invalid isoformat string: 'None'
+
+ic_im_fear_grid_v1.py:136: ValueError</failure></testcase></testsuite></testsuites>

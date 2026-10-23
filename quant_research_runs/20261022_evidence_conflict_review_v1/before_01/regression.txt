@@ -1,0 +1,286 @@
+FFFFF.FFFFFF..FFFF                                                       [100%]
+================================== FAILURES ===================================
+__________ test_raw_conflict_marks_immediately_without_raising[body] __________
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_70b096db/pytest/test_raw_conflict_marks_immedi0')
+difference = 'body'
+
+    @pytest.mark.parametrize("difference", ["body", "status", "encoding", "headers"])
+    def test_raw_conflict_marks_immediately_without_raising(tmp_path, difference):
+        other = {"body": b"B"} if difference == "body" else {"status": 503} if difference == "status" else {"encoding": "gbk"} if difference == "encoding" else {"headers": {"ETag": "changed"}}
+        with evidence.capture_session(tmp_path, DAY, CLOCK, META) as session:
+            minimum(session)
+            session.raw_response(URL, {"month": "2612"}, response())
+            session.raw_response(URL, {"month": "2612"}, response(**other))
+            conflicts = [f for f in session.failures if f["role"] == "raw_http_conflict"]
+>           assert len(conflicts) == 1 and conflicts[0]["resolved"] is False
+E           assert (0 == 1)
+E            +  where 0 = len([])
+
+test_icim_evidence_conflict_review_20261022.py:40: AssertionError
+_________ test_raw_conflict_marks_immediately_without_raising[status] _________
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_70b096db/pytest/test_raw_conflict_marks_immedi1')
+difference = 'status'
+
+    @pytest.mark.parametrize("difference", ["body", "status", "encoding", "headers"])
+    def test_raw_conflict_marks_immediately_without_raising(tmp_path, difference):
+        other = {"body": b"B"} if difference == "body" else {"status": 503} if difference == "status" else {"encoding": "gbk"} if difference == "encoding" else {"headers": {"ETag": "changed"}}
+        with evidence.capture_session(tmp_path, DAY, CLOCK, META) as session:
+            minimum(session)
+            session.raw_response(URL, {"month": "2612"}, response())
+            session.raw_response(URL, {"month": "2612"}, response(**other))
+            conflicts = [f for f in session.failures if f["role"] == "raw_http_conflict"]
+>           assert len(conflicts) == 1 and conflicts[0]["resolved"] is False
+E           assert (0 == 1)
+E            +  where 0 = len([])
+
+test_icim_evidence_conflict_review_20261022.py:40: AssertionError
+________ test_raw_conflict_marks_immediately_without_raising[encoding] ________
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_70b096db/pytest/test_raw_conflict_marks_immedi2')
+difference = 'encoding'
+
+    @pytest.mark.parametrize("difference", ["body", "status", "encoding", "headers"])
+    def test_raw_conflict_marks_immediately_without_raising(tmp_path, difference):
+        other = {"body": b"B"} if difference == "body" else {"status": 503} if difference == "status" else {"encoding": "gbk"} if difference == "encoding" else {"headers": {"ETag": "changed"}}
+        with evidence.capture_session(tmp_path, DAY, CLOCK, META) as session:
+            minimum(session)
+            session.raw_response(URL, {"month": "2612"}, response())
+            session.raw_response(URL, {"month": "2612"}, response(**other))
+            conflicts = [f for f in session.failures if f["role"] == "raw_http_conflict"]
+>           assert len(conflicts) == 1 and conflicts[0]["resolved"] is False
+E           assert (0 == 1)
+E            +  where 0 = len([])
+
+test_icim_evidence_conflict_review_20261022.py:40: AssertionError
+________ test_raw_conflict_marks_immediately_without_raising[headers] _________
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_70b096db/pytest/test_raw_conflict_marks_immedi3')
+difference = 'headers'
+
+    @pytest.mark.parametrize("difference", ["body", "status", "encoding", "headers"])
+    def test_raw_conflict_marks_immediately_without_raising(tmp_path, difference):
+        other = {"body": b"B"} if difference == "body" else {"status": 503} if difference == "status" else {"encoding": "gbk"} if difference == "encoding" else {"headers": {"ETag": "changed"}}
+        with evidence.capture_session(tmp_path, DAY, CLOCK, META) as session:
+            minimum(session)
+            session.raw_response(URL, {"month": "2612"}, response())
+            session.raw_response(URL, {"month": "2612"}, response(**other))
+            conflicts = [f for f in session.failures if f["role"] == "raw_http_conflict"]
+>           assert len(conflicts) == 1 and conflicts[0]["resolved"] is False
+E           assert (0 == 1)
+E            +  where 0 = len([])
+
+test_icim_evidence_conflict_review_20261022.py:40: AssertionError
+_________ test_http_wrapper_still_returns_both_conflicting_responses __________
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_70b096db/pytest/test_http_wrapper_still_return0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x00000212B0DE0F30>
+
+    def test_http_wrapper_still_returns_both_conflicting_responses(tmp_path, monkeypatch):
+        replies = iter([response(b"A"), response(b"B")])
+        monkeypatch.setattr(bot.requests, "get", lambda *a, **k: next(replies))
+        with evidence.capture_session(tmp_path, DAY, CLOCK, META) as session:
+            minimum(session)
+            assert bot._evidence_http_get(URL).content == b"A"
+            assert bot._evidence_http_get(URL).content == b"B"
+>           assert any(f["role"] == "raw_http_conflict" for f in session.failures)
+E           assert False
+E            +  where False = any(<generator object test_http_wrapper_still_returns_both_conflicting_responses.<locals>.<genexpr> at 0x00000212B0D37440>)
+
+test_icim_evidence_conflict_review_20261022.py:53: AssertionError
+______ test_conflicted_bound_signal_and_early_copy_cannot_persist[False] ______
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_70b096db/pytest/test_conflicted_bound_signal_a0')
+late = False
+
+    @pytest.mark.parametrize("late", [False, True])
+    def test_conflicted_bound_signal_and_early_copy_cannot_persist(tmp_path, late):
+        signal = {"close_confirmed": True, "signal_complete": True, "persistence_eligible": True}
+        with evidence.capture_session(tmp_path, DAY, CLOCK, META) as session:
+            minimum(session)
+            session.raw_response(URL, None, response())
+            if not late:
+                session.raw_response(URL, None, response(b"B"))
+>           session.bind_signal(signal)
+            ^^^^^^^^^^^^^^^^^^^
+E           AttributeError: 'CaptureSession' object has no attribute 'bind_signal'
+
+test_icim_evidence_conflict_review_20261022.py:71: AttributeError
+______ test_conflicted_bound_signal_and_early_copy_cannot_persist[True] _______
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_70b096db/pytest/test_conflicted_bound_signal_a1')
+late = True
+
+    @pytest.mark.parametrize("late", [False, True])
+    def test_conflicted_bound_signal_and_early_copy_cannot_persist(tmp_path, late):
+        signal = {"close_confirmed": True, "signal_complete": True, "persistence_eligible": True}
+        with evidence.capture_session(tmp_path, DAY, CLOCK, META) as session:
+            minimum(session)
+            session.raw_response(URL, None, response())
+            if not late:
+                session.raw_response(URL, None, response(b"B"))
+>           session.bind_signal(signal)
+            ^^^^^^^^^^^^^^^^^^^
+E           AttributeError: 'CaptureSession' object has no attribute 'bind_signal'
+
+test_icim_evidence_conflict_review_20261022.py:71: AttributeError
+_ test_only_successfully_sealed_originally_eligible_signal_is_promoted[True] __
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_70b096db/pytest/test_only_successfully_sealed_0')
+initial_eligible = True
+
+    @pytest.mark.parametrize("initial_eligible", [True, False])
+    def test_only_successfully_sealed_originally_eligible_signal_is_promoted(tmp_path, initial_eligible):
+        signal = {"signal_complete": True, "persistence_eligible": initial_eligible}
+        with evidence.capture_session(tmp_path, DAY, CLOCK, META) as session:
+            minimum(session)
+>           session.bind_signal(signal)
+            ^^^^^^^^^^^^^^^^^^^
+E           AttributeError: 'CaptureSession' object has no attribute 'bind_signal'
+
+test_icim_evidence_conflict_review_20261022.py:91: AttributeError
+_ test_only_successfully_sealed_originally_eligible_signal_is_promoted[False] _
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_70b096db/pytest/test_only_successfully_sealed_1')
+initial_eligible = False
+
+    @pytest.mark.parametrize("initial_eligible", [True, False])
+    def test_only_successfully_sealed_originally_eligible_signal_is_promoted(tmp_path, initial_eligible):
+        signal = {"signal_complete": True, "persistence_eligible": initial_eligible}
+        with evidence.capture_session(tmp_path, DAY, CLOCK, META) as session:
+            minimum(session)
+>           session.bind_signal(signal)
+            ^^^^^^^^^^^^^^^^^^^
+E           AttributeError: 'CaptureSession' object has no attribute 'bind_signal'
+
+test_icim_evidence_conflict_review_20261022.py:91: AttributeError
+______ test_store_boundary_rejects_unbound_signal_inside_active_capture _______
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_70b096db/pytest/test_store_boundary_rejects_un0')
+
+    def test_store_boundary_rejects_unbound_signal_inside_active_capture(tmp_path):
+        with evidence.capture_session(tmp_path, DAY, CLOCK, META) as session:
+            minimum(session)
+>           with pytest.raises(RuntimeError, match="采集"):
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           Failed: DID NOT RAISE <class 'RuntimeError'>
+
+test_icim_evidence_conflict_review_20261022.py:105: Failed
+___ test_repeated_consistent_observation_does_not_repair_conflicted_session ___
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_70b096db/pytest/test_repeated_consistent_obser0')
+
+    def test_repeated_consistent_observation_does_not_repair_conflicted_session(tmp_path):
+        with evidence.capture_session(tmp_path, DAY, CLOCK, META) as first:
+            minimum(first)
+            first.raw_response(URL, None, response())
+            first.raw_response(URL, None, response(b"B"))
+            first.raw_response(URL, None, response())
+            first.call("probe", {}, lambda: True)
+>       assert first.context["complete"] is False
+E       assert True is False
+
+test_icim_evidence_conflict_review_20261022.py:116: AssertionError
+_______________ test_publishing_failure_does_not_promote_signal _______________
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_70b096db/pytest/test_publishing_failure_does_n0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x00000212B0DBF6A0>
+
+    def test_publishing_failure_does_not_promote_signal(tmp_path, monkeypatch):
+        signal = {"persistence_eligible": True}
+        session = evidence.CaptureSession(tmp_path, DAY, CLOCK, META)
+        minimum(session)
+>       session.bind_signal(signal)
+        ^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'CaptureSession' object has no attribute 'bind_signal'
+
+test_icim_evidence_conflict_review_20261022.py:140: AttributeError
+_____ test_sealed_attempt_statistics_count_conflicts_not_polling_receipts _____
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_70b096db/pytest/test_sealed_attempt_statistics0')
+
+    def test_sealed_attempt_statistics_count_conflicts_not_polling_receipts(tmp_path):
+        for product, bodies in [("IC", [b"A", b"B"]), ("IC", [b"C"]), ("IM", [b"D"])]:
+            with evidence.capture_session(tmp_path, DAY, CLOCK, {**META, "product": product}) as session:
+                minimum(session)
+                for body in bodies:
+                    session.raw_response(URL, None, response(body))
+        polling = tmp_path / "capture_receipts" / str(DAY)
+        polling.mkdir(parents=True)
+        (polling / "poll.json").write_text('{"status":"already_captured"}', encoding="utf-8")
+>       stats = adapter.capture_day_status(tmp_path, DAY)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'ic_im_evidence_adapter_v1' has no attribute 'capture_day_status'
+
+test_icim_evidence_conflict_review_20261022.py:156: AttributeError
+_______ test_capture_failure_warning_identifies_missing_original_inputs _______
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_70b096db/pytest/test_capture_failure_warning_i0')
+
+    def test_capture_failure_warning_identifies_missing_original_inputs(tmp_path):
+        with evidence.capture_session(tmp_path, DAY, CLOCK, META) as session:
+            minimum(session)
+            session.raw_response(URL, None, response())
+            session.raw_response(URL, None, response(b"B"))
+>       stats = adapter.capture_day_status(tmp_path, DAY)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'ic_im_evidence_adapter_v1' has no attribute 'capture_day_status'
+
+test_icim_evidence_conflict_review_20261022.py:168: AttributeError
+____________ test_server_page_displays_incomplete_original_archive ____________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x00000212B0D9AE90>
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_70b096db/pytest/test_server_page_displays_inco0')
+
+    def test_server_page_displays_incomplete_original_archive(monkeypatch, tmp_path):
+        monkeypatch.setenv("ICIM_STATE_DIR", str(tmp_path / "ledger"))
+        monkeypatch.setenv("ICIM_REQUIRE_MIGRATION", "0")
+        monkeypatch.setenv("ICIM_EVIDENCE_DIR", str(tmp_path / "evidence"))
+        with evidence.capture_session(tmp_path / "evidence", DAY, CLOCK, META) as session:
+            minimum(session)
+            session.raw_response(URL, None, response())
+            session.raw_response(URL, None, response(b"B"))
+        server = importlib.import_module("poe_ic_im_v1_4_server")
+        owner = server.LedgerCoordinator(state.StateStore(tmp_path / "ledger"))
+        monkeypatch.setattr(bot, "ICIMMainlinesBot", lambda: type("Empty", (), {"run": lambda self: None})())
+        monkeypatch.setattr(owner, "_record_for_display", lambda clock: owner.store.load_latest())
+        monkeypatch.setattr(bot, "install_runtime_anchors", lambda value: None)
+        monkeypatch.setattr(bot, "_roll_forward_exchange_day", lambda day: DAY)
+        text, _, _ = owner.execute_query("信号", CLOCK, persist_confirmed=False)
+>       assert "存证缺失" in text and "另行补证或人工锚定" in text
+E       assert ('存证缺失' in "\n\n⚠️ 原日存证状态暂不可核验：module 'ic_im_evidence_adapter_v1' has no attribute 'capture_day_status'。\n")
+
+test_icim_evidence_conflict_review_20261022.py:188: AssertionError
+------------------------------ Captured log call ------------------------------
+WARNING  uvicorn.default:base.py:1139 
+************* Warning *************
+WARNING  uvicorn.default:base.py:1140 Bot name or access key is not set for PoeBot.
+Bot settings will NOT be synced automatically on server start/update.Please remember to sync bot settings manually.
+
+For more information, see: https://creator.poe.com/docs/server-bots/updating-bot-settings
+WARNING  uvicorn.default:base.py:1146 
+************* Warning *************
+============================== warnings summary ===============================
+C:\Python314\Lib\site-packages\_pytest\config\__init__.py:1309
+  C:\Python314\Lib\site-packages\_pytest\config\__init__.py:1309: PytestAssertRewriteWarning: Module already imported so cannot be rewritten; anyio
+    self._mark_plugins_for_rewrite(hook, disable_autoload)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED test_icim_evidence_conflict_review_20261022.py::test_raw_conflict_marks_immediately_without_raising[body]
+FAILED test_icim_evidence_conflict_review_20261022.py::test_raw_conflict_marks_immediately_without_raising[status]
+FAILED test_icim_evidence_conflict_review_20261022.py::test_raw_conflict_marks_immediately_without_raising[encoding]
+FAILED test_icim_evidence_conflict_review_20261022.py::test_raw_conflict_marks_immediately_without_raising[headers]
+FAILED test_icim_evidence_conflict_review_20261022.py::test_http_wrapper_still_returns_both_conflicting_responses
+FAILED test_icim_evidence_conflict_review_20261022.py::test_conflicted_bound_signal_and_early_copy_cannot_persist[False]
+FAILED test_icim_evidence_conflict_review_20261022.py::test_conflicted_bound_signal_and_early_copy_cannot_persist[True]
+FAILED test_icim_evidence_conflict_review_20261022.py::test_only_successfully_sealed_originally_eligible_signal_is_promoted[True]
+FAILED test_icim_evidence_conflict_review_20261022.py::test_only_successfully_sealed_originally_eligible_signal_is_promoted[False]
+FAILED test_icim_evidence_conflict_review_20261022.py::test_store_boundary_rejects_unbound_signal_inside_active_capture
+FAILED test_icim_evidence_conflict_review_20261022.py::test_repeated_consistent_observation_does_not_repair_conflicted_session
+FAILED test_icim_evidence_conflict_review_20261022.py::test_publishing_failure_does_not_promote_signal
+FAILED test_icim_evidence_conflict_review_20261022.py::test_sealed_attempt_statistics_count_conflicts_not_polling_receipts
+FAILED test_icim_evidence_conflict_review_20261022.py::test_capture_failure_warning_identifies_missing_original_inputs
+FAILED test_icim_evidence_conflict_review_20261022.py::test_server_page_displays_incomplete_original_archive
+15 failed, 3 passed, 1 warning in 1.32s

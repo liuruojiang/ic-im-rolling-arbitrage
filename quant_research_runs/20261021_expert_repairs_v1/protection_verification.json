@@ -1,0 +1,58 @@
+{
+  "prior_backups": {
+    "checked": 1163,
+    "changed_or_missing": []
+  },
+  "frozen_outputs": {
+    "checked": 6795,
+    "changed_or_missing": []
+  },
+  "prior_evidence": {
+    "checked": 26680,
+    "changed_or_missing": []
+  },
+  "changed_previous_source_bindings": [
+    "poe_ic_im_mainline_v1_4_bot.py",
+    "poe_ic_im_v1_4_server.py",
+    "poe_ic_im_v1_4_state.py"
+  ],
+  "unexpected_previous_source_changes": [],
+  "runtime": {
+    "expected_json": 142,
+    "current_json": 142,
+    "changed": [],
+    "added": [],
+    "missing": []
+  },
+  "new_backups": {
+    "checked": 11,
+    "bad": []
+  },
+  "new_spec_sha256_ok": true,
+  "accepted_source_changed_since_test": [],
+  "accepted_counts": {
+    "tests": 2025,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "checked_at": "2026-10-21T11:01:21.885302+00:00",
+  "passed": true,
+  "registry_update": {
+    "intentional": true,
+    "path": "notes/mainline_registry.md",
+    "sha256": "4155283ab1cd67bccc2ec67f22711644d809458a9e7572386019107dfc611fce"
+  },
+  "independent_current_binding": {
+    "audit_calendar/accepted_06": {
+      "tests": 40,
+      "source_files": 10,
+      "source_unchanged": true
+    },
+    "audit_integration/final_01": {
+      "tests": 31,
+      "source_files": 8,
+      "source_unchanged": true
+    }
+  }
+}

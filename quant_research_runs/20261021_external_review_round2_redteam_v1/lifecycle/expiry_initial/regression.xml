@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="3" skipped="0" tests="3" time="2.337" timestamp="2026-10-21T14:38:48.790573+08:00" hostname="DESKTOP-95I7VVU"><testcase classname="test_icim_round2_audit_lifecycle_20261021" name="test_short_identity_failure_cannot_publish_or_complete_expiry_branch[None]" time="0.007"><failure message="AssertionError: assert 'PUBLISH_SHOR...PIRY_BRANCHES' == 'HOLD_FAIL_CLOSED'&#10;  &#10;  - HOLD_FAIL_CLOSED&#10;  + PUBLISH_SHORT_PUT_EXPIRY_BRANCHES">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x0000029AEDEB5220&gt;
+outcome = None
+
+    @pytest.mark.parametrize('outcome',[None,'assigned','expired_worthless'])
+    def test_short_identity_failure_cannot_publish_or_complete_expiry_branch(monkeypatch,outcome):
+        expiry=date(2026,12,23)
+        a=ledger._record()['products']['IC']
+        ledger._empty_core(a,'IC')
+        a.update(last_verified_day=date(2026,12,22),v14_route_state='short_put',
+            v14_cycle_id='synthetic-stale-m-expiry',v14_short_put_contract=real.M,
+            v14_short_put_security_id='10011470',v14_short_put_qty_normalized=5.,
+            v14_short_put_entry_premium=.4,v14_short_put_expiry=expiry,
+            v14_short_put_cost_basis='confirmed_dated_open',v14_short_put_entry_price_day=PREVIOUS,
+            verified_momentum_put_delta=0.,verified_momentum_put_qty=0)
+        policy.validate_extension('IC',a)
+        chain,stamp=real.wire(monkeypatch)
+        # Shift the observed quote day for this synthetic expiry stress. The code,
+        # security ID and adjusted strike remain the real saved SSE identities.
+        stamp=dict(stamp,date=expiry.isoformat(),time='150000')
+        monkeypatch.setitem(bot.LIVE_CONTINUATION_ANCHOR,'IC',a)
+        monkeypatch.setattr(bot,'_now_beijing',lambda:datetime(2026,12,23,15,40,tzinfo=bot.BEIJING))
+        monkeypatch.setattr(bot,'fetch_510500_chain_with_failover',lambda *args:(chain,stamp))
+        monkeypatch.setattr(bot,'_v14_ic_short_put_candidate',lambda *args,**kw:{'tradable':False})
+        monkeypatch.setattr(bot,'fetch_option_closes',lambda security:
+            pd.Series([.01],index=pd.to_datetime([expiry])))
+        signal=seed.fixture.signal('IC',expiry,next_trade_date=date(2026,12,24),
+            core_put_target_delta=0.,put_target_core_qty=0,put_target_momentum_qty=0,
+            momentum_120=.1,v14_recovery_net_pnl_mark=-.1)
+        if outcome is not None:
+            signal.update(v14_model_settlement_outcome=outcome,v14_model_settlement_confirmed=True)
+        before=deepcopy(a)
+        out=bot._apply_v14_live_policy('IC',signal)
+&gt;       assert out['v14_action']=='HOLD_FAIL_CLOSED'
+E       AssertionError: assert 'PUBLISH_SHOR...PIRY_BRANCHES' == 'HOLD_FAIL_CLOSED'
+E         
+E         - HOLD_FAIL_CLOSED
+E         + PUBLISH_SHORT_PUT_EXPIRY_BRANCHES
+
+test_icim_round2_audit_lifecycle_20261021.py:427: AssertionError</failure></testcase><testcase classname="test_icim_round2_audit_lifecycle_20261021" name="test_short_identity_failure_cannot_publish_or_complete_expiry_branch[assigned]" time="0.005"><failure message="AssertionError: assert 'SHORT_PUT_ASSIGNED' == 'HOLD_FAIL_CLOSED'&#10;  &#10;  - HOLD_FAIL_CLOSED&#10;  + SHORT_PUT_ASSIGNED">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x0000029AEDEB56E0&gt;
+outcome = 'assigned'
+
+    @pytest.mark.parametrize('outcome',[None,'assigned','expired_worthless'])
+    def test_short_identity_failure_cannot_publish_or_complete_expiry_branch(monkeypatch,outcome):
+        expiry=date(2026,12,23)
+        a=ledger._record()['products']['IC']
+        ledger._empty_core(a,'IC')
+        a.update(last_verified_day=date(2026,12,22),v14_route_state='short_put',
+            v14_cycle_id='synthetic-stale-m-expiry',v14_short_put_contract=real.M,
+            v14_short_put_security_id='10011470',v14_short_put_qty_normalized=5.,
+            v14_short_put_entry_premium=.4,v14_short_put_expiry=expiry,
+            v14_short_put_cost_basis='confirmed_dated_open',v14_short_put_entry_price_day=PREVIOUS,
+            verified_momentum_put_delta=0.,verified_momentum_put_qty=0)
+        policy.validate_extension('IC',a)
+        chain,stamp=real.wire(monkeypatch)
+        # Shift the observed quote day for this synthetic expiry stress. The code,
+        # security ID and adjusted strike remain the real saved SSE identities.
+        stamp=dict(stamp,date=expiry.isoformat(),time='150000')
+        monkeypatch.setitem(bot.LIVE_CONTINUATION_ANCHOR,'IC',a)
+        monkeypatch.setattr(bot,'_now_beijing',lambda:datetime(2026,12,23,15,40,tzinfo=bot.BEIJING))
+        monkeypatch.setattr(bot,'fetch_510500_chain_with_failover',lambda *args:(chain,stamp))
+        monkeypatch.setattr(bot,'_v14_ic_short_put_candidate',lambda *args,**kw:{'tradable':False})
+        monkeypatch.setattr(bot,'fetch_option_closes',lambda security:
+            pd.Series([.01],index=pd.to_datetime([expiry])))
+        signal=seed.fixture.signal('IC',expiry,next_trade_date=date(2026,12,24),
+            core_put_target_delta=0.,put_target_core_qty=0,put_target_momentum_qty=0,
+            momentum_120=.1,v14_recovery_net_pnl_mark=-.1)
+        if outcome is not None:
+            signal.update(v14_model_settlement_outcome=outcome,v14_model_settlement_confirmed=True)
+        before=deepcopy(a)
+        out=bot._apply_v14_live_policy('IC',signal)
+&gt;       assert out['v14_action']=='HOLD_FAIL_CLOSED'
+E       AssertionError: assert 'SHORT_PUT_ASSIGNED' == 'HOLD_FAIL_CLOSED'
+E         
+E         - HOLD_FAIL_CLOSED
+E         + SHORT_PUT_ASSIGNED
+
+test_icim_round2_audit_lifecycle_20261021.py:427: AssertionError</failure></testcase><testcase classname="test_icim_round2_audit_lifecycle_20261021" name="test_short_identity_failure_cannot_publish_or_complete_expiry_branch[expired_worthless]" time="0.004"><failure message="AssertionError: assert 'SHORT_PUT_EXPIRE_WORTHLESS' == 'HOLD_FAIL_CLOSED'&#10;  &#10;  - HOLD_FAIL_CLOSED&#10;  + SHORT_PUT_EXPIRE_WORTHLESS">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x0000029AEDF9C4D0&gt;
+outcome = 'expired_worthless'
+
+    @pytest.mark.parametrize('outcome',[None,'assigned','expired_worthless'])
+    def test_short_identity_failure_cannot_publish_or_complete_expiry_branch(monkeypatch,outcome):
+        expiry=date(2026,12,23)
+        a=ledger._record()['products']['IC']
+        ledger._empty_core(a,'IC')
+        a.update(last_verified_day=date(2026,12,22),v14_route_state='short_put',
+            v14_cycle_id='synthetic-stale-m-expiry',v14_short_put_contract=real.M,
+            v14_short_put_security_id='10011470',v14_short_put_qty_normalized=5.,
+            v14_short_put_entry_premium=.4,v14_short_put_expiry=expiry,
+            v14_short_put_cost_basis='confirmed_dated_open',v14_short_put_entry_price_day=PREVIOUS,
+            verified_momentum_put_delta=0.,verified_momentum_put_qty=0)
+        policy.validate_extension('IC',a)
+        chain,stamp=real.wire(monkeypatch)
+        # Shift the observed quote day for this synthetic expiry stress. The code,
+        # security ID and adjusted strike remain the real saved SSE identities.
+        stamp=dict(stamp,date=expiry.isoformat(),time='150000')
+        monkeypatch.setitem(bot.LIVE_CONTINUATION_ANCHOR,'IC',a)
+        monkeypatch.setattr(bot,'_now_beijing',lambda:datetime(2026,12,23,15,40,tzinfo=bot.BEIJING))
+        monkeypatch.setattr(bot,'fetch_510500_chain_with_failover',lambda *args:(chain,stamp))
+        monkeypatch.setattr(bot,'_v14_ic_short_put_candidate',lambda *args,**kw:{'tradable':False})
+        monkeypatch.setattr(bot,'fetch_option_closes',lambda security:
+            pd.Series([.01],index=pd.to_datetime([expiry])))
+        signal=seed.fixture.signal('IC',expiry,next_trade_date=date(2026,12,24),
+            core_put_target_delta=0.,put_target_core_qty=0,put_target_momentum_qty=0,
+            momentum_120=.1,v14_recovery_net_pnl_mark=-.1)
+        if outcome is not None:
+            signal.update(v14_model_settlement_outcome=outcome,v14_model_settlement_confirmed=True)
+        before=deepcopy(a)
+        out=bot._apply_v14_live_policy('IC',signal)
+&gt;       assert out['v14_action']=='HOLD_FAIL_CLOSED'
+E       AssertionError: assert 'SHORT_PUT_EXPIRE_WORTHLESS' == 'HOLD_FAIL_CLOSED'
+E         
+E         - HOLD_FAIL_CLOSED
+E         + SHORT_PUT_EXPIRE_WORTHLESS
+
+test_icim_round2_audit_lifecycle_20261021.py:427: AssertionError</failure></testcase></testsuite></testsuites>

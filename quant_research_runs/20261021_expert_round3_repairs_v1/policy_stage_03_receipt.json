@@ -1,0 +1,17 @@
+{
+  "exit_code": 0,
+  "tests": 304,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "by_module": {
+    "test_icim_round3_policy_repairs_20261021.py": 247,
+    "test_ic_im_v1_4_policy.py": 57
+  },
+  "source_snapshot": {
+    "ic_im_v1_4_policy.py": "b4f131bd60c596f19800d11d4c1f4eab5de0f4f4b2e935242a24ff7324827eac",
+    "test_icim_round3_policy_repairs_20261021.py": "fa395547a11f8d7d5a68abf0ae088658922f1dfb04c9da7053dfe1b5e4084caf",
+    "test_ic_im_v1_4_policy.py": "3f6b4bc5828be1cc6aa4a73c5f5c631ce45cfe006ad1499feec8059b53bf59ac"
+  },
+  "note": "Bounded stage snapshot, not final whole-source consistency receipt. Independent audit_p1_stage_03 also retested original unused-profit counterexample without edits."
+}

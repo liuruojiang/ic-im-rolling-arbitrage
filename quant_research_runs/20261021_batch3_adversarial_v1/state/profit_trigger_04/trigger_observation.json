@@ -1,0 +1,8 @@
+{
+  "sha256": "3458dad4aded045b395248a61b0a7ee69673d871ae3c8ff7a528cedb230f4d40",
+  "sequence": 1,
+  "verified_day": "2026-10-21",
+  "trigger": "2026-10-20",
+  "execution": "2026-10-21",
+  "source_binding_equal": true
+}

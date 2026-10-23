@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="4" failures="0" skipped="0" tests="5" time="2.024" timestamp="2026-10-21T19:44:42.676605+08:00" hostname="DESKTOP-95I7VVU"><testcase classname="" name="test_no_evidence_context_preserves_provider_keyword_signature" time="0.001" /><testcase classname="" name="test_same_day_snapshot_cannot_bind_requested_security_to_a_different_contract" time="0.001"><error message="failed on setup with &quot;FileNotFoundError: [WinError 3] 系统找不到指定的路径。: 'D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261021_expert_round3_repairs_v1\\audit_recovery\\temp_01'&quot;">self = WindowsPath('D:/动量策略/IC和IM滚动套利/quant_research_runs/20261021_expert_round3_repairs_v1/audit_recovery/temp_01')
+mode = 448, parents = False, exist_ok = False
+
+    def mkdir(self, mode=0o777, parents=False, exist_ok=False):
+        """
+        Create a new directory at this given path.
+        """
+        try:
+&gt;           os.mkdir(self, mode)
+E           FileNotFoundError: [WinError 3] 系统找不到指定的路径。: 'D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261021_expert_round3_repairs_v1\\audit_recovery\\temp_01'
+
+C:\Python314\Lib\pathlib\__init__.py:1011: FileNotFoundError</error></testcase><testcase classname="" name="test_original_closed_at_after_session_never_becomes_original_day_evidence" time="0.001"><error message="failed on setup with &quot;FileNotFoundError: [WinError 3] 系统找不到指定的路径。: 'D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261021_expert_round3_repairs_v1\\audit_recovery\\temp_01'&quot;">self = WindowsPath('D:/动量策略/IC和IM滚动套利/quant_research_runs/20261021_expert_round3_repairs_v1/audit_recovery/temp_01')
+mode = 448, parents = False, exist_ok = False
+
+    def mkdir(self, mode=0o777, parents=False, exist_ok=False):
+        """
+        Create a new directory at this given path.
+        """
+        try:
+&gt;           os.mkdir(self, mode)
+E           FileNotFoundError: [WinError 3] 系统找不到指定的路径。: 'D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261021_expert_round3_repairs_v1\\audit_recovery\\temp_01'
+
+C:\Python314\Lib\pathlib\__init__.py:1011: FileNotFoundError</error></testcase><testcase classname="" name="test_missing_candidate_month_never_uses_current_chain" time="0.001"><error message="failed on setup with &quot;FileNotFoundError: [WinError 3] 系统找不到指定的路径。: 'D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261021_expert_round3_repairs_v1\\audit_recovery\\temp_01'&quot;">self = WindowsPath('D:/动量策略/IC和IM滚动套利/quant_research_runs/20261021_expert_round3_repairs_v1/audit_recovery/temp_01')
+mode = 448, parents = False, exist_ok = False
+
+    def mkdir(self, mode=0o777, parents=False, exist_ok=False):
+        """
+        Create a new directory at this given path.
+        """
+        try:
+&gt;           os.mkdir(self, mode)
+E           FileNotFoundError: [WinError 3] 系统找不到指定的路径。: 'D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261021_expert_round3_repairs_v1\\audit_recovery\\temp_01'
+
+C:\Python314\Lib\pathlib\__init__.py:1011: FileNotFoundError</error></testcase><testcase classname="" name="test_freeze_then_original_monthly_evidence_can_replay_and_advance_two_sessions" time="0.001"><error message="failed on setup with &quot;FileNotFoundError: [WinError 3] 系统找不到指定的路径。: 'D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261021_expert_round3_repairs_v1\\audit_recovery\\temp_01'&quot;">self = WindowsPath('D:/动量策略/IC和IM滚动套利/quant_research_runs/20261021_expert_round3_repairs_v1/audit_recovery/temp_01')
+mode = 448, parents = False, exist_ok = False
+
+    def mkdir(self, mode=0o777, parents=False, exist_ok=False):
+        """
+        Create a new directory at this given path.
+        """
+        try:
+&gt;           os.mkdir(self, mode)
+E           FileNotFoundError: [WinError 3] 系统找不到指定的路径。: 'D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261021_expert_round3_repairs_v1\\audit_recovery\\temp_01'
+
+C:\Python314\Lib\pathlib\__init__.py:1011: FileNotFoundError</error></testcase></testsuite></testsuites>

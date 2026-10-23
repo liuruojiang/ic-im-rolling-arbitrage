@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="2" time="6.440" timestamp="2026-10-21T13:30:52.595046+08:00" hostname="DESKTOP-95I7VVU"><testcase classname="test_ic_im_external_review_20261021" name="test_real_adjusted_rows_are_quarantined_without_inventing_trading_codes" time="0.040"><failure message="assert 29 == 15&#10; +  where 29 = len(             contract    last  ...  strike              source_stamp\n0   510500P2612A07367  0.6426  ...   7.367 2026-1...0 2026-10-21 13:28:20+08:00\n28  510500P2612M05750  0.0368  ...   5.750 2026-10-21 13:28:01+08:00\n\n[29 rows x 7 columns])">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000001A363C92EA0&gt;
+
+    def test_real_adjusted_rows_are_quarantined_without_inventing_trading_codes(monkeypatch):
+        root = Path(__file__).parent / "tests/fixtures/icim_external_review_20261021"
+        responses = iter([SimpleNamespace(content=(root/name).read_bytes(), headers={},
+                                          raise_for_status=lambda: None)
+                          for name in ["sina_december_listing.bin", "sina_december_quotes.bin"]])
+        monkeypatch.setattr(bot.requests, "get", lambda *a, **k: next(responses))
+        chain, stamp = bot.fetch_sina_510500_chain("202612")
+&gt;       assert len(chain) == 15
+E       assert 29 == 15
+E        +  where 29 = len(             contract    last  ...  strike              source_stamp\n0   510500P2612A07367  0.6426  ...   7.367 2026-1...0 2026-10-21 13:28:20+08:00\n28  510500P2612M05750  0.0368  ...   5.750 2026-10-21 13:28:01+08:00\n\n[29 rows x 7 columns])
+
+test_ic_im_external_review_20261021.py:224: AssertionError</failure></testcase><testcase classname="test_ic_im_external_review_20261021" name="test_adjusted_held_core_cannot_use_standard_multiplier_or_m_quote" time="4.082"><failure message="AssertionError: Regex pattern did not match.&#10;  Expected regex: 'adjusted contract master'&#10;  Actual message: &quot;510500期权链所有来源均不可用；上交所行情接口: ProxyError: HTTPSConnectionPool(host='yunhq.sse.com.cn', port=32042): Max retries exceeded with url: /v1/sho/list/tstyle/510500_12?select=contractid%2Clast%2Cchg_rate%2Cpresetpx%2Cexepx&amp;order=contractid%2Case (Caused by ProxyError('Cannot connect to proxy.', NewConnectionError('&lt;urllib3.connection.HTTPSConnection object at 0x000001A363F0CEC0&gt;: Failed to establish a new connection: [WinError 10061] 由于目标计算机积极拒绝，无法连接。')))；新浪财经期权详报价: ProxyError: HTTPSConnectionPool(host='hq.sinajs.cn', port=443): Max retries exceeded with url: /?list=OP_DOWN_5105002612 (Caused by ProxyError('Cannot connect to proxy.', NewConnectionError('&lt;urllib3.connection.HTTPSConnection object at 0x000001A363E3AAD0&gt;: Failed to establish a new connection: [WinError 10061] 由于目标计算机积极拒绝，无法连接。')))&quot;">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000001A363C93950&gt;
+
+    def test_adjusted_held_core_cannot_use_standard_multiplier_or_m_quote(monkeypatch):
+        anchor = fixture.anchor("IC")
+        anchor["v14_core_put_contract"] = "510500P2612A07500"
+        with pytest.raises(RuntimeError, match="adjusted contract master"):
+&gt;           bot._v14_ic_core_overlay(fixture.signal("IC", DAY), anchor)
+
+test_ic_im_external_review_20261021.py:238: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_mainline_v1_4_bot.py:5108: in _v14_ic_core_overlay
+    chain, stamp = fetch_510500_chain_with_failover(match.group(1))
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+expiry_ym = '2612'
+
+    def fetch_510500_chain_with_failover(expiry_ym: str) -&gt; tuple[pd.DataFrame, dict[str, str]]:
+        """Use SSE first, then Sina; never substitute stale or malformed quotes."""
+        failures: list[str] = []
+        for source, fetcher in (
+            ("上交所行情接口", fetch_sse_510500_chain),
+            ("新浪财经期权详报价", fetch_sina_510500_chain),
+        ):
+            try:
+                chain, stamp = fetcher(expiry_ym)
+                required = {"contract", "last", "strike"}
+                if not required.issubset(chain.columns) or chain.empty:
+                    raise RuntimeError("期权链为空或缺少必要字段")
+                normalized_stamp = dict(stamp)
+                normalized_stamp.setdefault("source", source)
+                return chain, normalized_stamp
+            except Exception as exc:
+                failures.append(f"{source}: {type(exc).__name__}: {exc}")
+&gt;       raise RuntimeError("510500期权链所有来源均不可用；" + "；".join(failures))
+E       RuntimeError: 510500期权链所有来源均不可用；上交所行情接口: ProxyError: HTTPSConnectionPool(host='yunhq.sse.com.cn', port=32042): Max retries exceeded with url: /v1/sho/list/tstyle/510500_12?select=contractid%2Clast%2Cchg_rate%2Cpresetpx%2Cexepx&amp;order=contractid%2Case (Caused by ProxyError('Cannot connect to proxy.', NewConnectionError('&lt;urllib3.connection.HTTPSConnection object at 0x000001A363F0CEC0&gt;: Failed to establish a new connection: [WinError 10061] 由于目标计算机积极拒绝，无法连接。')))；新浪财经期权详报价: ProxyError: HTTPSConnectionPool(host='hq.sinajs.cn', port=443): Max retries exceeded with url: /?list=OP_DOWN_5105002612 (Caused by ProxyError('Cannot connect to proxy.', NewConnectionError('&lt;urllib3.connection.HTTPSConnection object at 0x000001A363E3AAD0&gt;: Failed to establish a new connection: [WinError 10061] 由于目标计算机积极拒绝，无法连接。')))
+
+poe_ic_im_mainline_v1_4_bot.py:3709: RuntimeError
+
+During handling of the above exception, another exception occurred:
+
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000001A363C93950&gt;
+
+    def test_adjusted_held_core_cannot_use_standard_multiplier_or_m_quote(monkeypatch):
+        anchor = fixture.anchor("IC")
+        anchor["v14_core_put_contract"] = "510500P2612A07500"
+&gt;       with pytest.raises(RuntimeError, match="adjusted contract master"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: Regex pattern did not match.
+E         Expected regex: 'adjusted contract master'
+E         Actual message: "510500期权链所有来源均不可用；上交所行情接口: ProxyError: HTTPSConnectionPool(host='yunhq.sse.com.cn', port=32042): Max retries exceeded with url: /v1/sho/list/tstyle/510500_12?select=contractid%2Clast%2Cchg_rate%2Cpresetpx%2Cexepx&amp;order=contractid%2Case (Caused by ProxyError('Cannot connect to proxy.', NewConnectionError('&lt;urllib3.connection.HTTPSConnection object at 0x000001A363F0CEC0&gt;: Failed to establish a new connection: [WinError 10061] 由于目标计算机积极拒绝，无法连接。')))；新浪财经期权详报价: ProxyError: HTTPSConnectionPool(host='hq.sinajs.cn', port=443): Max retries exceeded with url: /?list=OP_DOWN_5105002612 (Caused by ProxyError('Cannot connect to proxy.', NewConnectionError('&lt;urllib3.connection.HTTPSConnection object at 0x000001A363E3AAD0&gt;: Failed to establish a new connection: [WinError 10061] 由于目标计算机积极拒绝，无法连接。')))"
+
+test_ic_im_external_review_20261021.py:237: AssertionError</failure></testcase></testsuite></testsuites>

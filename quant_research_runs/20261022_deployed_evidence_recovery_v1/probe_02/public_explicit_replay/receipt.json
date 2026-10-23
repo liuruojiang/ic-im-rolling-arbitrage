@@ -1,0 +1,118 @@
+{
+  "name": "public_explicit_replay",
+  "evidence_dir": "D:\\动量策略\\IC和IM滚动套利\\data\\icim_v14_original_inputs",
+  "negative": null,
+  "before": {
+    "verified_day": "2026-10-21",
+    "sequence": 19,
+    "digest": "c068710414dd9070d178faa4625d56835e67b9f2004c935a268900b9a1080342"
+  },
+  "attachments": 0,
+  "after": {
+    "verified_day": "2026-10-22",
+    "sequence": 20,
+    "digest": "c606f7a42d3f1ffb127161a916414538a3c2edf39b5d1b24e7889a5147a6a381"
+  },
+  "refresh_error": null,
+  "network_attempts": [],
+  "signals": {
+    "IC": {
+      "signal_complete": true,
+      "persistence_eligible": true,
+      "diagnostic_only": null,
+      "calendar_provisional": false,
+      "market_date": "2026-10-22",
+      "signal_generation_timing": "retrospective_replay",
+      "original_evidence": {
+        "manifest_sha256": "fcbfda93c687bf31908b756065d7971ec25d32112e2cdf087860b27df41dbf26",
+        "decision_at": "2026-10-22T18:40:06.283276+08:00",
+        "acquired_until": "2026-10-22T10:40:29.320302+00:00",
+        "replay_runtime": "2026-10-22T18:40:29.320302+08:00",
+        "input_revision": "ic_im_original_inputs_20261021_v1",
+        "unrecorded_inputs": [],
+        "replay_completeness": {
+          "collection_path": "independent_of_signal_and_calendar_decision",
+          "parallel_workers": 4,
+          "required_roles": [
+            "cffex.quotes",
+            "fear.score",
+            "ic.chain",
+            "ic.etf",
+            "ic.months",
+            "market.live",
+            "rate.resolve"
+          ],
+          "present_roles": [
+            "cffex.quotes",
+            "fear.reference",
+            "fear.score",
+            "ic.chain",
+            "ic.etf",
+            "ic.months",
+            "market.live",
+            "rate.resolve"
+          ],
+          "missing_roles": [],
+          "input_capture_complete": true,
+          "historical_supplements_needed": [],
+          "state_transition_validated": false,
+          "note": "原日输入快照完整性不等于正式信号或账本资格；缺值可能仍需后日补证"
+        }
+      }
+    },
+    "IM": {
+      "signal_complete": true,
+      "persistence_eligible": true,
+      "diagnostic_only": null,
+      "calendar_provisional": false,
+      "market_date": "2026-10-22",
+      "signal_generation_timing": "retrospective_replay",
+      "original_evidence": {
+        "manifest_sha256": "fbd0247754eb1dcb80ad0a7f1cd3d068a9b10e8f9675af8ef656c160fd9ea417",
+        "decision_at": "2026-10-22T18:40:06.283276+08:00",
+        "acquired_until": "2026-10-22T10:41:08.069189+00:00",
+        "replay_runtime": "2026-10-22T18:41:08.069189+08:00",
+        "input_revision": "ic_im_original_inputs_20261021_v1",
+        "unrecorded_inputs": [],
+        "replay_completeness": {
+          "collection_path": "independent_of_signal_and_calendar_decision",
+          "parallel_workers": 4,
+          "required_roles": [
+            "cffex.quotes",
+            "fear.score",
+            "market.live",
+            "rate.resolve"
+          ],
+          "present_roles": [
+            "cffex.quotes",
+            "fear.reference",
+            "fear.score",
+            "market.live",
+            "mo.replay_verification",
+            "rate.resolve"
+          ],
+          "missing_roles": [],
+          "input_capture_complete": true,
+          "historical_supplements_needed": [],
+          "state_transition_validated": false,
+          "note": "原日输入快照完整性不等于正式信号或账本资格；缺值可能仍需后日补证"
+        }
+      }
+    }
+  },
+  "idempotent": true,
+  "health": {
+    "status": "ok",
+    "strategy": "IC/IM research signal 1.4",
+    "strategy_revision": "r1",
+    "build": "v1.4-20261008-r1-ic-csi500-abs40-fix11",
+    "verified_day": "2026-10-22",
+    "sequence": 20,
+    "digest_prefix": "c606f7a42d3f",
+    "completed_day": "2026-10-22",
+    "refresh_error": null,
+    "evidence_capture": null
+  },
+  "zero_external_http": true,
+  "status": "PASS"
+}

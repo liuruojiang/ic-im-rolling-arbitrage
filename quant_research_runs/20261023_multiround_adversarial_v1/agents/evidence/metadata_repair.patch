@@ -1,0 +1,83 @@
+--- before/ic_im_signal_evidence_v1.py
++++ after/ic_im_signal_evidence_v1.py
+@@ -359,6 +359,15 @@
+     return _dumps(headers)
+ 
+ 
++def _validate_http_metadata(row):
++    # Error statuses are real source evidence too; only malformed protocol
++    # metadata is rejected. bool and integral floats are not HTTP status ints.
++    if type(row.get("status_code")) is not int or not 100 <= row["status_code"] <= 599:
++        raise EvidenceUnavailable("recorded HTTP response status invalid")
++    if row.get("encoding") is not None and not isinstance(row["encoding"], str):
++        raise EvidenceUnavailable("recorded HTTP response encoding invalid")
++
++
+ def raw_http_conflicts(rows):
+     """Report request ambiguity using the same identity as the strict reader."""
+     seen, reported, conflicts = {}, set(), []
+@@ -552,6 +561,17 @@
+             return self.manifest_path
+         if self._active_fetches:
+             raise EvidenceUnavailable("cannot close evidence while input fetches are active")
++        invalid = {row.get("raw_index") for row in self.failures
++                   if row.get("role") == "raw_http_metadata"}
++        for index, row in enumerate(self.raw):
++            try:
++                _validate_http_metadata(row)
++            except EvidenceUnavailable as exc:
++                if index not in invalid:
++                    self.failures.append({"role": "raw_http_metadata", "raw_index": index,
++                                          "url": row.get("url"), "error_type": type(exc).__name__,
++                                          "error": str(exc), "at": _now().isoformat(), "resolved": False})
++                    invalid.add(index)
+         conflicts = self.record_http_conflicts()
+         complete = bool(self.entries) and all(x["resolved"] for x in self.failures)
+         integrity = "inconsistent" if conflicts else "complete" if complete else "incomplete"
+@@ -656,8 +676,7 @@
+                 symbols = str(key["list"]).split(",")
+                 if params["list"] not in symbols:
+                     continue
+-                if type(row.get("status_code")) is not int or not 100 <= row["status_code"] <= 599:
+-                    raise EvidenceUnavailable("recorded HTTP response status invalid")
++                _validate_http_metadata(row)
+                 body = _verified_blob(self.root, row)
+                 values = list(re.finditer(rb'(?:var\s+)?hq_str_(P_OP_mo[0-9]{4}[CP][0-9]+)="([^"\r\n]*)";?', body))
+                 returned = [m[1].decode("ascii") for m in values]
+@@ -671,10 +690,7 @@
+             raise EvidenceUnavailable(f"{self.day} original evidence has no recorded HTTP request: {url}")
+         signatures = set()
+         for row in candidates:
+-            if type(row.get("status_code")) is not int or not 100 <= row["status_code"] <= 599:
+-                raise EvidenceUnavailable("recorded HTTP response status invalid")
+-            if row.get("encoding") is not None and not isinstance(row["encoding"], str):
+-                raise EvidenceUnavailable("recorded HTTP response encoding invalid")
++            _validate_http_metadata(row)
+             signatures.add((row["body"], row["status_code"], row.get("encoding"), _http_identity_headers(row)))
+         if len(signatures) != 1:
+             # URL/parameters do not identify which observation a caller used.
+@@ -714,9 +730,15 @@
+             if not isinstance(metadata, dict):
+                 raise EvidenceUnavailable("invalid evidence metadata")
+             if all(metadata.get(k) == v for k, v in metadata_filter.items()):
++                valid_http = True
++                for row in body.get("raw", []):
++                    try:
++                        _validate_http_metadata(row)
++                    except EvidenceUnavailable:
++                        valid_http = False
+                 if (body.get("complete") is True and isinstance(body.get("failures"), list)
+                         and all(row.get("resolved") is True for row in body["failures"])
+-                        and not raw_http_conflicts(body.get("raw", []))):
++                        and valid_http and not raw_http_conflicts(body.get("raw", []))):
+                     return True
+                 incomplete = True
+         except (KeyError, TypeError, ValueError, AttributeError) as exc:
+@@ -767,6 +789,7 @@
+     for entry in raw:
+         if entry.get("suffix") != ".bin":
+             raise EvidenceUnavailable("invalid raw evidence suffix")
++        _validate_http_metadata(entry)
+         acquired = _aware(entry["fetched_at"], "raw fetched_at")
+         if not opened <= acquired <= closed:
+             raise EvidenceUnavailable("raw evidence acquisition timestamp out of capture bounds")

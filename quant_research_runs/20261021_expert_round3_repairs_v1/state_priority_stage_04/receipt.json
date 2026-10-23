@@ -1,0 +1,40 @@
+{
+  "command": [
+    "C:\\Python314\\python.exe",
+    "-m",
+    "pytest",
+    "-c",
+    "quant_research_runs/20261021_expert_repairs_v1/pytest.ini",
+    "test_icim_round3_grid_persistence_20261021.py",
+    "test_icim_round3_calendar_comparison_20261021.py",
+    "test_icim_round3_grid_contract_replacements_20261021.py",
+    "--basetemp=quant_research_runs\\20261021_expert_round3_repairs_v1\\state_priority_stage_04\\tmp",
+    "--junitxml=quant_research_runs\\20261021_expert_round3_repairs_v1\\state_priority_stage_04\\junit.xml",
+    "-p",
+    "no:cacheprovider",
+    "-q"
+  ],
+  "exit_code": 0,
+  "counts": {
+    "tests": 63,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "source_before": {
+    "poe_ic_im_mainline_v1_4_bot.py": "77449bdb2da91ce144f60ac8090fada45a65e6d5f1400a477f1982a02773fedf",
+    "poe_ic_im_v1_4_state.py": "9244c7f1d8bbb138e8e86246261fad13e90058f42764b855f8219aa1596c1067",
+    "test_icim_round3_grid_persistence_20261021.py": "bb2b58390af4a7e4f016c6047ca088ef36311679dcb8abd0c84425c84e7b607d",
+    "test_icim_round3_calendar_comparison_20261021.py": "29e21dc8dcc3380c96a26ac65ade6dde1783049eaa7135132b82bad728f2c3f4",
+    "test_icim_round3_grid_contract_replacements_20261021.py": "ff4b82e20160fa6fc08665e6e99c9388ce6067d8ac5f00af24cd93998e58669f"
+  },
+  "source_after": {
+    "poe_ic_im_mainline_v1_4_bot.py": "77449bdb2da91ce144f60ac8090fada45a65e6d5f1400a477f1982a02773fedf",
+    "poe_ic_im_v1_4_state.py": "9244c7f1d8bbb138e8e86246261fad13e90058f42764b855f8219aa1596c1067",
+    "test_icim_round3_grid_persistence_20261021.py": "bb2b58390af4a7e4f016c6047ca088ef36311679dcb8abd0c84425c84e7b607d",
+    "test_icim_round3_calendar_comparison_20261021.py": "29e21dc8dcc3380c96a26ac65ade6dde1783049eaa7135132b82bad728f2c3f4",
+    "test_icim_round3_grid_contract_replacements_20261021.py": "ff4b82e20160fa6fc08665e6e99c9388ce6067d8ac5f00af24cd93998e58669f"
+  },
+  "source_unchanged": true,
+  "scope": "state validation priorities + grid contract replacements + pure calendar comparisons; no production state"
+}

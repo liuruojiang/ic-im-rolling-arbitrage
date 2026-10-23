@@ -1,0 +1,93 @@
+FFFF                                                                     [100%]
+================================== FAILURES ===================================
+_ test_direct_identity_guards_require_ascii_even_without_source_parser[selected] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000018240A13CE0>
+entry = 'selected'
+
+    @pytest.mark.parametrize('entry', ['selected', 'held_security', 'held_contract'])
+    def test_direct_identity_guards_require_ascii_even_without_source_parser(monkeypatch, entry):
+        chain, _ = wire(monkeypatch, payload())
+        row = chain.loc[chain.contract.eq(CONTRACT)].iloc[0].copy()
+        fullwidth = ''.join(chr(0xFF10 + int(c)) for c in SECURITY)
+        contract, security = CONTRACT, SECURITY
+        if entry in ('selected', 'held_security'):
+            security = row['security_id'] = fullwidth
+        else:
+            contract = row['contract'] = CONTRACT[:-5] + '０７５００'
+>       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+test_icim_round2_audit_market_20261021.py:237: Failed
+_ test_direct_identity_guards_require_ascii_even_without_source_parser[held_security] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000018240BC4640>
+entry = 'held_security'
+
+    @pytest.mark.parametrize('entry', ['selected', 'held_security', 'held_contract'])
+    def test_direct_identity_guards_require_ascii_even_without_source_parser(monkeypatch, entry):
+        chain, _ = wire(monkeypatch, payload())
+        row = chain.loc[chain.contract.eq(CONTRACT)].iloc[0].copy()
+        fullwidth = ''.join(chr(0xFF10 + int(c)) for c in SECURITY)
+        contract, security = CONTRACT, SECURITY
+        if entry in ('selected', 'held_security'):
+            security = row['security_id'] = fullwidth
+        else:
+            contract = row['contract'] = CONTRACT[:-5] + '０７５００'
+>       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+test_icim_round2_audit_market_20261021.py:237: Failed
+_ test_direct_identity_guards_require_ascii_even_without_source_parser[held_contract] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000018240A87890>
+entry = 'held_contract'
+
+    @pytest.mark.parametrize('entry', ['selected', 'held_security', 'held_contract'])
+    def test_direct_identity_guards_require_ascii_even_without_source_parser(monkeypatch, entry):
+        chain, _ = wire(monkeypatch, payload())
+        row = chain.loc[chain.contract.eq(CONTRACT)].iloc[0].copy()
+        fullwidth = ''.join(chr(0xFF10 + int(c)) for c in SECURITY)
+        contract, security = CONTRACT, SECURITY
+        if entry in ('selected', 'held_security'):
+            security = row['security_id'] = fullwidth
+        else:
+            contract = row['contract'] = CONTRACT[:-5] + '０７５００'
+>       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+test_icim_round2_audit_market_20261021.py:237: Failed
+____________ test_real_sina_packets_reject_unicode_security_syntax ____________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000018240B23790>
+
+    def test_real_sina_packets_reject_unicode_security_syntax(monkeypatch):
+        raw = (FIXTURE.parents[1] / 'icim_external_review_20261021/sina_quotes_literal.bin').read_bytes().decode('gbk')
+        ids = re.findall(r'var hq_str_CON_OP_([0-9]+)=', raw)
+        malformed = ''.join(chr(0xFF10 + int(c)) for c in ids[0])
+        raw = raw.replace('CON_OP_' + ids[0], 'CON_OP_' + malformed)
+        ids[0] = malformed
+        listing = 'var hq_str_OP_DOWN_5105002611="' + ','.join('CON_OP_' + x for x in ids) + '";'
+        def response(body):
+            return SimpleNamespace(content=body.encode('gbk'), headers={}, raise_for_status=lambda: None)
+        monkeypatch.setattr(bot.requests, 'get', Mock(side_effect=[response(listing), response(raw)]))
+>       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+test_icim_round2_audit_market_20261021.py:254: Failed
+============================== warnings summary ===============================
+C:\Python314\Lib\site-packages\fastapi_poe\types.py:171
+  C:\Python314\Lib\site-packages\fastapi_poe\types.py:171: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    class RequestContext(BaseModel):
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED test_icim_round2_audit_market_20261021.py::test_direct_identity_guards_require_ascii_even_without_source_parser[selected]
+FAILED test_icim_round2_audit_market_20261021.py::test_direct_identity_guards_require_ascii_even_without_source_parser[held_security]
+FAILED test_icim_round2_audit_market_20261021.py::test_direct_identity_guards_require_ascii_even_without_source_parser[held_contract]
+FAILED test_icim_round2_audit_market_20261021.py::test_real_sina_packets_reject_unicode_security_syntax
+4 failed, 38 deselected, 1 warning in 2.26s

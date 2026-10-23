@@ -1,0 +1,627 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="10" skipped="0" tests="23" time="8.480" timestamp="2026-10-23T08:55:56.375467+08:00" hostname="DESKTOP-95I7VVU"><testcase classname="test_icim_production_provenance_20261023" name="test_query_chain_cache_hit_revalidates_and_keeps_selected_row_time_gate" time="0.025"><failure message="AssertionError: assert (1 == 2)&#10; +  where 1 = len([datetime.datetime(2026, 10, 22, 10, 0, tzinfo=zoneinfo.ZoneInfo(key='Asia/Shanghai'))])">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x0000029DAFAB2520&gt;
+
+    def test_query_chain_cache_hit_revalidates_and_keeps_selected_row_time_gate(monkeypatch):
+        tick, network, checks = [0.], [], []
+        clock = CLOCK.replace(hour=10, minute=0)
+        monkeypatch.setattr(bot.time_module, 'monotonic', lambda: tick[0])
+        chain = frame()
+        chain['source_stamp'] = clock
+        def fetch(month):
+            network.append(month)
+            return chain, {'date': '20261022', 'time': '100000'}
+        monkeypatch.setattr(bot, 'fetch_510500_chain_with_failover', fetch)
+        validate = bot._validate_chain_stamp_matches
+        def checked(*args):
+            checks.append(bot._iv_observation_clock(args[-1]))
+            return validate(*args)
+        monkeypatch.setattr(bot, '_validate_chain_stamp_matches', checked)
+        token = bot._IC_QUOTE_QUERY_CACHE.set({})
+        try:
+            with bot.runtime_clock(clock), bot.collection_clock(clock):
+                first = bot._fetch_510500_chain_for_day('2612', DAY)
+                bot._require_selected_510500_quote_time(first[0].iloc[0], clock, DAY)
+                tick[0] = 21 * 60
+                second = bot._fetch_510500_chain_for_day('2612', DAY)
+&gt;               assert len(checks) == 2 and checks[-1] &gt; checks[0]
+E               AssertionError: assert (1 == 2)
+E                +  where 1 = len([datetime.datetime(2026, 10, 22, 10, 0, tzinfo=zoneinfo.ZoneInfo(key='Asia/Shanghai'))])
+
+test_icim_production_provenance_20261023.py:66: AssertionError</failure></testcase><testcase classname="test_icim_production_provenance_20261023" name="test_capture_role_cache_hit_revalidates_consumed_chain" time="0.036"><failure message="AssertionError: assert 2 &gt; 2&#10; +  where 2 = len(['510500期权链', '原日期权链存证'])">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x0000029DAFAB3100&gt;
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_c2c312b2/pytest/test_capture_role_cache_hit_re0')
+
+    def test_capture_role_cache_hit_revalidates_consumed_chain(monkeypatch, tmp_path):
+        calls, checks = [], []
+        monkeypatch.setattr(bot, 'fetch_510500_chain_with_failover',
+                            lambda month: (calls.append(month) or frame(), {'date': '20261022', 'time': '150000'}))
+        validate = bot._validate_chain_stamp_matches
+        def checked(*args):
+            checks.append(args[0])
+            return validate(*args)
+        monkeypatch.setattr(bot, '_validate_chain_stamp_matches', checked)
+        with bot.runtime_clock(CLOCK), evidence.capture_session(tmp_path, DAY, CLOCK, {}):
+            bot._fetch_510500_chain_for_day('2612', DAY)
+            before = len(checks)
+            bot._fetch_510500_chain_for_day('2612', DAY)
+&gt;           assert len(checks) &gt; before
+E           AssertionError: assert 2 &gt; 2
+E            +  where 2 = len(['510500期权链', '原日期权链存证'])
+
+test_icim_production_provenance_20261023.py:87: AssertionError</failure></testcase><testcase classname="test_icim_production_provenance_20261023" name="test_security_id_direct_sina_chain_remains_outside_month_cache" time="0.003" /><testcase classname="test_icim_production_provenance_20261023" name="test_raw_replay_missing_failed_primary_reaches_recorded_fallback[etf]" time="0.048" /><testcase classname="test_icim_production_provenance_20261023" name="test_raw_replay_missing_failed_primary_reaches_recorded_fallback[months]" time="0.050" /><testcase classname="test_icim_production_provenance_20261023" name="test_exhausted_raw_replay_preserves_evidence_unavailable[fetch_510500_quote_with_failover-args0]" time="0.025"><failure message="RuntimeError: 510500ETF所有来源均不可用；上交所510500ETF: EvidenceUnavailable: 2026-10-22 original evidence has no recorded HTTP request: https://yunhq.sse.com.cn:32042/v1/sh1/list/self/510500；腾讯510500ETF: EvidenceUnavailable: 2026-10-22 original evidence has no recorded HTTP request: https://qt.gtimg.cn/q=sh510500；新浪510500ETF: EvidenceUnavailable: 2026-10-22 original evidence has no recorded HTTP request: https://hq.sinajs.cn/">reference_day = datetime.date(2026, 10, 22)
+
+    def fetch_510500_quote_with_failover(reference_day: date | None = None) -&gt; dict[str, Any]:
+        day, clock = reference_day or _now_beijing().date(), _now_beijing()
+        started = time_module.monotonic()
+        errors, failures = [], []
+        for source, fetcher in (("上交所510500ETF", fetch_sse_510500_quote),
+                                ("腾讯510500ETF", fetch_tencent_510500_quote),
+                                ("新浪510500ETF", fetch_sina_510500_quote)):
+            try:
+&gt;               value = dict(fetcher())
+                             ^^^^^^^^^
+
+poe_ic_im_mainline_v1_4_bot.py:4106: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_mainline_v1_4_bot.py:4084: in fetch_sina_510500_quote
+    raw = _public_quote_bytes("https://hq.sinajs.cn/", "新浪510500ETF", params={"list": "sh510500"})
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+poe_ic_im_mainline_v1_4_bot.py:4021: in _public_quote_bytes
+    response = _evidence_http_get(
+poe_ic_im_mainline_v1_4_bot.py:64: in _evidence_http_get
+    archived = reader.http_response(url, kwargs.get("params"))
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = &lt;ic_im_signal_evidence_v1.EvidenceReader object at 0x0000029DAFC647D0&gt;
+url = 'https://hq.sinajs.cn/', params = {'list': 'sh510500'}
+
+    def http_response(self, url: str, params: Any) -&gt; dict[str, Any]:
+        matches = [row for row in self.context["raw"]
+                   if row.get("url") == url and canonical_http_params(row.get("params")) == canonical_http_params(encode(params))]
+        candidates = [{**row, "body": _verified_blob(self.root, row)} for row in matches]
+        # Sina accepts a list of symbols. Project one exact original variable
+        # from a verified recorded batch; never construct prices or identities.
+        if (not matches and url == "https://hq.sinajs.cn/etag.php" and isinstance(params, dict)
+                and set(params) == {"list"} and re.fullmatch(r"P_OP_mo[0-9]{4}[CP][0-9]+", str(params["list"]))):
+            for row in reversed(self.context["raw"]):
+                key = decode(row.get("params"))
+                if row.get("url") != url or not isinstance(key, dict) or set(key) != {"list"}:
+                    continue
+                symbols = str(key["list"]).split(",")
+                if params["list"] not in symbols:
+                    continue
+                if type(row.get("status_code")) is not int or not 100 &lt;= row["status_code"] &lt;= 599:
+                    raise EvidenceUnavailable("recorded HTTP response status invalid")
+                body = _verified_blob(self.root, row)
+                values = list(re.finditer(rb'(?:var\s+)?hq_str_(P_OP_mo[0-9]{4}[CP][0-9]+)="([^"\r\n]*)";?', body))
+                returned = [m[1].decode("ascii") for m in values]
+                if len(returned) != len(set(returned)) or set(returned) != set(symbols):
+                    raise EvidenceUnavailable("recorded Sina verification batch identities incomplete")
+                selected = next(m[0] for m in values if m[1].decode("ascii") == params["list"])
+                candidates.append({**row, "body": selected, "projection": "exact_recorded_Sina_variable",
+                                   "parent_raw_sha256": row["sha256"]})
+        if not candidates:
+            self.missing_inputs.append({"role": "http", "url": url, "params": params})
+&gt;           raise EvidenceUnavailable(f"{self.day} original evidence has no recorded HTTP request: {url}")
+E           ic_im_signal_evidence_v1.EvidenceUnavailable: 2026-10-22 original evidence has no recorded HTTP request: https://hq.sinajs.cn/
+
+ic_im_signal_evidence_v1.py:671: EvidenceUnavailable
+
+The above exception was the direct cause of the following exception:
+
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x0000029DAFCB0350&gt;
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_c2c312b2/pytest/test_exhausted_raw_replay_pres0')
+target = 'fetch_510500_quote_with_failover'
+args = (datetime.date(2026, 10, 22),)
+
+    @pytest.mark.parametrize('target,args', [
+        ('fetch_510500_quote_with_failover', (DAY,)),
+        ('fetch_510500_expiries_with_failover', ()),
+        ('fetch_510500_chain_with_failover', ('2612',))])
+    def test_exhausted_raw_replay_preserves_evidence_unavailable(monkeypatch, tmp_path, target, args):
+        with evidence.capture_session(tmp_path, DAY, CLOCK, {}) as session:
+            session.call('scope', {}, lambda: True)
+        reader = evidence.load_session(tmp_path, DAY)
+        monkeypatch.setattr(bot.requests, 'get', lambda *a, **k: pytest.fail('replay network request'))
+        with bot.runtime_clock(CLOCK), evidence.replay_session(reader):
+            with pytest.raises(evidence.EvidenceUnavailable, match='原日|所有来源'):
+&gt;               bare(target)(*args)
+
+test_icim_production_provenance_20261023.py:143: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+reference_day = datetime.date(2026, 10, 22)
+
+    def fetch_510500_quote_with_failover(reference_day: date | None = None) -&gt; dict[str, Any]:
+        day, clock = reference_day or _now_beijing().date(), _now_beijing()
+        started = time_module.monotonic()
+        errors, failures = [], []
+        for source, fetcher in (("上交所510500ETF", fetch_sse_510500_quote),
+                                ("腾讯510500ETF", fetch_tencent_510500_quote),
+                                ("新浪510500ETF", fetch_sina_510500_quote)):
+            try:
+                value = dict(fetcher())
+                value.setdefault("source", source)
+                _validate_chain_stamp_matches(source, value, day, _iv_observation_clock(clock, started))
+                _etf_quote_prices(value["last"], value["prev_close"])
+                if failures:
+                    value["source_failures"] = list(failures)
+                return value
+            except Exception as exc:
+                errors.append(exc)
+                failures.append(f"{source}: {type(exc).__name__}: {exc}")
+&gt;       raise _source_failure_error("510500ETF所有来源均不可用；" + "；".join(failures), errors) from errors[-1]
+E       RuntimeError: 510500ETF所有来源均不可用；上交所510500ETF: EvidenceUnavailable: 2026-10-22 original evidence has no recorded HTTP request: https://yunhq.sse.com.cn:32042/v1/sh1/list/self/510500；腾讯510500ETF: EvidenceUnavailable: 2026-10-22 original evidence has no recorded HTTP request: https://qt.gtimg.cn/q=sh510500；新浪510500ETF: EvidenceUnavailable: 2026-10-22 original evidence has no recorded HTTP request: https://hq.sinajs.cn/
+
+poe_ic_im_mainline_v1_4_bot.py:4116: RuntimeError</failure></testcase><testcase classname="test_icim_production_provenance_20261023" name="test_exhausted_raw_replay_preserves_evidence_unavailable[fetch_510500_expiries_with_failover-args1]" time="0.066"><failure message="RuntimeError: 510500挂牌月份所有来源均不可用；上交所挂牌: EvidenceUnavailable: 2026-10-22 original evidence has no recorded HTTP request: https://yunhq.sse.com.cn:32042/v1/sho/list/exchange/stockexpire；新浪挂牌: EvidenceUnavailable: 2026-10-22 original evidence has no recorded HTTP request: https://stock.finance.sina.com.cn/futures/api/openapi.php/StockOptionService.getStockName">def fetch_510500_expiries_with_failover() -&gt; list[str]:
+        errors, failures = [], []
+        for source, fetcher in (("上交所挂牌", fetch_sse_510500_expiries),
+                                ("新浪挂牌", fetch_sina_510500_expiries)):
+            try:
+&gt;               return fetcher()
+                       ^^^^^^^^^
+
+poe_ic_im_mainline_v1_4_bot.py:4374: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_mainline_v1_4_bot.py:4336: in fetch_sina_510500_expiries
+    raw = _public_quote_bytes(
+poe_ic_im_mainline_v1_4_bot.py:4021: in _public_quote_bytes
+    response = _evidence_http_get(
+poe_ic_im_mainline_v1_4_bot.py:64: in _evidence_http_get
+    archived = reader.http_response(url, kwargs.get("params"))
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = &lt;ic_im_signal_evidence_v1.EvidenceReader object at 0x0000029DAFAB2D70&gt;
+url = 'https://stock.finance.sina.com.cn/futures/api/openapi.php/StockOptionService.getStockName'
+params = {'cate': '500ETF', 'exchange': 'null'}
+
+    def http_response(self, url: str, params: Any) -&gt; dict[str, Any]:
+        matches = [row for row in self.context["raw"]
+                   if row.get("url") == url and canonical_http_params(row.get("params")) == canonical_http_params(encode(params))]
+        candidates = [{**row, "body": _verified_blob(self.root, row)} for row in matches]
+        # Sina accepts a list of symbols. Project one exact original variable
+        # from a verified recorded batch; never construct prices or identities.
+        if (not matches and url == "https://hq.sinajs.cn/etag.php" and isinstance(params, dict)
+                and set(params) == {"list"} and re.fullmatch(r"P_OP_mo[0-9]{4}[CP][0-9]+", str(params["list"]))):
+            for row in reversed(self.context["raw"]):
+                key = decode(row.get("params"))
+                if row.get("url") != url or not isinstance(key, dict) or set(key) != {"list"}:
+                    continue
+                symbols = str(key["list"]).split(",")
+                if params["list"] not in symbols:
+                    continue
+                if type(row.get("status_code")) is not int or not 100 &lt;= row["status_code"] &lt;= 599:
+                    raise EvidenceUnavailable("recorded HTTP response status invalid")
+                body = _verified_blob(self.root, row)
+                values = list(re.finditer(rb'(?:var\s+)?hq_str_(P_OP_mo[0-9]{4}[CP][0-9]+)="([^"\r\n]*)";?', body))
+                returned = [m[1].decode("ascii") for m in values]
+                if len(returned) != len(set(returned)) or set(returned) != set(symbols):
+                    raise EvidenceUnavailable("recorded Sina verification batch identities incomplete")
+                selected = next(m[0] for m in values if m[1].decode("ascii") == params["list"])
+                candidates.append({**row, "body": selected, "projection": "exact_recorded_Sina_variable",
+                                   "parent_raw_sha256": row["sha256"]})
+        if not candidates:
+            self.missing_inputs.append({"role": "http", "url": url, "params": params})
+&gt;           raise EvidenceUnavailable(f"{self.day} original evidence has no recorded HTTP request: {url}")
+E           ic_im_signal_evidence_v1.EvidenceUnavailable: 2026-10-22 original evidence has no recorded HTTP request: https://stock.finance.sina.com.cn/futures/api/openapi.php/StockOptionService.getStockName
+
+ic_im_signal_evidence_v1.py:671: EvidenceUnavailable
+
+The above exception was the direct cause of the following exception:
+
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x0000029DAEF03250&gt;
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_c2c312b2/pytest/test_exhausted_raw_replay_pres1')
+target = 'fetch_510500_expiries_with_failover', args = ()
+
+    @pytest.mark.parametrize('target,args', [
+        ('fetch_510500_quote_with_failover', (DAY,)),
+        ('fetch_510500_expiries_with_failover', ()),
+        ('fetch_510500_chain_with_failover', ('2612',))])
+    def test_exhausted_raw_replay_preserves_evidence_unavailable(monkeypatch, tmp_path, target, args):
+        with evidence.capture_session(tmp_path, DAY, CLOCK, {}) as session:
+            session.call('scope', {}, lambda: True)
+        reader = evidence.load_session(tmp_path, DAY)
+        monkeypatch.setattr(bot.requests, 'get', lambda *a, **k: pytest.fail('replay network request'))
+        with bot.runtime_clock(CLOCK), evidence.replay_session(reader):
+            with pytest.raises(evidence.EvidenceUnavailable, match='原日|所有来源'):
+&gt;               bare(target)(*args)
+
+test_icim_production_provenance_20261023.py:143: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+    def fetch_510500_expiries_with_failover() -&gt; list[str]:
+        errors, failures = [], []
+        for source, fetcher in (("上交所挂牌", fetch_sse_510500_expiries),
+                                ("新浪挂牌", fetch_sina_510500_expiries)):
+            try:
+                return fetcher()
+            except Exception as exc:
+                errors.append(exc)
+                failures.append(f"{source}: {type(exc).__name__}: {exc}")
+&gt;       raise _source_failure_error("510500挂牌月份所有来源均不可用；" + "；".join(failures), errors) from errors[-1]
+E       RuntimeError: 510500挂牌月份所有来源均不可用；上交所挂牌: EvidenceUnavailable: 2026-10-22 original evidence has no recorded HTTP request: https://yunhq.sse.com.cn:32042/v1/sho/list/exchange/stockexpire；新浪挂牌: EvidenceUnavailable: 2026-10-22 original evidence has no recorded HTTP request: https://stock.finance.sina.com.cn/futures/api/openapi.php/StockOptionService.getStockName
+
+poe_ic_im_mainline_v1_4_bot.py:4378: RuntimeError</failure></testcase><testcase classname="test_icim_production_provenance_20261023" name="test_exhausted_raw_replay_preserves_evidence_unavailable[fetch_510500_chain_with_failover-args2]" time="0.072"><failure message="RuntimeError: 510500期权链所有来源均不可用；上交所行情接口: EvidenceUnavailable: 2026-10-22 original evidence has no recorded HTTP request: https://yunhq.sse.com.cn:32042/v1/sho/list/tstyle/510500_12；新浪财经期权详报价: EvidenceUnavailable: 2026-10-22 original evidence has no recorded HTTP request: https://hq.sinajs.cn/">expiry_ym = '2612'
+
+    def fetch_510500_chain_with_failover(expiry_ym: str) -&gt; tuple[pd.DataFrame, dict[str, str]]:
+        """Use SSE first, then Sina; never substitute stale or malformed quotes."""
+        failures: list[str] = []
+        source_errors: list[Exception] = []
+        for source, fetcher in (
+            ("上交所行情接口", fetch_sse_510500_chain),
+            ("新浪财经期权详报价", fetch_sina_510500_chain),
+        ):
+            try:
+&gt;               chain, stamp = fetcher(expiry_ym)
+                               ^^^^^^^^^^^^^^^^^^
+
+poe_ic_im_mainline_v1_4_bot.py:4275: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_mainline_v1_4_bot.py:4180: in fetch_sina_510500_chain
+    listing = _public_quote_bytes("https://hq.sinajs.cn/", "新浪510500 Put列表",
+poe_ic_im_mainline_v1_4_bot.py:4021: in _public_quote_bytes
+    response = _evidence_http_get(
+poe_ic_im_mainline_v1_4_bot.py:64: in _evidence_http_get
+    archived = reader.http_response(url, kwargs.get("params"))
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = &lt;ic_im_signal_evidence_v1.EvidenceReader object at 0x0000029DAFAB3BB0&gt;
+url = 'https://hq.sinajs.cn/', params = {'list': 'OP_DOWN_5105002612'}
+
+    def http_response(self, url: str, params: Any) -&gt; dict[str, Any]:
+        matches = [row for row in self.context["raw"]
+                   if row.get("url") == url and canonical_http_params(row.get("params")) == canonical_http_params(encode(params))]
+        candidates = [{**row, "body": _verified_blob(self.root, row)} for row in matches]
+        # Sina accepts a list of symbols. Project one exact original variable
+        # from a verified recorded batch; never construct prices or identities.
+        if (not matches and url == "https://hq.sinajs.cn/etag.php" and isinstance(params, dict)
+                and set(params) == {"list"} and re.fullmatch(r"P_OP_mo[0-9]{4}[CP][0-9]+", str(params["list"]))):
+            for row in reversed(self.context["raw"]):
+                key = decode(row.get("params"))
+                if row.get("url") != url or not isinstance(key, dict) or set(key) != {"list"}:
+                    continue
+                symbols = str(key["list"]).split(",")
+                if params["list"] not in symbols:
+                    continue
+                if type(row.get("status_code")) is not int or not 100 &lt;= row["status_code"] &lt;= 599:
+                    raise EvidenceUnavailable("recorded HTTP response status invalid")
+                body = _verified_blob(self.root, row)
+                values = list(re.finditer(rb'(?:var\s+)?hq_str_(P_OP_mo[0-9]{4}[CP][0-9]+)="([^"\r\n]*)";?', body))
+                returned = [m[1].decode("ascii") for m in values]
+                if len(returned) != len(set(returned)) or set(returned) != set(symbols):
+                    raise EvidenceUnavailable("recorded Sina verification batch identities incomplete")
+                selected = next(m[0] for m in values if m[1].decode("ascii") == params["list"])
+                candidates.append({**row, "body": selected, "projection": "exact_recorded_Sina_variable",
+                                   "parent_raw_sha256": row["sha256"]})
+        if not candidates:
+            self.missing_inputs.append({"role": "http", "url": url, "params": params})
+&gt;           raise EvidenceUnavailable(f"{self.day} original evidence has no recorded HTTP request: {url}")
+E           ic_im_signal_evidence_v1.EvidenceUnavailable: 2026-10-22 original evidence has no recorded HTTP request: https://hq.sinajs.cn/
+
+ic_im_signal_evidence_v1.py:671: EvidenceUnavailable
+
+The above exception was the direct cause of the following exception:
+
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x0000029DAFBC3980&gt;
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_c2c312b2/pytest/test_exhausted_raw_replay_pres2')
+target = 'fetch_510500_chain_with_failover', args = ('2612',)
+
+    @pytest.mark.parametrize('target,args', [
+        ('fetch_510500_quote_with_failover', (DAY,)),
+        ('fetch_510500_expiries_with_failover', ()),
+        ('fetch_510500_chain_with_failover', ('2612',))])
+    def test_exhausted_raw_replay_preserves_evidence_unavailable(monkeypatch, tmp_path, target, args):
+        with evidence.capture_session(tmp_path, DAY, CLOCK, {}) as session:
+            session.call('scope', {}, lambda: True)
+        reader = evidence.load_session(tmp_path, DAY)
+        monkeypatch.setattr(bot.requests, 'get', lambda *a, **k: pytest.fail('replay network request'))
+        with bot.runtime_clock(CLOCK), evidence.replay_session(reader):
+            with pytest.raises(evidence.EvidenceUnavailable, match='原日|所有来源'):
+&gt;               bare(target)(*args)
+
+test_icim_production_provenance_20261023.py:143: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+expiry_ym = '2612'
+
+    def fetch_510500_chain_with_failover(expiry_ym: str) -&gt; tuple[pd.DataFrame, dict[str, str]]:
+        """Use SSE first, then Sina; never substitute stale or malformed quotes."""
+        failures: list[str] = []
+        source_errors: list[Exception] = []
+        for source, fetcher in (
+            ("上交所行情接口", fetch_sse_510500_chain),
+            ("新浪财经期权详报价", fetch_sina_510500_chain),
+        ):
+            try:
+                chain, stamp = fetcher(expiry_ym)
+                required = {"contract", "last", "strike"}
+                if not required.issubset(chain.columns) or chain.empty:
+                    raise RuntimeError("期权链为空或缺少必要字段")
+                normalized_stamp = dict(stamp)
+                normalized_stamp.setdefault("source", source)
+                reference_day = _OPTION_CHAIN_REFERENCE_DAY.get()
+                if reference_day is not None and reference_day &gt;= sse_identity.EFFECTIVE_SIGNAL_DATE:
+                    _validate_chain_stamp_matches(source, normalized_stamp, reference_day, _now_beijing())
+                return chain, normalized_stamp
+            except Exception as exc:
+                failures.append(f"{source}: {type(exc).__name__}: {exc}")
+                source_errors.append(exc)
+&gt;       raise _source_failure_error(
+            "510500期权链所有来源均不可用；" + "；".join(failures), source_errors
+        ) from source_errors[-1]
+E       RuntimeError: 510500期权链所有来源均不可用；上交所行情接口: EvidenceUnavailable: 2026-10-22 original evidence has no recorded HTTP request: https://yunhq.sse.com.cn:32042/v1/sho/list/tstyle/510500_12；新浪财经期权详报价: EvidenceUnavailable: 2026-10-22 original evidence has no recorded HTTP request: https://hq.sinajs.cn/
+
+poe_ic_im_mainline_v1_4_bot.py:4288: RuntimeError</failure></testcase><testcase classname="test_icim_production_provenance_20261023" name="test_public_original_replay_reports_missing_source_as_original_evidence_unavailable" time="0.072"><failure message="RuntimeError: 510500ETF所有来源均不可用；上交所510500ETF: EvidenceUnavailable: 2026-10-22 original evidence has no recorded HTTP request: https://yunhq.sse.com.cn:32042/v1/sh1/list/self/510500；腾讯510500ETF: EvidenceUnavailable: 2026-10-22 original evidence has no recorded HTTP request: https://qt.gtimg.cn/q=sh510500；新浪510500ETF: EvidenceUnavailable: 2026-10-22 original evidence has no recorded HTTP request: https://hq.sinajs.cn/">reference_day = datetime.date(2026, 10, 22)
+
+    def fetch_510500_quote_with_failover(reference_day: date | None = None) -&gt; dict[str, Any]:
+        day, clock = reference_day or _now_beijing().date(), _now_beijing()
+        started = time_module.monotonic()
+        errors, failures = [], []
+        for source, fetcher in (("上交所510500ETF", fetch_sse_510500_quote),
+                                ("腾讯510500ETF", fetch_tencent_510500_quote),
+                                ("新浪510500ETF", fetch_sina_510500_quote)):
+            try:
+&gt;               value = dict(fetcher())
+                             ^^^^^^^^^
+
+poe_ic_im_mainline_v1_4_bot.py:4106: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_mainline_v1_4_bot.py:4084: in fetch_sina_510500_quote
+    raw = _public_quote_bytes("https://hq.sinajs.cn/", "新浪510500ETF", params={"list": "sh510500"})
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+poe_ic_im_mainline_v1_4_bot.py:4021: in _public_quote_bytes
+    response = _evidence_http_get(
+poe_ic_im_mainline_v1_4_bot.py:64: in _evidence_http_get
+    archived = reader.http_response(url, kwargs.get("params"))
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = &lt;ic_im_signal_evidence_v1.EvidenceReader object at 0x0000029DAFC8B770&gt;
+url = 'https://hq.sinajs.cn/', params = {'list': 'sh510500'}
+
+    def http_response(self, url: str, params: Any) -&gt; dict[str, Any]:
+        matches = [row for row in self.context["raw"]
+                   if row.get("url") == url and canonical_http_params(row.get("params")) == canonical_http_params(encode(params))]
+        candidates = [{**row, "body": _verified_blob(self.root, row)} for row in matches]
+        # Sina accepts a list of symbols. Project one exact original variable
+        # from a verified recorded batch; never construct prices or identities.
+        if (not matches and url == "https://hq.sinajs.cn/etag.php" and isinstance(params, dict)
+                and set(params) == {"list"} and re.fullmatch(r"P_OP_mo[0-9]{4}[CP][0-9]+", str(params["list"]))):
+            for row in reversed(self.context["raw"]):
+                key = decode(row.get("params"))
+                if row.get("url") != url or not isinstance(key, dict) or set(key) != {"list"}:
+                    continue
+                symbols = str(key["list"]).split(",")
+                if params["list"] not in symbols:
+                    continue
+                if type(row.get("status_code")) is not int or not 100 &lt;= row["status_code"] &lt;= 599:
+                    raise EvidenceUnavailable("recorded HTTP response status invalid")
+                body = _verified_blob(self.root, row)
+                values = list(re.finditer(rb'(?:var\s+)?hq_str_(P_OP_mo[0-9]{4}[CP][0-9]+)="([^"\r\n]*)";?', body))
+                returned = [m[1].decode("ascii") for m in values]
+                if len(returned) != len(set(returned)) or set(returned) != set(symbols):
+                    raise EvidenceUnavailable("recorded Sina verification batch identities incomplete")
+                selected = next(m[0] for m in values if m[1].decode("ascii") == params["list"])
+                candidates.append({**row, "body": selected, "projection": "exact_recorded_Sina_variable",
+                                   "parent_raw_sha256": row["sha256"]})
+        if not candidates:
+            self.missing_inputs.append({"role": "http", "url": url, "params": params})
+&gt;           raise EvidenceUnavailable(f"{self.day} original evidence has no recorded HTTP request: {url}")
+E           ic_im_signal_evidence_v1.EvidenceUnavailable: 2026-10-22 original evidence has no recorded HTTP request: https://hq.sinajs.cn/
+
+ic_im_signal_evidence_v1.py:671: EvidenceUnavailable
+
+The above exception was the direct cause of the following exception:
+
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x0000029DAFBC2B70&gt;
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_c2c312b2/pytest/test_public_original_replay_re0')
+
+    def test_public_original_replay_reports_missing_source_as_original_evidence_unavailable(monkeypatch, tmp_path):
+        with evidence.capture_session(tmp_path, DAY, CLOCK, {}) as session:
+            session.call('scope', {}, lambda: True)
+        reader = evidence.load_session(tmp_path, DAY)
+        monkeypatch.setattr(adapter, 'configured_root', lambda: tmp_path)
+        monkeypatch.setattr(adapter, 'has_original', lambda *a: True)
+        monkeypatch.setattr(adapter, 'load_original', lambda *a: (reader, CLOCK))
+        monkeypatch.setattr(bot, '_build_live_trade_signal', lambda *a: bare('fetch_510500_quote_with_failover')(DAY))
+        monkeypatch.setattr(bot.requests, 'get', lambda *a, **k: pytest.fail('replay network request'))
+        with bot.historical_replay(DAY):
+&gt;           result = bot.build_live_trade_signal('IC', CLOCK, 'close')
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_icim_production_provenance_20261023.py:156: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_mainline_v1_4_bot.py:6809: in build_live_trade_signal
+    result = build_live_trade_signal(product, replay_clock, mode)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+poe_ic_im_mainline_v1_4_bot.py:6842: in build_live_trade_signal
+    result = _build_live_trade_signal(product, clock, mode)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+test_icim_production_provenance_20261023.py:153: in &lt;lambda&gt;
+    monkeypatch.setattr(bot, '_build_live_trade_signal', lambda *a: bare('fetch_510500_quote_with_failover')(DAY))
+                                                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+reference_day = datetime.date(2026, 10, 22)
+
+    def fetch_510500_quote_with_failover(reference_day: date | None = None) -&gt; dict[str, Any]:
+        day, clock = reference_day or _now_beijing().date(), _now_beijing()
+        started = time_module.monotonic()
+        errors, failures = [], []
+        for source, fetcher in (("上交所510500ETF", fetch_sse_510500_quote),
+                                ("腾讯510500ETF", fetch_tencent_510500_quote),
+                                ("新浪510500ETF", fetch_sina_510500_quote)):
+            try:
+                value = dict(fetcher())
+                value.setdefault("source", source)
+                _validate_chain_stamp_matches(source, value, day, _iv_observation_clock(clock, started))
+                _etf_quote_prices(value["last"], value["prev_close"])
+                if failures:
+                    value["source_failures"] = list(failures)
+                return value
+            except Exception as exc:
+                errors.append(exc)
+                failures.append(f"{source}: {type(exc).__name__}: {exc}")
+&gt;       raise _source_failure_error("510500ETF所有来源均不可用；" + "；".join(failures), errors) from errors[-1]
+E       RuntimeError: 510500ETF所有来源均不可用；上交所510500ETF: EvidenceUnavailable: 2026-10-22 original evidence has no recorded HTTP request: https://yunhq.sse.com.cn:32042/v1/sh1/list/self/510500；腾讯510500ETF: EvidenceUnavailable: 2026-10-22 original evidence has no recorded HTTP request: https://qt.gtimg.cn/q=sh510500；新浪510500ETF: EvidenceUnavailable: 2026-10-22 original evidence has no recorded HTTP request: https://hq.sinajs.cn/
+
+poe_ic_im_mainline_v1_4_bot.py:4116: RuntimeError</failure></testcase><testcase classname="test_icim_production_provenance_20261023" name="test_batch_failure_cancels_unstarted_and_joins_active_writer[ic]" time="0.077"><failure message="AssertionError: assert (4 == 2)&#10; +  where 4 = len([['CON_OP_10000000', 'CON_OP_10000001', 'CON_OP_10000002', 'CON_OP_10000003', 'CON_OP_10000004', 'CON_OP_10000005'], [...'], ['CON_OP_10000018', 'CON_OP_10000019', 'CON_OP_10000020', 'CON_OP_10000021', 'CON_OP_10000022', 'CON_OP_10000023']])">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x0000029DAFE360B0&gt;
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_c2c312b2/pytest/test_batch_failure_cancels_uns0')
+kind = 'ic'
+
+    @pytest.mark.parametrize('kind', ['ic', 'mo'])
+    def test_batch_failure_cancels_unstarted_and_joins_active_writer(monkeypatch, tmp_path, kind):
+        first, failure, third, release, returned = (threading.Event() for _ in range(5))
+        calls, active, errors = [], set(), []
+        lock = threading.Lock()
+        def get(url, **kwargs):
+            symbols = symbols_from_request(url, kwargs)
+            with lock:
+                index = len(calls); calls.append(symbols); active.add(threading.get_ident())
+            try:
+                assert evidence.current_session.get() is not None
+                assert bot._NETWORK_DEADLINE.get() is not None
+                if index == 0:
+                    first.set()
+                    assert release.wait(3)
+                elif index == 1:
+                    assert first.wait(3)
+                    failure.set()
+                    raise RuntimeError('synthetic invalid batch')
+                else:
+                    third.set()
+                return response(wire(symbols))
+            finally:
+                with lock:
+                    active.remove(threading.get_ident())
+        monkeypatch.setattr(bot.requests, 'get', get)
+        def observer():
+            try:
+                assert failure.wait(3)
+                assert not returned.is_set()
+                third.wait(.1)  # deterministic blocked first job exposes eager queue draining.
+            except BaseException as exc:
+                errors.append(exc)
+            finally:
+                release.set()
+        watcher = threading.Thread(target=observer)
+        watcher.start()
+        try:
+            with pytest.raises(RuntimeError, match='synthetic invalid batch'):
+                with evidence.capture_session(tmp_path, DAY, CLOCK, {}) as session:
+                    session.call('scope', {}, lambda: True)
+                    with bot._network_budget(45):
+                        try:
+                            run_batches(kind, identifiers(kind))
+                        finally:
+                            returned.set()
+                            assert not active
+        finally:
+            watcher.join(4)
+        assert not errors and not watcher.is_alive()
+&gt;       assert len(calls) == 2 and not third.is_set()
+E       AssertionError: assert (4 == 2)
+E        +  where 4 = len([['CON_OP_10000000', 'CON_OP_10000001', 'CON_OP_10000002', 'CON_OP_10000003', 'CON_OP_10000004', 'CON_OP_10000005'], [...'], ['CON_OP_10000018', 'CON_OP_10000019', 'CON_OP_10000020', 'CON_OP_10000021', 'CON_OP_10000022', 'CON_OP_10000023']])
+
+test_icim_production_provenance_20261023.py:232: AssertionError</failure></testcase><testcase classname="test_icim_production_provenance_20261023" name="test_batch_failure_cancels_unstarted_and_joins_active_writer[mo]" time="0.025"><failure message="AssertionError: assert (3 == 2)&#10; +  where 3 = len([['P_OP_mo2612P6000', 'P_OP_mo2612P6001', 'P_OP_mo2612P6002', 'P_OP_mo2612P6003', 'P_OP_mo2612P6004', 'P_OP_mo2612P600...mo2612P6128', 'P_OP_mo2612P6129', 'P_OP_mo2612P6130', 'P_OP_mo2612P6131', 'P_OP_mo2612P6132', 'P_OP_mo2612P6133', ...]])">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x0000029DAFE36270&gt;
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_c2c312b2/pytest/test_batch_failure_cancels_uns1')
+kind = 'mo'
+
+    @pytest.mark.parametrize('kind', ['ic', 'mo'])
+    def test_batch_failure_cancels_unstarted_and_joins_active_writer(monkeypatch, tmp_path, kind):
+        first, failure, third, release, returned = (threading.Event() for _ in range(5))
+        calls, active, errors = [], set(), []
+        lock = threading.Lock()
+        def get(url, **kwargs):
+            symbols = symbols_from_request(url, kwargs)
+            with lock:
+                index = len(calls); calls.append(symbols); active.add(threading.get_ident())
+            try:
+                assert evidence.current_session.get() is not None
+                assert bot._NETWORK_DEADLINE.get() is not None
+                if index == 0:
+                    first.set()
+                    assert release.wait(3)
+                elif index == 1:
+                    assert first.wait(3)
+                    failure.set()
+                    raise RuntimeError('synthetic invalid batch')
+                else:
+                    third.set()
+                return response(wire(symbols))
+            finally:
+                with lock:
+                    active.remove(threading.get_ident())
+        monkeypatch.setattr(bot.requests, 'get', get)
+        def observer():
+            try:
+                assert failure.wait(3)
+                assert not returned.is_set()
+                third.wait(.1)  # deterministic blocked first job exposes eager queue draining.
+            except BaseException as exc:
+                errors.append(exc)
+            finally:
+                release.set()
+        watcher = threading.Thread(target=observer)
+        watcher.start()
+        try:
+            with pytest.raises(RuntimeError, match='synthetic invalid batch'):
+                with evidence.capture_session(tmp_path, DAY, CLOCK, {}) as session:
+                    session.call('scope', {}, lambda: True)
+                    with bot._network_budget(45):
+                        try:
+                            run_batches(kind, identifiers(kind))
+                        finally:
+                            returned.set()
+                            assert not active
+        finally:
+            watcher.join(4)
+        assert not errors and not watcher.is_alive()
+&gt;       assert len(calls) == 2 and not third.is_set()
+E       AssertionError: assert (3 == 2)
+E        +  where 3 = len([['P_OP_mo2612P6000', 'P_OP_mo2612P6001', 'P_OP_mo2612P6002', 'P_OP_mo2612P6003', 'P_OP_mo2612P6004', 'P_OP_mo2612P600...mo2612P6128', 'P_OP_mo2612P6129', 'P_OP_mo2612P6130', 'P_OP_mo2612P6131', 'P_OP_mo2612P6132', 'P_OP_mo2612P6133', ...]])
+
+test_icim_production_provenance_20261023.py:232: AssertionError</failure></testcase><testcase classname="test_icim_production_provenance_20261023" name="test_pool_shutdown_time_counts_against_product_budget[ic]" time="0.002"><failure message="Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x0000029DAE726820&gt;
+kind = 'ic'
+
+    @pytest.mark.parametrize('kind', ['ic', 'mo'])
+    def test_pool_shutdown_time_counts_against_product_budget(monkeypatch, kind):
+        tick, deadlines = [0.], []
+        monkeypatch.setattr(bot.time_module, 'monotonic', lambda: tick[0])
+        class ShutdownAfterDeadline(ThreadPoolExecutor):
+            def __exit__(self, *args):
+                result = super().__exit__(*args)
+                tick[0] = 46.  # model running-request/shutdown tail, not synthetic network speed.
+                return result
+        monkeypatch.setattr(bot, 'ThreadPoolExecutor', ShutdownAfterDeadline)
+        def get(url, **kwargs):
+            deadlines.append(bot._NETWORK_DEADLINE.get())
+            return response(wire(symbols_from_request(url, kwargs)))
+        monkeypatch.setattr(bot.requests, 'get', get)
+&gt;       with bot._network_budget(45), pytest.raises(RuntimeError, match='预算'):
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;
+
+test_icim_production_provenance_20261023.py:250: Failed</failure></testcase><testcase classname="test_icim_production_provenance_20261023" name="test_pool_shutdown_time_counts_against_product_budget[mo]" time="0.003"><failure message="Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x0000029D91B9DB50&gt;
+kind = 'mo'
+
+    @pytest.mark.parametrize('kind', ['ic', 'mo'])
+    def test_pool_shutdown_time_counts_against_product_budget(monkeypatch, kind):
+        tick, deadlines = [0.], []
+        monkeypatch.setattr(bot.time_module, 'monotonic', lambda: tick[0])
+        class ShutdownAfterDeadline(ThreadPoolExecutor):
+            def __exit__(self, *args):
+                result = super().__exit__(*args)
+                tick[0] = 46.  # model running-request/shutdown tail, not synthetic network speed.
+                return result
+        monkeypatch.setattr(bot, 'ThreadPoolExecutor', ShutdownAfterDeadline)
+        def get(url, **kwargs):
+            deadlines.append(bot._NETWORK_DEADLINE.get())
+            return response(wire(symbols_from_request(url, kwargs)))
+        monkeypatch.setattr(bot.requests, 'get', get)
+&gt;       with bot._network_budget(45), pytest.raises(RuntimeError, match='预算'):
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;
+
+test_icim_production_provenance_20261023.py:250: Failed</failure></testcase><testcase classname="test_icim_production_provenance_20261023" name="test_threaded_raw_capture_is_atomic_and_replay_is_order_independent[ic]" time="0.109" /><testcase classname="test_icim_production_provenance_20261023" name="test_threaded_raw_capture_is_atomic_and_replay_is_order_independent[mo]" time="0.167" /><testcase classname="test_icim_production_provenance_20261023" name="test_state_store_rejects_capture_integrity_without_advancing_day[recording-IC]" time="0.101" /><testcase classname="test_icim_production_provenance_20261023" name="test_state_store_rejects_capture_integrity_without_advancing_day[recording-IM]" time="0.030" /><testcase classname="test_icim_production_provenance_20261023" name="test_state_store_rejects_capture_integrity_without_advancing_day[incomplete-IC]" time="0.030" /><testcase classname="test_icim_production_provenance_20261023" name="test_state_store_rejects_capture_integrity_without_advancing_day[incomplete-IM]" time="0.028" /><testcase classname="test_icim_production_provenance_20261023" name="test_state_store_rejects_capture_integrity_without_advancing_day[inconsistent-IC]" time="0.039" /><testcase classname="test_icim_production_provenance_20261023" name="test_state_store_rejects_capture_integrity_without_advancing_day[inconsistent-IM]" time="0.045" /><testcase classname="test_icim_production_provenance_20261023" name="test_sealed_complete_capture_allows_normal_state_store_advance" time="0.039" /><testcase classname="test_icim_production_provenance_20261023" name="test_collection_clock_nested_observation_batch_preserves_outer_fear_evidence" time="0.001" /></testsuite></testsuites>

@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="10" skipped="0" tests="11" time="19.263" timestamp="2026-10-21T21:43:00.519614+08:00" hostname="DESKTOP-95I7VVU"><testcase classname="test_icim_round4_evidence_boundaries_20261021" name="test_stream_recording_obeys_size_before_content_access[https://www.cffex.com.cn/sj/historysj/202610/zip/202610.zip-MAX_CFFEX_DOWNLOAD_BYTES]" time="0.019"><failure message="Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;">tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_a348a3c3/pytest/test_stream_recording_obeys_si0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x00000284866CD0F0&gt;
+url = 'https://www.cffex.com.cn/sj/historysj/202610/zip/202610.zip'
+limit_name = 'MAX_CFFEX_DOWNLOAD_BYTES'
+
+    @pytest.mark.parametrize("url,limit_name", [
+        ("https://www.cffex.com.cn/sj/historysj/202610/zip/202610.zip", "MAX_CFFEX_DOWNLOAD_BYTES"),
+        ("https://web.ifzq.gtimg.cn/page", "MAX_QUOTE_RESPONSE_BYTES"),
+    ])
+    def test_stream_recording_obeys_size_before_content_access(tmp_path, monkeypatch, url, limit_name):
+        monkeypatch.setattr(bot, limit_name, 4)
+        response = Response([b"123", b"456"])
+        monkeypatch.setattr(bot.requests, "get", lambda *a, **k: response)
+&gt;       with pytest.raises(RuntimeError, match="上限|大小"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;
+
+test_icim_round4_evidence_boundaries_20261021.py:55: Failed</failure></testcase><testcase classname="test_icim_round4_evidence_boundaries_20261021" name="test_stream_recording_obeys_size_before_content_access[https://web.ifzq.gtimg.cn/page-MAX_QUOTE_RESPONSE_BYTES]" time="0.017"><failure message="Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;">tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_a348a3c3/pytest/test_stream_recording_obeys_si1')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x00000284866CD810&gt;
+url = 'https://web.ifzq.gtimg.cn/page', limit_name = 'MAX_QUOTE_RESPONSE_BYTES'
+
+    @pytest.mark.parametrize("url,limit_name", [
+        ("https://www.cffex.com.cn/sj/historysj/202610/zip/202610.zip", "MAX_CFFEX_DOWNLOAD_BYTES"),
+        ("https://web.ifzq.gtimg.cn/page", "MAX_QUOTE_RESPONSE_BYTES"),
+    ])
+    def test_stream_recording_obeys_size_before_content_access(tmp_path, monkeypatch, url, limit_name):
+        monkeypatch.setattr(bot, limit_name, 4)
+        response = Response([b"123", b"456"])
+        monkeypatch.setattr(bot.requests, "get", lambda *a, **k: response)
+&gt;       with pytest.raises(RuntimeError, match="上限|大小"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;
+
+test_icim_round4_evidence_boundaries_20261021.py:55: Failed</failure></testcase><testcase classname="test_icim_round4_evidence_boundaries_20261021" name="test_stream_recording_preserves_shared_read_budget" time="0.013"><failure message="Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;">tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_a348a3c3/pytest/test_stream_recording_preserve0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000002848660E8D0&gt;
+
+    def test_stream_recording_preserves_shared_read_budget(tmp_path, monkeypatch):
+        elapsed = [0.]
+        monkeypatch.setattr(bot.time_module, "monotonic", lambda: elapsed[0])
+        response = Response([b"PK", b"rest"], advance=lambda: elapsed.__setitem__(0, elapsed[0] + 1.))
+        monkeypatch.setattr(bot.requests, "get", lambda *a, **k: response)
+&gt;       with pytest.raises(RuntimeError, match="预算"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;
+
+test_icim_round4_evidence_boundaries_20261021.py:68: Failed</failure></testcase><testcase classname="test_icim_round4_evidence_boundaries_20261021" name="test_stream_complete_body_is_recorded_without_eager_content" time="0.020"><failure message="assert 1 == 0&#10; +  where 1 = &lt;test_icim_round4_evidence_boundaries_20261021.Response object at 0x00000284866CE3F0&gt;.eager_reads">tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_a348a3c3/pytest/test_stream_complete_body_is_r0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000002848679C270&gt;
+
+    def test_stream_complete_body_is_recorded_without_eager_content(tmp_path, monkeypatch):
+        response = Response([b"PK", b"synthetic"], headers={"Content-Length": "11"})
+        monkeypatch.setattr(bot.requests, "get", lambda *a, **k: response)
+        with evidence.capture_session(tmp_path, DAY, CLOCK, {}) as session:
+            session.call("probe", {}, lambda: True)
+            returned = bot._evidence_http_get("https://www.cffex.com.cn/sj/historysj/202610/zip/202610.zip", stream=True)
+            assert b"".join(returned.iter_content()) == b"PKsynthetic"
+&gt;       assert response.eager_reads == 0
+E       assert 1 == 0
+E        +  where 1 = &lt;test_icim_round4_evidence_boundaries_20261021.Response object at 0x00000284866CE3F0&gt;.eager_reads
+
+test_icim_round4_evidence_boundaries_20261021.py:82: AssertionError</failure></testcase><testcase classname="test_icim_round4_evidence_boundaries_20261021" name="test_unrecorded_replay_http_never_calls_requests" time="0.035"><failure message="Failed: DID NOT RAISE &lt;class 'ic_im_signal_evidence_v1.EvidenceUnavailable'&gt;">tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_a348a3c3/pytest/test_unrecorded_replay_http_ne0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000002848679C8D0&gt;
+
+    def test_unrecorded_replay_http_never_calls_requests(tmp_path, monkeypatch):
+        with evidence.capture_session(tmp_path, DAY, CLOCK, {}) as session:
+            session.call("probe", {}, lambda: True)
+        reader = evidence.load_session(tmp_path, DAY)
+        calls = []
+        monkeypatch.setattr(bot.requests, "get", lambda *a, **k: calls.append(a) or Response([b"current"]))
+        with evidence.replay_session(reader):
+&gt;           with pytest.raises(evidence.EvidenceUnavailable):
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           Failed: DID NOT RAISE &lt;class 'ic_im_signal_evidence_v1.EvidenceUnavailable'&gt;
+
+test_icim_round4_evidence_boundaries_20261021.py:94: Failed</failure></testcase><testcase classname="test_icim_round4_evidence_boundaries_20261021" name="test_recorded_http_replays_exact_bytes_without_network" time="0.051"><failure message="Failed: unrecorded network">tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_a348a3c3/pytest/test_recorded_http_replays_exa0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x0000028486789450&gt;
+
+    def test_recorded_http_replays_exact_bytes_without_network(tmp_path, monkeypatch):
+        response = Response([b"original bytes"])
+        monkeypatch.setattr(bot.requests, "get", lambda *a, **k: response)
+        with evidence.capture_session(tmp_path, DAY, CLOCK, {}) as session:
+            session.call("probe", {}, lambda: True)
+            bot._evidence_http_get("https://recorded.invalid/quote", params={"symbol": "one"})
+        reader = evidence.load_session(tmp_path, DAY)
+        monkeypatch.setattr(bot.requests, "get", lambda *a, **k: pytest.fail("unrecorded network"))
+        with evidence.replay_session(reader):
+&gt;           returned = bot._evidence_http_get("https://recorded.invalid/quote", params={"symbol": "one"})
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_icim_round4_evidence_boundaries_20261021.py:108: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_mainline_v1_4_bot.py:60: in _evidence_http_get
+    response = requests.get(*args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+a = ('https://recorded.invalid/quote',), k = {'params': {'symbol': 'one'}}
+
+&gt;   monkeypatch.setattr(bot.requests, "get", lambda *a, **k: pytest.fail("unrecorded network"))
+                                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: unrecorded network
+
+test_icim_round4_evidence_boundaries_20261021.py:106: Failed</failure></testcase><testcase classname="test_icim_round4_evidence_boundaries_20261021" name="test_original_presence_is_per_product_even_for_incomplete_capture[True]" time="0.050"><failure message="AttributeError: module 'ic_im_evidence_adapter_v1' has no attribute 'has_original'. Did you mean: 'load_original'?">tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_a348a3c3/pytest/test_original_presence_is_per_0')
+complete = True
+
+    @pytest.mark.parametrize("complete", [True, False])
+    def test_original_presence_is_per_product_even_for_incomplete_capture(tmp_path, complete):
+        with evidence.capture_session(tmp_path, DAY, CLOCK, {"product": "IC", "original_close": True}) as session:
+            session.call("probe", {}, lambda: True)
+            if not complete:
+                session.failures.append({"role": "synthetic", "resolved": False})
+&gt;       assert adapter.has_original(tmp_path, "IC", DAY)
+               ^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'ic_im_evidence_adapter_v1' has no attribute 'has_original'. Did you mean: 'load_original'?
+
+test_icim_round4_evidence_boundaries_20261021.py:119: AttributeError</failure></testcase><testcase classname="test_icim_round4_evidence_boundaries_20261021" name="test_original_presence_is_per_product_even_for_incomplete_capture[False]" time="0.025"><failure message="AttributeError: module 'ic_im_evidence_adapter_v1' has no attribute 'has_original'. Did you mean: 'load_original'?">tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_a348a3c3/pytest/test_original_presence_is_per_1')
+complete = False
+
+    @pytest.mark.parametrize("complete", [True, False])
+    def test_original_presence_is_per_product_even_for_incomplete_capture(tmp_path, complete):
+        with evidence.capture_session(tmp_path, DAY, CLOCK, {"product": "IC", "original_close": True}) as session:
+            session.call("probe", {}, lambda: True)
+            if not complete:
+                session.failures.append({"role": "synthetic", "resolved": False})
+&gt;       assert adapter.has_original(tmp_path, "IC", DAY)
+               ^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'ic_im_evidence_adapter_v1' has no attribute 'has_original'. Did you mean: 'load_original'?
+
+test_icim_round4_evidence_boundaries_20261021.py:119: AttributeError</failure></testcase><testcase classname="test_icim_round4_evidence_boundaries_20261021" name="test_other_product_archive_does_not_block_native_dated_im_replay" time="0.036"><failure message="AssertionError: assert None == 'native_dated_provider'&#10; +  where None = &lt;built-in method get of dict object at 0x0000028486632C00&gt;('marker')&#10; +    where &lt;built-in method get of dict object at 0x0000028486632C00&gt; = {'calendar_coverage_warning': '交易日历覆盖预警：距离2026年末不足90天，2027年官方交易日历尚未载入；跨年日期仅作标注诊断，执行与落账须核验。', 'calendar_diagnostics': [], 'calendar_provisional': False, 'close_confirmed': False, ...}.get">tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_a348a3c3/pytest/test_other_product_archive_doe0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x0000028486617D50&gt;
+
+    def test_other_product_archive_does_not_block_native_dated_im_replay(tmp_path, monkeypatch):
+        with evidence.capture_session(tmp_path, DAY, CLOCK, {"product": "IC", "original_close": True}) as session:
+            session.call("probe", {}, lambda: True)
+        monkeypatch.setattr(bot, "_build_live_trade_signal", lambda *a, **k: {"marker": "native_dated_provider", "v14_action": "HOLD"})
+        with adapter.evidence_location(tmp_path), bot.historical_replay(DAY):
+            result = bot.build_live_trade_signal("IM", CLOCK, "close")
+&gt;       assert result.get("marker") == "native_dated_provider"
+E       AssertionError: assert None == 'native_dated_provider'
+E        +  where None = &lt;built-in method get of dict object at 0x0000028486632C00&gt;('marker')
+E        +    where &lt;built-in method get of dict object at 0x0000028486632C00&gt; = {'calendar_coverage_warning': '交易日历覆盖预警：距离2026年末不足90天，2027年官方交易日历尚未载入；跨年日期仅作标注诊断，执行与落账须核验。', 'calendar_diagnostics': [], 'calendar_provisional': False, 'close_confirmed': False, ...}.get
+
+test_icim_round4_evidence_boundaries_20261021.py:129: AssertionError</failure></testcase><testcase classname="test_icim_round4_evidence_boundaries_20261021" name="test_unknown_year_intraday_header_keeps_two_verified_snapshots" time="0.136" /><testcase classname="test_icim_round4_evidence_boundaries_20261021" name="test_reminder_exception_preserves_both_calculated_products" time="0.022"><failure message="AssertionError: assert '查询失败' not in '## IC / IM ...inder failed'&#10;  &#10;  '查询失败' is contained here:&#10;    00&#10;    &#10;    ## ⚠️ 查询失败&#10;  ?       ++++&#10;    &#10;    RuntimeError: synthetic reminder failed">tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_a348a3c3/pytest/test_reminder_exception_preser0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x0000028486731130&gt;
+
+    def test_reminder_exception_preserves_both_calculated_products(tmp_path, monkeypatch):
+        owner, signals = coordinator(tmp_path, monkeypatch)
+        monkeypatch.setattr(bot, "build_live_signal_with_transport_retry", lambda product, *a: deepcopy(signals[product]))
+        monkeypatch.setattr(bot.option_maintenance_notice, "reminder", lambda *a, **k: (_ for _ in ()).throw(RuntimeError("synthetic reminder failed")))
+        text, _, observed = owner.execute_query("信号", CLOCK, persist_confirmed=False)
+&gt;       assert "查询失败" not in text
+E       AssertionError: assert '查询失败' not in '## IC / IM ...inder failed'
+E         
+E         '查询失败' is contained here:
+E           00
+E           
+E           ## ⚠️ 查询失败
+E         ?       ++++
+E           
+E           RuntimeError: synthetic reminder failed
+
+test_icim_round4_evidence_boundaries_20261021.py:154: AssertionError</failure></testcase></testsuite></testsuites>

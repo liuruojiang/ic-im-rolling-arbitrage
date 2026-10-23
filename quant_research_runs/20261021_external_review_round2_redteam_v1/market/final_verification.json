@@ -1,0 +1,16 @@
+{
+  "scope": "local_research_no_deploy_no_orders",
+  "bot_sha256": "0B729074DD8C0908A5049ACF08CDF17BC69A1485E8F87D15C2F59EB9A596FA14",
+  "findings": [
+    "MKT-01",
+    "MKT-02",
+    "MKT-03",
+    "MKT-04",
+    "MKT-05"
+  ],
+  "test_sha256": "6EDE68BB2DFDC96135E538E80CE902CF3B32A69BB575D1117C166B78C70FE46E",
+  "hashes_match": true,
+  "passed": 45,
+  "failed": 0,
+  "tests": 45
+}

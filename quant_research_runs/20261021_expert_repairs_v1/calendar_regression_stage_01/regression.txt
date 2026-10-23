@@ -1,0 +1,57 @@
+......................F.......F.....................................     [100%]
+================================== FAILURES ===================================
+___________ test_public_im_builder_checks_unknown_held_core_expiry ____________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000002C323CBFAC0>
+
+    def test_public_im_builder_checks_unknown_held_core_expiry(monkeypatch):
+        # Actual builder/policy with synthetic restored holding and market rows.
+        # The fixture's verified quantities are preserved; only the held month and
+        # its matching observed quote are moved across the official-year boundary.
+        import test_icim_batch3_old_call_20261021 as legacy
+        anchors,quotes=legacy.wire(monkeypatch,held=False)
+        bot.LIVE_CONTINUATION_ANCHOR['IM']['post_core_put_contract']='MO2703-P-7200'
+        quotes.loc[quotes.instrument.eq('MO2612-P-7200'),'instrument']='MO2703-P-7200'
+        quotes.attrs['listed_instruments']=list(quotes.instrument)
+>       with pytest.raises(RuntimeError,match='2027'):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+test_icim_batch3_calendar_redteam_20261021.py:115: Failed
+_____ test_public_im_positive_momentum_held_expiry_is_checked[2703-True] ______
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000002C323DC19A0>
+month = '2703', unknown = True
+
+    @pytest.mark.parametrize('month,unknown',[('2612',False),('2703',True)])
+    def test_public_im_positive_momentum_held_expiry_is_checked(monkeypatch,month,unknown):
+        import test_icim_batch3_old_call_20261021 as legacy
+        anchors,quotes=legacy.wire(monkeypatch,held=False)
+        contract='MO'+month+'-P-7000'
+        bot.LIVE_CONTINUATION_ANCHOR['IM'].update(
+            post_momentum_put_contract=contract,verified_momentum_put_qty_normalized=.5)
+        quotes.loc[len(quotes)]=dict(instrument=contract,lastprice=100.,bprice=99.,sprice=101.,
+                                    volume=10.,position=20.)
+        quotes.attrs['listed_instruments']=list(quotes.instrument)
+        original=bot.live_proxy
+        def positive_momentum(*args):
+            live=original(*args)
+            live.update(momentum_next_weight=.5,momentum_current_weight=.5)
+            return live
+        monkeypatch.setattr(bot,'live_proxy',positive_momentum)
+        if unknown:
+>           with pytest.raises(RuntimeError,match='2027'):
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           Failed: DID NOT RAISE <class 'RuntimeError'>
+
+test_icim_batch3_calendar_redteam_20261021.py:181: Failed
+============================== warnings summary ===============================
+C:\Python314\Lib\site-packages\fastapi_poe\types.py:171
+  C:\Python314\Lib\site-packages\fastapi_poe\types.py:171: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    class RequestContext(BaseModel):
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED test_icim_batch3_calendar_redteam_20261021.py::test_public_im_builder_checks_unknown_held_core_expiry
+FAILED test_icim_batch3_calendar_redteam_20261021.py::test_public_im_positive_momentum_held_expiry_is_checked[2703-True]
+2 failed, 66 passed, 1 warning in 2.44s

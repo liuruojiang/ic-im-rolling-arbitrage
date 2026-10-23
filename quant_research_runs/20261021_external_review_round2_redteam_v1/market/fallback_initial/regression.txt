@@ -1,0 +1,96 @@
+FF                                                                       [100%]
+================================== FAILURES ===================================
+_ test_failed_short_identity_cannot_survive_through_lifecycle_fallback[expiry] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000002A8F50C4C30>
+scenario = 'expiry'
+
+    @pytest.mark.parametrize('scenario', ['expiry', 'preloaded_mark'])
+    def test_failed_short_identity_cannot_survive_through_lifecycle_fallback(monkeypatch, scenario):
+        chain, stamp = wire(monkeypatch, payload())
+        signal, anchor = signal_anchor(monkeypatch)
+        anchor.update(v14_route_state='short_put', v14_cycle_id='synthetic_stale_pre_adjustment_short',
+                      v14_core_put_contract=None, v14_core_put_security_id=None, v14_core_put_qty=0,
+                      v14_short_put_contract=CONTRACT, v14_short_put_security_id='10011470',
+                      v14_short_put_qty_normalized=5., v14_short_put_entry_premium=1.5,
+                      v14_short_put_expiry=date(2026, 12, 23),
+                      v14_short_put_cost_basis='confirmed_dated_open',
+                      v14_short_put_entry_price_day=date(2026, 7, 1),
+                      post_put_qty=0, verified_core_put_qty=0)
+        signal.update(close_confirmed=True, put_target_core_qty=0, core_put_target_delta=0.,
+                      next_trade_date=date(2026, 10, 22))
+        if scenario == 'expiry':
+            # Synthetic future date, with real unchanged identity fixture: this is
+            # lifecycle error injection, not a claim of a December market capture.
+            expiry = date(2026, 12, 23)
+            signal.update(market_date=expiry, next_trade_date=date(2026, 12, 24))
+            stamp = dict(stamp, date='20261223', time='150000')
+            monkeypatch.setattr(bot, '_now_beijing', lambda: datetime(2026, 12, 23, 15, 30, tzinfo=bot.BEIJING))
+        else:
+            signal['v14_short_put_mark'] = .01
+        monkeypatch.setitem(bot.LIVE_CONTINUATION_ANCHOR, 'IC', anchor)
+        monkeypatch.setattr(bot, 'fetch_510500_chain_with_failover', lambda month: (chain, stamp))
+        monkeypatch.setattr(bot, '_v14_ic_short_put_candidate', lambda *a, **kw: {'tradable': False})
+        closes = Mock(return_value=pd.Series([.67], index=pd.to_datetime([signal['market_date']])))
+        monkeypatch.setattr(bot, 'fetch_option_closes', closes)
+        before = deepcopy(anchor)
+        out = bot._apply_v14_live_policy('IC', signal)
+        assert anchor == before
+>       assert out['v14_action'] == 'HOLD_FAIL_CLOSED'
+E       AssertionError: assert 'PUBLISH_SHOR...PIRY_BRANCHES' == 'HOLD_FAIL_CLOSED'
+E         
+E         - HOLD_FAIL_CLOSED
+E         + PUBLISH_SHORT_PUT_EXPIRY_BRANCHES
+
+test_icim_round2_audit_market_20261021.py:289: AssertionError
+_ test_failed_short_identity_cannot_survive_through_lifecycle_fallback[preloaded_mark] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000002A8F50C50F0>
+scenario = 'preloaded_mark'
+
+    @pytest.mark.parametrize('scenario', ['expiry', 'preloaded_mark'])
+    def test_failed_short_identity_cannot_survive_through_lifecycle_fallback(monkeypatch, scenario):
+        chain, stamp = wire(monkeypatch, payload())
+        signal, anchor = signal_anchor(monkeypatch)
+        anchor.update(v14_route_state='short_put', v14_cycle_id='synthetic_stale_pre_adjustment_short',
+                      v14_core_put_contract=None, v14_core_put_security_id=None, v14_core_put_qty=0,
+                      v14_short_put_contract=CONTRACT, v14_short_put_security_id='10011470',
+                      v14_short_put_qty_normalized=5., v14_short_put_entry_premium=1.5,
+                      v14_short_put_expiry=date(2026, 12, 23),
+                      v14_short_put_cost_basis='confirmed_dated_open',
+                      v14_short_put_entry_price_day=date(2026, 7, 1),
+                      post_put_qty=0, verified_core_put_qty=0)
+        signal.update(close_confirmed=True, put_target_core_qty=0, core_put_target_delta=0.,
+                      next_trade_date=date(2026, 10, 22))
+        if scenario == 'expiry':
+            # Synthetic future date, with real unchanged identity fixture: this is
+            # lifecycle error injection, not a claim of a December market capture.
+            expiry = date(2026, 12, 23)
+            signal.update(market_date=expiry, next_trade_date=date(2026, 12, 24))
+            stamp = dict(stamp, date='20261223', time='150000')
+            monkeypatch.setattr(bot, '_now_beijing', lambda: datetime(2026, 12, 23, 15, 30, tzinfo=bot.BEIJING))
+        else:
+            signal['v14_short_put_mark'] = .01
+        monkeypatch.setitem(bot.LIVE_CONTINUATION_ANCHOR, 'IC', anchor)
+        monkeypatch.setattr(bot, 'fetch_510500_chain_with_failover', lambda month: (chain, stamp))
+        monkeypatch.setattr(bot, '_v14_ic_short_put_candidate', lambda *a, **kw: {'tradable': False})
+        closes = Mock(return_value=pd.Series([.67], index=pd.to_datetime([signal['market_date']])))
+        monkeypatch.setattr(bot, 'fetch_option_closes', closes)
+        before = deepcopy(anchor)
+        out = bot._apply_v14_live_policy('IC', signal)
+        assert anchor == before
+        assert out['v14_action'] == 'HOLD_FAIL_CLOSED'
+>       assert out['v14_roll_pending'] is False
+E       assert True is False
+
+test_icim_round2_audit_market_20261021.py:290: AssertionError
+============================== warnings summary ===============================
+C:\Python314\Lib\site-packages\fastapi_poe\types.py:171
+  C:\Python314\Lib\site-packages\fastapi_poe\types.py:171: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    class RequestContext(BaseModel):
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED test_icim_round2_audit_market_20261021.py::test_failed_short_identity_cannot_survive_through_lifecycle_fallback[expiry]
+FAILED test_icim_round2_audit_market_20261021.py::test_failed_short_identity_cannot_survive_through_lifecycle_fallback[preloaded_mark]
+2 failed, 42 deselected, 1 warning in 2.54s

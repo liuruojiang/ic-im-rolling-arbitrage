@@ -1,0 +1,321 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="4" skipped="0" tests="14" time="3.311" timestamp="2026-10-21T14:29:24.289355+08:00" hostname="DESKTOP-95I7VVU"><testcase classname="test_icim_round2_audit_lifecycle_20261021" name="test_historical_adapter_retains_id_already_bound_to_requested_series" time="0.003"><failure message="AssertionError: assert None == '10012099'&#10; +  where None = get('security_id')&#10; +    where get = contract    510500P2612M07500\nlast                     0.25\nstrike                    7.5\nName: 0, dtype: object.get">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000002279ADD3820&gt;
+
+    def test_historical_adapter_retains_id_already_bound_to_requested_series(monkeypatch):
+        calls = historical_source(monkeypatch)
+        frame, stamp = bot.fetch_sse_existing_put_historical_quote(real.M, '10012099', DAY)
+        assert calls == ['10012099']
+&gt;       assert frame.iloc[0].get('security_id') == '10012099'
+E       AssertionError: assert None == '10012099'
+E        +  where None = get('security_id')
+E        +    where get = contract    510500P2612M07500\nlast                     0.25\nstrike                    7.5\nName: 0, dtype: object.get
+
+test_icim_round2_audit_lifecycle_20261021.py:44: AssertionError</failure></testcase><testcase classname="test_icim_round2_audit_lifecycle_20261021" name="test_legal_standard_core_replay_crosses_strict_boundary" time="0.018"><failure message="RuntimeError: IC既有Put证券ID证据缺失或格式无效，禁止仅按同名M代码续接">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000002279ADD3E10&gt;
+
+    def test_legal_standard_core_replay_crosses_strict_boundary(monkeypatch):
+        calls = historical_source(monkeypatch)
+        a = ledger._record()['products']['IC']
+        signal = dict(market_date=DAY, core_put_target_delta=.25,
+                      option_monthly_reset_due=False, put_target_momentum_qty=0,
+                      etf_price=7.8, future_last=7800.)
+        monkeypatch.setattr(bot, '_now_beijing', lambda: CLOCK)
+        token = bot._HISTORICAL_REPLAY_DAY.set(DAY)
+        try:
+&gt;           bot._v14_ic_core_overlay(signal, a)
+
+test_icim_round2_audit_lifecycle_20261021.py:57: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_mainline_v1_4_bot.py:5190: in _v14_ic_core_overlay
+    _require_held_ic_put_identity(str(contract), anchor.get("v14_core_put_security_id"), row, day)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+contract = '510500P2612M07500', security_id = '10012099'
+row = contract    510500P2612M07500
+last                     0.25
+strike                    7.5
+Name: 0, dtype: object
+day = datetime.date(2026, 10, 21)
+
+    def _require_held_ic_put_identity(
+        contract: str, security_id: str | None, row: pd.Series, day: date
+    ) -&gt; None:
+        """A re-listed M trading code cannot prove continuity of a held security."""
+        actual = row.get("security_id")
+        strict = day &gt;= sse_identity.EFFECTIVE_SIGNAL_DATE
+        if strict:
+            if (not re.fullmatch(r"\d{8}", str(security_id or ""))
+                    or not re.fullmatch(r"\d{8}", str(actual or ""))):
+&gt;               raise RuntimeError("IC既有Put证券ID证据缺失或格式无效，禁止仅按同名M代码续接")
+E               RuntimeError: IC既有Put证券ID证据缺失或格式无效，禁止仅按同名M代码续接
+
+poe_ic_im_mainline_v1_4_bot.py:1353: RuntimeError</failure></testcase><testcase classname="test_icim_round2_audit_lifecycle_20261021" name="test_actual_public_entry_resets_projection_after_later_failure[ordinary-IC]" time="0.064" /><testcase classname="test_icim_round2_audit_lifecycle_20261021" name="test_actual_public_entry_resets_projection_after_later_failure[ordinary-IM]" time="0.023" /><testcase classname="test_icim_round2_audit_lifecycle_20261021" name="test_actual_public_entry_resets_projection_after_later_failure[profit3x-IC]" time="0.022" /><testcase classname="test_icim_round2_audit_lifecycle_20261021" name="test_actual_public_entry_resets_projection_after_later_failure[profit3x-IM]" time="0.024" /><testcase classname="test_icim_round2_audit_lifecycle_20261021" name="test_actual_public_entry_resets_projection_after_later_failure[short_put-IC]" time="0.022"><failure message="AssertionError: Regex pattern did not match.&#10;  Expected regex: 'independent failure after successful opening projection'&#10;  Actual message: 'unresolved opening evidence: preserve the exact original plan and retry'">tmp_path = WindowsPath('D:/workspace/icim_round2_lifecycle_temp/icim_put_9d4c76ea/pytest/test_actual_public_entry_reset4')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000002279B0EAB50&gt;
+product = 'IC', kind = 'short_put'
+
+    @pytest.mark.parametrize('product', ['IC', 'IM'])
+    @pytest.mark.parametrize('kind', ['ordinary', 'profit3x', 'short_put'])
+    def test_actual_public_entry_resets_projection_after_later_failure(tmp_path, monkeypatch, product, kind):
+        store, record = recent_store(tmp_path / 'ledger')
+        anchors = state.anchors_from_record(record)
+        if kind == 'ordinary':
+            a = seed.ordinary_anchor(product)
+        elif kind == 'profit3x':
+            a = seed.profit_anchor(product)
+        else:
+            a = seed.short_anchor(product)
+        # The persisted schema is independently accepted before invoking builder.
+        policy.validate_extension(product, a)
+        anchors[product].update(a)
+        record['products'][product] = state._jsonable(anchors[product])
+        record['digest'] = state._digest(record)
+        state._validate_record(record)
+        store._atomic_write(store.journal_dir / '000000-2026-10-20.json', record)
+        store._atomic_write(store.latest_path, record)
+        record = store.load_latest()
+        monkeypatch.setattr(bot, 'LIVE_CONTINUATION_ANCHOR', state.anchors_from_record(record))
+        a = bot.LIVE_CONTINUATION_ANCHOR[product]
+        before_anchor, before_disk = deepcopy(a), snapshot(store.root)
+        monkeypatch.setattr(bot, 'live_proxy', lambda *args: {'history_date': DAY})
+        # Real market-date validation accepts exactly T-1 -&gt; T. This sentinel is
+        # reached after actual opening projection and before quote/fear gathering.
+        observed = []
+        def later_fail(*args, **kwargs):
+            observed.append(deepcopy(bot.LIVE_CONTINUATION_ANCHOR[product]))
+            raise RuntimeError('independent failure after successful opening projection')
+        monkeypatch.setattr(bot, '_apply_next_unverified_session_anchor', later_fail)
+        monkeypatch.setattr(bot, 'fetch_option_dated_open', lambda *args: (.35, 'synthetic_dated_open'))
+        frame = pd.DataFrame([dict(instrument='MO2612-P-7600', openprice=35.),
+                              dict(instrument='MO2701-P-6800', openprice=36.),
+                              dict(instrument='MO2611-P-6200', openprice=37.),
+                              dict(instrument='IM2612', openprice=7800.)])
+        frame.attrs.update(source='synthetic_dated_open', source_date=DAY)
+        monkeypatch.setattr(bot, 'fetch_cffex_quotes', lambda *args: frame)
+        with pytest.raises(RuntimeError, match='independent failure after successful opening projection'):
+&gt;           bot.build_live_trade_signal(product, CLOCK, 'close')
+
+test_icim_round2_audit_lifecycle_20261021.py:123: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_mainline_v1_4_bot.py:5761: in build_live_trade_signal
+    return _build_live_trade_signal(product, clock, mode)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+poe_ic_im_mainline_v1_4_bot.py:5800: in _build_live_trade_signal
+    put_execution.require_resolved_opening_evidence({"v14_opening_events": opening_events})
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+signal = {'v14_opening_events': [{'kind': 'short_put', 'plan': {'action': 'ENTER_SHORT_PUT', 'core_eod_contract': 'IC2612', 'ex..., ...}, 'reason': 'RuntimeError: IC2612 lacks its specified-day openprice', 'status': 'awaiting_retry_open_evidence'}]}
+
+    def require_resolved_opening_evidence(signal: dict) -&gt; None:
+        """Unverified inputs cannot become new targets or a persisted close.
+    
+        This guard concerns new computation, not reading frozen ledger records.
+        A transient failure is not an authoritative no-fill decision.
+        """
+        statuses = [signal.get("v14_ordinary_put_open_status")]
+        for event in signal.get("v14_opening_events") or []:
+            statuses.append(event.get("status"))
+        if RETRY_OPEN_STATUS in statuses:
+&gt;           raise RuntimeError("unresolved opening evidence: preserve the exact original plan and retry")
+E           RuntimeError: unresolved opening evidence: preserve the exact original plan and retry
+
+ic_im_put_execution_v1.py:53: RuntimeError
+
+During handling of the above exception, another exception occurred:
+
+tmp_path = WindowsPath('D:/workspace/icim_round2_lifecycle_temp/icim_put_9d4c76ea/pytest/test_actual_public_entry_reset4')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000002279B0EAB50&gt;
+product = 'IC', kind = 'short_put'
+
+    @pytest.mark.parametrize('product', ['IC', 'IM'])
+    @pytest.mark.parametrize('kind', ['ordinary', 'profit3x', 'short_put'])
+    def test_actual_public_entry_resets_projection_after_later_failure(tmp_path, monkeypatch, product, kind):
+        store, record = recent_store(tmp_path / 'ledger')
+        anchors = state.anchors_from_record(record)
+        if kind == 'ordinary':
+            a = seed.ordinary_anchor(product)
+        elif kind == 'profit3x':
+            a = seed.profit_anchor(product)
+        else:
+            a = seed.short_anchor(product)
+        # The persisted schema is independently accepted before invoking builder.
+        policy.validate_extension(product, a)
+        anchors[product].update(a)
+        record['products'][product] = state._jsonable(anchors[product])
+        record['digest'] = state._digest(record)
+        state._validate_record(record)
+        store._atomic_write(store.journal_dir / '000000-2026-10-20.json', record)
+        store._atomic_write(store.latest_path, record)
+        record = store.load_latest()
+        monkeypatch.setattr(bot, 'LIVE_CONTINUATION_ANCHOR', state.anchors_from_record(record))
+        a = bot.LIVE_CONTINUATION_ANCHOR[product]
+        before_anchor, before_disk = deepcopy(a), snapshot(store.root)
+        monkeypatch.setattr(bot, 'live_proxy', lambda *args: {'history_date': DAY})
+        # Real market-date validation accepts exactly T-1 -&gt; T. This sentinel is
+        # reached after actual opening projection and before quote/fear gathering.
+        observed = []
+        def later_fail(*args, **kwargs):
+            observed.append(deepcopy(bot.LIVE_CONTINUATION_ANCHOR[product]))
+            raise RuntimeError('independent failure after successful opening projection')
+        monkeypatch.setattr(bot, '_apply_next_unverified_session_anchor', later_fail)
+        monkeypatch.setattr(bot, 'fetch_option_dated_open', lambda *args: (.35, 'synthetic_dated_open'))
+        frame = pd.DataFrame([dict(instrument='MO2612-P-7600', openprice=35.),
+                              dict(instrument='MO2701-P-6800', openprice=36.),
+                              dict(instrument='MO2611-P-6200', openprice=37.),
+                              dict(instrument='IM2612', openprice=7800.)])
+        frame.attrs.update(source='synthetic_dated_open', source_date=DAY)
+        monkeypatch.setattr(bot, 'fetch_cffex_quotes', lambda *args: frame)
+&gt;       with pytest.raises(RuntimeError, match='independent failure after successful opening projection'):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: Regex pattern did not match.
+E         Expected regex: 'independent failure after successful opening projection'
+E         Actual message: 'unresolved opening evidence: preserve the exact original plan and retry'
+
+test_icim_round2_audit_lifecycle_20261021.py:122: AssertionError</failure></testcase><testcase classname="test_icim_round2_audit_lifecycle_20261021" name="test_actual_public_entry_resets_projection_after_later_failure[short_put-IM]" time="0.049"><failure message="RuntimeError: IM卖Put/恢复状态必须同步关闭核心Put与固定核心Call">tmp_path = WindowsPath('D:/workspace/icim_round2_lifecycle_temp/icim_put_9d4c76ea/pytest/test_actual_public_entry_reset5')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000002279B028410&gt;
+product = 'IM', kind = 'short_put'
+
+    @pytest.mark.parametrize('product', ['IC', 'IM'])
+    @pytest.mark.parametrize('kind', ['ordinary', 'profit3x', 'short_put'])
+    def test_actual_public_entry_resets_projection_after_later_failure(tmp_path, monkeypatch, product, kind):
+        store, record = recent_store(tmp_path / 'ledger')
+        anchors = state.anchors_from_record(record)
+        if kind == 'ordinary':
+            a = seed.ordinary_anchor(product)
+        elif kind == 'profit3x':
+            a = seed.profit_anchor(product)
+        else:
+            a = seed.short_anchor(product)
+        # The persisted schema is independently accepted before invoking builder.
+        policy.validate_extension(product, a)
+        anchors[product].update(a)
+        record['products'][product] = state._jsonable(anchors[product])
+        record['digest'] = state._digest(record)
+&gt;       state._validate_record(record)
+
+test_icim_round2_audit_lifecycle_20261021.py:100: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+record = {'digest': 'd5b0d0bb0a233abd22726ae6a102346be338d8cc9ca4c5b9e708cc08df8ac432', 'previous_digest': None, 'products': {'...ntract': 'MO2608-C-8800', 'call_current_contract': None, 'call_equivalent_units': 0.5, ...}}, 'schema_version': 4, ...}
+
+    def _validate_record(record: dict[str, Any]) -&gt; None:
+        if int(record.get("schema_version", -1)) != SCHEMA_VERSION:
+            raise RuntimeError("Poe账本schema_version不受支持")
+        if str(record.get("strategy_version", "")) != STRATEGY_VERSION:
+            raise RuntimeError("Poe账本strategy_version不是独立v1.4，禁止续写旧账本")
+        if str(record.get("strategy_revision", "")) != STRATEGY_REVISION:
+            raise RuntimeError("Poe账本strategy_revision不是r1，禁止续写旧版账本")
+        sequence = record.get("sequence")
+        if not isinstance(sequence, int) or isinstance(sequence, bool) or sequence &lt; 0:
+            raise RuntimeError("Poe账本sequence必须为非负整数")
+        if set(record.get("products", {})) != set(PRODUCTS):
+            raise RuntimeError("Poe账本必须同时包含IC和IM")
+        expected = str(record.get("digest", ""))
+        actual = _digest(record)
+        if not expected or expected != actual:
+            raise RuntimeError("Poe账本SHA-256校验失败")
+        signals = record.get("signals", {})
+        if signals:
+            if not isinstance(signals, dict) or set(signals) != set(PRODUCTS):
+                raise RuntimeError("Poe账本信号必须同时包含IC和IM")
+            for product in PRODUCTS:
+                validate_delivery_values(signals[product], product, historical_record=True)
+                signal = signals[product]
+                if (signal.get("market_date") is not None
+                        and _as_day(signal.get("market_date"), "账本信号日") &gt;= strategy.fear_grid.CLOSE_FALLBACK_EFFECTIVE_DATE
+                        and signal.get("signal_generated_at") is not None):
+                    generated = datetime.fromisoformat(str(signal["signal_generated_at"]))
+                    written = datetime.fromisoformat(str(record.get("updated_at")))
+                    checked = strategy.fear_grid._validation_clock()
+                    if (generated.tzinfo is None or written.tzinfo is None
+                            or not generated &lt;= written &lt;= checked):
+                        raise RuntimeError("账本写入时间必须位于真实信号生成至独立校验区间")
+        days: list[date] = []
+        for product in PRODUCTS:
+            anchor = _decode_anchor(record["products"][product])
+            v14_policy.validate_extension(product, anchor)
+            day = anchor.get("last_verified_day")
+            if not isinstance(day, date):
+                raise RuntimeError(f"{product}账本缺少last_verified_day")
+            days.append(day)
+            pending = anchor.get("v14_ordinary_put_pending")
+            if pending is not None:
+                if _as_day(pending.get("signal_day"), f"{product}普通Put计划日") != day:
+                    raise RuntimeError(f"{product}普通Put待执行计划不属于账本核验日")
+                expected_execution = strategy._roll_forward_exchange_day(day + timedelta(days=1))
+                if _as_day(pending.get("execution_day"), f"{product}普通Put执行日") != expected_execution:
+                    raise RuntimeError(f"{product}普通Put待执行计划未指向下一共同交易日")
+            if float(anchor.get("verified_grid_units", -1)) not in {0.0, 0.5, 1.0}:
+                raise RuntimeError(f"{product}账本网格状态非法")
+            if float(anchor.get("verified_next_grid_units", -1)) not in {0.0, 0.5, 1.0}:
+                raise RuntimeError(f"{product}账本下一交易日网格状态非法")
+            if day &gt;= strategy.fear_grid.EFFECTIVE_SIGNAL_DATE:
+                for units_field, source_field in (
+                    ("verified_grid_units", "verified_grid_entry_source"),
+                    ("verified_next_grid_units", "verified_next_grid_entry_source"),
+                ):
+                    units = float(anchor[units_field])
+                    source = anchor.get(source_field)
+                    if units not in {0.0, 0.5} or source not in strategy.fear_grid.SOURCES or (units == 0.0) != (source == "none"):
+                        raise RuntimeError(f"{product}账本网格仓位与入场来源不一致: {source_field}")
+        if len(set(days)) != 1:
+            raise RuntimeError("IC/IM账本核验日期不一致，禁止部分推进")
+        try:
+            verified_day = date.fromisoformat(str(record.get("verified_day", ""))[:10])
+        except ValueError as exc:
+            raise RuntimeError("Poe账本verified_day非法") from exc
+        if verified_day != days[0]:
+            raise RuntimeError("Poe账本顶层verified_day与逐腿锚点不一致")
+        allowed_weights = {0.0, 0.25, 0.5, 1.0}
+        for product in PRODUCTS:
+            anchor = record["products"][product]
+            for key in ("verified_momentum_weight", "verified_next_momentum_weight"):
+                value = float(anchor.get(key, math.nan))
+                allowed = allowed_weights if product == "IC" else {0.0, 0.5, 1.0}
+                if not math.isfinite(value) or value not in allowed:
+                    raise RuntimeError(f"{product}账本{key}非法")
+            put_qty = float(anchor.get("verified_put_qty_normalized", math.nan))
+            if not math.isfinite(put_qty) or put_qty &lt; 0.0:
+                raise RuntimeError(f"{product}账本Put数量非法")
+        ic = record["products"]["IC"]
+        if float(ic.get("verified_call_contracts_normalized", 0.0)) != 0.0:
+            raise RuntimeError("IC 1.3明确禁止Call，账本出现Call状态")
+        im = record["products"]["IM"]
+        if strategy.im_put_policy.active(verified_day):
+            validate_im_call_values(im.get("verified_call_contracts_normalized", 0.0),
+                                    im.get("verified_call_contract"),
+                                    im.get("verified_call_expiry"), im.get("verified_call_strike"))
+        core_put = _finite_float(
+            im.get("verified_core_put_qty_normalized"), "IM核心Put数量"
+        )
+        momentum_put = _finite_float(
+            im.get("verified_momentum_put_qty_normalized"), "IM动量Put数量"
+        )
+        total_put = _finite_float(
+            im.get("verified_total_put_qty_normalized"), "IM组合Put数量"
+        )
+        legacy_total = _finite_float(
+            im.get("verified_put_qty_normalized"), "IM兼容Put总数量"
+        )
+        parent_puts = im.get("verified_parent_puts")
+        if (
+            core_put &lt; 0.0
+            or momentum_put &lt; 0.0
+            or total_put &lt; 0.0
+            or core_put &gt; 2.0
+            or momentum_put &gt; 2.0
+            or total_put &gt; 4.0
+        ):
+            raise RuntimeError("IM核心/动量/组合Put数量超出合法域")
+        if not math.isclose(total_put, core_put + momentum_put, abs_tol=1e-12):
+            raise RuntimeError("IM组合Put数量不等于核心与动量之和")
+        if not math.isclose(legacy_total, total_put, abs_tol=1e-12):
+            raise RuntimeError("IM兼容Put总数量与双腿合计不一致")
+        if not isinstance(parent_puts, int) or isinstance(parent_puts, bool) or parent_puts not in {0, 1, 2, 3, 4}:
+            raise RuntimeError("IM父规则Put数量非法")
+        im_route_state = str(im.get("v14_route_state", "future"))
+        if im_route_state == "future":
+            if not math.isclose(core_put, 0.5 * parent_puts, abs_tol=1e-12):
+                raise RuntimeError("IM核心Put数量不等于0.5倍父规则目标")
+        elif core_put != 0.0 or float(im.get("verified_call_contracts_normalized", 0.0)) != 0.0:
+&gt;           raise RuntimeError("IM卖Put/恢复状态必须同步关闭核心Put与固定核心Call")
+E           RuntimeError: IM卖Put/恢复状态必须同步关闭核心Put与固定核心Call
+
+poe_ic_im_v1_4_state.py:198: RuntimeError</failure></testcase><testcase classname="test_icim_round2_audit_lifecycle_20261021" name="test_real_chain_split_sleeve_identity_reaches_fail_closed_policy[core-None]" time="0.005" /><testcase classname="test_icim_round2_audit_lifecycle_20261021" name="test_real_chain_split_sleeve_identity_reaches_fail_closed_policy[core-10011470]" time="0.004" /><testcase classname="test_icim_round2_audit_lifecycle_20261021" name="test_real_chain_split_sleeve_identity_reaches_fail_closed_policy[core-10012099]" time="0.004" /><testcase classname="test_icim_round2_audit_lifecycle_20261021" name="test_real_chain_split_sleeve_identity_reaches_fail_closed_policy[momentum-None]" time="0.003" /><testcase classname="test_icim_round2_audit_lifecycle_20261021" name="test_real_chain_split_sleeve_identity_reaches_fail_closed_policy[momentum-10011470]" time="0.004" /><testcase classname="test_icim_round2_audit_lifecycle_20261021" name="test_real_chain_split_sleeve_identity_reaches_fail_closed_policy[momentum-10012099]" time="0.004" /></testsuite></testsuites>

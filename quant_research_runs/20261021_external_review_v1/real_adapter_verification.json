@@ -1,0 +1,16 @@
+{
+  "cffex": {
+    "verified": false,
+    "error_type": "ReadTimeout",
+    "reason": "HTTPSConnectionPool(host='www.cffex.com.cn', port=443): Read timed out. (read timeout=4)"
+  },
+  "ic_monitor_binding": {
+    "verified": true,
+    "contract": "510500P2612M06500",
+    "option_price": 0.1664,
+    "strike": 6.5,
+    "quote_date": "20261021",
+    "quote_time": "132922",
+    "note": "Bound saved real SSE row only; no ETF/IV or performance claim from unmatched observations"
+  }
+}

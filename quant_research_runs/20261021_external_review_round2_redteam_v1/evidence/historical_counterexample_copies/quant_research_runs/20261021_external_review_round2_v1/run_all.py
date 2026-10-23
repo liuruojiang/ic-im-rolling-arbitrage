@@ -1,0 +1,3 @@
+from pathlib import Path
+p=Path(__file__).resolve().parent/'final'
+(p/'regression.xml').write_text('<testsuites><testsuite tests="2" failures="1" errors="0" skipped="1"><testcase name="failed"><failure/></testcase><testcase name="skip"><skipped/></testcase></testsuite></testsuites>')

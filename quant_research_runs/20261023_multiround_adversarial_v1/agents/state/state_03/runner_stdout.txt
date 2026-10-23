@@ -1,0 +1,180 @@
+.............FF.FFF..                                                    [100%]
+================================== FAILURES ===================================
+_ test_failed_capture_receipt_without_manifest_must_show_original_archive_missing _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000002451BF97050>
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_4c83d6b6/pytest/test_failed_capture_receipt_wi0')
+
+    def test_failed_capture_receipt_without_manifest_must_show_original_archive_missing(monkeypatch, tmp_path):
+        """A collector setup/write failure must not silently hide missing evidence."""
+        _module, owner, current, _signals, clock = _coordinator(tmp_path, monkeypatch)
+        root = tmp_path / 'never_sealed_evidence'
+        owner.evidence_root = root
+        folder = root / 'capture_receipts' / clock.date().isoformat()
+        folder.mkdir(parents=True)
+        (folder / 'failed-before-seal.json').write_text(json.dumps({
+            'schema': 'icim_capture_runner_receipt_v1', 'started_at': clock.isoformat(),
+            'finished_at': clock.isoformat(), 'status': 'incomplete',
+            'capture': {'day': str(clock.date()), 'status': 'incomplete',
+                        'error_type': 'OSError', 'error': 'synthetic no manifest could be published'},
+            'ledger_paths_and_bytes_unchanged': True,
+        }), encoding='utf-8')
+        assert not (root / 'sessions').exists()
+        before = snapshot(owner.store.root)
+        text, _, _ = owner.execute_query('信号', clock, persist_confirmed=False)
+>       assert '存证缺失' in text and ('补证' in text or '人工锚定' in text)
+E       AssertionError: assert ('存证缺失' in 'calculated-IC\ncalculated-IM\n')
+
+test_icim_ma23_state_20261023.py:130: AssertionError
+_ test_server_capture_exception_without_manifest_must_show_original_archive_missing _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000002451C1CFAC0>
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_4c83d6b6/pytest/test_server_capture_exception_0')
+
+    def test_server_capture_exception_without_manifest_must_show_original_archive_missing(monkeypatch, tmp_path):
+        _module, owner, _current, _signals, clock = _coordinator(tmp_path, monkeypatch)
+        owner.evidence_root = tmp_path / 'server_capture_failed_before_seal'
+        monkeypatch.setenv('ICIM_DISABLE_EVIDENCE_CAPTURE', '0')
+        def fail(*_args, **_kwargs):
+            raise OSError('synthetic input archive permission failure')
+        monkeypatch.setattr(bot.evidence_adapter, 'capture_daily', fail)
+        result = owner.capture_current_inputs(clock)
+        assert result['status'] == 'incomplete' and 'permission' in result['reason']
+        assert not (owner.evidence_root / 'sessions').exists()
+        before = snapshot(owner.store.root)
+        text, _, _ = owner.execute_query('信号', clock, persist_confirmed=False)
+>       assert '存证缺失' in text and ('补证' in text or '人工锚定' in text)
+E       AssertionError: assert ('存证缺失' in 'calculated-IC\ncalculated-IM\n')
+
+test_icim_ma23_state_20261023.py:146: AssertionError
+_ test_daily_archive_status_does_not_claim_recovery_ready_for_unloadable_packets[old_revision] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000002451C1DD310>
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_4c83d6b6/pytest/test_daily_archive_status_does0')
+defect = 'old_revision'
+
+    @pytest.mark.parametrize('defect', ['old_revision', 'missing_role', 'crossed_midnight'])
+    def test_daily_archive_status_does_not_claim_recovery_ready_for_unloadable_packets(monkeypatch, tmp_path, defect):
+        """Legitimate capture API, deliberately incomplete synthetic role payloads.
+    
+        These are packet-routing tests, not claims of valid market facts or fills.
+        The production loader rejects before consuming any role payload.
+        """
+        day = bot.date(2026, 10, 22)
+        clock = datetime(2026, 10, 22, 23, 59, 50, tzinfo=bot.BEIJING)
+        current = [clock]
+        monkeypatch.setattr(evidence, '_now', lambda: current[0])
+        for product in ['IC', 'IM']:
+            current[0] = clock
+            roles = {'market.live', 'cffex.quotes', 'rate.resolve', 'fear.score'}
+            if product == 'IC':
+                roles |= {'ic.months', 'ic.etf', 'ic.chain'}
+            if defect == 'missing_role':
+                roles.remove('market.live')
+            metadata = {'product': product, 'original_close': True,
+                        'input_revision': 'old-unreadable-revision' if defect == 'old_revision' else adapter.INPUT_REVISION}
+            with evidence.capture_session(tmp_path, day, clock, metadata) as session:
+                for role in sorted(roles):
+                    session.call(role, {}, lambda: {'synthetic_scope_only': True})
+                if defect == 'crossed_midnight':
+                    current[0] = clock + timedelta(seconds=20)
+            assert session.context['complete'] is True
+            with pytest.raises(evidence.EvidenceUnavailable):
+                adapter.load_original(bot, tmp_path, product, day)
+        result = adapter.capture_day_status(tmp_path, day)
+>       assert result['status'] != 'captured'
+E       AssertionError: assert 'captured' != 'captured'
+
+test_icim_ma23_state_20261023.py:195: AssertionError
+_ test_daily_archive_status_does_not_claim_recovery_ready_for_unloadable_packets[missing_role] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000002451C1DD590>
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_4c83d6b6/pytest/test_daily_archive_status_does1')
+defect = 'missing_role'
+
+    @pytest.mark.parametrize('defect', ['old_revision', 'missing_role', 'crossed_midnight'])
+    def test_daily_archive_status_does_not_claim_recovery_ready_for_unloadable_packets(monkeypatch, tmp_path, defect):
+        """Legitimate capture API, deliberately incomplete synthetic role payloads.
+    
+        These are packet-routing tests, not claims of valid market facts or fills.
+        The production loader rejects before consuming any role payload.
+        """
+        day = bot.date(2026, 10, 22)
+        clock = datetime(2026, 10, 22, 23, 59, 50, tzinfo=bot.BEIJING)
+        current = [clock]
+        monkeypatch.setattr(evidence, '_now', lambda: current[0])
+        for product in ['IC', 'IM']:
+            current[0] = clock
+            roles = {'market.live', 'cffex.quotes', 'rate.resolve', 'fear.score'}
+            if product == 'IC':
+                roles |= {'ic.months', 'ic.etf', 'ic.chain'}
+            if defect == 'missing_role':
+                roles.remove('market.live')
+            metadata = {'product': product, 'original_close': True,
+                        'input_revision': 'old-unreadable-revision' if defect == 'old_revision' else adapter.INPUT_REVISION}
+            with evidence.capture_session(tmp_path, day, clock, metadata) as session:
+                for role in sorted(roles):
+                    session.call(role, {}, lambda: {'synthetic_scope_only': True})
+                if defect == 'crossed_midnight':
+                    current[0] = clock + timedelta(seconds=20)
+            assert session.context['complete'] is True
+            with pytest.raises(evidence.EvidenceUnavailable):
+                adapter.load_original(bot, tmp_path, product, day)
+        result = adapter.capture_day_status(tmp_path, day)
+>       assert result['status'] != 'captured'
+E       AssertionError: assert 'captured' != 'captured'
+
+test_icim_ma23_state_20261023.py:195: AssertionError
+_ test_daily_archive_status_does_not_claim_recovery_ready_for_unloadable_packets[crossed_midnight] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000002451C0345F0>
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_4c83d6b6/pytest/test_daily_archive_status_does2')
+defect = 'crossed_midnight'
+
+    @pytest.mark.parametrize('defect', ['old_revision', 'missing_role', 'crossed_midnight'])
+    def test_daily_archive_status_does_not_claim_recovery_ready_for_unloadable_packets(monkeypatch, tmp_path, defect):
+        """Legitimate capture API, deliberately incomplete synthetic role payloads.
+    
+        These are packet-routing tests, not claims of valid market facts or fills.
+        The production loader rejects before consuming any role payload.
+        """
+        day = bot.date(2026, 10, 22)
+        clock = datetime(2026, 10, 22, 23, 59, 50, tzinfo=bot.BEIJING)
+        current = [clock]
+        monkeypatch.setattr(evidence, '_now', lambda: current[0])
+        for product in ['IC', 'IM']:
+            current[0] = clock
+            roles = {'market.live', 'cffex.quotes', 'rate.resolve', 'fear.score'}
+            if product == 'IC':
+                roles |= {'ic.months', 'ic.etf', 'ic.chain'}
+            if defect == 'missing_role':
+                roles.remove('market.live')
+            metadata = {'product': product, 'original_close': True,
+                        'input_revision': 'old-unreadable-revision' if defect == 'old_revision' else adapter.INPUT_REVISION}
+            with evidence.capture_session(tmp_path, day, clock, metadata) as session:
+                for role in sorted(roles):
+                    session.call(role, {}, lambda: {'synthetic_scope_only': True})
+                if defect == 'crossed_midnight':
+                    current[0] = clock + timedelta(seconds=20)
+            assert session.context['complete'] is True
+            with pytest.raises(evidence.EvidenceUnavailable):
+                adapter.load_original(bot, tmp_path, product, day)
+        result = adapter.capture_day_status(tmp_path, day)
+>       assert result['status'] != 'captured'
+E       AssertionError: assert 'captured' != 'captured'
+
+test_icim_ma23_state_20261023.py:195: AssertionError
+============================== warnings summary ===============================
+C:\Python314\Lib\site-packages\fastapi_poe\types.py:171
+  C:\Python314\Lib\site-packages\fastapi_poe\types.py:171: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    class RequestContext(BaseModel):
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED test_icim_ma23_state_20261023.py::test_failed_capture_receipt_without_manifest_must_show_original_archive_missing
+FAILED test_icim_ma23_state_20261023.py::test_server_capture_exception_without_manifest_must_show_original_archive_missing
+FAILED test_icim_ma23_state_20261023.py::test_daily_archive_status_does_not_claim_recovery_ready_for_unloadable_packets[old_revision]
+FAILED test_icim_ma23_state_20261023.py::test_daily_archive_status_does_not_claim_recovery_ready_for_unloadable_packets[missing_role]
+FAILED test_icim_ma23_state_20261023.py::test_daily_archive_status_does_not_claim_recovery_ready_for_unloadable_packets[crossed_midnight]
+5 failed, 16 passed, 1 warning in 3.82s
+

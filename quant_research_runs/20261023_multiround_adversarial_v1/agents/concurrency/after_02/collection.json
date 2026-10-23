@@ -1,0 +1,36 @@
+{
+  "collected": [
+    "test_icim_ma23_concurrency_20261023.py::test_independent_four_worker_collector_cannot_seal_success_after_shutdown_deadline[44.0]",
+    "test_icim_ma23_concurrency_20261023.py::test_independent_four_worker_collector_cannot_seal_success_after_shutdown_deadline[46.0]",
+    "test_icim_ma23_concurrency_20261023.py::test_parallel_same_role_fetch_is_single_and_each_consumer_gets_private_value",
+    "test_icim_ma23_concurrency_20261023.py::test_baseexception_waits_for_real_active_writer_before_context_seal[KeyboardInterrupt]",
+    "test_icim_ma23_concurrency_20261023.py::test_baseexception_waits_for_real_active_writer_before_context_seal[SystemExit]",
+    "test_icim_ma23_concurrency_20261023.py::test_concurrent_raw_byte_budget_is_atomic_and_unsealed_result_never_promoted",
+    "test_icim_ma23_concurrency_20261023.py::test_sina_batch_retry_inherits_parent_deadline_and_cannot_start_after_it",
+    "test_icim_ma23_concurrency_20261023.py::test_thread_batch_context_and_result_order_do_not_follow_completion_order",
+    "test_icim_ma23_concurrency_20261023.py::test_nested_same_thread_role_wrapper_counts_one_blob_and_no_orphan_bytes"
+  ],
+  "selected": [
+    "test_icim_ma23_concurrency_20261023.py::test_independent_four_worker_collector_cannot_seal_success_after_shutdown_deadline[44.0]",
+    "test_icim_ma23_concurrency_20261023.py::test_independent_four_worker_collector_cannot_seal_success_after_shutdown_deadline[46.0]",
+    "test_icim_ma23_concurrency_20261023.py::test_parallel_same_role_fetch_is_single_and_each_consumer_gets_private_value",
+    "test_icim_ma23_concurrency_20261023.py::test_baseexception_waits_for_real_active_writer_before_context_seal[KeyboardInterrupt]",
+    "test_icim_ma23_concurrency_20261023.py::test_baseexception_waits_for_real_active_writer_before_context_seal[SystemExit]",
+    "test_icim_ma23_concurrency_20261023.py::test_concurrent_raw_byte_budget_is_atomic_and_unsealed_result_never_promoted",
+    "test_icim_ma23_concurrency_20261023.py::test_sina_batch_retry_inherits_parent_deadline_and_cannot_start_after_it",
+    "test_icim_ma23_concurrency_20261023.py::test_thread_batch_context_and_result_order_do_not_follow_completion_order",
+    "test_icim_ma23_concurrency_20261023.py::test_nested_same_thread_role_wrapper_counts_one_blob_and_no_orphan_bytes"
+  ],
+  "deselected": [],
+  "executed": [
+    "test_icim_ma23_concurrency_20261023.py::test_independent_four_worker_collector_cannot_seal_success_after_shutdown_deadline[44.0]",
+    "test_icim_ma23_concurrency_20261023.py::test_independent_four_worker_collector_cannot_seal_success_after_shutdown_deadline[46.0]",
+    "test_icim_ma23_concurrency_20261023.py::test_parallel_same_role_fetch_is_single_and_each_consumer_gets_private_value",
+    "test_icim_ma23_concurrency_20261023.py::test_baseexception_waits_for_real_active_writer_before_context_seal[KeyboardInterrupt]",
+    "test_icim_ma23_concurrency_20261023.py::test_baseexception_waits_for_real_active_writer_before_context_seal[SystemExit]",
+    "test_icim_ma23_concurrency_20261023.py::test_concurrent_raw_byte_budget_is_atomic_and_unsealed_result_never_promoted",
+    "test_icim_ma23_concurrency_20261023.py::test_sina_batch_retry_inherits_parent_deadline_and_cannot_start_after_it",
+    "test_icim_ma23_concurrency_20261023.py::test_thread_batch_context_and_result_order_do_not_follow_completion_order",
+    "test_icim_ma23_concurrency_20261023.py::test_nested_same_thread_role_wrapper_counts_one_blob_and_no_orphan_bytes"
+  ]
+}

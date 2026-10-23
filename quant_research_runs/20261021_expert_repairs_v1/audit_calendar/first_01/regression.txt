@@ -1,0 +1,33 @@
+...................................F                                     [100%]
+================================== FAILURES ===================================
+____________ test_public_diagnostic_quotes_match_display_and_json _____________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001702D3C42F0>
+
+    def test_public_diagnostic_quotes_match_display_and_json(monkeypatch):
+        legacy.wire(monkeypatch,held=False)
+        bot.LIVE_CONTINUATION_ANCHOR['IM']['post_core_put_contract'] = 'MO2701-P-7200'
+        mo = bot.fetch_cffex_quotes('MO')
+        mo.loc[mo.instrument.eq('MO2612-P-7200'),'instrument'] = 'MO2701-P-7200'
+        mo.attrs['listed_instruments'] = mo.instrument.tolist()
+        signal = bot.build_live_trade_signal('IM',legacy.CLOCK,'close')
+        no_target(signal)
+        text,files=[],[]
+        class Output:
+            def write(self,value):text.append(str(value))
+            def attach_file(self,**value):files.append(value)
+        bot._write_diagnostic_signal(Output(),'IM',signal)
+        rendered=''.join(text)
+>       assert '8000.0' in rendered
+E       AssertionError: assert '8000.0' in '### IM 1.4 / 中证1000\n\n**部分数据可用；Put及完整组合目标尚未确认。**\n\nPut或期货到期日未经官方日历核验；模型估值仅作诊断，正式目标未确认。\n\n信号日：`2026-10-21`；状态：`cale...n\n- `IM2611`：None。\n- `IM2612`：None。\n- `IM2703`：None。\n- `IM2706`：None。\n\n完整目标：N/A；本次结果仅供研究诊断，不生成新执行计划，不写入正式账本。\n\n'
+
+test_icim_expert_audit_calendar_20261021.py:159: AssertionError
+============================== warnings summary ===============================
+C:\Python314\Lib\site-packages\fastapi_poe\types.py:171
+  C:\Python314\Lib\site-packages\fastapi_poe\types.py:171: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    class RequestContext(BaseModel):
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED test_icim_expert_audit_calendar_20261021.py::test_public_diagnostic_quotes_match_display_and_json
+1 failed, 35 passed, 1 warning in 2.99s

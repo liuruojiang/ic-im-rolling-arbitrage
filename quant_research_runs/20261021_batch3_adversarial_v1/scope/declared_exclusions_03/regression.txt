@@ -1,0 +1,38 @@
+FF.                                                                      [100%]
+================================== FAILURES ===================================
+__ test_declared_final_exclusion_set_must_match_actual_selection[declared0] ___
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_f4c3da01/pytest/test_declared_final_exclusion_0')
+declared = {}
+
+    @pytest.mark.parametrize('declared',[{}, {'test_probe.py::some_other_case':'not actually excluded'}])
+    def test_declared_final_exclusion_set_must_match_actual_selection(tmp_path,declared):
+        directory,gate=receipt_copy(tmp_path,declared)
+>       with pytest.raises(RuntimeError,match='exclusion|deselect|selection'):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+test_icim_b3adv_scope_20261021.py:79: Failed
+__ test_declared_final_exclusion_set_must_match_actual_selection[declared1] ___
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_f4c3da01/pytest/test_declared_final_exclusion_1')
+declared = {'test_probe.py::some_other_case': 'not actually excluded'}
+
+    @pytest.mark.parametrize('declared',[{}, {'test_probe.py::some_other_case':'not actually excluded'}])
+    def test_declared_final_exclusion_set_must_match_actual_selection(tmp_path,declared):
+        directory,gate=receipt_copy(tmp_path,declared)
+>       with pytest.raises(RuntimeError,match='exclusion|deselect|selection'):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+test_icim_b3adv_scope_20261021.py:79: Failed
+============================== warnings summary ===============================
+C:\Python314\Lib\site-packages\fastapi_poe\types.py:171
+  C:\Python314\Lib\site-packages\fastapi_poe\types.py:171: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    class RequestContext(BaseModel):
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED test_icim_b3adv_scope_20261021.py::test_declared_final_exclusion_set_must_match_actual_selection[declared0]
+FAILED test_icim_b3adv_scope_20261021.py::test_declared_final_exclusion_set_must_match_actual_selection[declared1]
+2 failed, 1 passed, 1 warning in 2.10s

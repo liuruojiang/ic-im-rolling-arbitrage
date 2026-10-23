@@ -1,0 +1,29 @@
+{
+  "IC": {
+    "source_sha256": "4e02b889747112459125999382c3ff2fe89017aaea30df05e91bb2a7bc1e2104",
+    "sessions": 2756,
+    "pairs_ok": {
+      "month_next_spread": 2753,
+      "month_quarter_spread": 2756
+    },
+    "pairs_unavailable": {
+      "month_next_spread": 3,
+      "month_quarter_spread": 0
+    },
+    "mismatches": []
+  },
+  "IM": {
+    "source_sha256": "6f19f04824026e3cf7e4fc7ebfeb20f60637e53bfc3caebc616fae47794f3cc0",
+    "sessions": 986,
+    "pairs_ok": {
+      "month_next_spread": 985,
+      "month_quarter_spread": 986
+    },
+    "pairs_unavailable": {
+      "month_next_spread": 1,
+      "month_quarter_spread": 0
+    },
+    "mismatches": []
+  },
+  "elapsed_seconds": 8.028
+}

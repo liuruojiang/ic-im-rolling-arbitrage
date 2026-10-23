@@ -1,0 +1,46 @@
+.FF......                                                                [100%]
+================================== FAILURES ===================================
+_ test_expired_adopted_long_put_cannot_be_committed_as_next_open_plan[MO2601-P-7200] _
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_51ec0f15/pytest/test_expired_adopted_long_put_0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001BA96C4A060>
+contract = 'MO2601-P-7200'
+
+    @pytest.mark.parametrize('contract', ['MO2601-P-7200', 'MO2609-P-7200'])
+    def test_expired_adopted_long_put_cannot_be_committed_as_next_open_plan(tmp_path, monkeypatch, contract):
+        store, record, signals = prepare(tmp_path, monkeypatch, dict(
+            core_put_target_contract=contract, put_target_contract=contract))
+        assert signals['IM']['v14_ordinary_put_pending']['legs']['core']['new_contract'] == contract
+        before = prior.snapshot(store.root)
+>       with pytest.raises(RuntimeError, match='expir|到期|expired'):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+test_icim_b3adv_state_20261021.py:40: Failed
+_ test_expired_adopted_long_put_cannot_be_committed_as_next_open_plan[MO2609-P-7200] _
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_51ec0f15/pytest/test_expired_adopted_long_put_1')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001BA96CC5370>
+contract = 'MO2609-P-7200'
+
+    @pytest.mark.parametrize('contract', ['MO2601-P-7200', 'MO2609-P-7200'])
+    def test_expired_adopted_long_put_cannot_be_committed_as_next_open_plan(tmp_path, monkeypatch, contract):
+        store, record, signals = prepare(tmp_path, monkeypatch, dict(
+            core_put_target_contract=contract, put_target_contract=contract))
+        assert signals['IM']['v14_ordinary_put_pending']['legs']['core']['new_contract'] == contract
+        before = prior.snapshot(store.root)
+>       with pytest.raises(RuntimeError, match='expir|到期|expired'):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+test_icim_b3adv_state_20261021.py:40: Failed
+============================== warnings summary ===============================
+C:\Python314\Lib\site-packages\fastapi_poe\types.py:171
+  C:\Python314\Lib\site-packages\fastapi_poe\types.py:171: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    class RequestContext(BaseModel):
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED test_icim_b3adv_state_20261021.py::test_expired_adopted_long_put_cannot_be_committed_as_next_open_plan[MO2601-P-7200]
+FAILED test_icim_b3adv_state_20261021.py::test_expired_adopted_long_put_cannot_be_committed_as_next_open_plan[MO2609-P-7200]
+2 failed, 7 passed, 1 warning in 6.20s

@@ -1,0 +1,187 @@
+--- baseline/notes/mainline_registry.md
++++ current/notes/mainline_registry.md
+@@ -1,4 +1,12 @@
+ # IC / IM 系统主线登记表
++
++## 第三批修复再次多智能体对抗审计（2026-10-21，本地）
++
++- 按用户再次要求组织五组独立对抗；新增115项验证，最终68测试文件1767项通过、0失败/错误/跳过，原3项明确单列不扩展；906份源码/规范/夹具/测试配置绑定前后一致，5组各902份共同字节对齐。有效结果仅`quant_research_runs/20261021_batch3_adversarial_v1/accepted_adversarial_2/receipt.json`。
++- 补修实际MO目标非ASCII/小数语法绕日历及已到期Put新目标可写、新profit计划跳日/周末及倒填触发日；仅核实际正数量目标/新腿执行语义，月维护当日、普通次日、旧腿清理和到期旧short分支保留。临时prepared信号反例不代表正常provider或正式仓位已污染。
++- 恢复journal必须与signals重新derive的products及预期sequence相符；唯一后台刷新循环对前置日历/读取异常保持错误并重试，真实取消正常传播；三源OHLCV均迟到保留专用等待状态，原拒绝写账边界不变。
++- 本轮验收工具另修隐式选择/收集配置、声明排除集合及自改测试路径漏绑；完整收集、实际执行、XML/退出码、源码和6工件一致才通过。未证明旧1652曾触发该工具缺陷。首累计45失败因根额外期货expiry检查过度加严，已只撤该额外检查，不改原用例或增加排除；首次失败及所有旧证据保留。
++- 1163份备份、6795份既有outputs、26680份旧研究/审计文件及142份正式runtime账本JSON核对保持。无部署、发邮件或正式续账；IC无Call、IM不新卖Call、Put研究边界、配量与资金口径不变。2027官方日历及前两批A型/外部数据/远端未结项不因此关闭。报告及保护核验见`quant_research_runs/20261021_batch3_adversarial_v1/record.md`、`final_verification.json`。
+ 
+ ## 第三批：跨年日历、调用链与并发审计（2026-10-21，本地）
+ 
+--- baseline/poe_ic_im_mainline_v1_4_bot.py
++++ current/poe_ic_im_mainline_v1_4_bot.py
+@@ -2508,9 +2508,12 @@
+     except Exception as exc:
+         errors.append(f"Tencent: {type(exc).__name__}: {exc}")
+         causes.append(exc)
+-    error_type = SignalTransportError if causes and all(
+-        isinstance(exc, (requests.ConnectionError, requests.Timeout)) for exc in causes
+-    ) else RuntimeError
++    if causes and all(isinstance(exc, DailyOHLCVNotReady) for exc in causes):
++        error_type = DailyOHLCVNotReady
++    elif causes and all(isinstance(exc, (requests.ConnectionError, requests.Timeout)) for exc in causes):
++        error_type = SignalTransportError
++    else:
++        error_type = RuntimeError
+     raise error_type(f"{product} OHLCV全部来源失败：{'；'.join(errors)}")
+ 
+ 
+@@ -4829,39 +4832,74 @@
+             day = value if isinstance(value, date) else date.fromisoformat(str(value)[:10])
+             _require_official_exchange_calendar(day, f"{product} {label}")
+ 
+-    def contract_covered(value: Any, label: str) -> None:
++    def contract_covered(value: Any, label: str, execution_day: Any = None) -> None:
+         if not value:
+             return
+-        match = re.fullmatch(r"(?:IC|IM|MO)([0-9]{2})([0-9]{2})(?:-[PC]-[0-9]+)?", str(value))
++        text = str(value)
++        match = re.fullmatch(r"(?:IC|IM)([0-9]{2})([0-9]{2})", text)
++        option = False
+         if match is None:
+-            match = re.fullmatch(r"510500P([0-9]{2})([0-9]{2})[MA][0-9]{5}", str(value))
+-        if match is not None:
+-            covered(date(2000 + int(match.group(1)), int(match.group(2)), 1), label)
++            match = re.fullmatch(r"MO([0-9]{2})([0-9]{2})-[PC]-[0-9]+", text)
++        if match is None:
++            match = re.fullmatch(r"510500P([0-9]{2})([0-9]{2})[MA][0-9]{5}", text)
++            option = True
++        if match is None:
++            raise RuntimeError(f"{product} {label}合约语法非法，不能核验交易日历: {text}")
++        year, month = 2000 + int(match.group(1)), int(match.group(2))
++        covered(date(year, month, 1), label)
++        if execution_day is not None:
++            expiry = _fourth_wednesday(year, month) if option else _third_friday(year, month)
++            covered(expiry, label)
++            execution = date.fromisoformat(str(execution_day)[:10])
++            if expiry < execution:
++                raise RuntimeError(f"{product} {label}目标合约已到期: {text} expiry={expiry} execution={execution}")
++
++    def positive(value: Any) -> bool:
++        try:
++            return float(value) > 0
++        except (ValueError, TypeError):
++            # Numeric shape remains the responsibility of the existing validators.
++            return False
+ 
+     covered(signal.get("market_date"), "market date")
+     covered(signal.get("next_trade_date"), "next session")
+     # next_core and quote-frame expiries are diagnostics until actually adopted.
+     contract_covered(signal.get("core_target"), "core target")
++    target_day = (signal.get("market_date") if signal.get("option_monthly_reset_due")
++                  else signal.get("next_trade_date", signal.get("market_date")))
++    ic_shared_qty = (signal.get("put_target_momentum_qty")
++                     if signal.get("v14_core_put_contract")
++                     and signal.get("v14_core_put_contract") != signal.get("put_target_contract")
++                     else signal.get("put_target_total_qty"))
++    quantities = ({"put_target_contract": ic_shared_qty,
++                   "v14_core_put_contract": signal.get("v14_core_put_qty")}
++                  if product == "IC" else
++                  {"put_target_contract": signal.get("core_put_target_qty_normalized"),
++                   "core_put_target_contract": signal.get("core_put_target_qty_normalized"),
++                   "momentum_put_target_contract": signal.get("momentum_put_target_qty_normalized")})
+     for target in ("put_target_contract", "core_put_target_contract", "v14_core_put_contract",
+                    "momentum_put_target_contract"):
+-        contract_covered(signal.get(target), target)
++        contract_covered(signal.get(target), target, target_day if positive(quantities.get(target)) else None)
+     if (signal.get("v14_action") in {"ENTER_SHORT_PUT", "ROLL_SHORT_PUT"}
+             or float(signal.get("v14_short_put_qty_normalized", 0) or 0) > 0):
+         covered(signal.get("v14_short_put_expiry"), "new short Put expiry")
+-        contract_covered(signal.get("v14_short_put_contract"), "new short Put")
++        opening_short = signal.get("v14_action") in {"ENTER_SHORT_PUT", "ROLL_SHORT_PUT"}
++        contract_covered(signal.get("v14_short_put_contract"), "new short Put",
++                         signal.get("next_trade_date") if opening_short else None)
+     if signal.get("v14_profit_pending"):
+         covered(signal.get("v14_profit_execution_day"), "profit reentry execution")
+-        contract_covered(signal.get("v14_profit_reentry_contract"), "profit reentry")
++        contract_covered(signal.get("v14_profit_reentry_contract"), "profit reentry",
++                         signal.get("v14_profit_execution_day"))
+     for key in ("v14_ordinary_put_open_plan", "v14_ordinary_put_pending", "v14_short_put_open_pending"):
+         plan = signal.get(key)
+         if not isinstance(plan, dict):
+             continue
+         covered(plan.get("execution_day"), key)
+-        contract_covered(plan.get("new_contract"), key)
++        contract_covered(plan.get("new_contract"), key, plan.get("execution_day"))
+         legs = plan.get("legs", {})
+         for leg in (legs.values() if isinstance(legs, dict) else legs):
+             if leg.get("changed") and float(leg.get("new_qty", 0) or 0) > 0:
+-                contract_covered(leg.get("new_contract"), key)
++                contract_covered(leg.get("new_contract"), key, plan.get("execution_day"))
+     if signal.get("option_monthly_reset_due") or signal.get("option_monthly_reset_preview"):
+         covered(signal.get("option_monthly_reset_execution_date"), "monthly maintenance")
+     if signal.get("option_monthly_reset_due") or signal.get("put_monthly_reset_preview"):
+--- baseline/poe_ic_im_v1_4_server.py
++++ current/poe_ic_im_v1_4_server.py
+@@ -290,9 +290,15 @@
+ server_bot = PersistentICIMBot(coordinator, poe_access_key)
+ async def _refresh_loop() -> None:
+     while True:
+-        now = strategy._now_beijing()
+-        if now.time() >= close_clock(now.date()).time():
+-            await asyncio.to_thread(coordinator.catch_up_once, now)
++        try:
++            now = strategy._now_beijing()
++            if now.time() >= close_clock(now.date()).time():
++                await asyncio.to_thread(coordinator.catch_up_once, now)
++        except Exception as exc:
++            # Calendar/head checks can fail before catch_up_once's replay try.
++            # Keep the sole scheduler alive for later retries, without making
++            # an unverified session executable. Task cancellation still escapes.
++            coordinator.last_refresh_error = f"{type(exc).__name__}: {exc}"
+         await asyncio.sleep(300)
+ 
+ 
+--- baseline/poe_ic_im_v1_4_state.py
++++ current/poe_ic_im_v1_4_state.py
+@@ -360,6 +360,12 @@
+         raise RuntimeError(f"{product} v1.4信号缺少market_date")
+     strategy.require_signal_calendar(product, signal)
+     expected_build_id, expected_rule_revision = v14_policy.identity_for_signal_day(market_date)
++    if signal.get("v14_profit_pending"):
++        trigger_day = _as_day(signal.get("v14_profit_trigger_day"), "三倍兑现触发日")
++        execution_day = _as_day(signal.get("v14_profit_execution_day"), "三倍兑现执行日")
++        expected_day = strategy._roll_forward_exchange_day(trigger_day + timedelta(days=1), require_official=True)
++        if execution_day != expected_day:
++            raise RuntimeError(f"{product} 三倍兑现计划未指向触发日的下一实际交易日")
+     for field, expected in (
+         ("strategy_version", STRATEGY_VERSION),
+         ("strategy_revision", STRATEGY_REVISION),
+@@ -842,6 +848,14 @@
+ def validate_profit_open_transition(product: str, anchor: dict[str, Any],
+                                     signal: dict[str, Any], signal_day: date) -> None:
+     """Bind a new paper execution to the prior close's exact committed plan."""
++    if signal_day >= v14_policy.PROFIT_OPEN_EFFECTIVE_SIGNAL_DATE and signal.get("v14_profit_pending"):
++        fields = ("v14_profit_trigger_day", "v14_profit_execution_day", "v14_profit_old_contract",
++                  "v14_profit_old_security_id", "v14_profit_old_qty", "v14_profit_reentry_contract",
++                  "v14_profit_reentry_security_id", "v14_profit_reentry_qty")
++        new_plan = not anchor.get("v14_profit_pending") or any(
++            _jsonable(signal.get(key)) != _jsonable(anchor.get(key)) for key in fields)
++        if new_plan and _as_day(signal.get("v14_profit_trigger_day"), "新3倍兑现触发日") != signal_day:
++            raise RuntimeError(f"{product} 新3倍兑现计划必须由当前信号日触发，不能补造旧日承诺")
+     if (signal_day < v14_policy.PROFIT_OPEN_EFFECTIVE_SIGNAL_DATE
+             or signal.get("v14_action") != "EXECUTE_CORE_PUT_PROFIT3X_REENTER"):
+         return
+@@ -1476,13 +1490,16 @@
+             if (
+                 existing.get("previous_digest") != current["digest"]
+                 or str(existing.get("verified_day")) != str(record["verified_day"])
++                or int(existing["sequence"]) != sequence
+             ):
+                 raise RuntimeError(f"{record['verified_day']}账本已存在但内容冲突")
+             # Recover a crash that completed the append-only journal write but
+             # happened before latest.json was atomically replaced.
+             # Validate the recovered day's policy too: its journal may have
+             # been written by an obsolete producer before the process restart.
+-            derive_next_anchors(current, existing.get("signals", {}))
++            recovered_anchors = derive_next_anchors(current, existing.get("signals", {}))
++            if _jsonable(recovered_anchors) != existing.get("products"):
++                raise RuntimeError("恢复journal的持仓与其信号推导不一致，拒绝更新账本head")
+             self._atomic_write(self.latest_path, existing)
+             return existing
+         self._atomic_write(journal, record)

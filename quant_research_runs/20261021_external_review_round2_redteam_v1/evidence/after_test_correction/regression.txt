@@ -1,0 +1,16 @@
+.....F                                                                   [100%]
+================================== FAILURES ===================================
+_ test_formal_runtime_and_older_evidence_unchanged_from_second_round_baseline _
+
+    def test_formal_runtime_and_older_evidence_unchanged_from_second_round_baseline():
+        baseline = read(OLD / 'baseline.json')
+        protected = {p: h for p, h in baseline['backed_up'].items() if p.startswith('runtime/')}
+        assert protected
+>       assert all(sha(ROOT / p) == h for p, h in protected.items())
+E       assert False
+E        +  where False = all(<generator object test_formal_runtime_and_older_evidence_unchanged_from_second_round_baseline.<locals>.<genexpr> at 0x000001D854AB87C0>)
+
+test_icim_round2_audit_evidence_20261021.py:95: AssertionError
+=========================== short test summary info ===========================
+FAILED test_icim_round2_audit_evidence_20261021.py::test_formal_runtime_and_older_evidence_unchanged_from_second_round_baseline
+1 failed, 5 passed in 0.59s

@@ -1,0 +1,19 @@
+{
+  "exit_code": 0,
+  "counts": {
+    "passed": 24,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "junit_sha256": "249967b9250c9b7263ce557898e901ce2d1cbc4eb3727757ca6fb1ddd7e858a2",
+  "output_sha256": "4298757e4fcb0aac230e93da1aac7120271a7af9b960d8523a16a98a4fbce5d6",
+  "source_after": {
+    "poe_ic_im_v1_4_state.py": "e9bf8637ae52adb70d6d6dcb89b8e48dae216f5db35a61e2d9d9a5084881b3f1",
+    "test_icim_round3_grid_persistence_20261021.py": "fda45993d919dabd7ee81e0c2fba6e2edcf814cb3d0365ceb12a1127ed984edf"
+  },
+  "source_before_recorded": false,
+  "scope": "state gate only; shared bot integration is still changing; final root suite must bind the final sources",
+  "state_dir": "state_stage_01/import_state (isolated; no server import)",
+  "calendar_patch_applied": false
+}

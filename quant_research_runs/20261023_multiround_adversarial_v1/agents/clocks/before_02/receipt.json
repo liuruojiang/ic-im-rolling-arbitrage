@@ -1,0 +1,8 @@
+{
+  "stage": "before_02",
+  "exit_code": 1,
+  "source_before_equals_after": true,
+  "bound_files": 29,
+  "finished_at": "2026-10-23T09:26:54.644359+08:00",
+  "test_output": "D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261023_multiround_adversarial_v1\\clocks_before_02"
+}

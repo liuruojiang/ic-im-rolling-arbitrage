@@ -1,0 +1,1075 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="3" skipped="0" tests="22" time="4.161" timestamp="2026-10-21T14:34:59.968154+08:00" hostname="DESKTOP-95I7VVU"><testcase classname="test_icim_round2_audit_lifecycle_20261021" name="test_actual_public_entry_resets_projection_after_later_failure[ordinary-IC]" time="0.062" /><testcase classname="test_icim_round2_audit_lifecycle_20261021" name="test_actual_public_entry_resets_projection_after_later_failure[ordinary-IM]" time="0.024" /><testcase classname="test_icim_round2_audit_lifecycle_20261021" name="test_actual_public_entry_resets_projection_after_later_failure[profit3x-IC]" time="0.024" /><testcase classname="test_icim_round2_audit_lifecycle_20261021" name="test_actual_public_entry_resets_projection_after_later_failure[profit3x-IM]" time="0.024" /><testcase classname="test_icim_round2_audit_lifecycle_20261021" name="test_actual_public_entry_resets_projection_after_later_failure[short_put-IC]" time="0.026" /><testcase classname="test_icim_round2_audit_lifecycle_20261021" name="test_actual_public_entry_resets_projection_after_later_failure[short_put-IM]" time="0.025" /><testcase classname="test_icim_round2_audit_lifecycle_20261021" name="test_real_chain_split_sleeve_identity_reaches_fail_closed_policy[core-None]" time="0.005" /><testcase classname="test_icim_round2_audit_lifecycle_20261021" name="test_real_chain_split_sleeve_identity_reaches_fail_closed_policy[core-10011470]" time="0.005" /><testcase classname="test_icim_round2_audit_lifecycle_20261021" name="test_real_chain_split_sleeve_identity_reaches_fail_closed_policy[core-10012099]" time="0.006" /><testcase classname="test_icim_round2_audit_lifecycle_20261021" name="test_real_chain_split_sleeve_identity_reaches_fail_closed_policy[momentum-None]" time="0.006" /><testcase classname="test_icim_round2_audit_lifecycle_20261021" name="test_real_chain_split_sleeve_identity_reaches_fail_closed_policy[momentum-10011470]" time="0.004" /><testcase classname="test_icim_round2_audit_lifecycle_20261021" name="test_real_chain_split_sleeve_identity_reaches_fail_closed_policy[momentum-10012099]" time="0.003" /><testcase classname="test_icim_round2_audit_lifecycle_20261021" name="test_old_m_replay_must_not_synthesize_standard_identity_from_directed_id" time="0.003" /><testcase classname="test_icim_round2_audit_lifecycle_20261021" name="test_full_public_builder_real_sse_current_holding_identity[10012099]" time="0.028" /><testcase classname="test_icim_round2_audit_lifecycle_20261021" name="test_full_public_builder_real_sse_current_holding_identity[10011470]" time="0.023" /><testcase classname="test_icim_round2_audit_lifecycle_20261021" name="test_full_public_builder_real_sse_current_holding_identity[None]" time="0.021" /><testcase classname="test_icim_round2_audit_lifecycle_20261021" name="test_actual_builder_independent_sleeves_never_cross_identity[None]" time="0.024"><failure message="RuntimeError: 无法解析IC Put合约: 510500C2612M05750">tmp_path = WindowsPath('D:/workspace/icim_round2_lifecycle_temp/icim_put_13b5852a/pytest/test_actual_builder_independen0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x0000028F4BCC6170&gt;
+bad_sleeve = None
+
+    @pytest.mark.parametrize('bad_sleeve', [None, 'core', 'momentum'])
+    def test_actual_builder_independent_sleeves_never_cross_identity(tmp_path, monkeypatch, bad_sleeve):
+        store, record = recent_store(tmp_path / 'ledger')
+        anchors = state.anchors_from_record(record)
+        a = anchors['IC']
+        chain, stamp = real.wire(monkeypatch)
+        other = chain[chain.contract.str.contains('M') &amp; ~chain.contract.eq(real.M)].iloc[0]
+        a.update(post_put_contract=str(other.contract),post_put_security_id=str(other.security_id),
+                 verified_momentum_put_qty=3,verified_momentum_put_delta=.125,
+                 verified_total_put_delta=.375,post_put_qty=17,verified_put_qty_normalized=17)
+        if bad_sleeve == 'core':
+            a['v14_core_put_security_id'] = '10011470'
+        elif bad_sleeve == 'momentum':
+            a['post_put_security_id'] = '10011470'
+        policy.validate_extension('IC', a)
+        monkeypatch.setattr(bot, 'LIVE_CONTINUATION_ANCHOR', anchors)
+        builder_inputs(monkeypatch, a, chain, stamp)
+        before = deepcopy(a)
+        if bad_sleeve == 'momentum':
+            with pytest.raises(RuntimeError, match='证券'):
+                bot.build_live_trade_signal('IC', CLOCK, 'close')
+        else:
+&gt;           out = bot.build_live_trade_signal('IC', CLOCK, 'close')
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_icim_round2_audit_lifecycle_20261021.py:268: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_mainline_v1_4_bot.py:5761: in build_live_trade_signal
+    return _build_live_trade_signal(product, clock, mode)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+product = 'IC'
+now = datetime.datetime(2026, 10, 21, 15, 40, tzinfo=zoneinfo.ZoneInfo(key='Asia/Shanghai'))
+mode = 'close'
+
+    def _build_live_trade_signal(
+        product: str,
+        now: datetime | None = None,
+        mode: str = "intraday",
+    ) -&gt; dict[str, Any]:
+        collection_started = time_module.monotonic()
+        if mode not in {"intraday", "close"}:
+            raise ValueError(f"非法信号模式: {mode}")
+        clock = now or _now_beijing()
+        _require_official_exchange_calendar(clock.date(), f"{product}信号")
+        today = clock.date()
+        live = live_proxy(product, clock)
+        market_date = live.get("history_date", today)
+        if isinstance(market_date, pd.Timestamp):
+            market_date = market_date.date()
+        if not isinstance(market_date, date):
+            market_date = date.fromisoformat(str(market_date))
+        bridge_from_anchor = _validate_signal_market_date(
+            product, market_date, clock, mode
+        )
+        quote_cache: dict[str, pd.DataFrame] = {}
+        opening_anchor = LIVE_CONTINUATION_ANCHOR[product]
+        put_execution.require_supported_ic_contracts(product, opening_anchor)
+        opening = _v14_ordinary_open_evidence(product, market_date, clock, quote_cache)
+        put_execution.require_resolved_opening_evidence(
+            {"v14_ordinary_put_open_status": opening["status"] if opening else None}
+        )
+        if opening is not None and opening["status"] == "confirmed_open_research_price":
+            LIVE_CONTINUATION_ANCHOR[product] = v14_policy.project_ordinary_open(
+                product, LIVE_CONTINUATION_ANCHOR[product], opening["plan"], opening["prices"]
+            )
+        opening_events = _v14_project_committed_opens(product, market_date, clock, quote_cache)
+        put_execution.require_resolved_opening_evidence({"v14_opening_events": opening_events})
+        put_execution.require_due_openings(product, opening_anchor,
+            {"v14_ordinary_put_open_status": opening["status"] if opening else None,
+             "v14_ordinary_put_open_plan": opening["plan"] if opening else None,
+             "v14_opening_events": opening_events}, market_date,
+            market_date == _third_friday(market_date.year, market_date.month))
+        if bridge_from_anchor:
+            live = _apply_next_unverified_session_anchor(product, live)
+        elif market_date == LIVE_CONTINUATION_ANCHOR[product]["last_verified_day"]:
+            live = _apply_next_unverified_session_anchor(product, live, next_session=False)
+        fear_evidence: dict[str, Any] | None = None
+        if market_date &gt;= fear_grid.EFFECTIVE_SIGNAL_DATE:
+            if not live.get("valuation_provenance"):
+                raise RuntimeError(f"{product} 新网格信号缺少已核验估值来源")
+            anchor = LIVE_CONTINUATION_ANCHOR[product]
+            source_key = ("verified_next_grid_entry_source" if bridge_from_anchor
+                          else "verified_grid_entry_source")
+            current_source = anchor.get(source_key)
+            if current_source is None:
+                # The last pre-fix10 grid could only have entered by valuation.
+                current_source = fear_grid.source_for_legacy_units(
+                    float(live["grid_current_units"])
+                )
+            # A post-close "实时信号" query must meet the same Fear confirmation
+            # gate as the close route before it can describe a confirmed target.
+            fear_mode = (
+                "close" if market_date &lt; today or
+                (market_date == today and _market_phase(clock) == "收盘后") else mode
+            )
+            fear_evidence = fear_grid.fetch_score(market_date, fear_mode)
+            if fear_grid.flexible_source(fear_evidence) and fear_evidence["fear_greed_index"] is None:
+                next_units, next_source, grid_reason = float(live["grid_current_units"]), current_source, "fear_unavailable"
+            else:
+                next_units, next_source, grid_reason = fear_grid.transition(
+                    product, float(live["grid_current_units"]), current_source,
+                    float(live["score"]), fear_evidence["fear_greed_index"],
+                )
+            if _now_beijing().date() &gt;= fear_grid.SOURCE_POLICY_DATE:
+                fear_evidence.update(fear_grid.fetch_jiu_reference(market_date))
+            live["grid_target_units"] = next_units
+            live["grid_entry_source_current"] = current_source
+            live["grid_entry_source_target"] = next_source
+            live["grid_transition_reason"] = grid_reason
+        elif live.get("valuation_provenance"):
+            # Continue the persisted valuation grid state without replaying older
+            # proxy scores. Historical signals keep their original field contract.
+            live["grid_target_units"] = _daily_grid_target(product, live)
+        state_anchor_day = _validated_signal_state_anchor_day(
+            product, live, bridge_from_anchor
+        )
+        future_quotes = fetch_cffex_quotes(product, clock)
+        future_quote_source = str(future_quotes.attrs.get("source", "未知"))
+        future_quote_date = future_quotes.attrs.get("source_date")
+        _require_intraday_bridge_source_day(
+            f"{product}期货", future_quote_date, market_date, bridge_from_anchor
+        )
+        # Option maintenance keeps the original monthly reference, independent of futures.
+        monthly_future = select_active_future(product, future_quotes, market_date)
+        monthly_expiry = _third_friday(*_contract_month(str(monthly_future["instrument"])))
+        phase = _market_phase(clock)
+        close_confirmed = market_date &lt; today or (
+            market_date == today and phase in {"收盘后", "非交易日"}
+        )
+        option_roll_due, monthly_preview_only = _v14_monthly_option_calendar(
+            product, market_date, monthly_expiry, close_confirmed
+        )
+        option_core_action = "ROLL" if option_roll_due else "HOLD"
+        option_reference_contract = str(monthly_future["instrument"])
+        if option_roll_due:
+            option_reference_contract = _next_listed_future_contract(
+                product, future_quotes, monthly_expiry
+            )
+        option_reference_future = _require_listed_future_quote(
+            product, future_quotes, option_reference_contract
+        )
+        option_reference_expiry = _third_friday(*_contract_month(option_reference_contract))
+        ledger_core = str(LIVE_CONTINUATION_ANCHOR[product]["post_core_contract"])
+        ledger_core_expiry = _third_friday(*_contract_month(ledger_core))
+        calendar_note = _calendar_coverage_note([
+            _third_friday(*_contract_month(str(c))) for c in future_quotes.instrument
+        ])
+        if market_date &gt;= quarter_roll.EFFECTIVE_DATE:
+            def covered_session(day):
+                _require_official_exchange_calendar(day, "季度换仓日历")
+                return _is_exchange_trading_day(day)
+            future_plan = quarter_roll.roll_state(
+                product, ledger_core,
+                future_quotes.attrs.get("listed_instruments", future_quotes.instrument.tolist()),
+                market_date, close_confirmed,
+                lambda c: _third_friday(*_contract_month(c)), covered_session,
+            )
+            current_core = future_plan["core_current"]
+            target_core = future_plan["core_target"]
+            core_action = future_plan["core_action"]
+            next_core = future_plan["next_core"]
+            active_expiry = ledger_core_expiry
+            roll_execution_date = future_plan["roll_execution_date"]
+            scheduled_roll_completed = future_plan["roll_confirmed"]
+        else:
+            # Pre-effective catch-up retains r6 monthly semantics.
+            active_expiry = monthly_expiry
+            next_core = _next_listed_future_contract(product, future_quotes, monthly_expiry)
+            current_core = ledger_core
+            target_core = option_reference_contract
+            core_action = option_core_action
+            roll_execution_date = monthly_expiry if option_roll_due else None
+            scheduled_roll_completed = market_date &gt;= ledger_core_expiry
+            if core_action == "HOLD" and target_core != current_core:
+                raise RuntimeError(f"{product} monthly reference does not match audited ledger")
+            future_plan = dict(core_eod_contract=target_core, roll_confirmed=option_roll_due,
+                               roll_policy={"tenor": "legacy_monthly_pre_effective"})
+        active_future = _require_listed_future_quote(product, future_quotes, target_core)
+        spread = quarter_roll.quarter_spread(
+            product, future_quotes, market_date, lambda c: _third_friday(*_contract_month(c))
+        )
+        grid_units, grid_action = _grid_target(product, live)
+        close_confirmed = market_date &lt; today or (
+            market_date == today and phase in {"收盘后", "非交易日"}
+        )
+        if mode == "intraday":
+            stage = (
+                "盘中实时监测，须待T收盘确认"
+                if phase == "盘中"
+                else f"{phase}，返回最新可得行情"
+            )
+        elif close_confirmed:
+            stage = f"最近已完成交易日 {market_date} 的收盘信号"
+        else:
+            stage = f"{market_date} 尚未收盘，收盘信号未形成"
+        data_notes = [
+            "本次请求重新抓取中金所/上交所/指数行情",
+            daily_valuation.disclosure(live.get("valuation_provenance")),
+            "MOM120沿用价格指数动量口径",
+            f"{product}期货源：{future_quote_source}，as-of {future_quote_date}",
+        ]
+        if product == "IM":
+            data_notes.append(
+                f"中证1000 OHLCV源：{live.get('momentum_ohlcv_source', '未知')}；"
+                + (
+                    "盘中成交量使用已确认状态占位，不把不可验证累计量写入信号"
+                    if live.get("momentum_volume_placeholder")
+                    else "成交量已通过日期、OHLC关系、正值与数量级校验"
+                )
+            )
+        if live.get("momentum_ohlcv_source_failures"):
+            data_notes.append(
+                "指数OHLCV前序来源失败："
+                + "；".join(live["momentum_ohlcv_source_failures"])
+            )
+        if live.get("momentum_ohlcv_source_audit"):
+            page_summary = [
+                f"{page['page']}:{page['first_response_date']}..{page['last_response_date']}"
+                f" sha256={page['response_sha256']}"
+                f" bytes={page['response_bytes']}"
+                f" {page['started_at']}..{page['ended_at']}"
+                for page in live["momentum_ohlcv_source_audit"]
+            ]
+            data_notes.append(
+                "Tencent OHLCV分页来源审计：" + "；".join(page_summary)
+            )
+        if bridge_from_anchor:
+            data_notes.append(
+                f"账本下一交易日桥接：当前腿固定取"
+                f"{LIVE_CONTINUATION_ANCHOR[product]['last_verified_day']}已核验收盘锚点；"
+                f"{market_date}行情只形成下一交易日目标"
+            )
+        if fear_evidence is not None:
+            data_notes.extend([fear_grid.source_disclosure(fear_evidence), fear_grid.reference_disclosure(fear_evidence)])
+            data_notes.append(
+                f"恐贪来源：{fear_evidence['fear_data_status']}，"
+                f"数据日 {fear_evidence['fear_data_date'] or '缺失'}，"
+                f"分数 {fear_evidence['fear_greed_index'] if fear_evidence['fear_greed_index'] is not None else '缺失'}；"
+                f"网页更新 {fear_evidence['fear_page_updated_at']}；"
+                f"CSV SHA-256 {fear_evidence['fear_csv_sha256']}"
+            )
+        data_notes.extend(future_quotes.attrs.get("source_audit", []))
+        if future_quotes.attrs.get("source_failures"):
+            data_notes.append(
+                "行情源回退/不可用汇总："
+                + "；".join(future_quotes.attrs["source_failures"])
+            )
+        if calendar_note:
+            data_notes.append(calendar_note)
+        signal: dict[str, Any] = {
+            "product": product,
+            "mode": mode,
+            "market_phase": phase,
+            "market_date": market_date,
+            "close_confirmed": close_confirmed,
+            "state_anchor_day": state_anchor_day,
+            "stage": stage,
+            "fetch_time": clock.strftime("%Y-%m-%d %H:%M:%S"),
+            "index_price": live["price"],
+            "score": live["score"],
+            "valuation_provenance": live.get("valuation_provenance", {}),
+            "momentum_120": live["momentum_120"],
+            "momentum_score": live["momentum_score"],
+            "momentum_abs20": live["momentum_abs20"],
+            "momentum_abs": live.get("momentum_abs", live["momentum_abs20"]),
+            "momentum_abs_days": live.get("momentum_abs_days", 20),
+            "momentum_abs_on": live.get("momentum_abs_on", live["momentum_abs20"] &gt; 0),
+            "momentum_abs_debounce_active": live.get("momentum_abs_debounce_active", True),
+            "momentum_volume_ratio": live["momentum_volume_ratio"],
+            "momentum_volume_pass": live["momentum_volume_pass"],
+            "momentum_volume_placeholder": live["momentum_volume_placeholder"],
+            "momentum_score_hot": live["momentum_score_hot"],
+            "momentum_base_nav": live["momentum_base_nav"],
+            "momentum_base_dd": live["momentum_base_dd"],
+            "momentum_nav_defense": live["momentum_nav_defense"],
+            "momentum_ohlcv_source": live["momentum_ohlcv_source"],
+            "momentum_ohlcv_source_audit": live.get("momentum_ohlcv_source_audit", []),
+            "momentum_ohlcv_source_failures": live.get("momentum_ohlcv_source_failures", []),
+            "momentum_ohlcv_source_volume_scale": live.get(
+                "momentum_ohlcv_source_volume_scale"
+            ),
+            "momentum_current_weight": live["momentum_current_weight"],
+            "momentum_next_weight": live["momentum_next_weight"],
+            "momentum_signal_date": live["momentum_signal_date"],
+            "momentum_current_source_date": live["momentum_current_source_date"],
+            "next_trade_date": _roll_forward_exchange_day(
+                market_date + timedelta(days=1)
+            ),
+            "core_current": current_core,
+            "core_target": target_core,
+            "core_action": core_action,
+            "future_last": float(active_future["lastprice"]),
+            "future_bid": float(active_future.get("bprice", np.nan)),
+            "future_ask": float(active_future.get("sprice", np.nan)),
+            "future_quote_source": future_quote_source,
+            "future_quote_date": future_quote_date,
+            "future_expiry": _third_friday(*_contract_month(target_core)),
+            "next_core": next_core,
+            "roll_date": active_expiry,
+            "roll_execution_date": roll_execution_date,
+            "scheduled_roll_completed": scheduled_roll_completed,
+            "core_eod_contract": future_plan["core_eod_contract"],
+            "roll_confirmed": future_plan["roll_confirmed"],
+            "roll_policy": future_plan["roll_policy"],
+            "quarter_spread": spread,
+            **quarter_roll.monthly_spreads(
+                product, future_quotes, market_date, lambda c: _third_friday(*_contract_month(c))
+            ),
+            "option_monthly_reset_due": option_roll_due,
+            "option_monthly_reset_preview": product == "IC" and monthly_preview_only,
+            "option_monthly_reset_execution_date": monthly_expiry,
+            "option_reference_contract": option_reference_contract,
+            "grid_current": float(live["grid_current_units"]),
+            "grid_target": grid_units,
+            "grid_action": grid_action,
+            "grid_policy_revision": grid_policy_revision(market_date),
+            "grid_policy": grid_rule(product, market_date),
+            "data_notes": data_notes,
+        }
+        if fear_evidence is not None:
+            signal.update(fear_evidence)
+            if market_date &gt;= fear_grid.CLOSE_FALLBACK_EFFECTIVE_DATE:
+                actual_generated = datetime.now(BEIJING)
+                signal.update(
+                    signal_calculation_started_at=actual_generated.isoformat(timespec="seconds"),
+                    signal_generation_timing="retrospective_replay" if
+                    _HISTORICAL_REPLAY_DAY.get() is not None or actual_generated.date() &gt; market_date
+                    else "intraday_hypothetical_if_now_close" if not close_confirmed else "close_confirmed",
+                )
+            signal.update({
+                "grid_entry_source_current": live["grid_entry_source_current"],
+                "grid_entry_source_target": live["grid_entry_source_target"],
+                "grid_transition_reason": live["grid_transition_reason"],
+            })
+    
+        if product == "IC":
+            put_contract = str(LIVE_CONTINUATION_ANCHOR["IC"]["post_put_contract"])
+            match = re.search(r"P(\d{4})", put_contract)
+            if not match:
+&gt;               raise RuntimeError(f"无法解析IC Put合约: {put_contract}")
+E               RuntimeError: 无法解析IC Put合约: 510500C2612M05750
+
+poe_ic_im_mainline_v1_4_bot.py:6073: RuntimeError</failure></testcase><testcase classname="test_icim_round2_audit_lifecycle_20261021" name="test_actual_builder_independent_sleeves_never_cross_identity[core]" time="0.070"><failure message="RuntimeError: 无法解析IC Put合约: 510500C2612M05750">tmp_path = WindowsPath('D:/workspace/icim_round2_lifecycle_temp/icim_put_13b5852a/pytest/test_actual_builder_independen1')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x0000028F4BEE2DF0&gt;
+bad_sleeve = 'core'
+
+    @pytest.mark.parametrize('bad_sleeve', [None, 'core', 'momentum'])
+    def test_actual_builder_independent_sleeves_never_cross_identity(tmp_path, monkeypatch, bad_sleeve):
+        store, record = recent_store(tmp_path / 'ledger')
+        anchors = state.anchors_from_record(record)
+        a = anchors['IC']
+        chain, stamp = real.wire(monkeypatch)
+        other = chain[chain.contract.str.contains('M') &amp; ~chain.contract.eq(real.M)].iloc[0]
+        a.update(post_put_contract=str(other.contract),post_put_security_id=str(other.security_id),
+                 verified_momentum_put_qty=3,verified_momentum_put_delta=.125,
+                 verified_total_put_delta=.375,post_put_qty=17,verified_put_qty_normalized=17)
+        if bad_sleeve == 'core':
+            a['v14_core_put_security_id'] = '10011470'
+        elif bad_sleeve == 'momentum':
+            a['post_put_security_id'] = '10011470'
+        policy.validate_extension('IC', a)
+        monkeypatch.setattr(bot, 'LIVE_CONTINUATION_ANCHOR', anchors)
+        builder_inputs(monkeypatch, a, chain, stamp)
+        before = deepcopy(a)
+        if bad_sleeve == 'momentum':
+            with pytest.raises(RuntimeError, match='证券'):
+                bot.build_live_trade_signal('IC', CLOCK, 'close')
+        else:
+&gt;           out = bot.build_live_trade_signal('IC', CLOCK, 'close')
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_icim_round2_audit_lifecycle_20261021.py:268: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_mainline_v1_4_bot.py:5761: in build_live_trade_signal
+    return _build_live_trade_signal(product, clock, mode)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+product = 'IC'
+now = datetime.datetime(2026, 10, 21, 15, 40, tzinfo=zoneinfo.ZoneInfo(key='Asia/Shanghai'))
+mode = 'close'
+
+    def _build_live_trade_signal(
+        product: str,
+        now: datetime | None = None,
+        mode: str = "intraday",
+    ) -&gt; dict[str, Any]:
+        collection_started = time_module.monotonic()
+        if mode not in {"intraday", "close"}:
+            raise ValueError(f"非法信号模式: {mode}")
+        clock = now or _now_beijing()
+        _require_official_exchange_calendar(clock.date(), f"{product}信号")
+        today = clock.date()
+        live = live_proxy(product, clock)
+        market_date = live.get("history_date", today)
+        if isinstance(market_date, pd.Timestamp):
+            market_date = market_date.date()
+        if not isinstance(market_date, date):
+            market_date = date.fromisoformat(str(market_date))
+        bridge_from_anchor = _validate_signal_market_date(
+            product, market_date, clock, mode
+        )
+        quote_cache: dict[str, pd.DataFrame] = {}
+        opening_anchor = LIVE_CONTINUATION_ANCHOR[product]
+        put_execution.require_supported_ic_contracts(product, opening_anchor)
+        opening = _v14_ordinary_open_evidence(product, market_date, clock, quote_cache)
+        put_execution.require_resolved_opening_evidence(
+            {"v14_ordinary_put_open_status": opening["status"] if opening else None}
+        )
+        if opening is not None and opening["status"] == "confirmed_open_research_price":
+            LIVE_CONTINUATION_ANCHOR[product] = v14_policy.project_ordinary_open(
+                product, LIVE_CONTINUATION_ANCHOR[product], opening["plan"], opening["prices"]
+            )
+        opening_events = _v14_project_committed_opens(product, market_date, clock, quote_cache)
+        put_execution.require_resolved_opening_evidence({"v14_opening_events": opening_events})
+        put_execution.require_due_openings(product, opening_anchor,
+            {"v14_ordinary_put_open_status": opening["status"] if opening else None,
+             "v14_ordinary_put_open_plan": opening["plan"] if opening else None,
+             "v14_opening_events": opening_events}, market_date,
+            market_date == _third_friday(market_date.year, market_date.month))
+        if bridge_from_anchor:
+            live = _apply_next_unverified_session_anchor(product, live)
+        elif market_date == LIVE_CONTINUATION_ANCHOR[product]["last_verified_day"]:
+            live = _apply_next_unverified_session_anchor(product, live, next_session=False)
+        fear_evidence: dict[str, Any] | None = None
+        if market_date &gt;= fear_grid.EFFECTIVE_SIGNAL_DATE:
+            if not live.get("valuation_provenance"):
+                raise RuntimeError(f"{product} 新网格信号缺少已核验估值来源")
+            anchor = LIVE_CONTINUATION_ANCHOR[product]
+            source_key = ("verified_next_grid_entry_source" if bridge_from_anchor
+                          else "verified_grid_entry_source")
+            current_source = anchor.get(source_key)
+            if current_source is None:
+                # The last pre-fix10 grid could only have entered by valuation.
+                current_source = fear_grid.source_for_legacy_units(
+                    float(live["grid_current_units"])
+                )
+            # A post-close "实时信号" query must meet the same Fear confirmation
+            # gate as the close route before it can describe a confirmed target.
+            fear_mode = (
+                "close" if market_date &lt; today or
+                (market_date == today and _market_phase(clock) == "收盘后") else mode
+            )
+            fear_evidence = fear_grid.fetch_score(market_date, fear_mode)
+            if fear_grid.flexible_source(fear_evidence) and fear_evidence["fear_greed_index"] is None:
+                next_units, next_source, grid_reason = float(live["grid_current_units"]), current_source, "fear_unavailable"
+            else:
+                next_units, next_source, grid_reason = fear_grid.transition(
+                    product, float(live["grid_current_units"]), current_source,
+                    float(live["score"]), fear_evidence["fear_greed_index"],
+                )
+            if _now_beijing().date() &gt;= fear_grid.SOURCE_POLICY_DATE:
+                fear_evidence.update(fear_grid.fetch_jiu_reference(market_date))
+            live["grid_target_units"] = next_units
+            live["grid_entry_source_current"] = current_source
+            live["grid_entry_source_target"] = next_source
+            live["grid_transition_reason"] = grid_reason
+        elif live.get("valuation_provenance"):
+            # Continue the persisted valuation grid state without replaying older
+            # proxy scores. Historical signals keep their original field contract.
+            live["grid_target_units"] = _daily_grid_target(product, live)
+        state_anchor_day = _validated_signal_state_anchor_day(
+            product, live, bridge_from_anchor
+        )
+        future_quotes = fetch_cffex_quotes(product, clock)
+        future_quote_source = str(future_quotes.attrs.get("source", "未知"))
+        future_quote_date = future_quotes.attrs.get("source_date")
+        _require_intraday_bridge_source_day(
+            f"{product}期货", future_quote_date, market_date, bridge_from_anchor
+        )
+        # Option maintenance keeps the original monthly reference, independent of futures.
+        monthly_future = select_active_future(product, future_quotes, market_date)
+        monthly_expiry = _third_friday(*_contract_month(str(monthly_future["instrument"])))
+        phase = _market_phase(clock)
+        close_confirmed = market_date &lt; today or (
+            market_date == today and phase in {"收盘后", "非交易日"}
+        )
+        option_roll_due, monthly_preview_only = _v14_monthly_option_calendar(
+            product, market_date, monthly_expiry, close_confirmed
+        )
+        option_core_action = "ROLL" if option_roll_due else "HOLD"
+        option_reference_contract = str(monthly_future["instrument"])
+        if option_roll_due:
+            option_reference_contract = _next_listed_future_contract(
+                product, future_quotes, monthly_expiry
+            )
+        option_reference_future = _require_listed_future_quote(
+            product, future_quotes, option_reference_contract
+        )
+        option_reference_expiry = _third_friday(*_contract_month(option_reference_contract))
+        ledger_core = str(LIVE_CONTINUATION_ANCHOR[product]["post_core_contract"])
+        ledger_core_expiry = _third_friday(*_contract_month(ledger_core))
+        calendar_note = _calendar_coverage_note([
+            _third_friday(*_contract_month(str(c))) for c in future_quotes.instrument
+        ])
+        if market_date &gt;= quarter_roll.EFFECTIVE_DATE:
+            def covered_session(day):
+                _require_official_exchange_calendar(day, "季度换仓日历")
+                return _is_exchange_trading_day(day)
+            future_plan = quarter_roll.roll_state(
+                product, ledger_core,
+                future_quotes.attrs.get("listed_instruments", future_quotes.instrument.tolist()),
+                market_date, close_confirmed,
+                lambda c: _third_friday(*_contract_month(c)), covered_session,
+            )
+            current_core = future_plan["core_current"]
+            target_core = future_plan["core_target"]
+            core_action = future_plan["core_action"]
+            next_core = future_plan["next_core"]
+            active_expiry = ledger_core_expiry
+            roll_execution_date = future_plan["roll_execution_date"]
+            scheduled_roll_completed = future_plan["roll_confirmed"]
+        else:
+            # Pre-effective catch-up retains r6 monthly semantics.
+            active_expiry = monthly_expiry
+            next_core = _next_listed_future_contract(product, future_quotes, monthly_expiry)
+            current_core = ledger_core
+            target_core = option_reference_contract
+            core_action = option_core_action
+            roll_execution_date = monthly_expiry if option_roll_due else None
+            scheduled_roll_completed = market_date &gt;= ledger_core_expiry
+            if core_action == "HOLD" and target_core != current_core:
+                raise RuntimeError(f"{product} monthly reference does not match audited ledger")
+            future_plan = dict(core_eod_contract=target_core, roll_confirmed=option_roll_due,
+                               roll_policy={"tenor": "legacy_monthly_pre_effective"})
+        active_future = _require_listed_future_quote(product, future_quotes, target_core)
+        spread = quarter_roll.quarter_spread(
+            product, future_quotes, market_date, lambda c: _third_friday(*_contract_month(c))
+        )
+        grid_units, grid_action = _grid_target(product, live)
+        close_confirmed = market_date &lt; today or (
+            market_date == today and phase in {"收盘后", "非交易日"}
+        )
+        if mode == "intraday":
+            stage = (
+                "盘中实时监测，须待T收盘确认"
+                if phase == "盘中"
+                else f"{phase}，返回最新可得行情"
+            )
+        elif close_confirmed:
+            stage = f"最近已完成交易日 {market_date} 的收盘信号"
+        else:
+            stage = f"{market_date} 尚未收盘，收盘信号未形成"
+        data_notes = [
+            "本次请求重新抓取中金所/上交所/指数行情",
+            daily_valuation.disclosure(live.get("valuation_provenance")),
+            "MOM120沿用价格指数动量口径",
+            f"{product}期货源：{future_quote_source}，as-of {future_quote_date}",
+        ]
+        if product == "IM":
+            data_notes.append(
+                f"中证1000 OHLCV源：{live.get('momentum_ohlcv_source', '未知')}；"
+                + (
+                    "盘中成交量使用已确认状态占位，不把不可验证累计量写入信号"
+                    if live.get("momentum_volume_placeholder")
+                    else "成交量已通过日期、OHLC关系、正值与数量级校验"
+                )
+            )
+        if live.get("momentum_ohlcv_source_failures"):
+            data_notes.append(
+                "指数OHLCV前序来源失败："
+                + "；".join(live["momentum_ohlcv_source_failures"])
+            )
+        if live.get("momentum_ohlcv_source_audit"):
+            page_summary = [
+                f"{page['page']}:{page['first_response_date']}..{page['last_response_date']}"
+                f" sha256={page['response_sha256']}"
+                f" bytes={page['response_bytes']}"
+                f" {page['started_at']}..{page['ended_at']}"
+                for page in live["momentum_ohlcv_source_audit"]
+            ]
+            data_notes.append(
+                "Tencent OHLCV分页来源审计：" + "；".join(page_summary)
+            )
+        if bridge_from_anchor:
+            data_notes.append(
+                f"账本下一交易日桥接：当前腿固定取"
+                f"{LIVE_CONTINUATION_ANCHOR[product]['last_verified_day']}已核验收盘锚点；"
+                f"{market_date}行情只形成下一交易日目标"
+            )
+        if fear_evidence is not None:
+            data_notes.extend([fear_grid.source_disclosure(fear_evidence), fear_grid.reference_disclosure(fear_evidence)])
+            data_notes.append(
+                f"恐贪来源：{fear_evidence['fear_data_status']}，"
+                f"数据日 {fear_evidence['fear_data_date'] or '缺失'}，"
+                f"分数 {fear_evidence['fear_greed_index'] if fear_evidence['fear_greed_index'] is not None else '缺失'}；"
+                f"网页更新 {fear_evidence['fear_page_updated_at']}；"
+                f"CSV SHA-256 {fear_evidence['fear_csv_sha256']}"
+            )
+        data_notes.extend(future_quotes.attrs.get("source_audit", []))
+        if future_quotes.attrs.get("source_failures"):
+            data_notes.append(
+                "行情源回退/不可用汇总："
+                + "；".join(future_quotes.attrs["source_failures"])
+            )
+        if calendar_note:
+            data_notes.append(calendar_note)
+        signal: dict[str, Any] = {
+            "product": product,
+            "mode": mode,
+            "market_phase": phase,
+            "market_date": market_date,
+            "close_confirmed": close_confirmed,
+            "state_anchor_day": state_anchor_day,
+            "stage": stage,
+            "fetch_time": clock.strftime("%Y-%m-%d %H:%M:%S"),
+            "index_price": live["price"],
+            "score": live["score"],
+            "valuation_provenance": live.get("valuation_provenance", {}),
+            "momentum_120": live["momentum_120"],
+            "momentum_score": live["momentum_score"],
+            "momentum_abs20": live["momentum_abs20"],
+            "momentum_abs": live.get("momentum_abs", live["momentum_abs20"]),
+            "momentum_abs_days": live.get("momentum_abs_days", 20),
+            "momentum_abs_on": live.get("momentum_abs_on", live["momentum_abs20"] &gt; 0),
+            "momentum_abs_debounce_active": live.get("momentum_abs_debounce_active", True),
+            "momentum_volume_ratio": live["momentum_volume_ratio"],
+            "momentum_volume_pass": live["momentum_volume_pass"],
+            "momentum_volume_placeholder": live["momentum_volume_placeholder"],
+            "momentum_score_hot": live["momentum_score_hot"],
+            "momentum_base_nav": live["momentum_base_nav"],
+            "momentum_base_dd": live["momentum_base_dd"],
+            "momentum_nav_defense": live["momentum_nav_defense"],
+            "momentum_ohlcv_source": live["momentum_ohlcv_source"],
+            "momentum_ohlcv_source_audit": live.get("momentum_ohlcv_source_audit", []),
+            "momentum_ohlcv_source_failures": live.get("momentum_ohlcv_source_failures", []),
+            "momentum_ohlcv_source_volume_scale": live.get(
+                "momentum_ohlcv_source_volume_scale"
+            ),
+            "momentum_current_weight": live["momentum_current_weight"],
+            "momentum_next_weight": live["momentum_next_weight"],
+            "momentum_signal_date": live["momentum_signal_date"],
+            "momentum_current_source_date": live["momentum_current_source_date"],
+            "next_trade_date": _roll_forward_exchange_day(
+                market_date + timedelta(days=1)
+            ),
+            "core_current": current_core,
+            "core_target": target_core,
+            "core_action": core_action,
+            "future_last": float(active_future["lastprice"]),
+            "future_bid": float(active_future.get("bprice", np.nan)),
+            "future_ask": float(active_future.get("sprice", np.nan)),
+            "future_quote_source": future_quote_source,
+            "future_quote_date": future_quote_date,
+            "future_expiry": _third_friday(*_contract_month(target_core)),
+            "next_core": next_core,
+            "roll_date": active_expiry,
+            "roll_execution_date": roll_execution_date,
+            "scheduled_roll_completed": scheduled_roll_completed,
+            "core_eod_contract": future_plan["core_eod_contract"],
+            "roll_confirmed": future_plan["roll_confirmed"],
+            "roll_policy": future_plan["roll_policy"],
+            "quarter_spread": spread,
+            **quarter_roll.monthly_spreads(
+                product, future_quotes, market_date, lambda c: _third_friday(*_contract_month(c))
+            ),
+            "option_monthly_reset_due": option_roll_due,
+            "option_monthly_reset_preview": product == "IC" and monthly_preview_only,
+            "option_monthly_reset_execution_date": monthly_expiry,
+            "option_reference_contract": option_reference_contract,
+            "grid_current": float(live["grid_current_units"]),
+            "grid_target": grid_units,
+            "grid_action": grid_action,
+            "grid_policy_revision": grid_policy_revision(market_date),
+            "grid_policy": grid_rule(product, market_date),
+            "data_notes": data_notes,
+        }
+        if fear_evidence is not None:
+            signal.update(fear_evidence)
+            if market_date &gt;= fear_grid.CLOSE_FALLBACK_EFFECTIVE_DATE:
+                actual_generated = datetime.now(BEIJING)
+                signal.update(
+                    signal_calculation_started_at=actual_generated.isoformat(timespec="seconds"),
+                    signal_generation_timing="retrospective_replay" if
+                    _HISTORICAL_REPLAY_DAY.get() is not None or actual_generated.date() &gt; market_date
+                    else "intraday_hypothetical_if_now_close" if not close_confirmed else "close_confirmed",
+                )
+            signal.update({
+                "grid_entry_source_current": live["grid_entry_source_current"],
+                "grid_entry_source_target": live["grid_entry_source_target"],
+                "grid_transition_reason": live["grid_transition_reason"],
+            })
+    
+        if product == "IC":
+            put_contract = str(LIVE_CONTINUATION_ANCHOR["IC"]["post_put_contract"])
+            match = re.search(r"P(\d{4})", put_contract)
+            if not match:
+&gt;               raise RuntimeError(f"无法解析IC Put合约: {put_contract}")
+E               RuntimeError: 无法解析IC Put合约: 510500C2612M05750
+
+poe_ic_im_mainline_v1_4_bot.py:6073: RuntimeError</failure></testcase><testcase classname="test_icim_round2_audit_lifecycle_20261021" name="test_actual_builder_independent_sleeves_never_cross_identity[momentum]" time="0.023"><failure message="AssertionError: Regex pattern did not match.&#10;  Expected regex: '证券'&#10;  Actual message: '无法解析IC Put合约: 510500C2612M05750'">tmp_path = WindowsPath('D:/workspace/icim_round2_lifecycle_temp/icim_put_13b5852a/pytest/test_actual_builder_independen2')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x0000028F2DC46840&gt;
+bad_sleeve = 'momentum'
+
+    @pytest.mark.parametrize('bad_sleeve', [None, 'core', 'momentum'])
+    def test_actual_builder_independent_sleeves_never_cross_identity(tmp_path, monkeypatch, bad_sleeve):
+        store, record = recent_store(tmp_path / 'ledger')
+        anchors = state.anchors_from_record(record)
+        a = anchors['IC']
+        chain, stamp = real.wire(monkeypatch)
+        other = chain[chain.contract.str.contains('M') &amp; ~chain.contract.eq(real.M)].iloc[0]
+        a.update(post_put_contract=str(other.contract),post_put_security_id=str(other.security_id),
+                 verified_momentum_put_qty=3,verified_momentum_put_delta=.125,
+                 verified_total_put_delta=.375,post_put_qty=17,verified_put_qty_normalized=17)
+        if bad_sleeve == 'core':
+            a['v14_core_put_security_id'] = '10011470'
+        elif bad_sleeve == 'momentum':
+            a['post_put_security_id'] = '10011470'
+        policy.validate_extension('IC', a)
+        monkeypatch.setattr(bot, 'LIVE_CONTINUATION_ANCHOR', anchors)
+        builder_inputs(monkeypatch, a, chain, stamp)
+        before = deepcopy(a)
+        if bad_sleeve == 'momentum':
+            with pytest.raises(RuntimeError, match='证券'):
+&gt;               bot.build_live_trade_signal('IC', CLOCK, 'close')
+
+test_icim_round2_audit_lifecycle_20261021.py:266: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_mainline_v1_4_bot.py:5761: in build_live_trade_signal
+    return _build_live_trade_signal(product, clock, mode)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+product = 'IC'
+now = datetime.datetime(2026, 10, 21, 15, 40, tzinfo=zoneinfo.ZoneInfo(key='Asia/Shanghai'))
+mode = 'close'
+
+    def _build_live_trade_signal(
+        product: str,
+        now: datetime | None = None,
+        mode: str = "intraday",
+    ) -&gt; dict[str, Any]:
+        collection_started = time_module.monotonic()
+        if mode not in {"intraday", "close"}:
+            raise ValueError(f"非法信号模式: {mode}")
+        clock = now or _now_beijing()
+        _require_official_exchange_calendar(clock.date(), f"{product}信号")
+        today = clock.date()
+        live = live_proxy(product, clock)
+        market_date = live.get("history_date", today)
+        if isinstance(market_date, pd.Timestamp):
+            market_date = market_date.date()
+        if not isinstance(market_date, date):
+            market_date = date.fromisoformat(str(market_date))
+        bridge_from_anchor = _validate_signal_market_date(
+            product, market_date, clock, mode
+        )
+        quote_cache: dict[str, pd.DataFrame] = {}
+        opening_anchor = LIVE_CONTINUATION_ANCHOR[product]
+        put_execution.require_supported_ic_contracts(product, opening_anchor)
+        opening = _v14_ordinary_open_evidence(product, market_date, clock, quote_cache)
+        put_execution.require_resolved_opening_evidence(
+            {"v14_ordinary_put_open_status": opening["status"] if opening else None}
+        )
+        if opening is not None and opening["status"] == "confirmed_open_research_price":
+            LIVE_CONTINUATION_ANCHOR[product] = v14_policy.project_ordinary_open(
+                product, LIVE_CONTINUATION_ANCHOR[product], opening["plan"], opening["prices"]
+            )
+        opening_events = _v14_project_committed_opens(product, market_date, clock, quote_cache)
+        put_execution.require_resolved_opening_evidence({"v14_opening_events": opening_events})
+        put_execution.require_due_openings(product, opening_anchor,
+            {"v14_ordinary_put_open_status": opening["status"] if opening else None,
+             "v14_ordinary_put_open_plan": opening["plan"] if opening else None,
+             "v14_opening_events": opening_events}, market_date,
+            market_date == _third_friday(market_date.year, market_date.month))
+        if bridge_from_anchor:
+            live = _apply_next_unverified_session_anchor(product, live)
+        elif market_date == LIVE_CONTINUATION_ANCHOR[product]["last_verified_day"]:
+            live = _apply_next_unverified_session_anchor(product, live, next_session=False)
+        fear_evidence: dict[str, Any] | None = None
+        if market_date &gt;= fear_grid.EFFECTIVE_SIGNAL_DATE:
+            if not live.get("valuation_provenance"):
+                raise RuntimeError(f"{product} 新网格信号缺少已核验估值来源")
+            anchor = LIVE_CONTINUATION_ANCHOR[product]
+            source_key = ("verified_next_grid_entry_source" if bridge_from_anchor
+                          else "verified_grid_entry_source")
+            current_source = anchor.get(source_key)
+            if current_source is None:
+                # The last pre-fix10 grid could only have entered by valuation.
+                current_source = fear_grid.source_for_legacy_units(
+                    float(live["grid_current_units"])
+                )
+            # A post-close "实时信号" query must meet the same Fear confirmation
+            # gate as the close route before it can describe a confirmed target.
+            fear_mode = (
+                "close" if market_date &lt; today or
+                (market_date == today and _market_phase(clock) == "收盘后") else mode
+            )
+            fear_evidence = fear_grid.fetch_score(market_date, fear_mode)
+            if fear_grid.flexible_source(fear_evidence) and fear_evidence["fear_greed_index"] is None:
+                next_units, next_source, grid_reason = float(live["grid_current_units"]), current_source, "fear_unavailable"
+            else:
+                next_units, next_source, grid_reason = fear_grid.transition(
+                    product, float(live["grid_current_units"]), current_source,
+                    float(live["score"]), fear_evidence["fear_greed_index"],
+                )
+            if _now_beijing().date() &gt;= fear_grid.SOURCE_POLICY_DATE:
+                fear_evidence.update(fear_grid.fetch_jiu_reference(market_date))
+            live["grid_target_units"] = next_units
+            live["grid_entry_source_current"] = current_source
+            live["grid_entry_source_target"] = next_source
+            live["grid_transition_reason"] = grid_reason
+        elif live.get("valuation_provenance"):
+            # Continue the persisted valuation grid state without replaying older
+            # proxy scores. Historical signals keep their original field contract.
+            live["grid_target_units"] = _daily_grid_target(product, live)
+        state_anchor_day = _validated_signal_state_anchor_day(
+            product, live, bridge_from_anchor
+        )
+        future_quotes = fetch_cffex_quotes(product, clock)
+        future_quote_source = str(future_quotes.attrs.get("source", "未知"))
+        future_quote_date = future_quotes.attrs.get("source_date")
+        _require_intraday_bridge_source_day(
+            f"{product}期货", future_quote_date, market_date, bridge_from_anchor
+        )
+        # Option maintenance keeps the original monthly reference, independent of futures.
+        monthly_future = select_active_future(product, future_quotes, market_date)
+        monthly_expiry = _third_friday(*_contract_month(str(monthly_future["instrument"])))
+        phase = _market_phase(clock)
+        close_confirmed = market_date &lt; today or (
+            market_date == today and phase in {"收盘后", "非交易日"}
+        )
+        option_roll_due, monthly_preview_only = _v14_monthly_option_calendar(
+            product, market_date, monthly_expiry, close_confirmed
+        )
+        option_core_action = "ROLL" if option_roll_due else "HOLD"
+        option_reference_contract = str(monthly_future["instrument"])
+        if option_roll_due:
+            option_reference_contract = _next_listed_future_contract(
+                product, future_quotes, monthly_expiry
+            )
+        option_reference_future = _require_listed_future_quote(
+            product, future_quotes, option_reference_contract
+        )
+        option_reference_expiry = _third_friday(*_contract_month(option_reference_contract))
+        ledger_core = str(LIVE_CONTINUATION_ANCHOR[product]["post_core_contract"])
+        ledger_core_expiry = _third_friday(*_contract_month(ledger_core))
+        calendar_note = _calendar_coverage_note([
+            _third_friday(*_contract_month(str(c))) for c in future_quotes.instrument
+        ])
+        if market_date &gt;= quarter_roll.EFFECTIVE_DATE:
+            def covered_session(day):
+                _require_official_exchange_calendar(day, "季度换仓日历")
+                return _is_exchange_trading_day(day)
+            future_plan = quarter_roll.roll_state(
+                product, ledger_core,
+                future_quotes.attrs.get("listed_instruments", future_quotes.instrument.tolist()),
+                market_date, close_confirmed,
+                lambda c: _third_friday(*_contract_month(c)), covered_session,
+            )
+            current_core = future_plan["core_current"]
+            target_core = future_plan["core_target"]
+            core_action = future_plan["core_action"]
+            next_core = future_plan["next_core"]
+            active_expiry = ledger_core_expiry
+            roll_execution_date = future_plan["roll_execution_date"]
+            scheduled_roll_completed = future_plan["roll_confirmed"]
+        else:
+            # Pre-effective catch-up retains r6 monthly semantics.
+            active_expiry = monthly_expiry
+            next_core = _next_listed_future_contract(product, future_quotes, monthly_expiry)
+            current_core = ledger_core
+            target_core = option_reference_contract
+            core_action = option_core_action
+            roll_execution_date = monthly_expiry if option_roll_due else None
+            scheduled_roll_completed = market_date &gt;= ledger_core_expiry
+            if core_action == "HOLD" and target_core != current_core:
+                raise RuntimeError(f"{product} monthly reference does not match audited ledger")
+            future_plan = dict(core_eod_contract=target_core, roll_confirmed=option_roll_due,
+                               roll_policy={"tenor": "legacy_monthly_pre_effective"})
+        active_future = _require_listed_future_quote(product, future_quotes, target_core)
+        spread = quarter_roll.quarter_spread(
+            product, future_quotes, market_date, lambda c: _third_friday(*_contract_month(c))
+        )
+        grid_units, grid_action = _grid_target(product, live)
+        close_confirmed = market_date &lt; today or (
+            market_date == today and phase in {"收盘后", "非交易日"}
+        )
+        if mode == "intraday":
+            stage = (
+                "盘中实时监测，须待T收盘确认"
+                if phase == "盘中"
+                else f"{phase}，返回最新可得行情"
+            )
+        elif close_confirmed:
+            stage = f"最近已完成交易日 {market_date} 的收盘信号"
+        else:
+            stage = f"{market_date} 尚未收盘，收盘信号未形成"
+        data_notes = [
+            "本次请求重新抓取中金所/上交所/指数行情",
+            daily_valuation.disclosure(live.get("valuation_provenance")),
+            "MOM120沿用价格指数动量口径",
+            f"{product}期货源：{future_quote_source}，as-of {future_quote_date}",
+        ]
+        if product == "IM":
+            data_notes.append(
+                f"中证1000 OHLCV源：{live.get('momentum_ohlcv_source', '未知')}；"
+                + (
+                    "盘中成交量使用已确认状态占位，不把不可验证累计量写入信号"
+                    if live.get("momentum_volume_placeholder")
+                    else "成交量已通过日期、OHLC关系、正值与数量级校验"
+                )
+            )
+        if live.get("momentum_ohlcv_source_failures"):
+            data_notes.append(
+                "指数OHLCV前序来源失败："
+                + "；".join(live["momentum_ohlcv_source_failures"])
+            )
+        if live.get("momentum_ohlcv_source_audit"):
+            page_summary = [
+                f"{page['page']}:{page['first_response_date']}..{page['last_response_date']}"
+                f" sha256={page['response_sha256']}"
+                f" bytes={page['response_bytes']}"
+                f" {page['started_at']}..{page['ended_at']}"
+                for page in live["momentum_ohlcv_source_audit"]
+            ]
+            data_notes.append(
+                "Tencent OHLCV分页来源审计：" + "；".join(page_summary)
+            )
+        if bridge_from_anchor:
+            data_notes.append(
+                f"账本下一交易日桥接：当前腿固定取"
+                f"{LIVE_CONTINUATION_ANCHOR[product]['last_verified_day']}已核验收盘锚点；"
+                f"{market_date}行情只形成下一交易日目标"
+            )
+        if fear_evidence is not None:
+            data_notes.extend([fear_grid.source_disclosure(fear_evidence), fear_grid.reference_disclosure(fear_evidence)])
+            data_notes.append(
+                f"恐贪来源：{fear_evidence['fear_data_status']}，"
+                f"数据日 {fear_evidence['fear_data_date'] or '缺失'}，"
+                f"分数 {fear_evidence['fear_greed_index'] if fear_evidence['fear_greed_index'] is not None else '缺失'}；"
+                f"网页更新 {fear_evidence['fear_page_updated_at']}；"
+                f"CSV SHA-256 {fear_evidence['fear_csv_sha256']}"
+            )
+        data_notes.extend(future_quotes.attrs.get("source_audit", []))
+        if future_quotes.attrs.get("source_failures"):
+            data_notes.append(
+                "行情源回退/不可用汇总："
+                + "；".join(future_quotes.attrs["source_failures"])
+            )
+        if calendar_note:
+            data_notes.append(calendar_note)
+        signal: dict[str, Any] = {
+            "product": product,
+            "mode": mode,
+            "market_phase": phase,
+            "market_date": market_date,
+            "close_confirmed": close_confirmed,
+            "state_anchor_day": state_anchor_day,
+            "stage": stage,
+            "fetch_time": clock.strftime("%Y-%m-%d %H:%M:%S"),
+            "index_price": live["price"],
+            "score": live["score"],
+            "valuation_provenance": live.get("valuation_provenance", {}),
+            "momentum_120": live["momentum_120"],
+            "momentum_score": live["momentum_score"],
+            "momentum_abs20": live["momentum_abs20"],
+            "momentum_abs": live.get("momentum_abs", live["momentum_abs20"]),
+            "momentum_abs_days": live.get("momentum_abs_days", 20),
+            "momentum_abs_on": live.get("momentum_abs_on", live["momentum_abs20"] &gt; 0),
+            "momentum_abs_debounce_active": live.get("momentum_abs_debounce_active", True),
+            "momentum_volume_ratio": live["momentum_volume_ratio"],
+            "momentum_volume_pass": live["momentum_volume_pass"],
+            "momentum_volume_placeholder": live["momentum_volume_placeholder"],
+            "momentum_score_hot": live["momentum_score_hot"],
+            "momentum_base_nav": live["momentum_base_nav"],
+            "momentum_base_dd": live["momentum_base_dd"],
+            "momentum_nav_defense": live["momentum_nav_defense"],
+            "momentum_ohlcv_source": live["momentum_ohlcv_source"],
+            "momentum_ohlcv_source_audit": live.get("momentum_ohlcv_source_audit", []),
+            "momentum_ohlcv_source_failures": live.get("momentum_ohlcv_source_failures", []),
+            "momentum_ohlcv_source_volume_scale": live.get(
+                "momentum_ohlcv_source_volume_scale"
+            ),
+            "momentum_current_weight": live["momentum_current_weight"],
+            "momentum_next_weight": live["momentum_next_weight"],
+            "momentum_signal_date": live["momentum_signal_date"],
+            "momentum_current_source_date": live["momentum_current_source_date"],
+            "next_trade_date": _roll_forward_exchange_day(
+                market_date + timedelta(days=1)
+            ),
+            "core_current": current_core,
+            "core_target": target_core,
+            "core_action": core_action,
+            "future_last": float(active_future["lastprice"]),
+            "future_bid": float(active_future.get("bprice", np.nan)),
+            "future_ask": float(active_future.get("sprice", np.nan)),
+            "future_quote_source": future_quote_source,
+            "future_quote_date": future_quote_date,
+            "future_expiry": _third_friday(*_contract_month(target_core)),
+            "next_core": next_core,
+            "roll_date": active_expiry,
+            "roll_execution_date": roll_execution_date,
+            "scheduled_roll_completed": scheduled_roll_completed,
+            "core_eod_contract": future_plan["core_eod_contract"],
+            "roll_confirmed": future_plan["roll_confirmed"],
+            "roll_policy": future_plan["roll_policy"],
+            "quarter_spread": spread,
+            **quarter_roll.monthly_spreads(
+                product, future_quotes, market_date, lambda c: _third_friday(*_contract_month(c))
+            ),
+            "option_monthly_reset_due": option_roll_due,
+            "option_monthly_reset_preview": product == "IC" and monthly_preview_only,
+            "option_monthly_reset_execution_date": monthly_expiry,
+            "option_reference_contract": option_reference_contract,
+            "grid_current": float(live["grid_current_units"]),
+            "grid_target": grid_units,
+            "grid_action": grid_action,
+            "grid_policy_revision": grid_policy_revision(market_date),
+            "grid_policy": grid_rule(product, market_date),
+            "data_notes": data_notes,
+        }
+        if fear_evidence is not None:
+            signal.update(fear_evidence)
+            if market_date &gt;= fear_grid.CLOSE_FALLBACK_EFFECTIVE_DATE:
+                actual_generated = datetime.now(BEIJING)
+                signal.update(
+                    signal_calculation_started_at=actual_generated.isoformat(timespec="seconds"),
+                    signal_generation_timing="retrospective_replay" if
+                    _HISTORICAL_REPLAY_DAY.get() is not None or actual_generated.date() &gt; market_date
+                    else "intraday_hypothetical_if_now_close" if not close_confirmed else "close_confirmed",
+                )
+            signal.update({
+                "grid_entry_source_current": live["grid_entry_source_current"],
+                "grid_entry_source_target": live["grid_entry_source_target"],
+                "grid_transition_reason": live["grid_transition_reason"],
+            })
+    
+        if product == "IC":
+            put_contract = str(LIVE_CONTINUATION_ANCHOR["IC"]["post_put_contract"])
+            match = re.search(r"P(\d{4})", put_contract)
+            if not match:
+&gt;               raise RuntimeError(f"无法解析IC Put合约: {put_contract}")
+E               RuntimeError: 无法解析IC Put合约: 510500C2612M05750
+
+poe_ic_im_mainline_v1_4_bot.py:6073: RuntimeError
+
+During handling of the above exception, another exception occurred:
+
+tmp_path = WindowsPath('D:/workspace/icim_round2_lifecycle_temp/icim_put_13b5852a/pytest/test_actual_builder_independen2')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x0000028F2DC46840&gt;
+bad_sleeve = 'momentum'
+
+    @pytest.mark.parametrize('bad_sleeve', [None, 'core', 'momentum'])
+    def test_actual_builder_independent_sleeves_never_cross_identity(tmp_path, monkeypatch, bad_sleeve):
+        store, record = recent_store(tmp_path / 'ledger')
+        anchors = state.anchors_from_record(record)
+        a = anchors['IC']
+        chain, stamp = real.wire(monkeypatch)
+        other = chain[chain.contract.str.contains('M') &amp; ~chain.contract.eq(real.M)].iloc[0]
+        a.update(post_put_contract=str(other.contract),post_put_security_id=str(other.security_id),
+                 verified_momentum_put_qty=3,verified_momentum_put_delta=.125,
+                 verified_total_put_delta=.375,post_put_qty=17,verified_put_qty_normalized=17)
+        if bad_sleeve == 'core':
+            a['v14_core_put_security_id'] = '10011470'
+        elif bad_sleeve == 'momentum':
+            a['post_put_security_id'] = '10011470'
+        policy.validate_extension('IC', a)
+        monkeypatch.setattr(bot, 'LIVE_CONTINUATION_ANCHOR', anchors)
+        builder_inputs(monkeypatch, a, chain, stamp)
+        before = deepcopy(a)
+        if bad_sleeve == 'momentum':
+&gt;           with pytest.raises(RuntimeError, match='证券'):
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           AssertionError: Regex pattern did not match.
+E             Expected regex: '证券'
+E             Actual message: '无法解析IC Put合约: 510500C2612M05750'
+
+test_icim_round2_audit_lifecycle_20261021.py:265: AssertionError</failure></testcase><testcase classname="test_icim_round2_audit_lifecycle_20261021" name="test_legal_zero_put_holding_does_not_require_unheld_legacy_identity" time="0.073" /><testcase classname="test_icim_round2_audit_lifecycle_20261021" name="test_current_boundary_ordinary_open_real_hash_ledger_roundtrip[IC]" time="0.042" /><testcase classname="test_icim_round2_audit_lifecycle_20261021" name="test_current_boundary_ordinary_open_real_hash_ledger_roundtrip[IM]" time="0.046" /></testsuite></testsuites>

@@ -1,0 +1,158 @@
+....................FF.............F                                     [100%]
+================================== FAILURES ===================================
+_____ test_current_boundary_ordinary_open_real_hash_ledger_roundtrip[IC] ______
+
+tmp_path = WindowsPath('D:/workspace/icim_round2_lifecycle_temp/icim_put_6b619ca8/pytest/test_current_boundary_ordinary0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x00000155BB3E20D0>
+product = 'IC'
+
+    @pytest.mark.parametrize('product', ['IC','IM'])
+    def test_current_boundary_ordinary_open_real_hash_ledger_roundtrip(tmp_path,monkeypatch,product):
+        # A consistent synthetic post-close wall clock exercises all unchanged
+        # source/generation/write-time checks; no effective date is moved.
+        for module in [state,bot,bot.fear_grid]:
+            monkeypatch.setattr(module,'datetime',SyntheticCloseClock)
+        store,record=recent_store(tmp_path/'ledger')
+        anchors=state.anchors_from_record(record)
+        prior=ledger._signal(product,anchors[product],PREVIOUS,momentum=True)
+        record['products'][product]['v14_ordinary_put_pending']=state._jsonable(prior['v14_ordinary_put_pending'])
+        record['digest']=state._digest(record)
+        state._validate_record(record)
+        store._atomic_write(store.journal_dir/'000000-2026-10-20.json',record)
+        store._atomic_write(store.latest_path,record)
+        record=store.load_latest()
+        anchors=state.anchors_from_record(record)
+        monkeypatch.setattr(bot,'LIVE_CONTINUATION_ANCHOR',anchors)
+        monkeypatch.setattr(bot,'fetch_option_dated_open',lambda *args:(.35,'synthetic_dated_open'))
+        plan=anchors[product]['v14_ordinary_put_pending']
+        contracts={leg[f'{side}_contract'] for leg in plan['legs'].values()
+                   for side in ['old','new'] if float(leg[f'{side}_qty'])>0}
+        frame=pd.DataFrame([dict(instrument=c,openprice=350.) for c in contracts])
+        frame.attrs.update(source='synthetic_dated_open',source_date=DAY)
+        monkeypatch.setattr(bot,'fetch_cffex_quotes',lambda *args:frame)
+        opening=bot._v14_ordinary_open_evidence(product,DAY,CLOCK,{})
+        assert opening['status']=='confirmed_open_research_price'
+        other='IM' if product=='IC' else 'IC'
+        signals={product:close_evidence(ledger._signal(product,anchors[product],DAY,
+                                                     momentum=True,opening=opening)),
+                 other:close_evidence(ledger._signal(other,anchors[other],DAY))}
+        for s in signals.values():
+            s['v14_opening_events']=[]
+        result=store.append_confirmed_signals(record,signals)
+        reopened=state.StateStore(store.root).load_latest()
+        assert result['digest']==reopened['digest']
+        assert reopened['sequence']==record['sequence']+1
+        field='verified_momentum_put_qty' if product=='IC' else 'verified_momentum_put_qty_normalized'
+        assert reopened['products'][product][field]==(3 if product=='IC' else 1.5)
+        assert reopened['products'][product]['v14_ordinary_put_pending'] is None
+        before=snapshot(store.root)
+        with pytest.raises(RuntimeError):
+            store.append_confirmed_signals(reopened,signals)
+>       assert snapshot(store.root)==before
+E       AssertionError: assert {'.ledger.loc...0bc32d909f88'} == {'.ledger.loc...0bc32d909f88'}
+E         
+E         Omitting 3 identical items, use -vv to show
+E         Differing items:
+E         {'.ledger.lock': '96a296d224f285c67bee93c30f8a309157f0daa35dc5b87e410b78630a09cfc7'} != {'.ledger.lock': '6e340b9cffb37a989ca544e6bb780a2c78901d3fb33738768511a30617afa01d'}
+E         Use -v to get more diff
+
+test_icim_round2_audit_lifecycle_20261021.py:360: AssertionError
+_____ test_current_boundary_ordinary_open_real_hash_ledger_roundtrip[IM] ______
+
+tmp_path = WindowsPath('D:/workspace/icim_round2_lifecycle_temp/icim_put_6b619ca8/pytest/test_current_boundary_ordinary1')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x00000155BB46ACF0>
+product = 'IM'
+
+    @pytest.mark.parametrize('product', ['IC','IM'])
+    def test_current_boundary_ordinary_open_real_hash_ledger_roundtrip(tmp_path,monkeypatch,product):
+        # A consistent synthetic post-close wall clock exercises all unchanged
+        # source/generation/write-time checks; no effective date is moved.
+        for module in [state,bot,bot.fear_grid]:
+            monkeypatch.setattr(module,'datetime',SyntheticCloseClock)
+        store,record=recent_store(tmp_path/'ledger')
+        anchors=state.anchors_from_record(record)
+        prior=ledger._signal(product,anchors[product],PREVIOUS,momentum=True)
+        record['products'][product]['v14_ordinary_put_pending']=state._jsonable(prior['v14_ordinary_put_pending'])
+        record['digest']=state._digest(record)
+        state._validate_record(record)
+        store._atomic_write(store.journal_dir/'000000-2026-10-20.json',record)
+        store._atomic_write(store.latest_path,record)
+        record=store.load_latest()
+        anchors=state.anchors_from_record(record)
+        monkeypatch.setattr(bot,'LIVE_CONTINUATION_ANCHOR',anchors)
+        monkeypatch.setattr(bot,'fetch_option_dated_open',lambda *args:(.35,'synthetic_dated_open'))
+        plan=anchors[product]['v14_ordinary_put_pending']
+        contracts={leg[f'{side}_contract'] for leg in plan['legs'].values()
+                   for side in ['old','new'] if float(leg[f'{side}_qty'])>0}
+        frame=pd.DataFrame([dict(instrument=c,openprice=350.) for c in contracts])
+        frame.attrs.update(source='synthetic_dated_open',source_date=DAY)
+        monkeypatch.setattr(bot,'fetch_cffex_quotes',lambda *args:frame)
+        opening=bot._v14_ordinary_open_evidence(product,DAY,CLOCK,{})
+        assert opening['status']=='confirmed_open_research_price'
+        other='IM' if product=='IC' else 'IC'
+        signals={product:close_evidence(ledger._signal(product,anchors[product],DAY,
+                                                     momentum=True,opening=opening)),
+                 other:close_evidence(ledger._signal(other,anchors[other],DAY))}
+        for s in signals.values():
+            s['v14_opening_events']=[]
+        result=store.append_confirmed_signals(record,signals)
+        reopened=state.StateStore(store.root).load_latest()
+        assert result['digest']==reopened['digest']
+        assert reopened['sequence']==record['sequence']+1
+        field='verified_momentum_put_qty' if product=='IC' else 'verified_momentum_put_qty_normalized'
+        assert reopened['products'][product][field]==(3 if product=='IC' else 1.5)
+        assert reopened['products'][product]['v14_ordinary_put_pending'] is None
+        before=snapshot(store.root)
+        with pytest.raises(RuntimeError):
+            store.append_confirmed_signals(reopened,signals)
+>       assert snapshot(store.root)==before
+E       AssertionError: assert {'.ledger.loc...3c0837129712'} == {'.ledger.loc...3c0837129712'}
+E         
+E         Omitting 3 identical items, use -vv to show
+E         Differing items:
+E         {'.ledger.lock': '96a296d224f285c67bee93c30f8a309157f0daa35dc5b87e410b78630a09cfc7'} != {'.ledger.lock': '6e340b9cffb37a989ca544e6bb780a2c78901d3fb33738768511a30617afa01d'}
+E         Use -v to get more diff
+
+test_icim_round2_audit_lifecycle_20261021.py:360: AssertionError
+_ test_unverified_identity_marker_rejected_before_projection_or_write[store] __
+
+tmp_path = WindowsPath('D:/workspace/icim_round2_lifecycle_temp/icim_put_6b619ca8/pytest/test_unverified_identity_marke3')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x00000155BB3732A0>
+boundary = 'store'
+
+    @pytest.mark.parametrize('boundary',['execution','policy','new_signal','store'])
+    def test_unverified_identity_marker_rejected_before_projection_or_write(tmp_path,monkeypatch,boundary):
+        store,record=recent_store(tmp_path/'ledger')
+        anchors=state.anchors_from_record(record)
+        signals={p:ledger._signal(p,anchors[p],DAY) for p in state.PRODUCTS}
+        signals['IC']['v14_held_put_identity_status']='unverified'
+        before_disk,before_anchors=snapshot(store.root),deepcopy(anchors)
+        with pytest.raises(RuntimeError,match='unresolved held Put identity'):
+            if boundary=='execution':
+                execution.require_resolved_held_identity('IC',signals['IC'])
+            elif boundary=='policy':
+                policy.apply_policy('IC',signals['IC'],anchors['IC'],candidate={'tradable':False})
+            elif boundary=='new_signal':
+                state.validate_v14_new_signal(signals['IC'],'IC')
+            else:
+                store.append_confirmed_signals(record,signals)
+>       assert snapshot(store.root)==before_disk
+E       AssertionError: assert {'.ledger.loc...babfd30768b0'} == {'journal/000...babfd30768b0'}
+E         
+E         Omitting 2 identical items, use -vv to show
+E         Left contains 1 more item:
+E         {'.ledger.lock': '6e340b9cffb37a989ca544e6bb780a2c78901d3fb33738768511a30617afa01d'}
+E         Use -v to get more diff
+
+test_icim_round2_audit_lifecycle_20261021.py:525: AssertionError
+============================== warnings summary ===============================
+C:\Python314\Lib\site-packages\fastapi_poe\types.py:171
+  C:\Python314\Lib\site-packages\fastapi_poe\types.py:171: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    class RequestContext(BaseModel):
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED test_icim_round2_audit_lifecycle_20261021.py::test_current_boundary_ordinary_open_real_hash_ledger_roundtrip[IC]
+FAILED test_icim_round2_audit_lifecycle_20261021.py::test_current_boundary_ordinary_open_real_hash_ledger_roundtrip[IM]
+FAILED test_icim_round2_audit_lifecycle_20261021.py::test_unverified_identity_marker_rejected_before_projection_or_write[store]
+3 failed, 33 passed, 2 deselected, 1 warning in 3.29s

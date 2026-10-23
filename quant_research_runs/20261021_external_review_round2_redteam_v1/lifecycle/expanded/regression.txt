@@ -1,0 +1,67 @@
+FF.............                                                          [100%]
+================================== FAILURES ===================================
+____ test_historical_adapter_retains_id_already_bound_to_requested_series _____
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001C639A1B820>
+
+    def test_historical_adapter_retains_id_already_bound_to_requested_series(monkeypatch):
+        calls = historical_source(monkeypatch)
+        frame, stamp = bot.fetch_sse_existing_put_historical_quote(real.M, '10012099', DAY)
+        assert calls == ['10012099']
+>       assert frame.iloc[0].get('security_id') == '10012099'
+E       AssertionError: assert None == '10012099'
+E        +  where None = get('security_id')
+E        +    where get = contract    510500P2612M07500\nlast                     0.25\nstrike                    7.5\nName: 0, dtype: object.get
+
+test_icim_round2_audit_lifecycle_20261021.py:44: AssertionError
+___________ test_legal_standard_core_replay_crosses_strict_boundary ___________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001C639A1BE10>
+
+    def test_legal_standard_core_replay_crosses_strict_boundary(monkeypatch):
+        calls = historical_source(monkeypatch)
+        a = ledger._record()['products']['IC']
+        signal = dict(market_date=DAY, core_put_target_delta=.25,
+                      option_monthly_reset_due=False, put_target_momentum_qty=0,
+                      etf_price=7.8, future_last=7800.)
+        monkeypatch.setattr(bot, '_now_beijing', lambda: CLOCK)
+        token = bot._HISTORICAL_REPLAY_DAY.set(DAY)
+        try:
+>           bot._v14_ic_core_overlay(signal, a)
+
+test_icim_round2_audit_lifecycle_20261021.py:57: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_mainline_v1_4_bot.py:5190: in _v14_ic_core_overlay
+    _require_held_ic_put_identity(str(contract), anchor.get("v14_core_put_security_id"), row, day)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+contract = '510500P2612M07500', security_id = '10012099'
+row = contract    510500P2612M07500
+last                     0.25
+strike                    7.5
+Name: 0, dtype: object
+day = datetime.date(2026, 10, 21)
+
+    def _require_held_ic_put_identity(
+        contract: str, security_id: str | None, row: pd.Series, day: date
+    ) -> None:
+        """A re-listed M trading code cannot prove continuity of a held security."""
+        actual = row.get("security_id")
+        strict = day >= sse_identity.EFFECTIVE_SIGNAL_DATE
+        if strict:
+            if (not re.fullmatch(r"\d{8}", str(security_id or ""))
+                    or not re.fullmatch(r"\d{8}", str(actual or ""))):
+>               raise RuntimeError("IC既有Put证券ID证据缺失或格式无效，禁止仅按同名M代码续接")
+E               RuntimeError: IC既有Put证券ID证据缺失或格式无效，禁止仅按同名M代码续接
+
+poe_ic_im_mainline_v1_4_bot.py:1353: RuntimeError
+============================== warnings summary ===============================
+C:\Python314\Lib\site-packages\fastapi_poe\types.py:171
+  C:\Python314\Lib\site-packages\fastapi_poe\types.py:171: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    class RequestContext(BaseModel):
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED test_icim_round2_audit_lifecycle_20261021.py::test_historical_adapter_retains_id_already_bound_to_requested_series
+FAILED test_icim_round2_audit_lifecycle_20261021.py::test_legal_standard_core_replay_crosses_strict_boundary
+2 failed, 13 passed, 1 warning in 3.60s

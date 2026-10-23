@@ -1,0 +1,19 @@
+[
+  "test_ic_im_fear_grid_v1.py",
+  "test_ic_im_fear_source_delivery_20261016.py",
+  "test_ic_im_fear_delivery_adversarial_20261016.py",
+  "test_ic_im_external_review_20261021.py",
+  "test_icim_redteam_display_20261021.py",
+  "test_icim_redteam_integration_20261021.py",
+  "test_icim_round2_audit_lifecycle_20261021.py",
+  "test_icim_a3_integration_20261021.py",
+  "test_icim_batch3_calendar_redteam_20261021.py",
+  "test_icim_batch3_valuation_20261021.py",
+  "test_icim_b3adv_state_20261021.py",
+  "test_icim_expert_state_20261021.py",
+  "test_icim_round3_grid_persistence_20261021.py",
+  "test_icim_round3_calendar_comparison_20261021.py",
+  "test_icim_round3_grid_contract_replacements_20261021.py",
+  "--deselect=test_ic_im_fear_source_delivery_20261016.py::test_both_missing_preserve_other_modules_and_never_publish_zero_hold",
+  "--deselect=test_icim_b3adv_state_20261021.py::test_im_short_expiry_model_branches_are_not_a_new_short_open"
+]

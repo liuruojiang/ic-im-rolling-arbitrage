@@ -1,0 +1,156 @@
+........................................................................ [  5%]
+........................................................................ [ 10%]
+.........................................F.............................. [ 16%]
+........................................................................ [ 21%]
+........................................................................ [ 27%]
+........................................................................ [ 32%]
+........................................................................ [ 38%]
+........................................................................ [ 43%]
+........................................................................ [ 48%]
+........................................................................ [ 54%]
+........................................................................ [ 59%]
+........................................................................ [ 65%]
+........................................................................ [ 70%]
+........................................................................ [ 76%]
+........................................................................ [ 81%]
+........................................................................ [ 86%]
+........................................................................ [ 92%]
+.................F...................................................... [ 97%]
+..............................                                           [100%]
+================================== FAILURES ===================================
+_ test_sina_chain_marks_one_yesterday_row_without_reselecting_another_strike __
+
+    def test_sina_chain_marks_one_yesterday_row_without_reselecting_another_strike():
+        def payload(strike, observed):
+            fields = [''] * 47
+            # CON_OP latest trade is [2]; [3] is ask. This fixture checks time,
+            # not the former incorrect ask-as-trade parser.
+            fields[2], fields[3], fields[7], fields[32] = '0.25', '0.26', str(strike), observed
+            fields[36] = '510500'
+            fields[40], fields[43], fields[45], fields[46] = '0.24', 'M', 'P', '2026-12-23'
+            return ','.join(fields)
+    
+        listing = Mock(headers={}, content=b'CON_OP_1001,CON_OP_1002,CON_OP_1003')
+        details = ('var hq_str_CON_OP_1001="' + payload(7.25, '2026-09-30 13:10:00') + '";'
+                   'var hq_str_CON_OP_1002="' + payload(7.50, '2026-09-29 15:00:00') + '";'
+                   'var hq_str_CON_OP_1003="' + payload(7.75, '2026-09-30 00:00:00') + '";')
+        quotes_response = Mock(headers={}, content=details.encode('gbk'))
+        clock = datetime(2026, 9, 30, 13, 20, tzinfo=bot.BEIJING)
+        with patch.object(bot.requests, 'get', side_effect=[listing, quotes_response]):
+>           chain, stamp = bot.fetch_sina_510500_chain('2612')
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_ic_im_v1_4_integration_guards.py:643: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+expiry_ym = '2612'
+
+    def fetch_sina_510500_chain(expiry_ym: str) -> tuple[pd.DataFrame, dict[str, str]]:
+        """Fetch a live 510500 Put chain from Sina as an audited SSE outage fallback."""
+        match = re.fullmatch(r"(20)?(\d{2})(\d{2})", str(expiry_ym))
+        if not match:
+            raise ValueError(f"非法ETF期权月份: {expiry_ym}")
+        yy, month = match.group(2), match.group(3)
+        headers = {
+            "User-Agent": "Mozilla/5.0 POE-IC-IM-Research/1.0",
+            "Referer": "https://stock.finance.sina.com.cn/",
+            "Cache-Control": "no-cache",
+        }
+        listing_response = requests.get(
+            "https://hq.sinajs.cn/",
+            params={"list": f"OP_DOWN_510500{yy}{month}"},
+            timeout=_bounded_timeout(8),
+            headers=headers,
+        )
+        listing_response.raise_for_status()
+        _response_with_size_limit(listing_response, "新浪510500 Put列表")
+        listing = listing_response.content.decode("gbk", errors="replace")
+        ids = sorted(set(re.findall(r"CON_OP_(\d+)", listing)))
+        if not ids:
+            raise RuntimeError(f"新浪未返回510500 Put月份 {yy}{month} 的证券代码列表")
+        if any(not re.fullmatch(r"[0-9]{8}", security_id) for security_id in ids):
+>           raise RuntimeError("新浪510500 Put证券代码必须为八位ASCII数字")
+E           RuntimeError: 新浪510500 Put证券代码必须为八位ASCII数字
+
+poe_ic_im_mainline_v1_4_bot.py:3665: RuntimeError
+__ test_actual_short_mark_must_not_trust_stale_m_label_for_adjusted_security __
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_d262b924/pytest/test_actual_short_mark_must_no0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001E26FFCD860>
+
+    def test_actual_short_mark_must_not_trust_stale_m_label_for_adjusted_security(tmp_path,monkeypatch):
+        store,record=recent_store(tmp_path/'ledger')
+        anchors=state.anchors_from_record(record)
+        a=anchors['IC']
+        ledger._empty_core(a,'IC')
+        a.update(v14_route_state='short_put',v14_cycle_id='synthetic-stale-m-held-identity',
+            v14_short_put_contract=real.M,v14_short_put_security_id='10011470',
+            v14_short_put_qty_normalized=5.,v14_short_put_entry_premium=.4,
+            v14_short_put_expiry=date(2026,12,23),v14_short_put_cost_basis='confirmed_dated_open',
+            v14_short_put_entry_price_day=PREVIOUS,
+            verified_momentum_put_delta=0.,verified_momentum_put_qty=0)
+        # This is a synthetic accepted legacy anchor, not a claim of an actual
+        # July trade. Official raw data, unlike its stale M label, identifies A.
+        record['products']['IC']=state._jsonable(a)
+        record['digest']=state._digest(record)
+        state._validate_record(record)
+        chain,stamp=real.wire(monkeypatch)
+        monkeypatch.setattr(bot,'LIVE_CONTINUATION_ANCHOR',anchors)
+        builder_inputs(monkeypatch,a,chain,stamp)
+        live=bot.live_proxy('IC',CLOCK)
+        live.update(momentum_120=.1,valuation_tier=1)
+        monkeypatch.setattr(bot,'live_proxy',lambda *args:deepcopy(live))
+        candidate=dict(tradable=True,contract='510500P2701M06500',security_id='10015000',
+            expiry=date(2027,1,27),premium=.3,iv=.8,qty_normalized=5.)
+        monkeypatch.setattr(bot,'_v14_ic_short_put_candidate',lambda *args,**kw:candidate)
+        monkeypatch.setattr(bot,'fetch_option_closes',lambda security:
+            pd.Series([.01],index=pd.to_datetime([DAY])))
+        before=deepcopy(a)
+>       out=bot.build_live_trade_signal('IC',CLOCK,'close')
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_icim_round2_audit_lifecycle_20261021.py:391: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_mainline_v1_4_bot.py:5826: in build_live_trade_signal
+    return _build_live_trade_signal(product, clock, mode)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+poe_ic_im_mainline_v1_4_bot.py:6901: in _build_live_trade_signal
+    put_execution.require_resolved_held_identity(product, signal)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+product = 'IC'
+value = {'call_action': 'HOLD', 'call_current': '无', 'call_current_contract': None, 'call_target': '无（IC 1.3明确禁止Call）', ...}
+
+    def require_resolved_held_identity(product: str, value: dict) -> None:
+        """A known failed holding-identity check cannot become a new target/write."""
+        if product == "IC" and value.get("v14_held_put_identity_status") == "unverified":
+>           raise RuntimeError("unresolved held Put identity; preserve anchor and retry verified evidence")
+E           RuntimeError: unresolved held Put identity; preserve anchor and retry verified evidence
+
+ic_im_put_execution_v1.py:20: RuntimeError
+============================== warnings summary ===============================
+C:\Python314\Lib\site-packages\fastapi_poe\types.py:171
+  C:\Python314\Lib\site-packages\fastapi_poe\types.py:171: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    class RequestContext(BaseModel):
+
+test_icim_redteam_display_20261021.py::test_bootstrap_snapshot_retains_known_single_core_identity
+  test_icim_redteam_display_20261021.py:73: PytestWarning: record_property is incompatible with junit_family 'xunit2' (use 'legacy' or 'xunit1')
+    def test_bootstrap_snapshot_retains_known_single_core_identity(monkeypatch, record_property):
+
+test_icim_redteam_display_20261021.py::test_core_overlay_failure_cannot_label_momentum_as_current_core
+  test_icim_redteam_display_20261021.py:89: PytestWarning: record_property is incompatible with junit_family 'xunit2' (use 'legacy' or 'xunit1')
+    def test_core_overlay_failure_cannot_label_momentum_as_current_core(monkeypatch, record_property):
+
+test_icim_redteam_display_20261021.py::test_core_overlay_failure_cannot_publish_momentum_iv_as_core_monitor
+  test_icim_redteam_display_20261021.py:120: PytestWarning: record_property is incompatible with junit_family 'xunit2' (use 'legacy' or 'xunit1')
+    def test_core_overlay_failure_cannot_publish_momentum_iv_as_core_monitor(monkeypatch, record_property):
+
+test_icim_redteam_display_20261021.py::test_im_snapshot_zero_core_does_not_show_residual_contract
+  test_icim_redteam_display_20261021.py:199: PytestWarning: record_property is incompatible with junit_family 'xunit2' (use 'legacy' or 'xunit1')
+    def test_im_snapshot_zero_core_does_not_show_residual_contract(monkeypatch, record_property):
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED test_ic_im_v1_4_integration_guards.py::test_sina_chain_marks_one_yesterday_row_without_reselecting_another_strike
+FAILED test_icim_round2_audit_lifecycle_20261021.py::test_actual_short_mark_must_not_trust_stale_m_label_for_adjusted_security
+2 failed, 1324 passed, 3 deselected, 5 warnings in 29.54s

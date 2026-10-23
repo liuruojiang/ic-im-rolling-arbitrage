@@ -1,0 +1,31 @@
+{
+  "status": "PASS",
+  "excluded_calculation_clocks": [
+    "fetch_time",
+    "signal_calculation_started_at",
+    "signal_generated_at"
+  ],
+  "strict_json_types": true,
+  "original_manifests_identical": true,
+  "cases": [
+    {
+      "name": "public_explicit_replay",
+      "compared_signal_fields": {
+        "IC": 212,
+        "IM": 227
+      },
+      "complete_product_states_equal": true,
+      "recovered_record_sha256": "fb359e1fd27e20cd22645602ef87bbded8e77aedd708d092a765d1bbe6b09d9a"
+    },
+    {
+      "name": "automatic_recovery",
+      "compared_signal_fields": {
+        "IC": 212,
+        "IM": 227
+      },
+      "complete_product_states_equal": true,
+      "recovered_record_sha256": "88d9240fe74319e8acf9353cc8c2060d1f03c9a1dee257296e87c11501232da4"
+    }
+  ],
+  "differences": []
+}

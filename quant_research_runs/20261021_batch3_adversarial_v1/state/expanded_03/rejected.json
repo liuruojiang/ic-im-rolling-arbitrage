@@ -1,0 +1,5 @@
+{
+  "reason": "audit evidence rejected: test process did not exit zero",
+  "exit_code": 1,
+  "source_equal": true
+}

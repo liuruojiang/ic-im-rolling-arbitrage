@@ -1,0 +1,25 @@
+{
+  "record_saved_at": "2026-10-22T01:37:33.059487+00:00",
+  "reviewed_on": "2026-10-21",
+  "source_url": "https://big5.sse.com.cn/site/cht/www.sse.com.cn/assortment/options/contract/c/c_20230303_5717361.shtml",
+  "source_title": "中证500ETF期权合约基本条款",
+  "publication_date": "2023-03-03",
+  "retrieval_ref": "turn22search1",
+  "short_excerpt": "当月、下月及随后两个季月",
+  "inference_not_future_quote": {
+    "2026-11-23": [
+      "2611",
+      "2612",
+      "2703",
+      "2706"
+    ],
+    "2026-11-26": [
+      "2612",
+      "2701",
+      "2703",
+      "2706"
+    ]
+  },
+  "official_2027_calendar_provided": false,
+  "raw_market_response_provided": false
+}

@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="5" skipped="0" tests="20" time="12.839" timestamp="2026-10-22T16:20:14.400777+08:00" hostname="DESKTOP-95I7VVU"><testcase classname="test_icim_calendar_capture_review_20261022" name="test_510500_2301_expiry_comes_from_official_option_announcements" time="0.007" /><testcase classname="test_icim_calendar_capture_review_20261022" name="test_calendar_extension_precedes_last_followup_and_this_round" time="0.005" /><testcase classname="test_icim_calendar_capture_review_20261022" name="test_collector_never_opens_original_close_session_before_close_or_on_weekend[day0-9-15]" time="0.002" /><testcase classname="test_icim_calendar_capture_review_20261022" name="test_collector_never_opens_original_close_session_before_close_or_on_weekend[day1-14-59]" time="0.002" /><testcase classname="test_icim_calendar_capture_review_20261022" name="test_collector_never_opens_original_close_session_before_close_or_on_weekend[day2-18-0]" time="0.002" /><testcase classname="test_icim_calendar_capture_review_20261022" name="test_existing_core_and_short_identity_use_one_chain_record_without_assuming_stable_http" time="0.382" /><testcase classname="test_icim_calendar_capture_review_20261022" name="test_ambiguous_capture_is_incomplete_and_does_not_break_normal_query[identical]" time="0.758" /><testcase classname="test_icim_calendar_capture_review_20261022" name="test_ambiguous_capture_is_incomplete_and_does_not_break_normal_query[body]" time="0.528"><failure message="AssertionError: assert 'captured' == 'incomplete'&#10;  &#10;  - incomplete&#10;  + captured">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000001A62D2924E0&gt;
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_3e3d403c/pytest/test_ambiguous_capture_is_inco1')
+difference = 'body'
+
+    @pytest.mark.parametrize('difference', ['identical', 'body', 'time', 'headers', 'status', 'encoding'])
+    def test_ambiguous_capture_is_incomplete_and_does_not_break_normal_query(monkeypatch, tmp_path, difference):
+        clock = changing_raw_providers(monkeypatch, tmp_path, difference)
+        root = tmp_path / 'evidence'
+        result = adapter.capture_daily(bot, root, clock)
+        if difference == 'identical':
+            assert result['status'] == 'captured'
+            reader, _ = adapter.load_original(bot, root, 'IC', DAY)
+            assert evidence.decode(reader.context['annotations']['replay_completeness'])['input_capture_complete'] is True
+        else:
+&gt;           assert result['products']['IC']['status'] == 'incomplete'
+E           AssertionError: assert 'captured' == 'incomplete'
+E             
+E             - incomplete
+E             + captured
+
+test_icim_calendar_capture_review_20261022.py:129: AssertionError</failure></testcase><testcase classname="test_icim_calendar_capture_review_20261022" name="test_ambiguous_capture_is_incomplete_and_does_not_break_normal_query[time]" time="0.567"><failure message="AssertionError: assert 'captured' == 'incomplete'&#10;  &#10;  - incomplete&#10;  + captured">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000001A62D2932F0&gt;
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_3e3d403c/pytest/test_ambiguous_capture_is_inco2')
+difference = 'time'
+
+    @pytest.mark.parametrize('difference', ['identical', 'body', 'time', 'headers', 'status', 'encoding'])
+    def test_ambiguous_capture_is_incomplete_and_does_not_break_normal_query(monkeypatch, tmp_path, difference):
+        clock = changing_raw_providers(monkeypatch, tmp_path, difference)
+        root = tmp_path / 'evidence'
+        result = adapter.capture_daily(bot, root, clock)
+        if difference == 'identical':
+            assert result['status'] == 'captured'
+            reader, _ = adapter.load_original(bot, root, 'IC', DAY)
+            assert evidence.decode(reader.context['annotations']['replay_completeness'])['input_capture_complete'] is True
+        else:
+&gt;           assert result['products']['IC']['status'] == 'incomplete'
+E           AssertionError: assert 'captured' == 'incomplete'
+E             
+E             - incomplete
+E             + captured
+
+test_icim_calendar_capture_review_20261022.py:129: AssertionError</failure></testcase><testcase classname="test_icim_calendar_capture_review_20261022" name="test_ambiguous_capture_is_incomplete_and_does_not_break_normal_query[headers]" time="0.582"><failure message="AssertionError: assert 'captured' == 'incomplete'&#10;  &#10;  - incomplete&#10;  + captured">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000001A62D30E970&gt;
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_3e3d403c/pytest/test_ambiguous_capture_is_inco3')
+difference = 'headers'
+
+    @pytest.mark.parametrize('difference', ['identical', 'body', 'time', 'headers', 'status', 'encoding'])
+    def test_ambiguous_capture_is_incomplete_and_does_not_break_normal_query(monkeypatch, tmp_path, difference):
+        clock = changing_raw_providers(monkeypatch, tmp_path, difference)
+        root = tmp_path / 'evidence'
+        result = adapter.capture_daily(bot, root, clock)
+        if difference == 'identical':
+            assert result['status'] == 'captured'
+            reader, _ = adapter.load_original(bot, root, 'IC', DAY)
+            assert evidence.decode(reader.context['annotations']['replay_completeness'])['input_capture_complete'] is True
+        else:
+&gt;           assert result['products']['IC']['status'] == 'incomplete'
+E           AssertionError: assert 'captured' == 'incomplete'
+E             
+E             - incomplete
+E             + captured
+
+test_icim_calendar_capture_review_20261022.py:129: AssertionError</failure></testcase><testcase classname="test_icim_calendar_capture_review_20261022" name="test_ambiguous_capture_is_incomplete_and_does_not_break_normal_query[status]" time="0.557"><failure message="AssertionError: assert 'captured' == 'incomplete'&#10;  &#10;  - incomplete&#10;  + captured">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000001A62D30EB30&gt;
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_3e3d403c/pytest/test_ambiguous_capture_is_inco4')
+difference = 'status'
+
+    @pytest.mark.parametrize('difference', ['identical', 'body', 'time', 'headers', 'status', 'encoding'])
+    def test_ambiguous_capture_is_incomplete_and_does_not_break_normal_query(monkeypatch, tmp_path, difference):
+        clock = changing_raw_providers(monkeypatch, tmp_path, difference)
+        root = tmp_path / 'evidence'
+        result = adapter.capture_daily(bot, root, clock)
+        if difference == 'identical':
+            assert result['status'] == 'captured'
+            reader, _ = adapter.load_original(bot, root, 'IC', DAY)
+            assert evidence.decode(reader.context['annotations']['replay_completeness'])['input_capture_complete'] is True
+        else:
+&gt;           assert result['products']['IC']['status'] == 'incomplete'
+E           AssertionError: assert 'captured' == 'incomplete'
+E             
+E             - incomplete
+E             + captured
+
+test_icim_calendar_capture_review_20261022.py:129: AssertionError</failure></testcase><testcase classname="test_icim_calendar_capture_review_20261022" name="test_ambiguous_capture_is_incomplete_and_does_not_break_normal_query[encoding]" time="0.481"><failure message="AssertionError: assert 'captured' == 'incomplete'&#10;  &#10;  - incomplete&#10;  + captured">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000001A62D2E3BA0&gt;
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_3e3d403c/pytest/test_ambiguous_capture_is_inco5')
+difference = 'encoding'
+
+    @pytest.mark.parametrize('difference', ['identical', 'body', 'time', 'headers', 'status', 'encoding'])
+    def test_ambiguous_capture_is_incomplete_and_does_not_break_normal_query(monkeypatch, tmp_path, difference):
+        clock = changing_raw_providers(monkeypatch, tmp_path, difference)
+        root = tmp_path / 'evidence'
+        result = adapter.capture_daily(bot, root, clock)
+        if difference == 'identical':
+            assert result['status'] == 'captured'
+            reader, _ = adapter.load_original(bot, root, 'IC', DAY)
+            assert evidence.decode(reader.context['annotations']['replay_completeness'])['input_capture_complete'] is True
+        else:
+&gt;           assert result['products']['IC']['status'] == 'incomplete'
+E           AssertionError: assert 'captured' == 'incomplete'
+E             
+E             - incomplete
+E             + captured
+
+test_icim_calendar_capture_review_20261022.py:129: AssertionError</failure></testcase><testcase classname="test_icim_calendar_capture_review_20261022" name="test_archive_io_failure_stays_in_independent_collector_and_signal_still_returns" time="0.425" /><testcase classname="test_icim_calendar_capture_review_20261022" name="test_real_package_comparator_does_not_silently_ignore_strategy_or_source_changes[qty-2]" time="0.017" /><testcase classname="test_icim_calendar_capture_review_20261022" name="test_real_package_comparator_does_not_silently_ignore_strategy_or_source_changes[price-0.5]" time="0.004" /><testcase classname="test_icim_calendar_capture_review_20261022" name="test_real_package_comparator_does_not_silently_ignore_strategy_or_source_changes[reason-different]" time="0.003" /><testcase classname="test_icim_calendar_capture_review_20261022" name="test_real_package_comparator_does_not_silently_ignore_strategy_or_source_changes[source-different]" time="0.002" /><testcase classname="test_icim_calendar_capture_review_20261022" name="test_real_package_comparator_does_not_silently_ignore_strategy_or_source_changes[signal_complete-False]" time="0.002" /><testcase classname="test_icim_calendar_capture_review_20261022" name="test_real_package_comparator_allows_only_explicit_generation_timestamp" time="0.002" /><testcase classname="test_icim_calendar_capture_review_20261022" name="test_real_package_comparator_rejects_extra_replay_fields" time="0.002" /></testsuite></testsuites>

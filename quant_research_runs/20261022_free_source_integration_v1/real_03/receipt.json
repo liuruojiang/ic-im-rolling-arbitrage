@@ -1,0 +1,151 @@
+{
+  "started_at": "2026-10-22T18:25:45.361817+08:00",
+  "clock_is_actual": true,
+  "synthetic_market_inputs": false,
+  "formal_runtime_write": false,
+  "anchor_day": "2026-10-21",
+  "core_contract": "510500P2612M06500",
+  "driver_sha256": "8bfa3777401f2a11a5c4b81ab5ce9ca5a1f17d4fbe44a2a440c78bd86d0335e7",
+  "stages": {
+    "IC": {
+      "manifest": "D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261022_free_source_integration_v1\\real_03\\evidence\\sessions\\2026-10-22\\102730458770-4068c38627eb4f56b4206a6439287d61.json",
+      "complete": true,
+      "eligible": true,
+      "diagnostic_status": null,
+      "reason": null,
+      "failures": [
+        {
+          "role": "cffex.quotes",
+          "key": {
+            "t": "dict",
+            "v": [
+              [
+                "product",
+                "IC"
+              ]
+            ]
+          },
+          "signature": "98ac66aa5d9ec9268cbe8ecd40277aa851b551c4cb88099869a27a11f5e0a39e",
+          "error_type": "SignalTransportError",
+          "error": "IC所有行情源失败｜中金所官方: RuntimeError: 剩余联网预算10.7秒，已跳过官方源并为备用源预留时间｜新浪财经: ProxyError: HTTPSConnectionPool(host='vip.stock.finance.sina.com.cn', port=443): Max retries exceeded with url: /quotes_service/api/json_v2.php/Market_Center.getHQFuturesData?page=1&num=40&sort=position&asc=0&node=zzgz_qh&base=futures (Caused by ProxyE｜东方财富: ProxyError: HTTPSConnectionPool(host='futsseapi.eastmoney.com', port=443): Max retries exceeded with url: /list/220?orderBy=dm&sort=asc&pageSize=200&pageIndex=0&token=58b2fa8f54638b60b87d69b31969089c (Caused by ProxyError('Cannot connect to proxy.', Ti",
+          "at": "2026-10-22T10:26:30.411915+00:00",
+          "resolved": true
+        },
+        {
+          "role": "cffex.quotes",
+          "key": {
+            "t": "dict",
+            "v": [
+              [
+                "product",
+                "IC"
+              ]
+            ]
+          },
+          "signature": "98ac66aa5d9ec9268cbe8ecd40277aa851b551c4cb88099869a27a11f5e0a39e",
+          "error_type": "SignalTransportError",
+          "error": "IC所有行情源失败｜中金所官方: ProxyError: HTTPSConnectionPool(host='www.cffex.com.cn', port=443): Max retries exceeded with url: /quote_IC.txt (Caused by ProxyError('Cannot connect to proxy.', TimeoutError('timed out')))｜新浪财经: ProxyError: HTTPSConnectionPool(host='vip.stock.finance.sina.com.cn', port=443): Max retries exceeded with url: /quotes_service/api/json_v2.php/Market_Center.getHQFuturesData?page=1&num=40&sort=position&asc=0&node=zzgz_qh&base=futures (Caused by ProxyE｜东方财富: ProxyError: HTTPSConnectionPool(host='futsseapi.eastmoney.com', port=443): Max retries exceeded with url: /list/220?orderBy=dm&sort=asc&pageSize=200&pageIndex=0&token=58b2fa8f54638b60b87d69b31969089c (Caused by ProxyError('Cannot connect to proxy.', Ti",
+          "at": "2026-10-22T10:26:46.492764+00:00",
+          "resolved": true
+        }
+      ]
+    },
+    "IM": {
+      "manifest": "D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261022_free_source_integration_v1\\real_03\\evidence\\sessions\\2026-10-22\\102830995097-4a81c3e86493433d881766ebb7694370.json",
+      "complete": true,
+      "eligible": true,
+      "diagnostic_status": null,
+      "reason": null,
+      "failures": [
+        {
+          "role": "cffex.quotes",
+          "key": {
+            "t": "dict",
+            "v": [
+              [
+                "product",
+                "MO"
+              ]
+            ]
+          },
+          "signature": "d282208f721f5ab26cb5fb8eda65d6519e91bf8061679a32476d3e4fb6d52aff",
+          "error_type": "RuntimeError",
+          "error": "MO所有行情源失败｜中金所官方: RuntimeError: 剩余联网预算0.0秒，已跳过官方源并为备用源预留时间｜东方财富: RuntimeError: 联网请求超过总时间预算，已停止继续取数",
+          "at": "2026-10-22T10:28:16.722703+00:00",
+          "resolved": true
+        }
+      ]
+    },
+    "isolated_append": {
+      "verified_day": "2026-10-22",
+      "sequence": 20
+    },
+    "replay": {
+      "eligible": true,
+      "complete": true,
+      "reason": null,
+      "misses": [],
+      "requests": [],
+      "original_urls": [
+        "https://futsseapi.eastmoney.com/list/220",
+        "https://money.finance.sina.com.cn/quotes_service/api/json_v2.php/CN_MarketData.getKLineData?symbol=sh000905&scale=240&ma=no&datalen=10000",
+        "https://yunhq.sse.com.cn:32042/v1/sh1/list/self/510500",
+        "https://yunhq.sse.com.cn:32042/v1/sho/list/exchange/stockexpire",
+        "https://yunhq.sse.com.cn:32042/v1/sho/list/tstyle/510500_12"
+      ],
+      "address_subset": true,
+      "roles_read": [
+        "market.live",
+        "fear.score",
+        "fear.reference",
+        "cffex.quotes",
+        "ic.chain",
+        "ic.etf",
+        "ic.chain",
+        "iv.monitor"
+      ],
+      "reported_missing": []
+    },
+    "comparison": {
+      "differences": 5,
+      "paths": [
+        "$.fetch_time",
+        "$.historical_evidence_supplements",
+        "$.original_evidence",
+        "$.signal_calculation_started_at",
+        "$.signal_generation_timing"
+      ]
+    },
+    "facts_comparison": {
+      "pass": true,
+      "facts_differences": [],
+      "audit_errors": [],
+      "calculation_clock_fields": [
+        "fetch_time",
+        "signal_calculation_started_at",
+        "signal_generated_at"
+      ],
+      "generation_context_transition": {
+        "original": "close_confirmed",
+        "replayed": "retrospective_replay"
+      },
+      "independent_gates_required": [
+        "original isolated ledger append",
+        "zero EvidenceUnavailable",
+        "replay HTTP URL subset of original URLs"
+      ]
+    }
+  },
+  "source_sha256": {
+    "poe_ic_im_mainline_v1_4_bot.py": "565d719cf7ae5b7c6b4fe8c922536cf5e7bde7d485c2b293f4cec1ba86b63af4",
+    "ic_im_evidence_adapter_v1.py": "09cde7c314fefa73bd23ffe59ac5b25843fc58f7f72890791bf4d98591fa489c",
+    "ic_im_signal_evidence_v1.py": "7de3265318211aa219c88983031dee76e7c1df4516a6d8b02183660332b28f6c",
+    "poe_ic_im_v1_4_state.py": "9244c7f1d8bbb138e8e86246261fad13e90058f42764b855f8219aa1596c1067"
+  },
+  "full_dictionary_equal_except_generated_at": false,
+  "comparison_contract_sha256": "83ab7de96e00506fd320c7fa93693721e99712fba6880727326f1873b8034626",
+  "status": "PASS_FACTS_AND_VERIFIED_REPLAY_METADATA",
+  "formal_runtime_unchanged": true,
+  "anchors_restored": true,
+  "finished_at": "2026-10-22T18:28:31.669437+08:00"
+}

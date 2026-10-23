@@ -1,0 +1,43 @@
+{
+  "status": "released_and_no_send_verified",
+  "strategy_pin": "8038980de86251b2c5133da04e788dc2c49c84ff",
+  "automation_release": "25b5daa20332f7dae8ac00d097c9af14edfcebf0",
+  "latest_request": "a179cd0c94708c543d46174594992f891789c59b",
+  "prs": [
+    161,
+    162
+  ],
+  "final_regression_run": 39892970245,
+  "final_readiness_run": 39892972001,
+  "readiness_jobs": [
+    {
+      "id": 120216773309,
+      "name": "regression / strategy-tests (icim)",
+      "conclusion": "success"
+    },
+    {
+      "id": 120216773579,
+      "name": "regression / automation-tests",
+      "conclusion": "success"
+    },
+    {
+      "id": 120217067811,
+      "name": "readiness",
+      "conclusion": "success"
+    }
+  ],
+  "readiness_evidence": [
+    "2026-10-23T03:05:26.6291166Z {\"status\": \"verified\", \"release\": \"20261023-audited-inputs-v1\", \"strategy_sha\": \"8038980de86251b2c5133da04e788dc2c49c84ff\", \"files\": 29}",
+    "2026-10-23T03:05:33.3506495Z ic_im_digest_ok: mode=close_confirmed verified_day=2026-10-22 sequence=20 build=v1.4-20261008-r1-ic-csi500-abs40-fix11",
+    "2026-10-23T03:05:34.2493917Z {\"status\": \"ok\", \"tls_verified\": ***, \"authenticated\": ***, \"sender_envelope_accepted\": ***, \"recipients_accepted\": 1, \"envelope_reset\": ***, \"message_sent\": false}"
+  ],
+  "local_tests": 981,
+  "automation_tests": 1160,
+  "automation_subtests": 177,
+  "independent_audits": 3,
+  "confirmed_fixed_findings": 1,
+  "formal_runtime_unchanged_files": 156,
+  "new_version_actual_smtp": "not_yet_due_2026-10-23_20:00_Asia_Shanghai",
+  "local_automation_config_modified": false,
+  "local_automation_registry_override_updated": true
+}

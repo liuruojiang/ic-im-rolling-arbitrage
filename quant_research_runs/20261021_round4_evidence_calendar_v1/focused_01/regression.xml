@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="17" time="5.479" timestamp="2026-10-21T22:03:28.991933+08:00" hostname="DESKTOP-95I7VVU"><testcase classname="test_icim_round4_evidence_boundaries_20261021" name="test_stream_recording_obeys_size_before_content_access[https://www.cffex.com.cn/sj/historysj/202610/zip/202610.zip-MAX_CFFEX_DOWNLOAD_BYTES]" time="0.009" /><testcase classname="test_icim_round4_evidence_boundaries_20261021" name="test_stream_recording_obeys_size_before_content_access[https://web.ifzq.gtimg.cn/page-MAX_QUOTE_RESPONSE_BYTES]" time="0.007" /><testcase classname="test_icim_round4_evidence_boundaries_20261021" name="test_stream_recording_preserves_shared_read_budget" time="0.008" /><testcase classname="test_icim_round4_evidence_boundaries_20261021" name="test_stream_complete_body_is_recorded_without_eager_content" time="0.042" /><testcase classname="test_icim_round4_evidence_boundaries_20261021" name="test_unrecorded_replay_http_never_calls_requests" time="0.029" /><testcase classname="test_icim_round4_evidence_boundaries_20261021" name="test_recorded_http_replays_exact_bytes_without_network" time="0.060" /><testcase classname="test_icim_round4_evidence_boundaries_20261021" name="test_original_presence_is_per_product_even_for_incomplete_capture[True]" time="0.021" /><testcase classname="test_icim_round4_evidence_boundaries_20261021" name="test_original_presence_is_per_product_even_for_incomplete_capture[False]" time="0.019" /><testcase classname="test_icim_round4_evidence_boundaries_20261021" name="test_other_product_archive_does_not_block_native_dated_im_replay" time="0.016" /><testcase classname="test_icim_round4_evidence_boundaries_20261021" name="test_unknown_year_intraday_header_keeps_two_verified_snapshots" time="0.086" /><testcase classname="test_icim_round4_evidence_boundaries_20261021" name="test_reminder_exception_preserves_both_calculated_products" time="0.024" /><testcase classname="test_icim_round4_evidence_boundaries_20261021" name="test_header_calendar_callback_failure_is_isolated" time="0.019" /><testcase classname="test_icim_round4_recovery_20261021" name="test_real_independent_collector_survives_calendar_diagnostic_then_server_recovers[day0-previous0-later0]" time="1.023"><failure message="TypeError: 'frozenset' object is not a mapping">tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_490a26e7/pytest/test_real_independent_collecto0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x0000012D799E7CB0&gt;
+day = datetime.date(2026, 11, 20), previous = datetime.date(2026, 11, 19)
+later = datetime.date(2026, 11, 24)
+
+    @pytest.mark.parametrize("day,previous,later", [
+        (date(2026, 11, 20), date(2026, 11, 19), date(2026, 11, 24)),
+        (date(2026, 12, 31), date(2026, 12, 30), date(2027, 1, 5)),
+    ])
+    def test_real_independent_collector_survives_calendar_diagnostic_then_server_recovers(tmp_path, monkeypatch, day, previous, later):
+        monkeypatch.setattr(bot.requests, "get", lambda *a, **k: pytest.fail("network escaped stored inputs"))
+        now = wall(monkeypatch, day)
+        store, record = seed_store(tmp_path / "state", previous, day)
+        bot.install_runtime_anchors(state.anchors_from_record(record))
+        providers(monkeypatch, day)
+        builder = bot._build_live_trade_signal
+        monkeypatch.setattr(bot, "_build_live_trade_signal", lambda *a, **k: pytest.fail("collector must not depend on signal conclusion"))
+        root = tmp_path / "evidence"
+        result = adapter.capture_daily(bot, root, now)
+        assert result["status"] == "captured"
+        for product in ["IC", "IM"]:
+            reader, _ = adapter.load_original(bot, root, product, day)
+            annotation = evidence.decode(reader.context["annotations"]["replay_completeness"])
+            assert annotation["input_capture_complete"] is True
+            assert annotation["missing_roles"] == []
+        monkeypatch.setattr(bot, "_build_live_trade_signal", builder)
+        with adapter.evidence_location(root), bot.historical_replay(day):
+            before = bot.build_live_trade_signal("IM", seed.clock(day), "close")
+        assert before["diagnostic_only"] and before["persistence_eligible"] is False
+        assert store.load_latest()["digest"] == record["digest"]
+&gt;       oracle(monkeypatch)
+
+test_icim_round4_recovery_20261021.py:105: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x0000012D799E7CB0&gt;
+
+    def oracle(monkeypatch):
+        monkeypatch.setattr(bot, "_OFFICIAL_EXCHANGE_CALENDAR_YEARS", bot._OFFICIAL_EXCHANGE_CALENDAR_YEARS | {2027})
+&gt;       monkeypatch.setattr(bot, "_EXCHANGE_CLOSURES", {**bot._EXCHANGE_CLOSURES, 2027: {date(2027, 1, 1)}})
+                                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: 'frozenset' object is not a mapping
+
+test_icim_round4_recovery_20261021.py:77: TypeError</failure></testcase><testcase classname="test_icim_round4_recovery_20261021" name="test_real_independent_collector_survives_calendar_diagnostic_then_server_recovers[day1-previous1-later1]" time="0.901"><failure message="TypeError: 'frozenset' object is not a mapping">tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_490a26e7/pytest/test_real_independent_collecto1')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x0000012D79B3E8F0&gt;
+day = datetime.date(2026, 12, 31), previous = datetime.date(2026, 12, 30)
+later = datetime.date(2027, 1, 5)
+
+    @pytest.mark.parametrize("day,previous,later", [
+        (date(2026, 11, 20), date(2026, 11, 19), date(2026, 11, 24)),
+        (date(2026, 12, 31), date(2026, 12, 30), date(2027, 1, 5)),
+    ])
+    def test_real_independent_collector_survives_calendar_diagnostic_then_server_recovers(tmp_path, monkeypatch, day, previous, later):
+        monkeypatch.setattr(bot.requests, "get", lambda *a, **k: pytest.fail("network escaped stored inputs"))
+        now = wall(monkeypatch, day)
+        store, record = seed_store(tmp_path / "state", previous, day)
+        bot.install_runtime_anchors(state.anchors_from_record(record))
+        providers(monkeypatch, day)
+        builder = bot._build_live_trade_signal
+        monkeypatch.setattr(bot, "_build_live_trade_signal", lambda *a, **k: pytest.fail("collector must not depend on signal conclusion"))
+        root = tmp_path / "evidence"
+        result = adapter.capture_daily(bot, root, now)
+        assert result["status"] == "captured"
+        for product in ["IC", "IM"]:
+            reader, _ = adapter.load_original(bot, root, product, day)
+            annotation = evidence.decode(reader.context["annotations"]["replay_completeness"])
+            assert annotation["input_capture_complete"] is True
+            assert annotation["missing_roles"] == []
+        monkeypatch.setattr(bot, "_build_live_trade_signal", builder)
+        with adapter.evidence_location(root), bot.historical_replay(day):
+            before = bot.build_live_trade_signal("IM", seed.clock(day), "close")
+        assert before["diagnostic_only"] and before["persistence_eligible"] is False
+        assert store.load_latest()["digest"] == record["digest"]
+&gt;       oracle(monkeypatch)
+
+test_icim_round4_recovery_20261021.py:105: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x0000012D79B3E8F0&gt;
+
+    def oracle(monkeypatch):
+        monkeypatch.setattr(bot, "_OFFICIAL_EXCHANGE_CALENDAR_YEARS", bot._OFFICIAL_EXCHANGE_CALENDAR_YEARS | {2027})
+&gt;       monkeypatch.setattr(bot, "_EXCHANGE_CLOSURES", {**bot._EXCHANGE_CLOSURES, 2027: {date(2027, 1, 1)}})
+                                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: 'frozenset' object is not a mapping
+
+test_icim_round4_recovery_20261021.py:77: TypeError</failure></testcase><testcase classname="test_icim_round4_recovery_20261021" name="test_unavailable_original_fear_recovers_with_separate_real_time_history_supplement" time="0.653" /><testcase classname="test_icim_round4_recovery_20261021" name="test_none_roll_candidate_and_random_gate_contract_are_real_policy_compatible[IC]" time="0.074" /><testcase classname="test_icim_round4_recovery_20261021" name="test_none_roll_candidate_and_random_gate_contract_are_real_policy_compatible[IM]" time="0.017" /></testsuite></testsuites>

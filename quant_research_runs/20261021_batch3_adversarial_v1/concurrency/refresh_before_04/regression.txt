@@ -1,0 +1,82 @@
+F                                                                        [100%]
+================================== FAILURES ===================================
+________ test_background_refresh_survives_unknown_calendar_and_retries ________
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_4df77d31/pytest/test_background_refresh_surviv0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000026DBD65DA70>
+
+    def test_background_refresh_survives_unknown_calendar_and_retries(tmp_path, monkeypatch):
+        module = server(monkeypatch, tmp_path)
+        isolated, current = store(tmp_path/'state')
+        coordinator = module.LedgerCoordinator(isolated)
+        monkeypatch.setattr(module, 'coordinator', coordinator)
+        unknown_calendar_clock = datetime(2027, 1, 4, 15, 20, tzinfo=bot.BEIJING)
+        monkeypatch.setattr(bot, '_now_beijing', lambda: unknown_calendar_clock)
+        sleeps = []
+        async def controlled_sleep(seconds):
+            sleeps.append(seconds)
+            if len(sleeps) == 2:
+                raise asyncio.CancelledError
+        monkeypatch.setattr(module.asyncio, 'sleep', controlled_sleep)
+        with pytest.raises(asyncio.CancelledError):
+>           asyncio.run(module._refresh_loop())
+
+test_icim_b3adv_concurrency_20261021.py:388: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+C:\Python314\Lib\asyncio\runners.py:204: in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+C:\Python314\Lib\asyncio\runners.py:127: in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Python314\Lib\asyncio\base_events.py:719: in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+poe_ic_im_v1_4_server.py:295: in _refresh_loop
+    await asyncio.to_thread(coordinator.catch_up_once, now)
+C:\Python314\Lib\asyncio\threads.py:25: in to_thread
+    return await loop.run_in_executor(None, func_call)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Python314\Lib\concurrent\futures\thread.py:86: in run
+    result = ctx.run(self.task)
+             ^^^^^^^^^^^^^^^^^^
+C:\Python314\Lib\concurrent\futures\thread.py:73: in run
+    return fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^
+poe_ic_im_v1_4_server.py:169: in catch_up_once
+    completed = strategy._latest_completed_exchange_day(clock)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+poe_ic_im_mainline_v1_4_bot.py:4018: in _latest_completed_exchange_day
+    _require_official_exchange_calendar(clock.date(), "实时行情新鲜度校验")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+day = datetime.date(2027, 1, 4), label = '实时行情新鲜度校验'
+
+    def _require_official_exchange_calendar(day: date, label: str) -> None:
+        if day.year not in _OFFICIAL_EXCHANGE_CALENDAR_YEARS:
+            covered = "/".join(str(year) for year in sorted(_OFFICIAL_EXCHANGE_CALENDAR_YEARS))
+>           raise RuntimeError(
+                f"{label}需要{day.year}年官方交易日历，但脚本仅覆盖{covered}年；"
+                "暂停实时新鲜度判定和新增信号"
+            )
+E           RuntimeError: 实时行情新鲜度校验需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号
+
+poe_ic_im_mainline_v1_4_bot.py:3995: RuntimeError
+------------------------------ Captured log call ------------------------------
+WARNING  uvicorn.default:base.py:1139 
+************* Warning *************
+WARNING  uvicorn.default:base.py:1140 Bot name or access key is not set for PoeBot.
+Bot settings will NOT be synced automatically on server start/update.Please remember to sync bot settings manually.
+
+For more information, see: https://creator.poe.com/docs/server-bots/updating-bot-settings
+WARNING  uvicorn.default:base.py:1146 
+************* Warning *************
+============================== warnings summary ===============================
+C:\Python314\Lib\site-packages\fastapi_poe\types.py:171
+  C:\Python314\Lib\site-packages\fastapi_poe\types.py:171: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    class RequestContext(BaseModel):
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED test_icim_b3adv_concurrency_20261021.py::test_background_refresh_survives_unknown_calendar_and_retries
+1 failed, 1 warning in 2.74s

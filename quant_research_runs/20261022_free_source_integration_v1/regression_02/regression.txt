@@ -1,0 +1,1606 @@
+........................................................................ [  2%]
+........................................................................ [  4%]
+........................................................................ [  7%]
+........................F............................................... [  9%]
+........................................................................ [ 12%]
+........................................................................ [ 14%]
+........................................................................ [ 17%]
+........................................................................ [ 19%]
+........................................................................ [ 22%]
+........................................................................ [ 24%]
+........................................................................ [ 27%]
+........................................................................ [ 29%]
+........................................................................ [ 32%]
+........................................................................ [ 34%]
+...F.................................................................... [ 37%]
+........................................................................ [ 39%]
+........................................................................ [ 42%]
+........................................................................ [ 44%]
+..............F...............................................FFFFFFF..F [ 47%]
+........................................................................ [ 49%]
+........................................................................ [ 51%]
+........................................................................ [ 54%]
+........................................................................ [ 56%]
+........................FF.............................................. [ 59%]
+........................................................................ [ 61%]
+........................................................................ [ 64%]
+........................................................................ [ 66%]
+.......................................F...........................FF... [ 69%]
+........................................................................ [ 71%]
+........................................................................ [ 74%]
+........................................................................ [ 76%]
+........................................................................ [ 79%]
+........................................................................ [ 81%]
+........................................................................ [ 84%]
+........................................................................ [ 86%]
+........................................................................ [ 89%]
+........................................................................ [ 91%]
+........................................................................ [ 94%]
+........................................................................ [ 96%]
+........................................................................ [ 98%]
+..............................                                           [100%]
+================================== FAILURES ===================================
+_ test_sina_chain_marks_one_yesterday_row_without_reselecting_another_strike __
+
+    def test_sina_chain_marks_one_yesterday_row_without_reselecting_another_strike():
+        def payload(strike, observed):
+            fields = [''] * 47
+            # CON_OP latest trade is [2]; [3] is ask. This fixture checks time,
+            # not the former incorrect ask-as-trade parser.
+            fields[2], fields[3], fields[7], fields[32] = '0.25', '0.26', str(strike), observed
+            fields[36] = '510500'
+            fields[40], fields[43], fields[45], fields[46] = '0.24', 'M', 'P', '2026-12-23'
+            return ','.join(fields)
+    
+        listing = Mock(headers={}, content=b'CON_OP_10001001,CON_OP_10001002,CON_OP_10001003')
+        details = ('var hq_str_CON_OP_10001001="' + payload(7.25, '2026-09-30 13:10:00') + '";'
+                   'var hq_str_CON_OP_10001002="' + payload(7.50, '2026-09-29 15:00:00') + '";'
+                   'var hq_str_CON_OP_10001003="' + payload(7.75, '2026-09-30 00:00:00') + '";')
+        quotes_response = Mock(headers={}, content=details.encode('gbk'))
+        clock = datetime(2026, 9, 30, 13, 20, tzinfo=bot.BEIJING)
+        with patch.object(bot.requests, 'get', side_effect=[listing, quotes_response]):
+>           chain, stamp = bot.fetch_sina_510500_chain('2612')
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_ic_im_v1_4_integration_guards.py:643: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_mainline_v1_4_bot.py:4157: in fetch_sina_510500_chain
+    listing = _public_quote_bytes("https://hq.sinajs.cn/", "新浪510500 Put列表",
+poe_ic_im_mainline_v1_4_bot.py:4009: in _public_quote_bytes
+    return _bounded_response_bytes(response, label)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+response = <Mock id='2458790929344'>, label = '新浪510500 Put列表'
+
+    def _bounded_response_bytes(response: Any, label: str) -> bytes:
+        """Bound a streamed identity response, including the shared collection budget."""
+        declared = response.headers.get("Content-Length")
+        if declared:
+            try:
+                size = int(declared)
+            except (ValueError, TypeError) as exc:
+                raise RuntimeError(f"{label}响应长度标头非法") from exc
+            if size < 0 or size > MAX_QUOTE_RESPONSE_BYTES:
+                raise RuntimeError(f"{label}响应声明大小超过上限或非法")
+        chunks, downloaded = [], 0
+>       stream = iter(response.iter_content(chunk_size=64*1024))
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: 'Mock' object is not iterable
+
+poe_ic_im_mainline_v1_4_bot.py:3106: TypeError
+___ test_real_adjusted_rows_are_quarantined_without_inventing_trading_codes ___
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000023C78AE67B0>
+
+    def test_real_adjusted_rows_are_quarantined_without_inventing_trading_codes(monkeypatch):
+        root = Path(__file__).parent / "tests/fixtures/icim_external_review_20261021"
+        responses = iter([SimpleNamespace(content=(root/name).read_bytes(), headers={},
+                                          raise_for_status=lambda: None)
+                          for name in ["sina_december_listing.bin", "sina_december_quotes.bin"]])
+        monkeypatch.setattr(bot.requests, "get", lambda *a, **k: next(responses))
+>       chain, stamp = bot.fetch_sina_510500_chain("202612")
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_ic_im_external_review_20261021.py:228: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_mainline_v1_4_bot.py:4171: in fetch_sina_510500_chain
+    packets = _sina_put_detail_batches(ids)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+poe_ic_im_mainline_v1_4_bot.py:4121: in _sina_put_detail_batches
+    packets.extend(future.result())
+                   ^^^^^^^^^^^^^^^
+C:\Python314\Lib\concurrent\futures\_base.py:443: in result
+    return self.__get_result()
+           ^^^^^^^^^^^^^^^^^^^
+C:\Python314\Lib\concurrent\futures\_base.py:395: in __get_result
+    raise self._exception
+C:\Python314\Lib\concurrent\futures\thread.py:86: in run
+    result = ctx.run(self.task)
+             ^^^^^^^^^^^^^^^^^^
+C:\Python314\Lib\concurrent\futures\thread.py:73: in run
+    return fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+batch = ['10011470', '10011471', '10011472', '10011473', '10011474', '10011475']
+
+    def fetch_batch(batch):
+        url = "https://hq.sinajs.cn/list=" + ",".join("CON_OP_" + value for value in batch)
+        for attempt in range(2):
+            try:
+                raw = _public_quote_bytes(url, "新浪510500 Put分批详情")
+                break
+            except (requests.ConnectionError, requests.Timeout, requests.exceptions.ChunkedEncodingError):
+                if attempt:
+                    raise
+        values = _exact_quote_variables(raw, "hq_str_CON_OP_")
+        if set(values) != set(batch):
+>           raise RuntimeError("新浪510500 Put分批证券集合缺失或未请求，禁止跳选其他行权价")
+E           RuntimeError: 新浪510500 Put分批证券集合缺失或未请求，禁止跳选其他行权价
+
+poe_ic_im_mainline_v1_4_bot.py:4112: RuntimeError
+______ test_full_real_adjusted_chain_preserves_fifteen_legal_m_contracts ______
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000023C78BC71C0>
+
+    def test_full_real_adjusted_chain_preserves_fifteen_legal_m_contracts(monkeypatch):
+        responses = [SimpleNamespace(content=(FIXTURES/name).read_bytes(),headers={},
+            raise_for_status=lambda:None) for name in ('sina_december_listing.bin','sina_december_quotes.bin')]
+        monkeypatch.setattr(bot.requests,'get',Mock(side_effect=responses))
+>       chain,_ = bot.fetch_sina_510500_chain('2612')
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_icim_redteam_market_20261021.py:296: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_mainline_v1_4_bot.py:4171: in fetch_sina_510500_chain
+    packets = _sina_put_detail_batches(ids)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+poe_ic_im_mainline_v1_4_bot.py:4121: in _sina_put_detail_batches
+    packets.extend(future.result())
+                   ^^^^^^^^^^^^^^^
+C:\Python314\Lib\concurrent\futures\_base.py:443: in result
+    return self.__get_result()
+           ^^^^^^^^^^^^^^^^^^^
+C:\Python314\Lib\concurrent\futures\_base.py:395: in __get_result
+    raise self._exception
+C:\Python314\Lib\concurrent\futures\thread.py:86: in run
+    result = ctx.run(self.task)
+             ^^^^^^^^^^^^^^^^^^
+C:\Python314\Lib\concurrent\futures\thread.py:73: in run
+    return fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+batch = ['10011470', '10011471', '10011472', '10011473', '10011474', '10011475']
+
+    def fetch_batch(batch):
+        url = "https://hq.sinajs.cn/list=" + ",".join("CON_OP_" + value for value in batch)
+        for attempt in range(2):
+            try:
+                raw = _public_quote_bytes(url, "新浪510500 Put分批详情")
+                break
+            except (requests.ConnectionError, requests.Timeout, requests.exceptions.ChunkedEncodingError):
+                if attempt:
+                    raise
+        values = _exact_quote_variables(raw, "hq_str_CON_OP_")
+        if set(values) != set(batch):
+>           raise RuntimeError("新浪510500 Put分批证券集合缺失或未请求，禁止跳选其他行权价")
+E           RuntimeError: 新浪510500 Put分批证券集合缺失或未请求，禁止跳选其他行权价
+
+poe_ic_im_mainline_v1_4_bot.py:4112: RuntimeError
+____ test_full_public_builder_real_sse_current_holding_identity[10012099] _____
+
+reference_day = datetime.date(2026, 10, 21)
+
+    def fetch_510500_quote_with_failover(reference_day: date | None = None) -> dict[str, Any]:
+        day, clock = reference_day or _now_beijing().date(), _now_beijing()
+        started = time_module.monotonic()
+        errors, failures = [], []
+        for source, fetcher in (("上交所510500ETF", fetch_sse_510500_quote),
+                                ("腾讯510500ETF", fetch_tencent_510500_quote),
+                                ("新浪510500ETF", fetch_sina_510500_quote)):
+            try:
+                value = dict(fetcher())
+                value.setdefault("source", source)
+>               _validate_chain_stamp_matches(source, value, day, _iv_observation_clock(clock, started))
+
+poe_ic_im_mainline_v1_4_bot.py:4088: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_mainline_v1_4_bot.py:5553: in _validate_chain_stamp_matches
+    chain_day = _validate_market_stamp(label, stamp.get("date", ""), clock)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+label = '新浪510500ETF', value = '20261022'
+clock = datetime.datetime(2026, 10, 21, 15, 40, 13, 449956, tzinfo=zoneinfo.ZoneInfo(key='Asia/Shanghai'))
+
+    def _validate_market_stamp(label: str, value: str, clock: datetime) -> date:
+        cleaned = str(value).strip()
+        try:
+            stamp_day = (
+                datetime.strptime(cleaned, "%Y%m%d").date()
+                if re.fullmatch(r"[0-9]{8}", cleaned)
+                else date.fromisoformat(cleaned)
+            )
+        except ValueError as exc:
+            raise RuntimeError(f"{label}缺少可验证的行情日期") from exc
+        expected = _latest_completed_exchange_day(clock)
+        if stamp_day > clock.date():
+>           raise RuntimeError(f"{label}行情日期 {stamp_day} 晚于北京时间 {clock.date()}")
+E           RuntimeError: 新浪510500ETF行情日期 2026-10-22 晚于北京时间 2026-10-21
+
+poe_ic_im_mainline_v1_4_bot.py:5538: RuntimeError
+
+The above exception was the direct cause of the following exception:
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_8f733ab5/pytest/test_full_public_builder_real_0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000023C789D7CB0>
+security = '10012099'
+
+    @pytest.mark.parametrize('security', ['10012099', '10011470', None])
+    def test_full_public_builder_real_sse_current_holding_identity(tmp_path, monkeypatch, security):
+        store, record = recent_store(tmp_path / 'ledger')
+        anchors = state.anchors_from_record(record)
+        a = anchors['IC']
+        a.update(post_put_contract=real.M,post_put_security_id=security,
+                 v14_core_put_security_id=security)
+        chain, stamp = real.wire(monkeypatch)
+        monkeypatch.setattr(bot, 'LIVE_CONTINUATION_ANCHOR', anchors)
+        builder_inputs(monkeypatch, a, chain, stamp)
+        before, disk = deepcopy(a), snapshot(store.root)
+        if security == '10012099':
+>           out = bot.build_live_trade_signal('IC', CLOCK, 'close')
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_icim_round2_audit_lifecycle_20261021.py:236: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_mainline_v1_4_bot.py:6816: in build_live_trade_signal
+    result = _build_live_trade_signal(product, clock, mode)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+poe_ic_im_mainline_v1_4_bot.py:7205: in _build_live_trade_signal
+    etf = fetch_510500_quote_with_failover(market_date)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ic_im_evidence_adapter_v1.py:165: in adapted
+    return original(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+reference_day = datetime.date(2026, 10, 21)
+
+    def fetch_510500_quote_with_failover(reference_day: date | None = None) -> dict[str, Any]:
+        day, clock = reference_day or _now_beijing().date(), _now_beijing()
+        started = time_module.monotonic()
+        errors, failures = [], []
+        for source, fetcher in (("上交所510500ETF", fetch_sse_510500_quote),
+                                ("腾讯510500ETF", fetch_tencent_510500_quote),
+                                ("新浪510500ETF", fetch_sina_510500_quote)):
+            try:
+                value = dict(fetcher())
+                value.setdefault("source", source)
+                _validate_chain_stamp_matches(source, value, day, _iv_observation_clock(clock, started))
+                _etf_quote_prices(value["last"], value["prev_close"])
+                if failures:
+                    value["source_failures"] = list(failures)
+                return value
+            except Exception as exc:
+                errors.append(exc)
+                failures.append(f"{source}: {type(exc).__name__}: {exc}")
+>       raise _source_failure_error("510500ETF所有来源均不可用；" + "；".join(failures), errors) from errors[-1]
+E       RuntimeError: 510500ETF所有来源均不可用；上交所510500ETF: KeyError: 'prev_close'；腾讯510500ETF: RuntimeError: 腾讯510500ETF行情日期 2026-10-22 晚于北京时间 2026-10-21；新浪510500ETF: RuntimeError: 新浪510500ETF行情日期 2026-10-22 晚于北京时间 2026-10-21
+
+poe_ic_im_mainline_v1_4_bot.py:4096: RuntimeError
+____ test_full_public_builder_real_sse_current_holding_identity[10011470] _____
+
+reference_day = datetime.date(2026, 10, 21)
+
+    def fetch_510500_quote_with_failover(reference_day: date | None = None) -> dict[str, Any]:
+        day, clock = reference_day or _now_beijing().date(), _now_beijing()
+        started = time_module.monotonic()
+        errors, failures = [], []
+        for source, fetcher in (("上交所510500ETF", fetch_sse_510500_quote),
+                                ("腾讯510500ETF", fetch_tencent_510500_quote),
+                                ("新浪510500ETF", fetch_sina_510500_quote)):
+            try:
+                value = dict(fetcher())
+                value.setdefault("source", source)
+>               _validate_chain_stamp_matches(source, value, day, _iv_observation_clock(clock, started))
+
+poe_ic_im_mainline_v1_4_bot.py:4088: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_mainline_v1_4_bot.py:5553: in _validate_chain_stamp_matches
+    chain_day = _validate_market_stamp(label, stamp.get("date", ""), clock)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+label = '新浪510500ETF', value = '20261022'
+clock = datetime.datetime(2026, 10, 21, 15, 40, 14, 726681, tzinfo=zoneinfo.ZoneInfo(key='Asia/Shanghai'))
+
+    def _validate_market_stamp(label: str, value: str, clock: datetime) -> date:
+        cleaned = str(value).strip()
+        try:
+            stamp_day = (
+                datetime.strptime(cleaned, "%Y%m%d").date()
+                if re.fullmatch(r"[0-9]{8}", cleaned)
+                else date.fromisoformat(cleaned)
+            )
+        except ValueError as exc:
+            raise RuntimeError(f"{label}缺少可验证的行情日期") from exc
+        expected = _latest_completed_exchange_day(clock)
+        if stamp_day > clock.date():
+>           raise RuntimeError(f"{label}行情日期 {stamp_day} 晚于北京时间 {clock.date()}")
+E           RuntimeError: 新浪510500ETF行情日期 2026-10-22 晚于北京时间 2026-10-21
+
+poe_ic_im_mainline_v1_4_bot.py:5538: RuntimeError
+
+The above exception was the direct cause of the following exception:
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_8f733ab5/pytest/test_full_public_builder_real_1')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000023C792A7E00>
+security = '10011470'
+
+    @pytest.mark.parametrize('security', ['10012099', '10011470', None])
+    def test_full_public_builder_real_sse_current_holding_identity(tmp_path, monkeypatch, security):
+        store, record = recent_store(tmp_path / 'ledger')
+        anchors = state.anchors_from_record(record)
+        a = anchors['IC']
+        a.update(post_put_contract=real.M,post_put_security_id=security,
+                 v14_core_put_security_id=security)
+        chain, stamp = real.wire(monkeypatch)
+        monkeypatch.setattr(bot, 'LIVE_CONTINUATION_ANCHOR', anchors)
+        builder_inputs(monkeypatch, a, chain, stamp)
+        before, disk = deepcopy(a), snapshot(store.root)
+        if security == '10012099':
+            out = bot.build_live_trade_signal('IC', CLOCK, 'close')
+            assert out['v14_core_put_current_contract'] == real.M
+            assert out['iv_monitor_evidence']['security_id'] == security
+            assert out['v14_action'] != 'HOLD_FAIL_CLOSED'
+        else:
+            with pytest.raises(RuntimeError, match='证券'):
+>               bot.build_live_trade_signal('IC', CLOCK, 'close')
+
+test_icim_round2_audit_lifecycle_20261021.py:242: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_mainline_v1_4_bot.py:6816: in build_live_trade_signal
+    result = _build_live_trade_signal(product, clock, mode)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+poe_ic_im_mainline_v1_4_bot.py:7205: in _build_live_trade_signal
+    etf = fetch_510500_quote_with_failover(market_date)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ic_im_evidence_adapter_v1.py:165: in adapted
+    return original(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+reference_day = datetime.date(2026, 10, 21)
+
+    def fetch_510500_quote_with_failover(reference_day: date | None = None) -> dict[str, Any]:
+        day, clock = reference_day or _now_beijing().date(), _now_beijing()
+        started = time_module.monotonic()
+        errors, failures = [], []
+        for source, fetcher in (("上交所510500ETF", fetch_sse_510500_quote),
+                                ("腾讯510500ETF", fetch_tencent_510500_quote),
+                                ("新浪510500ETF", fetch_sina_510500_quote)):
+            try:
+                value = dict(fetcher())
+                value.setdefault("source", source)
+                _validate_chain_stamp_matches(source, value, day, _iv_observation_clock(clock, started))
+                _etf_quote_prices(value["last"], value["prev_close"])
+                if failures:
+                    value["source_failures"] = list(failures)
+                return value
+            except Exception as exc:
+                errors.append(exc)
+                failures.append(f"{source}: {type(exc).__name__}: {exc}")
+>       raise _source_failure_error("510500ETF所有来源均不可用；" + "；".join(failures), errors) from errors[-1]
+E       RuntimeError: 510500ETF所有来源均不可用；上交所510500ETF: KeyError: 'prev_close'；腾讯510500ETF: RuntimeError: 腾讯510500ETF行情日期 2026-10-22 晚于北京时间 2026-10-21；新浪510500ETF: RuntimeError: 新浪510500ETF行情日期 2026-10-22 晚于北京时间 2026-10-21
+
+poe_ic_im_mainline_v1_4_bot.py:4096: RuntimeError
+
+During handling of the above exception, another exception occurred:
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_8f733ab5/pytest/test_full_public_builder_real_1')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000023C792A7E00>
+security = '10011470'
+
+    @pytest.mark.parametrize('security', ['10012099', '10011470', None])
+    def test_full_public_builder_real_sse_current_holding_identity(tmp_path, monkeypatch, security):
+        store, record = recent_store(tmp_path / 'ledger')
+        anchors = state.anchors_from_record(record)
+        a = anchors['IC']
+        a.update(post_put_contract=real.M,post_put_security_id=security,
+                 v14_core_put_security_id=security)
+        chain, stamp = real.wire(monkeypatch)
+        monkeypatch.setattr(bot, 'LIVE_CONTINUATION_ANCHOR', anchors)
+        builder_inputs(monkeypatch, a, chain, stamp)
+        before, disk = deepcopy(a), snapshot(store.root)
+        if security == '10012099':
+            out = bot.build_live_trade_signal('IC', CLOCK, 'close')
+            assert out['v14_core_put_current_contract'] == real.M
+            assert out['iv_monitor_evidence']['security_id'] == security
+            assert out['v14_action'] != 'HOLD_FAIL_CLOSED'
+        else:
+>           with pytest.raises(RuntimeError, match='证券'):
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           AssertionError: Regex pattern did not match.
+E             Expected regex: '证券'
+E             Actual message: "510500ETF所有来源均不可用；上交所510500ETF: KeyError: 'prev_close'；腾讯510500ETF: RuntimeError: 腾讯510500ETF行情日期 2026-10-22 晚于北京时间 2026-10-21；新浪510500ETF: RuntimeError: 新浪510500ETF行情日期 2026-10-22 晚于北京时间 2026-10-21"
+
+test_icim_round2_audit_lifecycle_20261021.py:241: AssertionError
+______ test_full_public_builder_real_sse_current_holding_identity[None] _______
+
+reference_day = datetime.date(2026, 10, 21)
+
+    def fetch_510500_quote_with_failover(reference_day: date | None = None) -> dict[str, Any]:
+        day, clock = reference_day or _now_beijing().date(), _now_beijing()
+        started = time_module.monotonic()
+        errors, failures = [], []
+        for source, fetcher in (("上交所510500ETF", fetch_sse_510500_quote),
+                                ("腾讯510500ETF", fetch_tencent_510500_quote),
+                                ("新浪510500ETF", fetch_sina_510500_quote)):
+            try:
+                value = dict(fetcher())
+                value.setdefault("source", source)
+>               _validate_chain_stamp_matches(source, value, day, _iv_observation_clock(clock, started))
+
+poe_ic_im_mainline_v1_4_bot.py:4088: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_mainline_v1_4_bot.py:5553: in _validate_chain_stamp_matches
+    chain_day = _validate_market_stamp(label, stamp.get("date", ""), clock)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+label = '新浪510500ETF', value = '20261022'
+clock = datetime.datetime(2026, 10, 21, 15, 40, 14, 901258, tzinfo=zoneinfo.ZoneInfo(key='Asia/Shanghai'))
+
+    def _validate_market_stamp(label: str, value: str, clock: datetime) -> date:
+        cleaned = str(value).strip()
+        try:
+            stamp_day = (
+                datetime.strptime(cleaned, "%Y%m%d").date()
+                if re.fullmatch(r"[0-9]{8}", cleaned)
+                else date.fromisoformat(cleaned)
+            )
+        except ValueError as exc:
+            raise RuntimeError(f"{label}缺少可验证的行情日期") from exc
+        expected = _latest_completed_exchange_day(clock)
+        if stamp_day > clock.date():
+>           raise RuntimeError(f"{label}行情日期 {stamp_day} 晚于北京时间 {clock.date()}")
+E           RuntimeError: 新浪510500ETF行情日期 2026-10-22 晚于北京时间 2026-10-21
+
+poe_ic_im_mainline_v1_4_bot.py:5538: RuntimeError
+
+The above exception was the direct cause of the following exception:
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_8f733ab5/pytest/test_full_public_builder_real_2')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000023C79347230>
+security = None
+
+    @pytest.mark.parametrize('security', ['10012099', '10011470', None])
+    def test_full_public_builder_real_sse_current_holding_identity(tmp_path, monkeypatch, security):
+        store, record = recent_store(tmp_path / 'ledger')
+        anchors = state.anchors_from_record(record)
+        a = anchors['IC']
+        a.update(post_put_contract=real.M,post_put_security_id=security,
+                 v14_core_put_security_id=security)
+        chain, stamp = real.wire(monkeypatch)
+        monkeypatch.setattr(bot, 'LIVE_CONTINUATION_ANCHOR', anchors)
+        builder_inputs(monkeypatch, a, chain, stamp)
+        before, disk = deepcopy(a), snapshot(store.root)
+        if security == '10012099':
+            out = bot.build_live_trade_signal('IC', CLOCK, 'close')
+            assert out['v14_core_put_current_contract'] == real.M
+            assert out['iv_monitor_evidence']['security_id'] == security
+            assert out['v14_action'] != 'HOLD_FAIL_CLOSED'
+        else:
+            with pytest.raises(RuntimeError, match='证券'):
+>               bot.build_live_trade_signal('IC', CLOCK, 'close')
+
+test_icim_round2_audit_lifecycle_20261021.py:242: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_mainline_v1_4_bot.py:6816: in build_live_trade_signal
+    result = _build_live_trade_signal(product, clock, mode)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+poe_ic_im_mainline_v1_4_bot.py:7205: in _build_live_trade_signal
+    etf = fetch_510500_quote_with_failover(market_date)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ic_im_evidence_adapter_v1.py:165: in adapted
+    return original(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+reference_day = datetime.date(2026, 10, 21)
+
+    def fetch_510500_quote_with_failover(reference_day: date | None = None) -> dict[str, Any]:
+        day, clock = reference_day or _now_beijing().date(), _now_beijing()
+        started = time_module.monotonic()
+        errors, failures = [], []
+        for source, fetcher in (("上交所510500ETF", fetch_sse_510500_quote),
+                                ("腾讯510500ETF", fetch_tencent_510500_quote),
+                                ("新浪510500ETF", fetch_sina_510500_quote)):
+            try:
+                value = dict(fetcher())
+                value.setdefault("source", source)
+                _validate_chain_stamp_matches(source, value, day, _iv_observation_clock(clock, started))
+                _etf_quote_prices(value["last"], value["prev_close"])
+                if failures:
+                    value["source_failures"] = list(failures)
+                return value
+            except Exception as exc:
+                errors.append(exc)
+                failures.append(f"{source}: {type(exc).__name__}: {exc}")
+>       raise _source_failure_error("510500ETF所有来源均不可用；" + "；".join(failures), errors) from errors[-1]
+E       RuntimeError: 510500ETF所有来源均不可用；上交所510500ETF: KeyError: 'prev_close'；腾讯510500ETF: RuntimeError: 腾讯510500ETF行情日期 2026-10-22 晚于北京时间 2026-10-21；新浪510500ETF: RuntimeError: 新浪510500ETF行情日期 2026-10-22 晚于北京时间 2026-10-21
+
+poe_ic_im_mainline_v1_4_bot.py:4096: RuntimeError
+
+During handling of the above exception, another exception occurred:
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_8f733ab5/pytest/test_full_public_builder_real_2')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000023C79347230>
+security = None
+
+    @pytest.mark.parametrize('security', ['10012099', '10011470', None])
+    def test_full_public_builder_real_sse_current_holding_identity(tmp_path, monkeypatch, security):
+        store, record = recent_store(tmp_path / 'ledger')
+        anchors = state.anchors_from_record(record)
+        a = anchors['IC']
+        a.update(post_put_contract=real.M,post_put_security_id=security,
+                 v14_core_put_security_id=security)
+        chain, stamp = real.wire(monkeypatch)
+        monkeypatch.setattr(bot, 'LIVE_CONTINUATION_ANCHOR', anchors)
+        builder_inputs(monkeypatch, a, chain, stamp)
+        before, disk = deepcopy(a), snapshot(store.root)
+        if security == '10012099':
+            out = bot.build_live_trade_signal('IC', CLOCK, 'close')
+            assert out['v14_core_put_current_contract'] == real.M
+            assert out['iv_monitor_evidence']['security_id'] == security
+            assert out['v14_action'] != 'HOLD_FAIL_CLOSED'
+        else:
+>           with pytest.raises(RuntimeError, match='证券'):
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           AssertionError: Regex pattern did not match.
+E             Expected regex: '证券'
+E             Actual message: "510500ETF所有来源均不可用；上交所510500ETF: KeyError: 'prev_close'；腾讯510500ETF: RuntimeError: 腾讯510500ETF行情日期 2026-10-22 晚于北京时间 2026-10-21；新浪510500ETF: RuntimeError: 新浪510500ETF行情日期 2026-10-22 晚于北京时间 2026-10-21"
+
+test_icim_round2_audit_lifecycle_20261021.py:241: AssertionError
+_____ test_actual_builder_independent_sleeves_never_cross_identity[None] ______
+
+reference_day = datetime.date(2026, 10, 21)
+
+    def fetch_510500_quote_with_failover(reference_day: date | None = None) -> dict[str, Any]:
+        day, clock = reference_day or _now_beijing().date(), _now_beijing()
+        started = time_module.monotonic()
+        errors, failures = [], []
+        for source, fetcher in (("上交所510500ETF", fetch_sse_510500_quote),
+                                ("腾讯510500ETF", fetch_tencent_510500_quote),
+                                ("新浪510500ETF", fetch_sina_510500_quote)):
+            try:
+                value = dict(fetcher())
+                value.setdefault("source", source)
+>               _validate_chain_stamp_matches(source, value, day, _iv_observation_clock(clock, started))
+
+poe_ic_im_mainline_v1_4_bot.py:4088: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_mainline_v1_4_bot.py:5553: in _validate_chain_stamp_matches
+    chain_day = _validate_market_stamp(label, stamp.get("date", ""), clock)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+label = '新浪510500ETF', value = '20261022'
+clock = datetime.datetime(2026, 10, 21, 15, 40, 15, 66548, tzinfo=zoneinfo.ZoneInfo(key='Asia/Shanghai'))
+
+    def _validate_market_stamp(label: str, value: str, clock: datetime) -> date:
+        cleaned = str(value).strip()
+        try:
+            stamp_day = (
+                datetime.strptime(cleaned, "%Y%m%d").date()
+                if re.fullmatch(r"[0-9]{8}", cleaned)
+                else date.fromisoformat(cleaned)
+            )
+        except ValueError as exc:
+            raise RuntimeError(f"{label}缺少可验证的行情日期") from exc
+        expected = _latest_completed_exchange_day(clock)
+        if stamp_day > clock.date():
+>           raise RuntimeError(f"{label}行情日期 {stamp_day} 晚于北京时间 {clock.date()}")
+E           RuntimeError: 新浪510500ETF行情日期 2026-10-22 晚于北京时间 2026-10-21
+
+poe_ic_im_mainline_v1_4_bot.py:5538: RuntimeError
+
+The above exception was the direct cause of the following exception:
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_8f733ab5/pytest/test_actual_builder_independen0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000023C793DE970>
+bad_sleeve = None
+
+    @pytest.mark.parametrize('bad_sleeve', [None, 'core', 'momentum'])
+    def test_actual_builder_independent_sleeves_never_cross_identity(tmp_path, monkeypatch, bad_sleeve):
+        store, record = recent_store(tmp_path / 'ledger')
+        anchors = state.anchors_from_record(record)
+        a = anchors['IC']
+        chain, stamp = real.wire(monkeypatch)
+        other = chain[chain.contract.str.match('510500P2612M') & ~chain.contract.eq(real.M)].iloc[0]
+        a.update(post_put_contract=str(other.contract),post_put_security_id=str(other.security_id),
+                 verified_momentum_put_qty=3,verified_momentum_put_delta=.125,
+                 verified_total_put_delta=.375,post_put_qty=17,verified_put_qty_normalized=17)
+        if bad_sleeve == 'core':
+            a['v14_core_put_security_id'] = '10011470'
+        elif bad_sleeve == 'momentum':
+            a['post_put_security_id'] = '10011470'
+        policy.validate_extension('IC', a)
+        monkeypatch.setattr(bot, 'LIVE_CONTINUATION_ANCHOR', anchors)
+        builder_inputs(monkeypatch, a, chain, stamp)
+        before = deepcopy(a)
+        if bad_sleeve == 'momentum':
+            with pytest.raises(RuntimeError, match='证券'):
+                bot.build_live_trade_signal('IC', CLOCK, 'close')
+        else:
+>           out = bot.build_live_trade_signal('IC', CLOCK, 'close')
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_icim_round2_audit_lifecycle_20261021.py:270: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_mainline_v1_4_bot.py:6816: in build_live_trade_signal
+    result = _build_live_trade_signal(product, clock, mode)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+poe_ic_im_mainline_v1_4_bot.py:7205: in _build_live_trade_signal
+    etf = fetch_510500_quote_with_failover(market_date)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ic_im_evidence_adapter_v1.py:165: in adapted
+    return original(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+reference_day = datetime.date(2026, 10, 21)
+
+    def fetch_510500_quote_with_failover(reference_day: date | None = None) -> dict[str, Any]:
+        day, clock = reference_day or _now_beijing().date(), _now_beijing()
+        started = time_module.monotonic()
+        errors, failures = [], []
+        for source, fetcher in (("上交所510500ETF", fetch_sse_510500_quote),
+                                ("腾讯510500ETF", fetch_tencent_510500_quote),
+                                ("新浪510500ETF", fetch_sina_510500_quote)):
+            try:
+                value = dict(fetcher())
+                value.setdefault("source", source)
+                _validate_chain_stamp_matches(source, value, day, _iv_observation_clock(clock, started))
+                _etf_quote_prices(value["last"], value["prev_close"])
+                if failures:
+                    value["source_failures"] = list(failures)
+                return value
+            except Exception as exc:
+                errors.append(exc)
+                failures.append(f"{source}: {type(exc).__name__}: {exc}")
+>       raise _source_failure_error("510500ETF所有来源均不可用；" + "；".join(failures), errors) from errors[-1]
+E       RuntimeError: 510500ETF所有来源均不可用；上交所510500ETF: KeyError: 'prev_close'；腾讯510500ETF: RuntimeError: 腾讯510500ETF行情日期 2026-10-22 晚于北京时间 2026-10-21；新浪510500ETF: RuntimeError: 新浪510500ETF行情日期 2026-10-22 晚于北京时间 2026-10-21
+
+poe_ic_im_mainline_v1_4_bot.py:4096: RuntimeError
+_____ test_actual_builder_independent_sleeves_never_cross_identity[core] ______
+
+reference_day = datetime.date(2026, 10, 21)
+
+    def fetch_510500_quote_with_failover(reference_day: date | None = None) -> dict[str, Any]:
+        day, clock = reference_day or _now_beijing().date(), _now_beijing()
+        started = time_module.monotonic()
+        errors, failures = [], []
+        for source, fetcher in (("上交所510500ETF", fetch_sse_510500_quote),
+                                ("腾讯510500ETF", fetch_tencent_510500_quote),
+                                ("新浪510500ETF", fetch_sina_510500_quote)):
+            try:
+                value = dict(fetcher())
+                value.setdefault("source", source)
+>               _validate_chain_stamp_matches(source, value, day, _iv_observation_clock(clock, started))
+
+poe_ic_im_mainline_v1_4_bot.py:4088: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_mainline_v1_4_bot.py:5553: in _validate_chain_stamp_matches
+    chain_day = _validate_market_stamp(label, stamp.get("date", ""), clock)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+label = '新浪510500ETF', value = '20261022'
+clock = datetime.datetime(2026, 10, 21, 15, 40, 15, 309346, tzinfo=zoneinfo.ZoneInfo(key='Asia/Shanghai'))
+
+    def _validate_market_stamp(label: str, value: str, clock: datetime) -> date:
+        cleaned = str(value).strip()
+        try:
+            stamp_day = (
+                datetime.strptime(cleaned, "%Y%m%d").date()
+                if re.fullmatch(r"[0-9]{8}", cleaned)
+                else date.fromisoformat(cleaned)
+            )
+        except ValueError as exc:
+            raise RuntimeError(f"{label}缺少可验证的行情日期") from exc
+        expected = _latest_completed_exchange_day(clock)
+        if stamp_day > clock.date():
+>           raise RuntimeError(f"{label}行情日期 {stamp_day} 晚于北京时间 {clock.date()}")
+E           RuntimeError: 新浪510500ETF行情日期 2026-10-22 晚于北京时间 2026-10-21
+
+poe_ic_im_mainline_v1_4_bot.py:5538: RuntimeError
+
+The above exception was the direct cause of the following exception:
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_8f733ab5/pytest/test_actual_builder_independen1')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000023C793DF690>
+bad_sleeve = 'core'
+
+    @pytest.mark.parametrize('bad_sleeve', [None, 'core', 'momentum'])
+    def test_actual_builder_independent_sleeves_never_cross_identity(tmp_path, monkeypatch, bad_sleeve):
+        store, record = recent_store(tmp_path / 'ledger')
+        anchors = state.anchors_from_record(record)
+        a = anchors['IC']
+        chain, stamp = real.wire(monkeypatch)
+        other = chain[chain.contract.str.match('510500P2612M') & ~chain.contract.eq(real.M)].iloc[0]
+        a.update(post_put_contract=str(other.contract),post_put_security_id=str(other.security_id),
+                 verified_momentum_put_qty=3,verified_momentum_put_delta=.125,
+                 verified_total_put_delta=.375,post_put_qty=17,verified_put_qty_normalized=17)
+        if bad_sleeve == 'core':
+            a['v14_core_put_security_id'] = '10011470'
+        elif bad_sleeve == 'momentum':
+            a['post_put_security_id'] = '10011470'
+        policy.validate_extension('IC', a)
+        monkeypatch.setattr(bot, 'LIVE_CONTINUATION_ANCHOR', anchors)
+        builder_inputs(monkeypatch, a, chain, stamp)
+        before = deepcopy(a)
+        if bad_sleeve == 'momentum':
+            with pytest.raises(RuntimeError, match='证券'):
+                bot.build_live_trade_signal('IC', CLOCK, 'close')
+        else:
+>           out = bot.build_live_trade_signal('IC', CLOCK, 'close')
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_icim_round2_audit_lifecycle_20261021.py:270: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_mainline_v1_4_bot.py:6816: in build_live_trade_signal
+    result = _build_live_trade_signal(product, clock, mode)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+poe_ic_im_mainline_v1_4_bot.py:7205: in _build_live_trade_signal
+    etf = fetch_510500_quote_with_failover(market_date)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ic_im_evidence_adapter_v1.py:165: in adapted
+    return original(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+reference_day = datetime.date(2026, 10, 21)
+
+    def fetch_510500_quote_with_failover(reference_day: date | None = None) -> dict[str, Any]:
+        day, clock = reference_day or _now_beijing().date(), _now_beijing()
+        started = time_module.monotonic()
+        errors, failures = [], []
+        for source, fetcher in (("上交所510500ETF", fetch_sse_510500_quote),
+                                ("腾讯510500ETF", fetch_tencent_510500_quote),
+                                ("新浪510500ETF", fetch_sina_510500_quote)):
+            try:
+                value = dict(fetcher())
+                value.setdefault("source", source)
+                _validate_chain_stamp_matches(source, value, day, _iv_observation_clock(clock, started))
+                _etf_quote_prices(value["last"], value["prev_close"])
+                if failures:
+                    value["source_failures"] = list(failures)
+                return value
+            except Exception as exc:
+                errors.append(exc)
+                failures.append(f"{source}: {type(exc).__name__}: {exc}")
+>       raise _source_failure_error("510500ETF所有来源均不可用；" + "；".join(failures), errors) from errors[-1]
+E       RuntimeError: 510500ETF所有来源均不可用；上交所510500ETF: KeyError: 'prev_close'；腾讯510500ETF: RuntimeError: 腾讯510500ETF行情日期 2026-10-22 晚于北京时间 2026-10-21；新浪510500ETF: RuntimeError: 新浪510500ETF行情日期 2026-10-22 晚于北京时间 2026-10-21
+
+poe_ic_im_mainline_v1_4_bot.py:4096: RuntimeError
+___ test_actual_builder_independent_sleeves_never_cross_identity[momentum] ____
+
+reference_day = datetime.date(2026, 10, 21)
+
+    def fetch_510500_quote_with_failover(reference_day: date | None = None) -> dict[str, Any]:
+        day, clock = reference_day or _now_beijing().date(), _now_beijing()
+        started = time_module.monotonic()
+        errors, failures = [], []
+        for source, fetcher in (("上交所510500ETF", fetch_sse_510500_quote),
+                                ("腾讯510500ETF", fetch_tencent_510500_quote),
+                                ("新浪510500ETF", fetch_sina_510500_quote)):
+            try:
+                value = dict(fetcher())
+                value.setdefault("source", source)
+>               _validate_chain_stamp_matches(source, value, day, _iv_observation_clock(clock, started))
+
+poe_ic_im_mainline_v1_4_bot.py:4088: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_mainline_v1_4_bot.py:5553: in _validate_chain_stamp_matches
+    chain_day = _validate_market_stamp(label, stamp.get("date", ""), clock)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+label = '新浪510500ETF', value = '20261022'
+clock = datetime.datetime(2026, 10, 21, 15, 40, 14, 614282, tzinfo=zoneinfo.ZoneInfo(key='Asia/Shanghai'))
+
+    def _validate_market_stamp(label: str, value: str, clock: datetime) -> date:
+        cleaned = str(value).strip()
+        try:
+            stamp_day = (
+                datetime.strptime(cleaned, "%Y%m%d").date()
+                if re.fullmatch(r"[0-9]{8}", cleaned)
+                else date.fromisoformat(cleaned)
+            )
+        except ValueError as exc:
+            raise RuntimeError(f"{label}缺少可验证的行情日期") from exc
+        expected = _latest_completed_exchange_day(clock)
+        if stamp_day > clock.date():
+>           raise RuntimeError(f"{label}行情日期 {stamp_day} 晚于北京时间 {clock.date()}")
+E           RuntimeError: 新浪510500ETF行情日期 2026-10-22 晚于北京时间 2026-10-21
+
+poe_ic_im_mainline_v1_4_bot.py:5538: RuntimeError
+
+The above exception was the direct cause of the following exception:
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_8f733ab5/pytest/test_actual_builder_independen2')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000023C793DE270>
+bad_sleeve = 'momentum'
+
+    @pytest.mark.parametrize('bad_sleeve', [None, 'core', 'momentum'])
+    def test_actual_builder_independent_sleeves_never_cross_identity(tmp_path, monkeypatch, bad_sleeve):
+        store, record = recent_store(tmp_path / 'ledger')
+        anchors = state.anchors_from_record(record)
+        a = anchors['IC']
+        chain, stamp = real.wire(monkeypatch)
+        other = chain[chain.contract.str.match('510500P2612M') & ~chain.contract.eq(real.M)].iloc[0]
+        a.update(post_put_contract=str(other.contract),post_put_security_id=str(other.security_id),
+                 verified_momentum_put_qty=3,verified_momentum_put_delta=.125,
+                 verified_total_put_delta=.375,post_put_qty=17,verified_put_qty_normalized=17)
+        if bad_sleeve == 'core':
+            a['v14_core_put_security_id'] = '10011470'
+        elif bad_sleeve == 'momentum':
+            a['post_put_security_id'] = '10011470'
+        policy.validate_extension('IC', a)
+        monkeypatch.setattr(bot, 'LIVE_CONTINUATION_ANCHOR', anchors)
+        builder_inputs(monkeypatch, a, chain, stamp)
+        before = deepcopy(a)
+        if bad_sleeve == 'momentum':
+            with pytest.raises(RuntimeError, match='证券'):
+>               bot.build_live_trade_signal('IC', CLOCK, 'close')
+
+test_icim_round2_audit_lifecycle_20261021.py:268: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_mainline_v1_4_bot.py:6816: in build_live_trade_signal
+    result = _build_live_trade_signal(product, clock, mode)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+poe_ic_im_mainline_v1_4_bot.py:7205: in _build_live_trade_signal
+    etf = fetch_510500_quote_with_failover(market_date)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ic_im_evidence_adapter_v1.py:165: in adapted
+    return original(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+reference_day = datetime.date(2026, 10, 21)
+
+    def fetch_510500_quote_with_failover(reference_day: date | None = None) -> dict[str, Any]:
+        day, clock = reference_day or _now_beijing().date(), _now_beijing()
+        started = time_module.monotonic()
+        errors, failures = [], []
+        for source, fetcher in (("上交所510500ETF", fetch_sse_510500_quote),
+                                ("腾讯510500ETF", fetch_tencent_510500_quote),
+                                ("新浪510500ETF", fetch_sina_510500_quote)):
+            try:
+                value = dict(fetcher())
+                value.setdefault("source", source)
+                _validate_chain_stamp_matches(source, value, day, _iv_observation_clock(clock, started))
+                _etf_quote_prices(value["last"], value["prev_close"])
+                if failures:
+                    value["source_failures"] = list(failures)
+                return value
+            except Exception as exc:
+                errors.append(exc)
+                failures.append(f"{source}: {type(exc).__name__}: {exc}")
+>       raise _source_failure_error("510500ETF所有来源均不可用；" + "；".join(failures), errors) from errors[-1]
+E       RuntimeError: 510500ETF所有来源均不可用；上交所510500ETF: KeyError: 'prev_close'；腾讯510500ETF: RuntimeError: 腾讯510500ETF行情日期 2026-10-22 晚于北京时间 2026-10-21；新浪510500ETF: RuntimeError: 新浪510500ETF行情日期 2026-10-22 晚于北京时间 2026-10-21
+
+poe_ic_im_mainline_v1_4_bot.py:4096: RuntimeError
+
+During handling of the above exception, another exception occurred:
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_8f733ab5/pytest/test_actual_builder_independen2')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000023C793DE270>
+bad_sleeve = 'momentum'
+
+    @pytest.mark.parametrize('bad_sleeve', [None, 'core', 'momentum'])
+    def test_actual_builder_independent_sleeves_never_cross_identity(tmp_path, monkeypatch, bad_sleeve):
+        store, record = recent_store(tmp_path / 'ledger')
+        anchors = state.anchors_from_record(record)
+        a = anchors['IC']
+        chain, stamp = real.wire(monkeypatch)
+        other = chain[chain.contract.str.match('510500P2612M') & ~chain.contract.eq(real.M)].iloc[0]
+        a.update(post_put_contract=str(other.contract),post_put_security_id=str(other.security_id),
+                 verified_momentum_put_qty=3,verified_momentum_put_delta=.125,
+                 verified_total_put_delta=.375,post_put_qty=17,verified_put_qty_normalized=17)
+        if bad_sleeve == 'core':
+            a['v14_core_put_security_id'] = '10011470'
+        elif bad_sleeve == 'momentum':
+            a['post_put_security_id'] = '10011470'
+        policy.validate_extension('IC', a)
+        monkeypatch.setattr(bot, 'LIVE_CONTINUATION_ANCHOR', anchors)
+        builder_inputs(monkeypatch, a, chain, stamp)
+        before = deepcopy(a)
+        if bad_sleeve == 'momentum':
+>           with pytest.raises(RuntimeError, match='证券'):
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           AssertionError: Regex pattern did not match.
+E             Expected regex: '证券'
+E             Actual message: "510500ETF所有来源均不可用；上交所510500ETF: KeyError: 'prev_close'；腾讯510500ETF: RuntimeError: 腾讯510500ETF行情日期 2026-10-22 晚于北京时间 2026-10-21；新浪510500ETF: RuntimeError: 新浪510500ETF行情日期 2026-10-22 晚于北京时间 2026-10-21"
+
+test_icim_round2_audit_lifecycle_20261021.py:267: AssertionError
+_____ test_legal_zero_put_holding_does_not_require_unheld_legacy_identity _____
+
+reference_day = datetime.date(2026, 10, 21)
+
+    def fetch_510500_quote_with_failover(reference_day: date | None = None) -> dict[str, Any]:
+        day, clock = reference_day or _now_beijing().date(), _now_beijing()
+        started = time_module.monotonic()
+        errors, failures = [], []
+        for source, fetcher in (("上交所510500ETF", fetch_sse_510500_quote),
+                                ("腾讯510500ETF", fetch_tencent_510500_quote),
+                                ("新浪510500ETF", fetch_sina_510500_quote)):
+            try:
+                value = dict(fetcher())
+                value.setdefault("source", source)
+>               _validate_chain_stamp_matches(source, value, day, _iv_observation_clock(clock, started))
+
+poe_ic_im_mainline_v1_4_bot.py:4088: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_mainline_v1_4_bot.py:5553: in _validate_chain_stamp_matches
+    chain_day = _validate_market_stamp(label, stamp.get("date", ""), clock)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+label = '新浪510500ETF', value = '20261022'
+clock = datetime.datetime(2026, 10, 21, 15, 40, 14, 554061, tzinfo=zoneinfo.ZoneInfo(key='Asia/Shanghai'))
+
+    def _validate_market_stamp(label: str, value: str, clock: datetime) -> date:
+        cleaned = str(value).strip()
+        try:
+            stamp_day = (
+                datetime.strptime(cleaned, "%Y%m%d").date()
+                if re.fullmatch(r"[0-9]{8}", cleaned)
+                else date.fromisoformat(cleaned)
+            )
+        except ValueError as exc:
+            raise RuntimeError(f"{label}缺少可验证的行情日期") from exc
+        expected = _latest_completed_exchange_day(clock)
+        if stamp_day > clock.date():
+>           raise RuntimeError(f"{label}行情日期 {stamp_day} 晚于北京时间 {clock.date()}")
+E           RuntimeError: 新浪510500ETF行情日期 2026-10-22 晚于北京时间 2026-10-21
+
+poe_ic_im_mainline_v1_4_bot.py:5538: RuntimeError
+
+The above exception was the direct cause of the following exception:
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_8f733ab5/pytest/test_legal_zero_put_holding_do0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000023C793DFE00>
+
+    def test_legal_zero_put_holding_does_not_require_unheld_legacy_identity(tmp_path, monkeypatch):
+        store, record = recent_store(tmp_path / 'ledger')
+        anchors = state.anchors_from_record(record)
+        a = anchors['IC']
+        ledger._empty_core(a, 'IC')
+        a.update(post_put_contract=real.M,post_put_security_id='10011470',
+                 verified_momentum_put_delta=0.,verified_momentum_put_qty=0)
+        record['products']['IC'] = state._jsonable(a)
+        record['digest'] = state._digest(record)
+        state._validate_record(record)
+        chain, stamp = real.wire(monkeypatch)
+        monkeypatch.setattr(bot, 'LIVE_CONTINUATION_ANCHOR', anchors)
+        builder_inputs(monkeypatch, a, chain, stamp)
+        before = deepcopy(a)
+>       out = bot.build_live_trade_signal('IC', CLOCK, 'close')
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_icim_round2_audit_lifecycle_20261021.py:296: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_mainline_v1_4_bot.py:6816: in build_live_trade_signal
+    result = _build_live_trade_signal(product, clock, mode)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+poe_ic_im_mainline_v1_4_bot.py:7205: in _build_live_trade_signal
+    etf = fetch_510500_quote_with_failover(market_date)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ic_im_evidence_adapter_v1.py:165: in adapted
+    return original(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+reference_day = datetime.date(2026, 10, 21)
+
+    def fetch_510500_quote_with_failover(reference_day: date | None = None) -> dict[str, Any]:
+        day, clock = reference_day or _now_beijing().date(), _now_beijing()
+        started = time_module.monotonic()
+        errors, failures = [], []
+        for source, fetcher in (("上交所510500ETF", fetch_sse_510500_quote),
+                                ("腾讯510500ETF", fetch_tencent_510500_quote),
+                                ("新浪510500ETF", fetch_sina_510500_quote)):
+            try:
+                value = dict(fetcher())
+                value.setdefault("source", source)
+                _validate_chain_stamp_matches(source, value, day, _iv_observation_clock(clock, started))
+                _etf_quote_prices(value["last"], value["prev_close"])
+                if failures:
+                    value["source_failures"] = list(failures)
+                return value
+            except Exception as exc:
+                errors.append(exc)
+                failures.append(f"{source}: {type(exc).__name__}: {exc}")
+>       raise _source_failure_error("510500ETF所有来源均不可用；" + "；".join(failures), errors) from errors[-1]
+E       RuntimeError: 510500ETF所有来源均不可用；上交所510500ETF: KeyError: 'prev_close'；腾讯510500ETF: RuntimeError: 腾讯510500ETF行情日期 2026-10-22 晚于北京时间 2026-10-21；新浪510500ETF: RuntimeError: 新浪510500ETF行情日期 2026-10-22 晚于北京时间 2026-10-21
+
+poe_ic_im_mainline_v1_4_bot.py:4096: RuntimeError
+__ test_actual_short_mark_must_not_trust_stale_m_label_for_adjusted_security __
+
+reference_day = datetime.date(2026, 10, 21)
+
+    def fetch_510500_quote_with_failover(reference_day: date | None = None) -> dict[str, Any]:
+        day, clock = reference_day or _now_beijing().date(), _now_beijing()
+        started = time_module.monotonic()
+        errors, failures = [], []
+        for source, fetcher in (("上交所510500ETF", fetch_sse_510500_quote),
+                                ("腾讯510500ETF", fetch_tencent_510500_quote),
+                                ("新浪510500ETF", fetch_sina_510500_quote)):
+            try:
+                value = dict(fetcher())
+                value.setdefault("source", source)
+>               _validate_chain_stamp_matches(source, value, day, _iv_observation_clock(clock, started))
+
+poe_ic_im_mainline_v1_4_bot.py:4088: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_mainline_v1_4_bot.py:5553: in _validate_chain_stamp_matches
+    chain_day = _validate_market_stamp(label, stamp.get("date", ""), clock)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+label = '新浪510500ETF', value = '20261022'
+clock = datetime.datetime(2026, 10, 21, 15, 40, 14, 570879, tzinfo=zoneinfo.ZoneInfo(key='Asia/Shanghai'))
+
+    def _validate_market_stamp(label: str, value: str, clock: datetime) -> date:
+        cleaned = str(value).strip()
+        try:
+            stamp_day = (
+                datetime.strptime(cleaned, "%Y%m%d").date()
+                if re.fullmatch(r"[0-9]{8}", cleaned)
+                else date.fromisoformat(cleaned)
+            )
+        except ValueError as exc:
+            raise RuntimeError(f"{label}缺少可验证的行情日期") from exc
+        expected = _latest_completed_exchange_day(clock)
+        if stamp_day > clock.date():
+>           raise RuntimeError(f"{label}行情日期 {stamp_day} 晚于北京时间 {clock.date()}")
+E           RuntimeError: 新浪510500ETF行情日期 2026-10-22 晚于北京时间 2026-10-21
+
+poe_ic_im_mainline_v1_4_bot.py:5538: RuntimeError
+
+The above exception was the direct cause of the following exception:
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_8f733ab5/pytest/test_actual_short_mark_must_no0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000023C79345080>
+
+    def test_actual_short_mark_must_not_trust_stale_m_label_for_adjusted_security(tmp_path,monkeypatch):
+        store,record=recent_store(tmp_path/'ledger')
+        anchors=state.anchors_from_record(record)
+        a=anchors['IC']
+        ledger._empty_core(a,'IC')
+        a.update(v14_route_state='short_put',v14_cycle_id='synthetic-stale-m-held-identity',
+            v14_short_put_contract=real.M,v14_short_put_security_id='10011470',
+            v14_short_put_qty_normalized=5.,v14_short_put_entry_premium=.4,
+            v14_short_put_expiry=date(2026,12,23),v14_short_put_cost_basis='confirmed_dated_open',
+            v14_short_put_entry_price_day=PREVIOUS,
+            verified_momentum_put_delta=0.,verified_momentum_put_qty=0)
+        # This is a synthetic accepted legacy anchor, not a claim of an actual
+        # July trade. Official raw data, unlike its stale M label, identifies A.
+        record['products']['IC']=state._jsonable(a)
+        record['digest']=state._digest(record)
+        state._validate_record(record)
+        chain,stamp=real.wire(monkeypatch)
+        monkeypatch.setattr(bot,'LIVE_CONTINUATION_ANCHOR',anchors)
+        builder_inputs(monkeypatch,a,chain,stamp)
+        live=bot.live_proxy('IC',CLOCK)
+        live.update(momentum_120=.1,valuation_tier=1)
+        monkeypatch.setattr(bot,'live_proxy',lambda *args:deepcopy(live))
+        candidate=dict(tradable=True,contract='510500P2701M06500',security_id='10015000',
+            expiry=date(2027,1,27),premium=.3,iv=.8,qty_normalized=5.)
+        monkeypatch.setattr(bot,'_v14_ic_short_put_candidate',lambda *args,**kw:candidate)
+        monkeypatch.setattr(bot,'fetch_option_closes',lambda security:
+            pd.Series([.01],index=pd.to_datetime([DAY])))
+        before=deepcopy(a)
+        disk=snapshot(store.root)
+        # The producer rejects its marked adapter fallback before returning any
+        # new signal. Adapter HOLD assertions remain independently tested below.
+        with pytest.raises(RuntimeError,match='unresolved held Put identity'):
+>           bot.build_live_trade_signal('IC',CLOCK,'close')
+
+test_icim_round2_audit_lifecycle_20261021.py:397: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_mainline_v1_4_bot.py:6816: in build_live_trade_signal
+    result = _build_live_trade_signal(product, clock, mode)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+poe_ic_im_mainline_v1_4_bot.py:7205: in _build_live_trade_signal
+    etf = fetch_510500_quote_with_failover(market_date)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ic_im_evidence_adapter_v1.py:165: in adapted
+    return original(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+reference_day = datetime.date(2026, 10, 21)
+
+    def fetch_510500_quote_with_failover(reference_day: date | None = None) -> dict[str, Any]:
+        day, clock = reference_day or _now_beijing().date(), _now_beijing()
+        started = time_module.monotonic()
+        errors, failures = [], []
+        for source, fetcher in (("上交所510500ETF", fetch_sse_510500_quote),
+                                ("腾讯510500ETF", fetch_tencent_510500_quote),
+                                ("新浪510500ETF", fetch_sina_510500_quote)):
+            try:
+                value = dict(fetcher())
+                value.setdefault("source", source)
+                _validate_chain_stamp_matches(source, value, day, _iv_observation_clock(clock, started))
+                _etf_quote_prices(value["last"], value["prev_close"])
+                if failures:
+                    value["source_failures"] = list(failures)
+                return value
+            except Exception as exc:
+                errors.append(exc)
+                failures.append(f"{source}: {type(exc).__name__}: {exc}")
+>       raise _source_failure_error("510500ETF所有来源均不可用；" + "；".join(failures), errors) from errors[-1]
+E       RuntimeError: 510500ETF所有来源均不可用；上交所510500ETF: KeyError: 'prev_close'；腾讯510500ETF: RuntimeError: 腾讯510500ETF行情日期 2026-10-22 晚于北京时间 2026-10-21；新浪510500ETF: RuntimeError: 新浪510500ETF行情日期 2026-10-22 晚于北京时间 2026-10-21
+
+poe_ic_im_mainline_v1_4_bot.py:4096: RuntimeError
+
+During handling of the above exception, another exception occurred:
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_8f733ab5/pytest/test_actual_short_mark_must_no0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000023C79345080>
+
+    def test_actual_short_mark_must_not_trust_stale_m_label_for_adjusted_security(tmp_path,monkeypatch):
+        store,record=recent_store(tmp_path/'ledger')
+        anchors=state.anchors_from_record(record)
+        a=anchors['IC']
+        ledger._empty_core(a,'IC')
+        a.update(v14_route_state='short_put',v14_cycle_id='synthetic-stale-m-held-identity',
+            v14_short_put_contract=real.M,v14_short_put_security_id='10011470',
+            v14_short_put_qty_normalized=5.,v14_short_put_entry_premium=.4,
+            v14_short_put_expiry=date(2026,12,23),v14_short_put_cost_basis='confirmed_dated_open',
+            v14_short_put_entry_price_day=PREVIOUS,
+            verified_momentum_put_delta=0.,verified_momentum_put_qty=0)
+        # This is a synthetic accepted legacy anchor, not a claim of an actual
+        # July trade. Official raw data, unlike its stale M label, identifies A.
+        record['products']['IC']=state._jsonable(a)
+        record['digest']=state._digest(record)
+        state._validate_record(record)
+        chain,stamp=real.wire(monkeypatch)
+        monkeypatch.setattr(bot,'LIVE_CONTINUATION_ANCHOR',anchors)
+        builder_inputs(monkeypatch,a,chain,stamp)
+        live=bot.live_proxy('IC',CLOCK)
+        live.update(momentum_120=.1,valuation_tier=1)
+        monkeypatch.setattr(bot,'live_proxy',lambda *args:deepcopy(live))
+        candidate=dict(tradable=True,contract='510500P2701M06500',security_id='10015000',
+            expiry=date(2027,1,27),premium=.3,iv=.8,qty_normalized=5.)
+        monkeypatch.setattr(bot,'_v14_ic_short_put_candidate',lambda *args,**kw:candidate)
+        monkeypatch.setattr(bot,'fetch_option_closes',lambda security:
+            pd.Series([.01],index=pd.to_datetime([DAY])))
+        before=deepcopy(a)
+        disk=snapshot(store.root)
+        # The producer rejects its marked adapter fallback before returning any
+        # new signal. Adapter HOLD assertions remain independently tested below.
+>       with pytest.raises(RuntimeError,match='unresolved held Put identity'):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: Regex pattern did not match.
+E         Expected regex: 'unresolved held Put identity'
+E         Actual message: "510500ETF所有来源均不可用；上交所510500ETF: KeyError: 'prev_close'；腾讯510500ETF: RuntimeError: 腾讯510500ETF行情日期 2026-10-22 晚于北京时间 2026-10-21；新浪510500ETF: RuntimeError: 新浪510500ETF行情日期 2026-10-22 晚于北京时间 2026-10-21"
+
+test_icim_round2_audit_lifecycle_20261021.py:396: AssertionError
+_ test_complete_ic_builder_replaces_legacy_state_before_formal_target[-100.0] _
+
+reference_day = datetime.date(2026, 10, 21)
+
+    def fetch_510500_quote_with_failover(reference_day: date | None = None) -> dict[str, Any]:
+        day, clock = reference_day or _now_beijing().date(), _now_beijing()
+        started = time_module.monotonic()
+        errors, failures = [], []
+        for source, fetcher in (("上交所510500ETF", fetch_sse_510500_quote),
+                                ("腾讯510500ETF", fetch_tencent_510500_quote),
+                                ("新浪510500ETF", fetch_sina_510500_quote)):
+            try:
+                value = dict(fetcher())
+                value.setdefault("source", source)
+>               _validate_chain_stamp_matches(source, value, day, _iv_observation_clock(clock, started))
+
+poe_ic_im_mainline_v1_4_bot.py:4088: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_mainline_v1_4_bot.py:5553: in _validate_chain_stamp_matches
+    chain_day = _validate_market_stamp(label, stamp.get("date", ""), clock)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+label = '新浪510500ETF', value = '20261022'
+clock = datetime.datetime(2026, 10, 21, 18, 0, 13, 843944, tzinfo=zoneinfo.ZoneInfo(key='Asia/Shanghai'))
+
+    def _validate_market_stamp(label: str, value: str, clock: datetime) -> date:
+        cleaned = str(value).strip()
+        try:
+            stamp_day = (
+                datetime.strptime(cleaned, "%Y%m%d").date()
+                if re.fullmatch(r"[0-9]{8}", cleaned)
+                else date.fromisoformat(cleaned)
+            )
+        except ValueError as exc:
+            raise RuntimeError(f"{label}缺少可验证的行情日期") from exc
+        expected = _latest_completed_exchange_day(clock)
+        if stamp_day > clock.date():
+>           raise RuntimeError(f"{label}行情日期 {stamp_day} 晚于北京时间 {clock.date()}")
+E           RuntimeError: 新浪510500ETF行情日期 2026-10-22 晚于北京时间 2026-10-21
+
+poe_ic_im_mainline_v1_4_bot.py:5538: RuntimeError
+
+The above exception was the direct cause of the following exception:
+
+proxy_score = -100.0
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000023C792A7D90>
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_8f733ab5/pytest/test_complete_ic_builder_repla0')
+
+    @pytest.mark.parametrize('proxy_score',[-100.,100.])
+    def test_complete_ic_builder_replaces_legacy_state_before_formal_target(proxy_score,monkeypatch,tmp_path):
+        for module in [bot,state,bot.fear_grid]:
+            monkeypatch.setattr(module,'datetime',SyntheticCloseClock)
+        store,record=lifecycle.recent_store(tmp_path/'ledger')
+        anchors=state.anchors_from_record(record)
+        chain,stamp=real.wire(monkeypatch)
+        monkeypatch.setattr(bot,'LIVE_CONTINUATION_ANCHOR',anchors)
+        original_live_proxy=bot.live_proxy
+        lifecycle.builder_inputs(monkeypatch,anchors['IC'],chain,stamp)
+        monkeypatch.setattr(bot,'live_proxy',original_live_proxy)
+        live_sources(monkeypatch,tmp_path,'IC',proxy_score=proxy_score)
+        monkeypatch.setattr(bot,'fetch_sse_510500_expiries',lambda:['202612'])
+        before=lifecycle.snapshot(store.root)
+>       result=bot.build_live_trade_signal('IC',CLOCK,'close')
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_icim_batch3_valuation_20261021.py:159: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_mainline_v1_4_bot.py:6816: in build_live_trade_signal
+    result = _build_live_trade_signal(product, clock, mode)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+poe_ic_im_mainline_v1_4_bot.py:7205: in _build_live_trade_signal
+    etf = fetch_510500_quote_with_failover(market_date)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ic_im_evidence_adapter_v1.py:165: in adapted
+    return original(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+reference_day = datetime.date(2026, 10, 21)
+
+    def fetch_510500_quote_with_failover(reference_day: date | None = None) -> dict[str, Any]:
+        day, clock = reference_day or _now_beijing().date(), _now_beijing()
+        started = time_module.monotonic()
+        errors, failures = [], []
+        for source, fetcher in (("上交所510500ETF", fetch_sse_510500_quote),
+                                ("腾讯510500ETF", fetch_tencent_510500_quote),
+                                ("新浪510500ETF", fetch_sina_510500_quote)):
+            try:
+                value = dict(fetcher())
+                value.setdefault("source", source)
+                _validate_chain_stamp_matches(source, value, day, _iv_observation_clock(clock, started))
+                _etf_quote_prices(value["last"], value["prev_close"])
+                if failures:
+                    value["source_failures"] = list(failures)
+                return value
+            except Exception as exc:
+                errors.append(exc)
+                failures.append(f"{source}: {type(exc).__name__}: {exc}")
+>       raise _source_failure_error("510500ETF所有来源均不可用；" + "；".join(failures), errors) from errors[-1]
+E       RuntimeError: 510500ETF所有来源均不可用；上交所510500ETF: KeyError: 'prev_close'；腾讯510500ETF: RuntimeError: 腾讯510500ETF行情日期 2026-10-22 晚于北京时间 2026-10-21；新浪510500ETF: RuntimeError: 新浪510500ETF行情日期 2026-10-22 晚于北京时间 2026-10-21
+
+poe_ic_im_mainline_v1_4_bot.py:4096: RuntimeError
+_ test_complete_ic_builder_replaces_legacy_state_before_formal_target[100.0] __
+
+reference_day = datetime.date(2026, 10, 21)
+
+    def fetch_510500_quote_with_failover(reference_day: date | None = None) -> dict[str, Any]:
+        day, clock = reference_day or _now_beijing().date(), _now_beijing()
+        started = time_module.monotonic()
+        errors, failures = [], []
+        for source, fetcher in (("上交所510500ETF", fetch_sse_510500_quote),
+                                ("腾讯510500ETF", fetch_tencent_510500_quote),
+                                ("新浪510500ETF", fetch_sina_510500_quote)):
+            try:
+                value = dict(fetcher())
+                value.setdefault("source", source)
+>               _validate_chain_stamp_matches(source, value, day, _iv_observation_clock(clock, started))
+
+poe_ic_im_mainline_v1_4_bot.py:4088: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_mainline_v1_4_bot.py:5553: in _validate_chain_stamp_matches
+    chain_day = _validate_market_stamp(label, stamp.get("date", ""), clock)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+label = '新浪510500ETF', value = '20261022'
+clock = datetime.datetime(2026, 10, 21, 18, 0, 14, 917422, tzinfo=zoneinfo.ZoneInfo(key='Asia/Shanghai'))
+
+    def _validate_market_stamp(label: str, value: str, clock: datetime) -> date:
+        cleaned = str(value).strip()
+        try:
+            stamp_day = (
+                datetime.strptime(cleaned, "%Y%m%d").date()
+                if re.fullmatch(r"[0-9]{8}", cleaned)
+                else date.fromisoformat(cleaned)
+            )
+        except ValueError as exc:
+            raise RuntimeError(f"{label}缺少可验证的行情日期") from exc
+        expected = _latest_completed_exchange_day(clock)
+        if stamp_day > clock.date():
+>           raise RuntimeError(f"{label}行情日期 {stamp_day} 晚于北京时间 {clock.date()}")
+E           RuntimeError: 新浪510500ETF行情日期 2026-10-22 晚于北京时间 2026-10-21
+
+poe_ic_im_mainline_v1_4_bot.py:5538: RuntimeError
+
+The above exception was the direct cause of the following exception:
+
+proxy_score = 100.0
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000023C793DEBA0>
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_8f733ab5/pytest/test_complete_ic_builder_repla1')
+
+    @pytest.mark.parametrize('proxy_score',[-100.,100.])
+    def test_complete_ic_builder_replaces_legacy_state_before_formal_target(proxy_score,monkeypatch,tmp_path):
+        for module in [bot,state,bot.fear_grid]:
+            monkeypatch.setattr(module,'datetime',SyntheticCloseClock)
+        store,record=lifecycle.recent_store(tmp_path/'ledger')
+        anchors=state.anchors_from_record(record)
+        chain,stamp=real.wire(monkeypatch)
+        monkeypatch.setattr(bot,'LIVE_CONTINUATION_ANCHOR',anchors)
+        original_live_proxy=bot.live_proxy
+        lifecycle.builder_inputs(monkeypatch,anchors['IC'],chain,stamp)
+        monkeypatch.setattr(bot,'live_proxy',original_live_proxy)
+        live_sources(monkeypatch,tmp_path,'IC',proxy_score=proxy_score)
+        monkeypatch.setattr(bot,'fetch_sse_510500_expiries',lambda:['202612'])
+        before=lifecycle.snapshot(store.root)
+>       result=bot.build_live_trade_signal('IC',CLOCK,'close')
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_icim_batch3_valuation_20261021.py:159: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_mainline_v1_4_bot.py:6816: in build_live_trade_signal
+    result = _build_live_trade_signal(product, clock, mode)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+poe_ic_im_mainline_v1_4_bot.py:7205: in _build_live_trade_signal
+    etf = fetch_510500_quote_with_failover(market_date)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ic_im_evidence_adapter_v1.py:165: in adapted
+    return original(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+reference_day = datetime.date(2026, 10, 21)
+
+    def fetch_510500_quote_with_failover(reference_day: date | None = None) -> dict[str, Any]:
+        day, clock = reference_day or _now_beijing().date(), _now_beijing()
+        started = time_module.monotonic()
+        errors, failures = [], []
+        for source, fetcher in (("上交所510500ETF", fetch_sse_510500_quote),
+                                ("腾讯510500ETF", fetch_tencent_510500_quote),
+                                ("新浪510500ETF", fetch_sina_510500_quote)):
+            try:
+                value = dict(fetcher())
+                value.setdefault("source", source)
+                _validate_chain_stamp_matches(source, value, day, _iv_observation_clock(clock, started))
+                _etf_quote_prices(value["last"], value["prev_close"])
+                if failures:
+                    value["source_failures"] = list(failures)
+                return value
+            except Exception as exc:
+                errors.append(exc)
+                failures.append(f"{source}: {type(exc).__name__}: {exc}")
+>       raise _source_failure_error("510500ETF所有来源均不可用；" + "；".join(failures), errors) from errors[-1]
+E       RuntimeError: 510500ETF所有来源均不可用；上交所510500ETF: KeyError: 'prev_close'；腾讯510500ETF: RuntimeError: 腾讯510500ETF行情日期 2026-10-22 晚于北京时间 2026-10-21；新浪510500ETF: RuntimeError: 新浪510500ETF行情日期 2026-10-22 晚于北京时间 2026-10-21
+
+poe_ic_im_mainline_v1_4_bot.py:4096: RuntimeError
+______ test_ic_public_monthly_reset_with_missing_quantity_is_diagnostic _______
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_8f733ab5/pytest/test_ic_public_monthly_reset_w0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000023C78C4E970>
+
+    def test_ic_public_monthly_reset_with_missing_quantity_is_diagnostic(tmp_path, monkeypatch):
+        store, record = ic_seed.recent_store(tmp_path / "state")
+        anchors = state.anchors_from_record(record)
+        anchor = anchors["IC"]
+        chain, stamp = identity.wire(monkeypatch)
+        monkeypatch.setattr(bot, "LIVE_CONTINUATION_ANCHOR", anchors)
+        ic_seed.builder_inputs(monkeypatch, anchor, chain, stamp)
+        monkeypatch.setattr(bot, "_v14_monthly_option_calendar", lambda *a: (True, False))
+        reset = dict(contract=identity.M, security_id="10012099", quote=chain.iloc[0], stamp=stamp,
+                     qty=None, absolute_delta=None, iv=None, expiry=date(2026, 12, 23), strike=7.5)
+        monkeypatch.setattr(bot, "select_ic_put_for_reset", lambda *a: reset)
+        before, disk = deepcopy(anchors), ic_seed.snapshot(store.root)
+>       out = bot.build_live_trade_signal("IC", ic_seed.CLOCK, "close")
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_icim_expert_display_retry_20261021.py:58: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_mainline_v1_4_bot.py:6816: in build_live_trade_signal
+    result = _build_live_trade_signal(product, clock, mode)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+poe_ic_im_mainline_v1_4_bot.py:7205: in _build_live_trade_signal
+    etf = fetch_510500_quote_with_failover(market_date)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ic_im_evidence_adapter_v1.py:165: in adapted
+    return original(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+poe_ic_im_mainline_v1_4_bot.py:4086: in fetch_510500_quote_with_failover
+    value = dict(fetcher())
+                 ^^^^^^^^^
+poe_ic_im_mainline_v1_4_bot.py:4049: in fetch_tencent_510500_quote
+    raw = _public_quote_bytes("https://qt.gtimg.cn/q=sh510500", "腾讯510500ETF")
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+poe_ic_im_mainline_v1_4_bot.py:4001: in _public_quote_bytes
+    response = _evidence_http_get(
+poe_ic_im_mainline_v1_4_bot.py:73: in _evidence_http_get
+    response = requests.get(*args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+a = ('https://qt.gtimg.cn/q=sh510500',)
+k = {'headers': {'Cache-Control': 'no-cache', 'Referer': 'https://stockapp.finance.qq.com/', 'User-Agent': 'Mozilla/5.0 POE-IC-IM-Research/1.0'}, 'params': None, 'stream': True, 'timeout': 8}
+
+>   monkeypatch.setattr(bot.requests, "get", lambda *a, **k: pytest.fail("unexpected network"))
+                                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: unexpected network
+
+test_icim_expert_display_retry_20261021.py:18: Failed
+____ test_actual_ic_quarter_roll_preview_and_close_remain_diagnostic[day0] ____
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_8f733ab5/pytest/test_actual_ic_quarter_roll_pr0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000023C78B946E0>
+day = datetime.date(2026, 12, 14)
+
+    @pytest.mark.parametrize('day', [date(2026,12,14), date(2026,12,15)])
+    def test_actual_ic_quarter_roll_preview_and_close_remain_diagnostic(tmp_path,monkeypatch,day):
+        previous=bot._roll_backward_exchange_day(day-timedelta(days=1))
+        clock=datetime.combine(day,datetime.min.time()).replace(hour=15,minute=40,tzinfo=bot.BEIJING)
+        monkeypatch.setattr(ic_seed,'DAY',day)
+        monkeypatch.setattr(ic_seed,'PREVIOUS',previous)
+        monkeypatch.setattr(ic_seed,'CLOCK',clock)
+        store,current=ic_seed.recent_store(tmp_path/'ledger')
+        anchors=state.anchors_from_record(current)
+        chain,stamp=identity.wire(monkeypatch)
+        chain['source_stamp']=clock.replace(hour=15,minute=0)
+        stamp=dict(stamp,date=day.strftime('%Y%m%d'),time='150000',source='synthetic_date_shift_of_saved_identity')
+        monkeypatch.setattr(bot,'LIVE_CONTINUATION_ANCHOR',anchors)
+        ic_seed.builder_inputs(monkeypatch,anchors['IC'],chain,stamp)
+        monkeypatch.setattr(bot,'fetch_sse_510500_quote',lambda:dict(date=day.isoformat(),time='150000',last=7.8))
+        before,disk=deepcopy(anchors),snapshot(store.root)
+>       out=bot.build_live_trade_signal('IC',clock,'close')
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_icim_expert_audit_calendar_20261021.py:113: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_mainline_v1_4_bot.py:6816: in build_live_trade_signal
+    result = _build_live_trade_signal(product, clock, mode)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+poe_ic_im_mainline_v1_4_bot.py:7205: in _build_live_trade_signal
+    etf = fetch_510500_quote_with_failover(market_date)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ic_im_evidence_adapter_v1.py:165: in adapted
+    return original(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+poe_ic_im_mainline_v1_4_bot.py:4086: in fetch_510500_quote_with_failover
+    value = dict(fetcher())
+                 ^^^^^^^^^
+poe_ic_im_mainline_v1_4_bot.py:4049: in fetch_tencent_510500_quote
+    raw = _public_quote_bytes("https://qt.gtimg.cn/q=sh510500", "腾讯510500ETF")
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+poe_ic_im_mainline_v1_4_bot.py:4001: in _public_quote_bytes
+    response = _evidence_http_get(
+poe_ic_im_mainline_v1_4_bot.py:73: in _evidence_http_get
+    response = requests.get(*args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+a = ('https://qt.gtimg.cn/q=sh510500',)
+k = {'headers': {'Cache-Control': 'no-cache', 'Referer': 'https://stockapp.finance.qq.com/', 'User-Agent': 'Mozilla/5.0 POE-IC-IM-Research/1.0'}, 'params': None, 'stream': True, 'timeout': 8}
+
+>   monkeypatch.setattr(bot.requests, 'get', lambda *a, **k: pytest.fail('network not authorized'))
+                                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: network not authorized
+
+test_icim_expert_audit_calendar_20261021.py:33: Failed
+____ test_actual_ic_quarter_roll_preview_and_close_remain_diagnostic[day1] ____
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_8f733ab5/pytest/test_actual_ic_quarter_roll_pr1')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000023C78B36200>
+day = datetime.date(2026, 12, 15)
+
+    @pytest.mark.parametrize('day', [date(2026,12,14), date(2026,12,15)])
+    def test_actual_ic_quarter_roll_preview_and_close_remain_diagnostic(tmp_path,monkeypatch,day):
+        previous=bot._roll_backward_exchange_day(day-timedelta(days=1))
+        clock=datetime.combine(day,datetime.min.time()).replace(hour=15,minute=40,tzinfo=bot.BEIJING)
+        monkeypatch.setattr(ic_seed,'DAY',day)
+        monkeypatch.setattr(ic_seed,'PREVIOUS',previous)
+        monkeypatch.setattr(ic_seed,'CLOCK',clock)
+        store,current=ic_seed.recent_store(tmp_path/'ledger')
+        anchors=state.anchors_from_record(current)
+        chain,stamp=identity.wire(monkeypatch)
+        chain['source_stamp']=clock.replace(hour=15,minute=0)
+        stamp=dict(stamp,date=day.strftime('%Y%m%d'),time='150000',source='synthetic_date_shift_of_saved_identity')
+        monkeypatch.setattr(bot,'LIVE_CONTINUATION_ANCHOR',anchors)
+        ic_seed.builder_inputs(monkeypatch,anchors['IC'],chain,stamp)
+        monkeypatch.setattr(bot,'fetch_sse_510500_quote',lambda:dict(date=day.isoformat(),time='150000',last=7.8))
+        before,disk=deepcopy(anchors),snapshot(store.root)
+>       out=bot.build_live_trade_signal('IC',clock,'close')
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_icim_expert_audit_calendar_20261021.py:113: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_mainline_v1_4_bot.py:6816: in build_live_trade_signal
+    result = _build_live_trade_signal(product, clock, mode)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+poe_ic_im_mainline_v1_4_bot.py:7205: in _build_live_trade_signal
+    etf = fetch_510500_quote_with_failover(market_date)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ic_im_evidence_adapter_v1.py:165: in adapted
+    return original(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+poe_ic_im_mainline_v1_4_bot.py:4086: in fetch_510500_quote_with_failover
+    value = dict(fetcher())
+                 ^^^^^^^^^
+poe_ic_im_mainline_v1_4_bot.py:4049: in fetch_tencent_510500_quote
+    raw = _public_quote_bytes("https://qt.gtimg.cn/q=sh510500", "腾讯510500ETF")
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+poe_ic_im_mainline_v1_4_bot.py:4001: in _public_quote_bytes
+    response = _evidence_http_get(
+poe_ic_im_mainline_v1_4_bot.py:73: in _evidence_http_get
+    response = requests.get(*args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+a = ('https://qt.gtimg.cn/q=sh510500',)
+k = {'headers': {'Cache-Control': 'no-cache', 'Referer': 'https://stockapp.finance.qq.com/', 'User-Agent': 'Mozilla/5.0 POE-IC-IM-Research/1.0'}, 'params': None, 'stream': True, 'timeout': 8}
+
+>   monkeypatch.setattr(bot.requests, 'get', lambda *a, **k: pytest.fail('network not authorized'))
+                                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: network not authorized
+
+test_icim_expert_audit_calendar_20261021.py:33: Failed
+============================== warnings summary ===============================
+C:\Python314\Lib\site-packages\fastapi_poe\types.py:171
+  C:\Python314\Lib\site-packages\fastapi_poe\types.py:171: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    class RequestContext(BaseModel):
+
+test_icim_redteam_display_20261021.py::test_bootstrap_snapshot_retains_known_single_core_identity
+  test_icim_redteam_display_20261021.py:73: PytestWarning: record_property is incompatible with junit_family 'xunit2' (use 'legacy' or 'xunit1')
+    def test_bootstrap_snapshot_retains_known_single_core_identity(monkeypatch, record_property):
+
+test_icim_redteam_display_20261021.py::test_core_overlay_failure_cannot_label_momentum_as_current_core
+  test_icim_redteam_display_20261021.py:89: PytestWarning: record_property is incompatible with junit_family 'xunit2' (use 'legacy' or 'xunit1')
+    def test_core_overlay_failure_cannot_label_momentum_as_current_core(monkeypatch, record_property):
+
+test_icim_redteam_display_20261021.py::test_core_overlay_failure_cannot_publish_momentum_iv_as_core_monitor
+  test_icim_redteam_display_20261021.py:120: PytestWarning: record_property is incompatible with junit_family 'xunit2' (use 'legacy' or 'xunit1')
+    def test_core_overlay_failure_cannot_publish_momentum_iv_as_core_monitor(monkeypatch, record_property):
+
+test_icim_redteam_display_20261021.py::test_im_snapshot_zero_core_does_not_show_residual_contract
+  test_icim_redteam_display_20261021.py:201: PytestWarning: record_property is incompatible with junit_family 'xunit2' (use 'legacy' or 'xunit1')
+    def test_im_snapshot_zero_core_does_not_show_residual_contract(monkeypatch, record_property):
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED test_ic_im_v1_4_integration_guards.py::test_sina_chain_marks_one_yesterday_row_without_reselecting_another_strike
+FAILED test_ic_im_external_review_20261021.py::test_real_adjusted_rows_are_quarantined_without_inventing_trading_codes
+FAILED test_icim_redteam_market_20261021.py::test_full_real_adjusted_chain_preserves_fifteen_legal_m_contracts
+FAILED test_icim_round2_audit_lifecycle_20261021.py::test_full_public_builder_real_sse_current_holding_identity[10012099]
+FAILED test_icim_round2_audit_lifecycle_20261021.py::test_full_public_builder_real_sse_current_holding_identity[10011470]
+FAILED test_icim_round2_audit_lifecycle_20261021.py::test_full_public_builder_real_sse_current_holding_identity[None]
+FAILED test_icim_round2_audit_lifecycle_20261021.py::test_actual_builder_independent_sleeves_never_cross_identity[None]
+FAILED test_icim_round2_audit_lifecycle_20261021.py::test_actual_builder_independent_sleeves_never_cross_identity[core]
+FAILED test_icim_round2_audit_lifecycle_20261021.py::test_actual_builder_independent_sleeves_never_cross_identity[momentum]
+FAILED test_icim_round2_audit_lifecycle_20261021.py::test_legal_zero_put_holding_does_not_require_unheld_legacy_identity
+FAILED test_icim_round2_audit_lifecycle_20261021.py::test_actual_short_mark_must_not_trust_stale_m_label_for_adjusted_security
+FAILED test_icim_batch3_valuation_20261021.py::test_complete_ic_builder_replaces_legacy_state_before_formal_target[-100.0]
+FAILED test_icim_batch3_valuation_20261021.py::test_complete_ic_builder_replaces_legacy_state_before_formal_target[100.0]
+FAILED test_icim_expert_display_retry_20261021.py::test_ic_public_monthly_reset_with_missing_quantity_is_diagnostic
+FAILED test_icim_expert_audit_calendar_20261021.py::test_actual_ic_quarter_roll_preview_and_close_remain_diagnostic[day0]
+FAILED test_icim_expert_audit_calendar_20261021.py::test_actual_ic_quarter_roll_preview_and_close_remain_diagnostic[day1]
+16 failed, 2894 passed, 22 deselected, 5 warnings in 357.88s (0:05:57)

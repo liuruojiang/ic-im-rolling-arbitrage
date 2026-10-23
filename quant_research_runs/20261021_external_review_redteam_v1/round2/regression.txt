@@ -1,0 +1,55 @@
+........................................................................ [  6%]
+........................................................................ [ 12%]
+........................................................................ [ 18%]
+........................................................................ [ 25%]
+........................................................................ [ 31%]
+........................................................................ [ 37%]
+........................................................................ [ 43%]
+........................................................................ [ 50%]
+........................................................................ [ 56%]
+........................................................................ [ 62%]
+........................................................................ [ 68%]
+........................................................................ [ 75%]
+........................................................................ [ 81%]
+........................................................................ [ 87%]
+........................................................................ [ 93%]
+.F.....................................................................  [100%]
+================================== FAILURES ===================================
+______________ test_frozen_source_receipt_matches_current_bytes _______________
+
+    def test_frozen_source_receipt_matches_current_bytes():
+        receipt = json.loads((OLD / "final_verification.json").read_text(encoding="utf-8"))
+        for relative, expected in receipt["source_sha256"].items():
+>           assert hashlib.sha256((ROOT / relative).read_bytes()).hexdigest() == expected, relative
+E           AssertionError: poe_ic_im_mainline_v1_4_bot.py
+E           assert '5ce06870228d...36afbaff7f74e' == '010b56719875...4808ae8f48c73'
+E             
+E             - 010b56719875d8f55590d184e134c61c30afe16a67ea020ca874808ae8f48c73
+E             + 5ce06870228dd83ecac6078cd4032b7290f7e8879329eddf7af36afbaff7f74e
+
+test_icim_redteam_integration_20261021.py:49: AssertionError
+============================== warnings summary ===============================
+C:\Python314\Lib\site-packages\fastapi_poe\types.py:171
+  C:\Python314\Lib\site-packages\fastapi_poe\types.py:171: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    class RequestContext(BaseModel):
+
+test_icim_redteam_display_20261021.py::test_bootstrap_snapshot_retains_known_single_core_identity
+  test_icim_redteam_display_20261021.py:73: PytestWarning: record_property is incompatible with junit_family 'xunit2' (use 'legacy' or 'xunit1')
+    def test_bootstrap_snapshot_retains_known_single_core_identity(monkeypatch, record_property):
+
+test_icim_redteam_display_20261021.py::test_core_overlay_failure_cannot_label_momentum_as_current_core
+  test_icim_redteam_display_20261021.py:89: PytestWarning: record_property is incompatible with junit_family 'xunit2' (use 'legacy' or 'xunit1')
+    def test_core_overlay_failure_cannot_label_momentum_as_current_core(monkeypatch, record_property):
+
+test_icim_redteam_display_20261021.py::test_core_overlay_failure_cannot_publish_momentum_iv_as_core_monitor
+  test_icim_redteam_display_20261021.py:120: PytestWarning: record_property is incompatible with junit_family 'xunit2' (use 'legacy' or 'xunit1')
+    def test_core_overlay_failure_cannot_publish_momentum_iv_as_core_monitor(monkeypatch, record_property):
+
+test_icim_redteam_display_20261021.py::test_im_snapshot_zero_core_does_not_show_residual_contract
+  test_icim_redteam_display_20261021.py:199: PytestWarning: record_property is incompatible with junit_family 'xunit2' (use 'legacy' or 'xunit1')
+    def test_im_snapshot_zero_core_does_not_show_residual_contract(monkeypatch, record_property):
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED test_icim_redteam_integration_20261021.py::test_frozen_source_receipt_matches_current_bytes
+1 failed, 1150 passed, 5 warnings in 21.59s

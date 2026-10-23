@@ -1,0 +1,9 @@
+{
+  "exit_code": 1,
+  "files": [
+    "test_icim_a3_history_20261021.py::test_bad_sina_source_does_not_block_independent_valid_backup",
+    "test_icim_a3_history_20261021.py::test_selected_2027_expiry_requires_official_coverage_before_price"
+  ],
+  "state_dir": "C:\\Users\\ADMINI~1.DES\\AppData\\Local\\Temp\\icim_put_c883af31\\state",
+  "test_only_windows_mkdir_mode_adjustment": true
+}

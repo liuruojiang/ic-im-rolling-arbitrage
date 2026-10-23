@@ -1,8 +1,8 @@
 """Pure policy/state contract for the IC/IM v1.4 research signal.
 
-This module contains no network or filesystem access.  The live producer must
-provide a validated M+1 short-Put candidate and current marks; the durable
-ledger persists every state returned here.
+This module contains no network or filesystem access. The live producer supplies
+validated candidates when the policy can consume them, plus required held-leg
+marks. The durable ledger independently checks complete confirmed signals.
 """
 from __future__ import annotations
 
@@ -350,16 +350,17 @@ def profit_core_reference(product: str, anchor: dict[str, Any],
             float(source.get("core_put_target_qty_normalized" if executed else "verified_core_put_qty_normalized", 0.0)))
 
 
-def seller_permission(product: str, signal: dict[str, Any], candidate: dict[str, Any]) -> tuple[bool, str]:
+def seller_prerequisites(product: str, signal: dict[str, Any]) -> tuple[bool, str]:
+    """Admission facts that do not consume a candidate quote or expiry.
+
+    The adapter uses the same checks as the policy before looking up an M+1
+    chain. A failed prerequisite proves that no quote can admit a new seller
+    route; it does not assert that the target month is unlisted.
+    """
+    if product not in PRODUCT_RULES:
+        raise ValueError(f"unsupported product: {product}")
     if not bool(signal.get("close_confirmed")):
         return False, "close_not_confirmed"
-    if not bool(candidate.get("tradable")):
-        return False, "candidate_untradable"
-    iv = candidate.get("iv")
-    if iv is None or not math.isfinite(float(iv)):
-        return False, "candidate_iv_unavailable"
-    if float(iv) <= float(PRODUCT_RULES[product]["iv_threshold"]):
-        return False, "candidate_iv_below_threshold"
     if product == "IC":
         tier = signal.get("valuation_tier")
         if tier is None or not math.isfinite(float(tier)) or float(tier) not in (0.0, 1.0):
@@ -386,6 +387,78 @@ def seller_permission(product: str, signal: dict[str, Any], candidate: dict[str,
     return True, "allowed"
 
 
+def seller_permission(product: str, signal: dict[str, Any], candidate: dict[str, Any]) -> tuple[bool, str]:
+    if not bool(signal.get("close_confirmed")):
+        return False, "close_not_confirmed"
+    if not bool(candidate.get("tradable")):
+        return False, "candidate_untradable"
+    iv = candidate.get("iv")
+    if iv is None or not math.isfinite(float(iv)):
+        return False, "candidate_iv_unavailable"
+    if float(iv) <= float(PRODUCT_RULES[product]["iv_threshold"]):
+        return False, "candidate_iv_below_threshold"
+    return seller_prerequisites(product, signal)
+
+
+def _profit_open_due(signal: dict[str, Any], state: dict[str, Any], day: date) -> bool:
+    trigger = state.get("v14_profit_trigger_day")
+    trigger_day = date.fromisoformat(str(trigger)[:10]) if trigger else None
+    return bool(
+        state.get("v14_profit_pending")
+        and trigger_day is not None
+        and trigger_day >= PROFIT_OPEN_EFFECTIVE_SIGNAL_DATE
+        and str(state.get("v14_profit_execution_day"))[:10] == day.isoformat()
+        and not signal.get("option_monthly_reset_due")
+    )
+
+
+def _short_roll_due(product: str, signal: dict[str, Any], state: dict[str, Any], day: date) -> bool:
+    cost_verified = not put_execution.active(day) or state.get("v14_short_put_cost_basis") == "confirmed_dated_open"
+    mark = signal.get("v14_short_put_mark")
+    entry = state.get("v14_short_put_entry_premium")
+    decay_hit = (cost_verified and mark is not None and entry is not None
+                 and math.isfinite(float(mark))
+                 and float(mark) <= float(entry) * (1.0 - float(PRODUCT_RULES[product]["premium_decay"])))
+    return bool(cost_verified and (decay_hit or bool(state.get("v14_roll_pending")))
+                and (day >= REPEAT_ROLL_EFFECTIVE_SIGNAL_DATE or not bool(state.get("v14_early_roll_used"))))
+
+
+def short_put_candidate_requirements(
+    product: str, signal: dict[str, Any], anchor: dict[str, Any]
+) -> dict[str, Any]:
+    """Identify quotes the next policy call can actually consume.
+
+    Required held-leg evidence must already be prepared. This is only a fetch
+    plan; candidates which are required but unavailable remain unresolved at
+    the producer boundary rather than becoming an authoritative not-listed fact.
+    """
+    day = date.fromisoformat(str(signal["market_date"])[:10])
+    state = {**default_extension(product), **{
+        key: value for key, value in anchor.items() if key.startswith("v14_")
+    }}
+    validate_extension(product, state)
+    result = {"entry": False, "roll": False, "reason": "route_does_not_consume_candidate"}
+    if day < EFFECTIVE_SIGNAL_DATE:
+        return {**result, "reason": "before_effective_signal_date"}
+    ready, reason = seller_prerequisites(product, signal)
+    if not ready:
+        return {**result, "reason": reason}
+    if put_execution.active(day) and state.get("v14_short_put_open_pending"):
+        return {**result, "reason": "opening_evidence_not_confirmed"}
+    route = state["v14_route_state"]
+    if route == "future":
+        if _profit_open_due(signal, state, day):
+            return {**result, "reason": "committed_profit_open_has_priority"}
+        return {**result, "entry": True, "reason": "entry_candidate_required"}
+    if route == "short_put":
+        expiry = state.get("v14_short_put_expiry")
+        if expiry is not None and day >= date.fromisoformat(str(expiry)[:10]):
+            return {**result, "reason": "settlement_has_priority"}
+        if _short_roll_due(product, signal, state, day):
+            return {**result, "roll": True, "reason": "roll_candidate_required"}
+    return result
+
+
 def _event_id(product: str, signal: dict[str, Any], action: str, contract: Any) -> str:
     return f"{product}:{signal['market_date']}:{signal['next_trade_date']}:{action}:{contract or '-'}"
 
@@ -399,6 +472,10 @@ def apply_policy(
     roll_candidate: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Return a v1.4 signal without mutating the v1.3 input or ledger anchor."""
+    put_execution.require_resolved_opening_evidence(signal)
+    put_execution.require_resolved_held_identity(product, signal)
+    put_execution.require_supported_ic_contracts(product, anchor)
+    put_execution.require_supported_ic_contracts(product, signal)
     out = deepcopy(signal)
     state = {**default_extension(product), **{
         key: deepcopy(value) for key, value in anchor.items() if key.startswith("v14_")
@@ -430,15 +507,7 @@ def apply_policy(
     allowed, permission_reason = seller_permission(product, signal, candidate)
     route = state["v14_route_state"]
     close_confirmed = bool(signal.get("close_confirmed"))
-    trigger_value = state.get("v14_profit_trigger_day")
-    trigger_day = date.fromisoformat(str(trigger_value)[:10]) if trigger_value else None
-    pending_open_due = bool(
-        state.get("v14_profit_pending")
-        and trigger_day is not None
-        and trigger_day >= PROFIT_OPEN_EFFECTIVE_SIGNAL_DATE
-        and str(state.get("v14_profit_execution_day"))[:10] == day.isoformat()
-        and not signal.get("option_monthly_reset_due")
-    )
+    pending_open_due = _profit_open_due(signal, state, day)
 
     # The prior close's committed open plan precedes a new route signal that
     # can only be confirmed at today's close. Earlier versions keep priority.
@@ -478,21 +547,11 @@ def apply_policy(
             target["v14_settlement_pending"] = True
             target["v14_settlement_trigger_day"] = state.get("v14_settlement_trigger_day") or day
     elif route == "short_put":
-        mark = signal.get("v14_short_put_mark")
-        entry = float(state["v14_short_put_entry_premium"])
         cost_verified = not execution_fixed or state.get("v14_short_put_cost_basis") == "confirmed_dated_open"
-        decay_hit = (
-            cost_verified
-            and
-            mark is not None
-            and math.isfinite(float(mark))
-            and float(mark) <= entry * (1.0 - float(PRODUCT_RULES[product]["premium_decay"]))
-        )
-        pending = bool(state["v14_roll_pending"])
         repeat_roll_enabled = day >= REPEAT_ROLL_EFFECTIVE_SIGNAL_DATE
         if not cost_verified:
             reason = "legacy_entry_cost_unverified"
-        if cost_verified and (decay_hit or pending) and (repeat_roll_enabled or not bool(state["v14_early_roll_used"])):
+        if _short_roll_due(product, signal, state, day):
             replacement = roll_candidate or candidate
             roll_allowed, roll_reason = seller_permission(product, signal, replacement)
             if roll_allowed:
@@ -786,4 +845,5 @@ def apply_policy(
             out[key] = target[key]
         out["v14_short_put_open_status"] = "scheduled_t_plus_1_open"
     validate_extension(product, target)
+    put_execution.require_supported_ic_contracts(product, out)
     return out

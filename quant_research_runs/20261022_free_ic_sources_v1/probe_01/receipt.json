@@ -1,0 +1,487 @@
+{
+  "actual_day": "2026-10-22",
+  "requests": 17,
+  "families": [
+    "Eastmoney",
+    "SSE",
+    "Sina",
+    "Sohu",
+    "THS",
+    "Tencent"
+  ],
+  "received": 4,
+  "rows": [
+    {
+      "name": "em_core_quote",
+      "family": "Eastmoney",
+      "url": "https://push2.eastmoney.com/api/qt/stock/get",
+      "params": {
+        "fields": "f43,f44,f45,f46,f47,f48,f57,f58,f59,f60,f86,f301,f302,f330,f331,f332,f333,f334,f335,f336",
+        "invt": "2",
+        "fltt": "2",
+        "secid": "10.10012149"
+      },
+      "started_at": "2026-10-22T16:56:09.172142+08:00",
+      "status": "FAILED",
+      "error_type": "ProxyError",
+      "seconds": 4.01
+    },
+    {
+      "name": "em_etf_quote",
+      "family": "Eastmoney",
+      "url": "https://push2.eastmoney.com/api/qt/stock/get",
+      "params": {
+        "fields": "f43,f44,f45,f46,f47,f48,f57,f58,f59,f60,f86,f301,f302,f330,f331,f332,f333,f334,f335,f336",
+        "invt": "2",
+        "fltt": "2",
+        "secid": "1.510500"
+      },
+      "started_at": "2026-10-22T16:56:09.172503+08:00",
+      "status": "FAILED",
+      "error_type": "ProxyError",
+      "seconds": 4.01
+    },
+    {
+      "name": "em_option_list",
+      "family": "Eastmoney",
+      "url": "https://23.push2.eastmoney.com/api/qt/clist/get",
+      "params": {
+        "pn": "1",
+        "pz": "1000",
+        "po": "0",
+        "np": "1",
+        "ut": "bd1d9ddb04089700cf9c27f6f7426281",
+        "fltt": "2",
+        "invt": "2",
+        "fid": "f12",
+        "fs": "m:10",
+        "fields": "f1,f2,f3,f4,f5,f6,f12,f13,f14,f17,f18,f59,f86,f124,f161,f298,f299,f301,f302,f303,f330,f331,f332,f333,f334,f335,f336"
+      },
+      "started_at": "2026-10-22T16:56:09.171345+08:00",
+      "status": "FAILED",
+      "error_type": "ProxyError",
+      "seconds": 4.011
+    },
+    {
+      "name": "em_option_risk",
+      "family": "Eastmoney",
+      "url": "https://push2.eastmoney.com/api/qt/clist/get",
+      "params": {
+        "fid": "f12",
+        "po": "1",
+        "pz": "1000",
+        "pn": "1",
+        "np": "1",
+        "fltt": "2",
+        "invt": "2",
+        "ut": "b2884a393a59ad64002292a3e90d46a5",
+        "fields": "f1,f2,f3,f4,f5,f6,f12,f13,f14,f17,f18,f59,f86,f124,f161,f298,f299,f301,f302,f303,f330,f331,f332,f333,f334,f335,f336",
+        "fs": "m:10"
+      },
+      "started_at": "2026-10-22T16:56:09.171775+08:00",
+      "status": "FAILED",
+      "error_type": "ProxyError",
+      "seconds": 4.026
+    },
+    {
+      "name": "sina_core_identity",
+      "family": "Sina",
+      "url": "https://hq.sinajs.cn/list=CON_SO_10012149",
+      "params": null,
+      "started_at": "2026-10-22T16:56:17.298210+08:00",
+      "status": "RECEIVED",
+      "http_status": 200,
+      "bytes": 147,
+      "sha256": "f25b6e698575877cd2d086ce765405d3c1daa0a549af6d21eaf1bb1ba23c5393",
+      "encoding": "GB18030",
+      "headers": {
+        "Content-Type": "application/javascript; charset=GB18030"
+      },
+      "summary": {
+        "format": "vendor_text",
+        "field_count": 17,
+        "fields": [
+          "500ETF沽12月6500",
+          "",
+          "",
+          "",
+          "8806",
+          "-0.3495",
+          "0.5343",
+          "-0.6548",
+          "1.0198",
+          "0.3374",
+          "0.2679",
+          "0.1744",
+          "510500P2612M06500",
+          "6.5000",
+          "0.2614",
+          "0.1727",
+          "M"
+        ],
+        "listed_security_ids": []
+      },
+      "seconds": 3.533
+    },
+    {
+      "name": "sina_core_path",
+      "family": "Sina",
+      "url": "https://hq.sinajs.cn/list=CON_OP_10012149",
+      "params": null,
+      "started_at": "2026-10-22T16:56:17.298000+08:00",
+      "status": "RECEIVED",
+      "http_status": 200,
+      "bytes": 320,
+      "sha256": "8d58877af9e30365be8ef0450740d278f397c79949c0e15819e38d998e68c822",
+      "encoding": "GB18030",
+      "headers": {
+        "Content-Type": "application/javascript; charset=GB18030"
+      },
+      "summary": {
+        "format": "vendor_text",
+        "field_count": 51,
+        "fields": [
+          "1",
+          "0.2615",
+          "0.2614",
+          "0.2635",
+          "2",
+          "33628",
+          "43.47",
+          "6.5000",
+          "0.1789",
+          "0.1744",
+          "0.7958",
+          "0.0001",
+          "0.2735",
+          "1",
+          "0.2732",
+          "1",
+          "0.2688",
+          "1",
+          "0.2650",
+          "5",
+          "0.2635",
+          "2",
+          "0.2615",
+          "1",
+          "0.2558",
+          "1",
+          "0.2557",
+          "1",
+          "0.2516",
+          "1",
+          "0.2513",
+          "1",
+          "2026-10-22 14:56:48",
+          "0",
+          "E 00",
+          "EBS",
+          "510500",
+          "500ETF沽12月6500",
+          "52.26",
+          "0.2679",
+          "0.1744",
+          "8806",
+          "20653321.00",
+          "M",
+          "0.1822",
+          "P",
+          "2026-12-23",
+          "62",
+          "1",
+          "0",
+          "0.2614"
+        ],
+        "listed_security_ids": [
+          "10012149"
+        ]
+      },
+      "seconds": 3.575
+    },
+    {
+      "name": "sina_core_single",
+      "family": "Sina",
+      "url": "https://hq.sinajs.cn/",
+      "params": {
+        "list": "CON_OP_10012149"
+      },
+      "started_at": "2026-10-22T16:56:17.242359+08:00",
+      "status": "RECEIVED",
+      "http_status": 200,
+      "bytes": 320,
+      "sha256": "8d58877af9e30365be8ef0450740d278f397c79949c0e15819e38d998e68c822",
+      "encoding": "GB18030",
+      "headers": {
+        "Content-Type": "application/javascript; charset=GB18030"
+      },
+      "summary": {
+        "format": "vendor_text",
+        "field_count": 51,
+        "fields": [
+          "1",
+          "0.2615",
+          "0.2614",
+          "0.2635",
+          "2",
+          "33628",
+          "43.47",
+          "6.5000",
+          "0.1789",
+          "0.1744",
+          "0.7958",
+          "0.0001",
+          "0.2735",
+          "1",
+          "0.2732",
+          "1",
+          "0.2688",
+          "1",
+          "0.2650",
+          "5",
+          "0.2635",
+          "2",
+          "0.2615",
+          "1",
+          "0.2558",
+          "1",
+          "0.2557",
+          "1",
+          "0.2516",
+          "1",
+          "0.2513",
+          "1",
+          "2026-10-22 14:56:48",
+          "0",
+          "E 00",
+          "EBS",
+          "510500",
+          "500ETF沽12月6500",
+          "52.26",
+          "0.2679",
+          "0.1744",
+          "8806",
+          "20653321.00",
+          "M",
+          "0.1822",
+          "P",
+          "2026-12-23",
+          "62",
+          "1",
+          "0",
+          "0.2614"
+        ],
+        "listed_security_ids": [
+          "10012149"
+        ]
+      },
+      "seconds": 3.632
+    },
+    {
+      "name": "sina_december_put_ids",
+      "family": "Sina",
+      "url": "https://hq.sinajs.cn/",
+      "params": {
+        "list": "OP_DOWN_5105002612"
+      },
+      "started_at": "2026-10-22T16:56:19.237969+08:00",
+      "status": "RECEIVED",
+      "http_status": 200,
+      "bytes": 498,
+      "sha256": "040263c20f8183354432c74392a4bb3a3fdb290195480f09a4e8a7c7d20ecf93",
+      "encoding": "GB18030",
+      "headers": {
+        "Content-Type": "application/javascript; charset=GB18030"
+      },
+      "summary": {
+        "format": "vendor_text",
+        "field_count": 30,
+        "fields": [
+          "CON_OP_10012632",
+          "CON_OP_10012600",
+          "CON_OP_10012282",
+          "CON_OP_10012149",
+          "CON_OP_10012150",
+          "CON_OP_10011810",
+          "CON_OP_10012120",
+          "CON_OP_10011520",
+          "CON_OP_10012098",
+          "CON_OP_10011470",
+          "CON_OP_10012099",
+          "CON_OP_10011471",
+          "CON_OP_10012100",
+          "CON_OP_10011472",
+          "CON_OP_10012101",
+          "CON_OP_10011473",
+          "CON_OP_10012102",
+          "CON_OP_10011474",
+          "CON_OP_10012103",
+          "CON_OP_10011475",
+          "CON_OP_10012104",
+          "CON_OP_10011476",
+          "CON_OP_10012105",
+          "CON_OP_10011477",
+          "CON_OP_10012106",
+          "CON_OP_10011478",
+          "CON_OP_10011552",
+          "CON_OP_10011600",
+          "CON_OP_10012002",
+          ""
+        ],
+        "listed_security_ids": [
+          "10012632",
+          "10012600",
+          "10012282",
+          "10012149",
+          "10012150",
+          "10011810",
+          "10012120",
+          "10011520",
+          "10012098",
+          "10011470",
+          "10012099",
+          "10011471",
+          "10012100",
+          "10011472",
+          "10012101",
+          "10011473",
+          "10012102",
+          "10011474",
+          "10012103",
+          "10011475",
+          "10012104",
+          "10011476",
+          "10012105",
+          "10011477",
+          "10012106",
+          "10011478",
+          "10011552",
+          "10011600",
+          "10012002"
+        ]
+      },
+      "seconds": 1.636
+    },
+    {
+      "name": "sina_etf",
+      "family": "Sina",
+      "url": "https://hq.sinajs.cn/",
+      "params": {
+        "list": "sh510500"
+      },
+      "started_at": "2026-10-22T16:56:13.226079+08:00",
+      "status": "FAILED",
+      "error_type": "ProxyError",
+      "seconds": 4.031
+    },
+    {
+      "name": "sina_listed_months",
+      "family": "Sina",
+      "url": "https://stock.finance.sina.com.cn/futures/api/openapi.php/StockOptionService.getStockName",
+      "params": {
+        "exchange": "null",
+        "cate": "500ETF"
+      },
+      "started_at": "2026-10-22T16:56:20.872702+08:00",
+      "status": "FAILED",
+      "error_type": "ProxyError",
+      "seconds": 4.009
+    },
+    {
+      "name": "sohu_etf_history",
+      "family": "Sohu",
+      "url": "https://q.stock.sohu.com/hisHq",
+      "params": {
+        "code": "cn_510500",
+        "start": "20261022",
+        "end": "20261022",
+        "stat": "1",
+        "order": "D",
+        "period": "d"
+      },
+      "started_at": "2026-10-22T16:56:20.883886+08:00",
+      "status": "FAILED",
+      "error_type": "ProxyError",
+      "seconds": 4.015
+    },
+    {
+      "name": "sse_chain_documented_http",
+      "family": "SSE",
+      "url": "http://yunhq.sse.com.cn:32041/v1/sho/list/tstyle/510500_12",
+      "params": {
+        "select": "contractid,last,chg_rate,presetpx,exepx,code",
+        "order": "contractid,ase"
+      },
+      "started_at": "2026-10-22T16:56:24.882765+08:00",
+      "status": "FAILED",
+      "error_type": "ReadTimeout",
+      "seconds": 6.016
+    },
+    {
+      "name": "sse_chain_primary",
+      "family": "SSE",
+      "url": "https://yunhq.sse.com.cn:32042/v1/sho/list/tstyle/510500_12",
+      "params": {
+        "select": "contractid,last,chg_rate,presetpx,exepx,code",
+        "order": "contractid,ase"
+      },
+      "started_at": "2026-10-22T16:56:20.890045+08:00",
+      "status": "FAILED",
+      "error_type": "ProxyError",
+      "seconds": 4.023
+    },
+    {
+      "name": "sse_master_documented_http",
+      "family": "SSE",
+      "url": "http://query.sse.com.cn/commonQuery.do",
+      "params": {
+        "isPagination": "false",
+        "expireDate": "",
+        "securityId": "",
+        "sqlId": "SSE_ZQPZ_YSP_GGQQZSXT_XXPL_DRHY_SEARCH_L"
+      },
+      "started_at": "2026-10-22T16:56:13.224739+08:00",
+      "status": "FAILED",
+      "error_type": "ReadTimeout",
+      "seconds": 6.013
+    },
+    {
+      "name": "sse_master_https",
+      "family": "SSE",
+      "url": "https://query.sse.com.cn/commonQuery.do",
+      "params": {
+        "isPagination": "false",
+        "expireDate": "",
+        "securityId": "",
+        "sqlId": "SSE_ZQPZ_YSP_GGQQZSXT_XXPL_DRHY_SEARCH_L"
+      },
+      "started_at": "2026-10-22T16:56:13.223514+08:00",
+      "status": "FAILED",
+      "error_type": "ProxyError",
+      "seconds": 4.018
+    },
+    {
+      "name": "tencent_etf",
+      "family": "Tencent",
+      "url": "https://qt.gtimg.cn/q=sh510500",
+      "params": null,
+      "started_at": "2026-10-22T16:56:13.225898+08:00",
+      "status": "FAILED",
+      "error_type": "ProxyError",
+      "seconds": 4.031
+    },
+    {
+      "name": "ths_option_page",
+      "family": "THS",
+      "url": "https://q.10jqka.com.cn/option/",
+      "params": null,
+      "started_at": "2026-10-22T16:56:20.886048+08:00",
+      "status": "FAILED",
+      "error_type": "ProxyError",
+      "seconds": 4.012
+    }
+  ],
+  "formal_runtime_unchanged": true,
+  "production_sources_unchanged": true,
+  "warning": "A received response is not by itself an admissible production quote or complete chain."
+}

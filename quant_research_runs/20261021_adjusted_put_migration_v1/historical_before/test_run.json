@@ -1,0 +1,8 @@
+{
+  "exit_code": 1,
+  "files": [
+    "test_ic_im_historical_put_identity_20261021.py"
+  ],
+  "state_dir": "C:\\Users\\ADMINI~1.DES\\AppData\\Local\\Temp\\icim_put_d5a993b6\\state",
+  "test_only_windows_mkdir_mode_adjustment": true
+}

@@ -1,0 +1,12 @@
+[
+  {
+    "path": "runtime/ic_im_v1_4_r1/latest.json",
+    "old_hash": "cb72267c5ab6a82c5f9c4ae78b2824536656319e3c03b4397a67ae4345d3bfce",
+    "current_hash": "b0f0fa76beca9a0d2c2a715ef67c1f578fc9c4d5c73c91ae4ebd5a89c8139df6",
+    "old_sequence": 17,
+    "new_sequence": 18,
+    "old_day": "2026-10-19",
+    "new_day": "2026-10-20",
+    "modified_at": 1792564195.0119765
+  }
+]

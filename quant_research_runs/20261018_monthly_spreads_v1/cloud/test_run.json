@@ -1,0 +1,8 @@
+{
+  "exit_code": 0,
+  "files": [
+    "quant_research_runs/20261018_monthly_spreads_v1/cloud/tests/test_ic_im_v1_4_month_spreads.py"
+  ],
+  "state_dir": "C:\\Users\\ADMINI~1.DES\\AppData\\Local\\Temp\\icim_put_e7e35b6e\\state",
+  "test_only_windows_mkdir_mode_adjustment": true
+}

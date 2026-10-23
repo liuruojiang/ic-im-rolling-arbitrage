@@ -1,0 +1,253 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="4" skipped="0" tests="158" time="25.046" timestamp="2026-10-22T20:40:39.819282+08:00" hostname="DESKTOP-95I7VVU"><testcase classname="test_icim_evidence_conflict_review_20261022" name="test_raw_conflict_marks_immediately_without_raising[body]" time="0.026" /><testcase classname="test_icim_evidence_conflict_review_20261022" name="test_raw_conflict_marks_immediately_without_raising[status]" time="0.027" /><testcase classname="test_icim_evidence_conflict_review_20261022" name="test_raw_conflict_marks_immediately_without_raising[encoding]" time="0.025" /><testcase classname="test_icim_evidence_conflict_review_20261022" name="test_raw_conflict_marks_immediately_without_raising[headers]" time="0.024" /><testcase classname="test_icim_evidence_conflict_review_20261022" name="test_http_wrapper_still_returns_both_conflicting_responses" time="0.022" /><testcase classname="test_icim_evidence_conflict_review_20261022" name="test_normal_http_query_never_opens_capture" time="0.001" /><testcase classname="test_icim_evidence_conflict_review_20261022" name="test_public_builder_binds_signal_until_capture_seal[identical]" time="0.091" /><testcase classname="test_icim_evidence_conflict_review_20261022" name="test_public_builder_binds_signal_until_capture_seal[body]" time="0.085" /><testcase classname="test_icim_evidence_conflict_review_20261022" name="test_conflicted_bound_signal_and_early_copy_cannot_persist[False]" time="0.035" /><testcase classname="test_icim_evidence_conflict_review_20261022" name="test_conflicted_bound_signal_and_early_copy_cannot_persist[True]" time="0.029" /><testcase classname="test_icim_evidence_conflict_review_20261022" name="test_only_successfully_sealed_originally_eligible_signal_is_promoted[True]" time="0.012" /><testcase classname="test_icim_evidence_conflict_review_20261022" name="test_only_successfully_sealed_originally_eligible_signal_is_promoted[False]" time="0.013" /><testcase classname="test_icim_evidence_conflict_review_20261022" name="test_store_boundary_rejects_unbound_signal_inside_active_capture" time="0.012" /><testcase classname="test_icim_evidence_conflict_review_20261022" name="test_repeated_consistent_observation_does_not_repair_conflicted_session" time="0.067" /><testcase classname="test_icim_evidence_conflict_review_20261022" name="test_identical_response_or_different_parameters_is_not_a_conflict[True]" time="0.043" /><testcase classname="test_icim_evidence_conflict_review_20261022" name="test_identical_response_or_different_parameters_is_not_a_conflict[False]" time="0.042" /><testcase classname="test_icim_evidence_conflict_review_20261022" name="test_publishing_failure_does_not_promote_signal" time="0.008" /><testcase classname="test_icim_evidence_conflict_review_20261022" name="test_sealed_attempt_statistics_count_conflicts_not_polling_receipts" time="0.089" /><testcase classname="test_icim_evidence_conflict_review_20261022" name="test_capture_failure_warning_identifies_missing_original_inputs" time="0.027" /><testcase classname="test_icim_evidence_conflict_review_20261022" name="test_server_page_displays_incomplete_original_archive" time="0.062" /><testcase classname="test_icim_round5_recording_semantics_20261021" name="test_conflicting_same_url_parameters_are_rejected_instead_of_taking_last[body]" time="0.025"><failure message="ic_im_signal_evidence_v1.EvidenceUnavailable: 2026-10-21 original evidence unavailable: 124042087989-b81473564f674c55989469dfd6c7c782.json: evidence capture incomplete">tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_f1524ad9/pytest/test_conflicting_same_url_para0')
+difference = 'body'
+
+    @pytest.mark.parametrize("difference", ["body", "headers", "status", "encoding"])
+    def test_conflicting_same_url_parameters_are_rejected_instead_of_taking_last(tmp_path, difference):
+        first = [URL, PARAMS, b"first", {"Last-Modified": "Wed, 21 Oct 2026 07:00:00 GMT"}, 200, "utf-8"]
+        second = deepcopy(first)
+        if difference == "body":
+            second[2] = b"second"
+        elif difference == "headers":
+            second[3] = {"Last-Modified": "Wed, 21 Oct 2026 07:01:00 GMT"}
+        elif difference == "status":
+            second[4] = 503
+        else:
+            second[5] = "gbk"
+&gt;       reader = raw_archive(tmp_path, [first, second])
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_icim_round5_recording_semantics_20261021.py:54: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+test_icim_round5_recording_semantics_20261021.py:39: in raw_archive
+    return evidence.load_session(tmp_path, DAY)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+root = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_f1524ad9/pytest/test_conflicting_same_url_para0')
+day = datetime.date(2026, 10, 21), required_roles = None, metadata_filter = None
+decision_not_after = None
+
+    def load_session(root: str | Path, day: date, required_roles: Any = None,
+                     metadata_filter: dict[str, Any] | None = None,
+                     decision_not_after: datetime | None = None) -&gt; EvidenceReader:
+        root, day = _canonical(Path(root)), _day(day)
+        cutoff = _aware(decision_not_after, "decision_not_after") if decision_not_after is not None else None
+        directory = _inside(root, root / "sessions" / day.isoformat())
+        try:
+            files = list(directory.glob("*.json"))
+        except OSError as exc:
+            raise EvidenceUnavailable(f"{day} cannot enumerate original evidence") from exc
+        if len(files) &gt; MAX_SESSION_FILES:
+            raise EvidenceUnavailable(f"{day} evidence session count exceeds limit")
+        roles = set(required_roles or [])
+        for role in roles:
+            _role(role)
+        choices, failures = [], []
+        for path in files:
+            try:
+                reader = _load_one(root, path, day)
+                if cutoff is not None and reader.decision_at &gt; cutoff:
+                    continue
+                if metadata_filter and any(reader.metadata.get(key) != value for key, value in metadata_filter.items()):
+                    continue
+                missing = roles - {entry["role"] for entry in reader.context["entries"].values()}
+                if missing:
+                    raise EvidenceUnavailable("missing original evidence roles=" + ",".join(sorted(missing)))
+                choices.append(reader)
+            except (EvidenceUnavailable, ValueError, TypeError, KeyError, AttributeError) as exc:
+                failures.append(f"{path.name}: {exc}")
+        if not choices:
+            detail = "; ".join(failures[:4]) or "no complete session matching requested roles, metadata and decision time"
+&gt;           raise EvidenceUnavailable(f"{day} original evidence unavailable: {detail}")
+E           ic_im_signal_evidence_v1.EvidenceUnavailable: 2026-10-21 original evidence unavailable: 124042087989-b81473564f674c55989469dfd6c7c782.json: evidence capture incomplete
+
+ic_im_signal_evidence_v1.py:791: EvidenceUnavailable</failure></testcase><testcase classname="test_icim_round5_recording_semantics_20261021" name="test_conflicting_same_url_parameters_are_rejected_instead_of_taking_last[headers]" time="0.067"><failure message="ic_im_signal_evidence_v1.EvidenceUnavailable: 2026-10-21 original evidence unavailable: 124042516921-6fc642bf1441477a8f5b3bf799ee2b2b.json: evidence capture incomplete">tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_f1524ad9/pytest/test_conflicting_same_url_para1')
+difference = 'headers'
+
+    @pytest.mark.parametrize("difference", ["body", "headers", "status", "encoding"])
+    def test_conflicting_same_url_parameters_are_rejected_instead_of_taking_last(tmp_path, difference):
+        first = [URL, PARAMS, b"first", {"Last-Modified": "Wed, 21 Oct 2026 07:00:00 GMT"}, 200, "utf-8"]
+        second = deepcopy(first)
+        if difference == "body":
+            second[2] = b"second"
+        elif difference == "headers":
+            second[3] = {"Last-Modified": "Wed, 21 Oct 2026 07:01:00 GMT"}
+        elif difference == "status":
+            second[4] = 503
+        else:
+            second[5] = "gbk"
+&gt;       reader = raw_archive(tmp_path, [first, second])
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_icim_round5_recording_semantics_20261021.py:54: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+test_icim_round5_recording_semantics_20261021.py:39: in raw_archive
+    return evidence.load_session(tmp_path, DAY)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+root = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_f1524ad9/pytest/test_conflicting_same_url_para1')
+day = datetime.date(2026, 10, 21), required_roles = None, metadata_filter = None
+decision_not_after = None
+
+    def load_session(root: str | Path, day: date, required_roles: Any = None,
+                     metadata_filter: dict[str, Any] | None = None,
+                     decision_not_after: datetime | None = None) -&gt; EvidenceReader:
+        root, day = _canonical(Path(root)), _day(day)
+        cutoff = _aware(decision_not_after, "decision_not_after") if decision_not_after is not None else None
+        directory = _inside(root, root / "sessions" / day.isoformat())
+        try:
+            files = list(directory.glob("*.json"))
+        except OSError as exc:
+            raise EvidenceUnavailable(f"{day} cannot enumerate original evidence") from exc
+        if len(files) &gt; MAX_SESSION_FILES:
+            raise EvidenceUnavailable(f"{day} evidence session count exceeds limit")
+        roles = set(required_roles or [])
+        for role in roles:
+            _role(role)
+        choices, failures = [], []
+        for path in files:
+            try:
+                reader = _load_one(root, path, day)
+                if cutoff is not None and reader.decision_at &gt; cutoff:
+                    continue
+                if metadata_filter and any(reader.metadata.get(key) != value for key, value in metadata_filter.items()):
+                    continue
+                missing = roles - {entry["role"] for entry in reader.context["entries"].values()}
+                if missing:
+                    raise EvidenceUnavailable("missing original evidence roles=" + ",".join(sorted(missing)))
+                choices.append(reader)
+            except (EvidenceUnavailable, ValueError, TypeError, KeyError, AttributeError) as exc:
+                failures.append(f"{path.name}: {exc}")
+        if not choices:
+            detail = "; ".join(failures[:4]) or "no complete session matching requested roles, metadata and decision time"
+&gt;           raise EvidenceUnavailable(f"{day} original evidence unavailable: {detail}")
+E           ic_im_signal_evidence_v1.EvidenceUnavailable: 2026-10-21 original evidence unavailable: 124042516921-6fc642bf1441477a8f5b3bf799ee2b2b.json: evidence capture incomplete
+
+ic_im_signal_evidence_v1.py:791: EvidenceUnavailable</failure></testcase><testcase classname="test_icim_round5_recording_semantics_20261021" name="test_conflicting_same_url_parameters_are_rejected_instead_of_taking_last[status]" time="0.061"><failure message="ic_im_signal_evidence_v1.EvidenceUnavailable: 2026-10-21 original evidence unavailable: 124042621427-200b0d977ab146d395f3456a21b6a907.json: evidence capture incomplete">tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_f1524ad9/pytest/test_conflicting_same_url_para2')
+difference = 'status'
+
+    @pytest.mark.parametrize("difference", ["body", "headers", "status", "encoding"])
+    def test_conflicting_same_url_parameters_are_rejected_instead_of_taking_last(tmp_path, difference):
+        first = [URL, PARAMS, b"first", {"Last-Modified": "Wed, 21 Oct 2026 07:00:00 GMT"}, 200, "utf-8"]
+        second = deepcopy(first)
+        if difference == "body":
+            second[2] = b"second"
+        elif difference == "headers":
+            second[3] = {"Last-Modified": "Wed, 21 Oct 2026 07:01:00 GMT"}
+        elif difference == "status":
+            second[4] = 503
+        else:
+            second[5] = "gbk"
+&gt;       reader = raw_archive(tmp_path, [first, second])
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_icim_round5_recording_semantics_20261021.py:54: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+test_icim_round5_recording_semantics_20261021.py:39: in raw_archive
+    return evidence.load_session(tmp_path, DAY)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+root = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_f1524ad9/pytest/test_conflicting_same_url_para2')
+day = datetime.date(2026, 10, 21), required_roles = None, metadata_filter = None
+decision_not_after = None
+
+    def load_session(root: str | Path, day: date, required_roles: Any = None,
+                     metadata_filter: dict[str, Any] | None = None,
+                     decision_not_after: datetime | None = None) -&gt; EvidenceReader:
+        root, day = _canonical(Path(root)), _day(day)
+        cutoff = _aware(decision_not_after, "decision_not_after") if decision_not_after is not None else None
+        directory = _inside(root, root / "sessions" / day.isoformat())
+        try:
+            files = list(directory.glob("*.json"))
+        except OSError as exc:
+            raise EvidenceUnavailable(f"{day} cannot enumerate original evidence") from exc
+        if len(files) &gt; MAX_SESSION_FILES:
+            raise EvidenceUnavailable(f"{day} evidence session count exceeds limit")
+        roles = set(required_roles or [])
+        for role in roles:
+            _role(role)
+        choices, failures = [], []
+        for path in files:
+            try:
+                reader = _load_one(root, path, day)
+                if cutoff is not None and reader.decision_at &gt; cutoff:
+                    continue
+                if metadata_filter and any(reader.metadata.get(key) != value for key, value in metadata_filter.items()):
+                    continue
+                missing = roles - {entry["role"] for entry in reader.context["entries"].values()}
+                if missing:
+                    raise EvidenceUnavailable("missing original evidence roles=" + ",".join(sorted(missing)))
+                choices.append(reader)
+            except (EvidenceUnavailable, ValueError, TypeError, KeyError, AttributeError) as exc:
+                failures.append(f"{path.name}: {exc}")
+        if not choices:
+            detail = "; ".join(failures[:4]) or "no complete session matching requested roles, metadata and decision time"
+&gt;           raise EvidenceUnavailable(f"{day} original evidence unavailable: {detail}")
+E           ic_im_signal_evidence_v1.EvidenceUnavailable: 2026-10-21 original evidence unavailable: 124042621427-200b0d977ab146d395f3456a21b6a907.json: evidence capture incomplete
+
+ic_im_signal_evidence_v1.py:791: EvidenceUnavailable</failure></testcase><testcase classname="test_icim_round5_recording_semantics_20261021" name="test_conflicting_same_url_parameters_are_rejected_instead_of_taking_last[encoding]" time="0.025"><failure message="ic_im_signal_evidence_v1.EvidenceUnavailable: 2026-10-21 original evidence unavailable: 124042680741-ac9223f7a04f4c3cbf8e7c706fe241c8.json: evidence capture incomplete">tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_f1524ad9/pytest/test_conflicting_same_url_para3')
+difference = 'encoding'
+
+    @pytest.mark.parametrize("difference", ["body", "headers", "status", "encoding"])
+    def test_conflicting_same_url_parameters_are_rejected_instead_of_taking_last(tmp_path, difference):
+        first = [URL, PARAMS, b"first", {"Last-Modified": "Wed, 21 Oct 2026 07:00:00 GMT"}, 200, "utf-8"]
+        second = deepcopy(first)
+        if difference == "body":
+            second[2] = b"second"
+        elif difference == "headers":
+            second[3] = {"Last-Modified": "Wed, 21 Oct 2026 07:01:00 GMT"}
+        elif difference == "status":
+            second[4] = 503
+        else:
+            second[5] = "gbk"
+&gt;       reader = raw_archive(tmp_path, [first, second])
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_icim_round5_recording_semantics_20261021.py:54: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+test_icim_round5_recording_semantics_20261021.py:39: in raw_archive
+    return evidence.load_session(tmp_path, DAY)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+root = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_f1524ad9/pytest/test_conflicting_same_url_para3')
+day = datetime.date(2026, 10, 21), required_roles = None, metadata_filter = None
+decision_not_after = None
+
+    def load_session(root: str | Path, day: date, required_roles: Any = None,
+                     metadata_filter: dict[str, Any] | None = None,
+                     decision_not_after: datetime | None = None) -&gt; EvidenceReader:
+        root, day = _canonical(Path(root)), _day(day)
+        cutoff = _aware(decision_not_after, "decision_not_after") if decision_not_after is not None else None
+        directory = _inside(root, root / "sessions" / day.isoformat())
+        try:
+            files = list(directory.glob("*.json"))
+        except OSError as exc:
+            raise EvidenceUnavailable(f"{day} cannot enumerate original evidence") from exc
+        if len(files) &gt; MAX_SESSION_FILES:
+            raise EvidenceUnavailable(f"{day} evidence session count exceeds limit")
+        roles = set(required_roles or [])
+        for role in roles:
+            _role(role)
+        choices, failures = [], []
+        for path in files:
+            try:
+                reader = _load_one(root, path, day)
+                if cutoff is not None and reader.decision_at &gt; cutoff:
+                    continue
+                if metadata_filter and any(reader.metadata.get(key) != value for key, value in metadata_filter.items()):
+                    continue
+                missing = roles - {entry["role"] for entry in reader.context["entries"].values()}
+                if missing:
+                    raise EvidenceUnavailable("missing original evidence roles=" + ",".join(sorted(missing)))
+                choices.append(reader)
+            except (EvidenceUnavailable, ValueError, TypeError, KeyError, AttributeError) as exc:
+                failures.append(f"{path.name}: {exc}")
+        if not choices:
+            detail = "; ".join(failures[:4]) or "no complete session matching requested roles, metadata and decision time"
+&gt;           raise EvidenceUnavailable(f"{day} original evidence unavailable: {detail}")
+E           ic_im_signal_evidence_v1.EvidenceUnavailable: 2026-10-21 original evidence unavailable: 124042680741-ac9223f7a04f4c3cbf8e7c706fe241c8.json: evidence capture incomplete
+
+ic_im_signal_evidence_v1.py:791: EvidenceUnavailable</failure></testcase><testcase classname="test_icim_round5_recording_semantics_20261021" name="test_identical_repeat_http_is_reusable_without_consuming_invented_request_order" time="0.139" /><testcase classname="test_icim_round5_recording_semantics_20261021" name="test_overlapping_sina_batches_must_agree_on_the_exact_projected_variable[True]" time="0.091" /><testcase classname="test_icim_round5_recording_semantics_20261021" name="test_overlapping_sina_batches_must_agree_on_the_exact_projected_variable[False]" time="0.059" /><testcase classname="test_icim_round5_recording_semantics_20261021" name="test_annotation_is_encoded_once_and_capture_context_is_active" time="0.021" /><testcase classname="test_icim_round5_recording_semantics_20261021" name="test_real_chain_adapter_coalesces_month_day_and_never_aliases_years" time="0.063" /><testcase classname="test_icim_round5_recording_semantics_20261021" name="test_wrong_year_return_from_same_month_url_cannot_form_a_complete_chain_archive" time="0.047" /><testcase classname="test_icim_round5_recording_semantics_20261021" name="test_existing_unknown_year_ic_put_collects_without_new_expiry_then_real_server_recovers[day0-previous0-2703]" time="1.183" /><testcase classname="test_icim_round5_recording_semantics_20261021" name="test_existing_unknown_year_ic_put_collects_without_new_expiry_then_real_server_recovers[day1-previous1-2701]" time="1.169" /><testcase classname="test_icim_round5_recording_semantics_20261021" name="test_nov23_ic_2701_not_in_rule_shaped_listing_never_becomes_a_formal_target" time="0.734" /><testcase classname="test_icim_round5_recording_semantics_20261021" name="test_replay_freezes_real_collection_end_despite_outer_elapsed_query_clock" time="0.139" /><testcase classname="test_icim_round5_recording_semantics_20261021" name="test_close_quote_freshness_is_consistent_at_original_elapsed_and_replay_end[15-0-True]" time="0.001" /><testcase classname="test_icim_round5_recording_semantics_20261021" name="test_close_quote_freshness_is_consistent_at_original_elapsed_and_replay_end[14-54-False]" time="0.001" /><testcase classname="test_icim_round5_recording_semantics_20261021" name="test_close_quote_freshness_is_consistent_at_original_elapsed_and_replay_end[18-1-False]" time="0.001" /><testcase classname="test_icim_round5_recording_semantics_20261021" name="test_none_and_untradable_roll_candidate_leave_unneeded_gate_actions_identical[IC]" time="0.079" /><testcase classname="test_icim_round5_recording_semantics_20261021" name="test_none_and_untradable_roll_candidate_leave_unneeded_gate_actions_identical[IM]" time="0.026" /><testcase classname="test_icim_calendar_capture_review_20261022" name="test_510500_2301_expiry_comes_from_official_option_announcements" time="0.003" /><testcase classname="test_icim_calendar_capture_review_20261022" name="test_calendar_extension_precedes_last_followup_and_this_round" time="0.753" /><testcase classname="test_icim_calendar_capture_review_20261022" name="test_collector_never_opens_original_close_session_before_close_or_on_weekend[day0-9-15]" time="0.003" /><testcase classname="test_icim_calendar_capture_review_20261022" name="test_collector_never_opens_original_close_session_before_close_or_on_weekend[day1-14-59]" time="0.004" /><testcase classname="test_icim_calendar_capture_review_20261022" name="test_collector_never_opens_original_close_session_before_close_or_on_weekend[day2-18-0]" time="0.003" /><testcase classname="test_icim_calendar_capture_review_20261022" name="test_existing_core_and_short_identity_use_one_chain_record_without_assuming_stable_http" time="0.048" /><testcase classname="test_icim_calendar_capture_review_20261022" name="test_ambiguous_capture_is_incomplete_and_does_not_break_normal_query[identical]" time="0.314" /><testcase classname="test_icim_calendar_capture_review_20261022" name="test_ambiguous_capture_is_incomplete_and_does_not_break_normal_query[body]" time="0.234" /><testcase classname="test_icim_calendar_capture_review_20261022" name="test_ambiguous_capture_is_incomplete_and_does_not_break_normal_query[time]" time="0.241" /><testcase classname="test_icim_calendar_capture_review_20261022" name="test_ambiguous_capture_is_incomplete_and_does_not_break_normal_query[headers]" time="0.246" /><testcase classname="test_icim_calendar_capture_review_20261022" name="test_ambiguous_capture_is_incomplete_and_does_not_break_normal_query[status]" time="0.235" /><testcase classname="test_icim_calendar_capture_review_20261022" name="test_ambiguous_capture_is_incomplete_and_does_not_break_normal_query[encoding]" time="0.204" /><testcase classname="test_icim_calendar_capture_review_20261022" name="test_archive_io_failure_stays_in_independent_collector_and_signal_still_returns" time="0.158" /><testcase classname="test_icim_calendar_capture_review_20261022" name="test_real_package_comparator_does_not_silently_ignore_strategy_or_source_changes[qty-2]" time="0.004" /><testcase classname="test_icim_calendar_capture_review_20261022" name="test_real_package_comparator_does_not_silently_ignore_strategy_or_source_changes[price-0.5]" time="0.003" /><testcase classname="test_icim_calendar_capture_review_20261022" name="test_real_package_comparator_does_not_silently_ignore_strategy_or_source_changes[reason-different]" time="0.003" /><testcase classname="test_icim_calendar_capture_review_20261022" name="test_real_package_comparator_does_not_silently_ignore_strategy_or_source_changes[source-different]" time="0.004" /><testcase classname="test_icim_calendar_capture_review_20261022" name="test_real_package_comparator_does_not_silently_ignore_strategy_or_source_changes[signal_complete-False]" time="0.003" /><testcase classname="test_icim_calendar_capture_review_20261022" name="test_real_package_comparator_allows_only_explicit_generation_timestamp" time="0.004" /><testcase classname="test_icim_calendar_capture_review_20261022" name="test_real_package_comparator_rejects_extra_replay_fields" time="0.003" /><testcase classname="test_icim_evidence_parallel_20261022" name="test_independent_role_fetches_overlap_without_archive_lock" time="0.020" /><testcase classname="test_icim_evidence_parallel_20261022" name="test_same_role_fetch_coalesced_and_each_result_is_independent" time="0.033" /><testcase classname="test_icim_evidence_parallel_20261022" name="test_parallel_raw_byte_budget_is_atomic_and_closed_manifest_truthful" time="0.014" /><testcase classname="test_icim_evidence_parallel_20261022" name="test_finish_cannot_certify_an_inflight_role" time="0.013" /><testcase classname="test_icim_evidence_parallel_20261022" name="test_failed_role_can_be_retried_without_hiding_unrelated_failures" time="0.015" /><testcase classname="test_icim_evidence_parallel_20261022" name="test_nested_legacy_wrapper_records_one_outer_value_and_exact_byte_total" time="0.027" /><testcase classname="test_icim_free_sources_capture_runner_20261022" name="test_capture_only_loads_real_readonly_chain_and_never_calls_writers" time="0.039" /><testcase classname="test_icim_free_sources_capture_runner_20261022" name="test_successful_bucket_is_reused_but_next_rate_bucket_is_collected" time="0.077" /><testcase classname="test_icim_free_sources_capture_runner_20261022" name="test_incomplete_capture_retries_instead_of_deduplicating" time="0.090" /><testcase classname="test_icim_free_sources_capture_runner_20261022" name="test_non_sessions_and_calendar_gaps_are_recorded_without_network[clock0-waiting_for_close]" time="0.071" /><testcase classname="test_icim_free_sources_capture_runner_20261022" name="test_non_sessions_and_calendar_gaps_are_recorded_without_network[clock1-waiting_non_trading_day]" time="0.033" /><testcase classname="test_icim_free_sources_capture_runner_20261022" name="test_non_sessions_and_calendar_gaps_are_recorded_without_network[clock2-waiting_for_official_calendar]" time="0.025" /><testcase classname="test_icim_free_sources_capture_runner_20261022" name="test_missing_ledger_or_migration_does_not_bootstrap[latest.json]" time="0.025" /><testcase classname="test_icim_free_sources_capture_runner_20261022" name="test_missing_ledger_or_migration_does_not_bootstrap[migration_record.json]" time="0.024" /><testcase classname="test_icim_free_sources_capture_runner_20261022" name="test_wrong_migration_genesis_blocks_capture" time="0.027" /><testcase classname="test_icim_free_sources_capture_runner_20261022" name="test_source_pin_refuses_changed_module" time="0.005" /><testcase classname="test_icim_free_sources_capture_runner_20261022" name="test_source_pin_cannot_be_silently_replaced_in_running_process" time="0.005" /><testcase classname="test_icim_free_sources_capture_runner_20261022" name="test_pin_must_cover_all_loaded_runtime_modules" time="0.005" /><testcase classname="test_icim_free_sources_capture_runner_20261022" name="test_deleted_manifest_is_a_fatal_pin_error" time="0.005" /><testcase classname="test_icim_free_sources_capture_runner_20261022" name="test_unreadable_loaded_source_is_a_fatal_pin_error" time="0.013" /><testcase classname="test_icim_free_sources_capture_runner_20261022" name="test_source_pin_rejects_untrusted_paths[../escape.py]" time="0.004" /><testcase classname="test_icim_free_sources_capture_runner_20261022" name="test_source_pin_rejects_untrusted_paths[module.txt]" time="0.004" /><testcase classname="test_icim_free_sources_capture_runner_20261022" name="test_source_pin_rejects_untrusted_paths[/absolute.py]" time="0.004" /><testcase classname="test_icim_free_sources_capture_runner_20261022" name="test_duplicate_pin_keys_are_rejected" time="0.003" /><testcase classname="test_icim_free_sources_capture_runner_20261022" name="test_loaded_source_drift_stops_before_next_collection" time="0.018" /><testcase classname="test_icim_free_sources_capture_runner_20261022" name="test_loop_retries_expected_waits_and_is_finite_when_requested" time="0.016" /><testcase classname="test_icim_free_sources_capture_runner_20261022" name="test_source_pin_mismatch_ends_daemon_and_writes_machine_receipt" time="0.016" /><testcase classname="test_icim_free_sources_capture_runner_20261022" name="test_evidence_and_ledger_trees_cannot_overlap" time="0.016" /><testcase classname="test_icim_free_sources_capture_runner_20261022" name="test_nonexistent_state_is_not_created" time="0.012" /><testcase classname="test_icim_free_sources_capture_runner_20261022" name="test_process_mutex_rejects_another_process_and_releases_after_exit" time="0.086" /><testcase classname="test_icim_free_sources_capture_runner_20261022" name="test_help_has_no_state_or_server_side_effects" time="0.121" /><testcase classname="test_icim_free_sources_adversarial_replay_20261022" name="test_all_original_signal_facts_equal_with_separate_verified_replay_context" time="0.194" /><testcase classname="test_icim_free_sources_adversarial_replay_20261022" name="test_trade_facts_quote_times_and_source_acquisition_times_are_not_exempt[future_last-999999.0]" time="0.212" /><testcase classname="test_icim_free_sources_adversarial_replay_20261022" name="test_trade_facts_quote_times_and_source_acquisition_times_are_not_exempt[etf_price-0.01]" time="0.168" /><testcase classname="test_icim_free_sources_adversarial_replay_20261022" name="test_trade_facts_quote_times_and_source_acquisition_times_are_not_exempt[v14_action-OPEN]" time="0.219" /><testcase classname="test_icim_free_sources_adversarial_replay_20261022" name="test_trade_facts_quote_times_and_source_acquisition_times_are_not_exempt[put_target_core_qty-999]" time="0.205" /><testcase classname="test_icim_free_sources_adversarial_replay_20261022" name="test_trade_facts_quote_times_and_source_acquisition_times_are_not_exempt[put_target_contract-510500P2612M09000]" time="0.276" /><testcase classname="test_icim_free_sources_adversarial_replay_20261022" name="test_trade_facts_quote_times_and_source_acquisition_times_are_not_exempt[grid_target-0.5]" time="0.332" /><testcase classname="test_icim_free_sources_adversarial_replay_20261022" name="test_trade_facts_quote_times_and_source_acquisition_times_are_not_exempt[next_trade_date-2026-10-26]" time="0.221" /><testcase classname="test_icim_free_sources_adversarial_replay_20261022" name="test_trade_facts_quote_times_and_source_acquisition_times_are_not_exempt[etf_quote_time-150000]" time="0.190" /><testcase classname="test_icim_free_sources_adversarial_replay_20261022" name="test_trade_facts_quote_times_and_source_acquisition_times_are_not_exempt[future_quote_date-2026-10-21]" time="0.243" /><testcase classname="test_icim_free_sources_adversarial_replay_20261022" name="test_trade_facts_quote_times_and_source_acquisition_times_are_not_exempt[fear_retrieved_at-2026-10-22T15:00:00+08:00]" time="0.222" /><testcase classname="test_icim_free_sources_adversarial_replay_20261022" name="test_any_source_note_change_is_a_fact_difference[0]" time="0.207" /><testcase classname="test_icim_free_sources_adversarial_replay_20261022" name="test_any_source_note_change_is_a_fact_difference[1]" time="0.224" /><testcase classname="test_icim_free_sources_adversarial_replay_20261022" name="test_any_source_note_change_is_a_fact_difference[-1]" time="0.209" /><testcase classname="test_icim_free_sources_adversarial_replay_20261022" name="test_complete_iv_monitor_object_is_strict_even_its_original_clock[text-changed reason]" time="0.207" /><testcase classname="test_icim_free_sources_adversarial_replay_20261022" name="test_complete_iv_monitor_object_is_strict_even_its_original_clock[snapshot_time-150000]" time="0.188" /><testcase classname="test_icim_free_sources_adversarial_replay_20261022" name="test_complete_iv_monitor_object_is_strict_even_its_original_clock[validation_clock-2026-10-22T15:00:00+08:00]" time="0.218" /><testcase classname="test_icim_free_sources_adversarial_replay_20261022" name="test_complete_iv_monitor_object_is_strict_even_its_original_clock[iv-0.99]" time="0.210" /><testcase classname="test_icim_free_sources_adversarial_replay_20261022" name="test_complete_iv_monitor_object_is_strict_even_its_original_clock[contract-510500P2612M09000]" time="0.225" /><testcase classname="test_icim_free_sources_adversarial_replay_20261022" name="test_unknown_new_fields_or_missing_fields_never_disappear[new]" time="0.185" /><testcase classname="test_icim_free_sources_adversarial_replay_20261022" name="test_unknown_new_fields_or_missing_fields_never_disappear[missing]" time="0.205" /><testcase classname="test_icim_free_sources_adversarial_replay_20261022" name="test_unknown_new_fields_or_missing_fields_never_disappear[different_type]" time="0.210" /><testcase classname="test_icim_free_sources_adversarial_replay_20261022" name="test_falsy_or_nonempty_unrecorded_input_claim_is_rejected[None]" time="0.207" /><testcase classname="test_icim_free_sources_adversarial_replay_20261022" name="test_falsy_or_nonempty_unrecorded_input_claim_is_rejected[False]" time="0.276" /><testcase classname="test_icim_free_sources_adversarial_replay_20261022" name="test_falsy_or_nonempty_unrecorded_input_claim_is_rejected[value2]" time="0.201" /><testcase classname="test_icim_free_sources_adversarial_replay_20261022" name="test_falsy_or_nonempty_unrecorded_input_claim_is_rejected[]" time="0.215" /><testcase classname="test_icim_free_sources_adversarial_replay_20261022" name="test_falsy_or_nonempty_unrecorded_input_claim_is_rejected[0]" time="0.230" /><testcase classname="test_icim_free_sources_adversarial_replay_20261022" name="test_falsy_or_nonempty_unrecorded_input_claim_is_rejected[value5]" time="0.208" /><testcase classname="test_icim_free_sources_adversarial_replay_20261022" name="test_replay_audit_values_must_bind_the_independent_reader[manifest_sha256-0000000000000000000000000000000000000000000000000000000000000000]" time="0.194" /><testcase classname="test_icim_free_sources_adversarial_replay_20261022" name="test_replay_audit_values_must_bind_the_independent_reader[input_revision-other]" time="0.225" /><testcase classname="test_icim_free_sources_adversarial_replay_20261022" name="test_replay_audit_values_must_bind_the_independent_reader[decision_at-2026-10-22T15:00:00+08:00]" time="0.213" /><testcase classname="test_icim_free_sources_adversarial_replay_20261022" name="test_replay_audit_values_must_bind_the_independent_reader[acquired_until-2026-10-22T15:00:00+08:00]" time="0.207" /><testcase classname="test_icim_free_sources_adversarial_replay_20261022" name="test_replay_audit_values_must_bind_the_independent_reader[replay_runtime-2026-10-22T15:00:00+08:00]" time="0.210" /><testcase classname="test_icim_free_sources_adversarial_replay_20261022" name="test_replay_audit_values_must_bind_the_independent_reader[replay_completeness-value5]" time="0.199" /><testcase classname="test_icim_free_sources_adversarial_replay_20261022" name="test_exact_original_recovery_does_not_allow_late_supplements[None]" time="0.222" /><testcase classname="test_icim_free_sources_adversarial_replay_20261022" name="test_exact_original_recovery_does_not_allow_late_supplements[False]" time="0.217" /><testcase classname="test_icim_free_sources_adversarial_replay_20261022" name="test_exact_original_recovery_does_not_allow_late_supplements[value2]" time="0.210" /><testcase classname="test_icim_free_sources_adversarial_replay_20261022" name="test_exact_original_recovery_does_not_allow_late_supplements[]" time="0.246" /><testcase classname="test_icim_free_sources_adversarial_replay_20261022" name="test_exact_original_recovery_does_not_allow_late_supplements[0]" time="0.220" /><testcase classname="test_icim_free_sources_adversarial_replay_20261022" name="test_exact_original_recovery_does_not_allow_late_supplements[value5]" time="0.220" /><testcase classname="test_icim_free_sources_adversarial_replay_20261022" name="test_reader_and_metadata_completeness_are_independent_conditions[reader_incomplete]" time="0.213" /><testcase classname="test_icim_free_sources_adversarial_replay_20261022" name="test_reader_and_metadata_completeness_are_independent_conditions[reader_miss]" time="0.211" /><testcase classname="test_icim_free_sources_adversarial_replay_20261022" name="test_reader_and_metadata_completeness_are_independent_conditions[unresolved_failure]" time="0.239" /><testcase classname="test_icim_free_sources_adversarial_replay_20261022" name="test_reader_and_metadata_completeness_are_independent_conditions[annotation_false]" time="0.298" /><testcase classname="test_icim_free_sources_adversarial_replay_20261022" name="test_reader_and_metadata_completeness_are_independent_conditions[wrong_product]" time="0.244" /><testcase classname="test_icim_free_sources_adversarial_replay_20261022" name="test_reader_and_metadata_completeness_are_independent_conditions[unknown_meta]" time="0.228" /><testcase classname="test_icim_free_sources_adversarial_replay_20261022" name="test_reader_and_metadata_completeness_are_independent_conditions[missing_meta]" time="0.220" /><testcase classname="test_icim_free_sources_adversarial_replay_20261022" name="test_malformed_annotation_returns_structured_rejection[None]" time="0.212" /><testcase classname="test_icim_free_sources_adversarial_replay_20261022" name="test_malformed_annotation_returns_structured_rejection[False]" time="0.218" /><testcase classname="test_icim_free_sources_adversarial_replay_20261022" name="test_malformed_annotation_returns_structured_rejection[value2]" time="0.228" /><testcase classname="test_icim_free_sources_adversarial_replay_20261022" name="test_malformed_annotation_returns_structured_rejection[value3]" time="0.213" /><testcase classname="test_icim_free_sources_adversarial_replay_20261022" name="test_calculation_clock_exceptions_still_require_explicit_valid_times[None-fetch_time]" time="0.243" /><testcase classname="test_icim_free_sources_adversarial_replay_20261022" name="test_calculation_clock_exceptions_still_require_explicit_valid_times[None-signal_generated_at]" time="0.223" /><testcase classname="test_icim_free_sources_adversarial_replay_20261022" name="test_calculation_clock_exceptions_still_require_explicit_valid_times[None-signal_calculation_started_at]" time="0.227" /><testcase classname="test_icim_free_sources_adversarial_replay_20261022" name="test_calculation_clock_exceptions_still_require_explicit_valid_times[-fetch_time]" time="0.220" /><testcase classname="test_icim_free_sources_adversarial_replay_20261022" name="test_calculation_clock_exceptions_still_require_explicit_valid_times[-signal_generated_at]" time="0.213" /><testcase classname="test_icim_free_sources_adversarial_replay_20261022" name="test_calculation_clock_exceptions_still_require_explicit_valid_times[-signal_calculation_started_at]" time="0.214" /><testcase classname="test_icim_free_sources_adversarial_replay_20261022" name="test_calculation_clock_exceptions_still_require_explicit_valid_times[not a time-fetch_time]" time="0.216" /><testcase classname="test_icim_free_sources_adversarial_replay_20261022" name="test_calculation_clock_exceptions_still_require_explicit_valid_times[not a time-signal_generated_at]" time="0.212" /><testcase classname="test_icim_free_sources_adversarial_replay_20261022" name="test_calculation_clock_exceptions_still_require_explicit_valid_times[not a time-signal_calculation_started_at]" time="0.206" /><testcase classname="test_icim_free_sources_adversarial_replay_20261022" name="test_calculation_clock_order_and_original_acquisition_are_bound[fetch_wrong_original_end]" time="0.235" /><testcase classname="test_icim_free_sources_adversarial_replay_20261022" name="test_calculation_clock_order_and_original_acquisition_are_bound[original_outside_capture]" time="0.207" /><testcase classname="test_icim_free_sources_adversarial_replay_20261022" name="test_calculation_clock_order_and_original_acquisition_are_bound[replay_before_capture]" time="0.214" /><testcase classname="test_icim_free_sources_adversarial_replay_20261022" name="test_calculation_clock_order_and_original_acquisition_are_bound[reversed_replay]" time="0.213" /><testcase classname="test_icim_free_sources_adversarial_replay_20261022" name="test_generation_context_is_an_exact_transition_not_an_ignored_label[close_confirmed]" time="0.201" /><testcase classname="test_icim_free_sources_adversarial_replay_20261022" name="test_generation_context_is_an_exact_transition_not_an_ignored_label[intraday_hypothetical_if_now_close]" time="0.236" /><testcase classname="test_icim_free_sources_adversarial_replay_20261022" name="test_generation_context_is_an_exact_transition_not_an_ignored_label[anything]" time="0.207" /><testcase classname="test_icim_free_sources_adversarial_replay_20261022" name="test_generation_context_is_an_exact_transition_not_an_ignored_label[None]" time="0.189" /></testsuite></testsuites>

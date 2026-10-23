@@ -1,0 +1,5 @@
+{
+  "original_test_sha256": "8799aee4b78ac0bc3753a307c714b58ef75d06b32e2d069ebd0d092e27bf2069",
+  "reason": "allow correct earlier publication guard rejection; preserve executed unpinned-dependency and no-usable-package assertions",
+  "original_nine_cases_unchanged": true
+}

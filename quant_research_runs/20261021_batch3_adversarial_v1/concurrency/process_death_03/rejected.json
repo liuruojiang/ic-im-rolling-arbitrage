@@ -1,0 +1,5 @@
+{
+  "reason": "audit evidence rejected: source changed during test execution",
+  "exit_code": 0,
+  "source_equal": false
+}

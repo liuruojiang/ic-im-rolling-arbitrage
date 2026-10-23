@@ -1,0 +1,36 @@
+..........................F                                              [100%]
+================================== FAILURES ===================================
+________ test_current_gate_rejects_receipt_contradictions[runner_exit] ________
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_f82461fa/pytest/test_current_gate_rejects_rece6')
+mutation = 'runner_exit'
+
+    @pytest.mark.parametrize('mutation', ['source_flag', 'counts', 'source_count', 'missing_artifact', 'changed_artifact', 'changed_source', 'runner_exit'])
+    def test_current_gate_rejects_receipt_contradictions(tmp_path, mutation):
+        receipt = receipt_fixture(tmp_path)
+        if mutation == 'source_flag':
+            receipt['source_before_equals_after'] = False
+        elif mutation == 'counts':
+            receipt['counts']['tests'] = 2
+        elif mutation == 'source_count':
+            receipt['source_files'] = 2
+        elif mutation == 'missing_artifact':
+            del receipt['artifacts']['test_run.json']
+        elif mutation == 'changed_artifact':
+            (tmp_path / 'regression.txt').write_text('tampered', encoding='utf-8')
+        elif mutation == 'changed_source':
+            (tmp_path / 'source_after.json').write_text(json.dumps({'source.py': 'b' * 64}), encoding='utf-8')
+            receipt['artifacts']['source_after.json'] = sha(tmp_path / 'source_after.json')
+        else:
+            # A zero-exit receipt cannot overrule the underlying runner's recorded failure.
+            (tmp_path / 'test_run.json').write_text(json.dumps({'exit_code': 1, 'files': ['test_example.py']}), encoding='utf-8')
+            receipt['artifacts']['test_run.json'] = sha(tmp_path / 'test_run.json')
+        (tmp_path / 'receipt.json').write_text(json.dumps(receipt), encoding='utf-8')
+>       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+test_icim_round2_audit_evidence_20261021.py:190: Failed
+=========================== short test summary info ===========================
+FAILED test_icim_round2_audit_evidence_20261021.py::test_current_gate_rejects_receipt_contradictions[runner_exit]
+1 failed, 26 passed in 0.80s

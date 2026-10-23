@@ -1,0 +1,35 @@
+{
+  "accepted": "accepted_batch3_2",
+  "independent": "old_call/final_03",
+  "all_sources_match": true,
+  "source_count": 5,
+  "accepted_receipt_sha256": "d1d663f4ddb5a4f627accd5c89d6599d8edd2e828b6467828186b5abda58798b",
+  "independent_receipt_sha256": "eb85d5694225694c250f75537400394101658e4508cb3f21632c747b3c8f8e16",
+  "sources": {
+    "poe_ic_im_mainline_v1_4_bot.py": {
+      "independent": "194cb2f1dec12ed5829cbeae6957103fd69f975af919a60a28f274ad2713664e",
+      "cumulative": "194cb2f1dec12ed5829cbeae6957103fd69f975af919a60a28f274ad2713664e",
+      "matches": true
+    },
+    "ic_im_v1_4_policy.py": {
+      "independent": "f7e3ad9ddfb83935b47c6af5b5b22bcd28b5c6912b3bd14cec158a7de7f07fff",
+      "cumulative": "f7e3ad9ddfb83935b47c6af5b5b22bcd28b5c6912b3bd14cec158a7de7f07fff",
+      "matches": true
+    },
+    "poe_ic_im_v1_4_state.py": {
+      "independent": "3676ac66729e540053fdd910fff2da033813d6dd18121243addab27090ce4c07",
+      "cumulative": "3676ac66729e540053fdd910fff2da033813d6dd18121243addab27090ce4c07",
+      "matches": true
+    },
+    "test_icim_batch3_old_call_20261021.py": {
+      "independent": "c4e32ad4b2748fd0d8501bd0e22e449703d5d0fe1895235d6d8f52adba64eb98",
+      "cumulative": "c4e32ad4b2748fd0d8501bd0e22e449703d5d0fe1895235d6d8f52adba64eb98",
+      "matches": true
+    },
+    "test_ic_im_ordinary_put_route_fix_20261013.py": {
+      "independent": "ff69d0f7e5ce2ca9faa4a1ef9457365bc08cb3b87ba7c913890bcbe7d942d1dd",
+      "cumulative": "ff69d0f7e5ce2ca9faa4a1ef9457365bc08cb3b87ba7c913890bcbe7d942d1dd",
+      "matches": true
+    }
+  }
+}

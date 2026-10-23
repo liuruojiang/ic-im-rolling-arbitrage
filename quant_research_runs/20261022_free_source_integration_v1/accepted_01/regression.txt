@@ -1,0 +1,133 @@
+........................................................................ [  2%]
+........................................................................ [  4%]
+........................................................................ [  7%]
+........................................................................ [  9%]
+........................................................................ [ 12%]
+........................................................................ [ 14%]
+........................................................................ [ 17%]
+........................................................................ [ 19%]
+........................................................................ [ 22%]
+........................................................................ [ 24%]
+........................................................................ [ 27%]
+........................................................................ [ 29%]
+........................................................................ [ 32%]
+........................................................................ [ 34%]
+........................................................................ [ 37%]
+........................................................................ [ 39%]
+........................................................................ [ 41%]
+........................................................................ [ 44%]
+........................................................................ [ 46%]
+........................................................................ [ 49%]
+........................................................................ [ 51%]
+........................................................................ [ 54%]
+........................................................................ [ 56%]
+........................................................................ [ 59%]
+........................................................................ [ 61%]
+........................................................................ [ 64%]
+........................................................................ [ 66%]
+........................................................................ [ 69%]
+........................................................................ [ 71%]
+........................................................................ [ 74%]
+........................................................................ [ 76%]
+........................................................................ [ 78%]
+........................................................................ [ 81%]
+........................................................................ [ 83%]
+........................................................................ [ 86%]
+........................................................................ [ 88%]
+.....................................F.................................. [ 91%]
+........................................................................ [ 93%]
+........................................................................ [ 96%]
+........................................................................ [ 98%]
+......................................                                   [100%]
+================================== FAILURES ===================================
+___ test_batched_mo_original_crosschecks_replay_quote_and_open_without_http ___
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_39f9c7b5/pytest/test_batched_mo_original_cross0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001FB1765CEC0>
+
+    def test_batched_mo_original_crosschecks_replay_quote_and_open_without_http(tmp_path, monkeypatch):
+        day = date(2026, 10, 21)
+        clock = wall(monkeypatch, day)
+        contracts = [f"MO2612-P-{6600+i}" for i in range(130)]
+        frame = pd.DataFrame({"instrument": contracts})
+        frame.attrs["listed_instruments"] = contracts
+        calls = []
+        def get(url, params, **kwargs):
+            calls.append(params["list"])
+            bodies = []
+            for symbol in params["list"].split(","):
+                fields = ["0"] * 41
+                fields[1], fields[2], fields[3], fields[5], fields[7], fields[9] = "1.9", "2", "2.1", "10", symbol.split("P")[-1], "1"
+                fields[32], fields[40] = "2026-10-21 15:00:00", "1"
+                bodies.append(f'var hq_str_{symbol}="{",".join(fields)}";')
+            return Response(["\n".join(bodies).encode("ascii")])
+        monkeypatch.setattr(bot.requests, "get", get)
+        with evidence.capture_session(tmp_path, day, clock, {"purpose": "synthetic complete MO verification"}):
+>           result = bot._prefetch_mo_replay_verification(frame, clock)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_icim_round4_recovery_20261021.py:265: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+ic_im_evidence_adapter_v1.py:178: in adapted
+    return capture.call(role, key, lambda: _validate_value(
+ic_im_signal_evidence_v1.py:419: in call
+    value = fetcher()
+            ^^^^^^^^^
+ic_im_evidence_adapter_v1.py:179: in <lambda>
+    strategy, role, key, original(*args, **kwargs)))
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^
+poe_ic_im_mainline_v1_4_bot.py:162: in _prefetch_mo_replay_verification
+    future.result()
+C:\Python314\Lib\concurrent\futures\_base.py:443: in result
+    return self.__get_result()
+           ^^^^^^^^^^^^^^^^^^^
+C:\Python314\Lib\concurrent\futures\_base.py:395: in __get_result
+    raise self._exception
+C:\Python314\Lib\concurrent\futures\thread.py:86: in run
+    result = ctx.run(self.task)
+             ^^^^^^^^^^^^^^^^^^
+C:\Python314\Lib\concurrent\futures\thread.py:73: in run
+    return fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^
+poe_ic_im_mainline_v1_4_bot.py:145: in verify_batch
+    response = _evidence_http_get("https://hq.sinajs.cn/etag.php", params={"list": ",".join(batch)},
+poe_ic_im_mainline_v1_4_bot.py:83: in _evidence_http_get
+    response = requests.get(*args, **wire_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+url = 'https://hq.sinajs.cn/etag.php'
+params = 'list=P_OP_mo2612P6600,P_OP_mo2612P6601,P_OP_mo2612P6602,P_OP_mo2612P6603,P_OP_mo2612P6604,P_OP_mo2612P6605,P_OP_mo261...P_OP_mo2612P6657,P_OP_mo2612P6658,P_OP_mo2612P6659,P_OP_mo2612P6660,P_OP_mo2612P6661,P_OP_mo2612P6662,P_OP_mo2612P6663'
+kwargs = {'headers': {'Cache-Control': 'no-cache', 'Referer': 'https://stock.finance.sina.com.cn/', 'User-Agent': 'Mozilla/5.0 POE-IC-IM-Research/1.0'}, 'stream': True, 'timeout': 6}
+
+    def get(url, params, **kwargs):
+>       calls.append(params["list"])
+                     ^^^^^^^^^^^^^^
+E       TypeError: string indices must be integers, not 'str'
+
+test_icim_round4_recovery_20261021.py:255: TypeError
+============================== warnings summary ===============================
+C:\Python314\Lib\site-packages\fastapi_poe\types.py:171
+  C:\Python314\Lib\site-packages\fastapi_poe\types.py:171: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    class RequestContext(BaseModel):
+
+test_icim_redteam_display_20261021.py::test_bootstrap_snapshot_retains_known_single_core_identity
+  test_icim_redteam_display_20261021.py:73: PytestWarning: record_property is incompatible with junit_family 'xunit2' (use 'legacy' or 'xunit1')
+    def test_bootstrap_snapshot_retains_known_single_core_identity(monkeypatch, record_property):
+
+test_icim_redteam_display_20261021.py::test_core_overlay_failure_cannot_label_momentum_as_current_core
+  test_icim_redteam_display_20261021.py:89: PytestWarning: record_property is incompatible with junit_family 'xunit2' (use 'legacy' or 'xunit1')
+    def test_core_overlay_failure_cannot_label_momentum_as_current_core(monkeypatch, record_property):
+
+test_icim_redteam_display_20261021.py::test_core_overlay_failure_cannot_publish_momentum_iv_as_core_monitor
+  test_icim_redteam_display_20261021.py:120: PytestWarning: record_property is incompatible with junit_family 'xunit2' (use 'legacy' or 'xunit1')
+    def test_core_overlay_failure_cannot_publish_momentum_iv_as_core_monitor(monkeypatch, record_property):
+
+test_icim_redteam_display_20261021.py::test_im_snapshot_zero_core_does_not_show_residual_contract
+  test_icim_redteam_display_20261021.py:201: PytestWarning: record_property is incompatible with junit_family 'xunit2' (use 'legacy' or 'xunit1')
+    def test_im_snapshot_zero_core_does_not_show_residual_contract(monkeypatch, record_property):
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED test_icim_round4_recovery_20261021.py::test_batched_mo_original_crosschecks_replay_quote_and_open_without_http
+1 failed, 2917 passed, 22 deselected, 5 warnings in 207.01s (0:03:27)

@@ -1,0 +1,12 @@
+[
+  {
+    "product": "IC",
+    "sha256": "fcbfda93c687bf31908b756065d7971ec25d32112e2cdf087860b27df41dbf26",
+    "manifest": "D:\\动量策略\\IC和IM滚动套利\\data\\icim_v14_original_inputs\\sessions\\2026-10-22\\104029320612-ea2833aff9a542968f51f66ceb0f7773.json"
+  },
+  {
+    "product": "IM",
+    "sha256": "fbd0247754eb1dcb80ad0a7f1cd3d068a9b10e8f9675af8ef656c160fd9ea417",
+    "manifest": "D:\\动量策略\\IC和IM滚动套利\\data\\icim_v14_original_inputs\\sessions\\2026-10-22\\104108069491-79037dc09f1047eb9cff9eafb29cb247.json"
+  }
+]

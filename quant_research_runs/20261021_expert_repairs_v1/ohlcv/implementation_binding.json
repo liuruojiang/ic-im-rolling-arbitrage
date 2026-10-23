@@ -1,0 +1,17 @@
+{
+  "scope": "interim targeted checks, not final integrated acceptance",
+  "production_functions": {
+    "DailyOHLCVNotReady": "0d302882f49d615ffa94b17f6c214c5ee10422e11222f0b56fcf64f5efa77d30",
+    "DailyOHLCVSourcesUnavailable": "8b4fdc2807a877dc2e8de933ca73cece5f4d4f90b348855bdaec4caaa88449b5",
+    "_fetch_tencent_ohlcv_history": "2889504138ef5c66f9083b3f84e697457e91e32f647c7857bbddcec5ebb6e581",
+    "fetch_ohlcv_history": "e6d36bd10950a991815806eb2ac43d52a32c9b4a1f6b88a594d9b939b0e2e816"
+  },
+  "test_sha256": "0f65bf11b3630d8800c66e0f24b987028beda89d1527245b11a10bd5cdb08b5c",
+  "latest_stage": "targeted_02",
+  "targeted_result": "37 passed, 1 warning",
+  "test_files": [
+    "test_icim_expert_ohlcv_20261021.py",
+    "test_tencent_ohlcv_pagination_20261012.py",
+    "test_ic_im_review_ohlcv_wait_20261021.py"
+  ]
+}

@@ -1,0 +1,533 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="21" skipped="0" tests="39" time="2.688" timestamp="2026-10-21T13:54:34.145737+08:00" hostname="DESKTOP-95I7VVU"><testcase classname="test_icim_redteam_market_20261021" name="test_real_three_packet_baseline_uses_trade_field" time="0.005" /><testcase classname="test_icim_redteam_market_20261021" name="test_listing_and_contract_identity_fail_closed[unrequested_security]" time="0.002"><failure message="Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000001FE493C3230&gt;
+mutation = 'unrequested_security'
+
+    @pytest.mark.parametrize('mutation', ['unrequested_security', 'wrong_underlying', 'wrong_expiry_day',
+                                         'duplicate_security', 'duplicate_contract', 'missing_security'])
+    def test_listing_and_contract_identity_fail_closed(monkeypatch, mutation):
+        rows = [(security, payload.split(',')) for security, payload in PACKETS]
+        if mutation == 'unrequested_security':
+            rows[0] = ('99999999', rows[0][1])
+        elif mutation == 'wrong_underlying':
+            rows[0][1][36] = '510300'
+        elif mutation == 'wrong_expiry_day':
+            rows[0][1][46] = '2026-11-01'
+        elif mutation == 'duplicate_security':
+            rows.append((rows[0][0], rows[0][1].copy()))
+            rows[-1][1][2] = '1.5000'
+        elif mutation == 'duplicate_contract':
+            rows[1][1][7] = rows[0][1][7]
+        elif mutation == 'missing_security':
+            rows.pop(0)
+&gt;       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;
+
+test_icim_redteam_market_20261021.py:63: Failed</failure></testcase><testcase classname="test_icim_redteam_market_20261021" name="test_listing_and_contract_identity_fail_closed[wrong_underlying]" time="0.002"><failure message="Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000001FE49416570&gt;
+mutation = 'wrong_underlying'
+
+    @pytest.mark.parametrize('mutation', ['unrequested_security', 'wrong_underlying', 'wrong_expiry_day',
+                                         'duplicate_security', 'duplicate_contract', 'missing_security'])
+    def test_listing_and_contract_identity_fail_closed(monkeypatch, mutation):
+        rows = [(security, payload.split(',')) for security, payload in PACKETS]
+        if mutation == 'unrequested_security':
+            rows[0] = ('99999999', rows[0][1])
+        elif mutation == 'wrong_underlying':
+            rows[0][1][36] = '510300'
+        elif mutation == 'wrong_expiry_day':
+            rows[0][1][46] = '2026-11-01'
+        elif mutation == 'duplicate_security':
+            rows.append((rows[0][0], rows[0][1].copy()))
+            rows[-1][1][2] = '1.5000'
+        elif mutation == 'duplicate_contract':
+            rows[1][1][7] = rows[0][1][7]
+        elif mutation == 'missing_security':
+            rows.pop(0)
+&gt;       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;
+
+test_icim_redteam_market_20261021.py:63: Failed</failure></testcase><testcase classname="test_icim_redteam_market_20261021" name="test_listing_and_contract_identity_fail_closed[wrong_expiry_day]" time="0.002"><failure message="Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000001FE494A7350&gt;
+mutation = 'wrong_expiry_day'
+
+    @pytest.mark.parametrize('mutation', ['unrequested_security', 'wrong_underlying', 'wrong_expiry_day',
+                                         'duplicate_security', 'duplicate_contract', 'missing_security'])
+    def test_listing_and_contract_identity_fail_closed(monkeypatch, mutation):
+        rows = [(security, payload.split(',')) for security, payload in PACKETS]
+        if mutation == 'unrequested_security':
+            rows[0] = ('99999999', rows[0][1])
+        elif mutation == 'wrong_underlying':
+            rows[0][1][36] = '510300'
+        elif mutation == 'wrong_expiry_day':
+            rows[0][1][46] = '2026-11-01'
+        elif mutation == 'duplicate_security':
+            rows.append((rows[0][0], rows[0][1].copy()))
+            rows[-1][1][2] = '1.5000'
+        elif mutation == 'duplicate_contract':
+            rows[1][1][7] = rows[0][1][7]
+        elif mutation == 'missing_security':
+            rows.pop(0)
+&gt;       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;
+
+test_icim_redteam_market_20261021.py:63: Failed</failure></testcase><testcase classname="test_icim_redteam_market_20261021" name="test_listing_and_contract_identity_fail_closed[duplicate_security]" time="0.002"><failure message="Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000001FE494A7570&gt;
+mutation = 'duplicate_security'
+
+    @pytest.mark.parametrize('mutation', ['unrequested_security', 'wrong_underlying', 'wrong_expiry_day',
+                                         'duplicate_security', 'duplicate_contract', 'missing_security'])
+    def test_listing_and_contract_identity_fail_closed(monkeypatch, mutation):
+        rows = [(security, payload.split(',')) for security, payload in PACKETS]
+        if mutation == 'unrequested_security':
+            rows[0] = ('99999999', rows[0][1])
+        elif mutation == 'wrong_underlying':
+            rows[0][1][36] = '510300'
+        elif mutation == 'wrong_expiry_day':
+            rows[0][1][46] = '2026-11-01'
+        elif mutation == 'duplicate_security':
+            rows.append((rows[0][0], rows[0][1].copy()))
+            rows[-1][1][2] = '1.5000'
+        elif mutation == 'duplicate_contract':
+            rows[1][1][7] = rows[0][1][7]
+        elif mutation == 'missing_security':
+            rows.pop(0)
+&gt;       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;
+
+test_icim_redteam_market_20261021.py:63: Failed</failure></testcase><testcase classname="test_icim_redteam_market_20261021" name="test_listing_and_contract_identity_fail_closed[duplicate_contract]" time="0.002"><failure message="Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000001FE495E4650&gt;
+mutation = 'duplicate_contract'
+
+    @pytest.mark.parametrize('mutation', ['unrequested_security', 'wrong_underlying', 'wrong_expiry_day',
+                                         'duplicate_security', 'duplicate_contract', 'missing_security'])
+    def test_listing_and_contract_identity_fail_closed(monkeypatch, mutation):
+        rows = [(security, payload.split(',')) for security, payload in PACKETS]
+        if mutation == 'unrequested_security':
+            rows[0] = ('99999999', rows[0][1])
+        elif mutation == 'wrong_underlying':
+            rows[0][1][36] = '510300'
+        elif mutation == 'wrong_expiry_day':
+            rows[0][1][46] = '2026-11-01'
+        elif mutation == 'duplicate_security':
+            rows.append((rows[0][0], rows[0][1].copy()))
+            rows[-1][1][2] = '1.5000'
+        elif mutation == 'duplicate_contract':
+            rows[1][1][7] = rows[0][1][7]
+        elif mutation == 'missing_security':
+            rows.pop(0)
+&gt;       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;
+
+test_icim_redteam_market_20261021.py:63: Failed</failure></testcase><testcase classname="test_icim_redteam_market_20261021" name="test_listing_and_contract_identity_fail_closed[missing_security]" time="0.002"><failure message="Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000001FE495E5150&gt;
+mutation = 'missing_security'
+
+    @pytest.mark.parametrize('mutation', ['unrequested_security', 'wrong_underlying', 'wrong_expiry_day',
+                                         'duplicate_security', 'duplicate_contract', 'missing_security'])
+    def test_listing_and_contract_identity_fail_closed(monkeypatch, mutation):
+        rows = [(security, payload.split(',')) for security, payload in PACKETS]
+        if mutation == 'unrequested_security':
+            rows[0] = ('99999999', rows[0][1])
+        elif mutation == 'wrong_underlying':
+            rows[0][1][36] = '510300'
+        elif mutation == 'wrong_expiry_day':
+            rows[0][1][46] = '2026-11-01'
+        elif mutation == 'duplicate_security':
+            rows.append((rows[0][0], rows[0][1].copy()))
+            rows[-1][1][2] = '1.5000'
+        elif mutation == 'duplicate_contract':
+            rows[1][1][7] = rows[0][1][7]
+        elif mutation == 'missing_security':
+            rows.pop(0)
+&gt;       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;
+
+test_icim_redteam_market_20261021.py:63: Failed</failure></testcase><testcase classname="test_icim_redteam_market_20261021" name="test_nonfinite_and_negative_market_fields_are_rejected[2-NaN]" time="0.001" /><testcase classname="test_icim_redteam_market_20261021" name="test_nonfinite_and_negative_market_fields_are_rejected[2-inf]" time="0.001" /><testcase classname="test_icim_redteam_market_20261021" name="test_nonfinite_and_negative_market_fields_are_rejected[7-NaN]" time="0.001" /><testcase classname="test_icim_redteam_market_20261021" name="test_nonfinite_and_negative_market_fields_are_rejected[7--1]" time="0.001" /><testcase classname="test_icim_redteam_market_20261021" name="test_missing_security_changes_nearest_strike_selection" time="0.003"><failure message="Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000001FE495B0AE0&gt;
+
+    def test_missing_security_changes_nearest_strike_selection(monkeypatch):
+        baseline, _ = fetch(monkeypatch, REAL)
+        rows = [(security, payload.split(',')) for security, payload in PACKETS[1:]]
+&gt;       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;
+
+test_icim_redteam_market_20261021.py:78: Failed</failure></testcase><testcase classname="test_icim_redteam_market_20261021" name="test_duplicate_conflicting_price_is_consumed_by_quote_row" time="0.003"><failure message="Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000001FE493E9310&gt;
+
+    def test_duplicate_conflicting_price_is_consumed_by_quote_row(monkeypatch):
+        rows = [(security, payload.split(',')) for security, payload in PACKETS]
+        conflicting = (rows[0][0], rows[0][1].copy())
+        conflicting[1][2] = '1.5000'
+        monkeypatch.setattr(bot, '_now_beijing', lambda: datetime(2026,10,21,13,25,tzinfo=bot.BEIJING))
+&gt;       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;
+
+test_icim_redteam_market_20261021.py:91: Failed</failure></testcase><testcase classname="test_icim_redteam_market_20261021" name="test_real_selection_consumers_reject_corrupted_bound_chain[missing_security-reset]" time="0.004"><failure message="Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000001FE493E99D0&gt;
+consumer = 'reset', mutation = 'missing_security'
+
+    @pytest.mark.parametrize('consumer', ['reset','short'])
+    @pytest.mark.parametrize('mutation', ['missing_security','wrong_underlying','wrong_expiry_day','conflict'])
+    def test_real_selection_consumers_reject_corrupted_bound_chain(monkeypatch, consumer, mutation):
+        rows = [(security,payload.split(',')) for security,payload in PACKETS]
+        if mutation == 'missing_security':
+            rows.pop(0)
+        elif mutation == 'wrong_underlying':
+            rows[0][1][36] = '510300'
+        elif mutation == 'wrong_expiry_day':
+            rows[0][1][46] = '2026-11-01'
+        elif mutation == 'conflict':
+            alternate = (rows[0][0],rows[0][1].copy())
+            alternate[1][2] = '.2000'
+            rows.insert(0,alternate)
+        monkeypatch.setattr(bot,'_now_beijing',lambda:datetime(2026,10,21,13,25,tzinfo=bot.BEIJING))
+        monkeypatch.setattr(bot,'_gov10y_for_day',lambda *args:.02)
+        monkeypatch.setattr(bot,'fetch_sse_510500_expiries',lambda:['202611'])
+        # Resolve a code through the correct independent ID mapping. The market
+        # price still must be bound to that identity, even if this lookup succeeds.
+        mapping = {'510500P2611M06750':'10012482','510500P2611M07000':'10012483',
+                   '510500P2611M07250':'10012484'}
+        monkeypatch.setattr(bot,'fetch_sina_510500_security_id',lambda contract:mapping[contract])
+&gt;       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;
+
+test_icim_redteam_market_20261021.py:119: Failed</failure></testcase><testcase classname="test_icim_redteam_market_20261021" name="test_real_selection_consumers_reject_corrupted_bound_chain[missing_security-short]" time="0.004"><failure message="Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000001FE49543AC0&gt;
+consumer = 'short', mutation = 'missing_security'
+
+    @pytest.mark.parametrize('consumer', ['reset','short'])
+    @pytest.mark.parametrize('mutation', ['missing_security','wrong_underlying','wrong_expiry_day','conflict'])
+    def test_real_selection_consumers_reject_corrupted_bound_chain(monkeypatch, consumer, mutation):
+        rows = [(security,payload.split(',')) for security,payload in PACKETS]
+        if mutation == 'missing_security':
+            rows.pop(0)
+        elif mutation == 'wrong_underlying':
+            rows[0][1][36] = '510300'
+        elif mutation == 'wrong_expiry_day':
+            rows[0][1][46] = '2026-11-01'
+        elif mutation == 'conflict':
+            alternate = (rows[0][0],rows[0][1].copy())
+            alternate[1][2] = '.2000'
+            rows.insert(0,alternate)
+        monkeypatch.setattr(bot,'_now_beijing',lambda:datetime(2026,10,21,13,25,tzinfo=bot.BEIJING))
+        monkeypatch.setattr(bot,'_gov10y_for_day',lambda *args:.02)
+        monkeypatch.setattr(bot,'fetch_sse_510500_expiries',lambda:['202611'])
+        # Resolve a code through the correct independent ID mapping. The market
+        # price still must be bound to that identity, even if this lookup succeeds.
+        mapping = {'510500P2611M06750':'10012482','510500P2611M07000':'10012483',
+                   '510500P2611M07250':'10012484'}
+        monkeypatch.setattr(bot,'fetch_sina_510500_security_id',lambda contract:mapping[contract])
+&gt;       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;
+
+test_icim_redteam_market_20261021.py:119: Failed</failure></testcase><testcase classname="test_icim_redteam_market_20261021" name="test_real_selection_consumers_reject_corrupted_bound_chain[wrong_underlying-reset]" time="0.004"><failure message="Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000001FE49590CB0&gt;
+consumer = 'reset', mutation = 'wrong_underlying'
+
+    @pytest.mark.parametrize('consumer', ['reset','short'])
+    @pytest.mark.parametrize('mutation', ['missing_security','wrong_underlying','wrong_expiry_day','conflict'])
+    def test_real_selection_consumers_reject_corrupted_bound_chain(monkeypatch, consumer, mutation):
+        rows = [(security,payload.split(',')) for security,payload in PACKETS]
+        if mutation == 'missing_security':
+            rows.pop(0)
+        elif mutation == 'wrong_underlying':
+            rows[0][1][36] = '510300'
+        elif mutation == 'wrong_expiry_day':
+            rows[0][1][46] = '2026-11-01'
+        elif mutation == 'conflict':
+            alternate = (rows[0][0],rows[0][1].copy())
+            alternate[1][2] = '.2000'
+            rows.insert(0,alternate)
+        monkeypatch.setattr(bot,'_now_beijing',lambda:datetime(2026,10,21,13,25,tzinfo=bot.BEIJING))
+        monkeypatch.setattr(bot,'_gov10y_for_day',lambda *args:.02)
+        monkeypatch.setattr(bot,'fetch_sse_510500_expiries',lambda:['202611'])
+        # Resolve a code through the correct independent ID mapping. The market
+        # price still must be bound to that identity, even if this lookup succeeds.
+        mapping = {'510500P2611M06750':'10012482','510500P2611M07000':'10012483',
+                   '510500P2611M07250':'10012484'}
+        monkeypatch.setattr(bot,'fetch_sina_510500_security_id',lambda contract:mapping[contract])
+&gt;       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;
+
+test_icim_redteam_market_20261021.py:119: Failed</failure></testcase><testcase classname="test_icim_redteam_market_20261021" name="test_real_selection_consumers_reject_corrupted_bound_chain[wrong_underlying-short]" time="0.004"><failure message="Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000001FE495AD090&gt;
+consumer = 'short', mutation = 'wrong_underlying'
+
+    @pytest.mark.parametrize('consumer', ['reset','short'])
+    @pytest.mark.parametrize('mutation', ['missing_security','wrong_underlying','wrong_expiry_day','conflict'])
+    def test_real_selection_consumers_reject_corrupted_bound_chain(monkeypatch, consumer, mutation):
+        rows = [(security,payload.split(',')) for security,payload in PACKETS]
+        if mutation == 'missing_security':
+            rows.pop(0)
+        elif mutation == 'wrong_underlying':
+            rows[0][1][36] = '510300'
+        elif mutation == 'wrong_expiry_day':
+            rows[0][1][46] = '2026-11-01'
+        elif mutation == 'conflict':
+            alternate = (rows[0][0],rows[0][1].copy())
+            alternate[1][2] = '.2000'
+            rows.insert(0,alternate)
+        monkeypatch.setattr(bot,'_now_beijing',lambda:datetime(2026,10,21,13,25,tzinfo=bot.BEIJING))
+        monkeypatch.setattr(bot,'_gov10y_for_day',lambda *args:.02)
+        monkeypatch.setattr(bot,'fetch_sse_510500_expiries',lambda:['202611'])
+        # Resolve a code through the correct independent ID mapping. The market
+        # price still must be bound to that identity, even if this lookup succeeds.
+        mapping = {'510500P2611M06750':'10012482','510500P2611M07000':'10012483',
+                   '510500P2611M07250':'10012484'}
+        monkeypatch.setattr(bot,'fetch_sina_510500_security_id',lambda contract:mapping[contract])
+&gt;       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;
+
+test_icim_redteam_market_20261021.py:119: Failed</failure></testcase><testcase classname="test_icim_redteam_market_20261021" name="test_real_selection_consumers_reject_corrupted_bound_chain[wrong_expiry_day-reset]" time="0.004"><failure message="Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000001FE495AD6D0&gt;
+consumer = 'reset', mutation = 'wrong_expiry_day'
+
+    @pytest.mark.parametrize('consumer', ['reset','short'])
+    @pytest.mark.parametrize('mutation', ['missing_security','wrong_underlying','wrong_expiry_day','conflict'])
+    def test_real_selection_consumers_reject_corrupted_bound_chain(monkeypatch, consumer, mutation):
+        rows = [(security,payload.split(',')) for security,payload in PACKETS]
+        if mutation == 'missing_security':
+            rows.pop(0)
+        elif mutation == 'wrong_underlying':
+            rows[0][1][36] = '510300'
+        elif mutation == 'wrong_expiry_day':
+            rows[0][1][46] = '2026-11-01'
+        elif mutation == 'conflict':
+            alternate = (rows[0][0],rows[0][1].copy())
+            alternate[1][2] = '.2000'
+            rows.insert(0,alternate)
+        monkeypatch.setattr(bot,'_now_beijing',lambda:datetime(2026,10,21,13,25,tzinfo=bot.BEIJING))
+        monkeypatch.setattr(bot,'_gov10y_for_day',lambda *args:.02)
+        monkeypatch.setattr(bot,'fetch_sse_510500_expiries',lambda:['202611'])
+        # Resolve a code through the correct independent ID mapping. The market
+        # price still must be bound to that identity, even if this lookup succeeds.
+        mapping = {'510500P2611M06750':'10012482','510500P2611M07000':'10012483',
+                   '510500P2611M07250':'10012484'}
+        monkeypatch.setattr(bot,'fetch_sina_510500_security_id',lambda contract:mapping[contract])
+&gt;       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;
+
+test_icim_redteam_market_20261021.py:119: Failed</failure></testcase><testcase classname="test_icim_redteam_market_20261021" name="test_real_selection_consumers_reject_corrupted_bound_chain[wrong_expiry_day-short]" time="0.003"><failure message="Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000001FE4952EA80&gt;
+consumer = 'short', mutation = 'wrong_expiry_day'
+
+    @pytest.mark.parametrize('consumer', ['reset','short'])
+    @pytest.mark.parametrize('mutation', ['missing_security','wrong_underlying','wrong_expiry_day','conflict'])
+    def test_real_selection_consumers_reject_corrupted_bound_chain(monkeypatch, consumer, mutation):
+        rows = [(security,payload.split(',')) for security,payload in PACKETS]
+        if mutation == 'missing_security':
+            rows.pop(0)
+        elif mutation == 'wrong_underlying':
+            rows[0][1][36] = '510300'
+        elif mutation == 'wrong_expiry_day':
+            rows[0][1][46] = '2026-11-01'
+        elif mutation == 'conflict':
+            alternate = (rows[0][0],rows[0][1].copy())
+            alternate[1][2] = '.2000'
+            rows.insert(0,alternate)
+        monkeypatch.setattr(bot,'_now_beijing',lambda:datetime(2026,10,21,13,25,tzinfo=bot.BEIJING))
+        monkeypatch.setattr(bot,'_gov10y_for_day',lambda *args:.02)
+        monkeypatch.setattr(bot,'fetch_sse_510500_expiries',lambda:['202611'])
+        # Resolve a code through the correct independent ID mapping. The market
+        # price still must be bound to that identity, even if this lookup succeeds.
+        mapping = {'510500P2611M06750':'10012482','510500P2611M07000':'10012483',
+                   '510500P2611M07250':'10012484'}
+        monkeypatch.setattr(bot,'fetch_sina_510500_security_id',lambda contract:mapping[contract])
+&gt;       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;
+
+test_icim_redteam_market_20261021.py:119: Failed</failure></testcase><testcase classname="test_icim_redteam_market_20261021" name="test_real_selection_consumers_reject_corrupted_bound_chain[conflict-reset]" time="0.003"><failure message="Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000001FE495AA6D0&gt;
+consumer = 'reset', mutation = 'conflict'
+
+    @pytest.mark.parametrize('consumer', ['reset','short'])
+    @pytest.mark.parametrize('mutation', ['missing_security','wrong_underlying','wrong_expiry_day','conflict'])
+    def test_real_selection_consumers_reject_corrupted_bound_chain(monkeypatch, consumer, mutation):
+        rows = [(security,payload.split(',')) for security,payload in PACKETS]
+        if mutation == 'missing_security':
+            rows.pop(0)
+        elif mutation == 'wrong_underlying':
+            rows[0][1][36] = '510300'
+        elif mutation == 'wrong_expiry_day':
+            rows[0][1][46] = '2026-11-01'
+        elif mutation == 'conflict':
+            alternate = (rows[0][0],rows[0][1].copy())
+            alternate[1][2] = '.2000'
+            rows.insert(0,alternate)
+        monkeypatch.setattr(bot,'_now_beijing',lambda:datetime(2026,10,21,13,25,tzinfo=bot.BEIJING))
+        monkeypatch.setattr(bot,'_gov10y_for_day',lambda *args:.02)
+        monkeypatch.setattr(bot,'fetch_sse_510500_expiries',lambda:['202611'])
+        # Resolve a code through the correct independent ID mapping. The market
+        # price still must be bound to that identity, even if this lookup succeeds.
+        mapping = {'510500P2611M06750':'10012482','510500P2611M07000':'10012483',
+                   '510500P2611M07250':'10012484'}
+        monkeypatch.setattr(bot,'fetch_sina_510500_security_id',lambda contract:mapping[contract])
+&gt;       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;
+
+test_icim_redteam_market_20261021.py:119: Failed</failure></testcase><testcase classname="test_icim_redteam_market_20261021" name="test_real_selection_consumers_reject_corrupted_bound_chain[conflict-short]" time="0.004"><failure message="Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000001FE495E18D0&gt;
+consumer = 'short', mutation = 'conflict'
+
+    @pytest.mark.parametrize('consumer', ['reset','short'])
+    @pytest.mark.parametrize('mutation', ['missing_security','wrong_underlying','wrong_expiry_day','conflict'])
+    def test_real_selection_consumers_reject_corrupted_bound_chain(monkeypatch, consumer, mutation):
+        rows = [(security,payload.split(',')) for security,payload in PACKETS]
+        if mutation == 'missing_security':
+            rows.pop(0)
+        elif mutation == 'wrong_underlying':
+            rows[0][1][36] = '510300'
+        elif mutation == 'wrong_expiry_day':
+            rows[0][1][46] = '2026-11-01'
+        elif mutation == 'conflict':
+            alternate = (rows[0][0],rows[0][1].copy())
+            alternate[1][2] = '.2000'
+            rows.insert(0,alternate)
+        monkeypatch.setattr(bot,'_now_beijing',lambda:datetime(2026,10,21,13,25,tzinfo=bot.BEIJING))
+        monkeypatch.setattr(bot,'_gov10y_for_day',lambda *args:.02)
+        monkeypatch.setattr(bot,'fetch_sse_510500_expiries',lambda:['202611'])
+        # Resolve a code through the correct independent ID mapping. The market
+        # price still must be bound to that identity, even if this lookup succeeds.
+        mapping = {'510500P2611M06750':'10012482','510500P2611M07000':'10012483',
+                   '510500P2611M07250':'10012484'}
+        monkeypatch.setattr(bot,'fetch_sina_510500_security_id',lambda contract:mapping[contract])
+&gt;       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;
+
+test_icim_redteam_market_20261021.py:119: Failed</failure></testcase><testcase classname="test_icim_redteam_market_20261021" name="test_failed_archive_parse_or_validation_does_not_poison_cache[missing_columns]" time="0.003"><failure message="AssertionError: assert '202609' not in {'202609': b'PK\x03\x04\x14\x00\x00\x00\x00\x00\xd2nU]\x14\x0fC\xc6\x1c\x00\x00\x00\x1c\x00\x00\x00\x0e\x00\x00\x00202...x00\x80\x01\x00\x00\x00\x0020260930_1.csvPK\x05\x06\x00\x00\x00\x00\x01\x00\x01\x00&lt;\x00\x00\x00H\x00\x00\x00\x00\x00'}&#10; +  where {'202609': b'PK\x03\x04\x14\x00\x00\x00\x00\x00\xd2nU]\x14\x0fC\xc6\x1c\x00\x00\x00\x1c\x00\x00\x00\x0e\x00\x00\x00202...x00\x80\x01\x00\x00\x00\x0020260930_1.csvPK\x05\x06\x00\x00\x00\x00\x01\x00\x01\x00&lt;\x00\x00\x00H\x00\x00\x00\x00\x00'} = bot._CFFEX_MONTH_CACHE">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000001FE49595780&gt;
+bad = 'missing_columns'
+
+    @pytest.mark.parametrize('bad', ['missing_columns', 'empty_csv', 'bad_encoding', 'invalid_numeric'])
+    def test_failed_archive_parse_or_validation_does_not_poison_cache(monkeypatch, bad):
+        body = {'missing_columns': b'instrument,last\nIC2610,8050\n', 'empty_csv': b'',
+                'bad_encoding': b'\xff', 'invalid_numeric': CSV.replace(b',8050,8040',b',NaN,8040')}[bad]
+        raw = archive([('20260930_1.csv',body)])
+        cache(monkeypatch,raw)
+        with pytest.raises(Exception):
+            bot._cffex_historical_quote_frame('IC', ARCHIVE_DAY, ARCHIVE_CLOCK)
+&gt;       assert '202609' not in bot._CFFEX_MONTH_CACHE
+E       AssertionError: assert '202609' not in {'202609': b'PK\x03\x04\x14\x00\x00\x00\x00\x00\xd2nU]\x14\x0fC\xc6\x1c\x00\x00\x00\x1c\x00\x00\x00\x0e\x00\x00\x00202...x00\x80\x01\x00\x00\x00\x0020260930_1.csvPK\x05\x06\x00\x00\x00\x00\x01\x00\x01\x00&lt;\x00\x00\x00H\x00\x00\x00\x00\x00'}
+E        +  where {'202609': b'PK\x03\x04\x14\x00\x00\x00\x00\x00\xd2nU]\x14\x0fC\xc6\x1c\x00\x00\x00\x1c\x00\x00\x00\x0e\x00\x00\x00202...x00\x80\x01\x00\x00\x00\x0020260930_1.csvPK\x05\x06\x00\x00\x00\x00\x01\x00\x01\x00&lt;\x00\x00\x00H\x00\x00\x00\x00\x00'} = bot._CFFEX_MONTH_CACHE
+
+test_icim_redteam_market_20261021.py:166: AssertionError</failure></testcase><testcase classname="test_icim_redteam_market_20261021" name="test_failed_archive_parse_or_validation_does_not_poison_cache[empty_csv]" time="0.002"><failure message="AssertionError: assert '202609' not in {'202609': b'PK\x03\x04\x14\x00\x00\x00\x00\x00\xd2nU]\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x0e\x00\x00\x00...x00\x80\x01\x00\x00\x00\x0020260930_1.csvPK\x05\x06\x00\x00\x00\x00\x01\x00\x01\x00&lt;\x00\x00\x00,\x00\x00\x00\x00\x00'}&#10; +  where {'202609': b'PK\x03\x04\x14\x00\x00\x00\x00\x00\xd2nU]\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x0e\x00\x00\x00...x00\x80\x01\x00\x00\x00\x0020260930_1.csvPK\x05\x06\x00\x00\x00\x00\x01\x00\x01\x00&lt;\x00\x00\x00,\x00\x00\x00\x00\x00'} = bot._CFFEX_MONTH_CACHE">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000001FE4958BCB0&gt;
+bad = 'empty_csv'
+
+    @pytest.mark.parametrize('bad', ['missing_columns', 'empty_csv', 'bad_encoding', 'invalid_numeric'])
+    def test_failed_archive_parse_or_validation_does_not_poison_cache(monkeypatch, bad):
+        body = {'missing_columns': b'instrument,last\nIC2610,8050\n', 'empty_csv': b'',
+                'bad_encoding': b'\xff', 'invalid_numeric': CSV.replace(b',8050,8040',b',NaN,8040')}[bad]
+        raw = archive([('20260930_1.csv',body)])
+        cache(monkeypatch,raw)
+        with pytest.raises(Exception):
+            bot._cffex_historical_quote_frame('IC', ARCHIVE_DAY, ARCHIVE_CLOCK)
+&gt;       assert '202609' not in bot._CFFEX_MONTH_CACHE
+E       AssertionError: assert '202609' not in {'202609': b'PK\x03\x04\x14\x00\x00\x00\x00\x00\xd2nU]\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x0e\x00\x00\x00...x00\x80\x01\x00\x00\x00\x0020260930_1.csvPK\x05\x06\x00\x00\x00\x00\x01\x00\x01\x00&lt;\x00\x00\x00,\x00\x00\x00\x00\x00'}
+E        +  where {'202609': b'PK\x03\x04\x14\x00\x00\x00\x00\x00\xd2nU]\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x0e\x00\x00\x00...x00\x80\x01\x00\x00\x00\x0020260930_1.csvPK\x05\x06\x00\x00\x00\x00\x01\x00\x01\x00&lt;\x00\x00\x00,\x00\x00\x00\x00\x00'} = bot._CFFEX_MONTH_CACHE
+
+test_icim_redteam_market_20261021.py:166: AssertionError</failure></testcase><testcase classname="test_icim_redteam_market_20261021" name="test_failed_archive_parse_or_validation_does_not_poison_cache[bad_encoding]" time="0.001"><failure message="AssertionError: assert '202609' not in {'202609': b'PK\x03\x04\x14\x00\x00\x00\x00\x00\xd2nU]\x00\x00\x00\xff\x01\x00\x00\x00\x01\x00\x00\x00\x0e\x00\x00\x00...x00\x80\x01\x00\x00\x00\x0020260930_1.csvPK\x05\x06\x00\x00\x00\x00\x01\x00\x01\x00&lt;\x00\x00\x00-\x00\x00\x00\x00\x00'}&#10; +  where {'202609': b'PK\x03\x04\x14\x00\x00\x00\x00\x00\xd2nU]\x00\x00\x00\xff\x01\x00\x00\x00\x01\x00\x00\x00\x0e\x00\x00\x00...x00\x80\x01\x00\x00\x00\x0020260930_1.csvPK\x05\x06\x00\x00\x00\x00\x01\x00\x01\x00&lt;\x00\x00\x00-\x00\x00\x00\x00\x00'} = bot._CFFEX_MONTH_CACHE">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000001FE4958BA10&gt;
+bad = 'bad_encoding'
+
+    @pytest.mark.parametrize('bad', ['missing_columns', 'empty_csv', 'bad_encoding', 'invalid_numeric'])
+    def test_failed_archive_parse_or_validation_does_not_poison_cache(monkeypatch, bad):
+        body = {'missing_columns': b'instrument,last\nIC2610,8050\n', 'empty_csv': b'',
+                'bad_encoding': b'\xff', 'invalid_numeric': CSV.replace(b',8050,8040',b',NaN,8040')}[bad]
+        raw = archive([('20260930_1.csv',body)])
+        cache(monkeypatch,raw)
+        with pytest.raises(Exception):
+            bot._cffex_historical_quote_frame('IC', ARCHIVE_DAY, ARCHIVE_CLOCK)
+&gt;       assert '202609' not in bot._CFFEX_MONTH_CACHE
+E       AssertionError: assert '202609' not in {'202609': b'PK\x03\x04\x14\x00\x00\x00\x00\x00\xd2nU]\x00\x00\x00\xff\x01\x00\x00\x00\x01\x00\x00\x00\x0e\x00\x00\x00...x00\x80\x01\x00\x00\x00\x0020260930_1.csvPK\x05\x06\x00\x00\x00\x00\x01\x00\x01\x00&lt;\x00\x00\x00-\x00\x00\x00\x00\x00'}
+E        +  where {'202609': b'PK\x03\x04\x14\x00\x00\x00\x00\x00\xd2nU]\x00\x00\x00\xff\x01\x00\x00\x00\x01\x00\x00\x00\x0e\x00\x00\x00...x00\x80\x01\x00\x00\x00\x0020260930_1.csvPK\x05\x06\x00\x00\x00\x00\x01\x00\x01\x00&lt;\x00\x00\x00-\x00\x00\x00\x00\x00'} = bot._CFFEX_MONTH_CACHE
+
+test_icim_redteam_market_20261021.py:166: AssertionError</failure></testcase><testcase classname="test_icim_redteam_market_20261021" name="test_failed_archive_parse_or_validation_does_not_poison_cache[invalid_numeric]" time="0.008"><failure message="AssertionError: assert '202609' not in {'202609': b'PK\x03\x04\x14\x00\x00\x00\x00\x00\xd2nU]9\r!z\xd2\x00\x00\x00\xd2\x00\x00\x00\x0e\x00\x00\x0020260930_1....\x80\x01\x00\x00\x00\x0020260930_1.csvPK\x05\x06\x00\x00\x00\x00\x01\x00\x01\x00&lt;\x00\x00\x00\xfe\x00\x00\x00\x00\x00'}&#10; +  where {'202609': b'PK\x03\x04\x14\x00\x00\x00\x00\x00\xd2nU]9\r!z\xd2\x00\x00\x00\xd2\x00\x00\x00\x0e\x00\x00\x0020260930_1....\x80\x01\x00\x00\x00\x0020260930_1.csvPK\x05\x06\x00\x00\x00\x00\x01\x00\x01\x00&lt;\x00\x00\x00\xfe\x00\x00\x00\x00\x00'} = bot._CFFEX_MONTH_CACHE">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000001FE4958B850&gt;
+bad = 'invalid_numeric'
+
+    @pytest.mark.parametrize('bad', ['missing_columns', 'empty_csv', 'bad_encoding', 'invalid_numeric'])
+    def test_failed_archive_parse_or_validation_does_not_poison_cache(monkeypatch, bad):
+        body = {'missing_columns': b'instrument,last\nIC2610,8050\n', 'empty_csv': b'',
+                'bad_encoding': b'\xff', 'invalid_numeric': CSV.replace(b',8050,8040',b',NaN,8040')}[bad]
+        raw = archive([('20260930_1.csv',body)])
+        cache(monkeypatch,raw)
+        with pytest.raises(Exception):
+            bot._cffex_historical_quote_frame('IC', ARCHIVE_DAY, ARCHIVE_CLOCK)
+&gt;       assert '202609' not in bot._CFFEX_MONTH_CACHE
+E       AssertionError: assert '202609' not in {'202609': b'PK\x03\x04\x14\x00\x00\x00\x00\x00\xd2nU]9\r!z\xd2\x00\x00\x00\xd2\x00\x00\x00\x0e\x00\x00\x0020260930_1....\x80\x01\x00\x00\x00\x0020260930_1.csvPK\x05\x06\x00\x00\x00\x00\x01\x00\x01\x00&lt;\x00\x00\x00\xfe\x00\x00\x00\x00\x00'}
+E        +  where {'202609': b'PK\x03\x04\x14\x00\x00\x00\x00\x00\xd2nU]9\r!z\xd2\x00\x00\x00\xd2\x00\x00\x00\x0e\x00\x00\x0020260930_1....\x80\x01\x00\x00\x00\x0020260930_1.csvPK\x05\x06\x00\x00\x00\x00\x01\x00\x01\x00&lt;\x00\x00\x00\xfe\x00\x00\x00\x00\x00'} = bot._CFFEX_MONTH_CACHE
+
+test_icim_redteam_market_20261021.py:166: AssertionError</failure></testcase><testcase classname="test_icim_redteam_market_20261021" name="test_bad_schema_cache_does_not_block_later_valid_recovery" time="0.002"><failure message="RuntimeError: 中金所 2026-09-30 日行情缺少字段: 今开盘, 今收盘, 合约代码, 成交量, 持仓量, 最低价, 最高价">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000001FE4958B770&gt;
+
+    def test_bad_schema_cache_does_not_block_later_valid_recovery(monkeypatch):
+        raw = archive([('20260930_1.csv',b'instrument,last\nIC2610,8050\n')])
+        cache(monkeypatch,raw)
+        good = archive([('20260930_1.csv',CSV)])
+        response = SimpleNamespace(headers={},raise_for_status=lambda:None,
+                                   iter_content=lambda **kwargs:iter([good]),close=lambda:None)
+        get = Mock(return_value=response)
+        monkeypatch.setattr(bot.requests,'get',get)
+        with pytest.raises(RuntimeError):
+            bot._cffex_historical_quote_frame('IC',ARCHIVE_DAY,ARCHIVE_CLOCK)
+        # No fixture mutation or manual cache clearing: the next caller must be
+        # able to re-download the corrected source instead of replaying bad bytes.
+&gt;       recovered = bot._cffex_historical_quote_frame('IC',ARCHIVE_DAY,ARCHIVE_CLOCK)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_icim_redteam_market_20261021.py:181: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+product = 'IC', day = datetime.date(2026, 9, 30)
+clock = datetime.datetime(2026, 9, 30, 16, 0, tzinfo=zoneinfo.ZoneInfo(key='Asia/Shanghai'))
+
+    def _cffex_historical_quote_frame(
+        product: str, day: date, clock: datetime
+    ) -&gt; pd.DataFrame:
+        """Load one official completed session from CFFEX's monthly archive."""
+    
+        member_name = f"{day:%Y%m%d}_1.csv"
+        key = f"{day:%Y%m}"
+        for attempt in range(2):
+            raw = _cffex_month_archive(pd.Timestamp(day))
+            try:
+                with zipfile.ZipFile(io.BytesIO(raw)) as archive:
+                    members = archive.infolist()
+                    if len(members) &gt; MAX_CFFEX_ZIP_MEMBERS:
+                        raise RuntimeError("中金所月度行情包成员数量超过安全上限")
+                    if any(info.flag_bits &amp; 0x1 for info in members):
+                        raise RuntimeError("中金所月度行情包含加密成员")
+                    if len({info.filename for info in members}) != len(members):
+                        raise RuntimeError("中金所月度行情包成员重复")
+                    if any(info.file_size &gt; MAX_CFFEX_ZIP_MEMBER_BYTES for info in members):
+                        raise RuntimeError("中金所月度行情包单个成员超过安全上限")
+                    if sum(info.file_size for info in members) &gt; MAX_CFFEX_ZIP_UNCOMPRESSED_BYTES:
+                        raise RuntimeError("中金所月度行情包解压体积超过安全上限")
+                    matches = [info for info in members if info.filename.endswith(member_name)]
+                    if len(matches) != 1:
+                        _CFFEX_MONTH_CACHE.pop(key, None)
+                        if not matches and attempt == 0:
+                            continue  # One bounded refresh; never use the stale body.
+                        raise RuntimeError(f"中金所月度行情包缺少唯一日文件 {member_name}")
+                    daily = pd.read_csv(io.BytesIO(archive.read(matches[0])), encoding="gbk", low_memory=False)
+                break
+            except zipfile.BadZipFile as exc:
+                _CFFEX_MONTH_CACHE.pop(key, None)
+                raise RuntimeError("中金所月度行情包ZIP结构或校验异常") from exc
+            except RuntimeError:
+                _CFFEX_MONTH_CACHE.pop(key, None)
+                raise
+        daily.columns = [str(column).strip().lstrip("\ufeff") for column in daily.columns]
+        field_map = {
+            "合约代码": "instrument",
+            "今开盘": "openprice",
+            "最高价": "highest",
+            "最低价": "lowest",
+            "成交量": "volume",
+            "持仓量": "position",
+            "今收盘": "lastprice",
+        }
+        missing = sorted(set(field_map).difference(daily.columns))
+        if missing:
+&gt;           raise RuntimeError(
+                f"中金所 {day} 日行情缺少字段: {', '.join(missing)}"
+            )
+E           RuntimeError: 中金所 2026-09-30 日行情缺少字段: 今开盘, 今收盘, 合约代码, 成交量, 持仓量, 最低价, 最高价
+
+poe_ic_im_mainline_v1_4_bot.py:1061: RuntimeError</failure></testcase><testcase classname="test_icim_redteam_market_20261021" name="test_archive_shape_failures_evict_cache[missing_day_twice]" time="0.001" /><testcase classname="test_icim_redteam_market_20261021" name="test_archive_shape_failures_evict_cache[duplicate]" time="0.001" /><testcase classname="test_icim_redteam_market_20261021" name="test_archive_shape_failures_evict_cache[encrypted]" time="0.001" /><testcase classname="test_icim_redteam_market_20261021" name="test_archive_shape_failures_evict_cache[invalid_zip]" time="0.001" /><testcase classname="test_icim_redteam_market_20261021" name="test_missing_day_refresh_transport_failure_does_not_keep_old_cache" time="0.001" /><testcase classname="test_icim_redteam_market_20261021" name="test_standard_m_gate_and_non_ic_compatibility" time="0.001" /><testcase classname="test_icim_redteam_market_20261021" name="test_declared_adjusted_gap_is_safely_isolated[v14_core_put_contract]" time="0.001" /><testcase classname="test_icim_redteam_market_20261021" name="test_declared_adjusted_gap_is_safely_isolated[post_put_contract]" time="0.001" /><testcase classname="test_icim_redteam_market_20261021" name="test_declared_adjusted_gap_is_safely_isolated[put_current_contract]" time="0.001" /><testcase classname="test_icim_redteam_market_20261021" name="test_declared_adjusted_gap_is_safely_isolated[put_target_contract]" time="0.001" /><testcase classname="test_icim_redteam_market_20261021" name="test_declared_adjusted_gap_is_safely_isolated[v14_short_put_contract]" time="0.001" /><testcase classname="test_icim_redteam_market_20261021" name="test_declared_adjusted_gap_is_safely_isolated[v14_profit_old_contract]" time="0.001" /><testcase classname="test_icim_redteam_market_20261021" name="test_declared_adjusted_gap_is_safely_isolated[v14_profit_reentry_contract]" time="0.001" /></testsuite></testsuites>

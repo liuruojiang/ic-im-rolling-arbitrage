@@ -1,0 +1,271 @@
+{
+  "network_verification": "gh API blocked by session proxy; local release snapshots checked",
+  "cases": [
+    {
+      "product": "IC",
+      "all_prices_finite_positive": true,
+      "before_json": "{'month_next_spread': {'status': 'ok', 'convention': 'near_minus_far', 'label': '当月－次月', 'source': 'synthetic finite-price source fault', 'source_date': '2026-10-15', 'price_type': 'same_snapshot_lastprice', 'near_contract': 'IC2610', 'far_contract': 'IC2611', 'near_price': 1e-300, 'far_price': 1e+308, 'points': -1e+308, 'ratio': -inf, 'annualized': -inf, 'same_contract': False, 'expiry_gap_days': 35, 'near_expiry': '2026-10-16', 'far_expiry': '2026-11-20'}, 'month_quarter_spread': {'status': 'ok', 'convention': 'near_minus_far', 'label': '当月－当季', 'source': 'synthetic finite-price source fault', 'source_date': '2026-10-15', 'price_type': 'same_snapshot_lastprice', 'near_contract': 'IC2610', 'far_contract': 'IC2612', 'near_price': 1e-300, 'far_price': 6000.0, 'points': -6000.0, 'ratio': -6e+303, 'annualized': -3.476190476190476e+304, 'same_contract': False, 'expiry_gap_days': 63, 'near_expiry': '2026-10-16', 'far_expiry': '2026-12-18'}}",
+      "serialized": {
+        "month_next_spread": {
+          "status": "ok",
+          "convention": "near_minus_far",
+          "label": "当月－次月",
+          "source": "synthetic finite-price source fault",
+          "source_date": "2026-10-15",
+          "price_type": "same_snapshot_lastprice",
+          "near_contract": "IC2610",
+          "far_contract": "IC2611",
+          "near_price": 1e-300,
+          "far_price": 1e+308,
+          "points": -1e+308,
+          "ratio": null,
+          "annualized": null,
+          "same_contract": false,
+          "expiry_gap_days": 35,
+          "near_expiry": "2026-10-16",
+          "far_expiry": "2026-11-20"
+        },
+        "month_quarter_spread": {
+          "status": "ok",
+          "convention": "near_minus_far",
+          "label": "当月－当季",
+          "source": "synthetic finite-price source fault",
+          "source_date": "2026-10-15",
+          "price_type": "same_snapshot_lastprice",
+          "near_contract": "IC2610",
+          "far_contract": "IC2612",
+          "near_price": 1e-300,
+          "far_price": 6000.0,
+          "points": -6000.0,
+          "ratio": -6e+303,
+          "annualized": -3.476190476190476e+304,
+          "same_contract": false,
+          "expiry_gap_days": 63,
+          "near_expiry": "2026-10-16",
+          "far_expiry": "2026-12-18"
+        }
+      },
+      "quarter": {
+        "status": "ok",
+        "convention": "near_minus_far",
+        "source": "synthetic finite-price source fault",
+        "source_date": "2026-10-15",
+        "price_type": "same_snapshot_lastprice",
+        "near_contract": "IC2612",
+        "far_contract": "IC2703",
+        "near_price": 6000.0,
+        "far_price": 5900.0,
+        "points": 100.0,
+        "ratio": 0.016666666666666666,
+        "annualized": 0.06684981684981685,
+        "expiry_gap_days": 91,
+        "near_expiry": "2026-12-18",
+        "far_expiry": "2027-03-19"
+      },
+      "local_pre_json": {
+        "ok": true,
+        "value": [
+          "季月价差：N/A（未提供同日完整报价）",
+          "月度价差（当月－次月）：IC2610 0.00 − IC2611 100000000000000001097906362944045541740492309677311846336810682903157585404911491537163328978494688899061249669721172515611590283743140088328307009198146046031271664502933027185697489699588559043338384466165001178426897626212945177628091195786707458122783970171784415105291802893207873272974885715430223118336.00 = -100000000000000001097906362944045541740492309677311846336810682903157585404911491537163328978494688899061249669721172515611590283743140088328307009198146046031271664502933027185697489699588559043338384466165001178426897626212945177628091195786707458122783970171784415105291802893207873272974885715430223118336.00点（-inf%；按到期间隔折算-inf%/年，非保证收益）；行情 2026-10-15，synthetic finite-price source fault",
+          "月度价差（当月－当季）：IC2610 0.00 − IC2612 6000.00 = -6000.00点（-599999999999999963552131503321877311602417233207039497191446294279392273780794034170598555446430464906211367083369730354723031624558161831814147930452012966499238086500920662464062615189746454350623188152913095944598380953049309959572946736176476988320762095119754344384456262850757591724494260888288624640.00%；按到期间隔折算-3476190476190475916197458445417231650011147235991945803767894277987541412188634729037863601670559839441209557231266124056341281278555435710489249041462259710609572772655134073501929412095499359534845781521768118918034522354633326266355581034020716236072409676307497867723954036094940980477053023928958582784.00%/年，非保证收益）；行情 2026-10-15，synthetic finite-price source fault"
+        ]
+      },
+      "local_post_json": {
+        "ok": false,
+        "exception": "TypeError",
+        "message": "unsupported format string passed to NoneType.__format__"
+      },
+      "cloud_post_json": {
+        "ok": false,
+        "exception": "TypeError",
+        "message": "float() argument must be a string or a real number, not 'NoneType'"
+      }
+    },
+    {
+      "product": "IM",
+      "all_prices_finite_positive": true,
+      "before_json": "{'month_next_spread': {'status': 'ok', 'convention': 'near_minus_far', 'label': '当月－次月', 'source': 'synthetic finite-price source fault', 'source_date': '2026-10-15', 'price_type': 'same_snapshot_lastprice', 'near_contract': 'IM2610', 'far_contract': 'IM2611', 'near_price': 1e-300, 'far_price': 1e+308, 'points': -1e+308, 'ratio': -inf, 'annualized': -inf, 'same_contract': False, 'expiry_gap_days': 35, 'near_expiry': '2026-10-16', 'far_expiry': '2026-11-20'}, 'month_quarter_spread': {'status': 'ok', 'convention': 'near_minus_far', 'label': '当月－当季', 'source': 'synthetic finite-price source fault', 'source_date': '2026-10-15', 'price_type': 'same_snapshot_lastprice', 'near_contract': 'IM2610', 'far_contract': 'IM2612', 'near_price': 1e-300, 'far_price': 6000.0, 'points': -6000.0, 'ratio': -6e+303, 'annualized': -3.476190476190476e+304, 'same_contract': False, 'expiry_gap_days': 63, 'near_expiry': '2026-10-16', 'far_expiry': '2026-12-18'}}",
+      "serialized": {
+        "month_next_spread": {
+          "status": "ok",
+          "convention": "near_minus_far",
+          "label": "当月－次月",
+          "source": "synthetic finite-price source fault",
+          "source_date": "2026-10-15",
+          "price_type": "same_snapshot_lastprice",
+          "near_contract": "IM2610",
+          "far_contract": "IM2611",
+          "near_price": 1e-300,
+          "far_price": 1e+308,
+          "points": -1e+308,
+          "ratio": null,
+          "annualized": null,
+          "same_contract": false,
+          "expiry_gap_days": 35,
+          "near_expiry": "2026-10-16",
+          "far_expiry": "2026-11-20"
+        },
+        "month_quarter_spread": {
+          "status": "ok",
+          "convention": "near_minus_far",
+          "label": "当月－当季",
+          "source": "synthetic finite-price source fault",
+          "source_date": "2026-10-15",
+          "price_type": "same_snapshot_lastprice",
+          "near_contract": "IM2610",
+          "far_contract": "IM2612",
+          "near_price": 1e-300,
+          "far_price": 6000.0,
+          "points": -6000.0,
+          "ratio": -6e+303,
+          "annualized": -3.476190476190476e+304,
+          "same_contract": false,
+          "expiry_gap_days": 63,
+          "near_expiry": "2026-10-16",
+          "far_expiry": "2026-12-18"
+        }
+      },
+      "quarter": {
+        "status": "ok",
+        "convention": "near_minus_far",
+        "source": "synthetic finite-price source fault",
+        "source_date": "2026-10-15",
+        "price_type": "same_snapshot_lastprice",
+        "near_contract": "IM2612",
+        "far_contract": "IM2703",
+        "near_price": 6000.0,
+        "far_price": 5900.0,
+        "points": 100.0,
+        "ratio": 0.016666666666666666,
+        "annualized": 0.06684981684981685,
+        "expiry_gap_days": 91,
+        "near_expiry": "2026-12-18",
+        "far_expiry": "2027-03-19"
+      },
+      "local_pre_json": {
+        "ok": true,
+        "value": [
+          "季月价差：N/A（未提供同日完整报价）",
+          "月度价差（当月－次月）：IM2610 0.00 − IM2611 100000000000000001097906362944045541740492309677311846336810682903157585404911491537163328978494688899061249669721172515611590283743140088328307009198146046031271664502933027185697489699588559043338384466165001178426897626212945177628091195786707458122783970171784415105291802893207873272974885715430223118336.00 = -100000000000000001097906362944045541740492309677311846336810682903157585404911491537163328978494688899061249669721172515611590283743140088328307009198146046031271664502933027185697489699588559043338384466165001178426897626212945177628091195786707458122783970171784415105291802893207873272974885715430223118336.00点（-inf%；按到期间隔折算-inf%/年，非保证收益）；行情 2026-10-15，synthetic finite-price source fault",
+          "月度价差（当月－当季）：IM2610 0.00 − IM2612 6000.00 = -6000.00点（-599999999999999963552131503321877311602417233207039497191446294279392273780794034170598555446430464906211367083369730354723031624558161831814147930452012966499238086500920662464062615189746454350623188152913095944598380953049309959572946736176476988320762095119754344384456262850757591724494260888288624640.00%；按到期间隔折算-3476190476190475916197458445417231650011147235991945803767894277987541412188634729037863601670559839441209557231266124056341281278555435710489249041462259710609572772655134073501929412095499359534845781521768118918034522354633326266355581034020716236072409676307497867723954036094940980477053023928958582784.00%/年，非保证收益）；行情 2026-10-15，synthetic finite-price source fault"
+        ]
+      },
+      "local_post_json": {
+        "ok": false,
+        "exception": "TypeError",
+        "message": "unsupported format string passed to NoneType.__format__"
+      },
+      "cloud_post_json": {
+        "ok": false,
+        "exception": "TypeError",
+        "message": "float() argument must be a string or a real number, not 'NoneType'"
+      }
+    }
+  ],
+  "real_sessions_count": 3742,
+  "real_sessions_mismatch": [],
+  "unvalidated_bad_payload_render": {
+    "ok": true,
+    "value": [
+      "月度价差（当月－次月）：IM2610 6000.00 − IM2611 5900.00 = +999.00点（+90.00%；按到期间隔折算+90.00%/年，非保证收益）；行情 2026-10-15，CFFEX",
+      "月度价差（当月－当季）：N/A（缺少同日完整报价）"
+    ]
+  },
+  "real_payload_base_validation": {
+    "ok": true,
+    "value": null
+  },
+  "real_payload_fault_validation": {
+    "ok": true,
+    "value": null
+  },
+  "real_payload_fault_mail": {
+    "ok": false,
+    "exception": "TypeError",
+    "message": "float() argument must be a string or a real number, not 'NoneType'"
+  },
+  "real_payload_fault_html": {
+    "ok": false,
+    "exception": "TypeError",
+    "message": "float() argument must be a string or a real number, not 'NoneType'"
+  },
+  "real_signal_fault_state_validation": {
+    "IC": {
+      "ok": true,
+      "value": null
+    },
+    "IM": {
+      "ok": true,
+      "value": null
+    }
+  },
+  "real_payload_bad_diagnostic_validation": {
+    "ok": true,
+    "value": null
+  },
+  "real_payload_bad_diagnostic_mail": {
+    "ok": true,
+    "value": [
+      "月度价差（当月－次月）：IM2610 6000.00 − IM2611 5900.00 = +999.00点（+90.00%；按到期间隔折算+90.00%/年，非保证收益）；行情 2026-10-15，CFFEX",
+      "月度价差（当月－当季）：N/A（缺少同日完整报价）"
+    ]
+  },
+  "real_payload_file_unchanged": true,
+  "manifest_checks": {
+    "ic_im_quarter_roll_v1_3.py": {
+      "lf_sha_match": true,
+      "git_blob_match": true
+    },
+    "poe_ic_im_mainline_v1_4_bot.py": {
+      "lf_sha_match": true,
+      "git_blob_match": true
+    },
+    "run_ic_im_v1_4_github_digest.py": {
+      "lf_sha_match": true,
+      "git_blob_match": true
+    },
+    "test_ic_im_month_spreads_20261018.py": {
+      "lf_sha_match": true,
+      "git_blob_match": true
+    },
+    "automation/scripts/build_ic_im_v1_4_digest.py": {
+      "lf_sha_match": true,
+      "git_blob_match": true
+    },
+    "automation/tests/test_ic_im_v1_4_month_spreads.py": {
+      "lf_sha_match": true,
+      "git_blob_match": true
+    },
+    "automation/.github/workflows/ic-im-v1-4-daily-digest.yml": {
+      "lf_sha_match": true,
+      "git_blob_match": true
+    },
+    "automation/.github/workflows/delivery-regression.yml": {
+      "lf_sha_match": true,
+      "git_blob_match": true
+    },
+    "automation/tests/test_ic_im_v1_4_workflow.py": {
+      "lf_sha_match": true,
+      "git_blob_match": true
+    }
+  },
+  "ledger_path_review": {
+    "append_confirmed_signals": "poe_ic_im_v1_4_state.py:1455 stores all signal fields via _jsonable(signals)",
+    "validate_delivery_values": "No monthly-spread status/date/product/finite-derived-value guard",
+    "anchor_derivation": "No month_next_spread or month_quarter_spread reference in state anchor derivation",
+    "official_ledger_written": false
+  },
+  "oct09_archive_independent_hashes": {
+    "actual": {
+      "subject": "83ac10169794288c490b74269a01f7f2bd4411b288b5714835430fece77b9e4e",
+      "plain": "91ad9a1f7b782eba5afab05150641a997f7ffceb504ec9d29414d7b7aab263d7",
+      "html": "84feb7e87780d5a2568d7e13121f4501119018df8b19b41a54886fefe1e4fc73"
+    },
+    "expected": {
+      "subject": "83ac10169794288c490b74269a01f7f2bd4411b288b5714835430fece77b9e4e",
+      "plain": "91ad9a1f7b782eba5afab05150641a997f7ffceb504ec9d29414d7b7aab263d7",
+      "html": "84feb7e87780d5a2568d7e13121f4501119018df8b19b41a54886fefe1e4fc73"
+    },
+    "match": true
+  }
+}

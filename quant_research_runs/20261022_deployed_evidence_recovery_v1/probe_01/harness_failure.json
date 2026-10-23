@@ -1,0 +1,4 @@
+{
+  "status": "HARNESS_ERROR",
+  "error": "TypeError serializing market_date in diagnostic case receipt; date encoding corrected; no production change"
+}

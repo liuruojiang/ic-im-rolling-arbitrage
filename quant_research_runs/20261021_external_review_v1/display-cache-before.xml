@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="6" skipped="0" tests="6" time="2.602" timestamp="2026-10-21T13:35:49.015939+08:00" hostname="DESKTOP-95I7VVU"><testcase classname="test_ic_im_external_review_display_cache_20261021" name="test_ic_warning_uses_core_identity_and_its_own_timestamp" time="0.004"><failure message="AssertionError: assert '510500P2611M06500' == '510500P2612M07500'&#10;  &#10;  - 510500P2612M07500&#10;  ?           ^  ^&#10;  + 510500P2611M06500&#10;  ?           ^  ^">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x00000138004AA650&gt;
+
+    def test_ic_warning_uses_core_identity_and_its_own_timestamp(monkeypatch):
+        clock = datetime(2026, 10, 21, 13, 30, tzinfo=bot.BEIJING)
+        anchor = fixture.anchor("IC")
+        signal = fixture.signal("IC", clock.date(), close_confirmed=False, etf_price=7.8,
+            put_current_contract="510500P2611M06500", iv_monitor_option_price=.1,
+            sse_time="090000", etf_quote_date="20261021", etf_quote_time="132900")
+        chain = pd.DataFrame([dict(contract=anchor["v14_core_put_contract"], last=.8, strike=7.5,
+                                   source_stamp=clock.replace(minute=29))])
+        monkeypatch.setattr(bot,"fetch_510500_chain_with_failover",lambda month:(chain,dict(date="20261021",time="132900",source="synthetic_core")))
+        monkeypatch.setattr(bot,"_now_beijing",lambda:clock)
+        monkeypatch.setattr(bot,"_gov10y_for_day",lambda *args:.02)
+        pricing = Mock(return_value=.35)
+        monkeypatch.setattr(bot,"_implied_volatility",pricing)
+        bot._v14_ic_core_overlay(signal,anchor)
+        warning = bot.build_iv_warning("IC",signal,{},None,clock)
+&gt;       assert warning["contract"] == anchor["v14_core_put_contract"]
+E       AssertionError: assert '510500P2611M06500' == '510500P2612M07500'
+E         
+E         - 510500P2612M07500
+E         ?           ^  ^
+E         + 510500P2611M06500
+E         ?           ^  ^
+
+test_ic_im_external_review_display_cache_20261021.py:31: AssertionError</failure></testcase><testcase classname="test_ic_im_external_review_display_cache_20261021" name="test_incomplete_bound_iv_evidence_cannot_fall_back_to_another_leg" time="0.001"><failure message="AssertionError: assert '510500P2611M06500' == '510500P2612M07500'&#10;  &#10;  - 510500P2612M07500&#10;  ?           ^  ^&#10;  + 510500P2611M06500&#10;  ?           ^  ^">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x00000138004AAFD0&gt;
+
+    def test_incomplete_bound_iv_evidence_cannot_fall_back_to_another_leg(monkeypatch):
+        clock = datetime(2026,10,21,13,30,tzinfo=bot.BEIJING)
+        signal = dict(market_date=clock.date(),close_confirmed=False,etf_price=7.8,
+                      put_current_contract="510500P2611M06500",iv_monitor_option_price=.8,
+                      iv_monitor_evidence={"contract":"510500P2612M07500"})
+        pricing=Mock(return_value=.4)
+        monkeypatch.setattr(bot,"_implied_volatility",pricing)
+        warning=bot.build_iv_warning("IC",signal,{},None,clock)
+&gt;       assert warning["contract"]=="510500P2612M07500"
+E       AssertionError: assert '510500P2611M06500' == '510500P2612M07500'
+E         
+E         - 510500P2612M07500
+E         ?           ^  ^
+E         + 510500P2611M06500
+E         ?           ^  ^
+
+test_ic_im_external_review_display_cache_20261021.py:46: AssertionError</failure></testcase><testcase classname="test_ic_im_external_review_display_cache_20261021" name="test_cached_archive_missing_day_is_invalidated_and_refetched_once" time="0.001"><failure message="RuntimeError: 中金所月度行情包缺少唯一日文件 20260930_1.csv">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x0000013800512690&gt;
+
+    def test_cached_archive_missing_day_is_invalidated_and_refetched_once(monkeypatch):
+        monkeypatch.setitem(bot._CFFEX_MONTH_CACHE,"202609",archive("20260929"))
+        good=archive("20260930")
+        response=SimpleNamespace(headers={},raise_for_status=lambda:None,
+                                 iter_content=lambda **kwargs:iter([good]),close=lambda:None)
+        get=Mock(return_value=response)
+        monkeypatch.setattr(bot.requests,"get",get)
+        monkeypatch.setattr(bot,"_validate_quote_frame",lambda frame,*args:frame)
+&gt;       result=bot._cffex_historical_quote_frame("IC",date(2026,9,30),datetime(2026,10,21,16,tzinfo=bot.BEIJING))
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_ic_im_external_review_display_cache_20261021.py:67: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+product = 'IC', day = datetime.date(2026, 9, 30)
+clock = datetime.datetime(2026, 10, 21, 16, 0, tzinfo=zoneinfo.ZoneInfo(key='Asia/Shanghai'))
+
+    def _cffex_historical_quote_frame(
+        product: str, day: date, clock: datetime
+    ) -&gt; pd.DataFrame:
+        """Load one official completed session from CFFEX's monthly archive."""
+    
+        raw = _cffex_month_archive(pd.Timestamp(day))
+        member_name = f"{day:%Y%m%d}_1.csv"
+        with zipfile.ZipFile(io.BytesIO(raw)) as archive:
+            members = archive.infolist()
+            if len(members) &gt; MAX_CFFEX_ZIP_MEMBERS:
+                raise RuntimeError("中金所月度行情包成员数量超过安全上限")
+            if any(info.file_size &gt; MAX_CFFEX_ZIP_MEMBER_BYTES for info in members):
+                raise RuntimeError("中金所月度行情包单个成员超过安全上限")
+            if sum(info.file_size for info in members) &gt; MAX_CFFEX_ZIP_UNCOMPRESSED_BYTES:
+                raise RuntimeError("中金所月度行情包解压体积超过安全上限")
+            matches = [info for info in members if info.filename.endswith(member_name)]
+            if len(matches) != 1:
+&gt;               raise RuntimeError(f"中金所月度行情包缺少唯一日文件 {member_name}")
+E               RuntimeError: 中金所月度行情包缺少唯一日文件 20260930_1.csv
+
+poe_ic_im_mainline_v1_4_bot.py:1030: RuntimeError</failure></testcase><testcase classname="test_ic_im_external_review_display_cache_20261021" name="test_archive_second_missing_response_is_not_cached_or_retried_forever" time="0.001"><failure message="AssertionError: assert 0 == 1&#10; +  where 0 = &lt;Mock id='1340036550672'&gt;.call_count">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x00000138005AF9B0&gt;
+
+    def test_archive_second_missing_response_is_not_cached_or_retried_forever(monkeypatch):
+        bad=archive("20260929")
+        monkeypatch.setitem(bot._CFFEX_MONTH_CACHE,"202609",bad)
+        response=SimpleNamespace(headers={},raise_for_status=lambda:None,
+                                 iter_content=lambda **kwargs:iter([bad]),close=lambda:None)
+        get=Mock(return_value=response)
+        monkeypatch.setattr(bot.requests,"get",get)
+        with pytest.raises(RuntimeError,match="缺少唯一日文件"):
+            bot._cffex_historical_quote_frame("IC",date(2026,9,30),datetime(2026,10,21,16,tzinfo=bot.BEIJING))
+&gt;       assert get.call_count==1
+E       AssertionError: assert 0 == 1
+E        +  where 0 = &lt;Mock id='1340036550672'&gt;.call_count
+
+test_ic_im_external_review_display_cache_20261021.py:82: AssertionError</failure></testcase><testcase classname="test_ic_im_external_review_display_cache_20261021" name="test_ic_snapshot_lists_each_contract_instead_of_total_on_momentum" time="0.001"><failure message="AssertionError: assert '核心 5张 `510500P2612M07500`' in '**最后逐腿核验快照（2026-08-24，仅研究审计）**\n\n- 0.5倍核心期货：`IC2609`（路线 `future`）\n- 动量袖：权重 0.5，期货名义 0.25倍\n- 独立网格：0倍；期货合计：0.75倍\n- Put：8张 `510500P2611M06500`；Call：无（IC禁止Call）\n- 这只是最后已核验状态，不是当前账户持仓；联网或账本续接恢复前，不生成下一交易日目标。\n\n'">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x0000013800690050&gt;
+
+    def test_ic_snapshot_lists_each_contract_instead_of_total_on_momentum(monkeypatch):
+        anchor=deepcopy(bot.LIVE_CONTINUATION_ANCHOR["IC"])
+        anchor.update(verified_core_put_qty=5,verified_momentum_put_qty=3,
+                      v14_core_put_qty=5,v14_core_put_contract="510500P2612M07500",
+                      post_put_contract="510500P2611M06500",verified_put_qty_normalized=8,post_put_qty=8)
+        monkeypatch.setitem(bot.LIVE_CONTINUATION_ANCHOR,"IC",anchor)
+        message=Mock()
+        bot._write_last_verified_snapshot(message,"IC")
+        text=message.write.call_args.args[0]
+&gt;       assert "核心 5张 `510500P2612M07500`" in text
+E       AssertionError: assert '核心 5张 `510500P2612M07500`' in '**最后逐腿核验快照（2026-08-24，仅研究审计）**\n\n- 0.5倍核心期货：`IC2609`（路线 `future`）\n- 动量袖：权重 0.5，期货名义 0.25倍\n- 独立网格：0倍；期货合计：0.75倍\n- Put：8张 `510500P2611M06500`；Call：无（IC禁止Call）\n- 这只是最后已核验状态，不是当前账户持仓；联网或账本续接恢复前，不生成下一交易日目标。\n\n'
+
+test_ic_im_external_review_display_cache_20261021.py:95: AssertionError</failure></testcase><testcase classname="test_ic_im_external_review_display_cache_20261021" name="test_malformed_content_length_has_diagnostic_error" time="0.001"><failure message="ValueError: invalid literal for int() with base 10: 'not-a-number'">def test_malformed_content_length_has_diagnostic_error():
+        response=SimpleNamespace(headers={"Content-Length":"not-a-number"},content=b"data")
+        with pytest.raises(RuntimeError,match="长度标头非法"):
+&gt;           bot._response_with_size_limit(response,"test")
+
+test_ic_im_external_review_display_cache_20261021.py:104: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+response = namespace(headers={'Content-Length': 'not-a-number'}, content=b'data')
+label = 'test'
+
+    def _response_with_size_limit(response: Any, label: str) -&gt; bytes:
+        declared = response.headers.get("Content-Length")
+&gt;       if declared and int(declared) &gt; MAX_QUOTE_RESPONSE_BYTES:
+                        ^^^^^^^^^^^^^
+E       ValueError: invalid literal for int() with base 10: 'not-a-number'
+
+poe_ic_im_mainline_v1_4_bot.py:2741: ValueError</failure></testcase></testsuite></testsuites>

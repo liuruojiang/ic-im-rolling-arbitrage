@@ -1,0 +1,59 @@
+--- ic_im_signal_evidence_v1.py.before_publication_guard
++++ ic_im_signal_evidence_v1.py
+@@ -38,10 +38,30 @@
+ current_reader: contextvars.ContextVar[EvidenceReader | None] = contextvars.ContextVar(
+     "icim_evidence_reader", default=None
+ )
++_publication_guard: contextvars.ContextVar[Callable[[], Any] | None] = contextvars.ContextVar(
++    "icim_evidence_publication_guard", default=None
++)
+ 
+ 
+ class EvidenceUnavailable(RuntimeError):
+     """A required original-day input is missing, invalid, or incomplete."""
++
++
++@contextmanager
++def publication_guard(callback: Callable[[], Any]) -> Iterator[None]:
++    """Validate the capture source before its manifest can become readable.
++
++    Capture sessions retain their creation scope's callback. Failure seals an
++    incomplete archive and remains available as ``session.publication_error``;
++    the collector must still perform its final source check and report errors.
++    """
++    if not callable(callback):
++        raise TypeError("evidence publication guard must be callable")
++    token = _publication_guard.set(callback)
++    try:
++        yield
++    finally:
++        _publication_guard.reset(token)
+ 
+ 
+ def _now() -> datetime:
+@@ -417,6 +437,8 @@
+         self._active_role_owners: dict[str, int] = {}
+         self._active_fetches = 0
+         self._bound_signals = []
++        self._publication_guard = _publication_guard.get()
++        self.publication_error: Exception | None = None
+ 
+     def annotate(self, name: str, value: Any) -> None:
+         with self._lock:
+@@ -561,6 +583,16 @@
+             return self.manifest_path
+         if self._active_fetches:
+             raise EvidenceUnavailable("cannot close evidence while input fetches are active")
++        if self._publication_guard is not None:
++            try:
++                self._publication_guard()
++            except Exception as exc:
++                # Do this before publishing any manifest: a reader must never
++                # observe a complete archive produced by an unverified source.
++                self.publication_error = exc
++                self.failures.append({"role": "publication_guard", "error_type": type(exc).__name__,
++                                      "error": str(exc)[:2000], "at": _now().isoformat(),
++                                      "resolved": False})
+         invalid = {row.get("raw_index") for row in self.failures
+                    if row.get("role") == "raw_http_metadata"}
+         for index, row in enumerate(self.raw):

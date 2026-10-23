@@ -1,0 +1,37 @@
+.............F..                                                         [100%]
+================================== FAILURES ===================================
+_ test_failed_capture_receipt_without_manifest_must_show_original_archive_missing _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000022958912D50>
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_f10a0f3d/pytest/test_failed_capture_receipt_wi0')
+
+    def test_failed_capture_receipt_without_manifest_must_show_original_archive_missing(monkeypatch, tmp_path):
+        """A collector setup/write failure must not silently hide missing evidence."""
+        _module, owner, current, _signals, clock = _coordinator(tmp_path, monkeypatch)
+        root = tmp_path / 'never_sealed_evidence'
+        owner.evidence_root = root
+        folder = root / 'capture_receipts' / clock.date().isoformat()
+        folder.mkdir(parents=True)
+        (folder / 'failed-before-seal.json').write_text(json.dumps({
+            'schema': 'icim_capture_runner_receipt_v1', 'started_at': clock.isoformat(),
+            'finished_at': clock.isoformat(), 'status': 'incomplete',
+            'capture': {'day': str(clock.date()), 'status': 'incomplete',
+                        'error_type': 'OSError', 'error': 'synthetic no manifest could be published'},
+            'ledger_paths_and_bytes_unchanged': True,
+        }), encoding='utf-8')
+        assert not (root / 'sessions').exists()
+        before = snapshot(owner.store.root)
+        text, _, _ = owner.execute_query('信号', clock, persist_confirmed=False)
+>       assert '存证缺失' in text and ('补证' in text or '人工锚定' in text)
+E       AssertionError: assert ('存证缺失' in 'calculated-IC\ncalculated-IM\n')
+
+test_icim_ma23_state_20261023.py:128: AssertionError
+============================== warnings summary ===============================
+C:\Python314\Lib\site-packages\fastapi_poe\types.py:171
+  C:\Python314\Lib\site-packages\fastapi_poe\types.py:171: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    class RequestContext(BaseModel):
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED test_icim_ma23_state_20261023.py::test_failed_capture_receipt_without_manifest_must_show_original_archive_missing
+1 failed, 15 passed, 1 warning in 2.57s

@@ -2,12 +2,90 @@
 from __future__ import annotations
 
 import math
+import re
 from copy import deepcopy
 from datetime import date
 from typing import Any
 
 REVISION = "put_execution_order_and_short_basis_20261016_v1"
 EFFECTIVE_DATE = date(2026, 10, 16)
+OPEN_EVIDENCE_REVISION = "put_open_evidence_retry_20261021_v1"
+OPEN_EVIDENCE_EFFECTIVE_DATE = date(2026, 10, 21)
+RETRY_OPEN_STATUS = "awaiting_retry_open_evidence"
+
+
+def require_resolved_held_identity(product: str, value: dict) -> None:
+    """A known failed holding-identity check cannot become a new target/write."""
+    if product == "IC" and value.get("v14_held_put_identity_status") == "unverified":
+        raise RuntimeError("unresolved held Put identity; preserve anchor and retry verified evidence")
+
+
+def require_supported_ic_contracts(product: str, value: dict) -> None:
+    """Do not infer adjusted strike/contract unit from a trading-code suffix.
+
+    Standard new openings remain supported. A holdings need official dated
+    contract master data before the current M-only sizing engine can use them.
+    Frozen records remain readable; this gate is only for new calculations.
+    """
+    if product != "IC":
+        return
+    for key in ("v14_core_put_contract", "post_put_contract", "put_current_contract",
+                "put_target_contract", "v14_short_put_contract", "v14_profit_old_contract",
+                "v14_profit_reentry_contract"):
+        if re.fullmatch(r"510500P\d{4}A\d{5}", str(value.get(key) or "")):
+            raise RuntimeError("IC adjusted contract master and multiplier unavailable; preserve held A identity")
+    for name in ("v14_ordinary_put_pending", "v14_short_put_open_pending"):
+        plan = value.get(name)
+        if not isinstance(plan, dict):
+            continue
+        contracts = [plan.get("new_contract")]
+        for leg in (plan.get("legs") or {}).values():
+            contracts.extend([leg.get("old_contract"), leg.get("new_contract")])
+        contracts.extend(row.get("contract") for row in plan.get("required_quotes") or [])
+        if any(re.fullmatch(r"510500P\d{4}A\d{5}", str(c or "")) for c in contracts):
+            raise RuntimeError("IC adjusted contract master and multiplier unavailable; preserve original plan")
+
+
+def require_resolved_opening_evidence(signal: dict) -> None:
+    """Unverified inputs cannot become new targets or a persisted close.
+
+    This guard concerns new computation, not reading frozen ledger records.
+    A transient failure is not an authoritative no-fill decision.
+    """
+    statuses = [signal.get("v14_ordinary_put_open_status")]
+    for event in signal.get("v14_opening_events") or []:
+        statuses.append(event.get("status"))
+    if RETRY_OPEN_STATUS in statuses:
+        raise RuntimeError("unresolved opening evidence: preserve the exact original plan and retry")
+
+
+def require_due_openings(product: str, anchor: dict, signal: dict, day: date,
+                         monthly_priority: bool) -> None:
+    """Independent new-write check, including omitted/forged closed outcomes."""
+    require_resolved_opening_evidence(signal)
+    if day < OPEN_EVIDENCE_EFFECTIVE_DATE:
+        return
+    ordinary = anchor.get("v14_ordinary_put_pending")
+    if ordinary and as_day(ordinary["execution_day"]) <= day and not monthly_priority:
+        if (signal.get("v14_ordinary_put_open_status") != "confirmed_open_research_price"
+                or not same_plan(signal.get("v14_ordinary_put_open_plan"), ordinary)):
+            raise RuntimeError(f"{product} unresolved opening evidence: ordinary Put plan is still due")
+    due = {}
+    if (anchor.get("v14_profit_pending") and anchor.get("v14_profit_execution_day")
+            and as_day(anchor["v14_profit_execution_day"]) < day):
+        raise RuntimeError(f"{product} unresolved opening evidence: replay the original 3x execution day")
+    short = anchor.get("v14_short_put_open_pending")
+    if short and as_day(short["execution_day"]) <= day:
+        due["short_put"] = short
+    profit = profit_plan(product, anchor, day)
+    if profit and not monthly_priority:
+        due["profit3x"] = profit
+    events = signal.get("v14_opening_events") or []
+    for kind, plan in due.items():
+        matches = [event for event in events if event.get("kind") == kind]
+        if (len(matches) != 1 or matches[0].get("status") != "confirmed_open_research_price"
+                or not same_plan(matches[0].get("plan"), plan)):
+            raise RuntimeError(f"{product} unresolved opening evidence: {kind} plan is still due")
 
 
 def as_day(value: Any) -> date:
@@ -90,6 +168,10 @@ def project_short_open(product: str, anchor: dict, event: dict, day: date) -> di
     plan = anchor.get("v14_short_put_open_pending")
     if not plan or not same_plan(event.get("plan"), plan) or plan.get("product") != product:
         raise RuntimeError("Short-Put opening event differs from the persisted plan")
+    if event["status"] == RETRY_OPEN_STATUS:
+        if day < as_day(plan["execution_day"]):
+            raise RuntimeError("Pending opening evidence has the wrong execution day")
+        return deepcopy(anchor)
     if event["status"] == "awaiting_execution_day":
         if day >= as_day(plan["execution_day"]):
             raise RuntimeError("An opening due today cannot be marked as awaiting a future day")

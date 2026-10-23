@@ -1,0 +1,22 @@
+{
+  "account_audit.json": "63f6cf17d4f41af9d321313bb7aefdf3f394bd4c2c40874d69b9093890900df8",
+  "account_close_isolated.py": "331752a58aefb660ae6a7648f3f8402e4055e4e4d591c7e3cae24783434ba16c",
+  "audit_close.py": "cf5b68b611d9fbb262917a394d6076068e5b7d17fd01a99a2351088aa5c2da5a",
+  "build_report.py": "6fad8d25614b2945b4d630c47f6845a72074ee4cbcfa020e8ffdbf2ef825c7cd",
+  "close_controller.py": "d78c7cc84879ce0a10bda3be979a432a6acca91401d1a6a148bb203260d5b7b6",
+  "completed.json": "554f71ece435750f80352f9f6fee539ffbce6e9aec32114c6f53582f36bea31f",
+  "daily_paths.csv.gz": "6b8d9fb14fffc7320b7376e131a9f9fc8d27abcadc772ac232c58715298552ed",
+  "data_manifest.json": "e5839e16e15fcf4aa231e2826155f375e62a2831a9991d52b9e41706254e1fec",
+  "events.csv.gz": "c7c7625f584f8c106c86ad2e89add621d0b5d0bcdd9658e6a507ab1c84eb013c",
+  "IC_IM_Put_Monday_Close_20261021.html": "31be7faf9b2625cc78be518a7a03644cda2654005ed18c8ac6267d64c4cced80",
+  "IC_IM_Put_Monday_Close_20261021.png": "9d7f7d2fe8dec4697badf85bc54181a7b514c2fb0da0d131d9e81eb9887f5d62",
+  "independent_audit.json": "68b71fdd3dfe612c2a504a7d61e30f0b760e4da3df383bc567425371c86e97a7",
+  "maintenance_calendar.csv": "ff2b015cbad33730ea9bc8f7008a16d9a0801f6c9464447a9d85630f145be93d",
+  "missing_quotes.csv": "93f9662af3d6624e2035d2bd2454b974ce84754ac922597e79ec396215ba068e",
+  "protected_manifest.json": "5d03a29fdc896c0e54993736a6491c7e8b2b38f961bbf27eef1453d2a71dc20f",
+  "record.md": "fbeb0a08f568d3e87fd8e4db6cce97181f73dfbf3a903d7001ac87492048ec63",
+  "run_close.py": "09a823b9177815634435a3c3002b4ad4c5cdc766ea46b24af281dbd6c2c646d8",
+  "selections.csv": "f859f3c17d3af77fca6022585498585e9532e3329f1278f29478beb8709360c4",
+  "verified_close_fills.csv": "14b2270c8d009e20e54cfb0da945f0fff71cca0ea56d14f276bd7225eaded6f5",
+  "window_metrics.csv": "d5c40b606e13e16a0808e03d720e5941107b591849537f988a76b5dd48983535"
+}

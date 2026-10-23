@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="5" time="1.978" timestamp="2026-10-21T14:34:48.772870+08:00" hostname="DESKTOP-95I7VVU"><testcase classname="test_icim_round2_audit_market_20261021" name="test_new_candidate_never_publishes_unicode_security_id[reset]" time="0.008"><failure message="Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x00000214F7CE35C0&gt;
+consumer = 'reset'
+
+    @pytest.mark.parametrize('consumer', ['reset', 'short'])
+    def test_new_candidate_never_publishes_unicode_security_id(monkeypatch, consumer):
+        body = payload()
+        row = next(row for row in body['list'] if row[0] == CONTRACT)
+        row[5] = ''.join(chr(0xFF10 + int(c)) for c in row[5])
+        monkeypatch.setattr(bot, '_sse_quote_json', lambda *a, **kw: deepcopy(body))
+        monkeypatch.setattr(bot, 'fetch_sina_510500_chain', Mock(side_effect=RuntimeError('synthetic unavailable backup')))
+        signal, _ = signal_anchor(monkeypatch)
+        monkeypatch.setattr(bot, '_gov10y_for_day', lambda *a: .02)
+        monkeypatch.setattr(bot, 'fetch_sse_510500_expiries', lambda: ['202612'])
+&gt;       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;
+
+test_icim_round2_audit_market_20261021.py:200: Failed</failure></testcase><testcase classname="test_icim_round2_audit_market_20261021" name="test_new_candidate_never_publishes_unicode_security_id[short]" time="0.005"><failure message="Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x00000214F7CE3BB0&gt;
+consumer = 'short'
+
+    @pytest.mark.parametrize('consumer', ['reset', 'short'])
+    def test_new_candidate_never_publishes_unicode_security_id(monkeypatch, consumer):
+        body = payload()
+        row = next(row for row in body['list'] if row[0] == CONTRACT)
+        row[5] = ''.join(chr(0xFF10 + int(c)) for c in row[5])
+        monkeypatch.setattr(bot, '_sse_quote_json', lambda *a, **kw: deepcopy(body))
+        monkeypatch.setattr(bot, 'fetch_sina_510500_chain', Mock(side_effect=RuntimeError('synthetic unavailable backup')))
+        signal, _ = signal_anchor(monkeypatch)
+        monkeypatch.setattr(bot, '_gov10y_for_day', lambda *a: .02)
+        monkeypatch.setattr(bot, 'fetch_sse_510500_expiries', lambda: ['202612'])
+&gt;       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;
+
+test_icim_round2_audit_market_20261021.py:200: Failed</failure></testcase><testcase classname="test_icim_round2_audit_market_20261021" name="test_structural_primary_failure_preserves_fresh_backup_identity[security_id]" time="0.004" /><testcase classname="test_icim_round2_audit_market_20261021" name="test_structural_primary_failure_preserves_fresh_backup_identity[strike]" time="0.004" /><testcase classname="test_icim_round2_audit_market_20261021" name="test_structural_primary_failure_preserves_fresh_backup_identity[last]" time="0.003" /></testsuite></testsuites>

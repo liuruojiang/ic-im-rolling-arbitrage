@@ -1,0 +1,9 @@
+{
+  "quant_research_runs\\20261023_multiround_adversarial_v1\\agents\\state\\repair_verification.md": "822b86f37db040c87827eaf956078e436ae864b5bc3ab6f57152835ab6674e37",
+  "quant_research_runs\\20261023_multiround_adversarial_v1\\agents\\state\\run_selection_audit.py": "9bd59e295970a15f1b5367203860cb681ae16345f89f2b31f7f3d3dd0b984bcd",
+  "quant_research_runs\\20261023_multiround_adversarial_v1\\agents\\state\\state_joint_after_01\\receipt.json": "0986a0d13e8e6879eeedd79a54ea91d0af73be5a1cbfb51342103b27272d668c",
+  "quant_research_runs\\20261023_multiround_adversarial_v1\\agents\\state\\state_joint_after_01\\source_before.json": "da5955a1b43a216ceb041d9fd2140613576323c74775bb4f322f0a9745d7be84",
+  "quant_research_runs\\20261023_multiround_adversarial_v1\\agents\\state\\state_joint_after_01\\source_after.json": "da5955a1b43a216ceb041d9fd2140613576323c74775bb4f322f0a9745d7be84",
+  "test_icim_ma23_state_20261023.py": "0ece9c29608abed8df4bf483d43fe4d03e16d676d3e982fa18cd6be95208d9c9",
+  "test_icim_ma23_state_selection_20261023.py": "f8a4f84d213565907053fec9910f48ac92b1590d56ddc733cd5ac6a1b700c0a0"
+}

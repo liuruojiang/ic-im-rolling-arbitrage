@@ -1,0 +1,26 @@
+{
+  "name": "em_etf_quote",
+  "family": "Eastmoney",
+  "url": "https://push2.eastmoney.com/api/qt/stock/get",
+  "params": {
+    "fields": "f43,f44,f45,f46,f47,f48,f57,f58,f59,f60,f86,f301,f302,f330,f331,f332,f333,f334,f335,f336",
+    "invt": "2",
+    "fltt": "2",
+    "secid": "1.510500"
+  },
+  "started_at": "2026-10-22T16:59:05.743811+08:00",
+  "status": "RECEIVED",
+  "http_status": 502,
+  "bytes": 157,
+  "sha256": "24fe03fdb26088bfff8b1363911c29c79a19614bca42cdcdb9fefdf52917aeb1",
+  "encoding": "ISO-8859-1",
+  "headers": {
+    "Date": "Thu, 22 Oct 2026 08:59:16 GMT",
+    "Content-Type": "text/html"
+  },
+  "summary": {
+    "format": "non_json",
+    "prefix": "<html>\r\n<head><title>502 Bad Gateway</title></head>\r\n<body>\r\n<center><h1>502 Bad Gateway</h1></center>\r\n<hr><center>nginx/1.26.2</center>\r\n</body>\r\n</html>\r\n"
+  },
+  "seconds": 10.821
+}

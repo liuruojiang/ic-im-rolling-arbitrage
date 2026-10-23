@@ -1,0 +1,51 @@
+{
+  "collected": [
+    "test_icim_free_sources_adversarial_market_20261022.py::test_collection_clock_allows_only_observed_elapsed_time[False-1-True]",
+    "test_icim_free_sources_adversarial_market_20261022.py::test_collection_clock_allows_only_observed_elapsed_time[False-3-False]",
+    "test_icim_free_sources_adversarial_market_20261022.py::test_collection_clock_allows_only_observed_elapsed_time[True-1-True]",
+    "test_icim_free_sources_adversarial_market_20261022.py::test_collection_clock_allows_only_observed_elapsed_time[True-3-False]",
+    "test_icim_free_sources_adversarial_market_20261022.py::test_invalid_month_cannot_alias_a_valid_cached_chain[192612]",
+    "test_icim_free_sources_adversarial_market_20261022.py::test_invalid_month_cannot_alias_a_valid_cached_chain[x2612]",
+    "test_icim_free_sources_adversarial_market_20261022.py::test_invalid_month_cannot_alias_a_valid_cached_chain[20262612]",
+    "test_icim_free_sources_adversarial_market_20261022.py::test_capture_role_key_cannot_hide_invalid_month[192612]",
+    "test_icim_free_sources_adversarial_market_20261022.py::test_capture_role_key_cannot_hide_invalid_month[x2612]",
+    "test_icim_free_sources_adversarial_market_20261022.py::test_capture_role_key_cannot_hide_invalid_month[20262612]",
+    "test_icim_free_sources_adversarial_market_20261022.py::test_old_but_four_month_complete_listing_cannot_change_selection",
+    "test_icim_free_sources_adversarial_market_20261022.py::test_etf_listing_shape_uses_actual_expiry_not_future_maintenance[day0-months0]",
+    "test_icim_free_sources_adversarial_market_20261022.py::test_etf_listing_shape_uses_actual_expiry_not_future_maintenance[day1-months1]",
+    "test_icim_free_sources_adversarial_market_20261022.py::test_etf_listing_shape_uses_actual_expiry_not_future_maintenance[day2-months2]"
+  ],
+  "selected": [
+    "test_icim_free_sources_adversarial_market_20261022.py::test_collection_clock_allows_only_observed_elapsed_time[False-1-True]",
+    "test_icim_free_sources_adversarial_market_20261022.py::test_collection_clock_allows_only_observed_elapsed_time[False-3-False]",
+    "test_icim_free_sources_adversarial_market_20261022.py::test_collection_clock_allows_only_observed_elapsed_time[True-1-True]",
+    "test_icim_free_sources_adversarial_market_20261022.py::test_collection_clock_allows_only_observed_elapsed_time[True-3-False]",
+    "test_icim_free_sources_adversarial_market_20261022.py::test_invalid_month_cannot_alias_a_valid_cached_chain[192612]",
+    "test_icim_free_sources_adversarial_market_20261022.py::test_invalid_month_cannot_alias_a_valid_cached_chain[x2612]",
+    "test_icim_free_sources_adversarial_market_20261022.py::test_invalid_month_cannot_alias_a_valid_cached_chain[20262612]",
+    "test_icim_free_sources_adversarial_market_20261022.py::test_capture_role_key_cannot_hide_invalid_month[192612]",
+    "test_icim_free_sources_adversarial_market_20261022.py::test_capture_role_key_cannot_hide_invalid_month[x2612]",
+    "test_icim_free_sources_adversarial_market_20261022.py::test_capture_role_key_cannot_hide_invalid_month[20262612]",
+    "test_icim_free_sources_adversarial_market_20261022.py::test_old_but_four_month_complete_listing_cannot_change_selection",
+    "test_icim_free_sources_adversarial_market_20261022.py::test_etf_listing_shape_uses_actual_expiry_not_future_maintenance[day0-months0]",
+    "test_icim_free_sources_adversarial_market_20261022.py::test_etf_listing_shape_uses_actual_expiry_not_future_maintenance[day1-months1]",
+    "test_icim_free_sources_adversarial_market_20261022.py::test_etf_listing_shape_uses_actual_expiry_not_future_maintenance[day2-months2]"
+  ],
+  "deselected": [],
+  "executed": [
+    "test_icim_free_sources_adversarial_market_20261022.py::test_collection_clock_allows_only_observed_elapsed_time[False-1-True]",
+    "test_icim_free_sources_adversarial_market_20261022.py::test_collection_clock_allows_only_observed_elapsed_time[False-3-False]",
+    "test_icim_free_sources_adversarial_market_20261022.py::test_collection_clock_allows_only_observed_elapsed_time[True-1-True]",
+    "test_icim_free_sources_adversarial_market_20261022.py::test_collection_clock_allows_only_observed_elapsed_time[True-3-False]",
+    "test_icim_free_sources_adversarial_market_20261022.py::test_invalid_month_cannot_alias_a_valid_cached_chain[192612]",
+    "test_icim_free_sources_adversarial_market_20261022.py::test_invalid_month_cannot_alias_a_valid_cached_chain[x2612]",
+    "test_icim_free_sources_adversarial_market_20261022.py::test_invalid_month_cannot_alias_a_valid_cached_chain[20262612]",
+    "test_icim_free_sources_adversarial_market_20261022.py::test_capture_role_key_cannot_hide_invalid_month[192612]",
+    "test_icim_free_sources_adversarial_market_20261022.py::test_capture_role_key_cannot_hide_invalid_month[x2612]",
+    "test_icim_free_sources_adversarial_market_20261022.py::test_capture_role_key_cannot_hide_invalid_month[20262612]",
+    "test_icim_free_sources_adversarial_market_20261022.py::test_old_but_four_month_complete_listing_cannot_change_selection",
+    "test_icim_free_sources_adversarial_market_20261022.py::test_etf_listing_shape_uses_actual_expiry_not_future_maintenance[day0-months0]",
+    "test_icim_free_sources_adversarial_market_20261022.py::test_etf_listing_shape_uses_actual_expiry_not_future_maintenance[day1-months1]",
+    "test_icim_free_sources_adversarial_market_20261022.py::test_etf_listing_shape_uses_actual_expiry_not_future_maintenance[day2-months2]"
+  ]
+}

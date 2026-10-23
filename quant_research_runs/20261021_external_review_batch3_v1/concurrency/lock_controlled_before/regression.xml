@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="2" time="5.228" timestamp="2026-10-21T16:23:48.318682+08:00" hostname="DESKTOP-95I7VVU"><testcase classname="test_icim_batch3_concurrency_20261021" name="test_child_waits_for_held_store_lock_without_prelock_write_failure" time="3.185" /><testcase classname="test_icim_batch3_concurrency_20261021" name="test_unacquired_file_lock_is_not_unlocked_or_original_failure_masked" time="0.042"><failure message="AssertionError: attempted to unlock an unacquired file lock">_fd = 11, operation = 1, _count = 1
+
+    def fail(_fd,operation,_count):
+        calls.append(operation)
+&gt;       if operation == acquire:raise OSError('synthetic acquisition failed')
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       OSError: synthetic acquisition failed
+
+test_icim_batch3_concurrency_20261021.py:275: OSError
+
+During handling of the above exception, another exception occurred:
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_ecc53171/pytest/test_unacquired_file_lock_is_n0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000001A139F64C30&gt;
+
+    def test_unacquired_file_lock_is_not_unlocked_or_original_failure_masked(tmp_path,monkeypatch):
+        isolated,_ = store(tmp_path/'state')
+        calls = []
+        if os.name == 'nt':
+            import msvcrt
+            acquire,release = msvcrt.LK_LOCK,msvcrt.LK_UNLCK
+            def fail(_fd,operation,_count):
+                calls.append(operation)
+                if operation == acquire:raise OSError('synthetic acquisition failed')
+                raise AssertionError('attempted to unlock an unacquired file lock')
+            monkeypatch.setattr(msvcrt,'locking',fail)
+        else:
+            import fcntl
+            acquire,release = fcntl.LOCK_EX,fcntl.LOCK_UN
+            def fail(_fd,operation):
+                calls.append(operation)
+                if operation == acquire:raise OSError('synthetic acquisition failed')
+                raise AssertionError('attempted to unlock an unacquired file lock')
+            monkeypatch.setattr(fcntl,'flock',fail)
+        with pytest.raises(OSError,match='synthetic acquisition failed'):
+&gt;           with isolated._exclusive_lock():
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_icim_batch3_concurrency_20261021.py:287: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+C:\Python314\Lib\contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+poe_ic_im_v1_4_state.py:1360: in _exclusive_lock
+    msvcrt.locking(stream.fileno(), msvcrt.LK_UNLCK, 1)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+_fd = 11, operation = 0, _count = 1
+
+    def fail(_fd,operation,_count):
+        calls.append(operation)
+        if operation == acquire:raise OSError('synthetic acquisition failed')
+&gt;       raise AssertionError('attempted to unlock an unacquired file lock')
+E       AssertionError: attempted to unlock an unacquired file lock
+
+test_icim_batch3_concurrency_20261021.py:276: AssertionError</failure></testcase></testsuite></testsuites>

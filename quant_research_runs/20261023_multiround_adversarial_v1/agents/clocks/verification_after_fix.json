@@ -1,0 +1,45 @@
+{
+  "finding_id": "CLOCKS-1",
+  "original_severity": "P1",
+  "status": "closed_by_independent_frozen_retest",
+  "pre_fix": {
+    "stage": "before_02",
+    "passed": 17,
+    "failed": 2,
+    "bound_files": 29,
+    "source_before_equals_after": true
+  },
+  "post_fix": {
+    "stage": "after_fix_01",
+    "passed": 19,
+    "failed": 0,
+    "exit_code": 0,
+    "source_before_equals_after": true,
+    "bound_files": 29,
+    "finished_at": "2026-10-23T09:37:03.976958+08:00",
+    "test_output": "D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261023_multiround_adversarial_v1\\clocks_after_fix_01"
+  },
+  "frozen_test_sha256": "09d38ae800f7e68ba9f6e7f61aa309555f18104bdb8268cf6d9f72dd2787f066",
+  "reviewed_modules": {
+    "poe_ic_im_mainline_v1_3_bot.py": "fd3c7df2b68255fda618ca9267a00f38ab3f8c2ce66ff99b53e1fb0be2a284fa",
+    "poe_ic_im_mainline_v1_4_bot.py": "b390575a41fe11da6da68caee551b7827f9cee28fb8ceba19432ec661e775222",
+    "ic_im_evidence_adapter_v1.py": "bc9df69b5024482e15d13bc5d040a0fd81d0c9b15e5b7dd867576161dc27b974",
+    "ic_im_signal_evidence_v1.py": "6afb37ddfc61b67e023214f339cd67d358d16971cae2ea11ba2e3465a8ae18a6"
+  },
+  "scope": "Synthetic offline fault injection and production consumer-path review; no assertion that the normal current Sina parser omits source_stamp.",
+  "production_edited_by_this_agent": false,
+  "frozen_tests_edited_after_before_02": false,
+  "consumption_paths_reviewed": [
+    "select_ic_put_for_reset",
+    "_v14_ic_short_put_candidate",
+    "_v14_ic_core_overlay",
+    "_v14_require_held_ic_short_identity",
+    "_build_live_trade_signal IC held branch"
+  ],
+  "controls": [
+    "SSE aggregate-source timestamp compatibility",
+    "stale unconsumed row remains allowed",
+    "nearest stale consumed strike cannot silently switch",
+    "capture and typed replay both reject consumed Sina missing row source timestamp"
+  ]
+}

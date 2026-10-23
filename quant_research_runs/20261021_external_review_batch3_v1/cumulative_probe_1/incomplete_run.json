@@ -1,0 +1,7 @@
+{
+  "status": "incomplete_not_accepted",
+  "cause": "run_all subprocess 60s timeout before receipt; new process-lock tests add runtime",
+  "argument_error": "Root passed three nonexistent deselection node names; corrected in probe_2, existing exclusions unchanged",
+  "test_assertions_relaxed": false,
+  "followup": "new stage, outer total suite budget 180s; per-source request deadlines unchanged"
+}

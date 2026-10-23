@@ -1,0 +1,261 @@
+--- before/notes/mainline_registry.md
++++ after/notes/mainline_registry.md
+@@ -1,4 +1,10 @@
+ # IC / IM 系统主线登记表
++
++## 外部评审修复的多智能体对抗审计（2026-10-21，本地）
++
++- 按用户明确要求组织执行/账本、行情/缓存、展示/持仓、集成/证据四组独立反例审计。补修证券身份及二次查询绕过、残缺链跳选、解析失败坏缓存、核心失败错腿IV、bootstrap身份丢失、零核心残留代码；原审计者对最终同一源码复验共161项通过。
++- 最终累计45测试文件1150项通过；1项“旧源码收据必须等于修复后源码”历史断言保留且明确排除，改用新收据绑定最终源码与测试运行前后字节，旧收据核对修复前备份。首次失败证据未改。预注册：`docs/ic_im_external_review_redteam_20261021_v1_spec.md`；结果及限制：`quant_research_runs/20261021_external_review_redteam_v1/record.md`。
++- 上轮266份哈希清单未覆盖全部首次输出，v2现存12份数据仅确认与当前manifest内部一致；新增6783份全outputs基线只保护采集后，不补造历史证明。A完整主数据、数量批准语义、真实CFFEX归档与远端交付仍待验收。本轮未改变数量或策略阈值，未发布、续正式账本、发邮件或获准实盘。
+ 
+ ## 外部评审首轮修复（2026-10-21，本地核验）
+ 
+--- before/poe_ic_im_mainline_v1_4_bot.py
++++ after/poe_ic_im_mainline_v1_4_bot.py
+@@ -1013,6 +1013,19 @@
+ def _cffex_historical_quote_frame(
+     product: str, day: date, clock: datetime
+ ) -> pd.DataFrame:
++    """Reject a failed archive at every parse/validation boundary, then retry fresh."""
++    try:
++        return _cffex_historical_quote_frame_impl(product, day, clock)
++    except Exception:
++        # Schema/encoding/numeric errors after ZIP extraction are just as
++        # invalid as bad ZIP structure. Never pin a failed historical body.
++        _CFFEX_MONTH_CACHE.pop(f"{day:%Y%m}", None)
++        raise
++
++
++def _cffex_historical_quote_frame_impl(
++    product: str, day: date, clock: datetime
++) -> pd.DataFrame:
+     """Load one official completed session from CFFEX's monthly archive."""
+ 
+     member_name = f"{day:%Y%m%d}_1.csv"
+@@ -1303,53 +1316,28 @@
+     match = re.fullmatch(r"510500P(\d{4})([MA])(\d{5})", contract)
+     if not match:
+         raise RuntimeError(f"无法为IC Put解析新浪证券代码: {contract}")
+-    yymm, style, strike_code = match.groups()
+-    response = requests.get(
+-        "https://hq.sinajs.cn/",
+-        params={"list": f"OP_DOWN_510500{yymm}"},
+-        timeout=_bounded_timeout(8),
+-        headers={
+-            "User-Agent": "Mozilla/5.0 POE-IC-IM-Research/1.0",
+-            "Referer": "https://stock.finance.sina.com.cn/",
+-            "Cache-Control": "no-cache",
+-        },
+-    )
+-    response.raise_for_status()
+-    listing = response.content.decode("gbk", errors="replace")
+-    ids = re.findall(r"CON_OP_(\d+)", listing)
+-    if not ids:
+-        raise RuntimeError(f"新浪未返回510500 Put月份 {yymm} 的证券代码列表")
+-    details = requests.get(
+-        "https://hq.sinajs.cn/list="
+-        + ",".join(f"CON_OP_{value}" for value in ids),
+-        timeout=_bounded_timeout(8),
+-        headers={
+-            "User-Agent": "Mozilla/5.0 POE-IC-IM-Research/1.0",
+-            "Referer": "https://stock.finance.sina.com.cn/",
+-            "Cache-Control": "no-cache",
+-        },
+-    )
+-    details.raise_for_status()
+-    text = details.content.decode("gbk", errors="replace")
+-    matches: list[str] = []
+-    for security_id, payload in re.findall(
+-        r'hq_str_CON_OP_(\d+)="([^"]*)"', text
+-    ):
+-        fields = payload.split(",")
+-        if len(fields) <= 46:
+-            continue
+-        try:
+-            strike_match = int(round(float(fields[7]) * 1000)) == int(strike_code)
+-        except ValueError:
+-            continue
+-        expiry_match = str(fields[46]).replace("-", "")[2:6] == yymm
+-        if fields[43] == style and fields[45] == "P" and strike_match and expiry_match:
+-            matches.append(security_id)
++    yymm, style, _ = match.groups()
++    if style != "M":
++        raise RuntimeError("510500 adjusted contract master and multiplier unavailable")
++    chain, _ = fetch_sina_510500_chain(yymm)
++    matches = chain.loc[chain["contract"].eq(contract)]
+     if len(matches) != 1:
+-        raise RuntimeError(
+-            f"新浪证券代码映射不唯一: {contract} -> {sorted(matches)}"
+-        )
+-    return matches[0]
++        raise RuntimeError(f"新浪证券代码映射不唯一: {contract}")
++    security_id = str(matches.iloc[0]["security_id"])
++    if not re.fullmatch(r"\d{8}", security_id):
++        raise RuntimeError(f"新浪证券代码格式无效: {contract}")
++    return security_id
++
++
++def _ic_put_selected_security_id(selected: pd.Series) -> str:
++    # Sina rows already bind identity and price in the same validated response.
++    # SSE rows do not carry this field and require the same strict mapping path.
++    if "security_id" in selected:
++        security_id = str(selected["security_id"])
++        if not re.fullmatch(r"\d{8}", security_id):
++            raise RuntimeError("IC Put选约的证券代码格式无效")
++        return security_id
++    return fetch_sina_510500_security_id(str(selected["contract"]))
+ 
+ 
+ def _contract_daily_marks(
+@@ -3666,13 +3654,21 @@
+     stamps: list[datetime] = []
+     details = details_response.content.decode("gbk", errors="replace")
+     unresolved_adjusted: list[dict[str, Any]] = []
+-    for security_id, payload in re.findall(r'hq_str_CON_OP_(\d+)="([^"]*)"', details):
++    packets = re.findall(r'hq_str_CON_OP_(\d+)="([^"]*)"', details)
++    returned_ids = [security_id for security_id, _ in packets]
++    if len(returned_ids) != len(set(returned_ids)) or set(returned_ids) != set(ids):
++        raise RuntimeError("新浪510500 Put证券集合缺失、未请求或重复，禁止跳选其他行权价")
++    expected_expiry = _fourth_wednesday(2000 + int(yy), int(month))
++    contracts: set[str] = set()
++    for security_id, payload in packets:
+         fields = payload.split(",")
+         if len(fields) <= 46 or fields[43] not in {"M", "A"} or fields[45] != "P":
+-            continue
++            raise RuntimeError("新浪510500 Put详情字段或合约类型不一致")
++        if fields[36].strip() != "510500":
++            raise RuntimeError("新浪510500 Put详情标的证券不一致")
+         expiry = str(fields[46]).replace("-", "")
+-        if expiry[2:6] != f"{yy}{month}":
+-            continue
++        if expiry != expected_expiry.strftime("%Y%m%d"):
++            raise RuntimeError("新浪510500 Put详情完整到期日与目标月份日历不一致")
+         try:
+             strike = float(fields[7])
+             # CON_OP [2] is the latest trade; [3] is the current ask.
+@@ -3694,6 +3690,10 @@
+                                         "source_stamp": observed.replace(tzinfo=BEIJING)})
+             continue
+         contract = f"510500P{yy}{month}{style}{int(round(strike * 1000)):05d}"
++        if (contract in contracts
++                or not math.isclose(strike, int(round(strike * 1000))/1000., rel_tol=0, abs_tol=1e-9)):
++            raise RuntimeError("新浪510500 Put交易合约重复或标准行权价精度无效")
++        contracts.add(contract)
+         rows.append(
+             {
+                 "contract": contract,
+@@ -3704,6 +3704,7 @@
+                 "pre_settle": None,
+                 "security_id": security_id,
+                 "strike": strike,
++                "expiry": expected_expiry,
+                 "source_stamp": observed.replace(tzinfo=BEIJING),
+             }
+         )
+@@ -4381,7 +4382,7 @@
+         )
+     return {
+         "contract": str(selected["contract"]),
+-        "security_id": fetch_sina_510500_security_id(str(selected["contract"])),
++        "security_id": _ic_put_selected_security_id(selected),
+         "quote": selected,
+         "expiry": expiry,
+         "strike": float(selected["strike"]),
+@@ -5048,7 +5049,7 @@
+         "tradable": True,
+         "reason": "ok",
+         "contract": str(selected.contract),
+-        "security_id": fetch_sina_510500_security_id(str(selected.contract)),
++        "security_id": _ic_put_selected_security_id(selected),
+         "expiry": expiry,
+         "strike": float(selected.strike),
+         "premium": premium,
+@@ -5558,9 +5559,15 @@
+     signal["v14_ordinary_put_plan_status"] = "scheduled_t_plus_1_open"
+ 
+ 
+-def _refresh_ic_put_text(signal: dict[str, Any]) -> None:
++def _refresh_ic_put_text(signal: dict[str, Any], anchor: dict[str, Any] | None = None) -> None:
+     """Render final quantities after overlays, routes and opening projections."""
+-    current_core = signal.get("v14_core_put_current_contract") or signal.get("put_current_contract")
++    current_core = signal.get("v14_core_put_current_contract")
++    if not current_core and anchor is not None:
++        current_core = anchor.get("v14_core_put_contract")
++        if (not current_core and put_execution.as_day(anchor["last_verified_day"]) < v14_policy.EFFECTIVE_SIGNAL_DATE):
++            current_core = anchor.get("post_put_contract")
++    if not current_core and float(signal.get("put_current_momentum_qty") or 0) == 0:
++        current_core = signal.get("put_current_contract")
+     target_core = signal.get("v14_core_put_contract") or signal.get("put_target_contract")
+     def quantity(qty):
+         if qty is None:
+@@ -5589,6 +5596,13 @@
+ ) -> dict[str, Any]:
+     anchor = LIVE_CONTINUATION_ANCHOR[product]
+     put_execution.require_supported_ic_contracts(product, anchor)
++    if product == "IC" and float(anchor.get("v14_core_put_qty", 0)) > 0:
++        # Bind the requested monitor before quote collection: a failed core
++        # overlay cannot silently become the independent momentum Put's IV.
++        signal["v14_core_put_current_contract"] = anchor.get("v14_core_put_contract")
++        signal["iv_monitor_evidence"] = dict(
++            contract=anchor.get("v14_core_put_contract"),
++            security_id=anchor.get("v14_core_put_security_id"), sleeve="core")
+     try:
+         if product == "IC":
+             _v14_ic_core_overlay(signal, anchor)
+@@ -6806,7 +6820,7 @@
+         signal["v14_opening_events"] = opening_events
+     _v14_schedule_ordinary_put(product, signal, LIVE_CONTINUATION_ANCHOR[product], opening)
+     if product == "IC":
+-        _refresh_ic_put_text(signal)
++        _refresh_ic_put_text(signal, LIVE_CONTINUATION_ANCHOR[product])
+     signal["iv_warning"] = build_iv_warning(product, signal, live, mo_quotes if product == "IM" else None, clock,
+                                             collection_started=collection_started)
+     if market_date >= fear_grid.CLOSE_FALLBACK_EFFECTIVE_DATE:
+@@ -6847,13 +6861,16 @@
+             if momentum_put_qty == 0.0
+             else f"{momentum_put_qty:g}张 `{momentum_contract}`"
+         )
++        core_put_text = f"{core_put_qty:g}张 `{core_put_contract}`" if core_put_qty > 0 else "0张"
+         put_snapshot = (
+-            f"核心 {core_put_qty:g}张 `{core_put_contract}`；"
++            f"核心 {core_put_text}；"
+             f"动量 {momentum_text}；合计 {put_qty:g}张"
+         )
+     else:
+         breakdown = _ic_current_quantity_breakdown(anchor)
+         core_contract = anchor.get("v14_core_put_contract")
++        if not core_contract and put_execution.as_day(anchor["last_verified_day"]) < v14_policy.EFFECTIVE_SIGNAL_DATE:
++            core_contract = anchor.get("post_put_contract")
+         core_put_text = (f"{breakdown['core']:g}张 `{core_contract or '身份待核验'}`"
+                          if breakdown["core"] > 0 else "0张")
+         momentum_text = (f"{breakdown['momentum']:g}张 `{put_contract}`"
+--- before/test_ic_im_external_review_20261021.py
++++ after/test_ic_im_external_review_20261021.py
+@@ -162,9 +162,14 @@
+ 
+ def test_real_saved_sina_payload_matches_independent_field_oracle(monkeypatch):
+     root = Path(__file__).parent / "tests/fixtures/icim_external_review_20261021"
+-    responses = iter([SimpleNamespace(content=(root/name).read_bytes(), headers={},
++    # The saved quote request deliberately captured only the first three IDs.
++    # Project the request list to those captured IDs; keep raw quotes unchanged.
++    capture = json.loads((root / "capture.json").read_text(encoding="utf-8"))
++    listing = ('var hq_str_OP_DOWN_5105002611="' +
++               ','.join('CON_OP_' + value for value in capture["contracts"]) + ',";').encode()
++    responses = iter([SimpleNamespace(content=content, headers={},
+                                       raise_for_status=lambda: None)
+-                      for name in ["sina_listing.bin", "sina_quotes_literal.bin"]])
++                      for content in [listing, (root / "sina_quotes_literal.bin").read_bytes()]])
+     monkeypatch.setattr(bot.requests, "get", lambda *a, **k: next(responses))
+     chain, _ = bot.fetch_sina_510500_chain("202611")
+     expected = {"10012482": .1669, "10012483": .2885, "10012484": .4563}
+--- before/test_ic_im_v1_4_integration_guards.py
++++ after/test_ic_im_v1_4_integration_guards.py
+@@ -629,6 +629,7 @@
+         # CON_OP latest trade is [2]; [3] is ask. This fixture checks time,
+         # not the former incorrect ask-as-trade parser.
+         fields[2], fields[3], fields[7], fields[32] = '0.25', '0.26', str(strike), observed
++        fields[36] = '510500'
+         fields[40], fields[43], fields[45], fields[46] = '0.24', 'M', 'P', '2026-12-23'
+         return ','.join(fields)
+ 

@@ -1,0 +1,17 @@
+{
+  "stage": "calendar/final_02",
+  "counts": {
+    "tests": 24,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "source_files": 902,
+  "source_current_changed": [],
+  "same_test_as_initial": true,
+  "production": {
+    "poe_ic_im_mainline_v1_4_bot.py": "d9ca1facc7658650ade04f8983cc79bdfd6a08c856c58a0a4fea56bfba07fc5b",
+    "poe_ic_im_v1_4_state.py": "5d6e7644e5b7dddce75a38b574ce3d285dd467ff24ea7a5eeade313f540d7b02",
+    "poe_ic_im_v1_4_server.py": "ef9d25e3fadd6b71ddde26bff4c7e137297e76b9741d6dab35c4a29bb6a32866"
+  }
+}

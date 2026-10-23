@@ -1,0 +1,57 @@
+{
+  "pass": true,
+  "facts_differences": [],
+  "audit_errors": [],
+  "rawdiff": [
+    {
+      "path": "$.fetch_time",
+      "reason": "value",
+      "original": "2026-10-22 18:26:46",
+      "replayed": "2026-10-22 18:27:30"
+    },
+    {
+      "path": "$.historical_evidence_supplements",
+      "reason": "missing",
+      "original_present": false,
+      "replayed_present": true
+    },
+    {
+      "path": "$.original_evidence",
+      "reason": "missing",
+      "original_present": false,
+      "replayed_present": true
+    },
+    {
+      "path": "$.signal_calculation_started_at",
+      "reason": "value",
+      "original": "2026-10-22T18:27:03+08:00",
+      "replayed": "2026-10-22T18:28:31+08:00"
+    },
+    {
+      "path": "$.signal_generated_at",
+      "reason": "value",
+      "original": "2026-10-22T18:27:21+08:00",
+      "replayed": "2026-10-22T18:28:31+08:00"
+    },
+    {
+      "path": "$.signal_generation_timing",
+      "reason": "value",
+      "original": "close_confirmed",
+      "replayed": "retrospective_replay"
+    }
+  ],
+  "calculation_clock_fields": [
+    "fetch_time",
+    "signal_calculation_started_at",
+    "signal_generated_at"
+  ],
+  "generation_context_transition": {
+    "original": "close_confirmed",
+    "replayed": "retrospective_replay"
+  },
+  "independent_gates_required": [
+    "original isolated ledger append",
+    "zero EvidenceUnavailable",
+    "replay HTTP URL subset of original URLs"
+  ]
+}

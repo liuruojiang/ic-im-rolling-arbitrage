@@ -1,0 +1,11 @@
+{
+  "counts": {
+    "tests": 20,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "source_files": 902,
+  "current_changed": [],
+  "receipt_sha256": "597167b993ef147eb5711de09768ec021caae2f9d04b80cba55ce401be5ae8fe"
+}

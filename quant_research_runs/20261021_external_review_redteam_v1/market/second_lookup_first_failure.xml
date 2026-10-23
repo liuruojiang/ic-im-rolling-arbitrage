@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="2" time="2.128" timestamp="2026-10-21T13:58:01.856673+08:00" hostname="DESKTOP-95I7VVU"><testcase classname="test_icim_redteam_market_20261021" name="test_second_security_lookup_cannot_replace_validated_chain_identity[reset]" time="0.008"><failure message="AssertionError: assert '99999999' == '10012482'&#10;  &#10;  - 10012482&#10;  + 99999999">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x0000022055BB3490&gt;
+consumer = 'reset'
+
+    @pytest.mark.parametrize('consumer', ['reset','short'])
+    def test_second_security_lookup_cannot_replace_validated_chain_identity(monkeypatch,consumer):
+        # The first retrieval is authentic and passes all repaired chain gates.
+        chain,stamp = fetch(monkeypatch,REAL)
+        assert chain.iloc[0]['security_id'] == '10012482'
+        rows = [(security,payload.split(',')) for security,payload in PACKETS]
+        rows[0] = ('99999999',rows[0][1])
+        listing = 'var hq_str_OP_DOWN_5105002611="' + ','.join('CON_OP_'+x[0] for x in PACKETS) + '";'
+        details = ''.join(packet(*row) for row in rows)
+        responses = [SimpleNamespace(content=body.encode('gbk'),headers={},raise_for_status=lambda:None)
+                     for body in (listing,details)]
+        monkeypatch.setattr(bot.requests,'get',Mock(side_effect=responses))
+        monkeypatch.setattr(bot,'fetch_510500_chain_with_failover',lambda month:(chain,stamp))
+        monkeypatch.setattr(bot,'fetch_sse_510500_expiries',lambda:['202611'])
+        monkeypatch.setattr(bot,'_gov10y_for_day',lambda *args:.02)
+        monkeypatch.setattr(bot,'_now_beijing',lambda:datetime(2026,10,21,13,25,tzinfo=bot.BEIJING))
+        # Correct reuse of the validated row or earlier rejection both satisfy the
+        # identity contract; an unrelated ID can never replace it.
+        try:
+            if consumer == 'reset':
+                result = bot.select_ic_put_for_reset(date(2026,10,21),6.76/.95,8000,.25)
+            else:
+                result = bot._v14_ic_short_put_candidate(dict(market_date=date(2026,10,21),
+                    next_trade_date=date(2026,10,22),etf_price=6.76/.95,future_last=8000))
+        except RuntimeError:
+            return
+&gt;       assert result['security_id'] == '10012482'
+E       AssertionError: assert '99999999' == '10012482'
+E         
+E         - 10012482
+E         + 99999999
+
+test_icim_redteam_market_20261021.py:328: AssertionError</failure></testcase><testcase classname="test_icim_redteam_market_20261021" name="test_second_security_lookup_cannot_replace_validated_chain_identity[short]" time="0.007"><failure message="AssertionError: assert '99999999' == '10012482'&#10;  &#10;  - 10012482&#10;  + 99999999">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x0000022055BB3CE0&gt;
+consumer = 'short'
+
+    @pytest.mark.parametrize('consumer', ['reset','short'])
+    def test_second_security_lookup_cannot_replace_validated_chain_identity(monkeypatch,consumer):
+        # The first retrieval is authentic and passes all repaired chain gates.
+        chain,stamp = fetch(monkeypatch,REAL)
+        assert chain.iloc[0]['security_id'] == '10012482'
+        rows = [(security,payload.split(',')) for security,payload in PACKETS]
+        rows[0] = ('99999999',rows[0][1])
+        listing = 'var hq_str_OP_DOWN_5105002611="' + ','.join('CON_OP_'+x[0] for x in PACKETS) + '";'
+        details = ''.join(packet(*row) for row in rows)
+        responses = [SimpleNamespace(content=body.encode('gbk'),headers={},raise_for_status=lambda:None)
+                     for body in (listing,details)]
+        monkeypatch.setattr(bot.requests,'get',Mock(side_effect=responses))
+        monkeypatch.setattr(bot,'fetch_510500_chain_with_failover',lambda month:(chain,stamp))
+        monkeypatch.setattr(bot,'fetch_sse_510500_expiries',lambda:['202611'])
+        monkeypatch.setattr(bot,'_gov10y_for_day',lambda *args:.02)
+        monkeypatch.setattr(bot,'_now_beijing',lambda:datetime(2026,10,21,13,25,tzinfo=bot.BEIJING))
+        # Correct reuse of the validated row or earlier rejection both satisfy the
+        # identity contract; an unrelated ID can never replace it.
+        try:
+            if consumer == 'reset':
+                result = bot.select_ic_put_for_reset(date(2026,10,21),6.76/.95,8000,.25)
+            else:
+                result = bot._v14_ic_short_put_candidate(dict(market_date=date(2026,10,21),
+                    next_trade_date=date(2026,10,22),etf_price=6.76/.95,future_last=8000))
+        except RuntimeError:
+            return
+&gt;       assert result['security_id'] == '10012482'
+E       AssertionError: assert '99999999' == '10012482'
+E         
+E         - 10012482
+E         + 99999999
+
+test_icim_redteam_market_20261021.py:328: AssertionError</failure></testcase></testsuite></testsuites>

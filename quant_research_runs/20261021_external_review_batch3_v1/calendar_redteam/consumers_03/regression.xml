@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="2" time="2.199" timestamp="2026-10-21T16:33:16.376227+08:00" hostname="DESKTOP-95I7VVU"><testcase classname="test_icim_batch3_calendar_redteam_20261021" name="test_dedicated_ic_core_delta_sizing_checks_expiry_before_arithmetic" time="0.005"><failure message="AssertionError: Regex pattern did not match.&#10;  Expected regex: '2027'&#10;  Actual message: 'IC独立核心Put缺少有效当日报价'">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000001E2FB0EB100&gt;
+
+    def test_dedicated_ic_core_delta_sizing_checks_expiry_before_arithmetic(monkeypatch):
+        day=date(2026,10,21)
+        stamp=dict(date=day,time='154000',source='synthetic_calendar_boundary')
+        chain=pd.DataFrame([dict(contract='510500P2703M07500',security_id='10012099',
+            strike=7.5,last=.5,source_stamp=datetime(2026,10,21,15,40,tzinfo=bot.BEIJING))])
+        monkeypatch.setattr(bot,'_fetch_510500_chain_for_day',lambda *a:(chain,stamp))
+        monkeypatch.setattr(bot,'_now_beijing',lambda:datetime(2026,10,21,15,40,tzinfo=bot.BEIJING))
+        monkeypatch.setattr(bot,'_validate_chain_stamp_matches',lambda *a:None)
+        monkeypatch.setattr(bot,'_gov10y_for_day',lambda *a:.02)
+        monkeypatch.setattr(bot,'_implied_volatility',lambda *a:.2)
+        monkeypatch.setattr(bot,'_bs_price_delta',lambda *a:(.5,-.25))
+        anchor=dict(v14_core_put_contract='510500P2703M07500',
+                    v14_core_put_security_id='10012099',v14_core_put_qty=5,
+                    verified_core_put_delta=.25)
+        signal=dict(market_date=day,option_monthly_reset_due=False,
+                    core_put_target_delta=.5,etf_price=7.5,future_last=7500.,
+                    put_target_momentum_qty=0)
+        with pytest.raises(RuntimeError,match='2027'):
+&gt;           bot._v14_ic_core_overlay(signal,anchor)
+
+test_icim_batch3_calendar_redteam_20261021.py:103: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+signal = {'core_put_target_delta': 0.5, 'etf_price': 7.5, 'future_last': 7500.0, 'market_date': datetime.date(2026, 10, 21), ...}
+anchor = {'v14_core_put_contract': '510500P2703M07500', 'v14_core_put_qty': 5, 'v14_core_put_security_id': '10012099', 'verified_core_put_delta': 0.25}
+
+    def _v14_ic_core_overlay(signal: dict[str, Any], anchor: dict[str, Any]) -&gt; None:
+        """Price the dedicated core independently of the legacy/shared Put field.
+    
+        Before the identity migration, ``post_put_contract`` can be the single
+        economic core leg; afterward it can hold the independent momentum leg.
+        The ordinary-open planner requires explicit v1.4 core identity instead of
+        treating that shared field as proof of a dedicated contract.
+        """
+        contract = anchor.get("v14_core_put_contract")
+        if contract:
+            if re.fullmatch(r"510500P[0-9]{4}A[0-9]{5}", str(contract)):
+                raise RuntimeError("IC adjusted contract master and multiplier unavailable; preserve held A identity")
+            day = signal["market_date"]
+            replay = _HISTORICAL_REPLAY_DAY.get()
+            if replay is not None:
+                chain, stamp = fetch_sse_existing_put_historical_quote(str(contract), str(anchor["v14_core_put_security_id"]), replay)
+            else:
+                match = re.search(r"P(\d{4})", str(contract))
+                if not match:
+                    raise RuntimeError("IC独立核心Put合约格式错误")
+                chain, stamp = _fetch_510500_chain_for_day(match.group(1), day)
+            _validate_chain_stamp_matches("IC独立核心Put", stamp, day, _now_beijing())
+            row = _quote_row(chain, str(contract), day)
+            if row is None or not math.isfinite(float(row["last"])) or float(row["last"]) &lt;= 0:
+&gt;               raise RuntimeError("IC独立核心Put缺少有效当日报价")
+E               RuntimeError: IC独立核心Put缺少有效当日报价
+
+poe_ic_im_mainline_v1_4_bot.py:5414: RuntimeError
+
+During handling of the above exception, another exception occurred:
+
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000001E2FB0EB100&gt;
+
+    def test_dedicated_ic_core_delta_sizing_checks_expiry_before_arithmetic(monkeypatch):
+        day=date(2026,10,21)
+        stamp=dict(date=day,time='154000',source='synthetic_calendar_boundary')
+        chain=pd.DataFrame([dict(contract='510500P2703M07500',security_id='10012099',
+            strike=7.5,last=.5,source_stamp=datetime(2026,10,21,15,40,tzinfo=bot.BEIJING))])
+        monkeypatch.setattr(bot,'_fetch_510500_chain_for_day',lambda *a:(chain,stamp))
+        monkeypatch.setattr(bot,'_now_beijing',lambda:datetime(2026,10,21,15,40,tzinfo=bot.BEIJING))
+        monkeypatch.setattr(bot,'_validate_chain_stamp_matches',lambda *a:None)
+        monkeypatch.setattr(bot,'_gov10y_for_day',lambda *a:.02)
+        monkeypatch.setattr(bot,'_implied_volatility',lambda *a:.2)
+        monkeypatch.setattr(bot,'_bs_price_delta',lambda *a:(.5,-.25))
+        anchor=dict(v14_core_put_contract='510500P2703M07500',
+                    v14_core_put_security_id='10012099',v14_core_put_qty=5,
+                    verified_core_put_delta=.25)
+        signal=dict(market_date=day,option_monthly_reset_due=False,
+                    core_put_target_delta=.5,etf_price=7.5,future_last=7500.,
+                    put_target_momentum_qty=0)
+&gt;       with pytest.raises(RuntimeError,match='2027'):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: Regex pattern did not match.
+E         Expected regex: '2027'
+E         Actual message: 'IC独立核心Put缺少有效当日报价'
+
+test_icim_batch3_calendar_redteam_20261021.py:102: AssertionError</failure></testcase><testcase classname="test_icim_batch3_calendar_redteam_20261021" name="test_public_im_builder_checks_unknown_held_core_expiry" time="0.021"><failure message="Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000001E2FB438B00&gt;
+
+    def test_public_im_builder_checks_unknown_held_core_expiry(monkeypatch):
+        # Actual builder/policy with synthetic restored holding and market rows.
+        # The fixture's verified quantities are preserved; only the held month and
+        # its matching observed quote are moved across the official-year boundary.
+        import test_icim_batch3_old_call_20261021 as legacy
+        anchors,quotes=legacy.wire(monkeypatch,held=False)
+        bot.LIVE_CONTINUATION_ANCHOR['IM']['post_core_put_contract']='MO2703-P-7200'
+        quotes.loc[quotes.instrument.eq('MO2612-P-7200'),'instrument']='MO2703-P-7200'
+        quotes.attrs['listed_instruments']=list(quotes.instrument)
+&gt;       with pytest.raises(RuntimeError,match='2027'):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;
+
+test_icim_batch3_calendar_redteam_20261021.py:115: Failed</failure></testcase></testsuite></testsuites>

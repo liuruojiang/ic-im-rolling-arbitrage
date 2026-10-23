@@ -1,0 +1,104 @@
+....................FF..                                                 [100%]
+================================== FAILURES ===================================
+_ test_complete_ic_builder_replaces_legacy_state_before_formal_target[-100.0] _
+
+proxy_score = -100.0
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001C1FD0B6050>
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_581a571f/pytest/test_complete_ic_builder_repla0')
+
+    @pytest.mark.parametrize('proxy_score',[-100.,100.])
+    def test_complete_ic_builder_replaces_legacy_state_before_formal_target(proxy_score,monkeypatch,tmp_path):
+        store,record=lifecycle.recent_store(tmp_path/'ledger')
+        anchors=state.anchors_from_record(record)
+        chain,stamp=real.wire(monkeypatch)
+        monkeypatch.setattr(bot,'LIVE_CONTINUATION_ANCHOR',anchors)
+        original_live_proxy=bot.live_proxy
+        lifecycle.builder_inputs(monkeypatch,anchors['IC'],chain,stamp)
+        monkeypatch.setattr(bot,'live_proxy',original_live_proxy)
+        live_sources(monkeypatch,tmp_path,'IC',proxy_score=proxy_score)
+        monkeypatch.setattr(bot,'fetch_sse_510500_expiries',lambda:['202612'])
+        before=lifecycle.snapshot(store.root)
+>       result=bot.build_live_trade_signal('IC',CLOCK,'close')
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_icim_batch3_valuation_20261021.py:151: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_mainline_v1_4_bot.py:5954: in build_live_trade_signal
+    return _build_live_trade_signal(product, clock, mode)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+poe_ic_im_mainline_v1_4_bot.py:6124: in _build_live_trade_signal
+    daily_valuation.disclosure(live.get("valuation_provenance")),
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ic_im_daily_valuation.py:116: in disclosure
+    text += rate_disclosure(p["gov10y"])
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+value = {'frozen_date': '2026-08-14', 'mode': 'frozen', 'reason': 'synthetic audit rate', 'source_date': None, ...}
+
+    def disclosure(value: dict) -> str:
+        rate = float(value["yield_decimal"])
+        if value["mode"] == "official_actual":
+            return f"国债利率：中债官方10年期 {rate:.4%}，数据日期 {value['used_date']}（估值与期权定价共用）。"
+>       return (f"国债利率回退：{value['reason']}；沿用 {value['used_date']} 冻结值 {rate:.4%}，"
+                                               ^^^^^^^^^^^^^^^^^^
+                f"非当日利率；本次源日期 {value.get('observed_date') or '未取得'}（估值与期权定价共用）。")
+E       KeyError: 'used_date'
+
+ic_im_chinabond.py:159: KeyError
+_ test_complete_ic_builder_replaces_legacy_state_before_formal_target[100.0] __
+
+proxy_score = 100.0
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001C1FD06F380>
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_581a571f/pytest/test_complete_ic_builder_repla1')
+
+    @pytest.mark.parametrize('proxy_score',[-100.,100.])
+    def test_complete_ic_builder_replaces_legacy_state_before_formal_target(proxy_score,monkeypatch,tmp_path):
+        store,record=lifecycle.recent_store(tmp_path/'ledger')
+        anchors=state.anchors_from_record(record)
+        chain,stamp=real.wire(monkeypatch)
+        monkeypatch.setattr(bot,'LIVE_CONTINUATION_ANCHOR',anchors)
+        original_live_proxy=bot.live_proxy
+        lifecycle.builder_inputs(monkeypatch,anchors['IC'],chain,stamp)
+        monkeypatch.setattr(bot,'live_proxy',original_live_proxy)
+        live_sources(monkeypatch,tmp_path,'IC',proxy_score=proxy_score)
+        monkeypatch.setattr(bot,'fetch_sse_510500_expiries',lambda:['202612'])
+        before=lifecycle.snapshot(store.root)
+>       result=bot.build_live_trade_signal('IC',CLOCK,'close')
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_icim_batch3_valuation_20261021.py:151: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_mainline_v1_4_bot.py:5954: in build_live_trade_signal
+    return _build_live_trade_signal(product, clock, mode)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+poe_ic_im_mainline_v1_4_bot.py:6124: in _build_live_trade_signal
+    daily_valuation.disclosure(live.get("valuation_provenance")),
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ic_im_daily_valuation.py:116: in disclosure
+    text += rate_disclosure(p["gov10y"])
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+value = {'frozen_date': '2026-08-14', 'mode': 'frozen', 'reason': 'synthetic audit rate', 'source_date': None, ...}
+
+    def disclosure(value: dict) -> str:
+        rate = float(value["yield_decimal"])
+        if value["mode"] == "official_actual":
+            return f"国债利率：中债官方10年期 {rate:.4%}，数据日期 {value['used_date']}（估值与期权定价共用）。"
+>       return (f"国债利率回退：{value['reason']}；沿用 {value['used_date']} 冻结值 {rate:.4%}，"
+                                               ^^^^^^^^^^^^^^^^^^
+                f"非当日利率；本次源日期 {value.get('observed_date') or '未取得'}（估值与期权定价共用）。")
+E       KeyError: 'used_date'
+
+ic_im_chinabond.py:159: KeyError
+============================== warnings summary ===============================
+C:\Python314\Lib\site-packages\fastapi_poe\types.py:171
+  C:\Python314\Lib\site-packages\fastapi_poe\types.py:171: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    class RequestContext(BaseModel):
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED test_icim_batch3_valuation_20261021.py::test_complete_ic_builder_replaces_legacy_state_before_formal_target[-100.0]
+FAILED test_icim_batch3_valuation_20261021.py::test_complete_ic_builder_replaces_legacy_state_before_formal_target[100.0]
+2 failed, 22 passed, 1 warning in 4.52s

@@ -1,0 +1,83 @@
+.........................F............                                   [100%]
+================================== FAILURES ===================================
+____ test_collection_clock_allows_only_observed_elapsed_time[True-1-True] _____
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000013CED1FC1A0>
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_402ea089/pytest/test_collection_clock_allows_o2')
+seconds = 1, accepted = True, recording = True
+
+    @pytest.mark.parametrize('seconds,accepted', [(1, True), (3, False)])
+    @pytest.mark.parametrize('recording', [False, True])
+    def test_collection_clock_allows_only_observed_elapsed_time(monkeypatch, tmp_path, seconds, accepted, recording):
+        """A vendor refresh during acquisition is not a future observation."""
+        clock = datetime(2026, 10, 22, 10, tzinfo=bot.BEIJING)
+        elapsed = [100.0]
+        monkeypatch.setattr(bot.time_module, 'monotonic', lambda: elapsed[0])
+        monkeypatch.setattr(bot, 'fetch_sse_510500_quote', fail_transport)
+        monkeypatch.setattr(bot, 'fetch_sina_510500_quote', fail_transport)
+        stamp = (clock + timedelta(seconds=seconds)).strftime('%H%M%S')
+        monkeypatch.setattr(bot, 'fetch_tencent_510500_quote', lambda: etf_at(stamp))
+        with ExitStack() as stack:
+            stack.enter_context(bot.runtime_clock(clock))
+            stack.enter_context(bot.collection_clock(clock))
+            if recording:
+                stack.enter_context(evidence.capture_session(tmp_path, DAY, clock, {'test': 'elapsed ETF acquisition'}))
+            elapsed[0] += 2.0
+            if accepted:
+>               value = bot.fetch_510500_quote_with_failover(DAY)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_icim_free_sources_adversarial_market_20261022.py:53: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+ic_im_evidence_adapter_v1.py:174: in adapted
+    return capture.call(role, key, lambda: _validate_value(
+ic_im_signal_evidence_v1.py:390: in call
+    value = fetcher()
+            ^^^^^^^^^
+ic_im_evidence_adapter_v1.py:174: in <lambda>
+    return capture.call(role, key, lambda: _validate_value(
+ic_im_evidence_adapter_v1.py:101: in _validate_value
+    strategy._validate_chain_stamp_matches("原日ETF存证", value, day, clock)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+label = '原日ETF存证'
+stamp = {'date': '20261022', 'last': 6.684, 'prev_close': 6.864, 'source': '腾讯510500ETF', ...}
+reference_day = datetime.date(2026, 10, 22)
+clock = datetime.datetime(2026, 10, 22, 10, 0, tzinfo=zoneinfo.ZoneInfo(key='Asia/Shanghai'))
+
+    def _validate_chain_stamp_matches(
+        label: str,
+        stamp: dict[str, str],
+        reference_day: date,
+        clock: datetime,
+    ) -> date:
+        chain_day = _validate_market_stamp(label, stamp.get("date", ""), clock)
+        if chain_day != reference_day:
+            raise RuntimeError(
+                f"{label}与参考行情日期不一致：{chain_day} != {reference_day}"
+            )
+        if reference_day >= sse_identity.EFFECTIVE_SIGNAL_DATE:
+            raw_time = str(stamp.get("time", ""))
+            if not re.fullmatch(r"[0-9]{6}", raw_time):
+                raise RuntimeError(f"{label}行情时间格式无效")
+            try:
+                observed = _iv_monitor_stamp(reference_day, stamp.get("date"), raw_time, label)
+            except ValueError as exc:
+                raise RuntimeError(f"{label}行情时间无效") from exc
+            if observed.time() < time(9, 15):
+                raise RuntimeError(f"{label}行情时间早于09:15，不能作为有效盘中行情")
+            now = clock.astimezone(BEIJING) if clock.tzinfo else clock.replace(tzinfo=BEIJING)
+            if observed > now:
+>               raise RuntimeError(f"{label}行情时间晚于当前运行时间")
+E               RuntimeError: 原日ETF存证行情时间晚于当前运行时间
+
+poe_ic_im_mainline_v1_4_bot.py:5557: RuntimeError
+============================== warnings summary ===============================
+C:\Python314\Lib\site-packages\fastapi_poe\types.py:171
+  C:\Python314\Lib\site-packages\fastapi_poe\types.py:171: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    class RequestContext(BaseModel):
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED test_icim_free_sources_adversarial_market_20261022.py::test_collection_clock_allows_only_observed_elapsed_time[True-1-True]
+1 failed, 37 passed, 1 warning in 3.27s

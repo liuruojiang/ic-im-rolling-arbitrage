@@ -1,0 +1,88 @@
+{
+  "ledger": {
+    "IC_baseline": {
+      "rows": 945,
+      "equity_error": 1.7881393432617188e-07,
+      "cash_error": 1.341104507446289e-07
+    },
+    "IC_buy_only": {
+      "rows": 945,
+      "equity_error": 5.960464477539063e-08,
+      "cash_error": 1.1920928955078125e-07
+    },
+    "IC_carry_old": {
+      "rows": 945,
+      "equity_error": 1.341104507446289e-07,
+      "cash_error": 1.6391277313232422e-07
+    },
+    "IM_baseline": {
+      "rows": 986,
+      "equity_error": 8.940696716308594e-08,
+      "cash_error": 1.043081283569336e-07
+    },
+    "IM_buy_only": {
+      "rows": 986,
+      "equity_error": 8.940696716308594e-08,
+      "cash_error": 7.450580596923828e-08
+    },
+    "IM_carry_old": {
+      "rows": 986,
+      "equity_error": 2.086162567138672e-07,
+      "cash_error": 1.9371509552001953e-07
+    }
+  },
+  "actual_open_fills": {
+    "IC": 53,
+    "IM": 92
+  },
+  "calendar": {
+    "IC": {
+      "events": 90
+    },
+    "IM": {
+      "events": 96
+    }
+  },
+  "causality": {
+    "IC": {
+      "real_poison_cases": 5,
+      "status": "PASS"
+    },
+    "IM": {
+      "real_poison_cases": 5,
+      "status": "PASS"
+    }
+  },
+  "monthly_effect": {
+    "IC_buy_only": {
+      "selections": 27,
+      "changed_months": 0,
+      "newly_listed": 0,
+      "mean_remaining_days": 94.55555555555556,
+      "mean_target_error": 22.11111111111111
+    },
+    "IC_carry_old": {
+      "selections": 22,
+      "changed_months": 0,
+      "newly_listed": 0,
+      "mean_remaining_days": 96.81818181818181,
+      "mean_target_error": 23.90909090909091
+    },
+    "IM_buy_only": {
+      "selections": 36,
+      "changed_months": 22,
+      "newly_listed": 20,
+      "mean_remaining_days": 87.77777777777777,
+      "mean_target_error": 4.055555555555555
+    },
+    "IM_carry_old": {
+      "selections": 36,
+      "changed_months": 22,
+      "newly_listed": 20,
+      "mean_remaining_days": 87.77777777777777,
+      "mean_target_error": 4.055555555555555
+    }
+  },
+  "protected_files_unchanged": 147,
+  "status": "PASS"
+}

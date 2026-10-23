@@ -1,0 +1,27 @@
+{
+  "representation": "Normalized factual expiry oracle from two independently opened official SSE notices; not raw HTTP bytes or a calendar-function result.",
+  "exchange": "SSE",
+  "underlying": "510500",
+  "contract_month": "2301",
+  "last_trading_day": "2023-01-30",
+  "exercise_day": "2023-01-30",
+  "expiry_day": "2023-01-30",
+  "exercise_settlement_day": "2023-01-31",
+  "sources": [
+    {
+      "url": "https://www.sse.com.cn/assortment/options/disclo/update/c/c_20221209_5713793.shtml",
+      "document_number": "上证公告(衍生品)〔2022〕73号",
+      "published": "2022-12-09",
+      "scope": "All SSE underlying instruments with January 2023 expiry",
+      "original_expiry_day": "2023-01-25",
+      "announced_expiry_day": "2023-01-30"
+    },
+    {
+      "url": "https://www.sse.com.cn/assortment/options/disclo/update/c/c_20230117_5715310.shtml",
+      "document_number": "上证公告（衍生品）〔2023〕5号",
+      "published": "2023-01-18",
+      "scope": "Explicitly includes 500ETF options with January 2023 expiry",
+      "announced_expiry_day": "2023-01-30"
+    }
+  ]
+}

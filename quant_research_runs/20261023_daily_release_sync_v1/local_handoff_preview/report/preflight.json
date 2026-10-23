@@ -1,0 +1,13 @@
+{
+  "publication_mode": "close",
+  "expected_market_day": "2026-10-22",
+  "strategy_sha": "8038980de86251b2c5133da04e788dc2c49c84ff",
+  "program_build": "v1.4-20261008-r1-ic-csi500-abs40-fix11",
+  "generated_at": "2026-10-23T10:59:16.053491+08:00",
+  "completed_day": "2026-10-22",
+  "restored_verified_day": "2026-10-22",
+  "restored_digest": "49fb159fbadf894b6c64e8ca886faef49d62c5e8e31f0415690209f834317cc0",
+  "today_is_trade_day": true,
+  "signal_build_expected": "v1.4-20261008-r1-ic-csi500-abs40-fix11",
+  "prospective_fix11_signal_observed": false
+}

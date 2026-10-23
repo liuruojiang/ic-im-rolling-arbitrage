@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="32" time="3.380" timestamp="2026-10-21T14:43:31.820832+08:00" hostname="DESKTOP-95I7VVU"><testcase classname="test_icim_round2_audit_lifecycle_20261021" name="test_actual_public_entry_resets_projection_after_later_failure[ordinary-IC]" time="0.078" /><testcase classname="test_icim_round2_audit_lifecycle_20261021" name="test_actual_public_entry_resets_projection_after_later_failure[ordinary-IM]" time="0.023" /><testcase classname="test_icim_round2_audit_lifecycle_20261021" name="test_actual_public_entry_resets_projection_after_later_failure[profit3x-IC]" time="0.022" /><testcase classname="test_icim_round2_audit_lifecycle_20261021" name="test_actual_public_entry_resets_projection_after_later_failure[profit3x-IM]" time="0.023" /><testcase classname="test_icim_round2_audit_lifecycle_20261021" name="test_actual_public_entry_resets_projection_after_later_failure[short_put-IC]" time="0.025" /><testcase classname="test_icim_round2_audit_lifecycle_20261021" name="test_actual_public_entry_resets_projection_after_later_failure[short_put-IM]" time="0.026" /><testcase classname="test_icim_round2_audit_lifecycle_20261021" name="test_real_chain_split_sleeve_identity_reaches_fail_closed_policy[core-None]" time="0.007" /><testcase classname="test_icim_round2_audit_lifecycle_20261021" name="test_real_chain_split_sleeve_identity_reaches_fail_closed_policy[core-10011470]" time="0.005" /><testcase classname="test_icim_round2_audit_lifecycle_20261021" name="test_real_chain_split_sleeve_identity_reaches_fail_closed_policy[core-10012099]" time="0.005" /><testcase classname="test_icim_round2_audit_lifecycle_20261021" name="test_real_chain_split_sleeve_identity_reaches_fail_closed_policy[momentum-None]" time="0.004" /><testcase classname="test_icim_round2_audit_lifecycle_20261021" name="test_real_chain_split_sleeve_identity_reaches_fail_closed_policy[momentum-10011470]" time="0.005" /><testcase classname="test_icim_round2_audit_lifecycle_20261021" name="test_real_chain_split_sleeve_identity_reaches_fail_closed_policy[momentum-10012099]" time="0.004" /><testcase classname="test_icim_round2_audit_lifecycle_20261021" name="test_old_m_replay_must_not_synthesize_standard_identity_from_directed_id" time="0.003" /><testcase classname="test_icim_round2_audit_lifecycle_20261021" name="test_full_public_builder_real_sse_current_holding_identity[10012099]" time="0.023" /><testcase classname="test_icim_round2_audit_lifecycle_20261021" name="test_full_public_builder_real_sse_current_holding_identity[10011470]" time="0.021" /><testcase classname="test_icim_round2_audit_lifecycle_20261021" name="test_full_public_builder_real_sse_current_holding_identity[None]" time="0.021" /><testcase classname="test_icim_round2_audit_lifecycle_20261021" name="test_actual_builder_independent_sleeves_never_cross_identity[None]" time="0.020" /><testcase classname="test_icim_round2_audit_lifecycle_20261021" name="test_actual_builder_independent_sleeves_never_cross_identity[core]" time="0.022" /><testcase classname="test_icim_round2_audit_lifecycle_20261021" name="test_actual_builder_independent_sleeves_never_cross_identity[momentum]" time="0.019" /><testcase classname="test_icim_round2_audit_lifecycle_20261021" name="test_legal_zero_put_holding_does_not_require_unheld_legacy_identity" time="0.020" /><testcase classname="test_icim_round2_audit_lifecycle_20261021" name="test_current_boundary_ordinary_open_real_hash_ledger_roundtrip[IC]" time="0.044" /><testcase classname="test_icim_round2_audit_lifecycle_20261021" name="test_current_boundary_ordinary_open_real_hash_ledger_roundtrip[IM]" time="0.047" /><testcase classname="test_icim_round2_audit_lifecycle_20261021" name="test_actual_short_mark_must_not_trust_stale_m_label_for_adjusted_security" time="0.022"><failure message="RuntimeError: unresolved held Put identity; preserve anchor and retry verified evidence">tmp_path = WindowsPath('D:/workspace/icim_round2_lifecycle_temp/icim_put_25df7ecd/pytest/test_actual_short_mark_must_no0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000001AC915BDD30&gt;
+
+    def test_actual_short_mark_must_not_trust_stale_m_label_for_adjusted_security(tmp_path,monkeypatch):
+        store,record=recent_store(tmp_path/'ledger')
+        anchors=state.anchors_from_record(record)
+        a=anchors['IC']
+        ledger._empty_core(a,'IC')
+        a.update(v14_route_state='short_put',v14_cycle_id='synthetic-stale-m-held-identity',
+            v14_short_put_contract=real.M,v14_short_put_security_id='10011470',
+            v14_short_put_qty_normalized=5.,v14_short_put_entry_premium=.4,
+            v14_short_put_expiry=date(2026,12,23),v14_short_put_cost_basis='confirmed_dated_open',
+            v14_short_put_entry_price_day=PREVIOUS,
+            verified_momentum_put_delta=0.,verified_momentum_put_qty=0)
+        # This is a synthetic accepted legacy anchor, not a claim of an actual
+        # July trade. Official raw data, unlike its stale M label, identifies A.
+        record['products']['IC']=state._jsonable(a)
+        record['digest']=state._digest(record)
+        state._validate_record(record)
+        chain,stamp=real.wire(monkeypatch)
+        monkeypatch.setattr(bot,'LIVE_CONTINUATION_ANCHOR',anchors)
+        builder_inputs(monkeypatch,a,chain,stamp)
+        live=bot.live_proxy('IC',CLOCK)
+        live.update(momentum_120=.1,valuation_tier=1)
+        monkeypatch.setattr(bot,'live_proxy',lambda *args:deepcopy(live))
+        candidate=dict(tradable=True,contract='510500P2701M06500',security_id='10015000',
+            expiry=date(2027,1,27),premium=.3,iv=.8,qty_normalized=5.)
+        monkeypatch.setattr(bot,'_v14_ic_short_put_candidate',lambda *args,**kw:candidate)
+        monkeypatch.setattr(bot,'fetch_option_closes',lambda security:
+            pd.Series([.01],index=pd.to_datetime([DAY])))
+        before=deepcopy(a)
+&gt;       out=bot.build_live_trade_signal('IC',CLOCK,'close')
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_icim_round2_audit_lifecycle_20261021.py:391: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_mainline_v1_4_bot.py:5826: in build_live_trade_signal
+    return _build_live_trade_signal(product, clock, mode)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+poe_ic_im_mainline_v1_4_bot.py:6901: in _build_live_trade_signal
+    put_execution.require_resolved_held_identity(product, signal)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+product = 'IC'
+value = {'call_action': 'HOLD', 'call_current': '无', 'call_current_contract': None, 'call_target': '无（IC 1.3明确禁止Call）', ...}
+
+    def require_resolved_held_identity(product: str, value: dict) -&gt; None:
+        """A known failed holding-identity check cannot become a new target/write."""
+        if product == "IC" and value.get("v14_held_put_identity_status") == "unverified":
+&gt;           raise RuntimeError("unresolved held Put identity; preserve anchor and retry verified evidence")
+E           RuntimeError: unresolved held Put identity; preserve anchor and retry verified evidence
+
+ic_im_put_execution_v1.py:20: RuntimeError</failure></testcase><testcase classname="test_icim_round2_audit_lifecycle_20261021" name="test_short_identity_failure_cannot_publish_or_complete_expiry_branch[False-None]" time="0.004" /><testcase classname="test_icim_round2_audit_lifecycle_20261021" name="test_short_identity_failure_cannot_publish_or_complete_expiry_branch[False-assigned]" time="0.003" /><testcase classname="test_icim_round2_audit_lifecycle_20261021" name="test_short_identity_failure_cannot_publish_or_complete_expiry_branch[False-expired_worthless]" time="0.005" /><testcase classname="test_icim_round2_audit_lifecycle_20261021" name="test_short_identity_failure_cannot_publish_or_complete_expiry_branch[True-None]" time="0.004" /><testcase classname="test_icim_round2_audit_lifecycle_20261021" name="test_short_identity_failure_cannot_publish_or_complete_expiry_branch[True-assigned]" time="0.003" /><testcase classname="test_icim_round2_audit_lifecycle_20261021" name="test_short_identity_failure_cannot_publish_or_complete_expiry_branch[True-expired_worthless]" time="0.003" /><testcase classname="test_icim_round2_audit_lifecycle_20261021" name="test_valid_short_identity_expiry_survives_independent_candidate_outage[False]" time="0.004" /><testcase classname="test_icim_round2_audit_lifecycle_20261021" name="test_valid_short_identity_expiry_survives_independent_candidate_outage[True]" time="0.004" /><testcase classname="test_icim_round2_audit_lifecycle_20261021" name="test_full_builder_december_expiry_stays_closed_without_2027_calendar" time="0.073" /></testsuite></testsuites>

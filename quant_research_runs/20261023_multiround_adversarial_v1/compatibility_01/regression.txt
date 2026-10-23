@@ -1,0 +1,74 @@
+..........................................................F............. [ 54%]
+................................F...........................             [100%]
+================================== FAILURES ===================================
+___________ test_ic_candidate_falls_back_to_sina_when_sse_times_out ___________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001BA7A7BF690>
+
+    def test_ic_candidate_falls_back_to_sina_when_sse_times_out(monkeypatch):
+        signal={'market_date':date(2026,9,18),'next_trade_date':date(2026,9,21),
+                'etf_price':7.83,'future_last':7641.0}
+        chain=pd.DataFrame([{'contract':'510500P2610M07500','last':.1237,'strike':7.5}])
+        monkeypatch.setattr(bot, 'fetch_sse_510500_chain', lambda _month: (_ for _ in ()).throw(TimeoutError('SSE timeout')))
+        monkeypatch.setattr(bot, 'fetch_sina_510500_chain', lambda _month: (chain, {'date':'20260918','time':'150000','source':'新浪财经期权详报价（上交所回退）'}))
+        monkeypatch.setattr(bot, 'fetch_sina_510500_security_id', lambda _contract: '10012357')
+        # This is an offline historical fixture.  Bind the validation clock to the
+        # fixture's market day so the test cannot drift when the CI calendar moves.
+        with bot.runtime_clock(datetime(2026,9,18,16,tzinfo=bot.BEIJING)):
+>           candidate=bot._v14_ic_short_put_candidate(signal)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_ic_im_v1_4_integration_guards.py:354: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_mainline_v1_4_bot.py:5991: in _v14_ic_short_put_candidate
+    _require_selected_510500_quote_time(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+row = contract    510500P2610M07500
+last                   0.1237
+strike                    7.5
+distance               0.0615
+Name: 0, dtype: object
+clock = datetime.datetime(2026, 9, 18, 16, 0, tzinfo=zoneinfo.ZoneInfo(key='Asia/Shanghai'))
+market_date = datetime.date(2026, 9, 18)
+
+    def _require_selected_510500_quote_time(
+        row: pd.Series, clock: datetime, market_date: date | None, *, source: str | None = None
+    ) -> None:
+        if "source_stamp" not in row.index:
+            if str(source or "").startswith("新浪"):
+>               raise RuntimeError("新浪510500期权合约缺少有效逐行时间戳")
+E               RuntimeError: 新浪510500期权合约缺少有效逐行时间戳
+
+poe_ic_im_mainline_v1_4_bot.py:4803: RuntimeError
+_____ test_sealed_attempt_statistics_count_conflicts_not_polling_receipts _____
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_81940e08/pytest/test_sealed_attempt_statistics0')
+
+    def test_sealed_attempt_statistics_count_conflicts_not_polling_receipts(tmp_path):
+        for product, bodies in [("IC", [b"A", b"B"]), ("IC", [b"C"]), ("IM", [b"D"])]:
+            with evidence.capture_session(tmp_path, DAY, CLOCK, {**META, "product": product}) as session:
+                minimum(session)
+                for body in bodies:
+                    session.raw_response(URL, None, response(body))
+        polling = tmp_path / "capture_receipts" / str(DAY)
+        polling.mkdir(parents=True)
+        (polling / "poll.json").write_text('{"status":"already_captured"}', encoding="utf-8")
+        stats = adapter.capture_day_status(tmp_path, DAY)
+>       assert stats["status"] == "captured"
+E       AssertionError: assert 'incomplete' == 'captured'
+E         
+E         - captured
+E         + incomplete
+
+test_icim_evidence_conflict_review_20261022.py:206: AssertionError
+============================== warnings summary ===============================
+C:\Python314\Lib\site-packages\fastapi_poe\types.py:171
+  C:\Python314\Lib\site-packages\fastapi_poe\types.py:171: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    class RequestContext(BaseModel):
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED test_ic_im_v1_4_integration_guards.py::test_ic_candidate_falls_back_to_sina_when_sse_times_out
+FAILED test_icim_evidence_conflict_review_20261022.py::test_sealed_attempt_statistics_count_conflicts_not_polling_receipts
+2 failed, 130 passed, 1 warning in 25.87s

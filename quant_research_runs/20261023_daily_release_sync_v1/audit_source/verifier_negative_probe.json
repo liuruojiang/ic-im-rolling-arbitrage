@@ -1,0 +1,7 @@
+{
+  "valid": true,
+  "changed_runner": "source fingerprint mismatch: run_ic_im_v1_4_github_digest.py",
+  "LF_normalized_source": "source fingerprint mismatch: poe_ic_im_mainline_v1_4_bot.py",
+  "modified_manifest": "release manifest differs from the pinned commit",
+  "wrong_pin": "strategy checkout does not match the production pin"
+}

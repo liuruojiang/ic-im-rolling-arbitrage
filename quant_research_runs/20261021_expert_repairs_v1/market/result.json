@@ -1,0 +1,36 @@
+{
+  "stage": "first_01",
+  "exit_code": 0,
+  "passed": 110,
+  "failed": 0,
+  "warnings": 1,
+  "duration_seconds": 5.5,
+  "executed_by_file": {
+    "test_icim_expert_market_20261021.py": 54,
+    "test_ic_im_external_review_20261021.py": 2,
+    "test_icim_a3_history_20261021.py": 28,
+    "test_ic_im_historical_put_identity_20261021.py": 19,
+    "test_ic_im_v1_4_integration_guards.py": 2,
+    "test_ohlcv_provider_validation.py": 5
+  },
+  "function_sha256": {
+    "fetch_sina_option_closes": "a907de3eb3d02d330470e710e22092dab9e18b5ab9b6d1011ce78f7c6d1e1e9c",
+    "fetch_option_closes": "5c56642a4278bcca70d999ed42d92278e4a36dd46150347a7c6a2b56732977f1",
+    "fetch_option_dated_open": "3db491901bcf39626bf58909ff070bcd2f2e827500109bbf937b5aeba1a58692",
+    "_source_failure_error": "ef72dfd40a3ff8378409add350393ce70ce8a3a22a16efef64eaa05524ca3502",
+    "_sse_session_time": "47e8408e3623bc51d3c5a3da7b767015348e486191c362e9fac741d00ab6fae1",
+    "fetch_sse_510500_quote": "65a5e49b3bf21076632cdc8423461899114051b01e23e7da684d0f2dccb2d628",
+    "fetch_sse_510500_chain": "f1d7bb3650cafe2f4056fda5bfc713ba6deabec7d1bc3b5d002eae12614ed103",
+    "fetch_510500_chain_with_failover": "abba421020cd6532939c0a7b19ad21803ada2535d231b7e384e1b9db2f5a6772",
+    "fetch_sse_510500_dated_master": "d94d0244b0b4d6990e76b811557f4b4a99641eb30615cb3ae3e2c85d4057fbe2",
+    "_validate_chain_stamp_matches": "10afaae5dcc40a7d6f21238eb245b01148cc402d59cf1f104a56e6842afb1686"
+  },
+  "tests_sha256": "8f543e9f2686e2e2f8fb938df93164795a1d949cd3d0ef73bbae4aafbfdd1ef5",
+  "fixture_sha256": "14c527e8b43d924481421fe399eef9adbaddb2960989beda99365c9563d55111",
+  "limitations": [
+    "Offline fixtures and synthetic failure injection only; no live network refresh.",
+    "Concurrent production source work is ongoing; this is market-scope verification, not final integrated acceptance.",
+    "P_OP fields[40] and extra ETF source are intentionally not modified."
+  ],
+  "production_ledger_access": "No server module imported; runner points state paths at unique disposable test directories."
+}

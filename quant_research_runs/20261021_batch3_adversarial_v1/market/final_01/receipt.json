@@ -1,0 +1,21 @@
+{
+  "started_at": "2026-10-21T09:36:53.370187+00:00",
+  "finished_at": "2026-10-21T09:37:08.233273+00:00",
+  "exit_code": 0,
+  "source_before_equals_after": true,
+  "source_files": 902,
+  "counts": {
+    "tests": 20,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "artifacts": {
+    "regression.xml": "f4cda25b50e4d9db6914c09d6ea1e3dfd1f7602701b329a986d932b7adb62142",
+    "regression.txt": "5b0a120628b2deb278caffcba537c066c97c421d9fc1f04b8faf5b729194acfc",
+    "source_before.json": "b2d5af3024fd8f7c20d319a1bc8c3bfccde8414a90a392e50fa4be6ff62c5009",
+    "source_after.json": "b2d5af3024fd8f7c20d319a1bc8c3bfccde8414a90a392e50fa4be6ff62c5009",
+    "test_run.json": "3287a122d05ce0e98f765df66f30b0fbb7d8cd674e840cf358c0c92bc456a6fa",
+    "collection.json": "3a61e21e04feebb2fe292449c5a160953b3ddd0fc0264385f03cccea6bb91a70"
+  }
+}

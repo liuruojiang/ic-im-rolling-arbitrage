@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="8" skipped="0" tests="8" time="1.905" timestamp="2026-10-21T15:22:22.734157+08:00" hostname="DESKTOP-95I7VVU"><testcase classname="test_ic_im_review_ohlcv_wait_20261021" name="test_daily_bar_lag_waits_without_synthesizing_a_close[15-0-IC]" time="0.009"><failure message="AssertionError: assert None == 'waiting_for_completed_daily_ohlcv'&#10; +  where None = getattr(RuntimeError('IC OHLCV已过期：最新 2026-10-20，应覆盖 2026-10-21'), 'status', None)&#10; +    where RuntimeError('IC OHLCV已过期：最新 2026-10-20，应覆盖 2026-10-21') = &lt;ExceptionInfo RuntimeError('IC OHLCV已过期：最新 2026-10-20，应覆盖 2026-10-21') tblen=3&gt;.value">product = 'IC', hour = 15, minute = 0
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x0000015B1F3BA780&gt;
+
+    @pytest.mark.parametrize('product', ['IC', 'IM'])
+    @pytest.mark.parametrize('hour,minute', [(15,0),(15,1),(15,29),(15,30)])
+    def test_daily_bar_lag_waits_without_synthesizing_a_close(product,hour,minute,monkeypatch):
+        # Two synthetic, well-formed bars suffice: the freshness boundary must
+        # reject them before history length, frozen-index or strategy calculations.
+        frame = pd.DataFrame(dict(open=[7000.,7000.],high=[7100.,7100.],low=[6900.,6900.],
+                                  close=[7050.,7050.],volume=[100_000_000.,200_000_000.]),
+                             index=pd.to_datetime(['2026-10-19','2026-10-20']))
+        before = frame.copy(deep=True)
+        anchors = deepcopy(bot.LIVE_CONTINUATION_ANCHOR)
+        monkeypatch.setattr(bot,'fetch_ohlcv_history',lambda _: frame)
+        def forbidden(*args,**kwargs):
+            raise AssertionError('daily-bar wait must not fetch a replacement live price or compute targets')
+        monkeypatch.setattr(bot,'fetch_live_price_quote',forbidden)
+        monkeypatch.setattr(bot,'v13_momentum_schedule',forbidden)
+        clock = datetime(2026,10,21,hour,minute,tzinfo=bot.BEIJING)
+        with pytest.raises(RuntimeError,match='OHLCV已过期') as caught:
+            bot.live_proxy(product,clock)
+&gt;       assert getattr(caught.value,'status',None) == 'waiting_for_completed_daily_ohlcv'
+E       AssertionError: assert None == 'waiting_for_completed_daily_ohlcv'
+E        +  where None = getattr(RuntimeError('IC OHLCV已过期：最新 2026-10-20，应覆盖 2026-10-21'), 'status', None)
+E        +    where RuntimeError('IC OHLCV已过期：最新 2026-10-20，应覆盖 2026-10-21') = &lt;ExceptionInfo RuntimeError('IC OHLCV已过期：最新 2026-10-20，应覆盖 2026-10-21') tblen=3&gt;.value
+
+test_ic_im_review_ohlcv_wait_20261021.py:26: AssertionError</failure></testcase><testcase classname="test_ic_im_review_ohlcv_wait_20261021" name="test_daily_bar_lag_waits_without_synthesizing_a_close[15-0-IM]" time="0.005"><failure message="AssertionError: assert None == 'waiting_for_completed_daily_ohlcv'&#10; +  where None = getattr(RuntimeError('IM OHLCV已过期：最新 2026-10-20，应覆盖 2026-10-21'), 'status', None)&#10; +    where RuntimeError('IM OHLCV已过期：最新 2026-10-20，应覆盖 2026-10-21') = &lt;ExceptionInfo RuntimeError('IM OHLCV已过期：最新 2026-10-20，应覆盖 2026-10-21') tblen=3&gt;.value">product = 'IM', hour = 15, minute = 0
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x0000015B1F3BB230&gt;
+
+    @pytest.mark.parametrize('product', ['IC', 'IM'])
+    @pytest.mark.parametrize('hour,minute', [(15,0),(15,1),(15,29),(15,30)])
+    def test_daily_bar_lag_waits_without_synthesizing_a_close(product,hour,minute,monkeypatch):
+        # Two synthetic, well-formed bars suffice: the freshness boundary must
+        # reject them before history length, frozen-index or strategy calculations.
+        frame = pd.DataFrame(dict(open=[7000.,7000.],high=[7100.,7100.],low=[6900.,6900.],
+                                  close=[7050.,7050.],volume=[100_000_000.,200_000_000.]),
+                             index=pd.to_datetime(['2026-10-19','2026-10-20']))
+        before = frame.copy(deep=True)
+        anchors = deepcopy(bot.LIVE_CONTINUATION_ANCHOR)
+        monkeypatch.setattr(bot,'fetch_ohlcv_history',lambda _: frame)
+        def forbidden(*args,**kwargs):
+            raise AssertionError('daily-bar wait must not fetch a replacement live price or compute targets')
+        monkeypatch.setattr(bot,'fetch_live_price_quote',forbidden)
+        monkeypatch.setattr(bot,'v13_momentum_schedule',forbidden)
+        clock = datetime(2026,10,21,hour,minute,tzinfo=bot.BEIJING)
+        with pytest.raises(RuntimeError,match='OHLCV已过期') as caught:
+            bot.live_proxy(product,clock)
+&gt;       assert getattr(caught.value,'status',None) == 'waiting_for_completed_daily_ohlcv'
+E       AssertionError: assert None == 'waiting_for_completed_daily_ohlcv'
+E        +  where None = getattr(RuntimeError('IM OHLCV已过期：最新 2026-10-20，应覆盖 2026-10-21'), 'status', None)
+E        +    where RuntimeError('IM OHLCV已过期：最新 2026-10-20，应覆盖 2026-10-21') = &lt;ExceptionInfo RuntimeError('IM OHLCV已过期：最新 2026-10-20，应覆盖 2026-10-21') tblen=3&gt;.value
+
+test_ic_im_review_ohlcv_wait_20261021.py:26: AssertionError</failure></testcase><testcase classname="test_ic_im_review_ohlcv_wait_20261021" name="test_daily_bar_lag_waits_without_synthesizing_a_close[15-1-IC]" time="0.004"><failure message="AssertionError: assert None == 'waiting_for_completed_daily_ohlcv'&#10; +  where None = getattr(RuntimeError('IC OHLCV已过期：最新 2026-10-20，应覆盖 2026-10-21'), 'status', None)&#10; +    where RuntimeError('IC OHLCV已过期：最新 2026-10-20，应覆盖 2026-10-21') = &lt;ExceptionInfo RuntimeError('IC OHLCV已过期：最新 2026-10-20，应覆盖 2026-10-21') tblen=3&gt;.value">product = 'IC', hour = 15, minute = 1
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x0000015B1F41D910&gt;
+
+    @pytest.mark.parametrize('product', ['IC', 'IM'])
+    @pytest.mark.parametrize('hour,minute', [(15,0),(15,1),(15,29),(15,30)])
+    def test_daily_bar_lag_waits_without_synthesizing_a_close(product,hour,minute,monkeypatch):
+        # Two synthetic, well-formed bars suffice: the freshness boundary must
+        # reject them before history length, frozen-index or strategy calculations.
+        frame = pd.DataFrame(dict(open=[7000.,7000.],high=[7100.,7100.],low=[6900.,6900.],
+                                  close=[7050.,7050.],volume=[100_000_000.,200_000_000.]),
+                             index=pd.to_datetime(['2026-10-19','2026-10-20']))
+        before = frame.copy(deep=True)
+        anchors = deepcopy(bot.LIVE_CONTINUATION_ANCHOR)
+        monkeypatch.setattr(bot,'fetch_ohlcv_history',lambda _: frame)
+        def forbidden(*args,**kwargs):
+            raise AssertionError('daily-bar wait must not fetch a replacement live price or compute targets')
+        monkeypatch.setattr(bot,'fetch_live_price_quote',forbidden)
+        monkeypatch.setattr(bot,'v13_momentum_schedule',forbidden)
+        clock = datetime(2026,10,21,hour,minute,tzinfo=bot.BEIJING)
+        with pytest.raises(RuntimeError,match='OHLCV已过期') as caught:
+            bot.live_proxy(product,clock)
+&gt;       assert getattr(caught.value,'status',None) == 'waiting_for_completed_daily_ohlcv'
+E       AssertionError: assert None == 'waiting_for_completed_daily_ohlcv'
+E        +  where None = getattr(RuntimeError('IC OHLCV已过期：最新 2026-10-20，应覆盖 2026-10-21'), 'status', None)
+E        +    where RuntimeError('IC OHLCV已过期：最新 2026-10-20，应覆盖 2026-10-21') = &lt;ExceptionInfo RuntimeError('IC OHLCV已过期：最新 2026-10-20，应覆盖 2026-10-21') tblen=3&gt;.value
+
+test_ic_im_review_ohlcv_wait_20261021.py:26: AssertionError</failure></testcase><testcase classname="test_ic_im_review_ohlcv_wait_20261021" name="test_daily_bar_lag_waits_without_synthesizing_a_close[15-1-IM]" time="0.005"><failure message="AssertionError: assert None == 'waiting_for_completed_daily_ohlcv'&#10; +  where None = getattr(RuntimeError('IM OHLCV已过期：最新 2026-10-20，应覆盖 2026-10-21'), 'status', None)&#10; +    where RuntimeError('IM OHLCV已过期：最新 2026-10-20，应覆盖 2026-10-21') = &lt;ExceptionInfo RuntimeError('IM OHLCV已过期：最新 2026-10-20，应覆盖 2026-10-21') tblen=3&gt;.value">product = 'IM', hour = 15, minute = 1
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x0000015B1F4B2030&gt;
+
+    @pytest.mark.parametrize('product', ['IC', 'IM'])
+    @pytest.mark.parametrize('hour,minute', [(15,0),(15,1),(15,29),(15,30)])
+    def test_daily_bar_lag_waits_without_synthesizing_a_close(product,hour,minute,monkeypatch):
+        # Two synthetic, well-formed bars suffice: the freshness boundary must
+        # reject them before history length, frozen-index or strategy calculations.
+        frame = pd.DataFrame(dict(open=[7000.,7000.],high=[7100.,7100.],low=[6900.,6900.],
+                                  close=[7050.,7050.],volume=[100_000_000.,200_000_000.]),
+                             index=pd.to_datetime(['2026-10-19','2026-10-20']))
+        before = frame.copy(deep=True)
+        anchors = deepcopy(bot.LIVE_CONTINUATION_ANCHOR)
+        monkeypatch.setattr(bot,'fetch_ohlcv_history',lambda _: frame)
+        def forbidden(*args,**kwargs):
+            raise AssertionError('daily-bar wait must not fetch a replacement live price or compute targets')
+        monkeypatch.setattr(bot,'fetch_live_price_quote',forbidden)
+        monkeypatch.setattr(bot,'v13_momentum_schedule',forbidden)
+        clock = datetime(2026,10,21,hour,minute,tzinfo=bot.BEIJING)
+        with pytest.raises(RuntimeError,match='OHLCV已过期') as caught:
+            bot.live_proxy(product,clock)
+&gt;       assert getattr(caught.value,'status',None) == 'waiting_for_completed_daily_ohlcv'
+E       AssertionError: assert None == 'waiting_for_completed_daily_ohlcv'
+E        +  where None = getattr(RuntimeError('IM OHLCV已过期：最新 2026-10-20，应覆盖 2026-10-21'), 'status', None)
+E        +    where RuntimeError('IM OHLCV已过期：最新 2026-10-20，应覆盖 2026-10-21') = &lt;ExceptionInfo RuntimeError('IM OHLCV已过期：最新 2026-10-20，应覆盖 2026-10-21') tblen=3&gt;.value
+
+test_ic_im_review_ohlcv_wait_20261021.py:26: AssertionError</failure></testcase><testcase classname="test_ic_im_review_ohlcv_wait_20261021" name="test_daily_bar_lag_waits_without_synthesizing_a_close[15-29-IC]" time="0.005"><failure message="AssertionError: assert None == 'waiting_for_completed_daily_ohlcv'&#10; +  where None = getattr(RuntimeError('IC OHLCV已过期：最新 2026-10-20，应覆盖 2026-10-21'), 'status', None)&#10; +    where RuntimeError('IC OHLCV已过期：最新 2026-10-20，应覆盖 2026-10-21') = &lt;ExceptionInfo RuntimeError('IC OHLCV已过期：最新 2026-10-20，应覆盖 2026-10-21') tblen=3&gt;.value">product = 'IC', hour = 15, minute = 29
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x0000015B1F4B27A0&gt;
+
+    @pytest.mark.parametrize('product', ['IC', 'IM'])
+    @pytest.mark.parametrize('hour,minute', [(15,0),(15,1),(15,29),(15,30)])
+    def test_daily_bar_lag_waits_without_synthesizing_a_close(product,hour,minute,monkeypatch):
+        # Two synthetic, well-formed bars suffice: the freshness boundary must
+        # reject them before history length, frozen-index or strategy calculations.
+        frame = pd.DataFrame(dict(open=[7000.,7000.],high=[7100.,7100.],low=[6900.,6900.],
+                                  close=[7050.,7050.],volume=[100_000_000.,200_000_000.]),
+                             index=pd.to_datetime(['2026-10-19','2026-10-20']))
+        before = frame.copy(deep=True)
+        anchors = deepcopy(bot.LIVE_CONTINUATION_ANCHOR)
+        monkeypatch.setattr(bot,'fetch_ohlcv_history',lambda _: frame)
+        def forbidden(*args,**kwargs):
+            raise AssertionError('daily-bar wait must not fetch a replacement live price or compute targets')
+        monkeypatch.setattr(bot,'fetch_live_price_quote',forbidden)
+        monkeypatch.setattr(bot,'v13_momentum_schedule',forbidden)
+        clock = datetime(2026,10,21,hour,minute,tzinfo=bot.BEIJING)
+        with pytest.raises(RuntimeError,match='OHLCV已过期') as caught:
+            bot.live_proxy(product,clock)
+&gt;       assert getattr(caught.value,'status',None) == 'waiting_for_completed_daily_ohlcv'
+E       AssertionError: assert None == 'waiting_for_completed_daily_ohlcv'
+E        +  where None = getattr(RuntimeError('IC OHLCV已过期：最新 2026-10-20，应覆盖 2026-10-21'), 'status', None)
+E        +    where RuntimeError('IC OHLCV已过期：最新 2026-10-20，应覆盖 2026-10-21') = &lt;ExceptionInfo RuntimeError('IC OHLCV已过期：最新 2026-10-20，应覆盖 2026-10-21') tblen=3&gt;.value
+
+test_ic_im_review_ohlcv_wait_20261021.py:26: AssertionError</failure></testcase><testcase classname="test_ic_im_review_ohlcv_wait_20261021" name="test_daily_bar_lag_waits_without_synthesizing_a_close[15-29-IM]" time="0.004"><failure message="AssertionError: assert None == 'waiting_for_completed_daily_ohlcv'&#10; +  where None = getattr(RuntimeError('IM OHLCV已过期：最新 2026-10-20，应覆盖 2026-10-21'), 'status', None)&#10; +    where RuntimeError('IM OHLCV已过期：最新 2026-10-20，应覆盖 2026-10-21') = &lt;ExceptionInfo RuntimeError('IM OHLCV已过期：最新 2026-10-20，应覆盖 2026-10-21') tblen=3&gt;.value">product = 'IM', hour = 15, minute = 29
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x0000015B1F5A5350&gt;
+
+    @pytest.mark.parametrize('product', ['IC', 'IM'])
+    @pytest.mark.parametrize('hour,minute', [(15,0),(15,1),(15,29),(15,30)])
+    def test_daily_bar_lag_waits_without_synthesizing_a_close(product,hour,minute,monkeypatch):
+        # Two synthetic, well-formed bars suffice: the freshness boundary must
+        # reject them before history length, frozen-index or strategy calculations.
+        frame = pd.DataFrame(dict(open=[7000.,7000.],high=[7100.,7100.],low=[6900.,6900.],
+                                  close=[7050.,7050.],volume=[100_000_000.,200_000_000.]),
+                             index=pd.to_datetime(['2026-10-19','2026-10-20']))
+        before = frame.copy(deep=True)
+        anchors = deepcopy(bot.LIVE_CONTINUATION_ANCHOR)
+        monkeypatch.setattr(bot,'fetch_ohlcv_history',lambda _: frame)
+        def forbidden(*args,**kwargs):
+            raise AssertionError('daily-bar wait must not fetch a replacement live price or compute targets')
+        monkeypatch.setattr(bot,'fetch_live_price_quote',forbidden)
+        monkeypatch.setattr(bot,'v13_momentum_schedule',forbidden)
+        clock = datetime(2026,10,21,hour,minute,tzinfo=bot.BEIJING)
+        with pytest.raises(RuntimeError,match='OHLCV已过期') as caught:
+            bot.live_proxy(product,clock)
+&gt;       assert getattr(caught.value,'status',None) == 'waiting_for_completed_daily_ohlcv'
+E       AssertionError: assert None == 'waiting_for_completed_daily_ohlcv'
+E        +  where None = getattr(RuntimeError('IM OHLCV已过期：最新 2026-10-20，应覆盖 2026-10-21'), 'status', None)
+E        +    where RuntimeError('IM OHLCV已过期：最新 2026-10-20，应覆盖 2026-10-21') = &lt;ExceptionInfo RuntimeError('IM OHLCV已过期：最新 2026-10-20，应覆盖 2026-10-21') tblen=3&gt;.value
+
+test_ic_im_review_ohlcv_wait_20261021.py:26: AssertionError</failure></testcase><testcase classname="test_ic_im_review_ohlcv_wait_20261021" name="test_daily_bar_lag_waits_without_synthesizing_a_close[15-30-IC]" time="0.005"><failure message="AssertionError: assert None == 'waiting_for_completed_daily_ohlcv'&#10; +  where None = getattr(RuntimeError('IC OHLCV已过期：最新 2026-10-20，应覆盖 2026-10-21'), 'status', None)&#10; +    where RuntimeError('IC OHLCV已过期：最新 2026-10-20，应覆盖 2026-10-21') = &lt;ExceptionInfo RuntimeError('IC OHLCV已过期：最新 2026-10-20，应覆盖 2026-10-21') tblen=3&gt;.value">product = 'IC', hour = 15, minute = 30
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x0000015B1F5A5950&gt;
+
+    @pytest.mark.parametrize('product', ['IC', 'IM'])
+    @pytest.mark.parametrize('hour,minute', [(15,0),(15,1),(15,29),(15,30)])
+    def test_daily_bar_lag_waits_without_synthesizing_a_close(product,hour,minute,monkeypatch):
+        # Two synthetic, well-formed bars suffice: the freshness boundary must
+        # reject them before history length, frozen-index or strategy calculations.
+        frame = pd.DataFrame(dict(open=[7000.,7000.],high=[7100.,7100.],low=[6900.,6900.],
+                                  close=[7050.,7050.],volume=[100_000_000.,200_000_000.]),
+                             index=pd.to_datetime(['2026-10-19','2026-10-20']))
+        before = frame.copy(deep=True)
+        anchors = deepcopy(bot.LIVE_CONTINUATION_ANCHOR)
+        monkeypatch.setattr(bot,'fetch_ohlcv_history',lambda _: frame)
+        def forbidden(*args,**kwargs):
+            raise AssertionError('daily-bar wait must not fetch a replacement live price or compute targets')
+        monkeypatch.setattr(bot,'fetch_live_price_quote',forbidden)
+        monkeypatch.setattr(bot,'v13_momentum_schedule',forbidden)
+        clock = datetime(2026,10,21,hour,minute,tzinfo=bot.BEIJING)
+        with pytest.raises(RuntimeError,match='OHLCV已过期') as caught:
+            bot.live_proxy(product,clock)
+&gt;       assert getattr(caught.value,'status',None) == 'waiting_for_completed_daily_ohlcv'
+E       AssertionError: assert None == 'waiting_for_completed_daily_ohlcv'
+E        +  where None = getattr(RuntimeError('IC OHLCV已过期：最新 2026-10-20，应覆盖 2026-10-21'), 'status', None)
+E        +    where RuntimeError('IC OHLCV已过期：最新 2026-10-20，应覆盖 2026-10-21') = &lt;ExceptionInfo RuntimeError('IC OHLCV已过期：最新 2026-10-20，应覆盖 2026-10-21') tblen=3&gt;.value
+
+test_ic_im_review_ohlcv_wait_20261021.py:26: AssertionError</failure></testcase><testcase classname="test_ic_im_review_ohlcv_wait_20261021" name="test_daily_bar_lag_waits_without_synthesizing_a_close[15-30-IM]" time="0.005"><failure message="AssertionError: assert None == 'waiting_for_completed_daily_ohlcv'&#10; +  where None = getattr(RuntimeError('IM OHLCV已过期：最新 2026-10-20，应覆盖 2026-10-21'), 'status', None)&#10; +    where RuntimeError('IM OHLCV已过期：最新 2026-10-20，应覆盖 2026-10-21') = &lt;ExceptionInfo RuntimeError('IM OHLCV已过期：最新 2026-10-20，应覆盖 2026-10-21') tblen=3&gt;.value">product = 'IM', hour = 15, minute = 30
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x0000015B1F5D1D60&gt;
+
+    @pytest.mark.parametrize('product', ['IC', 'IM'])
+    @pytest.mark.parametrize('hour,minute', [(15,0),(15,1),(15,29),(15,30)])
+    def test_daily_bar_lag_waits_without_synthesizing_a_close(product,hour,minute,monkeypatch):
+        # Two synthetic, well-formed bars suffice: the freshness boundary must
+        # reject them before history length, frozen-index or strategy calculations.
+        frame = pd.DataFrame(dict(open=[7000.,7000.],high=[7100.,7100.],low=[6900.,6900.],
+                                  close=[7050.,7050.],volume=[100_000_000.,200_000_000.]),
+                             index=pd.to_datetime(['2026-10-19','2026-10-20']))
+        before = frame.copy(deep=True)
+        anchors = deepcopy(bot.LIVE_CONTINUATION_ANCHOR)
+        monkeypatch.setattr(bot,'fetch_ohlcv_history',lambda _: frame)
+        def forbidden(*args,**kwargs):
+            raise AssertionError('daily-bar wait must not fetch a replacement live price or compute targets')
+        monkeypatch.setattr(bot,'fetch_live_price_quote',forbidden)
+        monkeypatch.setattr(bot,'v13_momentum_schedule',forbidden)
+        clock = datetime(2026,10,21,hour,minute,tzinfo=bot.BEIJING)
+        with pytest.raises(RuntimeError,match='OHLCV已过期') as caught:
+            bot.live_proxy(product,clock)
+&gt;       assert getattr(caught.value,'status',None) == 'waiting_for_completed_daily_ohlcv'
+E       AssertionError: assert None == 'waiting_for_completed_daily_ohlcv'
+E        +  where None = getattr(RuntimeError('IM OHLCV已过期：最新 2026-10-20，应覆盖 2026-10-21'), 'status', None)
+E        +    where RuntimeError('IM OHLCV已过期：最新 2026-10-20，应覆盖 2026-10-21') = &lt;ExceptionInfo RuntimeError('IM OHLCV已过期：最新 2026-10-20，应覆盖 2026-10-21') tblen=3&gt;.value
+
+test_ic_im_review_ohlcv_wait_20261021.py:26: AssertionError</failure></testcase></testsuite></testsuites>

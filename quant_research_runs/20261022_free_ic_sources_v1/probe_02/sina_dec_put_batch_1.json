@@ -1,0 +1,33 @@
+{
+  "name": "sina_dec_put_batch_1",
+  "family": "Sina",
+  "url": "https://hq.sinajs.cn/",
+  "params": {
+    "list": "CON_OP_10012120,CON_OP_10011520,CON_OP_10012098,CON_OP_10011470,CON_OP_10012099,CON_OP_10011471"
+  },
+  "started_at": "2026-10-22T16:59:34.285956+08:00",
+  "status": "RECEIVED",
+  "http_status": 200,
+  "bytes": 121,
+  "sha256": "5e04624b94948a63b4851e565b9f9a2f090b8f13fc792bb5c2cf6b1f212638d7",
+  "encoding": "GB18030",
+  "headers": {
+    "Content-Type": "application/javascript; charset=GB18030"
+  },
+  "summary": {
+    "format": "vendor_text",
+    "field_count": 1,
+    "fields": [
+      ""
+    ],
+    "listed_security_ids": [
+      "10012120",
+      "10011520",
+      "10012098",
+      "10011470",
+      "10012099",
+      "10011471"
+    ]
+  },
+  "seconds": 6.948
+}

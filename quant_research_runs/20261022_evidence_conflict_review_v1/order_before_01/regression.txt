@@ -1,0 +1,25 @@
+F                                                                        [100%]
+================================== FAILURES ===================================
+_________ test_parameter_key_order_cannot_hide_same_request_conflict __________
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_3dbbe56c/pytest/test_parameter_key_order_canno0')
+
+    def test_parameter_key_order_cannot_hide_same_request_conflict(tmp_path):
+        with evidence.capture_session(tmp_path, DAY, CLOCK, META) as session:
+            minimum(session)
+            session.raw_response(URL, {"select": "x", "begin": 0}, response())
+            session.raw_response(URL, {"begin": 0, "select": "x"}, response(b"B"))
+>           assert any(f["role"] == "raw_http_conflict" for f in session.failures)
+E           assert False
+E            +  where False = any(<generator object test_parameter_key_order_cannot_hide_same_request_conflict.<locals>.<genexpr> at 0x00000256690EACF0>)
+
+test_icim_evidence_conflict_review_20261022.py:63: AssertionError
+============================== warnings summary ===============================
+C:\Python314\Lib\site-packages\fastapi_poe\types.py:171
+  C:\Python314\Lib\site-packages\fastapi_poe\types.py:171: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    class RequestContext(BaseModel):
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED test_icim_evidence_conflict_review_20261022.py::test_parameter_key_order_cannot_hide_same_request_conflict
+1 failed, 1 warning in 2.74s

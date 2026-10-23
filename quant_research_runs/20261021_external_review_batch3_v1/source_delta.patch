@@ -1,0 +1,395 @@
+--- baseline/notes/mainline_registry.md
++++ current/notes/mainline_registry.md
+@@ -1,4 +1,12 @@
+ # IC / IM 系统主线登记表
++
++## 第三批：跨年日历、调用链与并发审计（2026-10-21，本地）
++
++- 先验收前轮四组多智能体对抗审计1544项，再完成第三批六项处置；最终63测试文件1652项通过、0失败/错误/跳过，3项既有单列不扩展，897份共同源码/规范/夹具绑定前后一致。有效验收仅采用`quant_research_runs/20261021_external_review_batch3_v1/accepted_batch3_2/receipt.json`；前置失败阶段保留。
++- 跨年官方日历门禁补到实际选中的期货/IC与IM Put到期、维护/提醒、下一交易日、真实开盘计划与新信号持久边界；专有IC核心调量、IM已有Put沿用也核覆盖。未使用的远月报价可诊断展示，标明未核验；本次未取得并验证2027官方安排，待数据补入后再验证，不据搜索缺失断言未发布。
++- 多协调器共用模块级RLock以保护strategy全局请求状态；StateStore首次锁文件不再锁前写NUL，只有取得锁才解锁。17项并发/跨进程/中断恢复通过；当前单server原实例锁有效，未证明正式仓位污染。
++- 估值32项未发现真实值被legacy覆盖污染目标；保留已授权明示proxy回退和历史来源。收盘后缺OHLCV继续等待，不能以昨日成交量确认当天。旧Call本地19节点核验数量均0，ask-only恢复路径限制有反例但不改生产；Put等待挂牌等候选继续独立研究，不采纳入正式规则。
++- 本轮只改本地研究代码，正式账本JSON、冻结规范与既有outputs保持；未部署、发信或获准下单。第三批报告及保护核对见`quant_research_runs/20261021_external_review_batch3_v1/record.md`和`final_verification.json`；前两批尚缺的A型全维护/迁移及外部数据、远端闭环不因此宣称完成。
+ 
+ ## 外部评审按序续作：历史身份与成本迁移基础（2026-10-21，本地）
+ 
+--- baseline/poe_ic_im_mainline_v1_4_bot.py
++++ current/poe_ic_im_mainline_v1_4_bot.py
+@@ -4001,6 +4001,8 @@
+     require_official: bool = False,
+ ) -> date:
+     candidate = day
++    if require_official:
++        _require_official_exchange_calendar(candidate, "previous exchange session")
+     while not _is_exchange_trading_day(candidate):
+         candidate -= timedelta(days=1)
+         if require_official:
+@@ -4019,10 +4021,14 @@
+     return _roll_backward_exchange_day(prior_day, require_official=True)
+ 
+ 
+-def _roll_forward_exchange_day(day: date) -> date:
++def _roll_forward_exchange_day(day: date, *, require_official: bool = False) -> date:
+     candidate = day
++    if require_official:
++        _require_official_exchange_calendar(candidate, "next exchange session")
+     while not _is_exchange_trading_day(candidate):
+         candidate += timedelta(days=1)
++        if require_official:
++            _require_official_exchange_calendar(candidate, "next exchange session")
+     return candidate
+ 
+ 
+@@ -4080,7 +4086,9 @@
+         raise RuntimeError(
+             f"{product} 行情中的期货合约均已到期（最晚规则到期日 {latest}）"
+         )
+-    return eligible.iloc[0]
++    selected = eligible.iloc[0]
++    _require_official_exchange_calendar(selected["expiry"], "selected future expiry")
++    return selected
+ 
+ 
+ def _next_listed_future_contract(
+@@ -4401,6 +4409,7 @@
+     if not match:
+         raise RuntimeError(f"无法解析IC Put月份或行权价: {contract}")
+     expiry = _fourth_wednesday(2000 + int(match.group(1)), int(match.group(2)))
++    _require_official_exchange_calendar(expiry, "held IC Put sizing expiry")
+     strike = float(match.group(3)) / 1000.0
+     market_price = float(quote.get("last", np.nan))
+     years = max((expiry - today).days, 1) / 365.0
+@@ -4503,6 +4512,7 @@
+     month, expiry = min(
+         candidates, key=lambda item: (abs((item[1] - target_day).days), item[1])
+     )
++    _require_official_exchange_calendar(expiry, "selected IC Put expiry")
+     chain, stamp = _fetch_510500_chain_for_day(month[2:], today)
+     puts = chain[
+         chain["contract"].str.contains(rf"510500P{month[2:]}M", regex=True)
+@@ -4601,6 +4611,7 @@
+     if not expiries:
+         raise RuntimeError("没有未来MO Put挂牌月份")
+     expiry = min(expiries, key=lambda value: (abs((value - target_day).days), -value.toordinal()))
++    _require_official_exchange_calendar(expiry, "selected IM Put expiry")
+     listed_month = listed_puts[listed_puts["expiry"].eq(expiry)].copy()
+     listed_month["strike_error"] = (listed_month["strike"] - im_put_policy.moneyness(today) * spot).abs()
+     selected_contract = str(
+@@ -4631,7 +4642,9 @@
+     if not expiries:
+         raise RuntimeError("没有未来MO Put挂牌月份")
+     # Historical independent replay chooses the later actual expiry on a tie.
+-    return min(expiries, key=lambda value: (abs((value - target_day).days), -value.toordinal()))
++    expiry = min(expiries, key=lambda value: (abs((value - target_day).days), -value.toordinal()))
++    _require_official_exchange_calendar(expiry, "independent IM Put expiry")
++    return expiry
+ 
+ 
+ def select_independent_im_put_for_reset(
+@@ -4791,7 +4804,8 @@
+ 
+ 
+ def _is_pre_expiry_close(today: date, active_expiry: date, close_confirmed: bool) -> bool:
+-    next_trading_day = _roll_forward_exchange_day(today + timedelta(days=1))
++    _require_official_exchange_calendar(active_expiry, "option maintenance expiry")
++    next_trading_day = _roll_forward_exchange_day(today + timedelta(days=1), require_official=True)
+     return next_trading_day == active_expiry and close_confirmed is True
+ 
+ 
+@@ -4804,8 +4818,56 @@
+     years = "/".join(str(year) for year in uncovered_years)
+     return (
+         f"挂牌合约包含{years}年到期日，但脚本尚未载入该年度官方休市表；"
+-        "这些到期日暂按周一至周五回退，须在交易所发布年度休市安排后更新"
+-    )
++        "这些到期日未核验，仅供诊断展示，不能作为新增目标、维护或提醒的日期依据；须补齐官方安排后验证"
++    )
++
++
++def require_signal_calendar(product: str, signal: dict[str, Any]) -> None:
++    """Guard consumed signal dates without treating every listed row as a target."""
++    def covered(value: Any, label: str) -> None:
++        if value is not None:
++            day = value if isinstance(value, date) else date.fromisoformat(str(value)[:10])
++            _require_official_exchange_calendar(day, f"{product} {label}")
++
++    def contract_covered(value: Any, label: str) -> None:
++        if not value:
++            return
++        match = re.fullmatch(r"(?:IC|IM|MO)([0-9]{2})([0-9]{2})(?:-[PC]-[0-9]+)?", str(value))
++        if match is None:
++            match = re.fullmatch(r"510500P([0-9]{2})([0-9]{2})[MA][0-9]{5}", str(value))
++        if match is not None:
++            covered(date(2000 + int(match.group(1)), int(match.group(2)), 1), label)
++
++    covered(signal.get("market_date"), "market date")
++    covered(signal.get("next_trade_date"), "next session")
++    # next_core and quote-frame expiries are diagnostics until actually adopted.
++    contract_covered(signal.get("core_target"), "core target")
++    for target in ("put_target_contract", "core_put_target_contract", "v14_core_put_contract",
++                   "momentum_put_target_contract"):
++        contract_covered(signal.get(target), target)
++    if (signal.get("v14_action") in {"ENTER_SHORT_PUT", "ROLL_SHORT_PUT"}
++            or float(signal.get("v14_short_put_qty_normalized", 0) or 0) > 0):
++        covered(signal.get("v14_short_put_expiry"), "new short Put expiry")
++        contract_covered(signal.get("v14_short_put_contract"), "new short Put")
++    if signal.get("v14_profit_pending"):
++        covered(signal.get("v14_profit_execution_day"), "profit reentry execution")
++        contract_covered(signal.get("v14_profit_reentry_contract"), "profit reentry")
++    for key in ("v14_ordinary_put_open_plan", "v14_ordinary_put_pending", "v14_short_put_open_pending"):
++        plan = signal.get(key)
++        if not isinstance(plan, dict):
++            continue
++        covered(plan.get("execution_day"), key)
++        contract_covered(plan.get("new_contract"), key)
++        legs = plan.get("legs", {})
++        for leg in (legs.values() if isinstance(legs, dict) else legs):
++            if leg.get("changed") and float(leg.get("new_qty", 0) or 0) > 0:
++                contract_covered(leg.get("new_contract"), key)
++    if signal.get("option_monthly_reset_due") or signal.get("option_monthly_reset_preview"):
++        covered(signal.get("option_monthly_reset_execution_date"), "monthly maintenance")
++    if signal.get("option_monthly_reset_due") or signal.get("put_monthly_reset_preview"):
++        covered(signal.get("put_monthly_reset_execution_date"), "Put monthly maintenance")
++    if signal.get("roll_confirmed") or signal.get("core_target") != signal.get("core_current"):
++        covered(signal.get("roll_execution_date"), "future roll execution")
+ 
+ 
+ def _validate_market_stamp(label: str, value: str, clock: datetime) -> date:
+@@ -5180,6 +5242,8 @@
+     else:
+         year, month = _month_after(roll_from_expiry.year, roll_from_expiry.month)
+     expiry_month = f"{year:04d}{month:02d}"
++    expiry = _fourth_wednesday(year, month)
++    _require_official_exchange_calendar(expiry, "new IC short Put expiry")
+     try:
+         chain, stamp = _fetch_510500_chain_for_day(expiry_month[2:], signal["market_date"])
+     except RuntimeError as exc:
+@@ -5199,7 +5263,6 @@
+     _require_selected_510500_quote_time(
+         selected, _now_beijing(), signal["market_date"]
+     )
+-    expiry = _fourth_wednesday(year, month)
+     years = max((expiry - signal["market_date"]).days, 1) / 365.0
+     premium = float(selected["last"])
+     iv = _implied_volatility(
+@@ -5250,6 +5313,7 @@
+     else:
+         year, month = _month_after(roll_from_expiry.year, roll_from_expiry.month)
+     expiry = _third_friday(year, month)
++    _require_official_exchange_calendar(expiry, "new IM short Put expiry")
+     listed = _listed_mo_enriched(quotes, "P", signal["market_date"])
+     month = listed[listed.expiry.eq(expiry)].copy()
+     if month.empty:
+@@ -5372,6 +5436,7 @@
+                 if not expiry_match:
+                     raise RuntimeError("IC独立核心Put格式无效")
+                 expiry = _fourth_wednesday(2000+int(expiry_match.group(1)),int(expiry_match.group(2)))
++                _require_official_exchange_calendar(expiry, "dedicated IC core Put sizing expiry")
+                 years = (expiry-day).days/365.0
+                 spot = float(signal["etf_price"])
+                 strike = int(expiry_match.group(3))/1000.0
+@@ -6210,7 +6275,7 @@
+         "momentum_signal_date": live["momentum_signal_date"],
+         "momentum_current_source_date": live["momentum_current_source_date"],
+         "next_trade_date": _roll_forward_exchange_day(
+-            market_date + timedelta(days=1)
++            market_date + timedelta(days=1), require_official=True
+         ),
+         "core_current": current_core,
+         "core_target": target_core,
+@@ -6630,9 +6695,13 @@
+         )
+         put_reference_price = float(put_reference_future["lastprice"])
+         put_reset_day = monthly_expiry if im_put_reset_due else market_date
++        core_put_expiry = None
++        if core_put_contract is not None and core_put_current_normalized > 0.0:
++            core_put_expiry = _third_friday(*_contract_month(core_put_contract))
++            _require_official_exchange_calendar(core_put_expiry, "held IM core Put maintenance")
+         core_put_reselect = put_target > 0 and (
+             im_put_reset_due or core_put_current_normalized == 0.0
+-            or (core_put_contract is not None and _third_friday(*_contract_month(core_put_contract)) <= market_date)
++            or (core_put_expiry is not None and core_put_expiry <= market_date)
+         )
+         if core_put_current_normalized > 0.0 and core_put_contract is None:
+             raise RuntimeError("IM核心Put账本数量非零但合约为空，拒绝继续")
+@@ -6674,6 +6743,8 @@
+                 if momentum_put_contract
+                 else None
+             )
++            if current_expiry is not None:
++                _require_official_exchange_calendar(current_expiry, "held IM momentum Put maintenance")
+             if (
+                 momentum_put_contract and momentum_put_current_normalized > 0.0
+                 and not im_put_reset_due and current_expiry > market_date
+@@ -7041,6 +7112,7 @@
+                       signal_generation_timing="retrospective_replay" if
+                       _HISTORICAL_REPLAY_DAY.get() is not None or finished.date() > market_date else
+                       "intraday_hypothetical_if_now_close" if not close_confirmed else "close_confirmed")
++    require_signal_calendar(product, signal)
+     return signal
+ 
+ 
+--- baseline/poe_ic_im_v1_4_server.py
++++ current/poe_ic_im_v1_4_server.py
+@@ -74,10 +74,15 @@
+         pass
+ 
+ 
++# Coordinators share strategy module globals (Poe output, observers and anchors).
++# A per-store or per-instance lock cannot protect those request-scoped swaps.
++_STRATEGY_QUERY_LOCK = threading.RLock()
++
++
+ class LedgerCoordinator:
+     def __init__(self, store: StateStore | None = None) -> None:
+         self.store = store or StateStore()
+-        self.lock = threading.RLock()
++        self.lock = _STRATEGY_QUERY_LOCK
+         self.last_refresh_error: str | None = None
+         self.last_refresh_diagnostic: str | None = None
+         require_migration = os.environ.get("ICIM_REQUIRE_MIGRATION", "0") == "1"
+--- baseline/poe_ic_im_v1_4_state.py
++++ current/poe_ic_im_v1_4_state.py
+@@ -358,6 +358,7 @@
+     market_date = signal.get("market_date")
+     if not market_date:
+         raise RuntimeError(f"{product} v1.4信号缺少market_date")
++    strategy.require_signal_calendar(product, signal)
+     expected_build_id, expected_rule_revision = v14_policy.identity_for_signal_day(market_date)
+     for field, expected in (
+         ("strategy_version", STRATEGY_VERSION),
+@@ -383,7 +384,7 @@
+     short_open = signal.get("v14_short_put_open_pending")
+     if short_open is not None:
+         day = _as_day(market_date, "卖Put信号日")
+-        expected_day = strategy._roll_forward_exchange_day(day + timedelta(days=1))
++        expected_day = strategy._roll_forward_exchange_day(day + timedelta(days=1), require_official=True)
+         if (_as_day(short_open.get("signal_day"), "卖Put计划日") != day
+                 or _as_day(short_open.get("execution_day"), "卖Put开盘执行日") != expected_day):
+             raise RuntimeError(f"{product} 卖Put待执行成本计划未指向下一交易日")
+@@ -1014,7 +1015,7 @@
+             raise RuntimeError(f"{product}仅允许收盘后信号写入账本")
+         if _as_day(signal.get("state_anchor_day"), f"{product} state_anchor_day") != previous_day:
+             raise RuntimeError(f"{product}信号未从当前账本锚点续接")
+-        expected_next_day = strategy._roll_forward_exchange_day(signal_day + timedelta(days=1))
++        expected_next_day = strategy._roll_forward_exchange_day(signal_day + timedelta(days=1), require_official=True)
+         if _as_day(signal.get("next_trade_date"), f"{product} next_trade_date") != expected_next_day:
+             raise RuntimeError(f"{product}下一交易日不正确")
+         anchor = result[product]
+@@ -1338,11 +1339,11 @@
+     def _exclusive_lock(self):
+         self.root.mkdir(parents=True, exist_ok=True)
+         stream = self.lock_path.open("a+b")
++        acquired = False
+         try:
+             stream.seek(0)
+-            stream.write(b"\0")
+-            stream.flush()
+-            stream.seek(0)
++            # Windows can lock a byte beyond EOF. Writing before acquiring the
++            # lock races with another opener and can fail on its locked byte.
+             if os.name == "nt":
+                 import msvcrt
+ 
+@@ -1351,18 +1352,22 @@
+                 import fcntl
+ 
+                 fcntl.flock(stream.fileno(), fcntl.LOCK_EX)
++            acquired = True
+             yield
+         finally:
+-            stream.seek(0)
+-            if os.name == "nt":
+-                import msvcrt
+-
+-                msvcrt.locking(stream.fileno(), msvcrt.LK_UNLCK, 1)
+-            else:
+-                import fcntl
+-
+-                fcntl.flock(stream.fileno(), fcntl.LOCK_UN)
+-            stream.close()
++            try:
++                if acquired:
++                    stream.seek(0)
++                    if os.name == "nt":
++                        import msvcrt
++
++                        msvcrt.locking(stream.fileno(), msvcrt.LK_UNLCK, 1)
++                    else:
++                        import fcntl
++
++                        fcntl.flock(stream.fileno(), fcntl.LOCK_UN)
++            finally:
++                stream.close()
+ 
+     def _atomic_write(self, path: Path, record: dict[str, Any]) -> None:
+         path.parent.mkdir(parents=True, exist_ok=True)
+--- baseline/test_adversarial_policy_20261007.py
++++ current/test_adversarial_policy_20261007.py
+@@ -23,11 +23,13 @@
+ 
+ 
+ def test_ic_reset_uses_existing_chain_failover(monkeypatch):
+-    """A valid backup exists, so an SSE outage must not abort monthly selection."""
+-    chain = pd.DataFrame([{"contract": "510500P2701M07500", "last": .20, "strike": 7.5,
++    """A valid backup in a covered calendar year survives an SSE outage."""
++    # Calendar rejection has separate adversarial coverage; retain this test
++    # as an actual provider-failover check rather than an unknown-year fixture.
++    chain = pd.DataFrame([{"contract": "510500P2612M07500", "last": .20, "strike": 7.5,
+                            "source_stamp": datetime(2026, 10, 8, 15, tzinfo=bot.BEIJING)}])
+     stamp = {"date": "20261008", "time": "150000", "source": "Sina"}
+-    monkeypatch.setattr(bot, "fetch_sse_510500_expiries", lambda: ["202701"])
++    monkeypatch.setattr(bot, "fetch_sse_510500_expiries", lambda: ["202612"])
+     monkeypatch.setattr(bot, "fetch_sse_510500_chain",
+                         lambda month: (_ for _ in ()).throw(TimeoutError("SSE outage")))
+     monkeypatch.setattr(bot, "fetch_sina_510500_chain", lambda month: (chain, stamp))
+@@ -35,19 +37,19 @@
+     monkeypatch.setattr(bot, "_gov10y_for_day", lambda *args: .02)
+     with bot.runtime_clock(datetime(2026, 10, 8, 16, tzinfo=bot.BEIJING)):
+         selected = bot.select_ic_put_for_reset(date(2026, 10, 8), 7.83, 7641., .25)
+-    assert selected["contract"] == "510500P2701M07500"
++    assert selected["contract"] == "510500P2612M07500"
+     assert selected["stamp"]["source"] == "Sina"
+ 
+ 
+ def test_ic_reset_rejects_stale_selected_row_in_current_chain(monkeypatch):
+     chain = pd.DataFrame([
+-        {"contract": "510500P2701M07500", "last": .20, "strike": 7.5,
++        {"contract": "510500P2612M07500", "last": .20, "strike": 7.5,
+          "source_stamp": datetime(2026, 10, 7, 15, tzinfo=bot.BEIJING)},
+-        {"contract": "510500P2701M07250", "last": .10, "strike": 7.25,
++        {"contract": "510500P2612M07250", "last": .10, "strike": 7.25,
+          "source_stamp": datetime(2026, 10, 8, 15, tzinfo=bot.BEIJING)},
+     ])
+     stamp = {"date": "20261008", "time": "150000", "source": "Sina"}
+-    monkeypatch.setattr(bot, "fetch_sse_510500_expiries", lambda: ["202701"])
++    monkeypatch.setattr(bot, "fetch_sse_510500_expiries", lambda: ["202612"])
+     monkeypatch.setattr(bot, "fetch_sse_510500_chain", lambda month: (chain, stamp))
+     monkeypatch.setattr(bot, "fetch_sina_510500_security_id", lambda contract: "10012357")
+     monkeypatch.setattr(bot, "_gov10y_for_day", lambda *args: .02)
+--- baseline/test_ic_im_put_delivery_completion_20261016.py
++++ current/test_ic_im_put_delivery_completion_20261016.py
+@@ -37,6 +37,10 @@
+ @pytest.mark.parametrize('product', ['IC','IM'])
+ def test_short_entry_closes_future_held_after_same_day_quarter_roll(monkeypatch,product):
+     monkeypatch.setattr(bot.fear_grid,'EFFECTIVE_SIGNAL_DATE',date(2100,1,1))
++    # This synthetic transition probe assumes calendar coverage to isolate the
++    # post-roll contract invariant. Batch3 separately rejects real unverified
++    # 2027 targets; this fixture supplies no official holiday information.
++    monkeypatch.setattr(bot, '_OFFICIAL_EXCHANGE_CALENDAR_YEARS', frozenset({2026, 2027}))
+     # The daily close's quarterly roll completes before next session's short entry.
+     day=date(2026,12,15 if product=='IC' else 17)
+     previous=day-timedelta(days=1)
+--- baseline/test_icim_redteam_display_20261021.py
++++ current/test_icim_redteam_display_20261021.py
+@@ -159,7 +159,9 @@
+ @pytest.mark.parametrize('new_delta, expected_qty', [(0., 0), (.1, 4)])
+ def test_profit_open_current_identity_survives_later_zero_or_resized_target(monkeypatch, new_delta, expected_qty):
+     anchor = split_anchor()
+-    new_core = '510500P2701M06800'
++    # Keep the identity/resize probe in a covered expiry year; independent
++    # calendar probes reject an otherwise identical unknown-year contract.
++    new_core = '510500P2612M06800'
+     anchor.update(v14_profit_pending=True, v14_profit_trigger_day=date(2026,10,20),
+         v14_profit_execution_day=DAY, v14_profit_old_contract=CORE,
+         v14_profit_old_security_id='10012000', v14_profit_old_qty=5.,

@@ -1,0 +1,11 @@
+{
+  "status": "passed",
+  "tests": 31,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "source_before_equals_after": true,
+  "source_files": 8,
+  "audit": "independent_integration",
+  "not_proved": "No continuous 56-day production ledger replay or live endpoint verification; synthetic state and existing saved source fixtures only."
+}

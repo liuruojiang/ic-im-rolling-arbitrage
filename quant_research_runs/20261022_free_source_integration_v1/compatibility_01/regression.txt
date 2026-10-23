@@ -1,0 +1,683 @@
+.............FFFFF..F..................FFF.......F....F................. [ 59%]
+..................................................                       [100%]
+================================== FAILURES ===================================
+_ test_original_close_replay_discloses_archive_identity_and_actual_acquisition _
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_7b1a9578/pytest/test_original_close_replay_dis0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x00000221FFAAB7D0>
+
+    def test_original_close_replay_discloses_archive_identity_and_actual_acquisition(tmp_path, monkeypatch):
+        recovery.archive(monkeypatch, tmp_path, "IC", recovery.DAY)
+        monkeypatch.setattr(bot, "LIVE_CONTINUATION_ANCHOR", deepcopy(bot.LIVE_CONTINUATION_ANCHOR))
+        bot.install_runtime_anchors(recovery.state.anchors_from_record(recovery.prepared_record()))
+        monkeypatch.setattr(bot, "_OFFICIAL_EXCHANGE_CALENDAR_YEARS", set(bot._OFFICIAL_EXCHANGE_CALENDAR_YEARS) | {2027})
+        monkeypatch.setattr(bot, "build_iv_warning", lambda *a, **k: {"status": "audit_monitor_omitted"})
+        monkeypatch.setattr(bot.fear_grid, "fetch_jiu_reference", lambda *a, **k: {})
+        with adapter.evidence_location(tmp_path), bot.historical_replay(recovery.DAY):
+            signal = bot.build_live_trade_signal("IC", recovery.clock(recovery.DAY, 15, 20), "close")
+        assert not signal.get("diagnostic_only"), signal
+        note = signal["data_notes"][0]
+>       assert "原日存证重放" in note and "原日实际采集完成" in note
+E       AssertionError: assert ('原日存证重放' in '市场输入来源、日期及回退情况见以下审计记录')
+
+test_icim_round3_evidence_integration_20261021.py:191: AssertionError
+_ test_real_independent_collector_survives_calendar_diagnostic_then_server_recovers[False-day0-previous0-later0] _
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_7b1a9578/pytest/test_real_independent_collecto0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x00000221814C5F40>
+day = datetime.date(2026, 11, 20), previous = datetime.date(2026, 11, 19)
+later = datetime.date(2026, 11, 24), fear_missing = False
+
+    @pytest.mark.parametrize("day,previous,later", [
+        (date(2026, 11, 20), date(2026, 11, 19), date(2026, 11, 24)),
+        (date(2026, 12, 31), date(2026, 12, 30), date(2027, 1, 5)),
+    ])
+    @pytest.mark.parametrize("fear_missing", [False, True])
+    def test_real_independent_collector_survives_calendar_diagnostic_then_server_recovers(tmp_path, monkeypatch, day, previous, later, fear_missing):
+        monkeypatch.setattr(bot.requests, "get", lambda *a, **k: pytest.fail("network escaped stored inputs"))
+        now = wall(monkeypatch, day)
+        store, record = seed_store(tmp_path / "state", previous, day)
+        bot.install_runtime_anchors(state.anchors_from_record(record))
+        samples = providers(monkeypatch, day)
+        if fear_missing:
+            samples["IM"][3].clear()
+            samples["IM"][3].update({"fear_source_policy_revision": bot.fear_grid.SOURCE_POLICY_REVISION,
+                "fear_greed_index": None, "fear_data_date": None, "fear_data_status": "unavailable",
+                "fear_unavailable_reason": "synthetic original source outage", "fear_retrieved_at": now.isoformat(),
+                "fear_fetch_started_at": now.isoformat(), "fear_available_sources": [], "fear_selected_source": None,
+                "fear_cross_validation": "unavailable", "fear_source_warning": "synthetic outage",
+                "fear_fallback_applied": False, "fear_csv_sha256": None, "fear_page_sha256": None,
+                "fear_page_updated_at": None, "fear_page_data_date": None})
+        builder = bot._build_live_trade_signal
+        monkeypatch.setattr(bot, "_build_live_trade_signal", lambda *a, **k: pytest.fail("collector must not depend on signal conclusion"))
+        root = tmp_path / "evidence"
+        result = adapter.capture_daily(bot, root, now)
+        assert result["status"] == "captured"
+        for product in ["IC", "IM"]:
+>           reader, _ = adapter.load_original(bot, root, product, day)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_icim_round4_recovery_20261021.py:106: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+ic_im_evidence_adapter_v1.py:369: in load_original
+    reader = evidence.load_session(root, day, required_roles=roles, metadata_filter={
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+root = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_7b1a9578/pytest/test_real_independent_collecto0/evidence')
+day = datetime.date(2026, 11, 20)
+required_roles = {'cffex.quotes', 'fear.score', 'ic.chain', 'ic.etf', 'ic.months', 'market.live', ...}
+metadata_filter = {'input_revision': 'ic_im_original_inputs_20261021_v1', 'original_close': True, 'product': 'IC'}
+decision_not_after = None
+
+    def load_session(root: str | Path, day: date, required_roles: Any = None,
+                     metadata_filter: dict[str, Any] | None = None,
+                     decision_not_after: datetime | None = None) -> EvidenceReader:
+        root, day = _canonical(Path(root)), _day(day)
+        cutoff = _aware(decision_not_after, "decision_not_after") if decision_not_after is not None else None
+        directory = _inside(root, root / "sessions" / day.isoformat())
+        try:
+            files = list(directory.glob("*.json"))
+        except OSError as exc:
+            raise EvidenceUnavailable(f"{day} cannot enumerate original evidence") from exc
+        if len(files) > MAX_SESSION_FILES:
+            raise EvidenceUnavailable(f"{day} evidence session count exceeds limit")
+        roles = set(required_roles or [])
+        for role in roles:
+            _role(role)
+        choices, failures = [], []
+        for path in files:
+            try:
+                reader = _load_one(root, path, day)
+                if cutoff is not None and reader.decision_at > cutoff:
+                    continue
+                if metadata_filter and any(reader.metadata.get(key) != value for key, value in metadata_filter.items()):
+                    continue
+                missing = roles - {entry["role"] for entry in reader.context["entries"].values()}
+                if missing:
+                    raise EvidenceUnavailable("missing original evidence roles=" + ",".join(sorted(missing)))
+                choices.append(reader)
+            except (EvidenceUnavailable, ValueError, TypeError, KeyError, AttributeError) as exc:
+                failures.append(f"{path.name}: {exc}")
+        if not choices:
+            detail = "; ".join(failures[:4]) or "no complete session matching requested roles, metadata and decision time"
+>           raise EvidenceUnavailable(f"{day} original evidence unavailable: {detail}")
+E           ic_im_signal_evidence_v1.EvidenceUnavailable: 2026-11-20 original evidence unavailable: 100000000000-8089f365d74f460ba6bc20768274ed11.json: evidence byte total mismatch or exceeds limit
+
+ic_im_signal_evidence_v1.py:713: EvidenceUnavailable
+_ test_real_independent_collector_survives_calendar_diagnostic_then_server_recovers[False-day1-previous1-later1] _
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_7b1a9578/pytest/test_real_independent_collecto1')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x00000221814C6570>
+day = datetime.date(2026, 12, 31), previous = datetime.date(2026, 12, 30)
+later = datetime.date(2027, 1, 5), fear_missing = False
+
+    @pytest.mark.parametrize("day,previous,later", [
+        (date(2026, 11, 20), date(2026, 11, 19), date(2026, 11, 24)),
+        (date(2026, 12, 31), date(2026, 12, 30), date(2027, 1, 5)),
+    ])
+    @pytest.mark.parametrize("fear_missing", [False, True])
+    def test_real_independent_collector_survives_calendar_diagnostic_then_server_recovers(tmp_path, monkeypatch, day, previous, later, fear_missing):
+        monkeypatch.setattr(bot.requests, "get", lambda *a, **k: pytest.fail("network escaped stored inputs"))
+        now = wall(monkeypatch, day)
+        store, record = seed_store(tmp_path / "state", previous, day)
+        bot.install_runtime_anchors(state.anchors_from_record(record))
+        samples = providers(monkeypatch, day)
+        if fear_missing:
+            samples["IM"][3].clear()
+            samples["IM"][3].update({"fear_source_policy_revision": bot.fear_grid.SOURCE_POLICY_REVISION,
+                "fear_greed_index": None, "fear_data_date": None, "fear_data_status": "unavailable",
+                "fear_unavailable_reason": "synthetic original source outage", "fear_retrieved_at": now.isoformat(),
+                "fear_fetch_started_at": now.isoformat(), "fear_available_sources": [], "fear_selected_source": None,
+                "fear_cross_validation": "unavailable", "fear_source_warning": "synthetic outage",
+                "fear_fallback_applied": False, "fear_csv_sha256": None, "fear_page_sha256": None,
+                "fear_page_updated_at": None, "fear_page_data_date": None})
+        builder = bot._build_live_trade_signal
+        monkeypatch.setattr(bot, "_build_live_trade_signal", lambda *a, **k: pytest.fail("collector must not depend on signal conclusion"))
+        root = tmp_path / "evidence"
+        result = adapter.capture_daily(bot, root, now)
+        assert result["status"] == "captured"
+        for product in ["IC", "IM"]:
+>           reader, _ = adapter.load_original(bot, root, product, day)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_icim_round4_recovery_20261021.py:106: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+ic_im_evidence_adapter_v1.py:369: in load_original
+    reader = evidence.load_session(root, day, required_roles=roles, metadata_filter={
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+root = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_7b1a9578/pytest/test_real_independent_collecto1/evidence')
+day = datetime.date(2026, 12, 31)
+required_roles = {'cffex.quotes', 'fear.score', 'ic.chain', 'ic.etf', 'ic.months', 'market.live', ...}
+metadata_filter = {'input_revision': 'ic_im_original_inputs_20261021_v1', 'original_close': True, 'product': 'IC'}
+decision_not_after = None
+
+    def load_session(root: str | Path, day: date, required_roles: Any = None,
+                     metadata_filter: dict[str, Any] | None = None,
+                     decision_not_after: datetime | None = None) -> EvidenceReader:
+        root, day = _canonical(Path(root)), _day(day)
+        cutoff = _aware(decision_not_after, "decision_not_after") if decision_not_after is not None else None
+        directory = _inside(root, root / "sessions" / day.isoformat())
+        try:
+            files = list(directory.glob("*.json"))
+        except OSError as exc:
+            raise EvidenceUnavailable(f"{day} cannot enumerate original evidence") from exc
+        if len(files) > MAX_SESSION_FILES:
+            raise EvidenceUnavailable(f"{day} evidence session count exceeds limit")
+        roles = set(required_roles or [])
+        for role in roles:
+            _role(role)
+        choices, failures = [], []
+        for path in files:
+            try:
+                reader = _load_one(root, path, day)
+                if cutoff is not None and reader.decision_at > cutoff:
+                    continue
+                if metadata_filter and any(reader.metadata.get(key) != value for key, value in metadata_filter.items()):
+                    continue
+                missing = roles - {entry["role"] for entry in reader.context["entries"].values()}
+                if missing:
+                    raise EvidenceUnavailable("missing original evidence roles=" + ",".join(sorted(missing)))
+                choices.append(reader)
+            except (EvidenceUnavailable, ValueError, TypeError, KeyError, AttributeError) as exc:
+                failures.append(f"{path.name}: {exc}")
+        if not choices:
+            detail = "; ".join(failures[:4]) or "no complete session matching requested roles, metadata and decision time"
+>           raise EvidenceUnavailable(f"{day} original evidence unavailable: {detail}")
+E           ic_im_signal_evidence_v1.EvidenceUnavailable: 2026-12-31 original evidence unavailable: 100000000000-a0344bab330b4bd190a69a849fa70bcf.json: evidence byte total mismatch or exceeds limit
+
+ic_im_signal_evidence_v1.py:713: EvidenceUnavailable
+_ test_real_independent_collector_survives_calendar_diagnostic_then_server_recovers[True-day0-previous0-later0] _
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_7b1a9578/pytest/test_real_independent_collecto2')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000002218105EB70>
+day = datetime.date(2026, 11, 20), previous = datetime.date(2026, 11, 19)
+later = datetime.date(2026, 11, 24), fear_missing = True
+
+    @pytest.mark.parametrize("day,previous,later", [
+        (date(2026, 11, 20), date(2026, 11, 19), date(2026, 11, 24)),
+        (date(2026, 12, 31), date(2026, 12, 30), date(2027, 1, 5)),
+    ])
+    @pytest.mark.parametrize("fear_missing", [False, True])
+    def test_real_independent_collector_survives_calendar_diagnostic_then_server_recovers(tmp_path, monkeypatch, day, previous, later, fear_missing):
+        monkeypatch.setattr(bot.requests, "get", lambda *a, **k: pytest.fail("network escaped stored inputs"))
+        now = wall(monkeypatch, day)
+        store, record = seed_store(tmp_path / "state", previous, day)
+        bot.install_runtime_anchors(state.anchors_from_record(record))
+        samples = providers(monkeypatch, day)
+        if fear_missing:
+            samples["IM"][3].clear()
+            samples["IM"][3].update({"fear_source_policy_revision": bot.fear_grid.SOURCE_POLICY_REVISION,
+                "fear_greed_index": None, "fear_data_date": None, "fear_data_status": "unavailable",
+                "fear_unavailable_reason": "synthetic original source outage", "fear_retrieved_at": now.isoformat(),
+                "fear_fetch_started_at": now.isoformat(), "fear_available_sources": [], "fear_selected_source": None,
+                "fear_cross_validation": "unavailable", "fear_source_warning": "synthetic outage",
+                "fear_fallback_applied": False, "fear_csv_sha256": None, "fear_page_sha256": None,
+                "fear_page_updated_at": None, "fear_page_data_date": None})
+        builder = bot._build_live_trade_signal
+        monkeypatch.setattr(bot, "_build_live_trade_signal", lambda *a, **k: pytest.fail("collector must not depend on signal conclusion"))
+        root = tmp_path / "evidence"
+        result = adapter.capture_daily(bot, root, now)
+        assert result["status"] == "captured"
+        for product in ["IC", "IM"]:
+>           reader, _ = adapter.load_original(bot, root, product, day)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_icim_round4_recovery_20261021.py:106: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+ic_im_evidence_adapter_v1.py:369: in load_original
+    reader = evidence.load_session(root, day, required_roles=roles, metadata_filter={
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+root = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_7b1a9578/pytest/test_real_independent_collecto2/evidence')
+day = datetime.date(2026, 11, 20)
+required_roles = {'cffex.quotes', 'fear.score', 'ic.chain', 'ic.etf', 'ic.months', 'market.live', ...}
+metadata_filter = {'input_revision': 'ic_im_original_inputs_20261021_v1', 'original_close': True, 'product': 'IC'}
+decision_not_after = None
+
+    def load_session(root: str | Path, day: date, required_roles: Any = None,
+                     metadata_filter: dict[str, Any] | None = None,
+                     decision_not_after: datetime | None = None) -> EvidenceReader:
+        root, day = _canonical(Path(root)), _day(day)
+        cutoff = _aware(decision_not_after, "decision_not_after") if decision_not_after is not None else None
+        directory = _inside(root, root / "sessions" / day.isoformat())
+        try:
+            files = list(directory.glob("*.json"))
+        except OSError as exc:
+            raise EvidenceUnavailable(f"{day} cannot enumerate original evidence") from exc
+        if len(files) > MAX_SESSION_FILES:
+            raise EvidenceUnavailable(f"{day} evidence session count exceeds limit")
+        roles = set(required_roles or [])
+        for role in roles:
+            _role(role)
+        choices, failures = [], []
+        for path in files:
+            try:
+                reader = _load_one(root, path, day)
+                if cutoff is not None and reader.decision_at > cutoff:
+                    continue
+                if metadata_filter and any(reader.metadata.get(key) != value for key, value in metadata_filter.items()):
+                    continue
+                missing = roles - {entry["role"] for entry in reader.context["entries"].values()}
+                if missing:
+                    raise EvidenceUnavailable("missing original evidence roles=" + ",".join(sorted(missing)))
+                choices.append(reader)
+            except (EvidenceUnavailable, ValueError, TypeError, KeyError, AttributeError) as exc:
+                failures.append(f"{path.name}: {exc}")
+        if not choices:
+            detail = "; ".join(failures[:4]) or "no complete session matching requested roles, metadata and decision time"
+>           raise EvidenceUnavailable(f"{day} original evidence unavailable: {detail}")
+E           ic_im_signal_evidence_v1.EvidenceUnavailable: 2026-11-20 original evidence unavailable: 100000000000-d7fdafc4d7194f888703d07e708c9c40.json: evidence byte total mismatch or exceeds limit
+
+ic_im_signal_evidence_v1.py:713: EvidenceUnavailable
+_ test_real_independent_collector_survives_calendar_diagnostic_then_server_recovers[True-day1-previous1-later1] _
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_7b1a9578/pytest/test_real_independent_collecto3')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000002218105FD90>
+day = datetime.date(2026, 12, 31), previous = datetime.date(2026, 12, 30)
+later = datetime.date(2027, 1, 5), fear_missing = True
+
+    @pytest.mark.parametrize("day,previous,later", [
+        (date(2026, 11, 20), date(2026, 11, 19), date(2026, 11, 24)),
+        (date(2026, 12, 31), date(2026, 12, 30), date(2027, 1, 5)),
+    ])
+    @pytest.mark.parametrize("fear_missing", [False, True])
+    def test_real_independent_collector_survives_calendar_diagnostic_then_server_recovers(tmp_path, monkeypatch, day, previous, later, fear_missing):
+        monkeypatch.setattr(bot.requests, "get", lambda *a, **k: pytest.fail("network escaped stored inputs"))
+        now = wall(monkeypatch, day)
+        store, record = seed_store(tmp_path / "state", previous, day)
+        bot.install_runtime_anchors(state.anchors_from_record(record))
+        samples = providers(monkeypatch, day)
+        if fear_missing:
+            samples["IM"][3].clear()
+            samples["IM"][3].update({"fear_source_policy_revision": bot.fear_grid.SOURCE_POLICY_REVISION,
+                "fear_greed_index": None, "fear_data_date": None, "fear_data_status": "unavailable",
+                "fear_unavailable_reason": "synthetic original source outage", "fear_retrieved_at": now.isoformat(),
+                "fear_fetch_started_at": now.isoformat(), "fear_available_sources": [], "fear_selected_source": None,
+                "fear_cross_validation": "unavailable", "fear_source_warning": "synthetic outage",
+                "fear_fallback_applied": False, "fear_csv_sha256": None, "fear_page_sha256": None,
+                "fear_page_updated_at": None, "fear_page_data_date": None})
+        builder = bot._build_live_trade_signal
+        monkeypatch.setattr(bot, "_build_live_trade_signal", lambda *a, **k: pytest.fail("collector must not depend on signal conclusion"))
+        root = tmp_path / "evidence"
+        result = adapter.capture_daily(bot, root, now)
+        assert result["status"] == "captured"
+        for product in ["IC", "IM"]:
+>           reader, _ = adapter.load_original(bot, root, product, day)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_icim_round4_recovery_20261021.py:106: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+ic_im_evidence_adapter_v1.py:369: in load_original
+    reader = evidence.load_session(root, day, required_roles=roles, metadata_filter={
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+root = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_7b1a9578/pytest/test_real_independent_collecto3/evidence')
+day = datetime.date(2026, 12, 31)
+required_roles = {'cffex.quotes', 'fear.score', 'ic.chain', 'ic.etf', 'ic.months', 'market.live', ...}
+metadata_filter = {'input_revision': 'ic_im_original_inputs_20261021_v1', 'original_close': True, 'product': 'IC'}
+decision_not_after = None
+
+    def load_session(root: str | Path, day: date, required_roles: Any = None,
+                     metadata_filter: dict[str, Any] | None = None,
+                     decision_not_after: datetime | None = None) -> EvidenceReader:
+        root, day = _canonical(Path(root)), _day(day)
+        cutoff = _aware(decision_not_after, "decision_not_after") if decision_not_after is not None else None
+        directory = _inside(root, root / "sessions" / day.isoformat())
+        try:
+            files = list(directory.glob("*.json"))
+        except OSError as exc:
+            raise EvidenceUnavailable(f"{day} cannot enumerate original evidence") from exc
+        if len(files) > MAX_SESSION_FILES:
+            raise EvidenceUnavailable(f"{day} evidence session count exceeds limit")
+        roles = set(required_roles or [])
+        for role in roles:
+            _role(role)
+        choices, failures = [], []
+        for path in files:
+            try:
+                reader = _load_one(root, path, day)
+                if cutoff is not None and reader.decision_at > cutoff:
+                    continue
+                if metadata_filter and any(reader.metadata.get(key) != value for key, value in metadata_filter.items()):
+                    continue
+                missing = roles - {entry["role"] for entry in reader.context["entries"].values()}
+                if missing:
+                    raise EvidenceUnavailable("missing original evidence roles=" + ",".join(sorted(missing)))
+                choices.append(reader)
+            except (EvidenceUnavailable, ValueError, TypeError, KeyError, AttributeError) as exc:
+                failures.append(f"{path.name}: {exc}")
+        if not choices:
+            detail = "; ".join(failures[:4]) or "no complete session matching requested roles, metadata and decision time"
+>           raise EvidenceUnavailable(f"{day} original evidence unavailable: {detail}")
+E           ic_im_signal_evidence_v1.EvidenceUnavailable: 2026-12-31 original evidence unavailable: 100000000000-237f6f67a3044b5e98e28900e2d1085a.json: evidence byte total mismatch or exceeds limit
+
+ic_im_signal_evidence_v1.py:713: EvidenceUnavailable
+_ test_two_actual_independent_captures_while_stale_then_sequential_server_recovery _
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_7b1a9578/pytest/test_two_actual_independent_ca0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x00000221812C0650>
+
+    def test_two_actual_independent_captures_while_stale_then_sequential_server_recovery(tmp_path, monkeypatch):
+        monkeypatch.setattr(bot.requests, "get", lambda *a, **k: pytest.fail("unrecorded replay network"))
+        first, second, previous = date(2026, 11, 20), date(2026, 11, 23), date(2026, 11, 19)
+        store, original = seed_store(tmp_path / "state", previous, first)
+        bot.install_runtime_anchors(state.anchors_from_record(original))
+        root = tmp_path / "evidence"
+        with monkeypatch.context() as acquisition:
+            acquisition.setattr(bot, "_build_live_trade_signal", lambda *a, **k: pytest.fail("collector called signal builder"))
+            for day in [first, second]:
+                now = wall(acquisition, day)
+                providers(acquisition, day)
+                assert adapter.capture_daily(bot, root, now)["status"] == "captured"
+                assert store.load_latest()["digest"] == original["digest"]
+                for product in ["IC", "IM"]:
+>                   reader, _ = adapter.load_original(bot, root, product, day)
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_icim_round4_recovery_20261021.py:208: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+ic_im_evidence_adapter_v1.py:369: in load_original
+    reader = evidence.load_session(root, day, required_roles=roles, metadata_filter={
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+root = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_7b1a9578/pytest/test_two_actual_independent_ca0/evidence')
+day = datetime.date(2026, 11, 20)
+required_roles = {'cffex.quotes', 'fear.score', 'ic.chain', 'ic.etf', 'ic.months', 'market.live', ...}
+metadata_filter = {'input_revision': 'ic_im_original_inputs_20261021_v1', 'original_close': True, 'product': 'IC'}
+decision_not_after = None
+
+    def load_session(root: str | Path, day: date, required_roles: Any = None,
+                     metadata_filter: dict[str, Any] | None = None,
+                     decision_not_after: datetime | None = None) -> EvidenceReader:
+        root, day = _canonical(Path(root)), _day(day)
+        cutoff = _aware(decision_not_after, "decision_not_after") if decision_not_after is not None else None
+        directory = _inside(root, root / "sessions" / day.isoformat())
+        try:
+            files = list(directory.glob("*.json"))
+        except OSError as exc:
+            raise EvidenceUnavailable(f"{day} cannot enumerate original evidence") from exc
+        if len(files) > MAX_SESSION_FILES:
+            raise EvidenceUnavailable(f"{day} evidence session count exceeds limit")
+        roles = set(required_roles or [])
+        for role in roles:
+            _role(role)
+        choices, failures = [], []
+        for path in files:
+            try:
+                reader = _load_one(root, path, day)
+                if cutoff is not None and reader.decision_at > cutoff:
+                    continue
+                if metadata_filter and any(reader.metadata.get(key) != value for key, value in metadata_filter.items()):
+                    continue
+                missing = roles - {entry["role"] for entry in reader.context["entries"].values()}
+                if missing:
+                    raise EvidenceUnavailable("missing original evidence roles=" + ",".join(sorted(missing)))
+                choices.append(reader)
+            except (EvidenceUnavailable, ValueError, TypeError, KeyError, AttributeError) as exc:
+                failures.append(f"{path.name}: {exc}")
+        if not choices:
+            detail = "; ".join(failures[:4]) or "no complete session matching requested roles, metadata and decision time"
+>           raise EvidenceUnavailable(f"{day} original evidence unavailable: {detail}")
+E           ic_im_signal_evidence_v1.EvidenceUnavailable: 2026-11-20 original evidence unavailable: 100000000000-f8b4a7d1ac7649d499d33c83b3cb7e33.json: evidence byte total mismatch or exceeds limit
+
+ic_im_signal_evidence_v1.py:713: EvidenceUnavailable
+_ test_existing_unknown_year_ic_put_collects_without_new_expiry_then_real_server_recovers[day0-previous0-2703] _
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_7b1a9578/pytest/test_existing_unknown_year_ic_0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000002218124B700>
+day = datetime.date(2026, 11, 23), previous = datetime.date(2026, 11, 20)
+month = '2703'
+
+    @pytest.mark.parametrize("day,previous,month", [
+        (date(2026, 11, 23), date(2026, 11, 20), "2703"),
+        (date(2026, 11, 26), date(2026, 11, 25), "2701"),
+    ])
+    def test_existing_unknown_year_ic_put_collects_without_new_expiry_then_real_server_recovers(tmp_path, monkeypatch, day, previous, month):
+        clock = r4.wall(monkeypatch, day)
+        store, original = held_record(tmp_path / "state", previous, month)
+        samples = r4.providers(monkeypatch, day)
+        assert month in samples["IC"][4]  # Rule-shaped listing, never add a missing month for the test.
+        monkeypatch.setattr(bot.requests, "get", lambda *a, **k: pytest.fail("unrecorded original/replay HTTP"))
+        root = tmp_path / "evidence"
+        with monkeypatch.context() as capture_patch:
+            capture_patch.setattr(bot, "_build_live_trade_signal", lambda *a, **k: pytest.fail("independent collector invoked builder"))
+            assert adapter.capture_daily(bot, root, clock)["status"] == "captured"
+>       reader, runtime = adapter.load_original(bot, root, "IC", day)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_icim_round5_recording_semantics_20261021.py:183: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+ic_im_evidence_adapter_v1.py:369: in load_original
+    reader = evidence.load_session(root, day, required_roles=roles, metadata_filter={
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+root = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_7b1a9578/pytest/test_existing_unknown_year_ic_0/evidence')
+day = datetime.date(2026, 11, 23)
+required_roles = {'cffex.quotes', 'fear.score', 'ic.chain', 'ic.etf', 'ic.months', 'market.live', ...}
+metadata_filter = {'input_revision': 'ic_im_original_inputs_20261021_v1', 'original_close': True, 'product': 'IC'}
+decision_not_after = None
+
+    def load_session(root: str | Path, day: date, required_roles: Any = None,
+                     metadata_filter: dict[str, Any] | None = None,
+                     decision_not_after: datetime | None = None) -> EvidenceReader:
+        root, day = _canonical(Path(root)), _day(day)
+        cutoff = _aware(decision_not_after, "decision_not_after") if decision_not_after is not None else None
+        directory = _inside(root, root / "sessions" / day.isoformat())
+        try:
+            files = list(directory.glob("*.json"))
+        except OSError as exc:
+            raise EvidenceUnavailable(f"{day} cannot enumerate original evidence") from exc
+        if len(files) > MAX_SESSION_FILES:
+            raise EvidenceUnavailable(f"{day} evidence session count exceeds limit")
+        roles = set(required_roles or [])
+        for role in roles:
+            _role(role)
+        choices, failures = [], []
+        for path in files:
+            try:
+                reader = _load_one(root, path, day)
+                if cutoff is not None and reader.decision_at > cutoff:
+                    continue
+                if metadata_filter and any(reader.metadata.get(key) != value for key, value in metadata_filter.items()):
+                    continue
+                missing = roles - {entry["role"] for entry in reader.context["entries"].values()}
+                if missing:
+                    raise EvidenceUnavailable("missing original evidence roles=" + ",".join(sorted(missing)))
+                choices.append(reader)
+            except (EvidenceUnavailable, ValueError, TypeError, KeyError, AttributeError) as exc:
+                failures.append(f"{path.name}: {exc}")
+        if not choices:
+            detail = "; ".join(failures[:4]) or "no complete session matching requested roles, metadata and decision time"
+>           raise EvidenceUnavailable(f"{day} original evidence unavailable: {detail}")
+E           ic_im_signal_evidence_v1.EvidenceUnavailable: 2026-11-23 original evidence unavailable: 100000000000-3a511b12e0dd44d69024dc0de6ee58db.json: evidence byte total mismatch or exceeds limit
+
+ic_im_signal_evidence_v1.py:713: EvidenceUnavailable
+_ test_existing_unknown_year_ic_put_collects_without_new_expiry_then_real_server_recovers[day1-previous1-2701] _
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_7b1a9578/pytest/test_existing_unknown_year_ic_1')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x00000221814B0670>
+day = datetime.date(2026, 11, 26), previous = datetime.date(2026, 11, 25)
+month = '2701'
+
+    @pytest.mark.parametrize("day,previous,month", [
+        (date(2026, 11, 23), date(2026, 11, 20), "2703"),
+        (date(2026, 11, 26), date(2026, 11, 25), "2701"),
+    ])
+    def test_existing_unknown_year_ic_put_collects_without_new_expiry_then_real_server_recovers(tmp_path, monkeypatch, day, previous, month):
+        clock = r4.wall(monkeypatch, day)
+        store, original = held_record(tmp_path / "state", previous, month)
+        samples = r4.providers(monkeypatch, day)
+        assert month in samples["IC"][4]  # Rule-shaped listing, never add a missing month for the test.
+        monkeypatch.setattr(bot.requests, "get", lambda *a, **k: pytest.fail("unrecorded original/replay HTTP"))
+        root = tmp_path / "evidence"
+        with monkeypatch.context() as capture_patch:
+            capture_patch.setattr(bot, "_build_live_trade_signal", lambda *a, **k: pytest.fail("independent collector invoked builder"))
+            assert adapter.capture_daily(bot, root, clock)["status"] == "captured"
+>       reader, runtime = adapter.load_original(bot, root, "IC", day)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_icim_round5_recording_semantics_20261021.py:183: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+ic_im_evidence_adapter_v1.py:369: in load_original
+    reader = evidence.load_session(root, day, required_roles=roles, metadata_filter={
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+root = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_7b1a9578/pytest/test_existing_unknown_year_ic_1/evidence')
+day = datetime.date(2026, 11, 26)
+required_roles = {'cffex.quotes', 'fear.score', 'ic.chain', 'ic.etf', 'ic.months', 'market.live', ...}
+metadata_filter = {'input_revision': 'ic_im_original_inputs_20261021_v1', 'original_close': True, 'product': 'IC'}
+decision_not_after = None
+
+    def load_session(root: str | Path, day: date, required_roles: Any = None,
+                     metadata_filter: dict[str, Any] | None = None,
+                     decision_not_after: datetime | None = None) -> EvidenceReader:
+        root, day = _canonical(Path(root)), _day(day)
+        cutoff = _aware(decision_not_after, "decision_not_after") if decision_not_after is not None else None
+        directory = _inside(root, root / "sessions" / day.isoformat())
+        try:
+            files = list(directory.glob("*.json"))
+        except OSError as exc:
+            raise EvidenceUnavailable(f"{day} cannot enumerate original evidence") from exc
+        if len(files) > MAX_SESSION_FILES:
+            raise EvidenceUnavailable(f"{day} evidence session count exceeds limit")
+        roles = set(required_roles or [])
+        for role in roles:
+            _role(role)
+        choices, failures = [], []
+        for path in files:
+            try:
+                reader = _load_one(root, path, day)
+                if cutoff is not None and reader.decision_at > cutoff:
+                    continue
+                if metadata_filter and any(reader.metadata.get(key) != value for key, value in metadata_filter.items()):
+                    continue
+                missing = roles - {entry["role"] for entry in reader.context["entries"].values()}
+                if missing:
+                    raise EvidenceUnavailable("missing original evidence roles=" + ",".join(sorted(missing)))
+                choices.append(reader)
+            except (EvidenceUnavailable, ValueError, TypeError, KeyError, AttributeError) as exc:
+                failures.append(f"{path.name}: {exc}")
+        if not choices:
+            detail = "; ".join(failures[:4]) or "no complete session matching requested roles, metadata and decision time"
+>           raise EvidenceUnavailable(f"{day} original evidence unavailable: {detail}")
+E           ic_im_signal_evidence_v1.EvidenceUnavailable: 2026-11-26 original evidence unavailable: 100000000000-ed249742ff7c4941b96b06a761b0f439.json: evidence byte total mismatch or exceeds limit
+
+ic_im_signal_evidence_v1.py:713: EvidenceUnavailable
+_ test_nov23_ic_2701_not_in_rule_shaped_listing_never_becomes_a_formal_target _
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_7b1a9578/pytest/test_nov23_ic_2701_not_in_rule0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x00000221814919B0>
+
+    def test_nov23_ic_2701_not_in_rule_shaped_listing_never_becomes_a_formal_target(tmp_path, monkeypatch):
+        day = date(2026, 11, 23)
+        clock = r4.wall(monkeypatch, day)
+        store, original = held_record(tmp_path / "state", date(2026, 11, 20), "2701")
+        samples = r4.providers(monkeypatch, day)
+        assert set(samples["IC"][4]) == {"2611", "2612", "2703", "2706"}
+        monkeypatch.setattr(bot.requests, "get", lambda *a, **k: pytest.fail("unrecorded HTTP cannot repair missing held identity"))
+        root = tmp_path / "evidence"
+>       assert adapter.capture_daily(bot, root, clock)["status"] == "captured"
+E       AssertionError: assert 'incomplete' == 'captured'
+E         
+E         - captured
+E         + incomplete
+
+test_icim_round5_recording_semantics_20261021.py:217: AssertionError
+________ test_calendar_extension_precedes_last_followup_and_this_round ________
+
+    def test_calendar_extension_precedes_last_followup_and_this_round():
+        name = 'poe_ic_im_mainline_v1_4_bot.py'
+        def bound(folder, stage):
+            p = ROOT / 'quant_research_runs' / folder / stage / 'source_after.json'
+            return json.loads(p.read_text())[name]
+        digest = hashlib.sha256((ROOT / name).read_bytes()).hexdigest()
+>       assert digest == bound('20261022_historical_calendar_repair_v1', 'accepted_02')
+E       AssertionError: assert 'fc271297a5b9...506ecd66a8967' == '0075c16aec68...082b623d0d19f'
+E         
+E         - 0075c16aec68cb56b49569d03c1b89bb2707873fbd309971461082b623d0d19f
+E         + fc271297a5b90247fb25b61071f505ec1d292911d964c18209d506ecd66a8967
+
+test_icim_calendar_capture_review_20261022.py:50: AssertionError
+_ test_ambiguous_capture_is_incomplete_and_does_not_break_normal_query[identical] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x00000221FFC76200>
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_7b1a9578/pytest/test_ambiguous_capture_is_inco0')
+difference = 'identical'
+
+    @pytest.mark.parametrize('difference', ['identical', 'body', 'time', 'headers', 'status', 'encoding'])
+    def test_ambiguous_capture_is_incomplete_and_does_not_break_normal_query(monkeypatch, tmp_path, difference):
+        clock = changing_raw_providers(monkeypatch, tmp_path, difference)
+        root = tmp_path / 'evidence'
+        result = adapter.capture_daily(bot, root, clock)
+        if difference == 'identical':
+            assert result['status'] == 'captured'
+>           reader, _ = adapter.load_original(bot, root, 'IC', DAY)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_icim_calendar_capture_review_20261022.py:126: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+ic_im_evidence_adapter_v1.py:369: in load_original
+    reader = evidence.load_session(root, day, required_roles=roles, metadata_filter={
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+root = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_7b1a9578/pytest/test_ambiguous_capture_is_inco0/evidence')
+day = datetime.date(2026, 10, 21)
+required_roles = {'cffex.quotes', 'fear.score', 'ic.chain', 'ic.etf', 'ic.months', 'market.live', ...}
+metadata_filter = {'input_revision': 'ic_im_original_inputs_20261021_v1', 'original_close': True, 'product': 'IC'}
+decision_not_after = None
+
+    def load_session(root: str | Path, day: date, required_roles: Any = None,
+                     metadata_filter: dict[str, Any] | None = None,
+                     decision_not_after: datetime | None = None) -> EvidenceReader:
+        root, day = _canonical(Path(root)), _day(day)
+        cutoff = _aware(decision_not_after, "decision_not_after") if decision_not_after is not None else None
+        directory = _inside(root, root / "sessions" / day.isoformat())
+        try:
+            files = list(directory.glob("*.json"))
+        except OSError as exc:
+            raise EvidenceUnavailable(f"{day} cannot enumerate original evidence") from exc
+        if len(files) > MAX_SESSION_FILES:
+            raise EvidenceUnavailable(f"{day} evidence session count exceeds limit")
+        roles = set(required_roles or [])
+        for role in roles:
+            _role(role)
+        choices, failures = [], []
+        for path in files:
+            try:
+                reader = _load_one(root, path, day)
+                if cutoff is not None and reader.decision_at > cutoff:
+                    continue
+                if metadata_filter and any(reader.metadata.get(key) != value for key, value in metadata_filter.items()):
+                    continue
+                missing = roles - {entry["role"] for entry in reader.context["entries"].values()}
+                if missing:
+                    raise EvidenceUnavailable("missing original evidence roles=" + ",".join(sorted(missing)))
+                choices.append(reader)
+            except (EvidenceUnavailable, ValueError, TypeError, KeyError, AttributeError) as exc:
+                failures.append(f"{path.name}: {exc}")
+        if not choices:
+            detail = "; ".join(failures[:4]) or "no complete session matching requested roles, metadata and decision time"
+>           raise EvidenceUnavailable(f"{day} original evidence unavailable: {detail}")
+E           ic_im_signal_evidence_v1.EvidenceUnavailable: 2026-10-21 original evidence unavailable: 100000000000-6668b4f4e04d49e78c0ecc9b8c9257dc.json: evidence byte total mismatch or exceeds limit
+
+ic_im_signal_evidence_v1.py:713: EvidenceUnavailable
+============================== warnings summary ===============================
+C:\Python314\Lib\site-packages\fastapi_poe\types.py:171
+  C:\Python314\Lib\site-packages\fastapi_poe\types.py:171: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    class RequestContext(BaseModel):
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED test_icim_round3_evidence_integration_20261021.py::test_original_close_replay_discloses_archive_identity_and_actual_acquisition
+FAILED test_icim_round4_recovery_20261021.py::test_real_independent_collector_survives_calendar_diagnostic_then_server_recovers[False-day0-previous0-later0]
+FAILED test_icim_round4_recovery_20261021.py::test_real_independent_collector_survives_calendar_diagnostic_then_server_recovers[False-day1-previous1-later1]
+FAILED test_icim_round4_recovery_20261021.py::test_real_independent_collector_survives_calendar_diagnostic_then_server_recovers[True-day0-previous0-later0]
+FAILED test_icim_round4_recovery_20261021.py::test_real_independent_collector_survives_calendar_diagnostic_then_server_recovers[True-day1-previous1-later1]
+FAILED test_icim_round4_recovery_20261021.py::test_two_actual_independent_captures_while_stale_then_sequential_server_recovery
+FAILED test_icim_round5_recording_semantics_20261021.py::test_existing_unknown_year_ic_put_collects_without_new_expiry_then_real_server_recovers[day0-previous0-2703]
+FAILED test_icim_round5_recording_semantics_20261021.py::test_existing_unknown_year_ic_put_collects_without_new_expiry_then_real_server_recovers[day1-previous1-2701]
+FAILED test_icim_round5_recording_semantics_20261021.py::test_nov23_ic_2701_not_in_rule_shaped_listing_never_becomes_a_formal_target
+FAILED test_icim_calendar_capture_review_20261022.py::test_calendar_extension_precedes_last_followup_and_this_round
+FAILED test_icim_calendar_capture_review_20261022.py::test_ambiguous_capture_is_incomplete_and_does_not_break_normal_query[identical]
+11 failed, 111 passed, 1 warning in 11.70s

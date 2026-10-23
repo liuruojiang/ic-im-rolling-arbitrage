@@ -1,0 +1,32 @@
+[
+  {
+    "path": "$.fetch_time",
+    "original": "2026-10-22 18:26:46",
+    "replayed": "2026-10-22 18:27:30",
+    "reason": "value"
+  },
+  {
+    "path": "$.historical_evidence_supplements",
+    "reason": "field_missing",
+    "original_present": false,
+    "replayed_present": true
+  },
+  {
+    "path": "$.original_evidence",
+    "reason": "field_missing",
+    "original_present": false,
+    "replayed_present": true
+  },
+  {
+    "path": "$.signal_calculation_started_at",
+    "original": "2026-10-22T18:27:03+08:00",
+    "replayed": "2026-10-22T18:28:31+08:00",
+    "reason": "value"
+  },
+  {
+    "path": "$.signal_generation_timing",
+    "original": "close_confirmed",
+    "replayed": "retrospective_replay",
+    "reason": "value"
+  }
+]

@@ -1,0 +1,231 @@
+.FF...F..                                                                [100%]
+================================== FAILURES ===================================
+_ test_actual_execute_query_context_isolated_across_public_coordinators[two_same_store] _
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_5ec5ad7d/pytest/test_actual_execute_query_cont1')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000002B32BBD0770>
+relationship = 'two_same_store'
+
+    @pytest.mark.parametrize('relationship',['one_coordinator','two_same_store','two_distinct_stores'])
+    def test_actual_execute_query_context_isolated_across_public_coordinators(tmp_path,monkeypatch,relationship):
+        module = server(monkeypatch,tmp_path)
+        first_store,_ = store(tmp_path/'first','A')
+        first = module.LedgerCoordinator(first_store)
+        if relationship == 'one_coordinator':
+            second = first
+        elif relationship == 'two_same_store':
+            second = module.LedgerCoordinator(state.StateStore(first_store.root))
+        else:
+            second_store,_ = store(tmp_path/'second','B')
+            second = module.LedgerCoordinator(second_store)
+        baseline_capture = module._CaptureOutput('baseline')
+        monkeypatch.setattr(bot,'poe',baseline_capture)
+        monkeypatch.setattr(bot,'_SIGNAL_OBSERVER',None)
+        monkeypatch.setattr(bot,'LIVE_CONTINUATION_ANCHOR',deepcopy(bot.LIVE_CONTINUATION_ANCHOR))
+        a_entered,b_entered,release_a,a_done = [threading.Event() for _ in range(4)]
+        errors,outputs = {},{}
+        before_first = lifecycle.snapshot(first_store.root)
+        before_second = lifecycle.snapshot(second.store.root)
+    
+        def run_fake(self):
+            # Synthetic business body only: real execute_query still installs all
+            # anchors, capture and observer and performs its real finally cleanup.
+            label = threading.current_thread().name
+            if label == 'A':
+                a_entered.set()
+                assert release_a.wait(4),'main test did not release first query'
+            else:
+                b_entered.set()
+                assert a_done.wait(4),'first query did not complete synthetic body'
+            actual = bot.LIVE_CONTINUATION_ANCHOR['IC']['audit_context_label']
+            output = bot.poe
+            if isinstance(output,module._CaptureOutput):
+                with output.start_message() as message:
+                    message.write(label+':'+actual)
+            observer = bot._SIGNAL_OBSERVER
+            if observer is not None:
+                observer('IC',dict(request_label=label,anchor_label=actual,market_date=DAY,close_confirmed=False))
+            if label == 'A':
+                a_done.set()
+    
+        monkeypatch.setattr(bot.ICIMMainlinesBot,'run',run_fake)
+        def query(label,coordinator):
+            try:
+                outputs[label] = coordinator.execute_query('实时信号',CLOCK,persist_confirmed=False)
+            except BaseException as exc:
+                errors[label] = repr(exc)
+                if label == 'A':a_done.set()
+        a = threading.Thread(target=query,args=('A',first),name='A')
+        b = threading.Thread(target=query,args=('B',second),name='B')
+        a.start()
+        assert a_entered.wait(4)
+        b.start()
+        overlapped = b_entered.wait(.2)
+        release_a.set()
+        a.join(6);b.join(6)
+        assert not a.is_alive() and not b.is_alive(), 'query thread did not terminate'
+        assert not errors
+        assert lifecycle.snapshot(first_store.root) == before_first
+        assert lifecycle.snapshot(second.store.root) == before_second
+        expected_b = 'B' if relationship == 'two_distinct_stores' else 'A'
+>       assert outputs['A'][0] == 'A:A',dict(overlapped=overlapped,outputs=outputs)
+E       AssertionError: {'outputs': {'A': ('', [], {}), 'B': ('A:A', [], {'IC': {'anchor_label': 'A', 'close_confirmed': False, 'market_date': datetime.date(2026, 10, 21), 'request_label': 'A'}})}, 'overlapped': True}
+E       assert '' == 'A:A'
+E         
+E         - A:A
+
+test_icim_batch3_concurrency_20261021.py:118: AssertionError
+_ test_actual_execute_query_context_isolated_across_public_coordinators[two_distinct_stores] _
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_5ec5ad7d/pytest/test_actual_execute_query_cont2')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000002B32BD4E690>
+relationship = 'two_distinct_stores'
+
+    @pytest.mark.parametrize('relationship',['one_coordinator','two_same_store','two_distinct_stores'])
+    def test_actual_execute_query_context_isolated_across_public_coordinators(tmp_path,monkeypatch,relationship):
+        module = server(monkeypatch,tmp_path)
+        first_store,_ = store(tmp_path/'first','A')
+        first = module.LedgerCoordinator(first_store)
+        if relationship == 'one_coordinator':
+            second = first
+        elif relationship == 'two_same_store':
+            second = module.LedgerCoordinator(state.StateStore(first_store.root))
+        else:
+            second_store,_ = store(tmp_path/'second','B')
+            second = module.LedgerCoordinator(second_store)
+        baseline_capture = module._CaptureOutput('baseline')
+        monkeypatch.setattr(bot,'poe',baseline_capture)
+        monkeypatch.setattr(bot,'_SIGNAL_OBSERVER',None)
+        monkeypatch.setattr(bot,'LIVE_CONTINUATION_ANCHOR',deepcopy(bot.LIVE_CONTINUATION_ANCHOR))
+        a_entered,b_entered,release_a,a_done = [threading.Event() for _ in range(4)]
+        errors,outputs = {},{}
+        before_first = lifecycle.snapshot(first_store.root)
+        before_second = lifecycle.snapshot(second.store.root)
+    
+        def run_fake(self):
+            # Synthetic business body only: real execute_query still installs all
+            # anchors, capture and observer and performs its real finally cleanup.
+            label = threading.current_thread().name
+            if label == 'A':
+                a_entered.set()
+                assert release_a.wait(4),'main test did not release first query'
+            else:
+                b_entered.set()
+                assert a_done.wait(4),'first query did not complete synthetic body'
+            actual = bot.LIVE_CONTINUATION_ANCHOR['IC']['audit_context_label']
+            output = bot.poe
+            if isinstance(output,module._CaptureOutput):
+                with output.start_message() as message:
+                    message.write(label+':'+actual)
+            observer = bot._SIGNAL_OBSERVER
+            if observer is not None:
+                observer('IC',dict(request_label=label,anchor_label=actual,market_date=DAY,close_confirmed=False))
+            if label == 'A':
+                a_done.set()
+    
+        monkeypatch.setattr(bot.ICIMMainlinesBot,'run',run_fake)
+        def query(label,coordinator):
+            try:
+                outputs[label] = coordinator.execute_query('实时信号',CLOCK,persist_confirmed=False)
+            except BaseException as exc:
+                errors[label] = repr(exc)
+                if label == 'A':a_done.set()
+        a = threading.Thread(target=query,args=('A',first),name='A')
+        b = threading.Thread(target=query,args=('B',second),name='B')
+        a.start()
+        assert a_entered.wait(4)
+        b.start()
+        overlapped = b_entered.wait(.2)
+        release_a.set()
+        a.join(6);b.join(6)
+        assert not a.is_alive() and not b.is_alive(), 'query thread did not terminate'
+        assert not errors
+        assert lifecycle.snapshot(first_store.root) == before_first
+        assert lifecycle.snapshot(second.store.root) == before_second
+        expected_b = 'B' if relationship == 'two_distinct_stores' else 'A'
+>       assert outputs['A'][0] == 'A:A',dict(overlapped=overlapped,outputs=outputs)
+E       AssertionError: {'outputs': {'A': ('', [], {}), 'B': ('A:B', [], {'IC': {'anchor_label': 'B', 'close_confirmed': False, 'market_date': datetime.date(2026, 10, 21), 'request_label': 'A'}})}, 'overlapped': True}
+E       assert '' == 'A:A'
+E         
+E         - A:A
+
+test_icim_batch3_concurrency_20261021.py:118: AssertionError
+________ test_cross_process_append_serializes_header_compare_and_write ________
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_5ec5ad7d/pytest/test_cross_process_append_seri0')
+
+    def test_cross_process_append_serializes_header_compare_and_write(tmp_path):
+        isolated,current = store(tmp_path/'state')
+        # Both children load the SAME head before receiving GO. Their imports and
+        # all ledger writes are restricted to this test's explicitly supplied root.
+        script = r'''
+    import json,sys
+    from pathlib import Path
+    sys.path.insert(0,sys.argv[1])
+    import poe_ic_im_v1_4_state as state
+    import test_ic_im_ordinary_put_route_fix_20261013 as ledger
+    import test_icim_round2_audit_lifecycle_20261021 as lifecycle
+    from datetime import date
+    store=state.StateStore(Path(sys.argv[2]))
+    current=store.load_latest()
+    anchors=state.anchors_from_record(current)
+    signals={p:lifecycle.close_evidence(ledger._signal(p,anchors[p],date(2026,10,21))) for p in state.PRODUCTS}
+    for signal in signals.values():signal['v14_opening_events']=[]
+    print('READY',flush=True)
+    assert sys.stdin.readline().strip()=='GO'
+    try:
+     result=store.append_confirmed_signals(current,signals)
+     print(json.dumps({'outcome':'appended','sequence':result['sequence']}),flush=True)
+    except RuntimeError as exc:
+     print(json.dumps({'outcome':'rejected','reason':str(exc)},ensure_ascii=False),flush=True)
+    '''
+        env = dict(os.environ,ICIM_STATE_DIR=str(tmp_path/'unused_child_default'),
+                   ICIM_REQUIRE_MIGRATION='0',PYTHONIOENCODING='utf-8',PYTHONDONTWRITEBYTECODE='1')
+        children = [subprocess.Popen([sys.executable,'-c',script,str(ROOT),str(isolated.root)],
+                                    stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE,
+                                    text=True,encoding='utf-8',env=env,cwd=ROOT) for _ in range(2)]
+        try:
+            for child in children:
+                assert child.stdout.readline().strip() == 'READY'
+            for child in children:
+                child.stdin.write('GO\n');child.stdin.flush()
+            result = []
+            for child in children:
+                stdout,stderr = child.communicate(timeout=20)
+>               assert child.returncode == 0,stderr
+E               AssertionError: Traceback (most recent call last):
+E                   File "D:\动量策略\IC和IM滚动套利\poe_ic_im_v1_4_state.py", line 1344, in _exclusive_lock
+E                     stream.flush()
+E                     ~~~~~~~~~~~~^^
+E                 PermissionError: [Errno 13] Permission denied
+E                 
+E                 During handling of the above exception, another exception occurred:
+E                 
+E                 Traceback (most recent call last):
+E                   File "<string>", line 17, in <module>
+E                     result=store.append_confirmed_signals(current,signals)
+E                   File "D:\动量策略\IC和IM滚动套利\poe_ic_im_v1_4_state.py", line 1443, in append_confirmed_signals
+E                     with self._exclusive_lock():
+E                          ~~~~~~~~~~~~~~~~~~~~^^
+E                   File "C:\Python314\Lib\contextlib.py", line 141, in __enter__
+E                     return next(self.gen)
+E                   File "D:\动量策略\IC和IM滚动套利\poe_ic_im_v1_4_state.py", line 1360, in _exclusive_lock
+E                     msvcrt.locking(stream.fileno(), msvcrt.LK_UNLCK, 1)
+E                     ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E                 PermissionError: [Errno 13] Permission denied
+E                 
+E               assert 1 == 0
+E                +  where 1 = <Popen: returncode: 1 args: ['C:\\Python314\\python.exe', '-c', "\nimport js...>.returncode
+
+test_icim_batch3_concurrency_20261021.py:221: AssertionError
+============================== warnings summary ===============================
+C:\Python314\Lib\site-packages\fastapi_poe\types.py:171
+  C:\Python314\Lib\site-packages\fastapi_poe\types.py:171: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    class RequestContext(BaseModel):
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED test_icim_batch3_concurrency_20261021.py::test_actual_execute_query_context_isolated_across_public_coordinators[two_same_store]
+FAILED test_icim_batch3_concurrency_20261021.py::test_actual_execute_query_context_isolated_across_public_coordinators[two_distinct_stores]
+FAILED test_icim_batch3_concurrency_20261021.py::test_cross_process_append_serializes_header_compare_and_write
+3 failed, 6 passed, 1 warning in 5.82s

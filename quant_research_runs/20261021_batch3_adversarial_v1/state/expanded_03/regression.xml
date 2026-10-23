@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="4" skipped="0" tests="25" time="2.702" timestamp="2026-10-21T17:32:20.559295+08:00" hostname="DESKTOP-95I7VVU"><testcase classname="test_icim_b3adv_state_20261021" name="test_valid_prepared_same_day_pair_persists_and_reopens" time="0.060" /><testcase classname="test_icim_b3adv_state_20261021" name="test_expired_adopted_long_put_cannot_be_committed_as_next_open_plan[MO2601-P-7200]" time="0.017" /><testcase classname="test_icim_b3adv_state_20261021" name="test_expired_adopted_long_put_cannot_be_committed_as_next_open_plan[MO2609-P-7200]" time="0.019" /><testcase classname="test_icim_b3adv_state_20261021" name="test_unknown_year_adopted_long_put_remains_rejected" time="0.016" /><testcase classname="test_icim_b3adv_state_20261021" name="test_in_year_closed_signal_or_next_session_does_not_append[next_trade_date]" time="0.017" /><testcase classname="test_icim_b3adv_state_20261021" name="test_in_year_closed_signal_or_next_session_does_not_append[market_date]" time="0.015" /><testcase classname="test_icim_b3adv_state_20261021" name="test_unused_unknown_year_maintenance_diagnostic_does_not_block[option_monthly_reset_execution_date]" time="0.028" /><testcase classname="test_icim_b3adv_state_20261021" name="test_unused_unknown_year_maintenance_diagnostic_does_not_block[put_monthly_reset_execution_date]" time="0.025" /><testcase classname="test_icim_b3adv_state_20261021" name="test_prepared_short_expiry_month_identity_mismatch_rejected" time="0.002" /><testcase classname="test_icim_b3adv_state_20261021" name="test_recovered_journal_products_must_match_its_revalidated_signals[post_core_contract-IM2611]" time="0.045" /><testcase classname="test_icim_b3adv_state_20261021" name="test_recovered_journal_products_must_match_its_revalidated_signals[verified_core_put_qty_normalized-0.5]" time="0.034"><failure message="RuntimeError: IM组合Put数量不等于核心与动量之和">tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_73163c93/pytest/test_recovered_journal_product1')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000001D62790F230&gt;
+field = 'verified_core_put_qty_normalized', value = 0.5
+
+    @pytest.mark.parametrize('field,value', [('post_core_contract','IM2611'),
+                                           ('verified_core_put_qty_normalized',.5),
+                                           ('verified_next_momentum_weight',1.)])
+    def test_recovered_journal_products_must_match_its_revalidated_signals(tmp_path, monkeypatch, field, value):
+        store, record, signals = prepare(tmp_path, monkeypatch)
+        # Model an obsolete producer's complete, hash-valid journal plus a crash
+        # before the head replacement. This is a consistency check, not a claim
+        # that the current producer or an unsigned partial write creates it.
+        written = store.append_confirmed_signals(record, signals)
+        obsolete = deepcopy(written)
+        obsolete['products']['IM'][field] = value
+        obsolete['digest'] = state._digest(obsolete)
+&gt;       state._validate_record(obsolete)
+
+test_icim_b3adv_state_20261021.py:118: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+record = {'digest': '2bce0de7b4ea55c478026c92a1099d1684333ada0eccd1b0259782bdac68c0da', 'previous_digest': '185a0c4e08e976a3004...MO2608-C-8800', 'call_equivalent_units': 0.5, 'call_mark': 0.8, 'call_strike': 8800.0, ...}}, 'schema_version': 4, ...}
+
+    def _validate_record(record: dict[str, Any]) -&gt; None:
+        if int(record.get("schema_version", -1)) != SCHEMA_VERSION:
+            raise RuntimeError("Poe账本schema_version不受支持")
+        if str(record.get("strategy_version", "")) != STRATEGY_VERSION:
+            raise RuntimeError("Poe账本strategy_version不是独立v1.4，禁止续写旧账本")
+        if str(record.get("strategy_revision", "")) != STRATEGY_REVISION:
+            raise RuntimeError("Poe账本strategy_revision不是r1，禁止续写旧版账本")
+        sequence = record.get("sequence")
+        if not isinstance(sequence, int) or isinstance(sequence, bool) or sequence &lt; 0:
+            raise RuntimeError("Poe账本sequence必须为非负整数")
+        if set(record.get("products", {})) != set(PRODUCTS):
+            raise RuntimeError("Poe账本必须同时包含IC和IM")
+        expected = str(record.get("digest", ""))
+        actual = _digest(record)
+        if not expected or expected != actual:
+            raise RuntimeError("Poe账本SHA-256校验失败")
+        signals = record.get("signals", {})
+        if signals:
+            if not isinstance(signals, dict) or set(signals) != set(PRODUCTS):
+                raise RuntimeError("Poe账本信号必须同时包含IC和IM")
+            for product in PRODUCTS:
+                validate_delivery_values(signals[product], product, historical_record=True)
+                signal = signals[product]
+                if (signal.get("market_date") is not None
+                        and _as_day(signal.get("market_date"), "账本信号日") &gt;= strategy.fear_grid.CLOSE_FALLBACK_EFFECTIVE_DATE
+                        and signal.get("signal_generated_at") is not None):
+                    generated = datetime.fromisoformat(str(signal["signal_generated_at"]))
+                    written = datetime.fromisoformat(str(record.get("updated_at")))
+                    checked = strategy.fear_grid._validation_clock()
+                    if (generated.tzinfo is None or written.tzinfo is None
+                            or not generated &lt;= written &lt;= checked):
+                        raise RuntimeError("账本写入时间必须位于真实信号生成至独立校验区间")
+        days: list[date] = []
+        for product in PRODUCTS:
+            anchor = _decode_anchor(record["products"][product])
+            v14_policy.validate_extension(product, anchor)
+            day = anchor.get("last_verified_day")
+            if not isinstance(day, date):
+                raise RuntimeError(f"{product}账本缺少last_verified_day")
+            days.append(day)
+            pending = anchor.get("v14_ordinary_put_pending")
+            if pending is not None:
+                if _as_day(pending.get("signal_day"), f"{product}普通Put计划日") != day:
+                    raise RuntimeError(f"{product}普通Put待执行计划不属于账本核验日")
+                expected_execution = strategy._roll_forward_exchange_day(day + timedelta(days=1))
+                if _as_day(pending.get("execution_day"), f"{product}普通Put执行日") != expected_execution:
+                    raise RuntimeError(f"{product}普通Put待执行计划未指向下一共同交易日")
+            if float(anchor.get("verified_grid_units", -1)) not in {0.0, 0.5, 1.0}:
+                raise RuntimeError(f"{product}账本网格状态非法")
+            if float(anchor.get("verified_next_grid_units", -1)) not in {0.0, 0.5, 1.0}:
+                raise RuntimeError(f"{product}账本下一交易日网格状态非法")
+            if day &gt;= strategy.fear_grid.EFFECTIVE_SIGNAL_DATE:
+                for units_field, source_field in (
+                    ("verified_grid_units", "verified_grid_entry_source"),
+                    ("verified_next_grid_units", "verified_next_grid_entry_source"),
+                ):
+                    units = float(anchor[units_field])
+                    source = anchor.get(source_field)
+                    if units not in {0.0, 0.5} or source not in strategy.fear_grid.SOURCES or (units == 0.0) != (source == "none"):
+                        raise RuntimeError(f"{product}账本网格仓位与入场来源不一致: {source_field}")
+        if len(set(days)) != 1:
+            raise RuntimeError("IC/IM账本核验日期不一致，禁止部分推进")
+        try:
+            verified_day = date.fromisoformat(str(record.get("verified_day", ""))[:10])
+        except ValueError as exc:
+            raise RuntimeError("Poe账本verified_day非法") from exc
+        if verified_day != days[0]:
+            raise RuntimeError("Poe账本顶层verified_day与逐腿锚点不一致")
+        allowed_weights = {0.0, 0.25, 0.5, 1.0}
+        for product in PRODUCTS:
+            anchor = record["products"][product]
+            for key in ("verified_momentum_weight", "verified_next_momentum_weight"):
+                value = float(anchor.get(key, math.nan))
+                allowed = allowed_weights if product == "IC" else {0.0, 0.5, 1.0}
+                if not math.isfinite(value) or value not in allowed:
+                    raise RuntimeError(f"{product}账本{key}非法")
+            put_qty = float(anchor.get("verified_put_qty_normalized", math.nan))
+            if not math.isfinite(put_qty) or put_qty &lt; 0.0:
+                raise RuntimeError(f"{product}账本Put数量非法")
+        ic = record["products"]["IC"]
+        if float(ic.get("verified_call_contracts_normalized", 0.0)) != 0.0:
+            raise RuntimeError("IC 1.3明确禁止Call，账本出现Call状态")
+        im = record["products"]["IM"]
+        if strategy.im_put_policy.active(verified_day):
+            validate_im_call_values(im.get("verified_call_contracts_normalized", 0.0),
+                                    im.get("verified_call_contract"),
+                                    im.get("verified_call_expiry"), im.get("verified_call_strike"))
+        core_put = _finite_float(
+            im.get("verified_core_put_qty_normalized"), "IM核心Put数量"
+        )
+        momentum_put = _finite_float(
+            im.get("verified_momentum_put_qty_normalized"), "IM动量Put数量"
+        )
+        total_put = _finite_float(
+            im.get("verified_total_put_qty_normalized"), "IM组合Put数量"
+        )
+        legacy_total = _finite_float(
+            im.get("verified_put_qty_normalized"), "IM兼容Put总数量"
+        )
+        parent_puts = im.get("verified_parent_puts")
+        if (
+            core_put &lt; 0.0
+            or momentum_put &lt; 0.0
+            or total_put &lt; 0.0
+            or core_put &gt; 2.0
+            or momentum_put &gt; 2.0
+            or total_put &gt; 4.0
+        ):
+            raise RuntimeError("IM核心/动量/组合Put数量超出合法域")
+        if not math.isclose(total_put, core_put + momentum_put, abs_tol=1e-12):
+&gt;           raise RuntimeError("IM组合Put数量不等于核心与动量之和")
+E           RuntimeError: IM组合Put数量不等于核心与动量之和
+
+poe_ic_im_v1_4_state.py:188: RuntimeError</failure></testcase><testcase classname="test_icim_b3adv_state_20261021" name="test_recovered_journal_products_must_match_its_revalidated_signals[verified_next_momentum_weight-1.0]" time="0.075" /><testcase classname="test_icim_b3adv_state_20261021" name="test_valid_complete_journal_recovery_keeps_exact_original_bytes" time="0.065" /><testcase classname="test_icim_b3adv_state_20261021" name="test_recovered_journal_sequence_must_match_the_append_path" time="0.047" /><testcase classname="test_icim_b3adv_state_20261021" name="test_nonexpired_changed_core_plan_preserves_actual_contract" time="0.026" /><testcase classname="test_icim_b3adv_state_20261021" name="test_closing_only_old_expired_long_leg_does_not_require_future_expiry" time="0.029" /><testcase classname="test_icim_b3adv_state_20261021" name="test_monthly_same_day_reset_accepts_nonexpired_selected_put" time="0.015"><failure message="RuntimeError: IM core Put月度日必须重选，即使到期月与数量相同">tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_73163c93/pytest/test_monthly_same_day_reset_ac0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000001D627A549B0&gt;
+
+    def test_monthly_same_day_reset_accepts_nonexpired_selected_put(tmp_path, monkeypatch):
+        day = date(2026, 10, 16)
+        target = 'MO2612-P-7000'
+        store, record, signals = prepare(tmp_path, monkeypatch, dict(
+            option_monthly_reset_due=True, put_monthly_reset_execution_date=day,
+            option_monthly_reset_execution_date=day,
+            core_put_target_contract=target, put_target_contract=target), day=day)
+&gt;       result = store.append_confirmed_signals(record, signals)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_icim_b3adv_state_20261021.py:181: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_v1_4_state.py:1452: in append_confirmed_signals
+    return self._append_locked(current, signals)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+poe_ic_im_v1_4_state.py:1455: in _append_locked
+    anchors = derive_next_anchors(current, signals)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+poe_ic_im_v1_4_state.py:971: in derive_next_anchors
+    validate_delivery_values(signal, product)
+poe_ic_im_v1_4_state.py:253: in validate_delivery_values
+    validate_im_put_execution_evidence(signal)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+signal = {'call_action': 'HOLD', 'call_current_contract': None, 'call_target': '目标空仓（fix6停止卖Call）', 'call_target_contract': None, ...}
+
+    def validate_im_put_execution_evidence(signal: dict[str, Any]) -&gt; None:
+        """Reject a stale or internally inconsistent corrected Put signal."""
+        if signal.get("im_put_execution_revision") != strategy.IM_PUT_EXECUTION_REVISION:
+            raise RuntimeError("IM信号缺少已修正月度Put执行版本，禁止当作修复后结果交付")
+        if strategy.im_put_policy.active(signal["market_date"]):
+            if signal.get("im_put_policy_revision") != strategy.IM_PUT_POLICY_REVISION or signal.get("im_put_target_moneyness") != 1.02:
+                raise RuntimeError("IM新信号缺少MOM120/102%政策证据")
+            expected = strategy.im_put_policy.momentum_quantity(
+                signal["market_date"], signal.get("momentum_120"),
+                signal["momentum_next_weight"],
+                0.5 * float(signal["v13_parent_puts_per_full_core"]),
+            )
+            if not math.isclose(_finite_float(signal.get("momentum_put_target_qty_normalized"), "IM动量Put目标"), expected, abs_tol=1e-12):
+                raise RuntimeError("IM动量Put未按仅MOM120条件计算")
+        price = _finite_float(signal.get("put_reference_price"), "IM Put参考期货价格")
+        expected_reference = (signal.get("core_eod_contract")
+                              if signal.get("roll_confirmed") is True
+                              else signal.get("core_current"))
+        if price &lt;= 0 or signal.get("put_reference_future") != expected_reference:
+            raise RuntimeError("IM Put行权价参考必须是已确认持有的策略期货，不能使用指数或未执行预告合约")
+        if type(signal.get("option_monthly_reset_due")) is not bool:
+            raise RuntimeError("IM月度Put重置标识缺失或非法")
+        if signal["option_monthly_reset_due"]:
+            _as_day(signal.get("put_monthly_reset_execution_date"), "IM月度Put计划日")
+            for sleeve in ("core", "momentum"):
+                qty = _finite_float(signal.get(f"{sleeve}_put_target_qty_normalized"), f"IM {sleeve} Put目标")
+                if qty &gt; 0 and signal.get(f"{sleeve}_put_action") != "RESIZE_OR_ROLL":
+&gt;                   raise RuntimeError(f"IM {sleeve} Put月度日必须重选，即使到期月与数量相同")
+E                   RuntimeError: IM core Put月度日必须重选，即使到期月与数量相同
+
+poe_ic_im_v1_4_state.py:602: RuntimeError</failure></testcase><testcase classname="test_icim_b3adv_state_20261021" name="test_expired_momentum_target_cannot_create_new_positive_open_leg[MO2601-P-8200]" time="0.027" /><testcase classname="test_icim_b3adv_state_20261021" name="test_expired_momentum_target_cannot_create_new_positive_open_leg[MO2609-P-8200]" time="0.017" /><testcase classname="test_icim_b3adv_state_20261021" name="test_im_short_expiry_model_branches_are_not_a_new_short_open" time="0.001" /><testcase classname="test_icim_b3adv_state_20261021" name="test_non_ascii_month_cannot_skip_calendar_and_enter_persistent_plan[\u0662\u0667\u0660\u0663]" time="0.017" /><testcase classname="test_icim_b3adv_state_20261021" name="test_non_ascii_month_cannot_skip_calendar_and_enter_persistent_plan[\uff12\uff17\uff10\uff13]" time="0.018" /><testcase classname="test_icim_b3adv_state_20261021" name="test_new_profit_plan_cannot_skip_next_session_or_use_closed_day[execution0]" time="0.030"><failure message="Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;">tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_73163c93/pytest/test_new_profit_plan_cannot_sk0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000001D627A65470&gt;
+execution = datetime.date(2026, 10, 23)
+
+    @pytest.mark.parametrize('execution', [date(2026,10,23), date(2026,10,24)])
+    def test_new_profit_plan_cannot_skip_next_session_or_use_closed_day(tmp_path, monkeypatch, execution):
+        store, record, signals = prepare(tmp_path, monkeypatch)
+        profit_pending(signals, execution)
+        before = prior.snapshot(store.root)
+&gt;       with pytest.raises(RuntimeError, match='下一|交易日|执行|profit|3倍|三倍'):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;
+
+test_icim_b3adv_state_20261021.py:231: Failed</failure></testcase><testcase classname="test_icim_b3adv_state_20261021" name="test_new_profit_plan_cannot_skip_next_session_or_use_closed_day[execution1]" time="0.027"><failure message="Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;">tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_73163c93/pytest/test_new_profit_plan_cannot_sk1')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000001D627A66040&gt;
+execution = datetime.date(2026, 10, 24)
+
+    @pytest.mark.parametrize('execution', [date(2026,10,23), date(2026,10,24)])
+    def test_new_profit_plan_cannot_skip_next_session_or_use_closed_day(tmp_path, monkeypatch, execution):
+        store, record, signals = prepare(tmp_path, monkeypatch)
+        profit_pending(signals, execution)
+        before = prior.snapshot(store.root)
+&gt;       with pytest.raises(RuntimeError, match='下一|交易日|执行|profit|3倍|三倍'):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;
+
+test_icim_b3adv_state_20261021.py:231: Failed</failure></testcase><testcase classname="test_icim_b3adv_state_20261021" name="test_new_profit_plan_on_actual_next_session_can_persist" time="0.028" /></testsuite></testsuites>

@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="5" time="3.727" timestamp="2026-10-21T19:45:37.354110+08:00" hostname="DESKTOP-95I7VVU"><testcase classname="" name="test_no_evidence_context_preserves_provider_keyword_signature" time="0.001" /><testcase classname="" name="test_same_day_snapshot_cannot_bind_requested_security_to_a_different_contract" time="0.278" /><testcase classname="" name="test_original_closed_at_after_session_never_becomes_original_day_evidence" time="0.136" /><testcase classname="" name="test_missing_candidate_month_never_uses_current_chain" time="0.210" /><testcase classname="" name="test_freeze_then_original_monthly_evidence_can_replay_and_advance_two_sessions" time="1.186"><failure message="RuntimeError: 账本写入时间必须位于真实信号生成至独立校验区间">tmp_path = WindowsPath('D:/动量策略/IC和IM滚动套利/quant_research_runs/20261021_expert_round3_repairs_v1/audit_recovery/temp_03/test_freeze_then_original_mont0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000002798E79E9C0&gt;
+
+    def test_freeze_then_original_monthly_evidence_can_replay_and_advance_two_sessions(tmp_path, monkeypatch):
+        store, current = temporary_store(tmp_path / "ledger")
+        monkeypatch.setattr(bot, "LIVE_CONTINUATION_ANCHOR", state.anchors_from_record(current))
+        root = tmp_path / "evidence"
+        for day in [DAY, NEXT]:
+            for product in ["IC", "IM"]:
+                archive(monkeypatch, root, product, day)
+        fake_wall(monkeypatch, date(2026, 11, 24))
+        monkeypatch.setenv("ICIM_EVIDENCE_DIR", str(root))
+        before = current["digest"]
+        with bot.historical_replay(DAY):
+            diagnostic = bot.build_live_trade_signal("IC", clock(DAY, 15, 20), "close")
+        assert diagnostic["diagnostic_only"] is True
+        with pytest.raises(RuntimeError):
+            store.append_confirmed_signals(current, {"IC": diagnostic, "IM": diagnostic})
+        assert store.load_latest()["digest"] == before
+        # Explicitly synthetic oracle extension: not a claim about real 2027 holidays.
+        monkeypatch.setattr(bot, "_OFFICIAL_EXCHANGE_CALENDAR_YEARS", set(bot._OFFICIAL_EXCHANGE_CALENDAR_YEARS) | {2027})
+        for day in [DAY, NEXT]:
+            bot.install_runtime_anchors(state.anchors_from_record(current))
+            with bot.historical_replay(day):
+                signals = {product: bot.build_live_trade_signal(product, clock(day, 15, 20), "close")
+                           for product in ["IC", "IM"]}
+            for product, signal in signals.items():
+                assert not signal.get("diagnostic_only"), (product, signal)
+                assert signal["signal_complete"] is True and signal["persistence_eligible"] is True
+                assert signal["signal_generation_timing"] == "retrospective_replay"
+            if day == DAY:
+                assert signals["IC"]["option_monthly_reset_due"] is True
+                assert signals["IC"]["put_target_contract"].startswith("510500P2703")
+                assert signals["IM"]["put_target_contract"].startswith("MO2703")
+&gt;           current = store.append_confirmed_signals(current, signals)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_icim_round3_recovery_audit_20261021.py:216: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_v1_4_state.py:1504: in append_confirmed_signals
+    return self._append_locked(current, signals)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+poe_ic_im_v1_4_state.py:1523: in _append_locked
+    _validate_record(record)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+record = {'digest': '9a819b079b9d277e9c4419499255e71c3b6d6969903ef4adde809fc1e0e7fcaf', 'previous_digest': 'd7a6e69fd94c455e9ac...MO2608-C-8800', 'call_equivalent_units': 0.5, 'call_mark': 0.8, 'call_strike': 8800.0, ...}}, 'schema_version': 4, ...}
+
+    def _validate_record(record: dict[str, Any]) -&gt; None:
+        if int(record.get("schema_version", -1)) != SCHEMA_VERSION:
+            raise RuntimeError("Poe账本schema_version不受支持")
+        if str(record.get("strategy_version", "")) != STRATEGY_VERSION:
+            raise RuntimeError("Poe账本strategy_version不是独立v1.4，禁止续写旧账本")
+        if str(record.get("strategy_revision", "")) != STRATEGY_REVISION:
+            raise RuntimeError("Poe账本strategy_revision不是r1，禁止续写旧版账本")
+        sequence = record.get("sequence")
+        if not isinstance(sequence, int) or isinstance(sequence, bool) or sequence &lt; 0:
+            raise RuntimeError("Poe账本sequence必须为非负整数")
+        if set(record.get("products", {})) != set(PRODUCTS):
+            raise RuntimeError("Poe账本必须同时包含IC和IM")
+        expected = str(record.get("digest", ""))
+        actual = _digest(record)
+        if not expected or expected != actual:
+            raise RuntimeError("Poe账本SHA-256校验失败")
+        signals = record.get("signals", {})
+        if signals:
+            if not isinstance(signals, dict) or set(signals) != set(PRODUCTS):
+                raise RuntimeError("Poe账本信号必须同时包含IC和IM")
+            for product in PRODUCTS:
+                validate_delivery_values(signals[product], product, historical_record=True)
+                signal = signals[product]
+                if (signal.get("market_date") is not None
+                        and _as_day(signal.get("market_date"), "账本信号日") &gt;= strategy.fear_grid.CLOSE_FALLBACK_EFFECTIVE_DATE
+                        and signal.get("signal_generated_at") is not None):
+                    generated = datetime.fromisoformat(str(signal["signal_generated_at"]))
+                    written = datetime.fromisoformat(str(record.get("updated_at")))
+                    checked = strategy.fear_grid._validation_clock()
+                    if (generated.tzinfo is None or written.tzinfo is None
+                            or not generated &lt;= written &lt;= checked):
+&gt;                       raise RuntimeError("账本写入时间必须位于真实信号生成至独立校验区间")
+E                       RuntimeError: 账本写入时间必须位于真实信号生成至独立校验区间
+
+poe_ic_im_v1_4_state.py:109: RuntimeError</failure></testcase></testsuite></testsuites>

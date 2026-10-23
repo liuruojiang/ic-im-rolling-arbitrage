@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="3" skipped="0" tests="16" time="10.728" timestamp="2026-10-21T17:24:09.552338+08:00" hostname="DESKTOP-95I7VVU"><testcase classname="test_icim_b3adv_market_20261021" name="test_actual_three_source_aggregation_preserves_daily_wait_status[IC]" time="0.971"><failure message="RuntimeError: IC OHLCV全部来源失败：Sina: DailyOHLCVNotReady: IC OHLCV已过期：最新 2026-10-20，应覆盖 2026-10-21；等待当日完整日线（含成交量）更新，暂停收盘确认；Eastmoney: DailyOHLCVNotReady: IC OHLCV已过期：最新 2026-10-20，应覆盖 2026-10-21；等待当日完整日线（含成交量）更新，暂停收盘确认；Tencent: DailyOHLCVNotReady: IC OHLCV已过期：最新 2026-10-20，应覆盖 2026-10-21；等待当日完整日线（含成交量）更新，暂停收盘确认">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x00000126066E42B0&gt;
+product = 'IC'
+
+    @pytest.mark.parametrize('product', ['IC', 'IM'])
+    def test_actual_three_source_aggregation_preserves_daily_wait_status(monkeypatch, product):
+        _, calls, _ = source_parsers(monkeypatch, product)
+        with pytest.raises(bot.DailyOHLCVNotReady) as caught:
+&gt;           bot.build_live_trade_signal(product, CLOCK, 'close')
+
+test_icim_b3adv_market_20261021.py:98: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_mainline_v1_4_bot.py:6019: in build_live_trade_signal
+    return _build_live_trade_signal(product, clock, mode)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+poe_ic_im_mainline_v1_4_bot.py:6037: in _build_live_trade_signal
+    live = live_proxy(product, clock)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+poe_ic_im_mainline_v1_4_bot.py:2556: in live_proxy
+    ohlcv = _validate_v13_ohlcv(product, fetch_ohlcv_history(product), clock)
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+product = 'IC'
+
+    def fetch_ohlcv_history(product: str) -&gt; pd.DataFrame:
+        """Fetch raw daily index OHLCV using the A-share v1.3 source order."""
+    
+        symbol = TENCENT_SYMBOLS[product]
+        errors: list[str] = []
+        causes: list[Exception] = []
+        try:
+            response = requests.get(
+                "https://money.finance.sina.com.cn/quotes_service/api/json_v2.php"
+                f"/CN_MarketData.getKLineData?symbol={symbol}&amp;scale=240&amp;ma=no&amp;datalen=10000",
+                timeout=_bounded_timeout(10),
+                headers={"User-Agent": "Mozilla/5.0", "Referer": "https://finance.sina.com.cn/"},
+            )
+            response.raise_for_status()
+            payload = response.json()
+            rows = [
+                {
+                    "date": item["day"],
+                    "open": float(item["open"]),
+                    "high": float(item["high"]),
+                    "low": float(item["low"]),
+                    "close": float(item["close"]),
+                    "volume": float(item["volume"]),
+                }
+                for item in payload
+            ]
+            if len(rows) &gt;= 180:
+                frame = pd.DataFrame(rows).assign(date=lambda x: pd.to_datetime(x["date"])).set_index("date").sort_index()
+                frame.attrs["source"] = "Sina"
+                _validate_v13_ohlcv(product, frame, _now_beijing())
+                return frame
+            raise RuntimeError("Sina OHLCV不足180行")
+        except Exception as exc:
+            errors.append(f"Sina: {type(exc).__name__}: {exc}")
+            causes.append(exc)
+        try:
+            payload = _request_json(
+                "https://push2his.eastmoney.com/api/qt/stock/kline/get",
+                {
+                    "secid": EASTMONEY_SECIDS[product],
+                    "klt": "101",
+                    "fqt": "0",
+                    "lmt": "10000",
+                    "end": "20500101",
+                    "fields1": "f1,f2,f3,f4,f5,f6",
+                    "fields2": "f51,f52,f53,f54,f55,f56,f57",
+                    "ut": "fa5fd1943c7b386f172d6893dbfba10b",
+                },
+            )
+            klines = (payload.get("data") or {}).get("klines") or []
+            rows = []
+            for row in klines:
+                parts = str(row).split(",")
+                if len(parts) &lt; 6:
+                    raise RuntimeError("Eastmoney OHLCV字段不足")
+                rows.append(
+                    {
+                        "date": parts[0], "open": float(parts[1]), "close": float(parts[2]),
+                        "high": float(parts[3]), "low": float(parts[4]), "volume": float(parts[5]),
+                    }
+                )
+            if len(rows) &gt;= 180:
+                frame = pd.DataFrame(rows).assign(date=lambda x: pd.to_datetime(x["date"])).set_index("date").sort_index()
+                frame.attrs["source"] = "Eastmoney"
+                _validate_v13_ohlcv(product, frame, _now_beijing())
+                frame.attrs["source_failures"] = list(errors)
+                return frame
+            raise RuntimeError("Eastmoney OHLCV不足180行")
+        except Exception as exc:
+            errors.append(f"Eastmoney: {type(exc).__name__}: {exc}")
+            causes.append(exc)
+        try:
+            frame = _fetch_tencent_ohlcv_history(product, _now_beijing())
+            frame.attrs["source_failures"] = list(errors)
+            return frame
+        except Exception as exc:
+            errors.append(f"Tencent: {type(exc).__name__}: {exc}")
+            causes.append(exc)
+        error_type = SignalTransportError if causes and all(
+            isinstance(exc, (requests.ConnectionError, requests.Timeout)) for exc in causes
+        ) else RuntimeError
+&gt;       raise error_type(f"{product} OHLCV全部来源失败：{'；'.join(errors)}")
+E       RuntimeError: IC OHLCV全部来源失败：Sina: DailyOHLCVNotReady: IC OHLCV已过期：最新 2026-10-20，应覆盖 2026-10-21；等待当日完整日线（含成交量）更新，暂停收盘确认；Eastmoney: DailyOHLCVNotReady: IC OHLCV已过期：最新 2026-10-20，应覆盖 2026-10-21；等待当日完整日线（含成交量）更新，暂停收盘确认；Tencent: DailyOHLCVNotReady: IC OHLCV已过期：最新 2026-10-20，应覆盖 2026-10-21；等待当日完整日线（含成交量）更新，暂停收盘确认
+
+poe_ic_im_mainline_v1_4_bot.py:2514: RuntimeError</failure></testcase><testcase classname="test_icim_b3adv_market_20261021" name="test_actual_three_source_aggregation_preserves_daily_wait_status[IM]" time="0.527"><failure message="RuntimeError: IM OHLCV全部来源失败：Sina: DailyOHLCVNotReady: IM OHLCV已过期：最新 2026-10-20，应覆盖 2026-10-21；等待当日完整日线（含成交量）更新，暂停收盘确认；Eastmoney: DailyOHLCVNotReady: IM OHLCV已过期：最新 2026-10-20，应覆盖 2026-10-21；等待当日完整日线（含成交量）更新，暂停收盘确认；Tencent: DailyOHLCVNotReady: IM OHLCV已过期：最新 2026-10-20，应覆盖 2026-10-21；等待当日完整日线（含成交量）更新，暂停收盘确认">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x00000126066E4B00&gt;
+product = 'IM'
+
+    @pytest.mark.parametrize('product', ['IC', 'IM'])
+    def test_actual_three_source_aggregation_preserves_daily_wait_status(monkeypatch, product):
+        _, calls, _ = source_parsers(monkeypatch, product)
+        with pytest.raises(bot.DailyOHLCVNotReady) as caught:
+&gt;           bot.build_live_trade_signal(product, CLOCK, 'close')
+
+test_icim_b3adv_market_20261021.py:98: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_mainline_v1_4_bot.py:6019: in build_live_trade_signal
+    return _build_live_trade_signal(product, clock, mode)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+poe_ic_im_mainline_v1_4_bot.py:6037: in _build_live_trade_signal
+    live = live_proxy(product, clock)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+poe_ic_im_mainline_v1_4_bot.py:2556: in live_proxy
+    ohlcv = _validate_v13_ohlcv(product, fetch_ohlcv_history(product), clock)
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+product = 'IM'
+
+    def fetch_ohlcv_history(product: str) -&gt; pd.DataFrame:
+        """Fetch raw daily index OHLCV using the A-share v1.3 source order."""
+    
+        symbol = TENCENT_SYMBOLS[product]
+        errors: list[str] = []
+        causes: list[Exception] = []
+        try:
+            response = requests.get(
+                "https://money.finance.sina.com.cn/quotes_service/api/json_v2.php"
+                f"/CN_MarketData.getKLineData?symbol={symbol}&amp;scale=240&amp;ma=no&amp;datalen=10000",
+                timeout=_bounded_timeout(10),
+                headers={"User-Agent": "Mozilla/5.0", "Referer": "https://finance.sina.com.cn/"},
+            )
+            response.raise_for_status()
+            payload = response.json()
+            rows = [
+                {
+                    "date": item["day"],
+                    "open": float(item["open"]),
+                    "high": float(item["high"]),
+                    "low": float(item["low"]),
+                    "close": float(item["close"]),
+                    "volume": float(item["volume"]),
+                }
+                for item in payload
+            ]
+            if len(rows) &gt;= 180:
+                frame = pd.DataFrame(rows).assign(date=lambda x: pd.to_datetime(x["date"])).set_index("date").sort_index()
+                frame.attrs["source"] = "Sina"
+                _validate_v13_ohlcv(product, frame, _now_beijing())
+                return frame
+            raise RuntimeError("Sina OHLCV不足180行")
+        except Exception as exc:
+            errors.append(f"Sina: {type(exc).__name__}: {exc}")
+            causes.append(exc)
+        try:
+            payload = _request_json(
+                "https://push2his.eastmoney.com/api/qt/stock/kline/get",
+                {
+                    "secid": EASTMONEY_SECIDS[product],
+                    "klt": "101",
+                    "fqt": "0",
+                    "lmt": "10000",
+                    "end": "20500101",
+                    "fields1": "f1,f2,f3,f4,f5,f6",
+                    "fields2": "f51,f52,f53,f54,f55,f56,f57",
+                    "ut": "fa5fd1943c7b386f172d6893dbfba10b",
+                },
+            )
+            klines = (payload.get("data") or {}).get("klines") or []
+            rows = []
+            for row in klines:
+                parts = str(row).split(",")
+                if len(parts) &lt; 6:
+                    raise RuntimeError("Eastmoney OHLCV字段不足")
+                rows.append(
+                    {
+                        "date": parts[0], "open": float(parts[1]), "close": float(parts[2]),
+                        "high": float(parts[3]), "low": float(parts[4]), "volume": float(parts[5]),
+                    }
+                )
+            if len(rows) &gt;= 180:
+                frame = pd.DataFrame(rows).assign(date=lambda x: pd.to_datetime(x["date"])).set_index("date").sort_index()
+                frame.attrs["source"] = "Eastmoney"
+                _validate_v13_ohlcv(product, frame, _now_beijing())
+                frame.attrs["source_failures"] = list(errors)
+                return frame
+            raise RuntimeError("Eastmoney OHLCV不足180行")
+        except Exception as exc:
+            errors.append(f"Eastmoney: {type(exc).__name__}: {exc}")
+            causes.append(exc)
+        try:
+            frame = _fetch_tencent_ohlcv_history(product, _now_beijing())
+            frame.attrs["source_failures"] = list(errors)
+            return frame
+        except Exception as exc:
+            errors.append(f"Tencent: {type(exc).__name__}: {exc}")
+            causes.append(exc)
+        error_type = SignalTransportError if causes and all(
+            isinstance(exc, (requests.ConnectionError, requests.Timeout)) for exc in causes
+        ) else RuntimeError
+&gt;       raise error_type(f"{product} OHLCV全部来源失败：{'；'.join(errors)}")
+E       RuntimeError: IM OHLCV全部来源失败：Sina: DailyOHLCVNotReady: IM OHLCV已过期：最新 2026-10-20，应覆盖 2026-10-21；等待当日完整日线（含成交量）更新，暂停收盘确认；Eastmoney: DailyOHLCVNotReady: IM OHLCV已过期：最新 2026-10-20，应覆盖 2026-10-21；等待当日完整日线（含成交量）更新，暂停收盘确认；Tencent: DailyOHLCVNotReady: IM OHLCV已过期：最新 2026-10-20，应覆盖 2026-10-21；等待当日完整日线（含成交量）更新，暂停收盘确认
+
+poe_ic_im_mainline_v1_4_bot.py:2514: RuntimeError</failure></testcase><testcase classname="test_icim_b3adv_market_20261021" name="test_actual_parser_failure_does_not_poison_next_completed_snapshot[IC]" time="1.205" /><testcase classname="test_icim_b3adv_market_20261021" name="test_actual_parser_failure_does_not_poison_next_completed_snapshot[IM]" time="0.662" /><testcase classname="test_icim_b3adv_market_20261021" name="test_real_bad_primary_good_secondary_keeps_secondary_source[IC]" time="0.348" /><testcase classname="test_icim_b3adv_market_20261021" name="test_real_bad_primary_good_secondary_keeps_secondary_source[IM]" time="0.201" /><testcase classname="test_icim_b3adv_market_20261021" name="test_all_real_source_lag_keeps_observer_and_temp_ledger_empty[execute_query]" time="1.603" /><testcase classname="test_icim_b3adv_market_20261021" name="test_all_real_source_lag_keeps_observer_and_temp_ledger_empty[catch_up_once]" time="1.422" /><testcase classname="test_icim_b3adv_market_20261021" name="test_vip_file_changes_are_resolved_per_call_without_sticky_actual[IC]" time="0.035" /><testcase classname="test_icim_b3adv_market_20261021" name="test_vip_file_changes_are_resolved_per_call_without_sticky_actual[IM]" time="0.004" /><testcase classname="test_icim_b3adv_market_20261021" name="test_future_vip_cannot_be_used_then_becomes_actual_at_same_instant[zone0-IC]" time="0.002" /><testcase classname="test_icim_b3adv_market_20261021" name="test_future_vip_cannot_be_used_then_becomes_actual_at_same_instant[zone0-IM]" time="0.002" /><testcase classname="test_icim_b3adv_market_20261021" name="test_future_vip_cannot_be_used_then_becomes_actual_at_same_instant[zone1-IC]" time="0.002" /><testcase classname="test_icim_b3adv_market_20261021" name="test_future_vip_cannot_be_used_then_becomes_actual_at_same_instant[zone1-IM]" time="0.002" /><testcase classname="test_icim_b3adv_market_20261021" name="test_intraday_then_close_uses_fresh_vip_without_reusing_proxy[IC]" time="0.349"><failure message="assert False is True">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000001260AF912E0&gt;
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_d0f1f48a/pytest/test_intraday_then_close_uses_0')
+product = 'IC'
+
+    @pytest.mark.parametrize('product', ['IC', 'IM'])
+    def test_intraday_then_close_uses_fresh_vip_without_reusing_proxy(monkeypatch, tmp_path, product):
+        frame = vfixture.live_sources(monkeypatch, tmp_path, product)
+        morning = datetime(2026, 10, 21, 13, 30, tzinfo=bot.BEIJING)
+        monkeypatch.setattr(bot, 'fetch_live_price_quote', lambda _: dict(price=7800.,
+            source='synthetic same-day intraday', source_date=DAY, source_time='13:30:00'))
+        before = bot.live_proxy(product, morning)
+        close = bot.live_proxy(product, CLOCK)
+        assert before['valuation_provenance']['mode'] == 'proxy'
+        assert close['valuation_provenance']['mode'] == 'vip_actual'
+        assert close['score'] == 3.5
+&gt;       assert before['momentum_volume_placeholder'] is True
+E       assert False is True
+
+test_icim_b3adv_market_20261021.py:211: AssertionError</failure></testcase><testcase classname="test_icim_b3adv_market_20261021" name="test_intraday_then_close_uses_fresh_vip_without_reusing_proxy[IM]" time="0.176" /></testsuite></testsuites>

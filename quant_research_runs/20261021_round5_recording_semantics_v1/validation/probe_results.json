@@ -1,0 +1,58 @@
+{
+  "created_at": "2026-10-22T01:43:36.863914+00:00",
+  "results": [
+    {
+      "name": "sse_etf",
+      "url": "https://yunhq.sse.com.cn:32042/v1/sh1/list/self/510500",
+      "params": {
+        "select": "code,cpxxextendname,last,change,chg_rate,amp_rate,volume,amount,prev_close"
+      },
+      "started_at": "2026-10-22T01:43:32.810254+00:00",
+      "purpose": "actual_public_feed_probe",
+      "preopen_or_intraday_oracle": false,
+      "status": "failed",
+      "error_type": "ProxyError",
+      "error": "HTTPSConnectionPool(host='yunhq.sse.com.cn', port=32042): Max retries exceeded with url: /v1/sh1/list/self/510500?select=code%2Ccpxxextendname%2Clast%2Cchange%2Cchg_rate%2Camp_rate%2Cvolume%2Camount%2Cprev_close (Caused by ProxyError('Cannot connect to proxy.', TimeoutError('timed out')))",
+      "finished_at": "2026-10-22T01:43:36.863723+00:00",
+      "elapsed_seconds": 4.053
+    },
+    {
+      "name": "sse_tstyle",
+      "url": "https://yunhq.sse.com.cn:32042/v1/sho/list/tstyle/510500_11",
+      "params": {
+        "select": "contractid,last,chg_rate,presetpx,exepx,code",
+        "order": "contractid,ase"
+      },
+      "started_at": "2026-10-22T01:43:32.810915+00:00",
+      "purpose": "actual_public_feed_probe",
+      "preopen_or_intraday_oracle": false,
+      "status": "failed",
+      "error_type": "ProxyError",
+      "error": "HTTPSConnectionPool(host='yunhq.sse.com.cn', port=32042): Max retries exceeded with url: /v1/sho/list/tstyle/510500_11?select=contractid%2Clast%2Cchg_rate%2Cpresetpx%2Cexepx%2Ccode&order=contractid%2Case (Caused by ProxyError('Cannot connect to proxy.', TimeoutError('timed out')))",
+      "finished_at": "2026-10-22T01:43:36.863630+00:00",
+      "elapsed_seconds": 4.052
+    },
+    {
+      "name": "sina_mo_batch",
+      "url": "https://hq.sinajs.cn/etag.php",
+      "params": {
+        "list": "P_OP_mo2612P7200,P_OP_mo2703P7200"
+      },
+      "started_at": "2026-10-22T01:43:32.811193+00:00",
+      "purpose": "actual_public_feed_probe",
+      "preopen_or_intraday_oracle": false,
+      "status": "failed",
+      "error_type": "ProxyError",
+      "error": "HTTPSConnectionPool(host='hq.sinajs.cn', port=443): Max retries exceeded with url: /etag.php?list=P_OP_mo2612P7200%2CP_OP_mo2703P7200 (Caused by ProxyError('Cannot connect to proxy.', TimeoutError('timed out')))",
+      "finished_at": "2026-10-22T01:43:36.863513+00:00",
+      "elapsed_seconds": 4.052
+    }
+  ],
+  "inherited_proxy_preserved": true,
+  "tls_verification_preserved": true,
+  "strategy_imported": false,
+  "formal_ledger_written": false,
+  "runtime_environment_status_tool_available": false,
+  "policy_snapshot_available": false,
+  "limits": "Actual acquisition only; not an opening-session or source-semantics oracle."
+}

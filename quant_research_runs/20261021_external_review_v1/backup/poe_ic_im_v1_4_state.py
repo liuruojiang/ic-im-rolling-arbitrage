@@ -1,0 +1,1482 @@
+"""Durable, hash-chained research ledger for the IC/IM v1.4 research signal.
+
+The immutable constants in ``poe_ic_im_mainline_v1_3_bot.py`` are only a
+bootstrap checkpoint.  A server deployment loads ``latest.json`` before each
+query and appends one journal record after a fully confirmed close.  This keeps
+Poe restarts and new conversations independent from hard-coded calendar dates.
+"""
+
+from __future__ import annotations
+
+import hashlib
+import json
+import math
+import os
+import re
+import tempfile
+from contextlib import contextmanager
+from copy import deepcopy
+from datetime import date, datetime, time, timedelta
+from pathlib import Path
+from typing import Any
+
+import numpy as np
+import pandas as pd
+
+import ic_im_v1_4_policy as v14_policy
+import ic_im_put_execution_v1 as put_execution
+import poe_ic_im_mainline_v1_4_bot as strategy
+
+
+SCHEMA_VERSION = 4
+STRATEGY_VERSION = "1.4"
+STRATEGY_REVISION = "r1"
+STATE_ENV = "ICIM_STATE_DIR"
+DEFAULT_STATE_DIR = Path(__file__).resolve().parent / "runtime" / "ic_im_v1_4_r1"
+PRODUCTS = ("IC", "IM")
+
+
+def _jsonable(value: Any) -> Any:
+    if isinstance(value, (date, datetime)):
+        return value.isoformat()
+    if isinstance(value, (np.integer,)):
+        return int(value)
+    if isinstance(value, (np.floating,)):
+        number = float(value)
+        return number if math.isfinite(number) else None
+    if isinstance(value, pd.Timestamp):
+        return value.isoformat()
+    if isinstance(value, dict):
+        return {str(key): _jsonable(item) for key, item in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [_jsonable(item) for item in value]
+    if isinstance(value, float) and not math.isfinite(value):
+        return None
+    return value
+
+
+def _canonical_payload(record: dict[str, Any]) -> bytes:
+    payload = {key: value for key, value in record.items() if key != "digest"}
+    return json.dumps(
+        _jsonable(payload), ensure_ascii=False, sort_keys=True, separators=(",", ":")
+    ).encode("utf-8")
+
+
+def _digest(record: dict[str, Any]) -> str:
+    return hashlib.sha256(_canonical_payload(record)).hexdigest()
+
+
+def _decode_anchor(anchor: dict[str, Any]) -> dict[str, Any]:
+    decoded = dict(anchor)
+    for key, value in list(decoded.items()):
+        if key.endswith("_day") or key.endswith("_expiry"):
+            if isinstance(value, str) and value:
+                decoded[key] = date.fromisoformat(value[:10])
+    return decoded
+
+
+def _validate_record(record: dict[str, Any]) -> None:
+    if int(record.get("schema_version", -1)) != SCHEMA_VERSION:
+        raise RuntimeError("Poe账本schema_version不受支持")
+    if str(record.get("strategy_version", "")) != STRATEGY_VERSION:
+        raise RuntimeError("Poe账本strategy_version不是独立v1.4，禁止续写旧账本")
+    if str(record.get("strategy_revision", "")) != STRATEGY_REVISION:
+        raise RuntimeError("Poe账本strategy_revision不是r1，禁止续写旧版账本")
+    sequence = record.get("sequence")
+    if not isinstance(sequence, int) or isinstance(sequence, bool) or sequence < 0:
+        raise RuntimeError("Poe账本sequence必须为非负整数")
+    if set(record.get("products", {})) != set(PRODUCTS):
+        raise RuntimeError("Poe账本必须同时包含IC和IM")
+    expected = str(record.get("digest", ""))
+    actual = _digest(record)
+    if not expected or expected != actual:
+        raise RuntimeError("Poe账本SHA-256校验失败")
+    signals = record.get("signals", {})
+    if signals:
+        if not isinstance(signals, dict) or set(signals) != set(PRODUCTS):
+            raise RuntimeError("Poe账本信号必须同时包含IC和IM")
+        for product in PRODUCTS:
+            validate_delivery_values(signals[product], product, historical_record=True)
+            signal = signals[product]
+            if (signal.get("market_date") is not None
+                    and _as_day(signal.get("market_date"), "账本信号日") >= strategy.fear_grid.CLOSE_FALLBACK_EFFECTIVE_DATE
+                    and signal.get("signal_generated_at") is not None):
+                generated = datetime.fromisoformat(str(signal["signal_generated_at"]))
+                written = datetime.fromisoformat(str(record.get("updated_at")))
+                checked = strategy.fear_grid._validation_clock()
+                if (generated.tzinfo is None or written.tzinfo is None
+                        or not generated <= written <= checked):
+                    raise RuntimeError("账本写入时间必须位于真实信号生成至独立校验区间")
+    days: list[date] = []
+    for product in PRODUCTS:
+        anchor = _decode_anchor(record["products"][product])
+        v14_policy.validate_extension(product, anchor)
+        day = anchor.get("last_verified_day")
+        if not isinstance(day, date):
+            raise RuntimeError(f"{product}账本缺少last_verified_day")
+        days.append(day)
+        pending = anchor.get("v14_ordinary_put_pending")
+        if pending is not None:
+            if _as_day(pending.get("signal_day"), f"{product}普通Put计划日") != day:
+                raise RuntimeError(f"{product}普通Put待执行计划不属于账本核验日")
+            expected_execution = strategy._roll_forward_exchange_day(day + timedelta(days=1))
+            if _as_day(pending.get("execution_day"), f"{product}普通Put执行日") != expected_execution:
+                raise RuntimeError(f"{product}普通Put待执行计划未指向下一共同交易日")
+        if float(anchor.get("verified_grid_units", -1)) not in {0.0, 0.5, 1.0}:
+            raise RuntimeError(f"{product}账本网格状态非法")
+        if float(anchor.get("verified_next_grid_units", -1)) not in {0.0, 0.5, 1.0}:
+            raise RuntimeError(f"{product}账本下一交易日网格状态非法")
+        if day >= strategy.fear_grid.EFFECTIVE_SIGNAL_DATE:
+            for units_field, source_field in (
+                ("verified_grid_units", "verified_grid_entry_source"),
+                ("verified_next_grid_units", "verified_next_grid_entry_source"),
+            ):
+                units = float(anchor[units_field])
+                source = anchor.get(source_field)
+                if units not in {0.0, 0.5} or source not in strategy.fear_grid.SOURCES or (units == 0.0) != (source == "none"):
+                    raise RuntimeError(f"{product}账本网格仓位与入场来源不一致: {source_field}")
+    if len(set(days)) != 1:
+        raise RuntimeError("IC/IM账本核验日期不一致，禁止部分推进")
+    try:
+        verified_day = date.fromisoformat(str(record.get("verified_day", ""))[:10])
+    except ValueError as exc:
+        raise RuntimeError("Poe账本verified_day非法") from exc
+    if verified_day != days[0]:
+        raise RuntimeError("Poe账本顶层verified_day与逐腿锚点不一致")
+    allowed_weights = {0.0, 0.25, 0.5, 1.0}
+    for product in PRODUCTS:
+        anchor = record["products"][product]
+        for key in ("verified_momentum_weight", "verified_next_momentum_weight"):
+            value = float(anchor.get(key, math.nan))
+            allowed = allowed_weights if product == "IC" else {0.0, 0.5, 1.0}
+            if not math.isfinite(value) or value not in allowed:
+                raise RuntimeError(f"{product}账本{key}非法")
+        put_qty = float(anchor.get("verified_put_qty_normalized", math.nan))
+        if not math.isfinite(put_qty) or put_qty < 0.0:
+            raise RuntimeError(f"{product}账本Put数量非法")
+    ic = record["products"]["IC"]
+    if float(ic.get("verified_call_contracts_normalized", 0.0)) != 0.0:
+        raise RuntimeError("IC 1.3明确禁止Call，账本出现Call状态")
+    im = record["products"]["IM"]
+    if strategy.im_put_policy.active(verified_day):
+        validate_im_call_values(im.get("verified_call_contracts_normalized", 0.0),
+                                im.get("verified_call_contract"),
+                                im.get("verified_call_expiry"), im.get("verified_call_strike"))
+    core_put = _finite_float(
+        im.get("verified_core_put_qty_normalized"), "IM核心Put数量"
+    )
+    momentum_put = _finite_float(
+        im.get("verified_momentum_put_qty_normalized"), "IM动量Put数量"
+    )
+    total_put = _finite_float(
+        im.get("verified_total_put_qty_normalized"), "IM组合Put数量"
+    )
+    legacy_total = _finite_float(
+        im.get("verified_put_qty_normalized"), "IM兼容Put总数量"
+    )
+    parent_puts = im.get("verified_parent_puts")
+    if (
+        core_put < 0.0
+        or momentum_put < 0.0
+        or total_put < 0.0
+        or core_put > 2.0
+        or momentum_put > 2.0
+        or total_put > 4.0
+    ):
+        raise RuntimeError("IM核心/动量/组合Put数量超出合法域")
+    if not math.isclose(total_put, core_put + momentum_put, abs_tol=1e-12):
+        raise RuntimeError("IM组合Put数量不等于核心与动量之和")
+    if not math.isclose(legacy_total, total_put, abs_tol=1e-12):
+        raise RuntimeError("IM兼容Put总数量与双腿合计不一致")
+    if not isinstance(parent_puts, int) or isinstance(parent_puts, bool) or parent_puts not in {0, 1, 2, 3, 4}:
+        raise RuntimeError("IM父规则Put数量非法")
+    im_route_state = str(im.get("v14_route_state", "future"))
+    if im_route_state == "future":
+        if not math.isclose(core_put, 0.5 * parent_puts, abs_tol=1e-12):
+            raise RuntimeError("IM核心Put数量不等于0.5倍父规则目标")
+    elif core_put != 0.0 or float(im.get("verified_call_contracts_normalized", 0.0)) != 0.0:
+        raise RuntimeError("IM卖Put/恢复状态必须同步关闭核心Put与固定核心Call")
+    core_contract = im.get("post_core_put_contract")
+    momentum_contract = im.get("post_momentum_put_contract")
+    if core_put > 0.0 and not core_contract:
+        raise RuntimeError("IM核心Put非零但缺少独立合约")
+    if momentum_put > 0.0 and not momentum_contract:
+        raise RuntimeError("IM动量Put非零但缺少独立合约")
+    if momentum_put == 0.0 and momentum_contract not in (None, ""):
+        raise RuntimeError("IM动量Put为零但账本仍保留合约")
+
+
+def _as_day(value: Any, label: str) -> date:
+    try:
+        return value if isinstance(value, date) else date.fromisoformat(str(value)[:10])
+    except (TypeError, ValueError) as exc:
+        raise RuntimeError(f"{label}日期非法") from exc
+
+
+def _finite_float(value: Any, label: str) -> float:
+    try:
+        number = float(value)
+    except (TypeError, ValueError) as exc:
+        raise RuntimeError(f"{label}不是数值") from exc
+    if not math.isfinite(number):
+        raise RuntimeError(f"{label}不是有限数")
+    return number
+
+
+def validate_delivery_values(signal: dict[str, Any], product: str, *, historical_record: bool = False) -> None:
+    """Reject malformed boundary values before JSON can turn NaN into null.
+
+    Sparse historical bootstrap/test records may omit display exposures; when
+    present, exposures must be real finite nonnegative numbers. No optional
+    diagnostic metric is coerced into a trading value here.
+    """
+    if not historical_record:
+        validate_v14_new_signal(signal, product)
+    if type(signal.get("close_confirmed")) is not bool:
+        raise RuntimeError(f"{product} close_confirmed必须为布尔值")
+    for field in ("total_units_current", "total_units_target"):
+        if field in signal:
+            value = signal[field]
+            if isinstance(value, bool) or not isinstance(value, (int, float, np.integer, np.floating)):
+                raise RuntimeError(f"{product} {field}必须为数值")
+            if _finite_float(value, f"{product} {field}") < 0.0:
+                raise RuntimeError(f"{product} {field}不能为负数")
+    # Frozen older records can be sparse. From the published policy date,
+    # delivery and ledger writes share the same option boundary checks.
+    day = signal.get("market_date")
+    if day is not None and _as_day(day, "网格信号日") >= strategy.fear_grid.EFFECTIVE_SIGNAL_DATE:
+        validate_fear_grid_signal(signal, product)
+    validate_replay_plan_evidence(signal)
+    if product == "IM" and day is not None and strategy.im_put_policy.active(day):
+        if not historical_record:
+            validate_im_execution_fix_revision(signal)
+        validate_im_put_execution_evidence(signal)
+        validate_im_option_values(signal)
+
+
+def validate_replay_plan_evidence(signal: dict[str, Any]) -> None:
+    plan = signal.get("v14_ordinary_put_pending")
+    if (not isinstance(plan, dict)
+            or str(plan.get("signal_day"))[:10] != str(signal.get("market_date"))[:10]):
+        return
+    day = _as_day(signal.get("market_date"), "补录计划信号日")
+    if day < strategy.fear_grid.CLOSE_FALLBACK_EFFECTIVE_DATE:
+        return
+    replay = (signal.get("signal_generation_timing") == "retrospective_replay"
+              or signal.get("fear_data_status") == "retrospective_replay"
+              or signal.get("fear_fallback_timing") == "retrospective_replay"
+              or any(datetime.fromisoformat(str(signal[field])).astimezone(strategy.BEIJING).date() > day
+                     for field in ("fear_retrieved_at", "signal_generated_at")
+                     if signal.get(field) is not None))
+    if not replay:
+        return
+    if signal.get("signal_generation_timing") != "retrospective_replay":
+        raise RuntimeError("补录普通Put计划不得删除真实回放标识")
+    if plan.get("creation_timing") != "retrospective_replay" or plan.get("research_scope") != "retrospective_model_plan":
+        raise RuntimeError("补录普通Put计划缺少真实创建/回放身份")
+    stamps = [datetime.fromisoformat(str(value)) for value in (
+        signal.get("fear_retrieved_at"), plan.get("created_at"), signal.get("signal_generated_at"))]
+    if (any(stamp.tzinfo is None for stamp in stamps)
+            or not stamps[0] <= stamps[1] <= stamps[2] <= strategy.fear_grid._validation_clock()):
+        raise RuntimeError("补录普通Put计划创建时间不在真实采集至完成区间内")
+
+
+def validate_fear_grid_signal(signal: dict[str, Any], product: str) -> None:
+    day = _as_day(signal.get("market_date"), "网格信号日")
+    strategy.fear_grid.validate_observation_clock(signal)
+    if signal.get("grid_policy_revision") != strategy.grid_policy_revision(day):
+        raise RuntimeError(f"{product}恐慌网格规则身份不一致")
+    status = signal.get("fear_data_status")
+    if strategy.fear_grid.flexible_source(signal):
+        strategy.fear_grid.validate_source_evidence(signal)
+    else:
+        allowed = {"same_day_post_close", "retrospective_replay", "missing_published_history",
+                   strategy.fear_grid.CLOSE_FALLBACK_STATUS}
+        intraday_statuses = {"intraday_provisional", "intraday_unpublished",
+                             strategy.fear_grid.INTRADAY_FALLBACK_STATUS}
+        if status not in allowed | intraday_statuses:
+            raise RuntimeError(f"{product}恐慌数据状态非法")
+        if signal.get("close_confirmed") and status not in allowed:
+            raise RuntimeError(f"{product}未确认的恐慌读数不得进入收盘账本")
+        if signal.get("fear_source_url") != strategy.fear_grid.CSV_URL:
+            raise RuntimeError(f"{product}恐慌来源 URL 不匹配")
+        if re.fullmatch(r"[0-9a-f]{64}", str(signal.get("fear_csv_sha256", ""))) is None:
+            raise RuntimeError(f"{product}恐慌来源哈希无效")
+        stamps = {}
+        for field in ("fear_retrieved_at", "fear_page_updated_at"):
+            stamp = datetime.fromisoformat(str(signal.get(field, "")))
+            if stamp.tzinfo is None:
+                raise RuntimeError(f"{product} {field} 缺少时区")
+            stamps[field] = stamp.astimezone(strategy.fear_grid.BEIJING)
+        retrieved = stamps["fear_retrieved_at"]
+        page_updated = stamps["fear_page_updated_at"]
+        if page_updated > retrieved or day > retrieved.date():
+            raise RuntimeError(f"{product}恐慌来源时间晚于获取时刻")
+        if status == "same_day_post_close" and (
+            day != retrieved.date() or page_updated.date() != day or
+            page_updated.time() <= time(15, 0)
+        ):
+            raise RuntimeError(f"{product}恐慌同日收盘证据不成立")
+        if status in {"retrospective_replay", "missing_published_history"} and day >= retrieved.date():
+            raise RuntimeError(f"{product}恐慌历史回放状态与获取日期冲突")
+        if status in intraday_statuses and day != retrieved.date():
+            raise RuntimeError(f"{product}恐慌盘中状态与获取日期冲突")
+        fear = signal.get("fear_greed_index")
+        if fear is None:
+            if signal.get("fear_data_date") is not None or status not in {"missing_published_history", "intraday_unpublished"}:
+                raise RuntimeError(f"{product}恐慌缺值状态与日期不一致")
+        elif status == strategy.fear_grid.INTRADAY_FALLBACK_STATUS:
+            strategy.fear_grid.validate_intraday_fallback(signal)
+        elif status == strategy.fear_grid.CLOSE_FALLBACK_STATUS:
+            strategy.fear_grid.validate_close_fallback(signal)
+        elif _as_day(signal.get("fear_data_date"), "恐慌数据日") != day:
+            raise RuntimeError(f"{product}恐慌数据日不是本信号日")
+    fear = signal.get("fear_greed_index")
+    current = _finite_float(signal.get("grid_current"), f"{product}当前网格")
+    target = _finite_float(signal.get("grid_target"), f"{product}目标网格")
+    if strategy.fear_grid.flexible_source(signal) and fear is None:
+        units, source, reason = current, signal.get("grid_entry_source_current"), "fear_unavailable"
+    else:
+        units, source, reason = strategy.fear_grid.transition(
+            product, current, signal.get("grid_entry_source_current"),
+            _finite_float(signal.get("score"), f"{product}估值分"), fear,
+        )
+    if target != units or signal.get("grid_entry_source_target") != source:
+        raise RuntimeError(f"{product}恐慌网格目标或来源与规则不符")
+    if signal.get("grid_transition_reason") != reason:
+        raise RuntimeError(f"{product}恐慌网格原因与规则不符")
+    action = "ADD_GRID" if target > current else "EXIT_GRID" if target < current else "HOLD"
+    if signal.get("grid_action") != action:
+        raise RuntimeError(f"{product}恐慌网格动作与仓位变化不符")
+
+
+def validate_v14_new_signal(signal: dict[str, Any], product: str) -> None:
+    """Strict producer and route boundary for new writes, not frozen history."""
+    market_date = signal.get("market_date")
+    if not market_date:
+        raise RuntimeError(f"{product} v1.4信号缺少market_date")
+    expected_build_id, expected_rule_revision = v14_policy.identity_for_signal_day(market_date)
+    for field, expected in (
+        ("strategy_version", STRATEGY_VERSION),
+        ("strategy_revision", STRATEGY_REVISION),
+        ("v14_build_id", expected_build_id),
+        ("v14_rule_revision", expected_rule_revision),
+    ):
+        if signal.get(field) != expected:
+            raise RuntimeError(f"{product} v1.4生产器身份不匹配: {field}")
+    for field, default in v14_policy.default_extension(product).items():
+        if field not in signal:
+            if (not put_execution.active(market_date) and field in {
+                    "v14_short_put_open_pending", "v14_short_put_entry_price_day", "v14_short_put_cost_basis"}):
+                continue
+            raise RuntimeError(f"{product} v1.4信号缺少持久字段: {field}")
+        if isinstance(default, bool) and type(signal[field]) is not bool:
+            raise RuntimeError(f"{product} {field}必须为布尔值")
+        if field.endswith("_day") and signal[field] is not None:
+            _as_day(signal[field], f"{product} {field}")
+    v14_policy.validate_extension(product, signal)
+    if put_execution.active(market_date) and signal.get("v14_execution_revision") != put_execution.REVISION:
+        raise RuntimeError(f"{product} Put执行修订缺失或不一致")
+    short_open = signal.get("v14_short_put_open_pending")
+    if short_open is not None:
+        day = _as_day(market_date, "卖Put信号日")
+        expected_day = strategy._roll_forward_exchange_day(day + timedelta(days=1))
+        if (_as_day(short_open.get("signal_day"), "卖Put计划日") != day
+                or _as_day(short_open.get("execution_day"), "卖Put开盘执行日") != expected_day):
+            raise RuntimeError(f"{product} 卖Put待执行成本计划未指向下一交易日")
+    ordinary_status = signal.get("v14_ordinary_put_open_status")
+    if ordinary_status == "confirmed_open_research_price":
+        plan = signal.get("v14_ordinary_put_open_plan")
+        prices = signal.get("v14_ordinary_put_open_prices")
+        if not isinstance(plan, dict) or not isinstance(prices, list):
+            raise RuntimeError(f"{product}普通Put开盘确认缺少计划或报价")
+        if _as_day(plan.get("execution_day"), "普通Put执行日") != _as_day(market_date, "信号日"):
+            raise RuntimeError(f"{product}普通Put开盘确认跨日")
+        expected = {
+            (leg[f"{side}_contract"], leg.get(f"{side}_security_id"))
+            for leg in plan["legs"].values() for side in ("old", "new")
+            if leg.get("changed") and float(leg[f"{side}_qty"]) > 0
+        }
+        observed = set()
+        for item in prices:
+            if _as_day(item.get("price_day"), "普通Put开盘报价日") != _as_day(market_date, "信号日"):
+                raise RuntimeError(f"{product}普通Put报价日期不符")
+            if _option_number(item.get("openprice"), "普通Put开盘价") <= 0:
+                raise RuntimeError(f"{product}普通Put开盘价无效")
+            if not isinstance(item.get("source"), str) or not item["source"].strip():
+                raise RuntimeError(f"{product}普通Put开盘报价缺少来源")
+            identity = (item.get("contract"), item.get("security_id"))
+            if identity in observed:
+                raise RuntimeError(f"{product}普通Put同一合约开盘报价重复")
+            observed.add(identity)
+        if observed != expected:
+            raise RuntimeError(f"{product}普通Put开盘报价合约身份不符")
+    if (_as_day(signal["market_date"], f"{product}信号日") >= v14_policy.PROFIT_OPEN_EFFECTIVE_SIGNAL_DATE
+            and signal.get("v14_action") == "EXECUTE_CORE_PUT_PROFIT3X_REENTER"):
+        if signal.get("v14_profit_reentry_status") != "confirmed_open_research_price":
+            raise RuntimeError(f"{product} 新版3倍兑现未取得开盘模型证据")
+        if _as_day(signal.get("v14_profit_open_price_day"), f"{product}开盘价日期") != _as_day(signal["market_date"], f"{product}信号日"):
+            raise RuntimeError(f"{product} 3倍兑现开盘报价日期不符")
+        for field in ("v14_profit_exit_open_price", "v14_profit_reentry_entry_premium", "v14_profit_open_executed_qty"):
+            if _option_number(signal.get(field), f"{product} {field}") <= 0:
+                raise RuntimeError(f"{product} 3倍兑现缺少两腿正开盘价或目标量")
+        if not signal.get("v14_profit_open_old_contract") or not signal.get("v14_profit_open_executed_contract"):
+            raise RuntimeError(f"{product} 3倍兑现缺少旧/新开盘成交合约身份")
+        if _option_number(signal.get("v14_profit_open_old_qty"), f"{product}旧Put开盘卖出数量") <= 0:
+            raise RuntimeError(f"{product} 3倍兑现旧Put开盘卖出数量无效")
+        for field in ("v14_profit_open_old_source", "v14_profit_open_new_source"):
+            if not isinstance(signal.get(field), str) or not signal[field].strip():
+                raise RuntimeError(f"{product} 3倍兑现缺少旧/新开盘报价来源")
+        target_contract = signal.get("v14_core_put_contract" if product == "IC" else "core_put_target_contract")
+        target_qty = signal.get("v14_core_put_qty" if product == "IC" else "core_put_target_qty_normalized")
+        if (signal["v14_profit_open_executed_contract"] != target_contract
+                or not math.isclose(_option_number(signal["v14_profit_open_executed_qty"], "3倍兑现新Put数量"),
+                                    _option_number(target_qty, "3倍兑现核心Put目标数量"), rel_tol=0.0, abs_tol=1e-12)):
+            raise RuntimeError(f"{product} 3倍兑现开盘合约/数量与核心Put目标不一致")
+    _option_number(signal["v14_recovery_net_pnl"], f"{product}恢复净损益")
+    qty = _option_number(signal["v14_short_put_qty_normalized"], f"{product}卖Put数量")
+    route = signal["v14_route_state"]
+    if product == "IC":
+        core_qty = _option_number(signal.get("v14_core_put_qty"), "IC独立核心Put数量")
+        core_contract = signal.get("v14_core_put_contract")
+        core_security = signal.get("v14_core_put_security_id")
+        market_day = _as_day(signal.get("market_date"), "IC信号日")
+        if core_qty < 0 or not core_qty.is_integer():
+            raise RuntimeError("IC独立核心Put数量必须为非负整数")
+        if core_qty > 0:
+            if re.fullmatch(r"510500P\d{4}M\d{5}", str(core_contract or "")) is None or re.fullmatch(r"\d{8}", str(core_security or "")) is None:
+                raise RuntimeError("IC独立核心Put缺少有效合约/证券ID")
+            # v1.4 is forward-only from its effective signal date.  During
+            # backfill, the migrated v1.3 core leg is deliberately retained
+            # while the legacy signal may have a different target quantity.
+            # Once v1.4 is effective, the dedicated leg and target must agree.
+            if (
+                market_day >= v14_policy.EFFECTIVE_SIGNAL_DATE
+                and bool(signal.get("close_confirmed"))
+                and _option_number(signal.get("put_target_core_qty"), "IC核心Put目标数量") != core_qty
+            ):
+                raise RuntimeError("IC独立核心Put数量与核心目标不一致")
+        elif core_contract not in (None, "") or core_security not in (None, ""):
+            raise RuntimeError("IC独立核心Put为零但保留合约身份")
+        if route != "future" and core_qty != 0:
+            raise RuntimeError("IC卖Put/恢复状态禁止独立核心买Put")
+    if route != "future":
+        if not isinstance(signal.get("v14_cycle_id"), str) or not signal["v14_cycle_id"].strip():
+            raise RuntimeError(f"{product} v1.4活动周期缺少cycle id")
+        if not isinstance(signal.get("v14_last_event_id"), str) or not signal["v14_last_event_id"].strip():
+            raise RuntimeError(f"{product} v1.4活动周期缺少event id")
+        if _option_number(signal.get("call_target_qty_normalized", 0.0), f"{product} Call数量") != 0:
+            raise RuntimeError(f"{product}卖Put/恢复状态禁止固定核心Call")
+        if product == "IC":
+            for field in ("core_put_target_delta", "put_target_core_qty"):
+                if _option_number(signal.get(field), f"IC {field}") != 0:
+                    raise RuntimeError("IC卖Put/恢复状态禁止核心买Put")
+    if route == "short_put":
+        contract = str(signal.get("v14_short_put_contract") or "")
+        pattern = r"510500P(\d{2})(\d{2})M\d{5}" if product == "IC" else r"MO(\d{2})(\d{2})-P-\d+(?:\.\d+)?"
+        match = re.fullmatch(pattern, contract)
+        if match is None:
+            raise RuntimeError(f"{product}卖Put合约身份非法")
+        expiry = _as_day(signal.get("v14_short_put_expiry"), f"{product}卖Put到期日")
+        if (expiry.year, expiry.month) != (2000 + int(match[1]), int(match[2])):
+            raise RuntimeError(f"{product}卖Put到期日与合约月份不一致")
+        scheduled = (strategy._fourth_wednesday(expiry.year, expiry.month)
+                     if product == "IC" else strategy._third_friday(expiry.year, expiry.month))
+        if expiry != strategy._roll_forward_exchange_day(scheduled):
+            raise RuntimeError(f"{product}卖Put到期日与交易日历不一致")
+        if product == "IC" and re.fullmatch(r"\d{8}", str(signal.get("v14_short_put_security_id") or "")) is None:
+            raise RuntimeError("IC卖Put证券ID非法")
+        pending_cost = signal.get("v14_short_put_open_pending") is not None
+        premium = (None if pending_cost else
+                   _option_number(signal.get("v14_short_put_entry_premium"), f"{product}卖Put入场权利金"))
+        if qty <= 0 or (not pending_cost and premium <= 0):
+            raise RuntimeError(f"{product}卖Put数量/权利金必须为正")
+
+
+def validate_im_execution_fix_revision(signal: dict[str, Any]) -> None:
+    """Old records remain readable but cannot impersonate a newly fixed producer."""
+    if strategy.im_put_policy.active(signal["market_date"]):
+        if signal.get("im_execution_fix_revision") != strategy.IM_EXECUTION_FIX_REVISION:
+            raise RuntimeError("IM新写入/当前交付缺少已修复执行防线版本，禁止旧生产器继续交付")
+
+
+def _option_number(value: Any, label: str) -> float:
+    if isinstance(value, bool) or not isinstance(value, (int, float, np.integer, np.floating)):
+        raise RuntimeError(f"{label}必须为数值")
+    return _finite_float(value, label)
+
+
+def validate_im_call_values(quantity: Any, contract: Any, expiry: Any, strike: Any) -> None:
+    """A short Call requires one internally consistent listed-contract identity."""
+    qty = _option_number(quantity, "IM Call数量")
+    if qty not in {-1.0, 0.0}:
+        raise RuntimeError("IM Call数量超出合法域")
+    if qty == 0.0:
+        if contract not in (None, "") or expiry not in (None, "") or strike is not None:
+            raise RuntimeError("IM Call数量为零但仍保留合约/到期日/行权价")
+        return
+    match = re.fullmatch(r"MO\d{4}-C-(\d+(?:\.\d+)?)", str(contract or ""))
+    if match is None:
+        raise RuntimeError("IM Call非零但缺少有效MO Call合约")
+    target_strike = _option_number(strike, "IM Call行权价")
+    if target_strike <= 0 or not math.isclose(target_strike, float(match.group(1)), rel_tol=0.0, abs_tol=1e-12):
+        raise RuntimeError("IM Call行权价与合约不一致")
+    expiry_day = _as_day(expiry, "IM Call到期日")
+    try:
+        expected_expiry = strategy._third_friday(*strategy._contract_month(str(contract)))
+    except (TypeError, ValueError) as exc:
+        raise RuntimeError("IM Call合约到期月份非法") from exc
+    if expiry_day != expected_expiry:
+        raise RuntimeError("IM Call到期日与合约不一致")
+
+
+def validate_im_option_values(signal: dict[str, Any]) -> None:
+    """Validate numeric/identity invariants before nonfinite JSON coercion."""
+    for position in ("current", "target"):
+        quantities = {}
+        for sleeve, maximum in (("core", 2.0), ("momentum", 2.0), ("total", 4.0)):
+            field = f"{sleeve}_put_{position}_qty_normalized"
+            qty = _option_number(signal.get(field), f"IM {field}")
+            if not 0.0 <= qty <= maximum:
+                raise RuntimeError("IM期权目标/当前数量超出合法域")
+            quantities[sleeve] = qty
+            if sleeve != "total":
+                contract = signal.get(f"{sleeve}_put_{position}_contract")
+                if qty > 0 and re.fullmatch(r"MO\d{4}-P-\d+(?:\.\d+)?", str(contract or "")) is None:
+                    raise RuntimeError(f"IM {sleeve} Put{position}非零但缺少有效独立合约")
+                if sleeve == "momentum" and qty == 0 and contract not in (None, ""):
+                    raise RuntimeError("IM动量Put为零但仍保留合约")
+        if not math.isclose(quantities["total"], quantities["core"] + quantities["momentum"], rel_tol=0.0, abs_tol=1e-12):
+            raise RuntimeError(f"IM {position}组合Put数量不等于核心与动量之和")
+    parent = signal.get("v13_parent_puts_per_full_core")
+    if not isinstance(parent, int) or isinstance(parent, bool) or parent not in {0, 1, 2, 3, 4}:
+        raise RuntimeError("IM父规则Put数量非法")
+    route_state = str(signal.get("v14_route_state", "future"))
+    if route_state == "future":
+        if not math.isclose(float(signal["core_put_target_qty_normalized"]), 0.5 * parent, rel_tol=0.0, abs_tol=1e-12):
+            raise RuntimeError("IM核心Put目标不等于0.5倍父规则目标")
+    elif float(signal["core_put_target_qty_normalized"]) != 0.0:
+        raise RuntimeError("IM卖Put/恢复状态核心Put目标必须为0")
+    validate_im_call_values(signal.get("call_target_qty_normalized", 0.0),
+                            signal.get("call_target_contract"),
+                            signal.get("call_target_expiry"), signal.get("call_target_strike"))
+    if _as_day(signal.get("market_date"), "IM信号日") >= v14_policy.NO_CALL_EFFECTIVE_SIGNAL_DATE:
+        if signal.get("call_target_qty_normalized") != 0.0:
+            raise RuntimeError("fix6 IM新信号不得卖Call")
+        expected = "CLOSE_CALL" if signal.get("call_current_contract") and signal.get("call_has_position", True) else "HOLD"
+        if signal.get("call_action") != expected:
+            raise RuntimeError("fix6 IM Call退场动作与当前模型仓位不一致")
+
+
+def validate_im_put_execution_evidence(signal: dict[str, Any]) -> None:
+    """Reject a stale or internally inconsistent corrected Put signal."""
+    if signal.get("im_put_execution_revision") != strategy.IM_PUT_EXECUTION_REVISION:
+        raise RuntimeError("IM信号缺少已修正月度Put执行版本，禁止当作修复后结果交付")
+    if strategy.im_put_policy.active(signal["market_date"]):
+        if signal.get("im_put_policy_revision") != strategy.IM_PUT_POLICY_REVISION or signal.get("im_put_target_moneyness") != 1.02:
+            raise RuntimeError("IM新信号缺少MOM120/102%政策证据")
+        expected = strategy.im_put_policy.momentum_quantity(
+            signal["market_date"], signal.get("momentum_120"),
+            signal["momentum_next_weight"],
+            0.5 * float(signal["v13_parent_puts_per_full_core"]),
+        )
+        if not math.isclose(_finite_float(signal.get("momentum_put_target_qty_normalized"), "IM动量Put目标"), expected, abs_tol=1e-12):
+            raise RuntimeError("IM动量Put未按仅MOM120条件计算")
+    price = _finite_float(signal.get("put_reference_price"), "IM Put参考期货价格")
+    expected_reference = (signal.get("core_eod_contract")
+                          if signal.get("roll_confirmed") is True
+                          else signal.get("core_current"))
+    if price <= 0 or signal.get("put_reference_future") != expected_reference:
+        raise RuntimeError("IM Put行权价参考必须是已确认持有的策略期货，不能使用指数或未执行预告合约")
+    if type(signal.get("option_monthly_reset_due")) is not bool:
+        raise RuntimeError("IM月度Put重置标识缺失或非法")
+    if signal["option_monthly_reset_due"]:
+        _as_day(signal.get("put_monthly_reset_execution_date"), "IM月度Put计划日")
+        for sleeve in ("core", "momentum"):
+            qty = _finite_float(signal.get(f"{sleeve}_put_target_qty_normalized"), f"IM {sleeve} Put目标")
+            if qty > 0 and signal.get(f"{sleeve}_put_action") != "RESIZE_OR_ROLL":
+                raise RuntimeError(f"IM {sleeve} Put月度日必须重选，即使到期月与数量相同")
+def bootstrap_record() -> dict[str, Any]:
+    products = _jsonable(deepcopy(strategy.LIVE_CONTINUATION_ANCHOR))
+    for product in PRODUCTS:
+        products[product].update(_jsonable(v14_policy.default_extension(product)))
+    day = products["IC"]["last_verified_day"]
+    record: dict[str, Any] = {
+        "schema_version": SCHEMA_VERSION,
+        "strategy_version": STRATEGY_VERSION,
+        "strategy_revision": STRATEGY_REVISION,
+        "sequence": 0,
+        "verified_day": day,
+        "updated_at": datetime.now(strategy.BEIJING).isoformat(),
+        "previous_digest": None,
+        "products": products,
+        "signals": {},
+        "source": "v1_4_bootstrap_for_tests_only",
+        "genesis": {
+            "parent_strategy_version": "1.3",
+            "parent_strategy_revision": "r7",
+            "copied_parent_momentum_anchor": False,
+            "momentum_rule": {
+                "IC": "MA110_Mom24_W2_Abs20Blend_NAVDD6pct_half",
+                "IM": "MA35_Mom18_W2.5_Abs20Blend_Score150_VolumeMA160_0.85",
+            },
+            "build": strategy.BUILD_ID,
+            "im_put_ledgers": ["core_put", "momentum_put"],
+            "v14_policy_revision": v14_policy.RULE_REVISION,
+        },
+    }
+    record["digest"] = _digest(record)
+    _validate_record(record)
+    return record
+
+
+def anchors_from_record(record: dict[str, Any]) -> dict[str, dict[str, Any]]:
+    _validate_record(record)
+    anchors = {
+        product: _decode_anchor(deepcopy(record["products"][product]))
+        for product in PRODUCTS
+    }
+    # Recover exact sleeve quantities from the hash-verified signal, without
+    # rewriting old records or inferring held contracts from today's Delta.
+    signal = record.get("signals", {}).get("IC", {})
+    fields = ("put_target_core_qty", "put_target_momentum_qty")
+    pending = anchors["IC"].get("v14_ordinary_put_pending")
+    if all(key in signal for key in fields) and not pending:
+        anchors["IC"]["verified_core_put_qty"] = signal[fields[0]]
+        anchors["IC"]["verified_momentum_put_qty"] = signal[fields[1]]
+        signal_day = _as_day(signal.get("market_date"), "IC历史信号日")
+        recover_ic_ordinary_core_transition(anchors["IC"], signal, signal_day)
+    elif all(key in signal for key in fields):
+        recover_ic_ordinary_core_transition(
+            anchors["IC"], signal, _as_day(signal.get("market_date"), "IC历史信号日")
+        )
+    strategy._ic_current_quantity_breakdown(anchors["IC"])
+    v14_policy.validate_extension("IC", anchors["IC"])
+    return anchors
+
+
+def ic_ordinary_put_transition_identity_only(
+    signal: dict[str, Any], pending: Any | None = None
+) -> bool:
+    """Identify the one-time fix8/fix9 IC identity migration without a trade."""
+    if str(signal.get("product")) != "IC":
+        return False
+    try:
+        signal_day = _as_day(signal.get("market_date"), "IC普通Put信号日")
+        if signal_day != v14_policy.ORDINARY_PUT_OPEN_EFFECTIVE_SIGNAL_DATE:
+            return False
+        plan = pending if pending is not None else signal.get("v14_ordinary_put_pending")
+        execution_day = strategy._roll_forward_exchange_day(signal_day + timedelta(days=1))
+        if (
+            not isinstance(plan, dict)
+            or plan.get("product") != "IC"
+            or _as_day(plan.get("signal_day"), "IC普通Put计划日") != signal_day
+            or _as_day(plan.get("execution_day"), "IC普通Put执行日") != execution_day
+            or _as_day(signal.get("next_trade_date"), "IC下一交易日") != execution_day
+        ):
+            return False
+        legs = plan.get("legs")
+        if not isinstance(legs, dict) or set(legs) != {"core", "momentum"}:
+            return False
+        core, momentum = legs["core"], legs["momentum"]
+        if not isinstance(core, dict) or not isinstance(momentum, dict):
+            return False
+        current_qty = _option_number(signal.get("put_current_core_qty"), "IC当前核心Put数量")
+        target_qty = _option_number(signal.get("put_target_core_qty"), "IC目标核心Put数量")
+        current_momentum_qty = _option_number(
+            signal.get("put_current_momentum_qty"), "IC当前动量Put数量"
+        )
+        target_momentum_qty = _option_number(
+            signal.get("put_target_momentum_qty"), "IC目标动量Put数量"
+        )
+        target_contract = signal.get("put_target_contract")
+        target_security_id = signal.get("put_target_security_id")
+        current_contract = signal.get("put_current_contract")
+        current_security_id = signal.get("put_current_security_id")
+        return bool(
+            core.get("changed") is True
+            and core.get("old_contract") is None
+            and core.get("old_security_id") is None
+            and math.isclose(_option_number(core.get("old_qty"), "IC迁移旧核心Put数量"), 0.0, abs_tol=1e-12)
+            and current_qty > 0
+            and current_qty == target_qty
+            and isinstance(current_contract, str) and bool(current_contract)
+            and current_contract == target_contract
+            and (current_security_id is None or current_security_id == target_security_id)
+            and isinstance(target_contract, str) and bool(target_contract)
+            and isinstance(target_security_id, str) and bool(target_security_id)
+            and core.get("new_contract") == target_contract
+            and core.get("new_security_id") == target_security_id
+            and math.isclose(_option_number(core.get("new_qty"), "IC迁移新核心Put数量"), target_qty, abs_tol=1e-12)
+            and momentum.get("changed") is False
+            and momentum.get("old_contract") is None
+            and momentum.get("new_contract") is None
+            and momentum.get("old_security_id") is None
+            and momentum.get("new_security_id") is None
+            and math.isclose(_option_number(momentum.get("old_qty"), "IC迁移旧动量Put数量"), 0.0, abs_tol=1e-12)
+            and math.isclose(_option_number(momentum.get("new_qty"), "IC迁移新动量Put数量"), 0.0, abs_tol=1e-12)
+            and current_momentum_qty == target_momentum_qty == 0.0
+        )
+    except (RuntimeError, TypeError, ValueError):
+        return False
+
+
+def recover_ic_ordinary_core_transition(
+    anchor: dict[str, Any], signal: dict[str, Any], signal_day: date
+) -> bool:
+    """Project the verified pre-fix8 holding and remove its one known phantom plan."""
+    pending = anchor.get("v14_ordinary_put_pending")
+    transition_seed_day = strategy._roll_backward_exchange_day(
+        v14_policy.ORDINARY_PUT_OPEN_EFFECTIVE_SIGNAL_DATE - timedelta(days=1)
+    )
+    pre_effective = bool(
+        pending is None
+        and (
+            signal_day < v14_policy.EFFECTIVE_SIGNAL_DATE
+            or signal_day == transition_seed_day
+        )
+        and anchor.get("v14_route_state") == "future"
+    )
+    identity_only = ic_ordinary_put_transition_identity_only(signal, pending)
+    if not pre_effective and not identity_only:
+        return False
+    core_qty = _option_number(signal.get("put_target_core_qty"), "IC迁移核心Put目标数量")
+    if core_qty < 0 or not core_qty.is_integer() or (identity_only and core_qty <= 0):
+        raise RuntimeError("IC迁移核心Put目标数量非法")
+    anchor.update(
+        verified_core_put_qty=int(core_qty),
+        verified_momentum_put_qty=signal.get("put_target_momentum_qty"),
+        v14_core_put_contract=signal.get("put_target_contract") if core_qty > 0 else None,
+        v14_core_put_security_id=signal.get("put_target_security_id") if core_qty > 0 else None,
+        v14_core_put_qty=int(core_qty),
+        v14_core_put_entry_premium=None,
+        v14_core_put_profit3x_eligible=False,
+        v14_profit_pending=False,
+        v14_profit_trigger_day=None,
+        v14_profit_execution_day=None,
+    )
+    if identity_only:
+        anchor["v14_ordinary_put_pending"] = None
+    return True
+
+
+def validate_ordinary_put_plan(product: str, anchor: dict[str, Any],
+                               signal: dict[str, Any], signal_day: date) -> None:
+    """A changed ordinary target cannot be silently booked as a close fill."""
+    if (signal_day < v14_policy.ORDINARY_PUT_OPEN_EFFECTIVE_SIGNAL_DATE
+            or signal.get("option_monthly_reset_due")):
+        return
+    plan = signal.get("v14_ordinary_put_pending")
+    if product == "IC":
+        new_core_contract, new_core_security, new_core_qty = strategy._v14_ic_ordinary_core_target(signal)
+        expected_legs = {
+            "core": (anchor.get("v14_core_put_contract"), float(anchor.get("v14_core_put_qty", 0)),
+                     new_core_contract, new_core_qty),
+            "momentum": (anchor.get("post_put_contract") if float(anchor.get("verified_momentum_put_qty", 0)) > 0 else None,
+                         float(anchor.get("verified_momentum_put_qty", 0)),
+                         signal.get("put_target_contract") if float(signal.get("put_target_momentum_qty", 0)) > 0 else None,
+                         float(signal.get("put_target_momentum_qty", 0))),
+        }
+    else:
+        expected_legs = {
+            "core": (anchor.get("post_core_put_contract") if float(anchor.get("verified_core_put_qty_normalized", 0)) > 0 else None,
+                     float(anchor.get("verified_core_put_qty_normalized", 0)),
+                     signal.get("core_put_target_contract"), float(signal.get("core_put_target_qty_normalized", 0))),
+            "momentum": (anchor.get("post_momentum_put_contract") if float(anchor.get("verified_momentum_put_qty_normalized", 0)) > 0 else None,
+                         float(anchor.get("verified_momentum_put_qty_normalized", 0)),
+                         signal.get("momentum_put_target_contract"), float(signal.get("momentum_put_target_qty_normalized", 0))),
+        }
+    profit_core = v14_policy.profit_core_reference(product, anchor, signal)
+    if signal.get("v14_route_state") != "future":
+        expected_legs["core"] = (None, 0.0, None, 0.0)
+    elif profit_core is not None:
+        contract, security_id, qty = profit_core
+        expected_legs["core"] = (contract, qty, contract, qty)
+        if product == "IC":
+            new_core_security = security_id
+    changed = any(old_contract != new_contract or not math.isclose(old_qty, new_qty, abs_tol=1e-12)
+                  for old_contract, old_qty, new_contract, new_qty in expected_legs.values())
+    if changed and signal.get("v14_ordinary_put_plan_status") != "scheduled_t_plus_1_open":
+        raise RuntimeError(f"{product}普通Put目标变化缺少T收盘预选计划，禁止提前记账")
+    if plan is not None:
+        expected_execution_day = strategy._roll_forward_exchange_day(signal_day + timedelta(days=1))
+        if (
+            not isinstance(plan, dict)
+            or plan.get("product") != product
+            or _as_day(plan.get("signal_day"), f"{product}普通Put计划日") != signal_day
+            or _as_day(plan.get("execution_day"), f"{product}普通Put执行日") != expected_execution_day
+            or not isinstance(plan.get("legs"), dict)
+            or set(plan["legs"]) != set(expected_legs)
+        ):
+            raise RuntimeError(f"{product}普通Put预选计划品种/日期/腿结构不一致")
+        for name, (old_contract, old_qty, new_contract, new_qty) in expected_legs.items():
+            leg = plan["legs"][name]
+            if (leg["old_contract"] != old_contract or leg["new_contract"] != new_contract
+                    or not math.isclose(float(leg["old_qty"]), old_qty, abs_tol=1e-12)
+                    or not math.isclose(float(leg["new_qty"]), new_qty, abs_tol=1e-12)):
+                raise RuntimeError(f"{product}普通{name} Put预选身份与账本/目标不一致")
+            expected_changed = (
+                old_contract != new_contract
+                or not math.isclose(old_qty, new_qty, abs_tol=1e-12)
+            )
+            if type(leg.get("changed")) is not bool or leg["changed"] != expected_changed:
+                raise RuntimeError(f"{product}普通{name} Put变化标记与身份/数量不一致")
+            if product == "IC":
+                old_security = (anchor.get("v14_core_put_security_id") if name == "core"
+                                else anchor.get("post_put_security_id")) if old_qty > 0 else None
+                if name == "core" and profit_core is not None:
+                    old_security = profit_core[1]
+                new_security = (new_core_security if name == "core"
+                                else signal.get("put_target_security_id")) if new_qty > 0 else None
+                if (leg.get("old_security_id") != old_security
+                        or leg.get("new_security_id") != new_security):
+                    raise RuntimeError(f"IC普通{name} Put证券ID与账本/目标不一致")
+            elif leg.get("old_security_id") is not None or leg.get("new_security_id") is not None:
+                raise RuntimeError(f"IM普通{name} Put不应包含证券ID")
+
+
+def validate_profit_open_transition(product: str, anchor: dict[str, Any],
+                                    signal: dict[str, Any], signal_day: date) -> None:
+    """Bind a new paper execution to the prior close's exact committed plan."""
+    if (signal_day < v14_policy.PROFIT_OPEN_EFFECTIVE_SIGNAL_DATE
+            or signal.get("v14_action") != "EXECUTE_CORE_PUT_PROFIT3X_REENTER"):
+        return
+    if not anchor.get("v14_profit_pending"):
+        raise RuntimeError(f"{product} 3倍兑现缺少前日已保存的待执行计划")
+    trigger_day = _as_day(anchor.get("v14_profit_trigger_day"), "3倍兑现触发日")
+    if trigger_day < v14_policy.PROFIT_OPEN_EFFECTIVE_SIGNAL_DATE:
+        return  # Older pending events retain their original close-price clock.
+    expected_day = strategy._roll_forward_exchange_day(trigger_day + timedelta(days=1))
+    if (_as_day(anchor.get("v14_profit_execution_day"), "3倍兑现计划执行日") != expected_day
+            or signal_day != expected_day):
+        raise RuntimeError(f"{product} 3倍兑现未按已保存计划的下一共同交易日执行")
+    if signal.get("v14_profit_pending") or signal.get("v14_profit_execution_day") is not None:
+        raise RuntimeError(f"{product} 3倍兑现完成后仍保留待执行计划")
+    for side, executed_contract, executed_qty, planned_contract, planned_qty in (
+        ("旧", "v14_profit_open_old_contract", "v14_profit_open_old_qty",
+         "v14_profit_old_contract", "v14_profit_old_qty"),
+        ("新", "v14_profit_open_executed_contract", "v14_profit_open_executed_qty",
+         "v14_profit_reentry_contract", "v14_profit_reentry_qty"),
+    ):
+        if (signal.get(executed_contract) != anchor.get(planned_contract)
+                or not math.isclose(_option_number(signal.get(executed_qty), f"3倍兑现{side}Put执行数量"),
+                                    _option_number(anchor.get(planned_qty), f"3倍兑现{side}Put预选数量"),
+                                    rel_tol=0.0, abs_tol=1e-12)):
+            raise RuntimeError(f"{product} 3倍兑现{side}Put开盘身份/数量与前日预选计划不一致")
+    if (product == "IC"
+            and signal.get("v14_core_put_security_id") != anchor.get("v14_profit_reentry_security_id")):
+        raise RuntimeError("IC 3倍兑现新Put证券ID与前日预选计划不一致")
+
+
+def validate_short_cost_transition(product: str, projected: dict[str, Any],
+                                   signal: dict[str, Any]) -> None:
+    """The independently projected opening owns the held short leg and cost.
+
+    A new close plan may clear cost while awaiting its own next-day opening;
+    an expiry outcome may remove the leg. Neither can certify another cost.
+    """
+    pending = signal.get("v14_short_put_open_pending")
+    if pending is not None:
+        if (signal.get("v14_action") not in {"ENTER_SHORT_PUT", "ROLL_SHORT_PUT"}
+                or pending.get("action") != signal.get("v14_action")):
+            raise RuntimeError(f"{product} 卖Put新成本计划缺少新开或展期动作")
+        expected = put_execution.short_plan(
+            product, signal, projected,
+            {**signal, "v14_short_put_entry_premium": pending["signal_premium"]},
+            pending["action"],
+        )
+        for field in ("core_eod_contract", "required_quotes"):
+            if not put_execution.same_plan(pending.get(field), expected[field]):
+                raise RuntimeError(f"{product} 卖Put开盘计划未绑定当日已确认收盘期货及同步退出腿")
+        return
+    if signal.get("v14_route_state") == "short_put":
+        fields = ("v14_short_put_contract", "v14_short_put_security_id",
+                  "v14_short_put_qty_normalized", "v14_short_put_expiry", "v14_cycle_id",
+                  "v14_short_put_entry_premium", "v14_short_put_entry_price_day",
+                  "v14_short_put_cost_basis")
+        if projected.get("v14_route_state") != "short_put" or any(
+                not put_execution.same_plan(signal.get(k), projected.get(k)) for k in fields):
+            raise RuntimeError(f"{product} 卖Put持仓成本或日期与独立核验开盘投影不符")
+    elif any(signal.get(k) is not None for k in ("v14_short_put_entry_premium",
+             "v14_short_put_entry_price_day", "v14_short_put_cost_basis")):
+        raise RuntimeError(f"{product} 已退出卖Put不能保留已确认成本")
+    elif projected.get("v14_route_state") == "short_put":
+        # Preserve the existing settlement inputs/rules, while requiring an
+        # actual permitted expiry transition before discarding a held cost.
+        outcome = signal.get("v14_model_settlement_outcome", signal.get("v14_settlement_outcome"))
+        confirmed = bool(signal.get("v14_model_settlement_confirmed", signal.get("v14_settlement_confirmed")))
+        expiry = projected.get("v14_short_put_expiry")
+        target_route = ("future" if outcome == "expired_worthless" else
+                        "assigned_etf" if product == "IC" else "cash_wait")
+        target_action = {"expired_worthless": "SHORT_PUT_EXPIRE_WORTHLESS",
+                         "assigned": "SHORT_PUT_ASSIGNED"}.get(outcome)
+        if (not confirmed or expiry is None or target_action is None
+                or _as_day(signal["market_date"], "卖Put信号日") < _as_day(expiry, "卖Put到期日")
+                or signal.get("v14_action") != target_action
+                or signal.get("v14_route_state") != target_route):
+            raise RuntimeError(f"{product} 卖Put成本只能由已确认到期分支清除")
+
+
+def derive_next_anchors(
+    current: dict[str, Any], signals: dict[str, dict[str, Any]]
+) -> dict[str, dict[str, Any]]:
+    _validate_record(current)
+    if set(signals) != set(PRODUCTS):
+        raise RuntimeError("只有IC/IM均完整成功，才允许推进统一审计账本")
+    current_anchors = anchors_from_record(current)
+    signal_days = {signal.get("market_date") for signal in signals.values()}
+    if len(signal_days) != 1:
+        raise RuntimeError("IC/IM收盘信号日期不一致")
+    signal_day_raw = next(iter(signal_days))
+    signal_day = (
+        signal_day_raw
+        if isinstance(signal_day_raw, date)
+        else date.fromisoformat(str(signal_day_raw)[:10])
+    )
+    if signal_day >= strategy.fear_grid.EFFECTIVE_SIGNAL_DATE:
+        shared_fields = ("fear_greed_index", "fear_data_date", "fear_data_status",
+                         "fear_page_updated_at", "fear_csv_sha256",
+                         "fear_intraday_policy_revision", "fear_fallback_applied",
+                         "fear_previous_exchange_date", "fear_fallback_reason",
+                         "fear_close_policy_revision", "fear_fallback_timing",
+                         "fear_source_policy_revision", "fear_available_sources",
+                         "fear_selected_source", "fear_cross_validation", "fear_page_data_date",
+                         "fear_page_value", "fear_csv_latest_date", "fear_csv_latest_value", "fear_csv_observations")
+        if any(signals["IC"].get(field) != signals["IM"].get(field) for field in shared_fields):
+            raise RuntimeError("IC/IM恐慌数据来自不同版本，禁止共同写账")
+    previous_day = current_anchors["IC"]["last_verified_day"]
+    expected = strategy._roll_forward_exchange_day(previous_day + timedelta(days=1))
+    if signal_day != expected:
+        raise RuntimeError(
+            f"账本只能逐交易日推进：当前 {previous_day}，收到 {signal_day}，应为 {expected}"
+        )
+
+    # Use the same recovered runtime state for validation and for the successor
+    # record. This never rewrites the old hash-chained record; it only prevents
+    # a recognized identity-only migration from surviving as a phantom plan.
+    result = {
+        product: deepcopy(current_anchors[product])
+        for product in PRODUCTS
+    }
+    for product in PRODUCTS:
+        signal = signals[product]
+        validate_delivery_values(signal, product)
+        validate_profit_open_transition(product, current_anchors[product], signal, signal_day)
+        opening_plan = current_anchors[product].get("v14_ordinary_put_pending")
+        if signal.get("v14_ordinary_put_open_status") == "confirmed_open_research_price":
+            if not opening_plan or _jsonable(signal.get("v14_ordinary_put_open_plan")) != _jsonable(opening_plan):
+                raise RuntimeError(f"{product}普通Put开盘确认与既有待执行计划不一致")
+            if _as_day(opening_plan["execution_day"], "普通Put执行日") != signal_day:
+                raise RuntimeError(f"{product}普通Put开盘确认日期不符")
+            result[product] = v14_policy.project_ordinary_open(
+                product, result[product], opening_plan, signal["v14_ordinary_put_open_prices"]
+            )
+        if put_execution.active(signal_day):
+            events = signal.get("v14_opening_events")
+            if not isinstance(events, list):
+                raise RuntimeError(f"{product} 缺少独立开盘事件列表")
+            observed = set()
+            for event in events:
+                kind = event.get("kind")
+                if kind in observed:
+                    raise RuntimeError(f"{product} 重复开盘事件")
+                observed.add(kind)
+                if kind == "short_put":
+                    result[product] = put_execution.project_short_open(product, result[product], event, signal_day)
+                elif kind == "profit3x":
+                    expected_plan = put_execution.profit_plan(product, result[product], signal_day)
+                    if _jsonable(event.get("plan")) != _jsonable(expected_plan) or expected_plan is None:
+                        raise RuntimeError(f"{product} 三倍开盘事件与前日计划不符")
+                    if event.get("status") == "confirmed_open_research_price":
+                        result[product] = put_execution.project_profit_open(product, result[product], event, signal_day)
+                    elif event.get("status") != "closed_missing_open_price":
+                        raise RuntimeError(f"{product} 三倍开盘事件状态非法")
+                else:
+                    raise RuntimeError(f"{product} 未知开盘事件")
+            if current_anchors[product].get("v14_short_put_open_pending") and "short_put" not in observed:
+                raise RuntimeError(f"{product} 遗漏已承诺卖Put开盘计划")
+            if (put_execution.profit_plan(product, current_anchors[product], signal_day)
+                    and signal_day != strategy._third_friday(signal_day.year, signal_day.month)
+                    and "profit3x" not in observed):
+                raise RuntimeError(f"{product} 遗漏前日已承诺三倍开盘计划")
+        if str(signal.get("product")) != product:
+            raise RuntimeError(f"{product}信号产品标签不一致")
+        if not bool(signal.get("close_confirmed")):
+            raise RuntimeError(f"{product}尚未收盘确认，禁止写入审计账本")
+        if str(signal.get("market_phase")) != "收盘后":
+            raise RuntimeError(f"{product}仅允许收盘后信号写入账本")
+        if _as_day(signal.get("state_anchor_day"), f"{product} state_anchor_day") != previous_day:
+            raise RuntimeError(f"{product}信号未从当前账本锚点续接")
+        expected_next_day = strategy._roll_forward_exchange_day(signal_day + timedelta(days=1))
+        if _as_day(signal.get("next_trade_date"), f"{product} next_trade_date") != expected_next_day:
+            raise RuntimeError(f"{product}下一交易日不正确")
+        anchor = result[product]
+        prior_option_anchor = deepcopy(anchor)
+        short_open = signal.get("v14_short_put_open_pending")
+        if short_open is not None:
+            reference = short_open["previous_anchor"]
+            held_keys = ("v14_route_state", "post_core_contract", "v14_short_put_contract",
+                         "v14_short_put_security_id", "v14_short_put_qty_normalized",
+                         "v14_short_put_entry_premium", "v14_core_put_contract",
+                         "v14_core_put_security_id", "v14_core_put_qty", "post_core_put_contract",
+                         "verified_core_put_qty", "verified_core_put_qty_normalized")
+            if any(not put_execution.same_plan(reference.get(key), anchor.get(key)) for key in held_keys):
+                raise RuntimeError(f"{product} 卖Put待执行计划的旧持仓快照与已核验账本不一致")
+        validate_ordinary_put_plan(product, anchor, signal, signal_day)
+        if signal_day >= strategy.quarter_roll.EFFECTIVE_DATE:
+            held = str(anchor["post_core_contract"])
+            expected_plan = strategy.quarter_roll.roll_state(
+                product, held, [held, str(signal.get("next_core", ""))], signal_day, True,
+                lambda c: strategy._third_friday(*strategy._contract_month(c)),
+                strategy._is_exchange_trading_day,
+            )
+            for field in ("core_current", "core_target", "core_eod_contract", "roll_confirmed"):
+                if signal.get(field) != expected_plan[field]:
+                    raise RuntimeError(f"{product}季度换仓状态不一致: {field}")
+            if _as_day(signal.get("roll_execution_date"), "roll day") != expected_plan["roll_execution_date"]:
+                raise RuntimeError(f"{product}季度换仓执行日不一致")
+        if put_execution.active(signal_day):
+            validate_short_cost_transition(product, anchor, signal)
+        current_weight = _finite_float(signal.get("momentum_current_weight"), f"{product}当前动量权重")
+        next_weight = _finite_float(signal.get("momentum_next_weight"), f"{product}下一动量权重")
+        allowed = {0.0, 0.25, 0.5, 1.0} if product == "IC" else {0.0, 0.5, 1.0}
+        if current_weight not in allowed or next_weight not in allowed:
+            raise RuntimeError(f"{product}动量权重超出离散合法域")
+        if current_weight != float(anchor["verified_next_momentum_weight"]):
+            raise RuntimeError(f"{product}当前动量权重不等于前日下一执行权重")
+        current_grid = _finite_float(signal.get("grid_current"), f"{product}当前网格")
+        target_grid = _finite_float(signal.get("grid_target"), f"{product}目标网格")
+        if current_grid not in {0.0, 0.5, 1.0} or target_grid not in {0.0, 0.5, 1.0}:
+            raise RuntimeError(f"{product}网格状态非法")
+        if signal_day >= strategy.GRID_POLICY_EFFECTIVE_DATE:
+            if signal.get("grid_policy_revision") != strategy.grid_policy_revision(signal_day):
+                raise RuntimeError(f"{product}网格参数版本不匹配")
+            if target_grid not in {0.0, 0.5}:
+                raise RuntimeError(f"{product}新网格目标不得超过0.5倍")
+        if current_grid != float(anchor["verified_next_grid_units"]):
+            raise RuntimeError(f"{product}当前网格不等于前日下一执行网格")
+        if signal_day >= strategy.fear_grid.EFFECTIVE_SIGNAL_DATE:
+            expected_source = anchor.get("verified_next_grid_entry_source")
+            if expected_source is None:
+                if previous_day >= strategy.fear_grid.EFFECTIVE_SIGNAL_DATE:
+                    raise RuntimeError(f"{product}前一新版网格来源缺失")
+                expected_source = strategy.fear_grid.source_for_legacy_units(current_grid)
+            if signal.get("grid_entry_source_current") != expected_source:
+                raise RuntimeError(f"{product}当前网格来源未从前日账本延续")
+            anchor["verified_grid_entry_source"] = expected_source
+            anchor["verified_next_grid_entry_source"] = signal["grid_entry_source_target"]
+        anchor.update(
+            {
+                "last_verified_day": signal_day,
+                "post_core_contract": str(signal.get("core_eod_contract", signal["core_target"])),
+                "verified_momentum_weight": current_weight,
+                "verified_next_momentum_weight": next_weight,
+                "verified_grid_units": current_grid,
+                "verified_next_grid_units": target_grid,
+            }
+        )
+        if product == "IC":
+            put_target_contract = signal.get("put_target_contract")
+            if put_target_contract:
+                anchor["post_put_contract"] = str(put_target_contract)
+            target_qty_raw = _finite_float(signal.get("put_target_total_qty"), "IC Put数量")
+            if target_qty_raw < 0.0 or not target_qty_raw.is_integer():
+                raise RuntimeError("IC Put数量必须为非负整数")
+            target_qty = int(target_qty_raw)
+            core_delta = _finite_float(signal.get("core_put_target_delta"), "IC核心Put Delta")
+            momentum_delta = _finite_float(signal.get("momentum_put_target_delta"), "IC动量Put Delta")
+            total_delta = _finite_float(signal.get("total_put_target_delta"), "IC总Put Delta")
+            if min(core_delta, momentum_delta, total_delta) < 0.0 or max(core_delta, momentum_delta, total_delta) > 1.0:
+                raise RuntimeError("IC Put Delta超出0到1")
+            if not math.isclose(total_delta, core_delta + momentum_delta, abs_tol=1e-12):
+                raise RuntimeError("IC总Put Delta不等于核心与动量之和")
+            if _finite_float(signal.get("call_target_qty_normalized", 0.0), "IC Call数量") != 0.0:
+                raise RuntimeError("IC 1.3明确禁止Call")
+            target_security_id = signal.get("put_target_security_id")
+            anchor.update(
+                {
+                    "post_put_qty": float(target_qty),
+                    "verified_put_qty_normalized": float(target_qty),
+                    "verified_core_put_delta": core_delta,
+                    "verified_momentum_put_delta": momentum_delta,
+                    "verified_total_put_delta": total_delta,
+                    "verified_core_put_driver": str(signal["core_put_driver"]),
+                    "verified_momentum_put_driver": str(
+                        signal["momentum_put_driver"]
+                    ),
+                    "verified_call_contracts_normalized": 0.0,
+                }
+            )
+            if target_security_id:
+                anchor["post_put_security_id"] = str(target_security_id)
+            quantity_anchor = dict(anchor)
+            for field, signal_field in (
+                ("verified_core_put_qty", "put_target_core_qty"),
+                ("verified_momentum_put_qty", "put_target_momentum_qty"),
+            ):
+                quantity_anchor.pop(field, None)
+                if signal_field in signal:
+                    quantity_anchor[field] = signal[signal_field]
+            breakdown = strategy._ic_current_quantity_breakdown(quantity_anchor)
+            anchor["verified_core_put_qty"] = breakdown["core"]
+            anchor["verified_momentum_put_qty"] = breakdown["momentum"]
+        else:
+            # Historical r7 journal entries stay readable. New corrected signals
+            # carry their execution revision and are validated before append.
+            if signal_day >= date(2026, 9, 7) or "im_put_execution_revision" in signal:
+                validate_im_put_execution_evidence(signal)
+            validate_im_option_values(signal)
+            core_current = _finite_float(
+                signal.get("core_put_current_qty_normalized"), "IM当前核心Put数量"
+            )
+            momentum_current = _finite_float(
+                signal.get("momentum_put_current_qty_normalized"), "IM当前动量Put数量"
+            )
+            total_current = _finite_float(
+                signal.get("total_put_current_qty_normalized"), "IM当前组合Put数量"
+            )
+            core_put = _finite_float(
+                signal.get("core_put_target_qty_normalized"), "IM核心Put数量"
+            )
+            momentum_put = _finite_float(
+                signal.get("momentum_put_target_qty_normalized"), "IM动量Put数量"
+            )
+            total_put = _finite_float(
+                signal.get("total_put_target_qty_normalized"), "IM组合Put数量"
+            )
+            call_qty = _finite_float(signal.get("call_target_qty_normalized", 0.0), "IM Call数量")
+            parent_puts = signal.get("v13_parent_puts_per_full_core")
+            if (
+                core_put < 0.0
+                or core_put > 2.0
+                or momentum_put < 0.0
+                or momentum_put > 2.0
+                or total_put < 0.0
+                or total_put > 4.0
+                or call_qty not in {-1.0, 0.0}
+            ):
+                raise RuntimeError("IM期权目标数量超出合法域")
+            if not isinstance(parent_puts, int) or isinstance(parent_puts, bool) or parent_puts not in {0, 1, 2, 3, 4}:
+                raise RuntimeError("IM父规则Put数量非法")
+            if not math.isclose(core_current, float(anchor["verified_core_put_qty_normalized"]), abs_tol=1e-12):
+                raise RuntimeError("IM当前核心Put数量不等于账本锚点")
+            if not math.isclose(momentum_current, float(anchor["verified_momentum_put_qty_normalized"]), abs_tol=1e-12):
+                raise RuntimeError("IM当前动量Put数量不等于账本锚点")
+            if not math.isclose(total_current, core_current + momentum_current, abs_tol=1e-12):
+                raise RuntimeError("IM当前组合Put数量不等于核心与动量之和")
+            current_core_contract = signal.get("core_put_current_contract")
+            current_momentum_contract = signal.get("momentum_put_current_contract")
+            if current_core_contract != anchor.get("post_core_put_contract"):
+                raise RuntimeError("IM当前核心Put合约不等于账本锚点")
+            if current_momentum_contract != anchor.get("post_momentum_put_contract"):
+                raise RuntimeError("IM当前动量Put合约不等于账本锚点")
+            route_state = str(signal.get("v14_route_state", "future"))
+            if route_state == "future":
+                if not math.isclose(core_put, 0.5 * parent_puts, abs_tol=1e-12):
+                    raise RuntimeError("IM核心Put目标不等于0.5倍父规则目标")
+            elif core_put != 0.0 or call_qty != 0.0:
+                raise RuntimeError("IM卖Put/恢复状态必须同步关闭核心Put与固定核心Call")
+            expected_momentum = strategy.im_put_policy.momentum_quantity(
+                signal["market_date"], signal.get("momentum_120"), next_weight,
+                0.5 * parent_puts,
+            )
+            if not math.isclose(momentum_put, expected_momentum, abs_tol=1e-12):
+                raise RuntimeError("IM动量Put目标与对应日期的MOM120/历史规则不一致")
+            if not math.isclose(total_put, core_put + momentum_put, abs_tol=1e-12):
+                raise RuntimeError("IM组合Put目标不等于核心与动量之和")
+            core_contract = signal.get("core_put_target_contract")
+            momentum_contract = signal.get("momentum_put_target_contract")
+            if core_put > 0.0 and not core_contract:
+                raise RuntimeError("IM核心Put目标非零但缺少合约")
+            if momentum_put > 0.0 and not momentum_contract:
+                raise RuntimeError("IM动量Put目标非零但缺少独立合约")
+            if momentum_put == 0.0 and momentum_contract not in (None, ""):
+                raise RuntimeError("IM动量Put目标为零但仍保留合约")
+            previous_reset_value = anchor.get("verified_put_monthly_reset_date")
+            previous_reset = (
+                _as_day(previous_reset_value, "IM已记录月度Put事件")
+                if previous_reset_value is not None else None
+            )
+            if previous_reset is not None:
+                if previous_reset != strategy._third_friday(previous_reset.year, previous_reset.month):
+                    raise RuntimeError("IM已记录月度Put事件不是合法月度日期")
+                if previous_reset > strategy._roll_forward_exchange_day(previous_day + timedelta(days=1)):
+                    raise RuntimeError("IM已记录月度Put事件超前于账本允许的下一交易日")
+            if signal.get("option_monthly_reset_due") is True:
+                reset_day = _as_day(signal.get("put_monthly_reset_execution_date"), "IM月度Put事件日期")
+                expected_reset = strategy._third_friday(signal_day.year, signal_day.month)
+                prior_session = strategy._roll_backward_exchange_day(expected_reset - timedelta(days=1))
+                if reset_day != expected_reset or signal_day != expected_reset:
+                    raise RuntimeError("IM月度Put事件必须在该月到期日确认，禁止提前记为完成")
+                if previous_reset is not None and reset_day <= previous_reset:
+                    raise RuntimeError("IM同一或更早月度Put事件已经记录，禁止重复维护")
+                anchor["verified_put_monthly_reset_date"] = reset_day
+            anchor.update(
+                {
+                    "post_put_contract": core_contract,
+                    "post_core_put_contract": core_contract,
+                    "post_momentum_put_contract": momentum_contract,
+                    "post_put_equivalent_units": 0.5 * total_put,
+                    "post_core_put_equivalent_units": 0.5 * core_put,
+                    "post_momentum_put_equivalent_units": 0.5 * momentum_put,
+                    "verified_put_qty_normalized": total_put,
+                    "verified_core_put_qty_normalized": core_put,
+                    "verified_momentum_put_qty_normalized": momentum_put,
+                    "verified_total_put_qty_normalized": total_put,
+                    "verified_parent_puts": parent_puts,
+                    "verified_call_contracts_normalized": call_qty,
+                    "verified_call_contract": signal.get("call_target_contract"),
+                    "verified_call_expiry": signal.get("call_target_expiry"),
+                    "verified_call_strike": signal.get("call_target_strike"),
+                    "verified_threat_roll_count": int(
+                        signal.get("call_target_threat_roll_count", 0)
+                    ),
+                }
+            )
+        for key in v14_policy.default_extension(product):
+            if key not in signal:
+                if (not put_execution.active(signal_day) and key in {
+                        "v14_short_put_open_pending", "v14_short_put_entry_price_day", "v14_short_put_cost_basis"}):
+                    continue
+                raise RuntimeError(f"{product} v1.4信号缺少持久字段: {key}")
+            anchor[key] = deepcopy(signal[key])
+        if signal.get("v14_ordinary_put_plan_status") == "scheduled_t_plus_1_open":
+            if not signal.get("v14_ordinary_put_pending"):
+                raise RuntimeError(f"{product}普通Put预选状态缺少待执行计划")
+            # T close freezes intent, not a fill. Keep option holdings at the
+            # last confirmed open/close until the next session's open evidence.
+            executed_core = deepcopy(anchor) if signal.get("v14_action") == "EXECUTE_CORE_PUT_PROFIT3X_REENTER" else None
+            held_keys = (
+                ("post_put_contract", "post_put_security_id", "post_put_qty",
+                 "verified_put_qty_normalized", "verified_core_put_qty",
+                 "verified_momentum_put_qty", "verified_core_put_delta",
+                 "verified_momentum_put_delta", "verified_total_put_delta",
+                 "verified_core_put_driver", "verified_momentum_put_driver",
+                 "v14_core_put_contract", "v14_core_put_security_id", "v14_core_put_qty",
+                 "v14_core_put_entry_premium", "v14_core_put_profit3x_eligible")
+                if product == "IC" else
+                ("post_put_contract", "post_core_put_contract", "post_momentum_put_contract",
+                 "post_put_equivalent_units", "post_core_put_equivalent_units",
+                 "post_momentum_put_equivalent_units", "verified_put_qty_normalized",
+                 "verified_core_put_qty_normalized", "verified_momentum_put_qty_normalized",
+                 "verified_total_put_qty_normalized", "verified_parent_puts",
+                 "v14_core_put_entry_premium", "v14_core_put_profit3x_eligible")
+            )
+            for key in held_keys:
+                if key in prior_option_anchor:
+                    anchor[key] = deepcopy(prior_option_anchor[key])
+                else:
+                    anchor.pop(key, None)
+            if signal.get("v14_route_state") != "future":
+                # Ordinary plans defer only the independent momentum leg.
+                # Keep the core exit already owned by the route transition.
+                if product == "IC":
+                    momentum_qty = int(anchor["verified_momentum_put_qty"])
+                    anchor.update(
+                        verified_core_put_qty=0, verified_core_put_delta=0.0,
+                        v14_core_put_contract=None, v14_core_put_security_id=None,
+                        v14_core_put_qty=0.0,
+                        post_put_qty=float(momentum_qty), verified_put_qty_normalized=float(momentum_qty),
+                        verified_total_put_delta=float(anchor["verified_momentum_put_delta"]),
+                    )
+                else:
+                    momentum_qty = float(anchor["verified_momentum_put_qty_normalized"])
+                    anchor.update(
+                        post_put_contract=None, post_core_put_contract=None,
+                        verified_core_put_qty_normalized=0.0,
+                        post_core_put_equivalent_units=0.0,
+                        post_put_equivalent_units=0.5 * momentum_qty,
+                        verified_put_qty_normalized=momentum_qty,
+                        verified_total_put_qty_normalized=momentum_qty,
+                    )
+                anchor["v14_core_put_entry_premium"] = signal["v14_core_put_entry_premium"]
+                anchor["v14_core_put_profit3x_eligible"] = signal["v14_core_put_profit3x_eligible"]
+            elif product == "IM" and prior_option_anchor.get("v14_route_state") != "future":
+                # The route has returned to futures, but its ordinary core Put
+                # remains a next-open intent. Parent counts describe holdings.
+                anchor["verified_parent_puts"] = int(2 * float(anchor["verified_core_put_qty_normalized"]))
+            elif executed_core is not None:
+                # A fresh momentum plan must not undo the independent 3x
+                # core execution confirmed earlier in this same session.
+                core_keys = (
+                    ("verified_core_put_qty", "verified_core_put_delta", "verified_core_put_driver",
+                     "v14_core_put_contract", "v14_core_put_security_id", "v14_core_put_qty")
+                    if product == "IC" else
+                    ("post_put_contract", "post_core_put_contract", "post_core_put_equivalent_units",
+                     "verified_core_put_qty_normalized", "verified_parent_puts")
+                )
+                for key in (*core_keys, "v14_core_put_entry_premium", "v14_core_put_profit3x_eligible"):
+                    anchor[key] = deepcopy(executed_core[key])
+                if product == "IC":
+                    total_qty = int(anchor["verified_core_put_qty"]) + int(anchor["verified_momentum_put_qty"])
+                    anchor.update(post_put_qty=float(total_qty), verified_put_qty_normalized=float(total_qty),
+                                  verified_total_put_delta=float(anchor["verified_core_put_delta"]) + float(anchor["verified_momentum_put_delta"]))
+                else:
+                    total_qty = float(anchor["verified_core_put_qty_normalized"]) + float(anchor["verified_momentum_put_qty_normalized"])
+                    anchor.update(post_put_equivalent_units=.5 * total_qty,
+                                  verified_put_qty_normalized=total_qty, verified_total_put_qty_normalized=total_qty)
+        v14_policy.validate_extension(product, anchor)
+    return result
+
+
+class StateStore:
+    def __init__(self, root: str | os.PathLike[str] | None = None) -> None:
+        configured = root or os.environ.get(STATE_ENV)
+        self.root = Path(configured) if configured else DEFAULT_STATE_DIR
+        self.latest_path = self.root / "latest.json"
+        self.journal_dir = self.root / "journal"
+        self.lock_path = self.root / ".ledger.lock"
+
+    @contextmanager
+    def _exclusive_lock(self):
+        self.root.mkdir(parents=True, exist_ok=True)
+        stream = self.lock_path.open("a+b")
+        try:
+            stream.seek(0)
+            stream.write(b"\0")
+            stream.flush()
+            stream.seek(0)
+            if os.name == "nt":
+                import msvcrt
+
+                msvcrt.locking(stream.fileno(), msvcrt.LK_LOCK, 1)
+            else:
+                import fcntl
+
+                fcntl.flock(stream.fileno(), fcntl.LOCK_EX)
+            yield
+        finally:
+            stream.seek(0)
+            if os.name == "nt":
+                import msvcrt
+
+                msvcrt.locking(stream.fileno(), msvcrt.LK_UNLCK, 1)
+            else:
+                import fcntl
+
+                fcntl.flock(stream.fileno(), fcntl.LOCK_UN)
+            stream.close()
+
+    def _atomic_write(self, path: Path, record: dict[str, Any]) -> None:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        payload = json.dumps(
+            _jsonable(record), ensure_ascii=False, sort_keys=True, indent=2
+        ) + "\n"
+        handle, temporary = tempfile.mkstemp(
+            prefix=f".{path.name}.", suffix=".tmp", dir=path.parent
+        )
+        try:
+            with os.fdopen(handle, "w", encoding="utf-8", newline="\n") as stream:
+                stream.write(payload)
+                stream.flush()
+                os.fsync(stream.fileno())
+            os.replace(temporary, path)
+        finally:
+            if os.path.exists(temporary):
+                os.unlink(temporary)
+
+    def initialize(self) -> dict[str, Any]:
+        with self._exclusive_lock():
+            if self.latest_path.exists():
+                return self.load_latest()
+            if self.journal_dir.exists() and any(self.journal_dir.iterdir()):
+                raise RuntimeError(
+                    "Poe账本latest.json缺失但已有journal，禁止重建创世记录；"
+                    "请恢复完整哈希链账本后重试"
+                )
+            record = bootstrap_record()
+            journal = self.journal_dir / f"000000-{record['verified_day']}.json"
+            self._atomic_write(journal, record)
+            self._atomic_write(self.latest_path, record)
+            return record
+
+    def load_latest(self) -> dict[str, Any]:
+        try:
+            record = json.loads(self.latest_path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError) as exc:
+            raise RuntimeError(f"无法读取Poe持久化账本: {exc}") from exc
+        _validate_record(record)
+        previous_digest: str | None = None
+        previous_day: date | None = None
+        for sequence in range(int(record["sequence"]) + 1):
+            item = self._load_sequence_record(sequence)
+            if item.get("previous_digest") != previous_digest:
+                raise RuntimeError(f"Poe账本序号 {sequence} 的前序SHA-256链断裂")
+            previous_digest = str(item["digest"])
+            item_day = _as_day(item["verified_day"], "账本verified_day")
+            if previous_day is not None and item_day != strategy._roll_forward_exchange_day(previous_day + timedelta(days=1)):
+                raise RuntimeError(f"Poe账本序号 {sequence} 未逐交易日推进")
+            previous_day = item_day
+        if previous_digest != record["digest"]:
+            raise RuntimeError("latest.json未指向审计日志链的最新序号")
+        return record
+
+    def _load_sequence_record(self, sequence: int) -> dict[str, Any]:
+        matches = sorted(self.journal_dir.glob(f"{sequence:06d}-*.json"))
+        if len(matches) != 1:
+            raise RuntimeError(f"Poe账本序号 {sequence} 不存在或重复")
+        record = json.loads(matches[0].read_text(encoding="utf-8"))
+        _validate_record(record)
+        if int(record["sequence"]) != sequence:
+            raise RuntimeError(f"Poe账本文件序号与内容不一致: {sequence}")
+        expected_name = f"{sequence:06d}-{record['verified_day']}.json"
+        if matches[0].name != expected_name:
+            raise RuntimeError(f"Poe账本文件名与内容日期不一致: {matches[0].name}")
+        return record
+
+    def load_sequence(self, sequence: int) -> dict[str, Any]:
+        latest = self.load_latest()
+        if sequence < 0 or sequence > int(latest["sequence"]):
+            raise RuntimeError(f"Poe账本序号 {sequence} 超出当前日志范围")
+        return self._load_sequence_record(sequence)
+
+    def append_confirmed_signals(
+        self, current: dict[str, Any], signals: dict[str, dict[str, Any]]
+    ) -> dict[str, Any]:
+        with self._exclusive_lock():
+            latest = self.load_latest()
+            if latest["digest"] != current["digest"]:
+                raise RuntimeError("Poe账本已被另一请求推进，请重新读取后再写入")
+            return self._append_locked(current, signals)
+
+    def _append_locked(self, current: dict[str, Any], signals: dict[str, dict[str, Any]]) -> dict[str, Any]:
+        anchors = derive_next_anchors(current, signals)
+        signal_day = next(iter({signal["market_date"] for signal in signals.values()}))
+        sequence = int(current["sequence"]) + 1
+        record: dict[str, Any] = {
+            "schema_version": SCHEMA_VERSION,
+            "strategy_version": STRATEGY_VERSION,
+            "strategy_revision": STRATEGY_REVISION,
+            "sequence": sequence,
+            "verified_day": _jsonable(signal_day),
+            "updated_at": datetime.now(strategy.BEIJING).isoformat(),
+            "previous_digest": current["digest"],
+            "products": _jsonable(anchors),
+            "signals": _jsonable(signals),
+            "source": "automatic_close_replay",
+        }
+        record["digest"] = _digest(record)
+        _validate_record(record)
+        journal = self.journal_dir / f"{sequence:06d}-{record['verified_day']}.json"
+        if journal.exists():
+            existing = json.loads(journal.read_text(encoding="utf-8"))
+            _validate_record(existing)
+            if (
+                existing.get("previous_digest") != current["digest"]
+                or str(existing.get("verified_day")) != str(record["verified_day"])
+            ):
+                raise RuntimeError(f"{record['verified_day']}账本已存在但内容冲突")
+            # Recover a crash that completed the append-only journal write but
+            # happened before latest.json was atomically replaced.
+            # Validate the recovered day's policy too: its journal may have
+            # been written by an obsolete producer before the process restart.
+            derive_next_anchors(current, existing.get("signals", {}))
+            self._atomic_write(self.latest_path, existing)
+            return existing
+        self._atomic_write(journal, record)
+        self._atomic_write(self.latest_path, record)
+        return record
+
+
+def close_clock(day: date) -> datetime:
+    return datetime.combine(day, time(15, 20), tzinfo=strategy.BEIJING)

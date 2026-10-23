@@ -1,0 +1,94 @@
+.........................FFF                                             [100%]
+================================== FAILURES ===================================
+_ test_explicit_response_errors_or_impossible_listing_interval_are_rejected[actionErrors-value0] _
+
+field = 'actionErrors', value = ['official query failed']
+
+    @pytest.mark.parametrize('field,value', [('actionErrors',['official query failed']),
+        ('fieldErrors',{'securityCode':['invalid scope']}), ('START_DATE','20260716')])
+    def test_explicit_response_errors_or_impossible_listing_interval_are_rejected(field, value):
+        body = event_body()
+        if field == 'START_DATE':
+            next(r for r in body['result'] if r['SECURITY_ID'] == SECURITY)[field] = value
+        else:
+            body[field] = value
+        actual = {}
+        try:
+            result=identity.parse_adjustment_events(body, effective_date=EFFECTIVE)
+            actual = dict(returned_count=len(result), target=next(r for r in result if r['security_id']==SECURITY))
+        except RuntimeError as error:
+            actual = dict(rejected=True, error=str(error))
+        save_new('contradiction_'+field+'.json', dict(field=field, injected=value, actual=actual,
+                 severity='P2 diagnostic integrity; no production A execution',
+                 reproduction='parse_adjustment_events(real_raw_with_single_field_mutation, effective_date=2026-07-15)',
+                 trust_boundary='single internal contradiction, not forged consistent authority data'))
+>       assert actual.get('rejected'), 'explicit source error or listing-after-adjustment must not produce a verified event'
+E       AssertionError: explicit source error or listing-after-adjustment must not produce a verified event
+E       assert None
+E        +  where None = <built-in method get of dict object at 0x000001C358221280>('rejected')
+E        +    where <built-in method get of dict object at 0x000001C358221280> = {'returned_count': 114, 'target': {'contract': '510500P2612A07500', 'contract_unit': 10180, 'effective_date': datetime.date(2026, 7, 15), 'expiry': datetime.date(2026, 12, 23), ...}}.get
+
+test_icim_round2_audit_master_20261021.py:179: AssertionError
+_ test_explicit_response_errors_or_impossible_listing_interval_are_rejected[fieldErrors-value1] _
+
+field = 'fieldErrors', value = {'securityCode': ['invalid scope']}
+
+    @pytest.mark.parametrize('field,value', [('actionErrors',['official query failed']),
+        ('fieldErrors',{'securityCode':['invalid scope']}), ('START_DATE','20260716')])
+    def test_explicit_response_errors_or_impossible_listing_interval_are_rejected(field, value):
+        body = event_body()
+        if field == 'START_DATE':
+            next(r for r in body['result'] if r['SECURITY_ID'] == SECURITY)[field] = value
+        else:
+            body[field] = value
+        actual = {}
+        try:
+            result=identity.parse_adjustment_events(body, effective_date=EFFECTIVE)
+            actual = dict(returned_count=len(result), target=next(r for r in result if r['security_id']==SECURITY))
+        except RuntimeError as error:
+            actual = dict(rejected=True, error=str(error))
+        save_new('contradiction_'+field+'.json', dict(field=field, injected=value, actual=actual,
+                 severity='P2 diagnostic integrity; no production A execution',
+                 reproduction='parse_adjustment_events(real_raw_with_single_field_mutation, effective_date=2026-07-15)',
+                 trust_boundary='single internal contradiction, not forged consistent authority data'))
+>       assert actual.get('rejected'), 'explicit source error or listing-after-adjustment must not produce a verified event'
+E       AssertionError: explicit source error or listing-after-adjustment must not produce a verified event
+E       assert None
+E        +  where None = <built-in method get of dict object at 0x000001C358244600>('rejected')
+E        +    where <built-in method get of dict object at 0x000001C358244600> = {'returned_count': 114, 'target': {'contract': '510500P2612A07500', 'contract_unit': 10180, 'effective_date': datetime.date(2026, 7, 15), 'expiry': datetime.date(2026, 12, 23), ...}}.get
+
+test_icim_round2_audit_master_20261021.py:179: AssertionError
+_ test_explicit_response_errors_or_impossible_listing_interval_are_rejected[START_DATE-20260716] _
+
+field = 'START_DATE', value = '20260716'
+
+    @pytest.mark.parametrize('field,value', [('actionErrors',['official query failed']),
+        ('fieldErrors',{'securityCode':['invalid scope']}), ('START_DATE','20260716')])
+    def test_explicit_response_errors_or_impossible_listing_interval_are_rejected(field, value):
+        body = event_body()
+        if field == 'START_DATE':
+            next(r for r in body['result'] if r['SECURITY_ID'] == SECURITY)[field] = value
+        else:
+            body[field] = value
+        actual = {}
+        try:
+            result=identity.parse_adjustment_events(body, effective_date=EFFECTIVE)
+            actual = dict(returned_count=len(result), target=next(r for r in result if r['security_id']==SECURITY))
+        except RuntimeError as error:
+            actual = dict(rejected=True, error=str(error))
+        save_new('contradiction_'+field+'.json', dict(field=field, injected=value, actual=actual,
+                 severity='P2 diagnostic integrity; no production A execution',
+                 reproduction='parse_adjustment_events(real_raw_with_single_field_mutation, effective_date=2026-07-15)',
+                 trust_boundary='single internal contradiction, not forged consistent authority data'))
+>       assert actual.get('rejected'), 'explicit source error or listing-after-adjustment must not produce a verified event'
+E       AssertionError: explicit source error or listing-after-adjustment must not produce a verified event
+E       assert None
+E        +  where None = <built-in method get of dict object at 0x000001C358228900>('rejected')
+E        +    where <built-in method get of dict object at 0x000001C358228900> = {'returned_count': 114, 'target': {'contract': '510500P2612A07500', 'contract_unit': 10180, 'effective_date': datetime.date(2026, 7, 15), 'expiry': datetime.date(2026, 12, 23), ...}}.get
+
+test_icim_round2_audit_master_20261021.py:179: AssertionError
+=========================== short test summary info ===========================
+FAILED test_icim_round2_audit_master_20261021.py::test_explicit_response_errors_or_impossible_listing_interval_are_rejected[actionErrors-value0]
+FAILED test_icim_round2_audit_master_20261021.py::test_explicit_response_errors_or_impossible_listing_interval_are_rejected[fieldErrors-value1]
+FAILED test_icim_round2_audit_master_20261021.py::test_explicit_response_errors_or_impossible_listing_interval_are_rejected[START_DATE-20260716]
+3 failed, 25 passed in 1.20s

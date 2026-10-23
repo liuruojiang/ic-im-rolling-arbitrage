@@ -1,0 +1,6 @@
+{
+  "exit_code": 0,
+  "state_dir": "C:\\Users\\ADMINI~1.DES\\AppData\\Local\\Temp\\icim_redteam_integration_91e8403bfbdf4c8abdccbc8af0227b71\\state",
+  "old_evidence_unchanged": true,
+  "scope": "synthetic adapter failures, real bot/coordinator/runner/state boundary; no live network"
+}

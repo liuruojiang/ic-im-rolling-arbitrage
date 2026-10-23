@@ -1,0 +1,8 @@
+﻿{
+    "pid":  18632,
+    "started_at":  "2026-10-23T09:55:42.0534876+08:00",
+    "python":  "C:\\Python314\\python.exe",
+    "source_pin":  "D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261023_multiround_adversarial_v1\\delivery\\capture_source_pin.json",
+    "evidence_dir":  "D:\\动量策略\\IC和IM滚动套利\\data\\icim_v14_original_inputs",
+    "state_read_only":  "D:\\动量策略\\IC和IM滚动套利\\runtime\\ic_im_v1_4_r1"
+}

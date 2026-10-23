@@ -1,0 +1,27 @@
+{
+  "scope": "Six independent groups, followed by root cross-review and fixes; final acceptance is final_verification.json.",
+  "findings": [
+    {"id":"M1","priority":"P1","problem":"SSE stale or incomplete listed-month set can change the adopted reset expiry.","fix":"Validate observed four-month listing shape against the reference session before selection.","owner":"market"},
+    {"id":"M2","priority":"P2","problem":"ETF variable parser accepts a matching suffix inside a different identifier.","fix":"Require a variable identifier left boundary.","owner":"market"},
+    {"id":"M3","priority":"P2","problem":"SSE JSON fetch bypasses the response byte budget.","fix":"Bound streamed bytes and always close the response.","owner":"market"},
+    {"id":"M4","priority":"P1","problem":"MO cross-check accepts another contract variable or duplicate variables.","fix":"Require exactly the requested MO variable and reject duplicates.","owner":"market"},
+    {"id":"M5","priority":"P1","problem":"Normal MO quote cross-check accepts a future timestamp on the current date.","fix":"Reject timestamps after the advancing observation clock for every price basis.","owner":"market"},
+    {"id":"C1","priority":"P1","problem":"Explicit Sina chain can omit consumed-row source_stamp and still admit a candidate.","fix":"Require per-row time at all Sina consumption points; preserve SSE aggregate compatibility and unconsumed rows.","owner":"clocks"},
+    {"id":"T1","priority":"P1","problem":"Independent four-worker capture can return complete after shutdown exceeds its deadline.","fix":"Recheck the same deadline after pool shutdown while still inside the product budget.","owner":"concurrency"},
+    {"id":"E1","priority":"P2","problem":"Malformed raw HTTP status or encoding can be sealed complete and escape typed-only replay checks.","fix":"Validate metadata during seal and load; invalid data seals incomplete without breaking ordinary query results.","owner":"evidence"},
+    {"id":"S1","priority":"P1","problem":"Capture failure before manifest creation is absent from recovery warnings.","fix":"Read failed cycle receipts and service-local capture failure; leave pre-close waiting unflagged.","owner":"state"},
+    {"id":"S2","priority":"P2","problem":"Readiness accepts packages rejected by actual replay; newest invalid-clock package can hide an older valid package.","fix":"Share original-session qualification and choose the latest qualified package.","owner":"state"},
+    {"id":"H1","priority":"P1","problem":"Test gate checks counts but can accept XML from a different equal-sized test selection.","fix":"Match XML identities bijectively with executed nodeids using pytest address mapping; old receipts remain unchanged.","owner":"history"},
+    {"id":"H2","priority":"P2","problem":"Loaded-source inventory omits the actually imported im_put_policy module.","fix":"Traverse local import dependencies and intersect with actually loaded modules, retaining production-prefix dynamic modules.","owner":"history"},
+    {"id":"T2","priority":"P1","problem":"Post-capture source-pin rejection occurs after complete original packages have already become readable.","fix":"A scoped creation-time publication guard rejects completeness before manifest publication; the collector always performs its final source verification.","owner":"concurrency/history/evidence"}
+  ],
+  "calibration": {
+    "P1":8,
+    "P2":5,
+    "new_P0_confirmed":0,
+    "observed_formal_ledger_pollution":false,
+    "normal_vendor_report_omission_observed":false,
+    "existing_2982_receipt_identity_corruption_observed":false,
+    "current_28_module_pin_missing_im_put_policy":false
+  }
+}

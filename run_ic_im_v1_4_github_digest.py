@@ -135,7 +135,7 @@ def validate_realtime_artifact(
         )
     for product in PRODUCTS:
         signal = observed[product]
-        state_module.validate_delivery_values(signal, product)
+        state_module.validate_delivery_values(signal, product, require_complete=False)
         if bool(signal.get("close_confirmed")):
             raise RuntimeError(f"{product}盘中信号被错误标记为收盘确认")
         if str(signal.get("product")) != product:
@@ -356,7 +356,7 @@ def render_stored_close_report(latest: dict[str, Any]) -> str:
                 "",
                 "**" + strategy.daily_valuation.disclosure(signal.get("valuation_provenance")) + "**",
                 "",
-                "- " + strategy.quarter_roll.format_spread(signal.get("quarter_spread")),
+                *["- " + line for line in strategy.quarter_roll.format_spreads(signal, product=product)],
                 *_execution_timing_lines(product, signal),
                 f"- 期货总仓：{signal.get('total_units_current', 'N/A')} → "
                 f"{signal.get('total_units_target') if signal.get('total_units_target') is not None else 'N/A（未确认）'}",

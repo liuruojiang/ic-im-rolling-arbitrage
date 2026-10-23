@@ -1,0 +1,54 @@
+{
+  "started_at": "2026-10-22T16:43:01.205342+08:00",
+  "clock_is_actual": true,
+  "synthetic_market_inputs": false,
+  "original_anchor_day": "2026-10-21",
+  "independent_core": "510500P2612M06500",
+  "original_core_qty": 15,
+  "production_runtime_write": false,
+  "stages": {
+    "capture": {
+      "day": "2026-10-22",
+      "status": "incomplete",
+      "products": {
+        "IC": {
+          "status": "incomplete",
+          "manifest": "D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261022_real_ic_evidence_probe_v1\\real_session_01\\evidence\\sessions\\2026-10-22\\084426979424-c303c7fffffd4f7a8d2e07ae6b77cebd.json",
+          "sha256": "3df97f824d85851721115ad4956d24b69608df1c845078b5bd53fe5b8d101375",
+          "reason": "ic.months: HTTPSConnectionPool(host='yunhq.sse.com.cn', port=32042): Max retries exceeded with url: /v1/sho/list/exchange/stockexpire?select=stockid%2Cexpiremonth (Caused by ProxyError('Cannot connect to proxy.', TimeoutError('timed out'))); ic.etf: HTTPSConnectionPool(host='yunhq.sse.com.cn', port=32042): Max retries exceeded with url: /v1/sh1/list/self/510500?select=code%2Ccpxxextendname%2Clast%2Cchange%2Cchg_rate%2Camp_rate%2Cvolume%2Camount%2Cprev_close (Caused by ProxyError('Cannot connect to proxy.', TimeoutError('timed out'))); collector: missing roles: ic.chain,ic.etf,ic.months; ic.chain: 510500期权链所有来源均不可用；上交所行情接口: ProxyError: HTTPSConnectionPool(host='yunhq.sse.com.cn', port=32042): Max retries exceeded with url: /v1/sho/list/tstyle/510500_12?select=contractid%2Clast%2Cchg_rate%2Cpresetpx%2Cexepx%2Ccode&order=contractid%2Case (Caused by ProxyError('Cannot connect to proxy.', TimeoutError('timed out')))；新浪财经期权详报价: ProxyError: HTTPSConnectionPool(host='hq.sinajs.cn', port=443): Max retries exceeded with url: /list=CON_OP_10011470,CON_OP_10011471,CON_OP_10011472,CON_OP_10011473,CON_OP_10011474,CON_OP_10011475,CON_OP_10011476,CON_OP_10011477,CON_OP_10011478,CON_OP_10011520,CON_OP_10011552,CON_OP_10011600,CON_OP_10011810,CON_OP_10012002,CON_OP_10012098,CON_OP_10012099,CON_OP_10012100,CON_OP_10012101,CON_OP_10012102,CON_OP_10012103,CON_OP_10012104,CON_OP_10012105,CON_OP_10012106,CON_OP_10012120,CON_OP_10012149,CON_OP_10012150,CON_OP_10012282,CON_OP_10012600,CON_OP_10012632 (Caused by ProxyError('Cannot connect to proxy.', TimeoutError('timed out')))",
+          "recovery_warning": "2026-10-22原日输入不完整；补齐日历后仍可能需人工锚定，不能承诺自动恢复"
+        },
+        "IM": {
+          "status": "incomplete",
+          "manifest": "D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261022_real_ic_evidence_probe_v1\\real_session_01\\evidence\\sessions\\2026-10-22\\084507750014-3fe7a604495c4c7ab7f6153acbd92cc3.json",
+          "sha256": "eaef7deeb0d9d0a6f3dc1b1c27bc7bb5a3932404ec2aa0659fe81307613f6ba1",
+          "reason": "mo.replay_verification: HTTPSConnectionPool(host='hq.sinajs.cn', port=443): Max retries exceeded with url: /etag.php?list=P_OP_mo2611P6000%2CP_OP_mo2611P6100%2CP_OP_mo2611P6200%2CP_OP_mo2611P6300%2CP_OP_mo2611P6400%2CP_OP_mo2611P6500%2CP_OP_mo2611P6600%2CP_OP_mo2611P6700%2CP_OP_mo2611P6800%2CP_OP_mo2611P6900%2CP_OP_mo2611P7000%2CP_OP_mo2611P7100%2CP_OP_mo2611P7200%2CP_OP_mo2611P7300%2CP_OP_mo2611P7400%2CP_OP_mo2611P7500%2CP_OP_mo2611P7600%2CP_OP_mo2611P7700%2CP_OP_mo2611P7800%2CP_OP_mo2611P7900%2CP_OP_mo2611P8000%2CP_OP_mo2611P8100%2CP_OP_mo2611P8200%2CP_OP_mo2611P8300%2CP_OP_mo2611P8400%2CP_OP_mo2611P8500%2CP_OP_mo2611P8600%2CP_OP_mo2612P10000%2CP_OP_mo2612P6000%2CP_OP_mo2612P6100%2CP_OP_mo2612P6200%2CP_OP_mo2612P6300%2CP_OP_mo2612P6400%2CP_OP_mo2612P6500%2CP_OP_mo2612P6600%2CP_OP_mo2612P6700%2CP_OP_mo2612P6800%2CP_OP_mo2612P6900%2CP_OP_mo2612P7000%2CP_OP_mo2612P7100%2CP_OP_mo2612P7200%2CP_OP_mo2612P7300%2CP_OP_mo2612P7400%2CP_OP_mo2612P7500%2CP_OP_mo2612P7600%2CP_OP_mo2612P7700%2CP_OP_mo2612P7800%2CP_OP_mo2612P7900%2CP_OP_mo2612P8000%2CP_OP_mo2612P8100%2CP_OP_mo2612P8200%2CP_OP_mo2612P8300%2CP_OP_mo2612P8400%2CP_OP_mo2612P8500%2CP_OP_mo2612P8600%2CP_OP_mo2612P8800%2CP_OP_mo2612P9000%2CP_OP_mo2612P9200%2CP_OP_mo2612P9400%2CP_OP_mo2612P9600%2CP_OP_mo2612P9800%2CP_OP_mo2701P6000%2CP_OP_mo2701P6100%2CP_OP_mo2701P6200 (Caused by ProxyError('Cannot connect to proxy.', TimeoutError('timed out')))",
+          "recovery_warning": "2026-10-22原日输入不完整；补齐日历后仍可能需人工锚定，不能承诺自动恢复"
+        }
+      }
+    },
+    "isolated_append": {
+      "status": "BLOCKED",
+      "reason": "Both real original signals must pass normal persistence eligibility."
+    }
+  },
+  "original_signal_errors": {
+    "IC": {
+      "type": "SignalTransportError",
+      "message": "510500期权链所有来源均不可用；上交所行情接口: ProxyError: HTTPSConnectionPool(host='yunhq.sse.com.cn', port=32042): Max retries exceeded with url: /v1/sho/list/tstyle/510500_12?select=contractid%2Clast%2Cchg_rate%2Cpresetpx%2Cexepx%2Ccode&order=contractid%2Case (Caused by ProxyError('Cannot connect to proxy.', TimeoutError('timed out')))；新浪财经期权详报价: ProxyError: HTTPSConnectionPool(host='hq.sinajs.cn', port=443): Max retries exceeded with url: /list=CON_OP_10011470,CON_OP_10011471,CON_OP_10011472,CON_OP_10011473,CON_OP_10011474,CON_OP_10011475,CON_OP_10011476,CON_OP_10011477,CON_OP_10011478,CON_OP_10011520,CON_OP_10011552,CON_OP_10011600,CON_OP_10011810,CON_OP_10012002,CON_OP_10012098,CON_OP_10012099,CON_OP_10012100,CON_OP_10012101,CON_OP_10012102,CON_OP_10012103,CON_OP_10012104,CON_OP_10012105,CON_OP_10012106,CON_OP_10012120,CON_OP_10012149,CON_OP_10012150,CON_OP_10012282,CON_OP_10012600,CON_OP_10012632 (Caused by ProxyError('Cannot connect to proxy.', TimeoutError('timed out')))"
+    }
+  },
+  "source_sha256": {
+    "poe_ic_im_mainline_v1_4_bot.py": "0075c16aec68cb56b49569d03c1b89bb2707873fbd309971461082b623d0d19f",
+    "ic_im_evidence_adapter_v1.py": "7f3581c3b01024845b3e1c63ec5ae804cc32176446522620c4c049aad12da1b3",
+    "ic_im_signal_evidence_v1.py": "0b7ad7d0d7528c67bb06bdc59971fa09897d1e7b19aa37d8603637e342a7bd4a",
+    "poe_ic_im_v1_4_state.py": "9244c7f1d8bbb138e8e86246261fad13e90058f42764b855f8219aa1596c1067"
+  },
+  "status": "NOT_ACCEPTED",
+  "error_type": "EvidenceUnavailable",
+  "error": "2026-10-22 original evidence unavailable: 084426979424-c303c7fffffd4f7a8d2e07ae6b77cebd.json: evidence capture incomplete; 084507750014-3fe7a604495c4c7ab7f6153acbd92cc3.json: evidence capture incomplete",
+  "traceback": "Traceback (most recent call last):\n  File \"D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261022_real_ic_evidence_probe_v1\\capture_and_replay.py\", line 98, in main\n    reader, replay_clock = adapter.load_original(bot,run/'evidence','IC',now.date())\n                           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"D:\\动量策略\\IC和IM滚动套利\\ic_im_evidence_adapter_v1.py\", line 351, in load_original\n    reader = evidence.load_session(root, day, required_roles=roles, metadata_filter={\n        \"product\": product, \"input_revision\": INPUT_REVISION, \"original_close\": True})\n  File \"D:\\动量策略\\IC和IM滚动套利\\ic_im_signal_evidence_v1.py\", line 680, in load_session\n    raise EvidenceUnavailable(f\"{day} original evidence unavailable: {detail}\")\nic_im_signal_evidence_v1.EvidenceUnavailable: 2026-10-22 original evidence unavailable: 084426979424-c303c7fffffd4f7a8d2e07ae6b77cebd.json: evidence capture incomplete; 084507750014-3fe7a604495c4c7ab7f6153acbd92cc3.json: evidence capture incomplete\n",
+  "formal_runtime_unchanged": true,
+  "anchors_unchanged": true,
+  "finished_at": "2026-10-22T16:45:07.817568+08:00"
+}

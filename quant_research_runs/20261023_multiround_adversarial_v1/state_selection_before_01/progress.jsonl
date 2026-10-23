@@ -1,0 +1,4 @@
+{"nodeid": "test_icim_ma23_state_selection_20261023.py::test_newer_cross_midnight_packet_cannot_hide_valid_original[IC]", "started_at": "2026-10-23T09:42:53.482263+08:00"}
+{"nodeid": "test_icim_ma23_state_selection_20261023.py::test_newer_cross_midnight_packet_cannot_hide_valid_original[IM]", "started_at": "2026-10-23T09:42:54.228699+08:00"}
+{"nodeid": "test_icim_ma23_state_selection_20261023.py::test_original_selection_still_chooses_latest_eligible_packet[IC]", "started_at": "2026-10-23T09:42:54.484937+08:00"}
+{"nodeid": "test_icim_ma23_state_selection_20261023.py::test_original_selection_still_chooses_latest_eligible_packet[IM]", "started_at": "2026-10-23T09:42:55.037450+08:00"}

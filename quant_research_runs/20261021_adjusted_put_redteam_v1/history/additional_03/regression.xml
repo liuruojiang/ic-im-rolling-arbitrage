@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="2" time="2.321" timestamp="2026-10-21T15:45:04.703063+08:00" hostname="DESKTOP-95I7VVU"><testcase classname="test_icim_a3_history_20261021" name="test_bad_sina_source_does_not_block_independent_valid_backup" time="0.007"><failure message="assert np.float64(0.9) == 0.3">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x0000019456C9F100&gt;
+
+    def test_bad_sina_source_does_not_block_independent_valid_backup(monkeypatch):
+        master = Response(payload())
+        sina = Response({},text='callback([{"d":"2026-10-20","c":"0.2"},{"d":"2026-10-20","c":"0.9"}]);')
+        eastmoney = Response({'data':dict(code=SID,market=10,klines=['2026-10-20,0.1,0.3'])})
+        def request(url,**kwargs):
+            if url == 'https://query.sse.com.cn/commonQuery.do': return master
+            if 'StockOptionDaylineService.getSymbolInfo' in url: return sina
+            if 'push2his.eastmoney.com' in url: return eastmoney
+            raise AssertionError('unexpected source')
+        monkeypatch.setattr(bot.requests,'get',request)
+        frame,stamp = bot.fetch_sse_existing_put_historical_quote(CONTRACT,SID,DAY)
+&gt;       assert frame.iloc[0]['last'] == .3
+E       assert np.float64(0.9) == 0.3
+
+test_icim_a3_history_20261021.py:183: AssertionError</failure></testcase><testcase classname="test_icim_a3_history_20261021" name="test_selected_2027_expiry_requires_official_coverage_before_price" time="0.005"><failure message="Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x0000019456C9F6F0&gt;
+
+    def test_selected_2027_expiry_requires_official_coverage_before_price(monkeypatch):
+        body = payload()
+        row = selected(body)
+        row['CONTRACT_ID'] = '510500P2703M07500'
+        for key in ['EXPIRE_DATE','EXERCISE_DATE','END_DATE']:
+            row[key] = '20270324'
+        _,calls = bind_sources(monkeypatch,body)
+&gt;       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;
+
+test_icim_a3_history_20261021.py:195: Failed</failure></testcase></testsuite></testsuites>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="3" time="1.849" timestamp="2026-10-21T17:32:28.067693+08:00" hostname="DESKTOP-95I7VVU"><testcase classname="test_icim_b3adv_scope_20261021" name="test_declared_final_exclusion_set_must_match_actual_selection[declared0]" time="0.008"><failure message="Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;">tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_f4c3da01/pytest/test_declared_final_exclusion_0')
+declared = {}
+
+    @pytest.mark.parametrize('declared',[{}, {'test_probe.py::some_other_case':'not actually excluded'}])
+    def test_declared_final_exclusion_set_must_match_actual_selection(tmp_path,declared):
+        directory,gate=receipt_copy(tmp_path,declared)
+&gt;       with pytest.raises(RuntimeError,match='exclusion|deselect|selection'):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;
+
+test_icim_b3adv_scope_20261021.py:79: Failed</failure></testcase><testcase classname="test_icim_b3adv_scope_20261021" name="test_declared_final_exclusion_set_must_match_actual_selection[declared1]" time="0.032"><failure message="Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;">tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_f4c3da01/pytest/test_declared_final_exclusion_1')
+declared = {'test_probe.py::some_other_case': 'not actually excluded'}
+
+    @pytest.mark.parametrize('declared',[{}, {'test_probe.py::some_other_case':'not actually excluded'}])
+    def test_declared_final_exclusion_set_must_match_actual_selection(tmp_path,declared):
+        directory,gate=receipt_copy(tmp_path,declared)
+&gt;       with pytest.raises(RuntimeError,match='exclusion|deselect|selection'):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;
+
+test_icim_b3adv_scope_20261021.py:79: Failed</failure></testcase><testcase classname="test_icim_b3adv_scope_20261021" name="test_declared_final_exclusion_positive_control_is_accepted" time="0.008" /></testsuite></testsuites>

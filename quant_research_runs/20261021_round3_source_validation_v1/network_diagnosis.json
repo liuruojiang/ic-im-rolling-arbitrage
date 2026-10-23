@@ -1,0 +1,13 @@
+{
+  "checked_at": "2026-10-21T12:56:12.761098+00:00",
+  "probes": 5,
+  "successful_responses": 0,
+  "observed_failure": "ProxyError: Cannot connect to proxy (timeout)",
+  "failure_stage": "connection to inherited session proxy, before a market HTTP response",
+  "environment_status_capability": "unavailable in current tool catalog",
+  "supported_network_policy_file_present": false,
+  "policy_enforcement_state": "not independently observed",
+  "proxy_settings_changed": false,
+  "proxy_bypassed": false,
+  "real_preopen_or_morning_oracles_verified": false
+}

@@ -1,0 +1,72 @@
+{
+  "observed_at": "2026-10-23T09:01:26.106618+08:00",
+  "days": {
+    "2026-10-22": {
+      "cycles": 58,
+      "statuses": {
+        "incomplete": 35,
+        "captured": 1,
+        "already_captured": 22
+      },
+      "products": {
+        "IC": {
+          "attempts": 36,
+          "complete": 2,
+          "incomplete": 34,
+          "timeout_attempts": 34,
+          "proxy_attempts": 34,
+          "incomplete_hours": {
+            "20": 1,
+            "21": 9,
+            "22": 12,
+            "23": 12
+          },
+          "timeout_hours": {
+            "20": 1,
+            "21": 9,
+            "22": 12,
+            "23": 12
+          },
+          "timeout_frequency": 0.9444444444444444
+        },
+        "IM": {
+          "attempts": 36,
+          "complete": 1,
+          "incomplete": 35,
+          "timeout_attempts": 36,
+          "proxy_attempts": 36,
+          "incomplete_hours": {
+            "18": 1,
+            "20": 1,
+            "21": 9,
+            "22": 12,
+            "23": 12
+          },
+          "timeout_hours": {
+            "18": 2,
+            "20": 1,
+            "21": 9,
+            "22": 12,
+            "23": 12
+          },
+          "timeout_frequency": 1.0
+        }
+      }
+    },
+    "2026-10-23": {
+      "cycles": 1,
+      "statuses": {
+        "waiting_for_close": 1
+      },
+      "products": {}
+    }
+  },
+  "unreadable_receipts": [],
+  "denominator": "each sealed product capture attempt linked by a completed cycle receipt; polling/waiting excluded",
+  "limitations": [
+    "one closed market day so far",
+    "status/failure text classifies timeout attempts, not independent HTTP request rates",
+    "observed sample mixes earlier deployment versions; no causal estimate of batch-size effect",
+    "receiptless crash/unsealed attempts are outside this denominator"
+  ]
+}

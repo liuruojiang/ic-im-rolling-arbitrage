@@ -1,0 +1,20 @@
+{
+  "checked_at": "2026-10-22T21:08:45.804368+08:00",
+  "prior_protected_objects": 9114,
+  "expected_cumulative_changes": [
+    "ic_im_evidence_adapter_v1.py",
+    "ic_im_signal_evidence_v1.py",
+    "notes/mainline_registry.md",
+    "poe_ic_im_mainline_v1_4_bot.py",
+    "poe_ic_im_v1_4_server.py",
+    "poe_ic_im_v1_4_state.py",
+    "runtime/ic_im_v1_3_r7/.ledger.lock",
+    "runtime/legulegu/latest.json",
+    "test_icim_round4_evidence_boundaries_20261021.py",
+    "test_icim_round5_recording_semantics_20261021.py"
+  ],
+  "unexpected_changes": [
+    "runtime/ic_im_v1_3_r7/.ledger.lock",
+    "runtime/legulegu/latest.json"
+  ]
+}

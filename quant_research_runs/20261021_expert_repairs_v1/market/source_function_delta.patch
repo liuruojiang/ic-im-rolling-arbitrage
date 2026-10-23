@@ -1,0 +1,192 @@
+--- before/_source_failure_error
++++ after/_source_failure_error
+@@ -0,0 +1,7 @@
++def _source_failure_error(message: str, errors: list[Exception]) -> RuntimeError:
++    """Keep retries for wholly transient source failures, never malformed data."""
++    transport = (requests.ConnectionError, requests.Timeout, requests.exceptions.ChunkedEncodingError)
++    if errors and all(isinstance(exc, transport) for exc in errors):
++        return SignalTransportError(message)
++    return RuntimeError(message)
++
+--- before/_sse_session_time
++++ after/_sse_session_time
+@@ -0,0 +1,16 @@
++def _sse_session_time(value: Any, label: str) -> str:
++    """Normalize a supplied SSE time without turning missing data into midnight."""
++    if value is None or isinstance(value, (bool, np.bool_)):
++        raise RuntimeError(f"{label}缺少有效行情时间")
++    raw = str(value).strip()
++    if not re.fullmatch(r"[0-9]{1,6}", raw):
++        raise RuntimeError(f"{label}行情时间格式无效")
++    normalized = raw.zfill(6)
++    try:
++        observed = datetime.strptime(normalized, "%H%M%S").time()
++    except ValueError as exc:
++        raise RuntimeError(f"{label}行情时间无效") from exc
++    if observed < time(9, 15):
++        raise RuntimeError(f"{label}行情时间早于09:15，不能作为有效盘中行情")
++    return normalized
++
+--- before/_validate_chain_stamp_matches
++++ after/_validate_chain_stamp_matches
+@@ -17,6 +17,8 @@
+             observed = _iv_monitor_stamp(reference_day, stamp.get("date"), raw_time, label)
+         except ValueError as exc:
+             raise RuntimeError(f"{label}行情时间无效") from exc
++        if observed.time() < time(9, 15):
++            raise RuntimeError(f"{label}行情时间早于09:15，不能作为有效盘中行情")
+         now = clock.astimezone(BEIJING) if clock.tzinfo else clock.replace(tzinfo=BEIJING)
+         if observed > now:
+             raise RuntimeError(f"{label}行情时间晚于当前运行时间")
+--- before/fetch_510500_chain_with_failover
++++ after/fetch_510500_chain_with_failover
+@@ -1,6 +1,7 @@
+ def fetch_510500_chain_with_failover(expiry_ym: str) -> tuple[pd.DataFrame, dict[str, str]]:
+     """Use SSE first, then Sina; never substitute stale or malformed quotes."""
+     failures: list[str] = []
++    source_errors: list[Exception] = []
+     for source, fetcher in (
+         ("上交所行情接口", fetch_sse_510500_chain),
+         ("新浪财经期权详报价", fetch_sina_510500_chain),
+@@ -18,5 +19,8 @@
+             return chain, normalized_stamp
+         except Exception as exc:
+             failures.append(f"{source}: {type(exc).__name__}: {exc}")
+-    raise RuntimeError("510500期权链所有来源均不可用；" + "；".join(failures))
++            source_errors.append(exc)
++    raise _source_failure_error(
++        "510500期权链所有来源均不可用；" + "；".join(failures), source_errors
++    ) from source_errors[-1]
+ 
+--- before/fetch_option_closes
++++ after/fetch_option_closes
+@@ -2,6 +2,7 @@
+     """Fetch SSE option closes with audited Sina -> Eastmoney failover."""
+ 
+     failures: list[str] = []
++    source_errors: list[Exception] = []
+     for source, fetcher in (
+         ("Sina", fetch_sina_option_closes),
+         ("Eastmoney", fetch_eastmoney_option_closes),
+@@ -22,7 +23,8 @@
+             return result
+         except Exception as exc:  # noqa: BLE001 - continue to the validated backup.
+             failures.append(f"{source}: {type(exc).__name__}: {exc}")
+-    raise RuntimeError(
+-        f"上交所期权 {security_id} 历史行情全部来源失败：{'；'.join(failures)}"
+-    )
++            source_errors.append(exc)
++    raise _source_failure_error(
++        f"上交所期权 {security_id} 历史行情全部来源失败：{'；'.join(failures)}", source_errors
++    ) from source_errors[-1]
+ 
+--- before/fetch_option_dated_open
++++ after/fetch_option_dated_open
+@@ -2,7 +2,10 @@
+     """Read this contract's dated opening price; never substitute a close."""
+     if not re.fullmatch(r"[0-9]{8}", str(security_id)):
+         raise ValueError("IC Put证券代码格式异常")
++    day = adjusted_put_migration.day(day)
+     failures: list[str] = []
++    source_errors: list[Exception] = []
++    response = None
+     try:
+         response = requests.get(
+             "https://stock.finance.sina.com.cn/futures/api/jsonp_v2.php//StockOptionDaylineService.getSymbolInfo",
+@@ -14,9 +17,14 @@
+         match = re.search(r"\((\[.*\])\)\s*;?\s*$", response.text, flags=re.DOTALL)
+         if match is None:
+             raise RuntimeError("新浪开盘行情格式异常")
+-        rows = [item for item in json.loads(match.group(1)) if item.get("d") == day.isoformat()]
++        payload = json.loads(match.group(1))
++        if not isinstance(payload, list) or any(not isinstance(item, dict) for item in payload):
++            raise RuntimeError("新浪开盘行情结构异常")
++        rows = [item for item in payload if adjusted_put_migration.day(item.get("d")) == day]
+         if not rows:
+             raise RuntimeError("新浪缺少指定交易日期开盘记录")
++        if any(isinstance(item.get("o"), (bool, np.bool_)) for item in rows):
++            raise RuntimeError("新浪指定交易日期开盘价不能为布尔值")
+         openings = {float(item["o"]) for item in rows}
+         if len(openings) != 1:
+             raise RuntimeError("新浪同日开盘记录相互冲突")
+@@ -26,6 +34,11 @@
+         return opening, "Sina:dated_open"
+     except Exception as exc:
+         failures.append(f"Sina:{type(exc).__name__}:{exc}")
++        source_errors.append(exc)
++    finally:
++        close = getattr(response, "close", None)
++        if callable(close):
++            close()
+     try:
+         payload = _request_json(
+             "https://push2his.eastmoney.com/api/qt/stock/kline/get",
+@@ -37,7 +50,7 @@
+         if str(data.get("code") or "") != str(security_id) or int(data.get("market", -1)) != 10:
+             raise RuntimeError("东方财富期权证券身份不一致")
+         rows = [str(raw).split(",") for raw in data.get("klines") or []]
+-        matches = [fields for fields in rows if fields and fields[0] == day.isoformat()]
++        matches = [fields for fields in rows if fields and adjusted_put_migration.day(fields[0]) == day]
+         if len(matches) != 1 or len(matches[0]) < 3:
+             raise RuntimeError("东方财富指定交易日期开盘记录不唯一")
+         opening = float(matches[0][1])
+@@ -46,5 +59,8 @@
+         return opening, "Eastmoney:dated_open"
+     except Exception as exc:
+         failures.append(f"Eastmoney:{type(exc).__name__}:{exc}")
+-    raise RuntimeError(f"IC Put {security_id} {day} 开盘价不可核验；" + "；".join(failures))
++        source_errors.append(exc)
++    raise _source_failure_error(
++        f"IC Put {security_id} {day} 开盘价不可核验；" + "；".join(failures), source_errors
++    ) from source_errors[-1]
+ 
+--- before/fetch_sina_option_closes
++++ after/fetch_sina_option_closes
+@@ -11,6 +11,7 @@
+     )
+     try:
+         response.raise_for_status()
++        _response_with_size_limit(response, f"新浪期权 {security_id} 历史收盘价")
+         body = response.text
+     finally:
+         close = getattr(response, "close", None)
+--- before/fetch_sse_510500_chain
++++ after/fetch_sse_510500_chain
+@@ -15,7 +15,7 @@
+     frame = _numeric_frame(pd.DataFrame(rows, columns=columns), skip=("contract", "security_id"))
+     return frame, {
+         "date": str(payload.get("date", "")),
+-        "time": str(payload.get("time", "")).zfill(6),
++        "time": _sse_session_time(payload.get("time"), "上交所510500期权链"),
+         "source": "上交所行情接口",
+     }
+ 
+--- before/fetch_sse_510500_dated_master
++++ after/fetch_sse_510500_dated_master
+@@ -13,11 +13,15 @@
+                      "Referer": "https://www.sse.com.cn/assortment/options/disclo/info/",
+                      "Cache-Control": "no-cache", "Pragma": "no-cache"},
+         )
++    except (requests.ConnectionError, requests.Timeout, requests.exceptions.ChunkedEncodingError) as exc:
++        raise SignalTransportError("IC历史Put官方逐日身份来源不可用，禁止猜测历史条款") from exc
+     except requests.RequestException as exc:
+         raise RuntimeError("IC历史Put官方逐日身份来源不可用，禁止猜测历史条款") from exc
+     try:
+         response.raise_for_status()
+         payload = json.loads(_bounded_response_bytes(response, "IC历史Put官方主表"))
++    except (requests.ConnectionError, requests.Timeout, requests.exceptions.ChunkedEncodingError) as exc:
++        raise SignalTransportError("IC历史Put官方逐日身份响应传输中断") from exc
+     except (requests.RequestException, ValueError) as exc:
+         raise RuntimeError("IC历史Put官方逐日身份响应无效") from exc
+     finally:
+--- before/fetch_sse_510500_quote
++++ after/fetch_sse_510500_quote
+@@ -14,7 +14,7 @@
+         raise RuntimeError("上交所510500ETF行情含NaN、无穷值或非正价格")
+     return {
+         "date": str(payload.get("date", "")),
+-        "time": str(payload.get("time", "")).zfill(6),
++        "time": _sse_session_time(payload.get("time"), "上交所510500ETF"),
+         "last": last,
+         "prev_close": prev_close,
+     }

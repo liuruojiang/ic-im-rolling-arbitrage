@@ -1,0 +1,1185 @@
+........................................................................ [  5%]
+........................................................................ [ 10%]
+........................................................................ [ 15%]
+........................................................................ [ 20%]
+........................................................................ [ 25%]
+........................................................................ [ 30%]
+........................................................................ [ 35%]
+........................................................................ [ 41%]
+........................................................................ [ 46%]
+........................................................................ [ 51%]
+........................................................................ [ 56%]
+........................................................................ [ 61%]
+........................................................................ [ 66%]
+........................................................................ [ 71%]
+........................................................................ [ 76%]
+........................................................................ [ 82%]
+........................................................................ [ 87%]
+........................................................................ [ 92%]
+........................................................................ [ 97%]
+......EEEEEEEEEEEEEEEEEEEEEEEEEEEEEE                                     [100%]
+=================================== ERRORS ====================================
+_ ERROR at setup of test_real_raw_source_bytes_match_previously_saved_capture _
+
+    @pytest.fixture(scope='module', autouse=True)
+    def binding():
+        files = [Path(identity.__file__), Path(__file__), RAW/'sse_adjustment_20260715.json',
+                 RAW/'sse_december_identity.json', RAW/'sse_contract_master.json',
+                 ROOT/'quant_research_runs/20261021_external_review_round2_redteam_v1/run_checks.py',
+                 ROOT/'poe_ic_im_mainline_v1_4_bot.py', ROOT/'ic_im_v1_4_policy.py',
+                 ROOT/'poe_ic_im_v1_4_state.py', ROOT/'ic_im_put_execution_v1.py']
+        def hashes():
+            return {str(p.relative_to(ROOT)): hashlib.sha256(p.read_bytes()).hexdigest() for p in files}
+        before = hashes()
+>       save_new('source_before.json', before)
+
+test_icim_round2_audit_master_20261021.py:63: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+test_icim_round2_audit_master_20261021.py:49: in save_new
+    with target.open('x', encoding='utf-8') as handle:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = WindowsPath('D:/动量策略/IC和IM滚动套利/quant_research_runs/20261021_external_review_round2_redteam_v1/master/accepted_final/source_before.json')
+mode = 'x', buffering = -1, encoding = 'utf-8', errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileExistsError: [Errno 17] File exists: 'D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261021_external_review_round2_redteam_v1\\master\\accepted_final\\source_before.json'
+
+C:\Python314\Lib\pathlib\__init__.py:771: FileExistsError
+_ ERROR at setup of test_all_114_events_independently_match_raw_identity_dates_units _
+
+    @pytest.fixture(scope='module', autouse=True)
+    def binding():
+        files = [Path(identity.__file__), Path(__file__), RAW/'sse_adjustment_20260715.json',
+                 RAW/'sse_december_identity.json', RAW/'sse_contract_master.json',
+                 ROOT/'quant_research_runs/20261021_external_review_round2_redteam_v1/run_checks.py',
+                 ROOT/'poe_ic_im_mainline_v1_4_bot.py', ROOT/'ic_im_v1_4_policy.py',
+                 ROOT/'poe_ic_im_v1_4_state.py', ROOT/'ic_im_put_execution_v1.py']
+        def hashes():
+            return {str(p.relative_to(ROOT)): hashlib.sha256(p.read_bytes()).hexdigest() for p in files}
+        before = hashes()
+>       save_new('source_before.json', before)
+
+test_icim_round2_audit_master_20261021.py:63: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+test_icim_round2_audit_master_20261021.py:49: in save_new
+    with target.open('x', encoding='utf-8') as handle:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = WindowsPath('D:/动量策略/IC和IM滚动套利/quant_research_runs/20261021_external_review_round2_redteam_v1/master/accepted_final/source_before.json')
+mode = 'x', buffering = -1, encoding = 'utf-8', errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileExistsError: [Errno 17] File exists: 'D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261021_external_review_round2_redteam_v1\\master\\accepted_final\\source_before.json'
+
+C:\Python314\Lib\pathlib\__init__.py:771: FileExistsError
+_ ERROR at setup of test_real_58_quotes_bind_to_actual_master_and_14_put_diagnostics _
+
+    @pytest.fixture(scope='module', autouse=True)
+    def binding():
+        files = [Path(identity.__file__), Path(__file__), RAW/'sse_adjustment_20260715.json',
+                 RAW/'sse_december_identity.json', RAW/'sse_contract_master.json',
+                 ROOT/'quant_research_runs/20261021_external_review_round2_redteam_v1/run_checks.py',
+                 ROOT/'poe_ic_im_mainline_v1_4_bot.py', ROOT/'ic_im_v1_4_policy.py',
+                 ROOT/'poe_ic_im_v1_4_state.py', ROOT/'ic_im_put_execution_v1.py']
+        def hashes():
+            return {str(p.relative_to(ROOT)): hashlib.sha256(p.read_bytes()).hexdigest() for p in files}
+        before = hashes()
+>       save_new('source_before.json', before)
+
+test_icim_round2_audit_master_20261021.py:63: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+test_icim_round2_audit_master_20261021.py:49: in save_new
+    with target.open('x', encoding='utf-8') as handle:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = WindowsPath('D:/动量策略/IC和IM滚动套利/quant_research_runs/20261021_external_review_round2_redteam_v1/master/accepted_final/source_before.json')
+mode = 'x', buffering = -1, encoding = 'utf-8', errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileExistsError: [Errno 17] File exists: 'D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261021_external_review_round2_redteam_v1\\master\\accepted_final\\source_before.json'
+
+C:\Python314\Lib\pathlib\__init__.py:771: FileExistsError
+_ ERROR at setup of test_parser_rejects_nonfinite_type_precision_unit_or_interval[EXERCISE_PRICE-nan] _
+
+    @pytest.fixture(scope='module', autouse=True)
+    def binding():
+        files = [Path(identity.__file__), Path(__file__), RAW/'sse_adjustment_20260715.json',
+                 RAW/'sse_december_identity.json', RAW/'sse_contract_master.json',
+                 ROOT/'quant_research_runs/20261021_external_review_round2_redteam_v1/run_checks.py',
+                 ROOT/'poe_ic_im_mainline_v1_4_bot.py', ROOT/'ic_im_v1_4_policy.py',
+                 ROOT/'poe_ic_im_v1_4_state.py', ROOT/'ic_im_put_execution_v1.py']
+        def hashes():
+            return {str(p.relative_to(ROOT)): hashlib.sha256(p.read_bytes()).hexdigest() for p in files}
+        before = hashes()
+>       save_new('source_before.json', before)
+
+test_icim_round2_audit_master_20261021.py:63: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+test_icim_round2_audit_master_20261021.py:49: in save_new
+    with target.open('x', encoding='utf-8') as handle:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = WindowsPath('D:/动量策略/IC和IM滚动套利/quant_research_runs/20261021_external_review_round2_redteam_v1/master/accepted_final/source_before.json')
+mode = 'x', buffering = -1, encoding = 'utf-8', errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileExistsError: [Errno 17] File exists: 'D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261021_external_review_round2_redteam_v1\\master\\accepted_final\\source_before.json'
+
+C:\Python314\Lib\pathlib\__init__.py:771: FileExistsError
+_ ERROR at setup of test_parser_rejects_nonfinite_type_precision_unit_or_interval[EXERCISE_PRICE-inf] _
+
+    @pytest.fixture(scope='module', autouse=True)
+    def binding():
+        files = [Path(identity.__file__), Path(__file__), RAW/'sse_adjustment_20260715.json',
+                 RAW/'sse_december_identity.json', RAW/'sse_contract_master.json',
+                 ROOT/'quant_research_runs/20261021_external_review_round2_redteam_v1/run_checks.py',
+                 ROOT/'poe_ic_im_mainline_v1_4_bot.py', ROOT/'ic_im_v1_4_policy.py',
+                 ROOT/'poe_ic_im_v1_4_state.py', ROOT/'ic_im_put_execution_v1.py']
+        def hashes():
+            return {str(p.relative_to(ROOT)): hashlib.sha256(p.read_bytes()).hexdigest() for p in files}
+        before = hashes()
+>       save_new('source_before.json', before)
+
+test_icim_round2_audit_master_20261021.py:63: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+test_icim_round2_audit_master_20261021.py:49: in save_new
+    with target.open('x', encoding='utf-8') as handle:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = WindowsPath('D:/动量策略/IC和IM滚动套利/quant_research_runs/20261021_external_review_round2_redteam_v1/master/accepted_final/source_before.json')
+mode = 'x', buffering = -1, encoding = 'utf-8', errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileExistsError: [Errno 17] File exists: 'D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261021_external_review_round2_redteam_v1\\master\\accepted_final\\source_before.json'
+
+C:\Python314\Lib\pathlib\__init__.py:771: FileExistsError
+_ ERROR at setup of test_parser_rejects_nonfinite_type_precision_unit_or_interval[EXERCISE_PRICE-True] _
+
+    @pytest.fixture(scope='module', autouse=True)
+    def binding():
+        files = [Path(identity.__file__), Path(__file__), RAW/'sse_adjustment_20260715.json',
+                 RAW/'sse_december_identity.json', RAW/'sse_contract_master.json',
+                 ROOT/'quant_research_runs/20261021_external_review_round2_redteam_v1/run_checks.py',
+                 ROOT/'poe_ic_im_mainline_v1_4_bot.py', ROOT/'ic_im_v1_4_policy.py',
+                 ROOT/'poe_ic_im_v1_4_state.py', ROOT/'ic_im_put_execution_v1.py']
+        def hashes():
+            return {str(p.relative_to(ROOT)): hashlib.sha256(p.read_bytes()).hexdigest() for p in files}
+        before = hashes()
+>       save_new('source_before.json', before)
+
+test_icim_round2_audit_master_20261021.py:63: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+test_icim_round2_audit_master_20261021.py:49: in save_new
+    with target.open('x', encoding='utf-8') as handle:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = WindowsPath('D:/动量策略/IC和IM滚动套利/quant_research_runs/20261021_external_review_round2_redteam_v1/master/accepted_final/source_before.json')
+mode = 'x', buffering = -1, encoding = 'utf-8', errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileExistsError: [Errno 17] File exists: 'D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261021_external_review_round2_redteam_v1\\master\\accepted_final\\source_before.json'
+
+C:\Python314\Lib\pathlib\__init__.py:771: FileExistsError
+_ ERROR at setup of test_parser_rejects_nonfinite_type_precision_unit_or_interval[EXERCISE_PRICE-0] _
+
+    @pytest.fixture(scope='module', autouse=True)
+    def binding():
+        files = [Path(identity.__file__), Path(__file__), RAW/'sse_adjustment_20260715.json',
+                 RAW/'sse_december_identity.json', RAW/'sse_contract_master.json',
+                 ROOT/'quant_research_runs/20261021_external_review_round2_redteam_v1/run_checks.py',
+                 ROOT/'poe_ic_im_mainline_v1_4_bot.py', ROOT/'ic_im_v1_4_policy.py',
+                 ROOT/'poe_ic_im_v1_4_state.py', ROOT/'ic_im_put_execution_v1.py']
+        def hashes():
+            return {str(p.relative_to(ROOT)): hashlib.sha256(p.read_bytes()).hexdigest() for p in files}
+        before = hashes()
+>       save_new('source_before.json', before)
+
+test_icim_round2_audit_master_20261021.py:63: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+test_icim_round2_audit_master_20261021.py:49: in save_new
+    with target.open('x', encoding='utf-8') as handle:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = WindowsPath('D:/动量策略/IC和IM滚动套利/quant_research_runs/20261021_external_review_round2_redteam_v1/master/accepted_final/source_before.json')
+mode = 'x', buffering = -1, encoding = 'utf-8', errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileExistsError: [Errno 17] File exists: 'D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261021_external_review_round2_redteam_v1\\master\\accepted_final\\source_before.json'
+
+C:\Python314\Lib\pathlib\__init__.py:771: FileExistsError
+_ ERROR at setup of test_parser_rejects_nonfinite_type_precision_unit_or_interval[ORG_EXERCISE_PRICE-7.499] _
+
+    @pytest.fixture(scope='module', autouse=True)
+    def binding():
+        files = [Path(identity.__file__), Path(__file__), RAW/'sse_adjustment_20260715.json',
+                 RAW/'sse_december_identity.json', RAW/'sse_contract_master.json',
+                 ROOT/'quant_research_runs/20261021_external_review_round2_redteam_v1/run_checks.py',
+                 ROOT/'poe_ic_im_mainline_v1_4_bot.py', ROOT/'ic_im_v1_4_policy.py',
+                 ROOT/'poe_ic_im_v1_4_state.py', ROOT/'ic_im_put_execution_v1.py']
+        def hashes():
+            return {str(p.relative_to(ROOT)): hashlib.sha256(p.read_bytes()).hexdigest() for p in files}
+        before = hashes()
+>       save_new('source_before.json', before)
+
+test_icim_round2_audit_master_20261021.py:63: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+test_icim_round2_audit_master_20261021.py:49: in save_new
+    with target.open('x', encoding='utf-8') as handle:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = WindowsPath('D:/动量策略/IC和IM滚动套利/quant_research_runs/20261021_external_review_round2_redteam_v1/master/accepted_final/source_before.json')
+mode = 'x', buffering = -1, encoding = 'utf-8', errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileExistsError: [Errno 17] File exists: 'D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261021_external_review_round2_redteam_v1\\master\\accepted_final\\source_before.json'
+
+C:\Python314\Lib\pathlib\__init__.py:771: FileExistsError
+_ ERROR at setup of test_parser_rejects_nonfinite_type_precision_unit_or_interval[CONTRACT_UNIT-NaN] _
+
+    @pytest.fixture(scope='module', autouse=True)
+    def binding():
+        files = [Path(identity.__file__), Path(__file__), RAW/'sse_adjustment_20260715.json',
+                 RAW/'sse_december_identity.json', RAW/'sse_contract_master.json',
+                 ROOT/'quant_research_runs/20261021_external_review_round2_redteam_v1/run_checks.py',
+                 ROOT/'poe_ic_im_mainline_v1_4_bot.py', ROOT/'ic_im_v1_4_policy.py',
+                 ROOT/'poe_ic_im_v1_4_state.py', ROOT/'ic_im_put_execution_v1.py']
+        def hashes():
+            return {str(p.relative_to(ROOT)): hashlib.sha256(p.read_bytes()).hexdigest() for p in files}
+        before = hashes()
+>       save_new('source_before.json', before)
+
+test_icim_round2_audit_master_20261021.py:63: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+test_icim_round2_audit_master_20261021.py:49: in save_new
+    with target.open('x', encoding='utf-8') as handle:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = WindowsPath('D:/动量策略/IC和IM滚动套利/quant_research_runs/20261021_external_review_round2_redteam_v1/master/accepted_final/source_before.json')
+mode = 'x', buffering = -1, encoding = 'utf-8', errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileExistsError: [Errno 17] File exists: 'D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261021_external_review_round2_redteam_v1\\master\\accepted_final\\source_before.json'
+
+C:\Python314\Lib\pathlib\__init__.py:771: FileExistsError
+_ ERROR at setup of test_parser_rejects_nonfinite_type_precision_unit_or_interval[CONTRACT_UNIT-Infinity] _
+
+    @pytest.fixture(scope='module', autouse=True)
+    def binding():
+        files = [Path(identity.__file__), Path(__file__), RAW/'sse_adjustment_20260715.json',
+                 RAW/'sse_december_identity.json', RAW/'sse_contract_master.json',
+                 ROOT/'quant_research_runs/20261021_external_review_round2_redteam_v1/run_checks.py',
+                 ROOT/'poe_ic_im_mainline_v1_4_bot.py', ROOT/'ic_im_v1_4_policy.py',
+                 ROOT/'poe_ic_im_v1_4_state.py', ROOT/'ic_im_put_execution_v1.py']
+        def hashes():
+            return {str(p.relative_to(ROOT)): hashlib.sha256(p.read_bytes()).hexdigest() for p in files}
+        before = hashes()
+>       save_new('source_before.json', before)
+
+test_icim_round2_audit_master_20261021.py:63: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+test_icim_round2_audit_master_20261021.py:49: in save_new
+    with target.open('x', encoding='utf-8') as handle:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = WindowsPath('D:/动量策略/IC和IM滚动套利/quant_research_runs/20261021_external_review_round2_redteam_v1/master/accepted_final/source_before.json')
+mode = 'x', buffering = -1, encoding = 'utf-8', errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileExistsError: [Errno 17] File exists: 'D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261021_external_review_round2_redteam_v1\\master\\accepted_final\\source_before.json'
+
+C:\Python314\Lib\pathlib\__init__.py:771: FileExistsError
+_ ERROR at setup of test_parser_rejects_nonfinite_type_precision_unit_or_interval[CONTRACT_UNIT-False] _
+
+    @pytest.fixture(scope='module', autouse=True)
+    def binding():
+        files = [Path(identity.__file__), Path(__file__), RAW/'sse_adjustment_20260715.json',
+                 RAW/'sse_december_identity.json', RAW/'sse_contract_master.json',
+                 ROOT/'quant_research_runs/20261021_external_review_round2_redteam_v1/run_checks.py',
+                 ROOT/'poe_ic_im_mainline_v1_4_bot.py', ROOT/'ic_im_v1_4_policy.py',
+                 ROOT/'poe_ic_im_v1_4_state.py', ROOT/'ic_im_put_execution_v1.py']
+        def hashes():
+            return {str(p.relative_to(ROOT)): hashlib.sha256(p.read_bytes()).hexdigest() for p in files}
+        before = hashes()
+>       save_new('source_before.json', before)
+
+test_icim_round2_audit_master_20261021.py:63: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+test_icim_round2_audit_master_20261021.py:49: in save_new
+    with target.open('x', encoding='utf-8') as handle:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = WindowsPath('D:/动量策略/IC和IM滚动套利/quant_research_runs/20261021_external_review_round2_redteam_v1/master/accepted_final/source_before.json')
+mode = 'x', buffering = -1, encoding = 'utf-8', errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileExistsError: [Errno 17] File exists: 'D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261021_external_review_round2_redteam_v1\\master\\accepted_final\\source_before.json'
+
+C:\Python314\Lib\pathlib\__init__.py:771: FileExistsError
+_ ERROR at setup of test_parser_rejects_nonfinite_type_precision_unit_or_interval[CONTRACT_UNIT-10180.00001] _
+
+    @pytest.fixture(scope='module', autouse=True)
+    def binding():
+        files = [Path(identity.__file__), Path(__file__), RAW/'sse_adjustment_20260715.json',
+                 RAW/'sse_december_identity.json', RAW/'sse_contract_master.json',
+                 ROOT/'quant_research_runs/20261021_external_review_round2_redteam_v1/run_checks.py',
+                 ROOT/'poe_ic_im_mainline_v1_4_bot.py', ROOT/'ic_im_v1_4_policy.py',
+                 ROOT/'poe_ic_im_v1_4_state.py', ROOT/'ic_im_put_execution_v1.py']
+        def hashes():
+            return {str(p.relative_to(ROOT)): hashlib.sha256(p.read_bytes()).hexdigest() for p in files}
+        before = hashes()
+>       save_new('source_before.json', before)
+
+test_icim_round2_audit_master_20261021.py:63: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+test_icim_round2_audit_master_20261021.py:49: in save_new
+    with target.open('x', encoding='utf-8') as handle:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = WindowsPath('D:/动量策略/IC和IM滚动套利/quant_research_runs/20261021_external_review_round2_redteam_v1/master/accepted_final/source_before.json')
+mode = 'x', buffering = -1, encoding = 'utf-8', errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileExistsError: [Errno 17] File exists: 'D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261021_external_review_round2_redteam_v1\\master\\accepted_final\\source_before.json'
+
+C:\Python314\Lib\pathlib\__init__.py:771: FileExistsError
+_ ERROR at setup of test_parser_rejects_nonfinite_type_precision_unit_or_interval[CONTRACT_UNIT--1] _
+
+    @pytest.fixture(scope='module', autouse=True)
+    def binding():
+        files = [Path(identity.__file__), Path(__file__), RAW/'sse_adjustment_20260715.json',
+                 RAW/'sse_december_identity.json', RAW/'sse_contract_master.json',
+                 ROOT/'quant_research_runs/20261021_external_review_round2_redteam_v1/run_checks.py',
+                 ROOT/'poe_ic_im_mainline_v1_4_bot.py', ROOT/'ic_im_v1_4_policy.py',
+                 ROOT/'poe_ic_im_v1_4_state.py', ROOT/'ic_im_put_execution_v1.py']
+        def hashes():
+            return {str(p.relative_to(ROOT)): hashlib.sha256(p.read_bytes()).hexdigest() for p in files}
+        before = hashes()
+>       save_new('source_before.json', before)
+
+test_icim_round2_audit_master_20261021.py:63: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+test_icim_round2_audit_master_20261021.py:49: in save_new
+    with target.open('x', encoding='utf-8') as handle:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = WindowsPath('D:/动量策略/IC和IM滚动套利/quant_research_runs/20261021_external_review_round2_redteam_v1/master/accepted_final/source_before.json')
+mode = 'x', buffering = -1, encoding = 'utf-8', errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileExistsError: [Errno 17] File exists: 'D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261021_external_review_round2_redteam_v1\\master\\accepted_final\\source_before.json'
+
+C:\Python314\Lib\pathlib\__init__.py:771: FileExistsError
+_ ERROR at setup of test_parser_rejects_nonfinite_type_precision_unit_or_interval[ORG_CONTRACT_UNIT-10180] _
+
+    @pytest.fixture(scope='module', autouse=True)
+    def binding():
+        files = [Path(identity.__file__), Path(__file__), RAW/'sse_adjustment_20260715.json',
+                 RAW/'sse_december_identity.json', RAW/'sse_contract_master.json',
+                 ROOT/'quant_research_runs/20261021_external_review_round2_redteam_v1/run_checks.py',
+                 ROOT/'poe_ic_im_mainline_v1_4_bot.py', ROOT/'ic_im_v1_4_policy.py',
+                 ROOT/'poe_ic_im_v1_4_state.py', ROOT/'ic_im_put_execution_v1.py']
+        def hashes():
+            return {str(p.relative_to(ROOT)): hashlib.sha256(p.read_bytes()).hexdigest() for p in files}
+        before = hashes()
+>       save_new('source_before.json', before)
+
+test_icim_round2_audit_master_20261021.py:63: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+test_icim_round2_audit_master_20261021.py:49: in save_new
+    with target.open('x', encoding='utf-8') as handle:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = WindowsPath('D:/动量策略/IC和IM滚动套利/quant_research_runs/20261021_external_review_round2_redteam_v1/master/accepted_final/source_before.json')
+mode = 'x', buffering = -1, encoding = 'utf-8', errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileExistsError: [Errno 17] File exists: 'D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261021_external_review_round2_redteam_v1\\master\\accepted_final\\source_before.json'
+
+C:\Python314\Lib\pathlib\__init__.py:771: FileExistsError
+_ ERROR at setup of test_parser_rejects_nonfinite_type_precision_unit_or_interval[EXPIRE_MONTH-202611] _
+
+    @pytest.fixture(scope='module', autouse=True)
+    def binding():
+        files = [Path(identity.__file__), Path(__file__), RAW/'sse_adjustment_20260715.json',
+                 RAW/'sse_december_identity.json', RAW/'sse_contract_master.json',
+                 ROOT/'quant_research_runs/20261021_external_review_round2_redteam_v1/run_checks.py',
+                 ROOT/'poe_ic_im_mainline_v1_4_bot.py', ROOT/'ic_im_v1_4_policy.py',
+                 ROOT/'poe_ic_im_v1_4_state.py', ROOT/'ic_im_put_execution_v1.py']
+        def hashes():
+            return {str(p.relative_to(ROOT)): hashlib.sha256(p.read_bytes()).hexdigest() for p in files}
+        before = hashes()
+>       save_new('source_before.json', before)
+
+test_icim_round2_audit_master_20261021.py:63: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+test_icim_round2_audit_master_20261021.py:49: in save_new
+    with target.open('x', encoding='utf-8') as handle:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = WindowsPath('D:/动量策略/IC和IM滚动套利/quant_research_runs/20261021_external_review_round2_redteam_v1/master/accepted_final/source_before.json')
+mode = 'x', buffering = -1, encoding = 'utf-8', errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileExistsError: [Errno 17] File exists: 'D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261021_external_review_round2_redteam_v1\\master\\accepted_final\\source_before.json'
+
+C:\Python314\Lib\pathlib\__init__.py:771: FileExistsError
+_ ERROR at setup of test_parser_rejects_nonfinite_type_precision_unit_or_interval[ADJUST_DATE-20260716] _
+
+    @pytest.fixture(scope='module', autouse=True)
+    def binding():
+        files = [Path(identity.__file__), Path(__file__), RAW/'sse_adjustment_20260715.json',
+                 RAW/'sse_december_identity.json', RAW/'sse_contract_master.json',
+                 ROOT/'quant_research_runs/20261021_external_review_round2_redteam_v1/run_checks.py',
+                 ROOT/'poe_ic_im_mainline_v1_4_bot.py', ROOT/'ic_im_v1_4_policy.py',
+                 ROOT/'poe_ic_im_v1_4_state.py', ROOT/'ic_im_put_execution_v1.py']
+        def hashes():
+            return {str(p.relative_to(ROOT)): hashlib.sha256(p.read_bytes()).hexdigest() for p in files}
+        before = hashes()
+>       save_new('source_before.json', before)
+
+test_icim_round2_audit_master_20261021.py:63: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+test_icim_round2_audit_master_20261021.py:49: in save_new
+    with target.open('x', encoding='utf-8') as handle:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = WindowsPath('D:/动量策略/IC和IM滚动套利/quant_research_runs/20261021_external_review_round2_redteam_v1/master/accepted_final/source_before.json')
+mode = 'x', buffering = -1, encoding = 'utf-8', errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileExistsError: [Errno 17] File exists: 'D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261021_external_review_round2_redteam_v1\\master\\accepted_final\\source_before.json'
+
+C:\Python314\Lib\pathlib\__init__.py:771: FileExistsError
+_ ERROR at setup of test_parser_rejects_nonfinite_type_precision_unit_or_interval[EXERCISE_DATE-20261224] _
+
+    @pytest.fixture(scope='module', autouse=True)
+    def binding():
+        files = [Path(identity.__file__), Path(__file__), RAW/'sse_adjustment_20260715.json',
+                 RAW/'sse_december_identity.json', RAW/'sse_contract_master.json',
+                 ROOT/'quant_research_runs/20261021_external_review_round2_redteam_v1/run_checks.py',
+                 ROOT/'poe_ic_im_mainline_v1_4_bot.py', ROOT/'ic_im_v1_4_policy.py',
+                 ROOT/'poe_ic_im_v1_4_state.py', ROOT/'ic_im_put_execution_v1.py']
+        def hashes():
+            return {str(p.relative_to(ROOT)): hashlib.sha256(p.read_bytes()).hexdigest() for p in files}
+        before = hashes()
+>       save_new('source_before.json', before)
+
+test_icim_round2_audit_master_20261021.py:63: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+test_icim_round2_audit_master_20261021.py:49: in save_new
+    with target.open('x', encoding='utf-8') as handle:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = WindowsPath('D:/动量策略/IC和IM滚动套利/quant_research_runs/20261021_external_review_round2_redteam_v1/master/accepted_final/source_before.json')
+mode = 'x', buffering = -1, encoding = 'utf-8', errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileExistsError: [Errno 17] File exists: 'D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261021_external_review_round2_redteam_v1\\master\\accepted_final\\source_before.json'
+
+C:\Python314\Lib\pathlib\__init__.py:771: FileExistsError
+_ ERROR at setup of test_parser_rejects_nonfinite_type_precision_unit_or_interval[END_DATE-20261222] _
+
+    @pytest.fixture(scope='module', autouse=True)
+    def binding():
+        files = [Path(identity.__file__), Path(__file__), RAW/'sse_adjustment_20260715.json',
+                 RAW/'sse_december_identity.json', RAW/'sse_contract_master.json',
+                 ROOT/'quant_research_runs/20261021_external_review_round2_redteam_v1/run_checks.py',
+                 ROOT/'poe_ic_im_mainline_v1_4_bot.py', ROOT/'ic_im_v1_4_policy.py',
+                 ROOT/'poe_ic_im_v1_4_state.py', ROOT/'ic_im_put_execution_v1.py']
+        def hashes():
+            return {str(p.relative_to(ROOT)): hashlib.sha256(p.read_bytes()).hexdigest() for p in files}
+        before = hashes()
+>       save_new('source_before.json', before)
+
+test_icim_round2_audit_master_20261021.py:63: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+test_icim_round2_audit_master_20261021.py:49: in save_new
+    with target.open('x', encoding='utf-8') as handle:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = WindowsPath('D:/动量策略/IC和IM滚动套利/quant_research_runs/20261021_external_review_round2_redteam_v1/master/accepted_final/source_before.json')
+mode = 'x', buffering = -1, encoding = 'utf-8', errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileExistsError: [Errno 17] File exists: 'D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261021_external_review_round2_redteam_v1\\master\\accepted_final\\source_before.json'
+
+C:\Python314\Lib\pathlib\__init__.py:771: FileExistsError
+_ ERROR at setup of test_parser_rejects_nonfinite_type_precision_unit_or_interval[SECURITY_ID-10011470] _
+
+    @pytest.fixture(scope='module', autouse=True)
+    def binding():
+        files = [Path(identity.__file__), Path(__file__), RAW/'sse_adjustment_20260715.json',
+                 RAW/'sse_december_identity.json', RAW/'sse_contract_master.json',
+                 ROOT/'quant_research_runs/20261021_external_review_round2_redteam_v1/run_checks.py',
+                 ROOT/'poe_ic_im_mainline_v1_4_bot.py', ROOT/'ic_im_v1_4_policy.py',
+                 ROOT/'poe_ic_im_v1_4_state.py', ROOT/'ic_im_put_execution_v1.py']
+        def hashes():
+            return {str(p.relative_to(ROOT)): hashlib.sha256(p.read_bytes()).hexdigest() for p in files}
+        before = hashes()
+>       save_new('source_before.json', before)
+
+test_icim_round2_audit_master_20261021.py:63: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+test_icim_round2_audit_master_20261021.py:49: in save_new
+    with target.open('x', encoding='utf-8') as handle:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = WindowsPath('D:/动量策略/IC和IM滚动套利/quant_research_runs/20261021_external_review_round2_redteam_v1/master/accepted_final/source_before.json')
+mode = 'x', buffering = -1, encoding = 'utf-8', errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileExistsError: [Errno 17] File exists: 'D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261021_external_review_round2_redteam_v1\\master\\accepted_final\\source_before.json'
+
+C:\Python314\Lib\pathlib\__init__.py:771: FileExistsError
+_ ERROR at setup of test_resolver_rejects_ambiguity_unproved_alias_or_time[duplicate] _
+
+    @pytest.fixture(scope='module', autouse=True)
+    def binding():
+        files = [Path(identity.__file__), Path(__file__), RAW/'sse_adjustment_20260715.json',
+                 RAW/'sse_december_identity.json', RAW/'sse_contract_master.json',
+                 ROOT/'quant_research_runs/20261021_external_review_round2_redteam_v1/run_checks.py',
+                 ROOT/'poe_ic_im_mainline_v1_4_bot.py', ROOT/'ic_im_v1_4_policy.py',
+                 ROOT/'poe_ic_im_v1_4_state.py', ROOT/'ic_im_put_execution_v1.py']
+        def hashes():
+            return {str(p.relative_to(ROOT)): hashlib.sha256(p.read_bytes()).hexdigest() for p in files}
+        before = hashes()
+>       save_new('source_before.json', before)
+
+test_icim_round2_audit_master_20261021.py:63: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+test_icim_round2_audit_master_20261021.py:49: in save_new
+    with target.open('x', encoding='utf-8') as handle:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = WindowsPath('D:/动量策略/IC和IM滚动套利/quant_research_runs/20261021_external_review_round2_redteam_v1/master/accepted_final/source_before.json')
+mode = 'x', buffering = -1, encoding = 'utf-8', errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileExistsError: [Errno 17] File exists: 'D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261021_external_review_round2_redteam_v1\\master\\accepted_final\\source_before.json'
+
+C:\Python314\Lib\pathlib\__init__.py:771: FileExistsError
+_ ERROR at setup of test_resolver_rejects_ambiguity_unproved_alias_or_time[wrong_alias] _
+
+    @pytest.fixture(scope='module', autouse=True)
+    def binding():
+        files = [Path(identity.__file__), Path(__file__), RAW/'sse_adjustment_20260715.json',
+                 RAW/'sse_december_identity.json', RAW/'sse_contract_master.json',
+                 ROOT/'quant_research_runs/20261021_external_review_round2_redteam_v1/run_checks.py',
+                 ROOT/'poe_ic_im_mainline_v1_4_bot.py', ROOT/'ic_im_v1_4_policy.py',
+                 ROOT/'poe_ic_im_v1_4_state.py', ROOT/'ic_im_put_execution_v1.py']
+        def hashes():
+            return {str(p.relative_to(ROOT)): hashlib.sha256(p.read_bytes()).hexdigest() for p in files}
+        before = hashes()
+>       save_new('source_before.json', before)
+
+test_icim_round2_audit_master_20261021.py:63: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+test_icim_round2_audit_master_20261021.py:49: in save_new
+    with target.open('x', encoding='utf-8') as handle:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = WindowsPath('D:/动量策略/IC和IM滚动套利/quant_research_runs/20261021_external_review_round2_redteam_v1/master/accepted_final/source_before.json')
+mode = 'x', buffering = -1, encoding = 'utf-8', errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileExistsError: [Errno 17] File exists: 'D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261021_external_review_round2_redteam_v1\\master\\accepted_final\\source_before.json'
+
+C:\Python314\Lib\pathlib\__init__.py:771: FileExistsError
+_ ERROR at setup of test_resolver_rejects_ambiguity_unproved_alias_or_time[future] _
+
+    @pytest.fixture(scope='module', autouse=True)
+    def binding():
+        files = [Path(identity.__file__), Path(__file__), RAW/'sse_adjustment_20260715.json',
+                 RAW/'sse_december_identity.json', RAW/'sse_contract_master.json',
+                 ROOT/'quant_research_runs/20261021_external_review_round2_redteam_v1/run_checks.py',
+                 ROOT/'poe_ic_im_mainline_v1_4_bot.py', ROOT/'ic_im_v1_4_policy.py',
+                 ROOT/'poe_ic_im_v1_4_state.py', ROOT/'ic_im_put_execution_v1.py']
+        def hashes():
+            return {str(p.relative_to(ROOT)): hashlib.sha256(p.read_bytes()).hexdigest() for p in files}
+        before = hashes()
+>       save_new('source_before.json', before)
+
+test_icim_round2_audit_master_20261021.py:63: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+test_icim_round2_audit_master_20261021.py:49: in save_new
+    with target.open('x', encoding='utf-8') as handle:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = WindowsPath('D:/动量策略/IC和IM滚动套利/quant_research_runs/20261021_external_review_round2_redteam_v1/master/accepted_final/source_before.json')
+mode = 'x', buffering = -1, encoding = 'utf-8', errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileExistsError: [Errno 17] File exists: 'D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261021_external_review_round2_redteam_v1\\master\\accepted_final\\source_before.json'
+
+C:\Python314\Lib\pathlib\__init__.py:771: FileExistsError
+_ ERROR at setup of test_resolver_rejects_ambiguity_unproved_alias_or_time[expired] _
+
+    @pytest.fixture(scope='module', autouse=True)
+    def binding():
+        files = [Path(identity.__file__), Path(__file__), RAW/'sse_adjustment_20260715.json',
+                 RAW/'sse_december_identity.json', RAW/'sse_contract_master.json',
+                 ROOT/'quant_research_runs/20261021_external_review_round2_redteam_v1/run_checks.py',
+                 ROOT/'poe_ic_im_mainline_v1_4_bot.py', ROOT/'ic_im_v1_4_policy.py',
+                 ROOT/'poe_ic_im_v1_4_state.py', ROOT/'ic_im_put_execution_v1.py']
+        def hashes():
+            return {str(p.relative_to(ROOT)): hashlib.sha256(p.read_bytes()).hexdigest() for p in files}
+        before = hashes()
+>       save_new('source_before.json', before)
+
+test_icim_round2_audit_master_20261021.py:63: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+test_icim_round2_audit_master_20261021.py:49: in save_new
+    with target.open('x', encoding='utf-8') as handle:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = WindowsPath('D:/动量策略/IC和IM滚动套利/quant_research_runs/20261021_external_review_round2_redteam_v1/master/accepted_final/source_before.json')
+mode = 'x', buffering = -1, encoding = 'utf-8', errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileExistsError: [Errno 17] File exists: 'D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261021_external_review_round2_redteam_v1\\master\\accepted_final\\source_before.json'
+
+C:\Python314\Lib\pathlib\__init__.py:771: FileExistsError
+_ ERROR at setup of test_resolver_rejects_ambiguity_unproved_alias_or_time[stale_quote] _
+
+    @pytest.fixture(scope='module', autouse=True)
+    def binding():
+        files = [Path(identity.__file__), Path(__file__), RAW/'sse_adjustment_20260715.json',
+                 RAW/'sse_december_identity.json', RAW/'sse_contract_master.json',
+                 ROOT/'quant_research_runs/20261021_external_review_round2_redteam_v1/run_checks.py',
+                 ROOT/'poe_ic_im_mainline_v1_4_bot.py', ROOT/'ic_im_v1_4_policy.py',
+                 ROOT/'poe_ic_im_v1_4_state.py', ROOT/'ic_im_put_execution_v1.py']
+        def hashes():
+            return {str(p.relative_to(ROOT)): hashlib.sha256(p.read_bytes()).hexdigest() for p in files}
+        before = hashes()
+>       save_new('source_before.json', before)
+
+test_icim_round2_audit_master_20261021.py:63: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+test_icim_round2_audit_master_20261021.py:49: in save_new
+    with target.open('x', encoding='utf-8') as handle:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = WindowsPath('D:/动量策略/IC和IM滚动套利/quant_research_runs/20261021_external_review_round2_redteam_v1/master/accepted_final/source_before.json')
+mode = 'x', buffering = -1, encoding = 'utf-8', errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileExistsError: [Errno 17] File exists: 'D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261021_external_review_round2_redteam_v1\\master\\accepted_final\\source_before.json'
+
+C:\Python314\Lib\pathlib\__init__.py:771: FileExistsError
+_ ERROR at setup of test_diagnostic_is_read_only_and_retains_guard_for_old_and_new_alias _
+
+    @pytest.fixture(scope='module', autouse=True)
+    def binding():
+        files = [Path(identity.__file__), Path(__file__), RAW/'sse_adjustment_20260715.json',
+                 RAW/'sse_december_identity.json', RAW/'sse_contract_master.json',
+                 ROOT/'quant_research_runs/20261021_external_review_round2_redteam_v1/run_checks.py',
+                 ROOT/'poe_ic_im_mainline_v1_4_bot.py', ROOT/'ic_im_v1_4_policy.py',
+                 ROOT/'poe_ic_im_v1_4_state.py', ROOT/'ic_im_put_execution_v1.py']
+        def hashes():
+            return {str(p.relative_to(ROOT)): hashlib.sha256(p.read_bytes()).hexdigest() for p in files}
+        before = hashes()
+>       save_new('source_before.json', before)
+
+test_icim_round2_audit_master_20261021.py:63: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+test_icim_round2_audit_master_20261021.py:49: in save_new
+    with target.open('x', encoding='utf-8') as handle:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = WindowsPath('D:/动量策略/IC和IM滚动套利/quant_research_runs/20261021_external_review_round2_redteam_v1/master/accepted_final/source_before.json')
+mode = 'x', buffering = -1, encoding = 'utf-8', errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileExistsError: [Errno 17] File exists: 'D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261021_external_review_round2_redteam_v1\\master\\accepted_final\\source_before.json'
+
+C:\Python314\Lib\pathlib\__init__.py:771: FileExistsError
+_ ERROR at setup of test_explicit_response_errors_or_impossible_listing_interval_are_rejected[actionErrors-value0] _
+
+    @pytest.fixture(scope='module', autouse=True)
+    def binding():
+        files = [Path(identity.__file__), Path(__file__), RAW/'sse_adjustment_20260715.json',
+                 RAW/'sse_december_identity.json', RAW/'sse_contract_master.json',
+                 ROOT/'quant_research_runs/20261021_external_review_round2_redteam_v1/run_checks.py',
+                 ROOT/'poe_ic_im_mainline_v1_4_bot.py', ROOT/'ic_im_v1_4_policy.py',
+                 ROOT/'poe_ic_im_v1_4_state.py', ROOT/'ic_im_put_execution_v1.py']
+        def hashes():
+            return {str(p.relative_to(ROOT)): hashlib.sha256(p.read_bytes()).hexdigest() for p in files}
+        before = hashes()
+>       save_new('source_before.json', before)
+
+test_icim_round2_audit_master_20261021.py:63: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+test_icim_round2_audit_master_20261021.py:49: in save_new
+    with target.open('x', encoding='utf-8') as handle:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = WindowsPath('D:/动量策略/IC和IM滚动套利/quant_research_runs/20261021_external_review_round2_redteam_v1/master/accepted_final/source_before.json')
+mode = 'x', buffering = -1, encoding = 'utf-8', errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileExistsError: [Errno 17] File exists: 'D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261021_external_review_round2_redteam_v1\\master\\accepted_final\\source_before.json'
+
+C:\Python314\Lib\pathlib\__init__.py:771: FileExistsError
+_ ERROR at setup of test_explicit_response_errors_or_impossible_listing_interval_are_rejected[fieldErrors-value1] _
+
+    @pytest.fixture(scope='module', autouse=True)
+    def binding():
+        files = [Path(identity.__file__), Path(__file__), RAW/'sse_adjustment_20260715.json',
+                 RAW/'sse_december_identity.json', RAW/'sse_contract_master.json',
+                 ROOT/'quant_research_runs/20261021_external_review_round2_redteam_v1/run_checks.py',
+                 ROOT/'poe_ic_im_mainline_v1_4_bot.py', ROOT/'ic_im_v1_4_policy.py',
+                 ROOT/'poe_ic_im_v1_4_state.py', ROOT/'ic_im_put_execution_v1.py']
+        def hashes():
+            return {str(p.relative_to(ROOT)): hashlib.sha256(p.read_bytes()).hexdigest() for p in files}
+        before = hashes()
+>       save_new('source_before.json', before)
+
+test_icim_round2_audit_master_20261021.py:63: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+test_icim_round2_audit_master_20261021.py:49: in save_new
+    with target.open('x', encoding='utf-8') as handle:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = WindowsPath('D:/动量策略/IC和IM滚动套利/quant_research_runs/20261021_external_review_round2_redteam_v1/master/accepted_final/source_before.json')
+mode = 'x', buffering = -1, encoding = 'utf-8', errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileExistsError: [Errno 17] File exists: 'D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261021_external_review_round2_redteam_v1\\master\\accepted_final\\source_before.json'
+
+C:\Python314\Lib\pathlib\__init__.py:771: FileExistsError
+_ ERROR at setup of test_explicit_response_errors_or_impossible_listing_interval_are_rejected[START_DATE-20260716] _
+
+    @pytest.fixture(scope='module', autouse=True)
+    def binding():
+        files = [Path(identity.__file__), Path(__file__), RAW/'sse_adjustment_20260715.json',
+                 RAW/'sse_december_identity.json', RAW/'sse_contract_master.json',
+                 ROOT/'quant_research_runs/20261021_external_review_round2_redteam_v1/run_checks.py',
+                 ROOT/'poe_ic_im_mainline_v1_4_bot.py', ROOT/'ic_im_v1_4_policy.py',
+                 ROOT/'poe_ic_im_v1_4_state.py', ROOT/'ic_im_put_execution_v1.py']
+        def hashes():
+            return {str(p.relative_to(ROOT)): hashlib.sha256(p.read_bytes()).hexdigest() for p in files}
+        before = hashes()
+>       save_new('source_before.json', before)
+
+test_icim_round2_audit_master_20261021.py:63: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+test_icim_round2_audit_master_20261021.py:49: in save_new
+    with target.open('x', encoding='utf-8') as handle:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = WindowsPath('D:/动量策略/IC和IM滚动套利/quant_research_runs/20261021_external_review_round2_redteam_v1/master/accepted_final/source_before.json')
+mode = 'x', buffering = -1, encoding = 'utf-8', errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileExistsError: [Errno 17] File exists: 'D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261021_external_review_round2_redteam_v1\\master\\accepted_final\\source_before.json'
+
+C:\Python314\Lib\pathlib\__init__.py:771: FileExistsError
+_ ERROR at setup of test_numeric_zero_is_not_a_boolean_false_pagination_marker[0] _
+
+    @pytest.fixture(scope='module', autouse=True)
+    def binding():
+        files = [Path(identity.__file__), Path(__file__), RAW/'sse_adjustment_20260715.json',
+                 RAW/'sse_december_identity.json', RAW/'sse_contract_master.json',
+                 ROOT/'quant_research_runs/20261021_external_review_round2_redteam_v1/run_checks.py',
+                 ROOT/'poe_ic_im_mainline_v1_4_bot.py', ROOT/'ic_im_v1_4_policy.py',
+                 ROOT/'poe_ic_im_v1_4_state.py', ROOT/'ic_im_put_execution_v1.py']
+        def hashes():
+            return {str(p.relative_to(ROOT)): hashlib.sha256(p.read_bytes()).hexdigest() for p in files}
+        before = hashes()
+>       save_new('source_before.json', before)
+
+test_icim_round2_audit_master_20261021.py:63: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+test_icim_round2_audit_master_20261021.py:49: in save_new
+    with target.open('x', encoding='utf-8') as handle:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = WindowsPath('D:/动量策略/IC和IM滚动套利/quant_research_runs/20261021_external_review_round2_redteam_v1/master/accepted_final/source_before.json')
+mode = 'x', buffering = -1, encoding = 'utf-8', errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileExistsError: [Errno 17] File exists: 'D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261021_external_review_round2_redteam_v1\\master\\accepted_final\\source_before.json'
+
+C:\Python314\Lib\pathlib\__init__.py:771: FileExistsError
+_ ERROR at setup of test_numeric_zero_is_not_a_boolean_false_pagination_marker[0.0] _
+
+    @pytest.fixture(scope='module', autouse=True)
+    def binding():
+        files = [Path(identity.__file__), Path(__file__), RAW/'sse_adjustment_20260715.json',
+                 RAW/'sse_december_identity.json', RAW/'sse_contract_master.json',
+                 ROOT/'quant_research_runs/20261021_external_review_round2_redteam_v1/run_checks.py',
+                 ROOT/'poe_ic_im_mainline_v1_4_bot.py', ROOT/'ic_im_v1_4_policy.py',
+                 ROOT/'poe_ic_im_v1_4_state.py', ROOT/'ic_im_put_execution_v1.py']
+        def hashes():
+            return {str(p.relative_to(ROOT)): hashlib.sha256(p.read_bytes()).hexdigest() for p in files}
+        before = hashes()
+>       save_new('source_before.json', before)
+
+test_icim_round2_audit_master_20261021.py:63: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+test_icim_round2_audit_master_20261021.py:49: in save_new
+    with target.open('x', encoding='utf-8') as handle:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = WindowsPath('D:/动量策略/IC和IM滚动套利/quant_research_runs/20261021_external_review_round2_redteam_v1/master/accepted_final/source_before.json')
+mode = 'x', buffering = -1, encoding = 'utf-8', errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileExistsError: [Errno 17] File exists: 'D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261021_external_review_round2_redteam_v1\\master\\accepted_final\\source_before.json'
+
+C:\Python314\Lib\pathlib\__init__.py:771: FileExistsError
+============================== warnings summary ===============================
+C:\Python314\Lib\site-packages\fastapi_poe\types.py:171
+  C:\Python314\Lib\site-packages\fastapi_poe\types.py:171: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    class RequestContext(BaseModel):
+
+test_icim_redteam_display_20261021.py::test_bootstrap_snapshot_retains_known_single_core_identity
+  test_icim_redteam_display_20261021.py:73: PytestWarning: record_property is incompatible with junit_family 'xunit2' (use 'legacy' or 'xunit1')
+    def test_bootstrap_snapshot_retains_known_single_core_identity(monkeypatch, record_property):
+
+test_icim_redteam_display_20261021.py::test_core_overlay_failure_cannot_label_momentum_as_current_core
+  test_icim_redteam_display_20261021.py:89: PytestWarning: record_property is incompatible with junit_family 'xunit2' (use 'legacy' or 'xunit1')
+    def test_core_overlay_failure_cannot_label_momentum_as_current_core(monkeypatch, record_property):
+
+test_icim_redteam_display_20261021.py::test_core_overlay_failure_cannot_publish_momentum_iv_as_core_monitor
+  test_icim_redteam_display_20261021.py:120: PytestWarning: record_property is incompatible with junit_family 'xunit2' (use 'legacy' or 'xunit1')
+    def test_core_overlay_failure_cannot_publish_momentum_iv_as_core_monitor(monkeypatch, record_property):
+
+test_icim_redteam_display_20261021.py::test_im_snapshot_zero_core_does_not_show_residual_contract
+  test_icim_redteam_display_20261021.py:199: PytestWarning: record_property is incompatible with junit_family 'xunit2' (use 'legacy' or 'xunit1')
+    def test_im_snapshot_zero_core_does_not_show_residual_contract(monkeypatch, record_property):
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+ERROR test_icim_round2_audit_master_20261021.py::test_real_raw_source_bytes_match_previously_saved_capture
+ERROR test_icim_round2_audit_master_20261021.py::test_all_114_events_independently_match_raw_identity_dates_units
+ERROR test_icim_round2_audit_master_20261021.py::test_real_58_quotes_bind_to_actual_master_and_14_put_diagnostics
+ERROR test_icim_round2_audit_master_20261021.py::test_parser_rejects_nonfinite_type_precision_unit_or_interval[EXERCISE_PRICE-nan]
+ERROR test_icim_round2_audit_master_20261021.py::test_parser_rejects_nonfinite_type_precision_unit_or_interval[EXERCISE_PRICE-inf]
+ERROR test_icim_round2_audit_master_20261021.py::test_parser_rejects_nonfinite_type_precision_unit_or_interval[EXERCISE_PRICE-True]
+ERROR test_icim_round2_audit_master_20261021.py::test_parser_rejects_nonfinite_type_precision_unit_or_interval[EXERCISE_PRICE-0]
+ERROR test_icim_round2_audit_master_20261021.py::test_parser_rejects_nonfinite_type_precision_unit_or_interval[ORG_EXERCISE_PRICE-7.499]
+ERROR test_icim_round2_audit_master_20261021.py::test_parser_rejects_nonfinite_type_precision_unit_or_interval[CONTRACT_UNIT-NaN]
+ERROR test_icim_round2_audit_master_20261021.py::test_parser_rejects_nonfinite_type_precision_unit_or_interval[CONTRACT_UNIT-Infinity]
+ERROR test_icim_round2_audit_master_20261021.py::test_parser_rejects_nonfinite_type_precision_unit_or_interval[CONTRACT_UNIT-False]
+ERROR test_icim_round2_audit_master_20261021.py::test_parser_rejects_nonfinite_type_precision_unit_or_interval[CONTRACT_UNIT-10180.00001]
+ERROR test_icim_round2_audit_master_20261021.py::test_parser_rejects_nonfinite_type_precision_unit_or_interval[CONTRACT_UNIT--1]
+ERROR test_icim_round2_audit_master_20261021.py::test_parser_rejects_nonfinite_type_precision_unit_or_interval[ORG_CONTRACT_UNIT-10180]
+ERROR test_icim_round2_audit_master_20261021.py::test_parser_rejects_nonfinite_type_precision_unit_or_interval[EXPIRE_MONTH-202611]
+ERROR test_icim_round2_audit_master_20261021.py::test_parser_rejects_nonfinite_type_precision_unit_or_interval[ADJUST_DATE-20260716]
+ERROR test_icim_round2_audit_master_20261021.py::test_parser_rejects_nonfinite_type_precision_unit_or_interval[EXERCISE_DATE-20261224]
+ERROR test_icim_round2_audit_master_20261021.py::test_parser_rejects_nonfinite_type_precision_unit_or_interval[END_DATE-20261222]
+ERROR test_icim_round2_audit_master_20261021.py::test_parser_rejects_nonfinite_type_precision_unit_or_interval[SECURITY_ID-10011470]
+ERROR test_icim_round2_audit_master_20261021.py::test_resolver_rejects_ambiguity_unproved_alias_or_time[duplicate]
+ERROR test_icim_round2_audit_master_20261021.py::test_resolver_rejects_ambiguity_unproved_alias_or_time[wrong_alias]
+ERROR test_icim_round2_audit_master_20261021.py::test_resolver_rejects_ambiguity_unproved_alias_or_time[future]
+ERROR test_icim_round2_audit_master_20261021.py::test_resolver_rejects_ambiguity_unproved_alias_or_time[expired]
+ERROR test_icim_round2_audit_master_20261021.py::test_resolver_rejects_ambiguity_unproved_alias_or_time[stale_quote]
+ERROR test_icim_round2_audit_master_20261021.py::test_diagnostic_is_read_only_and_retains_guard_for_old_and_new_alias
+ERROR test_icim_round2_audit_master_20261021.py::test_explicit_response_errors_or_impossible_listing_interval_are_rejected[actionErrors-value0]
+ERROR test_icim_round2_audit_master_20261021.py::test_explicit_response_errors_or_impossible_listing_interval_are_rejected[fieldErrors-value1]
+ERROR test_icim_round2_audit_master_20261021.py::test_explicit_response_errors_or_impossible_listing_interval_are_rejected[START_DATE-20260716]
+ERROR test_icim_round2_audit_master_20261021.py::test_numeric_zero_is_not_a_boolean_false_pagination_marker[0]
+ERROR test_icim_round2_audit_master_20261021.py::test_numeric_zero_is_not_a_boolean_false_pagination_marker[0.0]
+1374 passed, 3 deselected, 5 warnings, 30 errors in 25.28s

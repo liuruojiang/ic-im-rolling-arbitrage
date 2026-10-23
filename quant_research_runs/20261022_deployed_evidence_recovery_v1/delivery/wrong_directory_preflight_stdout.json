@@ -1,0 +1,28 @@
+{
+  "status": "not_ready",
+  "ledger_write_requested": false,
+  "market_day": "2026-10-22",
+  "evidence_dir": "D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261022_deployed_evidence_recovery_v1\\probe_02\\wrong_evidence_directory\\evidence",
+  "products": {
+    "IC": {
+      "status": "unavailable",
+      "error_type": "EvidenceUnavailable",
+      "error": "2026-10-22 original evidence unavailable: no complete session matching requested roles, metadata and decision time"
+    },
+    "IM": {
+      "status": "unavailable",
+      "error_type": "EvidenceUnavailable",
+      "error": "2026-10-22 original evidence unavailable: no complete session matching requested roles, metadata and decision time"
+    }
+  },
+  "network_attempts": [],
+  "ledger": {
+    "verified_day": "2026-10-21",
+    "sequence": 19,
+    "digest": "c068710414dd9070d178faa4625d56835e67b9f2004c935a268900b9a1080342"
+  },
+  "next_ledger_session": "2026-10-22",
+  "source_pin_sha256": "fc55321fd48d30582e22dc3e76511e6a579facff17bcaddcecf0fa3533ae87d9",
+  "ledger_paths_and_bytes_unchanged": true,
+  "meaning": "Original input integrity only; formal persistence still requires complete, eligible IC and IM signals."
+}

@@ -1,0 +1,10 @@
+{
+  "exit_code": 1,
+  "files": [
+    "test_icim_round2_audit_lifecycle_20261021.py",
+    "-k",
+    "full_builder_expiry"
+  ],
+  "state_dir": "D:\\workspace\\icim_round2_lifecycle_temp\\icim_put_a8fd1e5d\\state",
+  "test_only_windows_mkdir_mode_adjustment": true
+}

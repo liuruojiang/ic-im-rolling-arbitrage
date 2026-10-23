@@ -1,0 +1,42 @@
+{
+  "ic_im_quarter_roll_v1_3.py": {
+    "sha256_raw": "81b058a158c8eb6de0d24daa81d25dc23aa780f6055f56a3d41fedab65838154",
+    "sha256_lf": "81b058a158c8eb6de0d24daa81d25dc23aa780f6055f56a3d41fedab65838154",
+    "git_blob_lf": "3def4d1a2d352fcbb3f2ef4066f9ee5f02a3c737"
+  },
+  "poe_ic_im_mainline_v1_4_bot.py": {
+    "sha256_raw": "08b6e395555a9f539401070ffcd315178fb7ff6149e4f4a864ae98d4a2086d5b",
+    "sha256_lf": "08b6e395555a9f539401070ffcd315178fb7ff6149e4f4a864ae98d4a2086d5b",
+    "git_blob_lf": "44022ad0df8bfe2068a8acfe74ae615f77c40496"
+  },
+  "run_ic_im_v1_4_github_digest.py": {
+    "sha256_raw": "56ebbb2cc0d141a657c93b1ad6329e0c65b577fdfba88962d3af761d0d21458c",
+    "sha256_lf": "56ebbb2cc0d141a657c93b1ad6329e0c65b577fdfba88962d3af761d0d21458c",
+    "git_blob_lf": "b781f6190b99eacb4731ea516ad3d6444f47603b"
+  },
+  "test_ic_im_month_spreads_20261018.py": {
+    "sha256_raw": "e655bd06b27e6fe65bf6429f186b951e4ce0b774cefe0fbead222d1cde787bf9",
+    "sha256_lf": "4f4ca374cc814a4fe7e94cf667cf39aa706062eb82bbfa87fb33d9be7cc4890c",
+    "git_blob_lf": "9ba19dcf9cb1160108db7d37df6404cf7d92329b"
+  },
+  "automation/scripts/build_ic_im_v1_4_digest.py": {
+    "sha256_lf": "4a984f865f198faa0b2eb936d140afb7906e710660a6e68951ff7b915d5a04ea",
+    "git_blob_lf": "ffadca06453be14f921867135eb77451f3b7ad10"
+  },
+  "automation/tests/test_ic_im_v1_4_month_spreads.py": {
+    "sha256_lf": "f47f077e3d0edbb38004faef93790ffe61787a66352e9237f8752b43b26e7273",
+    "git_blob_lf": "e80b985091f4731b41be68789493a379e96524f6"
+  },
+  "automation/.github/workflows/ic-im-v1-4-daily-digest.yml": {
+    "sha256_lf": "a1b3c730d02ef517b0ada066ca946bcb55abbfc7ee28b5d0600df30b18a2cecb",
+    "git_blob_lf": "141cf8efbf9eff8e812f0fa3bd94a9549d281610"
+  },
+  "automation/.github/workflows/delivery-regression.yml": {
+    "sha256_lf": "173004e9ff85c0c039efdb05d597d36b9da7b37c437ef489a36f9ee90cc3cd2c",
+    "git_blob_lf": "e23ab4d10bc1762e1c9c8bc02652f5503711aaae"
+  },
+  "automation/tests/test_ic_im_v1_4_workflow.py": {
+    "sha256_lf": "8b9bf9484c0104c6b12cbec4423f48678a5e2e7513dfc0fbe05b5bb76d9775f1",
+    "git_blob_lf": "1213a9f96c795ce7740de67fcf4f59813f2c9d16"
+  }
+}

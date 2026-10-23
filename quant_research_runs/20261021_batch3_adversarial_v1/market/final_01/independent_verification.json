@@ -1,0 +1,15 @@
+{
+  "counts": {
+    "tests": 20,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "source_files": 902,
+  "current_changed": [],
+  "original_test_snapshots_match_binding": {
+    "initial_01": true,
+    "initial_02": true
+  },
+  "receipt_sha256": "131670435f8d9ed0ceaf4b5a2e2e4d38be1056b24b219876d17454608d623b0e"
+}

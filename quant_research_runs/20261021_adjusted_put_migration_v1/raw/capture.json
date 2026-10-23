@@ -1,0 +1,30 @@
+[
+  {
+    "requested_at": "2026-10-21T07:03:47.613453+00:00",
+    "url": "https://query.sse.com.cn/commonQuery.do",
+    "params": {
+      "isPagination": "false",
+      "sqlId": "SSE_ZQPZ_YSP_GGQQZSXT_XXPL_DRHY_SEARCH_L",
+      "securityId": "510500",
+      "expireDate": "202612",
+      "queryDate": "20261019",
+      "pageHelp.pageSize": "1000",
+      "pageHelp.pageNo": "1"
+    },
+    "error": "ProxyError: HTTPSConnectionPool(host='query.sse.com.cn', port=443): Max retries exceeded with url: /commonQuery.do?isPagination=false&sqlId=SSE_ZQPZ_YSP_GGQQZSXT_XXPL_DRHY_SEARCH_L&securityId=510500&expireDate=20"
+  },
+  {
+    "requested_at": "2026-10-21T07:03:49.660807+00:00",
+    "url": "https://query.sse.com.cn/commonQuery.do",
+    "params": {
+      "isPagination": "false",
+      "sqlId": "SSE_ZQPZ_YSP_GGQQZSXT_XXPL_DRHY_SEARCH_L",
+      "securityId": "510500",
+      "expireDate": "202612",
+      "queryDate": "20261020",
+      "pageHelp.pageSize": "1000",
+      "pageHelp.pageNo": "1"
+    },
+    "error": "ProxyError: HTTPSConnectionPool(host='query.sse.com.cn', port=443): Max retries exceeded with url: /commonQuery.do?isPagination=false&sqlId=SSE_ZQPZ_YSP_GGQQZSXT_XXPL_DRHY_SEARCH_L&securityId=510500&expireDate=20"
+  }
+]

@@ -1,0 +1,20 @@
+{
+  "name": "corrupt_ic_blob",
+  "evidence_dir": "D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261022_evidence_http_date_v1\\real_recovery_01\\corrupt_ic_blob\\evidence",
+  "negative": "corrupt_ic",
+  "before": {
+    "verified_day": "2026-10-21",
+    "sequence": 19,
+    "digest": "c068710414dd9070d178faa4625d56835e67b9f2004c935a268900b9a1080342"
+  },
+  "advanced_sessions": 0,
+  "after": {
+    "verified_day": "2026-10-21",
+    "sequence": 19,
+    "digest": "c068710414dd9070d178faa4625d56835e67b9f2004c935a268900b9a1080342"
+  },
+  "refresh_error": "RuntimeError: 补录 2026-10-22 尚未具备落账资格｜IC: 2026-10-22 original evidence unavailable: 104029320612-ea2833aff9a542968f51f66ceb0f7773.json: evidence blob hash or length mismatch",
+  "network_attempts": [],
+  "atomic_rejection": true,
+  "status": "PASS"
+}

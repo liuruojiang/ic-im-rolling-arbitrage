@@ -1,0 +1,69 @@
+.F                                                                       [100%]
+================================== FAILURES ===================================
+____ test_unacquired_file_lock_is_not_unlocked_or_original_failure_masked _____
+
+_fd = 11, operation = 1, _count = 1
+
+    def fail(_fd,operation,_count):
+        calls.append(operation)
+>       if operation == acquire:raise OSError('synthetic acquisition failed')
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       OSError: synthetic acquisition failed
+
+test_icim_batch3_concurrency_20261021.py:275: OSError
+
+During handling of the above exception, another exception occurred:
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_ecc53171/pytest/test_unacquired_file_lock_is_n0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001A139F64C30>
+
+    def test_unacquired_file_lock_is_not_unlocked_or_original_failure_masked(tmp_path,monkeypatch):
+        isolated,_ = store(tmp_path/'state')
+        calls = []
+        if os.name == 'nt':
+            import msvcrt
+            acquire,release = msvcrt.LK_LOCK,msvcrt.LK_UNLCK
+            def fail(_fd,operation,_count):
+                calls.append(operation)
+                if operation == acquire:raise OSError('synthetic acquisition failed')
+                raise AssertionError('attempted to unlock an unacquired file lock')
+            monkeypatch.setattr(msvcrt,'locking',fail)
+        else:
+            import fcntl
+            acquire,release = fcntl.LOCK_EX,fcntl.LOCK_UN
+            def fail(_fd,operation):
+                calls.append(operation)
+                if operation == acquire:raise OSError('synthetic acquisition failed')
+                raise AssertionError('attempted to unlock an unacquired file lock')
+            monkeypatch.setattr(fcntl,'flock',fail)
+        with pytest.raises(OSError,match='synthetic acquisition failed'):
+>           with isolated._exclusive_lock():
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_icim_batch3_concurrency_20261021.py:287: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+C:\Python314\Lib\contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+poe_ic_im_v1_4_state.py:1360: in _exclusive_lock
+    msvcrt.locking(stream.fileno(), msvcrt.LK_UNLCK, 1)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+_fd = 11, operation = 0, _count = 1
+
+    def fail(_fd,operation,_count):
+        calls.append(operation)
+        if operation == acquire:raise OSError('synthetic acquisition failed')
+>       raise AssertionError('attempted to unlock an unacquired file lock')
+E       AssertionError: attempted to unlock an unacquired file lock
+
+test_icim_batch3_concurrency_20261021.py:276: AssertionError
+============================== warnings summary ===============================
+C:\Python314\Lib\site-packages\fastapi_poe\types.py:171
+  C:\Python314\Lib\site-packages\fastapi_poe\types.py:171: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    class RequestContext(BaseModel):
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED test_icim_batch3_concurrency_20261021.py::test_unacquired_file_lock_is_not_unlocked_or_original_failure_masked
+1 failed, 1 passed, 1 warning in 5.48s

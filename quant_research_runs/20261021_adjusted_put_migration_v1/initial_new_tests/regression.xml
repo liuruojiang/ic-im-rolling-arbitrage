@@ -1,0 +1,497 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="15" skipped="0" tests="55" time="0.876" timestamp="2026-10-21T15:07:41.573020+08:00" hostname="DESKTOP-95I7VVU"><testcase classname="test_ic_im_adjusted_put_migration_20261021" name="test_real_adjustment_has_exact_before_after_boundaries" time="0.005"><failure message="RuntimeError: dated terms interval/unit invalid">def test_real_adjustment_has_exact_before_after_boundaries():
+&gt;       before, after = terms()
+                        ^^^^^^^
+
+test_ic_im_adjusted_put_migration_20261021.py:37: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+test_ic_im_adjusted_put_migration_20261021.py:25: in terms
+    return migration.adjustment_terms(raw("sse_adjustment_20260715.json"), effective_date=ADJUST)[SID]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ic_im_adjusted_put_migration_v1.py:111: in adjustment_terms
+    before = Terms(**common, contract=event["previous_contract"],
+&lt;string&gt;:11: in __init__
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = Terms(security_id='10011007', contract='510500C2609M07750', strike=Decimal('7.750'), unit=10000, valid_from=datetime.d...te(2026, 7, 14), source_hash='b317cd8bdcafdeb0bab4acd3603aa5c4e2d5cb6528303122050a92e273b8a59e', availability_day=None)
+
+    def __post_init__(self):
+        match = CODE.fullmatch(self.contract) if isinstance(self.contract, str) else None
+        if (not match or not isinstance(self.security_id, str)
+                or not re.fullmatch(r"[0-9]{8}", self.security_id)
+                or not isinstance(self.source_hash, str)
+                or not re.fullmatch(r"[0-9a-f]{64}", self.source_hash)):
+            raise RuntimeError("dated terms identity/provenance invalid")
+        if (type(self.unit) is not int or self.unit &lt;= 0
+                or type(self.valid_from) is not date or type(self.valid_through) is not date
+                or self.valid_from &gt; self.valid_through
+                or self.valid_through.strftime("%y%m") != match.group(2)):
+&gt;           raise RuntimeError("dated terms interval/unit invalid")
+E           RuntimeError: dated terms interval/unit invalid
+
+ic_im_adjusted_put_migration_v1.py:76: RuntimeError</failure></testcase><testcase classname="test_ic_im_adjusted_put_migration_20261021" name="test_all_real_14_adjusted_puts_agree_with_master_and_quote" time="0.004"><failure message="RuntimeError: dated terms interval/unit invalid">def test_all_real_14_adjusted_puts_agree_with_master_and_quote():
+&gt;       adjusted = migration.adjustment_terms(raw("sse_adjustment_20260715.json"), effective_date=ADJUST)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_ic_im_adjusted_put_migration_20261021.py:52: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+ic_im_adjusted_put_migration_v1.py:111: in adjustment_terms
+    before = Terms(**common, contract=event["previous_contract"],
+&lt;string&gt;:11: in __init__
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = Terms(security_id='10011007', contract='510500C2609M07750', strike=Decimal('7.750'), unit=10000, valid_from=datetime.d...te(2026, 7, 14), source_hash='b317cd8bdcafdeb0bab4acd3603aa5c4e2d5cb6528303122050a92e273b8a59e', availability_day=None)
+
+    def __post_init__(self):
+        match = CODE.fullmatch(self.contract) if isinstance(self.contract, str) else None
+        if (not match or not isinstance(self.security_id, str)
+                or not re.fullmatch(r"[0-9]{8}", self.security_id)
+                or not isinstance(self.source_hash, str)
+                or not re.fullmatch(r"[0-9a-f]{64}", self.source_hash)):
+            raise RuntimeError("dated terms identity/provenance invalid")
+        if (type(self.unit) is not int or self.unit &lt;= 0
+                or type(self.valid_from) is not date or type(self.valid_through) is not date
+                or self.valid_from &gt; self.valid_through
+                or self.valid_through.strftime("%y%m") != match.group(2)):
+&gt;           raise RuntimeError("dated terms interval/unit invalid")
+E           RuntimeError: dated terms interval/unit invalid
+
+ic_im_adjusted_put_migration_v1.py:76: RuntimeError</failure></testcase><testcase classname="test_ic_im_adjusted_put_migration_20261021" name="test_same_named_new_m_has_different_security_and_cannot_take_old_cost" time="0.004"><failure message="RuntimeError: dated terms interval/unit invalid">def test_same_named_new_m_has_different_security_and_cannot_take_old_cost():
+&gt;       before, _ = terms()
+                    ^^^^^^^
+
+test_ic_im_adjusted_put_migration_20261021.py:68: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+test_ic_im_adjusted_put_migration_20261021.py:25: in terms
+    return migration.adjustment_terms(raw("sse_adjustment_20260715.json"), effective_date=ADJUST)[SID]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ic_im_adjusted_put_migration_v1.py:111: in adjustment_terms
+    before = Terms(**common, contract=event["previous_contract"],
+&lt;string&gt;:11: in __init__
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = Terms(security_id='10011007', contract='510500C2609M07750', strike=Decimal('7.750'), unit=10000, valid_from=datetime.d...te(2026, 7, 14), source_hash='b317cd8bdcafdeb0bab4acd3603aa5c4e2d5cb6528303122050a92e273b8a59e', availability_day=None)
+
+    def __post_init__(self):
+        match = CODE.fullmatch(self.contract) if isinstance(self.contract, str) else None
+        if (not match or not isinstance(self.security_id, str)
+                or not re.fullmatch(r"[0-9]{8}", self.security_id)
+                or not isinstance(self.source_hash, str)
+                or not re.fullmatch(r"[0-9a-f]{64}", self.source_hash)):
+            raise RuntimeError("dated terms identity/provenance invalid")
+        if (type(self.unit) is not int or self.unit &lt;= 0
+                or type(self.valid_from) is not date or type(self.valid_through) is not date
+                or self.valid_from &gt; self.valid_through
+                or self.valid_through.strftime("%y%m") != match.group(2)):
+&gt;           raise RuntimeError("dated terms interval/unit invalid")
+E           RuntimeError: dated terms interval/unit invalid
+
+ic_im_adjusted_put_migration_v1.py:76: RuntimeError</failure></testcase><testcase classname="test_ic_im_adjusted_put_migration_20261021" name="test_master_uses_timesave_not_requested_date[2026-10-19]" time="0.002" /><testcase classname="test_ic_im_adjusted_put_migration_20261021" name="test_master_uses_timesave_not_requested_date[2026-10-21]" time="0.002" /><testcase classname="test_ic_im_adjusted_put_migration_20261021" name="test_master_uses_timesave_not_requested_date[2026-07-14]" time="0.002" /><testcase classname="test_ic_im_adjusted_put_migration_20261021" name="test_a_master_start_date_cannot_be_mistaken_for_adjustment_date" time="0.003" /><testcase classname="test_ic_im_adjusted_put_migration_20261021" name="test_master_rejects_bad_response_scope[isPagination-0]" time="0.001" /><testcase classname="test_ic_im_adjusted_put_migration_20261021" name="test_master_rejects_bad_response_scope[isPagination-0.0]" time="0.001" /><testcase classname="test_ic_im_adjusted_put_migration_20261021" name="test_master_rejects_bad_response_scope[actionErrors-value2]" time="0.001" /><testcase classname="test_ic_im_adjusted_put_migration_20261021" name="test_master_rejects_bad_response_scope[fieldErrors-value3]" time="0.001" /><testcase classname="test_ic_im_adjusted_put_migration_20261021" name="test_master_rejects_bad_response_scope[sqlId-wrong]" time="0.001" /><testcase classname="test_ic_im_adjusted_put_migration_20261021" name="test_master_rejects_bad_response_scope[result-value5]" time="0.001" /><testcase classname="test_ic_im_adjusted_put_migration_20261021" name="test_master_rejects_bad_rows[CONTRACT_UNIT-True]" time="0.002" /><testcase classname="test_ic_im_adjusted_put_migration_20261021" name="test_master_rejects_bad_rows[CONTRACT_UNIT-0]" time="0.002" /><testcase classname="test_ic_im_adjusted_put_migration_20261021" name="test_master_rejects_bad_rows[CONTRACT_UNIT-10180.5]" time="0.002" /><testcase classname="test_ic_im_adjusted_put_migration_20261021" name="test_master_rejects_bad_rows[CONTRACT_UNIT-NaN]" time="0.002" /><testcase classname="test_ic_im_adjusted_put_migration_20261021" name="test_master_rejects_bad_rows[SECURITY_ID-\uff11\uff10\uff10\uff11\uff11\uff14\uff17\uff10]" time="0.002" /><testcase classname="test_ic_im_adjusted_put_migration_20261021" name="test_master_rejects_bad_rows[TIMESAVE-20261021]" time="0.002" /><testcase classname="test_ic_im_adjusted_put_migration_20261021" name="test_master_rejects_bad_rows[DELISTFLAG-\u662f]" time="0.002" /><testcase classname="test_ic_im_adjusted_put_migration_20261021" name="test_master_rejects_bad_rows[EXERCISE_PRICE-Infinity]" time="0.002" /><testcase classname="test_ic_im_adjusted_put_migration_20261021" name="test_master_rejects_bad_rows[EXERCISE_DATE-20261224]" time="0.002" /><testcase classname="test_ic_im_adjusted_put_migration_20261021" name="test_master_rejects_bad_rows[END_DATE-20261224]" time="0.002" /><testcase classname="test_ic_im_adjusted_put_migration_20261021" name="test_master_rejects_bad_rows[START_DATE-20261021]" time="0.002" /><testcase classname="test_ic_im_adjusted_put_migration_20261021" name="test_master_rejects_bad_rows[CALL_OR_PUT-\u8ba4\u6cbd]" time="0.002" /><testcase classname="test_ic_im_adjusted_put_migration_20261021" name="test_master_rejects_duplicate_identity" time="0.003" /><testcase classname="test_ic_im_adjusted_put_migration_20261021" name="test_economic_terms_do_not_prove_daily_availability" time="0.006"><failure message="RuntimeError: dated terms interval/unit invalid">def test_economic_terms_do_not_prove_daily_availability():
+&gt;       _, value = terms()
+                   ^^^^^^^
+
+test_ic_im_adjusted_put_migration_20261021.py:122: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+test_ic_im_adjusted_put_migration_20261021.py:25: in terms
+    return migration.adjustment_terms(raw("sse_adjustment_20260715.json"), effective_date=ADJUST)[SID]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ic_im_adjusted_put_migration_v1.py:111: in adjustment_terms
+    before = Terms(**common, contract=event["previous_contract"],
+&lt;string&gt;:11: in __init__
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = Terms(security_id='10011007', contract='510500C2609M07750', strike=Decimal('7.750'), unit=10000, valid_from=datetime.d...te(2026, 7, 14), source_hash='b317cd8bdcafdeb0bab4acd3603aa5c4e2d5cb6528303122050a92e273b8a59e', availability_day=None)
+
+    def __post_init__(self):
+        match = CODE.fullmatch(self.contract) if isinstance(self.contract, str) else None
+        if (not match or not isinstance(self.security_id, str)
+                or not re.fullmatch(r"[0-9]{8}", self.security_id)
+                or not isinstance(self.source_hash, str)
+                or not re.fullmatch(r"[0-9a-f]{64}", self.source_hash)):
+            raise RuntimeError("dated terms identity/provenance invalid")
+        if (type(self.unit) is not int or self.unit &lt;= 0
+                or type(self.valid_from) is not date or type(self.valid_through) is not date
+                or self.valid_from &gt; self.valid_through
+                or self.valid_through.strftime("%y%m") != match.group(2)):
+&gt;           raise RuntimeError("dated terms interval/unit invalid")
+E           RuntimeError: dated terms interval/unit invalid
+
+ic_im_adjusted_put_migration_v1.py:76: RuntimeError</failure></testcase><testcase classname="test_ic_im_adjusted_put_migration_20261021" name="test_daily_quote_must_match_terms[date]" time="0.005"><failure message="RuntimeError: dated terms interval/unit invalid">kind = 'date'
+
+    @pytest.mark.parametrize("kind", ["date", "code", "strike", "security", "missing"])
+    def test_daily_quote_must_match_terms(kind):
+&gt;       _, value = terms()
+                   ^^^^^^^
+
+test_ic_im_adjusted_put_migration_20261021.py:132: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+test_ic_im_adjusted_put_migration_20261021.py:25: in terms
+    return migration.adjustment_terms(raw("sse_adjustment_20260715.json"), effective_date=ADJUST)[SID]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ic_im_adjusted_put_migration_v1.py:111: in adjustment_terms
+    before = Terms(**common, contract=event["previous_contract"],
+&lt;string&gt;:11: in __init__
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = Terms(security_id='10011007', contract='510500C2609M07750', strike=Decimal('7.750'), unit=10000, valid_from=datetime.d...te(2026, 7, 14), source_hash='b317cd8bdcafdeb0bab4acd3603aa5c4e2d5cb6528303122050a92e273b8a59e', availability_day=None)
+
+    def __post_init__(self):
+        match = CODE.fullmatch(self.contract) if isinstance(self.contract, str) else None
+        if (not match or not isinstance(self.security_id, str)
+                or not re.fullmatch(r"[0-9]{8}", self.security_id)
+                or not isinstance(self.source_hash, str)
+                or not re.fullmatch(r"[0-9a-f]{64}", self.source_hash)):
+            raise RuntimeError("dated terms identity/provenance invalid")
+        if (type(self.unit) is not int or self.unit &lt;= 0
+                or type(self.valid_from) is not date or type(self.valid_through) is not date
+                or self.valid_from &gt; self.valid_through
+                or self.valid_through.strftime("%y%m") != match.group(2)):
+&gt;           raise RuntimeError("dated terms interval/unit invalid")
+E           RuntimeError: dated terms interval/unit invalid
+
+ic_im_adjusted_put_migration_v1.py:76: RuntimeError</failure></testcase><testcase classname="test_ic_im_adjusted_put_migration_20261021" name="test_daily_quote_must_match_terms[code]" time="0.004"><failure message="RuntimeError: dated terms interval/unit invalid">kind = 'code'
+
+    @pytest.mark.parametrize("kind", ["date", "code", "strike", "security", "missing"])
+    def test_daily_quote_must_match_terms(kind):
+&gt;       _, value = terms()
+                   ^^^^^^^
+
+test_ic_im_adjusted_put_migration_20261021.py:132: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+test_ic_im_adjusted_put_migration_20261021.py:25: in terms
+    return migration.adjustment_terms(raw("sse_adjustment_20260715.json"), effective_date=ADJUST)[SID]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ic_im_adjusted_put_migration_v1.py:111: in adjustment_terms
+    before = Terms(**common, contract=event["previous_contract"],
+&lt;string&gt;:11: in __init__
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = Terms(security_id='10011007', contract='510500C2609M07750', strike=Decimal('7.750'), unit=10000, valid_from=datetime.d...te(2026, 7, 14), source_hash='b317cd8bdcafdeb0bab4acd3603aa5c4e2d5cb6528303122050a92e273b8a59e', availability_day=None)
+
+    def __post_init__(self):
+        match = CODE.fullmatch(self.contract) if isinstance(self.contract, str) else None
+        if (not match or not isinstance(self.security_id, str)
+                or not re.fullmatch(r"[0-9]{8}", self.security_id)
+                or not isinstance(self.source_hash, str)
+                or not re.fullmatch(r"[0-9a-f]{64}", self.source_hash)):
+            raise RuntimeError("dated terms identity/provenance invalid")
+        if (type(self.unit) is not int or self.unit &lt;= 0
+                or type(self.valid_from) is not date or type(self.valid_through) is not date
+                or self.valid_from &gt; self.valid_through
+                or self.valid_through.strftime("%y%m") != match.group(2)):
+&gt;           raise RuntimeError("dated terms interval/unit invalid")
+E           RuntimeError: dated terms interval/unit invalid
+
+ic_im_adjusted_put_migration_v1.py:76: RuntimeError</failure></testcase><testcase classname="test_ic_im_adjusted_put_migration_20261021" name="test_daily_quote_must_match_terms[strike]" time="0.005"><failure message="RuntimeError: dated terms interval/unit invalid">kind = 'strike'
+
+    @pytest.mark.parametrize("kind", ["date", "code", "strike", "security", "missing"])
+    def test_daily_quote_must_match_terms(kind):
+&gt;       _, value = terms()
+                   ^^^^^^^
+
+test_ic_im_adjusted_put_migration_20261021.py:132: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+test_ic_im_adjusted_put_migration_20261021.py:25: in terms
+    return migration.adjustment_terms(raw("sse_adjustment_20260715.json"), effective_date=ADJUST)[SID]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ic_im_adjusted_put_migration_v1.py:111: in adjustment_terms
+    before = Terms(**common, contract=event["previous_contract"],
+&lt;string&gt;:11: in __init__
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = Terms(security_id='10011007', contract='510500C2609M07750', strike=Decimal('7.750'), unit=10000, valid_from=datetime.d...te(2026, 7, 14), source_hash='b317cd8bdcafdeb0bab4acd3603aa5c4e2d5cb6528303122050a92e273b8a59e', availability_day=None)
+
+    def __post_init__(self):
+        match = CODE.fullmatch(self.contract) if isinstance(self.contract, str) else None
+        if (not match or not isinstance(self.security_id, str)
+                or not re.fullmatch(r"[0-9]{8}", self.security_id)
+                or not isinstance(self.source_hash, str)
+                or not re.fullmatch(r"[0-9a-f]{64}", self.source_hash)):
+            raise RuntimeError("dated terms identity/provenance invalid")
+        if (type(self.unit) is not int or self.unit &lt;= 0
+                or type(self.valid_from) is not date or type(self.valid_through) is not date
+                or self.valid_from &gt; self.valid_through
+                or self.valid_through.strftime("%y%m") != match.group(2)):
+&gt;           raise RuntimeError("dated terms interval/unit invalid")
+E           RuntimeError: dated terms interval/unit invalid
+
+ic_im_adjusted_put_migration_v1.py:76: RuntimeError</failure></testcase><testcase classname="test_ic_im_adjusted_put_migration_20261021" name="test_daily_quote_must_match_terms[security]" time="0.004"><failure message="RuntimeError: dated terms interval/unit invalid">kind = 'security'
+
+    @pytest.mark.parametrize("kind", ["date", "code", "strike", "security", "missing"])
+    def test_daily_quote_must_match_terms(kind):
+&gt;       _, value = terms()
+                   ^^^^^^^
+
+test_ic_im_adjusted_put_migration_20261021.py:132: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+test_ic_im_adjusted_put_migration_20261021.py:25: in terms
+    return migration.adjustment_terms(raw("sse_adjustment_20260715.json"), effective_date=ADJUST)[SID]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ic_im_adjusted_put_migration_v1.py:111: in adjustment_terms
+    before = Terms(**common, contract=event["previous_contract"],
+&lt;string&gt;:11: in __init__
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = Terms(security_id='10011007', contract='510500C2609M07750', strike=Decimal('7.750'), unit=10000, valid_from=datetime.d...te(2026, 7, 14), source_hash='b317cd8bdcafdeb0bab4acd3603aa5c4e2d5cb6528303122050a92e273b8a59e', availability_day=None)
+
+    def __post_init__(self):
+        match = CODE.fullmatch(self.contract) if isinstance(self.contract, str) else None
+        if (not match or not isinstance(self.security_id, str)
+                or not re.fullmatch(r"[0-9]{8}", self.security_id)
+                or not isinstance(self.source_hash, str)
+                or not re.fullmatch(r"[0-9a-f]{64}", self.source_hash)):
+            raise RuntimeError("dated terms identity/provenance invalid")
+        if (type(self.unit) is not int or self.unit &lt;= 0
+                or type(self.valid_from) is not date or type(self.valid_through) is not date
+                or self.valid_from &gt; self.valid_through
+                or self.valid_through.strftime("%y%m") != match.group(2)):
+&gt;           raise RuntimeError("dated terms interval/unit invalid")
+E           RuntimeError: dated terms interval/unit invalid
+
+ic_im_adjusted_put_migration_v1.py:76: RuntimeError</failure></testcase><testcase classname="test_ic_im_adjusted_put_migration_20261021" name="test_daily_quote_must_match_terms[missing]" time="0.004"><failure message="RuntimeError: dated terms interval/unit invalid">kind = 'missing'
+
+    @pytest.mark.parametrize("kind", ["date", "code", "strike", "security", "missing"])
+    def test_daily_quote_must_match_terms(kind):
+&gt;       _, value = terms()
+                   ^^^^^^^
+
+test_ic_im_adjusted_put_migration_20261021.py:132: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+test_ic_im_adjusted_put_migration_20261021.py:25: in terms
+    return migration.adjustment_terms(raw("sse_adjustment_20260715.json"), effective_date=ADJUST)[SID]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ic_im_adjusted_put_migration_v1.py:111: in adjustment_terms
+    before = Terms(**common, contract=event["previous_contract"],
+&lt;string&gt;:11: in __init__
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = Terms(security_id='10011007', contract='510500C2609M07750', strike=Decimal('7.750'), unit=10000, valid_from=datetime.d...te(2026, 7, 14), source_hash='b317cd8bdcafdeb0bab4acd3603aa5c4e2d5cb6528303122050a92e273b8a59e', availability_day=None)
+
+    def __post_init__(self):
+        match = CODE.fullmatch(self.contract) if isinstance(self.contract, str) else None
+        if (not match or not isinstance(self.security_id, str)
+                or not re.fullmatch(r"[0-9]{8}", self.security_id)
+                or not isinstance(self.source_hash, str)
+                or not re.fullmatch(r"[0-9a-f]{64}", self.source_hash)):
+            raise RuntimeError("dated terms identity/provenance invalid")
+        if (type(self.unit) is not int or self.unit &lt;= 0
+                or type(self.valid_from) is not date or type(self.valid_through) is not date
+                or self.valid_from &gt; self.valid_through
+                or self.valid_through.strftime("%y%m") != match.group(2)):
+&gt;           raise RuntimeError("dated terms interval/unit invalid")
+E           RuntimeError: dated terms interval/unit invalid
+
+ic_im_adjusted_put_migration_v1.py:76: RuntimeError</failure></testcase><testcase classname="test_ic_im_adjusted_put_migration_20261021" name="test_cash_preservation_and_nonrounded_rebased_cost" time="0.004"><failure message="RuntimeError: dated terms interval/unit invalid">def test_cash_preservation_and_nonrounded_rebased_cost():
+&gt;       result = basis()
+                 ^^^^^^^
+
+test_ic_im_adjusted_put_migration_20261021.py:145: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+test_ic_im_adjusted_put_migration_20261021.py:29: in basis
+    before, after = terms()
+                    ^^^^^^^
+test_ic_im_adjusted_put_migration_20261021.py:25: in terms
+    return migration.adjustment_terms(raw("sse_adjustment_20260715.json"), effective_date=ADJUST)[SID]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ic_im_adjusted_put_migration_v1.py:111: in adjustment_terms
+    before = Terms(**common, contract=event["previous_contract"],
+&lt;string&gt;:11: in __init__
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = Terms(security_id='10011007', contract='510500C2609M07750', strike=Decimal('7.750'), unit=10000, valid_from=datetime.d...te(2026, 7, 14), source_hash='b317cd8bdcafdeb0bab4acd3603aa5c4e2d5cb6528303122050a92e273b8a59e', availability_day=None)
+
+    def __post_init__(self):
+        match = CODE.fullmatch(self.contract) if isinstance(self.contract, str) else None
+        if (not match or not isinstance(self.security_id, str)
+                or not re.fullmatch(r"[0-9]{8}", self.security_id)
+                or not isinstance(self.source_hash, str)
+                or not re.fullmatch(r"[0-9a-f]{64}", self.source_hash)):
+            raise RuntimeError("dated terms identity/provenance invalid")
+        if (type(self.unit) is not int or self.unit &lt;= 0
+                or type(self.valid_from) is not date or type(self.valid_through) is not date
+                or self.valid_from &gt; self.valid_through
+                or self.valid_through.strftime("%y%m") != match.group(2)):
+&gt;           raise RuntimeError("dated terms interval/unit invalid")
+E           RuntimeError: dated terms interval/unit invalid
+
+ic_im_adjusted_put_migration_v1.py:76: RuntimeError</failure></testcase><testcase classname="test_ic_im_adjusted_put_migration_20261021" name="test_three_times_must_compare_cash_after_unit_change" time="0.004"><failure message="RuntimeError: dated terms interval/unit invalid">def test_three_times_must_compare_cash_after_unit_change():
+&gt;       _, current = terms()
+                     ^^^^^^^
+
+test_ic_im_adjusted_put_migration_20261021.py:154: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+test_ic_im_adjusted_put_migration_20261021.py:25: in terms
+    return migration.adjustment_terms(raw("sse_adjustment_20260715.json"), effective_date=ADJUST)[SID]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ic_im_adjusted_put_migration_v1.py:111: in adjustment_terms
+    before = Terms(**common, contract=event["previous_contract"],
+&lt;string&gt;:11: in __init__
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = Terms(security_id='10011007', contract='510500C2609M07750', strike=Decimal('7.750'), unit=10000, valid_from=datetime.d...te(2026, 7, 14), source_hash='b317cd8bdcafdeb0bab4acd3603aa5c4e2d5cb6528303122050a92e273b8a59e', availability_day=None)
+
+    def __post_init__(self):
+        match = CODE.fullmatch(self.contract) if isinstance(self.contract, str) else None
+        if (not match or not isinstance(self.security_id, str)
+                or not re.fullmatch(r"[0-9]{8}", self.security_id)
+                or not isinstance(self.source_hash, str)
+                or not re.fullmatch(r"[0-9a-f]{64}", self.source_hash)):
+            raise RuntimeError("dated terms identity/provenance invalid")
+        if (type(self.unit) is not int or self.unit &lt;= 0
+                or type(self.valid_from) is not date or type(self.valid_through) is not date
+                or self.valid_from &gt; self.valid_through
+                or self.valid_through.strftime("%y%m") != match.group(2)):
+&gt;           raise RuntimeError("dated terms interval/unit invalid")
+E           RuntimeError: dated terms interval/unit invalid
+
+ic_im_adjusted_put_migration_v1.py:76: RuntimeError</failure></testcase><testcase classname="test_ic_im_adjusted_put_migration_20261021" name="test_short_decay_must_not_roll_on_spurious_unit_price_reduction" time="0.005"><failure message="RuntimeError: dated terms interval/unit invalid">def test_short_decay_must_not_roll_on_spurious_unit_price_reduction():
+&gt;       _, current = terms()
+                     ^^^^^^^
+
+test_ic_im_adjusted_put_migration_20261021.py:160: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+test_ic_im_adjusted_put_migration_20261021.py:25: in terms
+    return migration.adjustment_terms(raw("sse_adjustment_20260715.json"), effective_date=ADJUST)[SID]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ic_im_adjusted_put_migration_v1.py:111: in adjustment_terms
+    before = Terms(**common, contract=event["previous_contract"],
+&lt;string&gt;:11: in __init__
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = Terms(security_id='10011007', contract='510500C2609M07750', strike=Decimal('7.750'), unit=10000, valid_from=datetime.d...te(2026, 7, 14), source_hash='b317cd8bdcafdeb0bab4acd3603aa5c4e2d5cb6528303122050a92e273b8a59e', availability_day=None)
+
+    def __post_init__(self):
+        match = CODE.fullmatch(self.contract) if isinstance(self.contract, str) else None
+        if (not match or not isinstance(self.security_id, str)
+                or not re.fullmatch(r"[0-9]{8}", self.security_id)
+                or not isinstance(self.source_hash, str)
+                or not re.fullmatch(r"[0-9a-f]{64}", self.source_hash)):
+            raise RuntimeError("dated terms identity/provenance invalid")
+        if (type(self.unit) is not int or self.unit &lt;= 0
+                or type(self.valid_from) is not date or type(self.valid_through) is not date
+                or self.valid_from &gt; self.valid_through
+                or self.valid_through.strftime("%y%m") != match.group(2)):
+&gt;           raise RuntimeError("dated terms interval/unit invalid")
+E           RuntimeError: dated terms interval/unit invalid
+
+ic_im_adjusted_put_migration_v1.py:76: RuntimeError</failure></testcase><testcase classname="test_ic_im_adjusted_put_migration_20261021" name="test_already_adjusted_entry_must_not_be_rebased_again" time="0.004"><failure message="RuntimeError: dated terms interval/unit invalid">def test_already_adjusted_entry_must_not_be_rebased_again():
+&gt;       _, current = terms()
+                     ^^^^^^^
+
+test_ic_im_adjusted_put_migration_20261021.py:166: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+test_ic_im_adjusted_put_migration_20261021.py:25: in terms
+    return migration.adjustment_terms(raw("sse_adjustment_20260715.json"), effective_date=ADJUST)[SID]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ic_im_adjusted_put_migration_v1.py:111: in adjustment_terms
+    before = Terms(**common, contract=event["previous_contract"],
+&lt;string&gt;:11: in __init__
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = Terms(security_id='10011007', contract='510500C2609M07750', strike=Decimal('7.750'), unit=10000, valid_from=datetime.d...te(2026, 7, 14), source_hash='b317cd8bdcafdeb0bab4acd3603aa5c4e2d5cb6528303122050a92e273b8a59e', availability_day=None)
+
+    def __post_init__(self):
+        match = CODE.fullmatch(self.contract) if isinstance(self.contract, str) else None
+        if (not match or not isinstance(self.security_id, str)
+                or not re.fullmatch(r"[0-9]{8}", self.security_id)
+                or not isinstance(self.source_hash, str)
+                or not re.fullmatch(r"[0-9a-f]{64}", self.source_hash)):
+            raise RuntimeError("dated terms identity/provenance invalid")
+        if (type(self.unit) is not int or self.unit &lt;= 0
+                or type(self.valid_from) is not date or type(self.valid_through) is not date
+                or self.valid_from &gt; self.valid_through
+                or self.valid_through.strftime("%y%m") != match.group(2)):
+&gt;           raise RuntimeError("dated terms interval/unit invalid")
+E           RuntimeError: dated terms interval/unit invalid
+
+ic_im_adjusted_put_migration_v1.py:76: RuntimeError</failure></testcase><testcase classname="test_ic_im_adjusted_put_migration_20261021" name="test_unproved_cost_cannot_enable_thresholds[premium-None]" time="0.005" /><testcase classname="test_ic_im_adjusted_put_migration_20261021" name="test_unproved_cost_cannot_enable_thresholds[premium-NaN]" time="0.004" /><testcase classname="test_ic_im_adjusted_put_migration_20261021" name="test_unproved_cost_cannot_enable_thresholds[premium-Infinity]" time="0.004" /><testcase classname="test_ic_im_adjusted_put_migration_20261021" name="test_unproved_cost_cannot_enable_thresholds[premium-True]" time="0.004" /><testcase classname="test_ic_im_adjusted_put_migration_20261021" name="test_unproved_cost_cannot_enable_thresholds[premium-0]" time="0.004" /><testcase classname="test_ic_im_adjusted_put_migration_20261021" name="test_unproved_cost_cannot_enable_thresholds[contracts-True]" time="0.004" /><testcase classname="test_ic_im_adjusted_put_migration_20261021" name="test_unproved_cost_cannot_enable_thresholds[contracts-1.5]" time="0.005" /><testcase classname="test_ic_im_adjusted_put_migration_20261021" name="test_unproved_cost_cannot_enable_thresholds[contracts-0]" time="0.004" /><testcase classname="test_ic_im_adjusted_put_migration_20261021" name="test_unproved_cost_cannot_enable_thresholds[entry_day-2026-07-15]" time="0.004" /><testcase classname="test_ic_im_adjusted_put_migration_20261021" name="test_unproved_cost_cannot_enable_thresholds[entry_day-2026-10-22]" time="0.004" /><testcase classname="test_ic_im_adjusted_put_migration_20261021" name="test_unproved_cost_cannot_enable_thresholds[cost_evidence_hash-]" time="0.004" /><testcase classname="test_ic_im_adjusted_put_migration_20261021" name="test_unproved_cost_cannot_enable_thresholds[cost_evidence_hash-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa]" time="0.004" /><testcase classname="test_ic_im_adjusted_put_migration_20261021" name="test_dates_are_exact_ascii[True]" time="0.001" /><testcase classname="test_ic_im_adjusted_put_migration_20261021" name="test_dates_are_exact_ascii[\uff12\uff10\uff12\uff16-\uff11\uff10-\uff12\uff11]" time="0.001" /><testcase classname="test_ic_im_adjusted_put_migration_20261021" name="test_dates_are_exact_ascii[2026-10-21T15:00:00]" time="0.001" /><testcase classname="test_ic_im_adjusted_put_migration_20261021" name="test_dates_are_exact_ascii[2026-02-30]" time="0.001" /><testcase classname="test_ic_im_adjusted_put_migration_20261021" name="test_dates_are_exact_ascii[None]" time="0.001" /><testcase classname="test_ic_im_adjusted_put_migration_20261021" name="test_frozen_plan_is_only_previewed_never_rewritten_or_postponed" time="0.006"><failure message="RuntimeError: dated terms interval/unit invalid">def test_frozen_plan_is_only_previewed_never_rewritten_or_postponed():
+&gt;       _, current = terms()
+                     ^^^^^^^
+
+test_ic_im_adjusted_put_migration_20261021.py:190: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+test_ic_im_adjusted_put_migration_20261021.py:25: in terms
+    return migration.adjustment_terms(raw("sse_adjustment_20260715.json"), effective_date=ADJUST)[SID]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ic_im_adjusted_put_migration_v1.py:111: in adjustment_terms
+    before = Terms(**common, contract=event["previous_contract"],
+&lt;string&gt;:11: in __init__
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = Terms(security_id='10011007', contract='510500C2609M07750', strike=Decimal('7.750'), unit=10000, valid_from=datetime.d...te(2026, 7, 14), source_hash='b317cd8bdcafdeb0bab4acd3603aa5c4e2d5cb6528303122050a92e273b8a59e', availability_day=None)
+
+    def __post_init__(self):
+        match = CODE.fullmatch(self.contract) if isinstance(self.contract, str) else None
+        if (not match or not isinstance(self.security_id, str)
+                or not re.fullmatch(r"[0-9]{8}", self.security_id)
+                or not isinstance(self.source_hash, str)
+                or not re.fullmatch(r"[0-9a-f]{64}", self.source_hash)):
+            raise RuntimeError("dated terms identity/provenance invalid")
+        if (type(self.unit) is not int or self.unit &lt;= 0
+                or type(self.valid_from) is not date or type(self.valid_through) is not date
+                or self.valid_from &gt; self.valid_through
+                or self.valid_through.strftime("%y%m") != match.group(2)):
+&gt;           raise RuntimeError("dated terms interval/unit invalid")
+E           RuntimeError: dated terms interval/unit invalid
+
+ic_im_adjusted_put_migration_v1.py:76: RuntimeError</failure></testcase><testcase classname="test_ic_im_adjusted_put_migration_20261021" name="test_production_a_gate_remains_closed_even_with_preview_attached" time="0.004"><failure message="AssertionError: Regex pattern did not match.&#10;  Expected regex: 'adjusted contract master'&#10;  Actual message: 'dated terms interval/unit invalid'">def test_production_a_gate_remains_closed_even_with_preview_attached():
+        with pytest.raises(RuntimeError, match="adjusted contract master"):
+            execution.require_supported_ic_contracts("IC", dict(v14_core_put_contract=NEW,
+&gt;                                                              migration_preview=basis()))
+                                                                                 ^^^^^^^
+
+test_ic_im_adjusted_put_migration_20261021.py:208: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+test_ic_im_adjusted_put_migration_20261021.py:29: in basis
+    before, after = terms()
+                    ^^^^^^^
+test_ic_im_adjusted_put_migration_20261021.py:25: in terms
+    return migration.adjustment_terms(raw("sse_adjustment_20260715.json"), effective_date=ADJUST)[SID]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ic_im_adjusted_put_migration_v1.py:111: in adjustment_terms
+    before = Terms(**common, contract=event["previous_contract"],
+&lt;string&gt;:11: in __init__
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = Terms(security_id='10011007', contract='510500C2609M07750', strike=Decimal('7.750'), unit=10000, valid_from=datetime.d...te(2026, 7, 14), source_hash='b317cd8bdcafdeb0bab4acd3603aa5c4e2d5cb6528303122050a92e273b8a59e', availability_day=None)
+
+    def __post_init__(self):
+        match = CODE.fullmatch(self.contract) if isinstance(self.contract, str) else None
+        if (not match or not isinstance(self.security_id, str)
+                or not re.fullmatch(r"[0-9]{8}", self.security_id)
+                or not isinstance(self.source_hash, str)
+                or not re.fullmatch(r"[0-9a-f]{64}", self.source_hash)):
+            raise RuntimeError("dated terms identity/provenance invalid")
+        if (type(self.unit) is not int or self.unit &lt;= 0
+                or type(self.valid_from) is not date or type(self.valid_through) is not date
+                or self.valid_from &gt; self.valid_through
+                or self.valid_through.strftime("%y%m") != match.group(2)):
+&gt;           raise RuntimeError("dated terms interval/unit invalid")
+E           RuntimeError: dated terms interval/unit invalid
+
+ic_im_adjusted_put_migration_v1.py:76: RuntimeError
+
+During handling of the above exception, another exception occurred:
+
+    def test_production_a_gate_remains_closed_even_with_preview_attached():
+&gt;       with pytest.raises(RuntimeError, match="adjusted contract master"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: Regex pattern did not match.
+E         Expected regex: 'adjusted contract master'
+E         Actual message: 'dated terms interval/unit invalid'
+
+test_ic_im_adjusted_put_migration_20261021.py:206: AssertionError</failure></testcase></testsuite></testsuites>

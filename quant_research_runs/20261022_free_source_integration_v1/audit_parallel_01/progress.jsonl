@@ -1,0 +1,7 @@
+{"nodeid": "test_icim_free_sources_parallel_capture_20261022.py::test_real_threads_inherit_session_clock_deadline_and_capture_every_observed_month[False]", "started_at": "2026-10-22T18:07:04.264442+08:00"}
+{"nodeid": "test_icim_free_sources_parallel_capture_20261022.py::test_real_threads_inherit_session_clock_deadline_and_capture_every_observed_month[True]", "started_at": "2026-10-22T18:07:05.149963+08:00"}
+{"nodeid": "test_icim_free_sources_parallel_capture_20261022.py::test_nested_and_explicit_provider_jobs_fetch_each_shared_role_only_once", "started_at": "2026-10-22T18:07:06.025537+08:00"}
+{"nodeid": "test_icim_free_sources_parallel_capture_20261022.py::test_shared_absolute_deadline_prevents_queued_jobs_from_starting_or_extending_budget", "started_at": "2026-10-22T18:07:06.273982+08:00"}
+{"nodeid": "test_icim_free_sources_parallel_capture_20261022.py::test_provider_failure_keeps_other_roles_and_finishes_after_every_writer", "started_at": "2026-10-22T18:07:06.370465+08:00"}
+{"nodeid": "test_icim_free_sources_parallel_capture_20261022.py::test_frozen_expired_anchor_does_not_require_a_delisted_month", "started_at": "2026-10-22T18:07:06.577591+08:00"}
+{"nodeid": "test_icim_free_sources_parallel_capture_20261022.py::test_failed_observed_listing_cannot_fall_back_to_unobserved_anchor_months", "started_at": "2026-10-22T18:07:06.782100+08:00"}

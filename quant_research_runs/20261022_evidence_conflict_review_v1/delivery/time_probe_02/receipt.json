@@ -1,0 +1,42 @@
+{
+  "status": "OBSERVED_TWO_RESPONSES",
+  "observations": [
+    {
+      "attempt": 1,
+      "started_at": "2026-10-22T20:45:43.875373+08:00",
+      "received_at": "2026-10-22T20:45:52.897699+08:00",
+      "date": 20261022,
+      "time": 162906,
+      "body_sha256": "1585a5f2655f9572693945f21e973a8bb0729ff2d4a29f4b379220b4937015df",
+      "headers": {
+        "Date": "Thu, 22 Oct 2026 12:45:52 GMT"
+      }
+    },
+    {
+      "attempt": 2,
+      "started_at": "2026-10-22T20:45:54.898711+08:00",
+      "received_at": "2026-10-22T20:46:03.262286+08:00",
+      "date": 20261022,
+      "time": 162906,
+      "body_sha256": "1585a5f2655f9572693945f21e973a8bb0729ff2d4a29f4b379220b4937015df",
+      "headers": {
+        "Date": "Thu, 22 Oct 2026 12:46:03 GMT"
+      }
+    }
+  ],
+  "errors": [],
+  "manifest": "D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261022_evidence_conflict_review_v1\\delivery\\time_probe_02\\evidence\\sessions\\2026-10-22\\124603262653-9323408d6bef4850ac3cbf7e8d556aca.json",
+  "manifest_body_sha256": "9c1d8d6854582f7faf31ca63560575493ad12e6e10c9204f736906ab75c3e625",
+  "complete": false,
+  "conflicts": [
+    {
+      "role": "raw_http_conflict",
+      "url": "https://yunhq.sse.com.cn:32042/v1/sho/list/tstyle/510500_12",
+      "request_signature": "f3b259a805b13bd1798e62251eec2b5bb2c641c0c804318f3382ecac08315daa",
+      "error": "同一URL/参数录得不同响应；参考结果不落账，须全新会话重试",
+      "resolved": false
+    }
+  ],
+  "formal_signal_generated": false,
+  "limitation": "one post-close sample, not a multi-day stability oracle"
+}

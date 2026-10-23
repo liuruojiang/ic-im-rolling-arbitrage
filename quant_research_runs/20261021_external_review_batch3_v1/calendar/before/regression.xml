@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="12" skipped="0" tests="14" time="2.711" timestamp="2026-10-21T16:21:41.716789+08:00" hostname="DESKTOP-95I7VVU"><testcase classname="test_icim_batch3_calendar_20261021" name="test_cross_year_next_session_is_not_assumed_to_be_january_first" time="0.001"><failure message="Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;">def test_cross_year_next_session_is_not_assumed_to_be_january_first():
+&gt;       with pytest.raises(RuntimeError,match='2027'):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;
+
+test_icim_batch3_calendar_20261021.py:17: Failed</failure></testcase><testcase classname="test_icim_batch3_calendar_20261021" name="test_selected_monthly_maintenance_date_requires_covered_year" time="0.001"><failure message="Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;">def test_selected_monthly_maintenance_date_requires_covered_year():
+&gt;       with pytest.raises(RuntimeError,match='2027'):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;
+
+test_icim_batch3_calendar_20261021.py:22: Failed</failure></testcase><testcase classname="test_icim_batch3_calendar_20261021" name="test_selected_unknown_year_put_expiry_cannot_be_used_for_reset[select_im_put_for_reset]" time="0.008"><failure message="Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;">selector = &lt;function select_im_put_for_reset at 0x0000027E76E573D0&gt;
+
+    @pytest.mark.parametrize('selector',[bot.select_im_put_for_reset,bot.select_independent_im_put_for_reset])
+    def test_selected_unknown_year_put_expiry_cannot_be_used_for_reset(selector):
+&gt;       with pytest.raises(RuntimeError,match='2027'):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;
+
+test_icim_batch3_calendar_20261021.py:28: Failed</failure></testcase><testcase classname="test_icim_batch3_calendar_20261021" name="test_selected_unknown_year_put_expiry_cannot_be_used_for_reset[select_independent_im_put_for_reset]" time="0.007"><failure message="Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;">selector = &lt;function select_independent_im_put_for_reset at 0x0000027E76E57690&gt;
+
+    @pytest.mark.parametrize('selector',[bot.select_im_put_for_reset,bot.select_independent_im_put_for_reset])
+    def test_selected_unknown_year_put_expiry_cannot_be_used_for_reset(selector):
+&gt;       with pytest.raises(RuntimeError,match='2027'):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;
+
+test_icim_batch3_calendar_20261021.py:28: Failed</failure></testcase><testcase classname="test_icim_batch3_calendar_20261021" name="test_unused_unknown_far_month_does_not_block_covered_selected_put[select_im_put_for_reset]" time="0.006" /><testcase classname="test_icim_batch3_calendar_20261021" name="test_unused_unknown_far_month_does_not_block_covered_selected_put[select_independent_im_put_for_reset]" time="0.007" /><testcase classname="test_icim_batch3_calendar_20261021" name="test_selected_unknown_year_ic_put_is_stopped_before_quote_fetch" time="0.001"><failure message="AssertionError: unverified selected expiry must stop before quote consumption">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x0000027E76EF1220&gt;
+
+    def test_selected_unknown_year_ic_put_is_stopped_before_quote_fetch(monkeypatch):
+        monkeypatch.setattr(bot,'fetch_sse_510500_expiries',lambda:['202612','202703'])
+        def forbidden(*args,**kwargs):
+            raise AssertionError('unverified selected expiry must stop before quote consumption')
+        monkeypatch.setattr(bot,'_fetch_510500_chain_for_day',forbidden)
+        with pytest.raises(RuntimeError,match='2027'):
+&gt;           bot.select_ic_put_for_reset(date(2026,11,20),7.,7000.,.25)
+
+test_icim_batch3_calendar_20261021.py:44: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_mainline_v1_4_bot.py:4506: in select_ic_put_for_reset
+    chain, stamp = _fetch_510500_chain_for_day(month[2:], today)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+args = ('2703', datetime.date(2026, 11, 20)), kwargs = {}
+
+    def forbidden(*args,**kwargs):
+&gt;       raise AssertionError('unverified selected expiry must stop before quote consumption')
+E       AssertionError: unverified selected expiry must stop before quote consumption
+
+test_icim_batch3_calendar_20261021.py:41: AssertionError</failure></testcase><testcase classname="test_icim_batch3_calendar_20261021" name="test_short_ic_candidate_unknown_expiry_stops_before_market_consumption" time="0.001"><failure message="AssertionError: unverified short expiry must stop before quotes">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x0000027E76EF10F0&gt;
+
+    def test_short_ic_candidate_unknown_expiry_stops_before_market_consumption(monkeypatch):
+        def forbidden(*args,**kwargs):
+            raise AssertionError('unverified short expiry must stop before quotes')
+        monkeypatch.setattr(bot,'_fetch_510500_chain_for_day',forbidden)
+        signal=dict(market_date=date(2026,12,17),next_trade_date=date(2026,12,18))
+        with pytest.raises(RuntimeError,match='2027'):
+&gt;           bot._v14_ic_short_put_candidate(signal)
+
+test_icim_batch3_calendar_20261021.py:53: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_mainline_v1_4_bot.py:5184: in _v14_ic_short_put_candidate
+    chain, stamp = _fetch_510500_chain_for_day(expiry_month[2:], signal["market_date"])
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+args = ('2701', datetime.date(2026, 12, 17)), kwargs = {}
+
+    def forbidden(*args,**kwargs):
+&gt;       raise AssertionError('unverified short expiry must stop before quotes')
+E       AssertionError: unverified short expiry must stop before quotes
+
+test_icim_batch3_calendar_20261021.py:49: AssertionError</failure></testcase><testcase classname="test_icim_batch3_calendar_20261021" name="test_strict_forward_roll_checks_its_starting_day" time="0.001"><failure message="TypeError: _roll_forward_exchange_day() got an unexpected keyword argument 'require_official'">def test_strict_forward_roll_checks_its_starting_day():
+        with pytest.raises(RuntimeError,match='2027'):
+&gt;           bot._roll_forward_exchange_day(date(2027,1,1),require_official=True)
+E           TypeError: _roll_forward_exchange_day() got an unexpected keyword argument 'require_official'
+
+test_icim_batch3_calendar_20261021.py:58: TypeError</failure></testcase><testcase classname="test_icim_batch3_calendar_20261021" name="test_strict_backward_roll_checks_its_starting_day" time="0.001"><failure message="Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;">def test_strict_backward_roll_checks_its_starting_day():
+&gt;       with pytest.raises(RuntimeError,match='2027'):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;
+
+test_icim_batch3_calendar_20261021.py:62: Failed</failure></testcase><testcase classname="test_icim_batch3_calendar_20261021" name="test_calendar_warning_never_calls_weekday_fallback_an_approved_expiry" time="0.002"><failure message="AssertionError: assert ('2027' in '挂牌合约包含2027年到期日，但脚本尚未载入该年度官方休市表；这些到期日暂按周一至周五回退，须在交易所发布年度休市安排后更新' and '未核验' in '挂牌合约包含2027年到期日，但脚本尚未载入该年度官方休市表；这些到期日暂按周一至周五回退，须在交易所发布年度休市安排后更新')">def test_calendar_warning_never_calls_weekday_fallback_an_approved_expiry():
+        text=bot._calendar_coverage_note([date(2027,3,19)])
+&gt;       assert '2027' in text and '未核验' in text
+E       AssertionError: assert ('2027' in '挂牌合约包含2027年到期日，但脚本尚未载入该年度官方休市表；这些到期日暂按周一至周五回退，须在交易所发布年度休市安排后更新' and '未核验' in '挂牌合约包含2027年到期日，但脚本尚未载入该年度官方休市表；这些到期日暂按周一至周五回退，须在交易所发布年度休市安排后更新')
+
+test_icim_batch3_calendar_20261021.py:68: AssertionError</failure></testcase><testcase classname="test_icim_batch3_calendar_20261021" name="test_prepared_new_signal_requires_the_next_official_session_year" time="0.001"><failure message="AttributeError: module 'poe_ic_im_mainline_v1_4_bot' has no attribute 'require_signal_calendar'">def test_prepared_new_signal_requires_the_next_official_session_year():
+        signal=dict(market_date=date(2026,12,31),next_trade_date=date(2027,1,1))
+        with pytest.raises(RuntimeError,match='2027'):
+&gt;           bot.require_signal_calendar('IC',signal)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           AttributeError: module 'poe_ic_im_mainline_v1_4_bot' has no attribute 'require_signal_calendar'
+
+test_icim_batch3_calendar_20261021.py:75: AttributeError</failure></testcase><testcase classname="test_icim_batch3_calendar_20261021" name="test_prepared_new_short_expiry_is_independently_rejected" time="0.000"><failure message="AttributeError: module 'poe_ic_im_mainline_v1_4_bot' has no attribute 'require_signal_calendar'">def test_prepared_new_short_expiry_is_independently_rejected():
+        signal=dict(market_date=date(2026,12,17),next_trade_date=date(2026,12,18),
+                    v14_action='ENTER_SHORT_PUT',v14_short_put_contract='MO2701-P-7000',
+                    v14_short_put_expiry=date(2027,1,15))
+        with pytest.raises(RuntimeError,match='2027'):
+&gt;           bot.require_signal_calendar('IM',signal)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           AttributeError: module 'poe_ic_im_mainline_v1_4_bot' has no attribute 'require_signal_calendar'
+
+test_icim_batch3_calendar_20261021.py:83: AttributeError</failure></testcase><testcase classname="test_icim_batch3_calendar_20261021" name="test_current_signal_with_unused_far_month_diagnostic_remains_valid" time="0.000"><failure message="AttributeError: module 'poe_ic_im_mainline_v1_4_bot' has no attribute 'require_signal_calendar'">def test_current_signal_with_unused_far_month_diagnostic_remains_valid():
+        signal=dict(market_date=date(2026,10,21),next_trade_date=date(2026,10,22),
+                    core_current='IC2612',core_target='IC2612',next_core='IC2703')
+&gt;       bot.require_signal_calendar('IC',signal)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'poe_ic_im_mainline_v1_4_bot' has no attribute 'require_signal_calendar'
+
+test_icim_batch3_calendar_20261021.py:89: AttributeError</failure></testcase></testsuite></testsuites>

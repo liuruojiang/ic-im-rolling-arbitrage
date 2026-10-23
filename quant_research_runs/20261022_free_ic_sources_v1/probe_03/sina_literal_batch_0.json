@@ -1,0 +1,10 @@
+{
+  "name": "sina_literal_batch_0",
+  "family": "Sina",
+  "url": "https://hq.sinajs.cn/list=CON_OP_10012632,CON_OP_10012600,CON_OP_10012282,CON_OP_10012149,CON_OP_10012150,CON_OP_10011810",
+  "params": null,
+  "started_at": "2026-10-22T17:09:05.254456+08:00",
+  "status": "FAILED",
+  "error_type": "ProxyError",
+  "seconds": 8.022
+}

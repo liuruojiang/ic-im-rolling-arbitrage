@@ -1,0 +1,10 @@
+{
+  "stage": "unpublished repair draft",
+  "issue": "IndentationError while importing cloud build_ic_im_v1_4_digest.py at line 1098",
+  "cause": "duplicate top-level import re and from numbers import Real inside validate_success_payload interrupted the indented function body",
+  "independent_scripts_affected": ["audit_delivery.py", "consumer_boundary_probe.py"],
+  "parent_notified": true,
+  "fixed": true,
+  "after_fix_full_independent_rechecks_passed": true,
+  "original_published_release_issue": false
+}

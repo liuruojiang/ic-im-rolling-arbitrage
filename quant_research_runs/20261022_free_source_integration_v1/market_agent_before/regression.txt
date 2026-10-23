@@ -1,0 +1,229 @@
+F.FFFFFFF...                                                             [100%]
+================================== FAILURES ===================================
+_______ test_collection_clock_allows_only_observed_elapsed_time[1-True] _______
+
+args = (), kwargs = {}
+
+    def fail_transport(*args, **kwargs):
+>       raise requests.Timeout('synthetic source outage')
+E       requests.exceptions.Timeout: synthetic source outage
+
+test_icim_free_sources_adversarial_market_20261022.py:22: Timeout
+
+The above exception was the direct cause of the following exception:
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001B6099735C0>
+seconds = 1, accepted = True
+
+    @pytest.mark.parametrize('seconds,accepted', [(1, True), (3, False)])
+    def test_collection_clock_allows_only_observed_elapsed_time(monkeypatch, seconds, accepted):
+        """A vendor refresh during acquisition is not a future observation."""
+        clock = datetime(2026, 10, 22, 10, tzinfo=bot.BEIJING)
+        elapsed = [100.0]
+        monkeypatch.setattr(bot.time_module, 'monotonic', lambda: elapsed[0])
+        monkeypatch.setattr(bot, 'fetch_sse_510500_quote', fail_transport)
+        monkeypatch.setattr(bot, 'fetch_sina_510500_quote', fail_transport)
+        stamp = (clock + timedelta(seconds=seconds)).strftime('%H%M%S')
+        monkeypatch.setattr(bot, 'fetch_tencent_510500_quote', lambda: etf_at(stamp))
+        with bot.runtime_clock(clock), bot.collection_clock(clock):
+            elapsed[0] += 2.0
+            if accepted:
+>               value = bot.fetch_510500_quote_with_failover(DAY)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_icim_free_sources_adversarial_market_20261022.py:47: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+ic_im_evidence_adapter_v1.py:162: in adapted
+    return original(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+reference_day = datetime.date(2026, 10, 22)
+
+    def fetch_510500_quote_with_failover(reference_day: date | None = None) -> dict[str, Any]:
+        day, clock = reference_day or _now_beijing().date(), _now_beijing()
+        errors, failures = [], []
+        for source, fetcher in (("上交所510500ETF", fetch_sse_510500_quote),
+                                ("腾讯510500ETF", fetch_tencent_510500_quote),
+                                ("新浪510500ETF", fetch_sina_510500_quote)):
+            try:
+                value = dict(fetcher())
+                value.setdefault("source", source)
+                _validate_chain_stamp_matches(source, value, day, clock)
+                _etf_quote_prices(value["last"], value["prev_close"])
+                if failures:
+                    value["source_failures"] = list(failures)
+                return value
+            except Exception as exc:
+                errors.append(exc)
+                failures.append(f"{source}: {type(exc).__name__}: {exc}")
+>       raise _source_failure_error("510500ETF所有来源均不可用；" + "；".join(failures), errors) from errors[-1]
+E       RuntimeError: 510500ETF所有来源均不可用；上交所510500ETF: Timeout: synthetic source outage；腾讯510500ETF: RuntimeError: 腾讯510500ETF行情时间晚于当前运行时间；新浪510500ETF: Timeout: synthetic source outage
+
+poe_ic_im_mainline_v1_4_bot.py:4094: RuntimeError
+________ test_invalid_month_cannot_alias_a_valid_cached_chain[192612] _________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001B608DCF650>
+invalid = '192612'
+
+    @pytest.mark.parametrize('invalid', ['192612', 'x2612', '20262612'])
+    def test_invalid_month_cannot_alias_a_valid_cached_chain(monkeypatch, invalid):
+        def valid_provider(month):
+            if month != '2612':
+                raise ValueError('invalid month must reach ordinary provider validation')
+            return pd.DataFrame([dict(last=.2614)]), dict(date='20261022', time='150000')
+        monkeypatch.setattr(bot, 'fetch_510500_chain_with_failover', valid_provider)
+        monkeypatch.setattr(bot, '_validate_chain_stamp_matches', lambda *a: None)
+        token = bot._IC_QUOTE_QUERY_CACHE.set({})
+        try:
+            bot._fetch_510500_chain_for_day('2612', DAY)
+>           with pytest.raises(ValueError):
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^
+E           Failed: DID NOT RAISE <class 'ValueError'>
+
+test_icim_free_sources_adversarial_market_20261022.py:65: Failed
+_________ test_invalid_month_cannot_alias_a_valid_cached_chain[x2612] _________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001B609D9A030>
+invalid = 'x2612'
+
+    @pytest.mark.parametrize('invalid', ['192612', 'x2612', '20262612'])
+    def test_invalid_month_cannot_alias_a_valid_cached_chain(monkeypatch, invalid):
+        def valid_provider(month):
+            if month != '2612':
+                raise ValueError('invalid month must reach ordinary provider validation')
+            return pd.DataFrame([dict(last=.2614)]), dict(date='20261022', time='150000')
+        monkeypatch.setattr(bot, 'fetch_510500_chain_with_failover', valid_provider)
+        monkeypatch.setattr(bot, '_validate_chain_stamp_matches', lambda *a: None)
+        token = bot._IC_QUOTE_QUERY_CACHE.set({})
+        try:
+            bot._fetch_510500_chain_for_day('2612', DAY)
+>           with pytest.raises(ValueError):
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^
+E           Failed: DID NOT RAISE <class 'ValueError'>
+
+test_icim_free_sources_adversarial_market_20261022.py:65: Failed
+_______ test_invalid_month_cannot_alias_a_valid_cached_chain[20262612] ________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001B609D986B0>
+invalid = '20262612'
+
+    @pytest.mark.parametrize('invalid', ['192612', 'x2612', '20262612'])
+    def test_invalid_month_cannot_alias_a_valid_cached_chain(monkeypatch, invalid):
+        def valid_provider(month):
+            if month != '2612':
+                raise ValueError('invalid month must reach ordinary provider validation')
+            return pd.DataFrame([dict(last=.2614)]), dict(date='20261022', time='150000')
+        monkeypatch.setattr(bot, 'fetch_510500_chain_with_failover', valid_provider)
+        monkeypatch.setattr(bot, '_validate_chain_stamp_matches', lambda *a: None)
+        token = bot._IC_QUOTE_QUERY_CACHE.set({})
+        try:
+            bot._fetch_510500_chain_for_day('2612', DAY)
+>           with pytest.raises(ValueError):
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^
+E           Failed: DID NOT RAISE <class 'ValueError'>
+
+test_icim_free_sources_adversarial_market_20261022.py:65: Failed
+___________ test_capture_role_key_cannot_hide_invalid_month[192612] ___________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001B609C24E50>
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_a2fc09db/pytest/test_capture_role_key_cannot_h0')
+invalid = '192612'
+
+    @pytest.mark.parametrize('invalid', ['192612', 'x2612', '20262612'])
+    def test_capture_role_key_cannot_hide_invalid_month(monkeypatch, tmp_path, invalid):
+        """Provider-role coalescing also runs before the ordinary function body."""
+        def fetch(month):
+            if month != '2612':
+                raise ValueError('illegal month must not hit a stored role')
+            frame = pd.DataFrame([dict(contract='510500P2612M06500', last=.2614, chg_rate=0.,
+                                       pre_settle=.1822, strike=6.5, security_id='10012149')])
+            return frame, dict(date='20261022', time='150000', source='synthetic_fault_audit')
+        monkeypatch.setattr(bot, 'fetch_510500_chain_with_failover', fetch)
+        clock = datetime(2026, 10, 22, 18, tzinfo=bot.BEIJING)
+        with bot.runtime_clock(clock), evidence.capture_session(tmp_path, DAY, clock, {'test': 'invalid alias'}) as session:
+            bot._fetch_510500_chain_for_day('2612', DAY)
+>           with pytest.raises(ValueError):
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^
+E           Failed: DID NOT RAISE <class 'ValueError'>
+
+test_icim_free_sources_adversarial_market_20261022.py:84: Failed
+___________ test_capture_role_key_cannot_hide_invalid_month[x2612] ____________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001B609C25750>
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_a2fc09db/pytest/test_capture_role_key_cannot_h1')
+invalid = 'x2612'
+
+    @pytest.mark.parametrize('invalid', ['192612', 'x2612', '20262612'])
+    def test_capture_role_key_cannot_hide_invalid_month(monkeypatch, tmp_path, invalid):
+        """Provider-role coalescing also runs before the ordinary function body."""
+        def fetch(month):
+            if month != '2612':
+                raise ValueError('illegal month must not hit a stored role')
+            frame = pd.DataFrame([dict(contract='510500P2612M06500', last=.2614, chg_rate=0.,
+                                       pre_settle=.1822, strike=6.5, security_id='10012149')])
+            return frame, dict(date='20261022', time='150000', source='synthetic_fault_audit')
+        monkeypatch.setattr(bot, 'fetch_510500_chain_with_failover', fetch)
+        clock = datetime(2026, 10, 22, 18, tzinfo=bot.BEIJING)
+        with bot.runtime_clock(clock), evidence.capture_session(tmp_path, DAY, clock, {'test': 'invalid alias'}) as session:
+            bot._fetch_510500_chain_for_day('2612', DAY)
+>           with pytest.raises(ValueError):
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^
+E           Failed: DID NOT RAISE <class 'ValueError'>
+
+test_icim_free_sources_adversarial_market_20261022.py:84: Failed
+__________ test_capture_role_key_cannot_hide_invalid_month[20262612] __________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001B609C06030>
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_a2fc09db/pytest/test_capture_role_key_cannot_h2')
+invalid = '20262612'
+
+    @pytest.mark.parametrize('invalid', ['192612', 'x2612', '20262612'])
+    def test_capture_role_key_cannot_hide_invalid_month(monkeypatch, tmp_path, invalid):
+        """Provider-role coalescing also runs before the ordinary function body."""
+        def fetch(month):
+            if month != '2612':
+                raise ValueError('illegal month must not hit a stored role')
+            frame = pd.DataFrame([dict(contract='510500P2612M06500', last=.2614, chg_rate=0.,
+                                       pre_settle=.1822, strike=6.5, security_id='10012149')])
+            return frame, dict(date='20261022', time='150000', source='synthetic_fault_audit')
+        monkeypatch.setattr(bot, 'fetch_510500_chain_with_failover', fetch)
+        clock = datetime(2026, 10, 22, 18, tzinfo=bot.BEIJING)
+        with bot.runtime_clock(clock), evidence.capture_session(tmp_path, DAY, clock, {'test': 'invalid alias'}) as session:
+            bot._fetch_510500_chain_for_day('2612', DAY)
+>           with pytest.raises(ValueError):
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^
+E           Failed: DID NOT RAISE <class 'ValueError'>
+
+test_icim_free_sources_adversarial_market_20261022.py:84: Failed
+______ test_old_but_four_month_complete_listing_cannot_change_selection _______
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001B609C07020>
+
+    def test_old_but_four_month_complete_listing_cannot_change_selection(monkeypatch):
+        clock = datetime(2026, 11, 20, 18, tzinfo=bot.BEIJING)
+        # A stale September listing can omit March while December still quotes.
+        # Target Feb-20 would then incorrectly choose Dec rather than Mar.
+        old = ['2026-09', '2026-10', '2026-11', '2026-12']
+        monkeypatch.setattr(bot.requests, 'get', lambda *a, **k: listing_response(old))
+>       with bot.runtime_clock(clock), pytest.raises(RuntimeError):
+                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+test_icim_free_sources_adversarial_market_20261022.py:105: Failed
+============================== warnings summary ===============================
+C:\Python314\Lib\site-packages\fastapi_poe\types.py:171
+  C:\Python314\Lib\site-packages\fastapi_poe\types.py:171: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    class RequestContext(BaseModel):
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED test_icim_free_sources_adversarial_market_20261022.py::test_collection_clock_allows_only_observed_elapsed_time[1-True]
+FAILED test_icim_free_sources_adversarial_market_20261022.py::test_invalid_month_cannot_alias_a_valid_cached_chain[192612]
+FAILED test_icim_free_sources_adversarial_market_20261022.py::test_invalid_month_cannot_alias_a_valid_cached_chain[x2612]
+FAILED test_icim_free_sources_adversarial_market_20261022.py::test_invalid_month_cannot_alias_a_valid_cached_chain[20262612]
+FAILED test_icim_free_sources_adversarial_market_20261022.py::test_capture_role_key_cannot_hide_invalid_month[192612]
+FAILED test_icim_free_sources_adversarial_market_20261022.py::test_capture_role_key_cannot_hide_invalid_month[x2612]
+FAILED test_icim_free_sources_adversarial_market_20261022.py::test_capture_role_key_cannot_hide_invalid_month[20262612]
+FAILED test_icim_free_sources_adversarial_market_20261022.py::test_old_but_four_month_complete_listing_cannot_change_selection
+8 failed, 4 passed, 1 warning in 2.71s

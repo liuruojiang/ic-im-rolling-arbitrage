@@ -1,0 +1,18 @@
+{
+  "collected": [
+    "test_icim_b3adv_scope_20261021.py::test_declared_final_exclusion_set_must_match_actual_selection[declared0]",
+    "test_icim_b3adv_scope_20261021.py::test_declared_final_exclusion_set_must_match_actual_selection[declared1]",
+    "test_icim_b3adv_scope_20261021.py::test_declared_final_exclusion_positive_control_is_accepted"
+  ],
+  "selected": [
+    "test_icim_b3adv_scope_20261021.py::test_declared_final_exclusion_set_must_match_actual_selection[declared0]",
+    "test_icim_b3adv_scope_20261021.py::test_declared_final_exclusion_set_must_match_actual_selection[declared1]",
+    "test_icim_b3adv_scope_20261021.py::test_declared_final_exclusion_positive_control_is_accepted"
+  ],
+  "deselected": [],
+  "executed": [
+    "test_icim_b3adv_scope_20261021.py::test_declared_final_exclusion_set_must_match_actual_selection[declared0]",
+    "test_icim_b3adv_scope_20261021.py::test_declared_final_exclusion_set_must_match_actual_selection[declared1]",
+    "test_icim_b3adv_scope_20261021.py::test_declared_final_exclusion_positive_control_is_accepted"
+  ]
+}

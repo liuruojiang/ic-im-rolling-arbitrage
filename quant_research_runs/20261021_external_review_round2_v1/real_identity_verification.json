@@ -1,0 +1,310 @@
+{
+  "created_at": "2026-10-21T06:19:30.825856+00:00",
+  "official_adjustment_event_count": 114,
+  "quote_day": "2026-10-21",
+  "quote_time": 141123,
+  "quote_rows": 58,
+  "live_adjusted_puts": [
+    {
+      "security_id": "10011810",
+      "contract": "510500P2612A07000",
+      "previous_contract": "510500P2612M07000",
+      "previous_strike": 7.0,
+      "strike": 6.876,
+      "previous_unit": 10000,
+      "contract_unit": 10180,
+      "effective_date": "2026-07-15",
+      "expiry": "2026-12-23",
+      "observed_on": "2026-10-21",
+      "migration_required": false,
+      "engine_supported": false,
+      "status": "requires_unit_and_cost_basis_migration",
+      "master_data_day": "2026-10-20"
+    },
+    {
+      "security_id": "10011520",
+      "contract": "510500P2612A07250",
+      "previous_contract": "510500P2612M07250",
+      "previous_strike": 7.25,
+      "strike": 7.122,
+      "previous_unit": 10000,
+      "contract_unit": 10180,
+      "effective_date": "2026-07-15",
+      "expiry": "2026-12-23",
+      "observed_on": "2026-10-21",
+      "migration_required": false,
+      "engine_supported": false,
+      "status": "requires_unit_and_cost_basis_migration",
+      "master_data_day": "2026-10-20"
+    },
+    {
+      "security_id": "10011470",
+      "contract": "510500P2612A07500",
+      "previous_contract": "510500P2612M07500",
+      "previous_strike": 7.5,
+      "strike": 7.367,
+      "previous_unit": 10000,
+      "contract_unit": 10180,
+      "effective_date": "2026-07-15",
+      "expiry": "2026-12-23",
+      "observed_on": "2026-10-21",
+      "migration_required": false,
+      "engine_supported": false,
+      "status": "requires_unit_and_cost_basis_migration",
+      "master_data_day": "2026-10-20"
+    },
+    {
+      "security_id": "10011471",
+      "contract": "510500P2612A07750",
+      "previous_contract": "510500P2612M07750",
+      "previous_strike": 7.75,
+      "strike": 7.613,
+      "previous_unit": 10000,
+      "contract_unit": 10180,
+      "effective_date": "2026-07-15",
+      "expiry": "2026-12-23",
+      "observed_on": "2026-10-21",
+      "migration_required": false,
+      "engine_supported": false,
+      "status": "requires_unit_and_cost_basis_migration",
+      "master_data_day": "2026-10-20"
+    },
+    {
+      "security_id": "10011472",
+      "contract": "510500P2612A08000",
+      "previous_contract": "510500P2612M08000",
+      "previous_strike": 8.0,
+      "strike": 7.859,
+      "previous_unit": 10000,
+      "contract_unit": 10180,
+      "effective_date": "2026-07-15",
+      "expiry": "2026-12-23",
+      "observed_on": "2026-10-21",
+      "migration_required": false,
+      "engine_supported": false,
+      "status": "requires_unit_and_cost_basis_migration",
+      "master_data_day": "2026-10-20"
+    },
+    {
+      "security_id": "10011473",
+      "contract": "510500P2612A08250",
+      "previous_contract": "510500P2612M08250",
+      "previous_strike": 8.25,
+      "strike": 8.104,
+      "previous_unit": 10000,
+      "contract_unit": 10180,
+      "effective_date": "2026-07-15",
+      "expiry": "2026-12-23",
+      "observed_on": "2026-10-21",
+      "migration_required": false,
+      "engine_supported": false,
+      "status": "requires_unit_and_cost_basis_migration",
+      "master_data_day": "2026-10-20"
+    },
+    {
+      "security_id": "10011474",
+      "contract": "510500P2612A08500",
+      "previous_contract": "510500P2612M08500",
+      "previous_strike": 8.5,
+      "strike": 8.35,
+      "previous_unit": 10000,
+      "contract_unit": 10180,
+      "effective_date": "2026-07-15",
+      "expiry": "2026-12-23",
+      "observed_on": "2026-10-21",
+      "migration_required": false,
+      "engine_supported": false,
+      "status": "requires_unit_and_cost_basis_migration",
+      "master_data_day": "2026-10-20"
+    },
+    {
+      "security_id": "10011475",
+      "contract": "510500P2612A08750",
+      "previous_contract": "510500P2612M08750",
+      "previous_strike": 8.75,
+      "strike": 8.595,
+      "previous_unit": 10000,
+      "contract_unit": 10180,
+      "effective_date": "2026-07-15",
+      "expiry": "2026-12-23",
+      "observed_on": "2026-10-21",
+      "migration_required": false,
+      "engine_supported": false,
+      "status": "requires_unit_and_cost_basis_migration",
+      "master_data_day": "2026-10-20"
+    },
+    {
+      "security_id": "10011476",
+      "contract": "510500P2612A09000",
+      "previous_contract": "510500P2612M09000",
+      "previous_strike": 9.0,
+      "strike": 8.841,
+      "previous_unit": 10000,
+      "contract_unit": 10180,
+      "effective_date": "2026-07-15",
+      "expiry": "2026-12-23",
+      "observed_on": "2026-10-21",
+      "migration_required": false,
+      "engine_supported": false,
+      "status": "requires_unit_and_cost_basis_migration",
+      "master_data_day": "2026-10-20"
+    },
+    {
+      "security_id": "10011477",
+      "contract": "510500P2612A09250",
+      "previous_contract": "510500P2612M09250",
+      "previous_strike": 9.25,
+      "strike": 9.086,
+      "previous_unit": 10000,
+      "contract_unit": 10180,
+      "effective_date": "2026-07-15",
+      "expiry": "2026-12-23",
+      "observed_on": "2026-10-21",
+      "migration_required": false,
+      "engine_supported": false,
+      "status": "requires_unit_and_cost_basis_migration",
+      "master_data_day": "2026-10-20"
+    },
+    {
+      "security_id": "10011478",
+      "contract": "510500P2612A09500",
+      "previous_contract": "510500P2612M09500",
+      "previous_strike": 9.5,
+      "strike": 9.332,
+      "previous_unit": 10000,
+      "contract_unit": 10180,
+      "effective_date": "2026-07-15",
+      "expiry": "2026-12-23",
+      "observed_on": "2026-10-21",
+      "migration_required": false,
+      "engine_supported": false,
+      "status": "requires_unit_and_cost_basis_migration",
+      "master_data_day": "2026-10-20"
+    },
+    {
+      "security_id": "10011552",
+      "contract": "510500P2612A09750",
+      "previous_contract": "510500P2612M09750",
+      "previous_strike": 9.75,
+      "strike": 9.578,
+      "previous_unit": 10000,
+      "contract_unit": 10180,
+      "effective_date": "2026-07-15",
+      "expiry": "2026-12-23",
+      "observed_on": "2026-10-21",
+      "migration_required": false,
+      "engine_supported": false,
+      "status": "requires_unit_and_cost_basis_migration",
+      "master_data_day": "2026-10-20"
+    },
+    {
+      "security_id": "10011600",
+      "contract": "510500P2612A10000",
+      "previous_contract": "510500P2612M10000",
+      "previous_strike": 10.0,
+      "strike": 9.823,
+      "previous_unit": 10000,
+      "contract_unit": 10180,
+      "effective_date": "2026-07-15",
+      "expiry": "2026-12-23",
+      "observed_on": "2026-10-21",
+      "migration_required": false,
+      "engine_supported": false,
+      "status": "requires_unit_and_cost_basis_migration",
+      "master_data_day": "2026-10-20"
+    },
+    {
+      "security_id": "10012002",
+      "contract": "510500P2612A10500",
+      "previous_contract": "510500P2612M10500",
+      "previous_strike": 10.5,
+      "strike": 10.314,
+      "previous_unit": 10000,
+      "contract_unit": 10180,
+      "effective_date": "2026-07-15",
+      "expiry": "2026-12-23",
+      "observed_on": "2026-10-21",
+      "migration_required": false,
+      "engine_supported": false,
+      "status": "requires_unit_and_cost_basis_migration",
+      "master_data_day": "2026-10-20"
+    }
+  ],
+  "local_checkpoint": {
+    "verified_day": "2026-10-19",
+    "sequence": 17,
+    "sha256": "cb72267c5ab6a82c5f9c4ae78b2824536656319e3c03b4397a67ae4345d3bfce",
+    "legs": [
+      {
+        "field": "v14_core_put_contract",
+        "contract": "510500P2612M06500",
+        "security_id": "10012149",
+        "snapshot_match": true
+      },
+      {
+        "field": "post_put_contract",
+        "contract": "510500P2612M06500",
+        "security_id": "10012149",
+        "snapshot_match": true
+      }
+    ]
+  },
+  "source_files": {
+    "capture.json": {
+      "sha256": "c697d740e20c9bd436f71bdf936f74f824e0d6f06219da9baec73c458193cd17",
+      "size": 1253,
+      "filesystem_saved_at": "2026-10-21T06:10:17.602264+00:00"
+    },
+    "master_capture.json": {
+      "sha256": "9ed1ffc049af3658f7a834a7199dc90dda28c0d6503ab709f6d4116dd301ca02",
+      "size": 4694,
+      "filesystem_saved_at": "2026-10-21T06:12:17.261455+00:00"
+    },
+    "official_adjustment.bin": {
+      "sha256": "1042ff0c9e5b8237ca2ef9e75cfd7d4809571f94c87ebc6f984e1d11c11dcf6f",
+      "size": 33145,
+      "filesystem_saved_at": "2026-10-21T06:10:10.818965+00:00"
+    },
+    "official_info.bin": {
+      "sha256": "0e6ae16f651de85f7f76955df8150f5c43b57f0daa7dce36d350599fe243c1ca",
+      "size": 27408,
+      "filesystem_saved_at": "2026-10-21T06:10:11.325171+00:00"
+    },
+    "official_info.js": {
+      "sha256": "d3fe735a30cad061375ce03441522dcbe48b32a899b67b09fee08412a6452eb7",
+      "size": 48079,
+      "filesystem_saved_at": "2026-10-21T06:11:21.027134+00:00"
+    },
+    "sse_adjustment_20260715.json": {
+      "sha256": "85f3f74d8c088e586d7d6275697f104ad5a5774a1e32bc32217db178b5557596",
+      "size": 93737,
+      "filesystem_saved_at": "2026-10-21T06:12:16.746979+00:00"
+    },
+    "sse_contract_master.json": {
+      "sha256": "22ebf371548b9c64f0cdab36bf263aa48ad525c702a4e672d37529b0ba940425",
+      "size": 48710,
+      "filesystem_saved_at": "2026-10-21T06:12:17.255472+00:00"
+    },
+    "sse_december_identity.json": {
+      "sha256": "327aacd4c032bda5be4535ad6ef2312fe179ea791a293b81944368a0003476b7",
+      "size": 3537,
+      "filesystem_saved_at": "2026-10-21T06:11:23.386863+00:00"
+    },
+    "sse_identity.bin": {
+      "sha256": "44bde36c051c4fbe648e11dbb11b31d3677659d8d8548c080bdb2ebb174453d4",
+      "size": 2798,
+      "filesystem_saved_at": "2026-10-21T06:10:17.601259+00:00"
+    }
+  },
+  "source_urls": {
+    "official_notice": "https://www.sse.com.cn/assortment/options/disclo/update/c/c_20260714_10825473.shtml",
+    "quote": "https://yunhq.sse.com.cn:32042/v1/sho/list/tstyle/510500_12?select=contractid,last,chg_rate,presetpx,exepx,code&order=contractid,ase",
+    "adjustment_and_master": "https://query.sse.com.cn/commonQuery.do; exact params in raw/master_capture.json"
+  },
+  "limits": [
+    "Read-only local checkpoint, not broker/cloud account proof",
+    "Master TIMESAVE is 2026-10-20; quote date is 2026-10-21",
+    "A resolution is diagnostic only, not engine/ledger migration",
+    "filesystem_saved_at is file metadata, not reconstructed HTTP request-start time"
+  ]
+}

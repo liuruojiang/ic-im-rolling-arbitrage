@@ -1,0 +1,1086 @@
+--- a/poe_ic_im_mainline_v1_4_bot.py
++++ b/poe_ic_im_mainline_v1_4_bot.py
+@@ -57,16 +57,94 @@
+ 
+ 
+ def _evidence_http_get(*args, **kwargs):
++    url = str(args[0] if args else kwargs.get("url", ""))
++    reader = signal_evidence.current_reader.get()
++    if reader is not None:
++        archived = reader.http_response(url, kwargs.get("params"))
++        replay = requests.Response()
++        replay.status_code = archived["status_code"]
++        replay.url = url
++        replay.headers.update(archived.get("headers", {}))
++        replay.encoding = archived.get("encoding")
++        replay._content = archived["body"]
++        replay._content_consumed = True
++        return replay
+     response = requests.get(*args, **kwargs)
+     session = signal_evidence.current_session.get()
+     if session is not None:
+-        session.raw_response(str(args[0] if args else kwargs.get("url", "")),
+-                             kwargs.get("params"), response)
++        try:
++            body = None
++            if kwargs.get("stream"):
++                maximum = (MAX_CFFEX_DOWNLOAD_BYTES if url.startswith(
++                    "https://www.cffex.com.cn/sj/historysj/") else MAX_QUOTE_RESPONSE_BYTES)
++                declared = response.headers.get("Content-Length")
++                if declared:
++                    try:
++                        size = int(declared)
++                    except (TypeError, ValueError) as exc:
++                        raise RuntimeError("存证流式响应长度标头非法") from exc
++                    if size < 0 or size > maximum:
++                        raise RuntimeError("存证流式响应声明大小超过下载上限或非法")
++                chunks, downloaded = [], 0
++                stream = iter(response.iter_content(chunk_size=65536))
++                while True:
++                    _bounded_timeout(5)
++                    try:
++                        chunk = next(stream)
++                    except StopIteration:
++                        break
++                    _bounded_timeout(5)
++                    if not isinstance(chunk, (bytes, bytearray)):
++                        raise RuntimeError("存证流式响应包含非字节块")
++                    if len(chunk) > maximum - downloaded:
++                        raise RuntimeError("存证流式响应累计大小超过下载上限")
++                    downloaded += len(chunk)
++                    chunks.append(bytes(chunk))
++                body = b"".join(chunks)
++                # Preserve the ordinary Response API for the provider's own
++                # validation. The network body was read only under its bounds.
++                response._content = body
++                response._content_consumed = True
++            session.raw_response(url, kwargs.get("params"), response, body=body)
++        except BaseException:
++            response.close()
++            raise
+     return response
+ 
+ 
+ def _fear_score_evidence(signal_day: date, mode: str):
+     return fear_grid.fetch_score(signal_day, mode)
++
++
++def _fear_reference_evidence(signal_day: date):
++    return fear_grid.fetch_jiu_reference(signal_day)
++
++
++def _prefetch_mo_replay_verification(quotes: pd.DataFrame, clock: datetime) -> dict[str, Any]:
++    """Record all Put cross-check variables in bounded batches, without selection."""
++    symbols = set()
++    for contract in quotes.attrs.get("listed_instruments", quotes.instrument.tolist()):
++        match = re.fullmatch(r"MO([0-9]{4})-P-([0-9]+)", str(contract))
++        if match:
++            symbols.add(f"P_OP_mo{match[1]}P{match[2]}")
++    if not symbols:
++        raise RuntimeError("MO原日复核存证缺少挂牌Put标识")
++    ordered = sorted(symbols)
++    for offset in range(0, len(ordered), 64):
++        batch = ordered[offset:offset + 64]
++        response = _evidence_http_get("https://hq.sinajs.cn/etag.php", params={"list": ",".join(batch)},
++            stream=True, timeout=_bounded_timeout(6), headers={"User-Agent": "Mozilla/5.0 POE-IC-IM-Research/1.0",
++                "Referer": "https://stock.finance.sina.com.cn/", "Cache-Control": "no-cache"})
++        try:
++            response.raise_for_status()
++            raw = _response_with_size_limit(response, "MO原日复核报文")
++            returned = re.findall(rb'(?:var\s+)?hq_str_(P_OP_mo[0-9]{4}[CP][0-9]+)="[^"\r\n]*";?', raw)
++            ids = [value.decode("ascii") for value in returned]
++            if len(ids) != len(set(ids)) or set(ids) != set(batch):
++                raise RuntimeError("MO原日复核报文返回标识不完整；不能承诺自动恢复")
++        finally:
++            response.close()
++    return {"day": clock.date(), "symbols": ordered, "state_decision_made": False}
+ 
+ 
+ def _resolve_gov10y_evidence(market_day: date, clock: datetime, frozen_rate: float, anchor_day: date):
+@@ -4374,7 +4452,9 @@
+     return 2000 + int(year), int(month)
+ 
+ 
+-def select_active_future(product: str, quotes: pd.DataFrame, today: date) -> pd.Series:
++def select_active_future(product: str, quotes: pd.DataFrame, today: date, *, purpose: str = "selection") -> pd.Series:
++    if purpose not in {"selection", "maintenance_reference"}:
++        raise ValueError("unsupported future reference purpose")
+     if "lastprice" not in quotes:
+         raise RuntimeError(f"{product} 延时行情缺少 lastprice")
+     candidates = quotes[quotes["instrument"].str.fullmatch(rf"{product}\d{{4}}")].copy()
+@@ -4394,7 +4474,8 @@
+             f"{product} 行情中的期货合约均已到期（最晚规则到期日 {latest}）"
+         )
+     selected = eligible.iloc[0]
+-    _require_model_expiry_calendar(selected["expiry"], "selected future expiry")
++    if purpose != "maintenance_reference" or not _expiry_definitely_after_reference(selected["expiry"], today):
++        _require_model_expiry_calendar(selected["expiry"], "selected future expiry")
+     return selected
+ 
+ 
+@@ -5929,7 +6010,7 @@
+                       v14_profit_reentry_status="confirmed_open_research_price")
+         return
+     if product == "IC":
+-        if _HISTORICAL_REPLAY_DAY.get() is not None:
++        if _HISTORICAL_REPLAY_DAY.get() is not None and not _original_evidence_replay():
+             signal["v14_profit_reentry_status"] = "blocked_historical_new_contract_chain_unavailable"
+             return
+         selected = select_ic_put_for_reset(day, float(signal["etf_price"]),
+@@ -6460,6 +6541,10 @@
+     return events
+ 
+ 
++def _original_evidence_replay() -> bool:
++    return signal_evidence.current_reader.get() is not None
++
++
+ def build_live_trade_signal(
+     product: str, now: datetime | None = None, mode: str = "intraday",
+ ) -> dict[str, Any]:
+@@ -6470,9 +6555,15 @@
+     # existing but incomplete/corrupt bundle never falls back to current data.
+     replay_day = _HISTORICAL_REPLAY_DAY.get()
+     evidence_root = evidence_adapter.configured_root()
+-    if (replay_day is not None and evidence_root is not None
+-            and signal_evidence.current_reader.get() is None
+-            and (evidence_root / "sessions" / replay_day.isoformat()).exists()):
++    original_present = False
++    if replay_day is not None and evidence_root is not None and not _original_evidence_replay():
++        try:
++            original_present = evidence_adapter.has_original(evidence_root, product, replay_day)
++        except signal_evidence.EvidenceUnavailable as exc:
++            result = make_diagnostic_signal(product, clock, str(exc), status="original_evidence_unavailable")
++            result["mode"] = mode
++            return result
++    if original_present:
+         with STRATEGY_QUERY_LOCK:
+             try:
+                 reader, replay_clock = evidence_adapter.load_original(
+@@ -6485,6 +6576,9 @@
+                     "acquired_until": reader.closed_at.isoformat(),
+                     "replay_runtime": replay_clock.isoformat(),
+                     "input_revision": evidence_adapter.INPUT_REVISION,
++                    "unrecorded_inputs": deepcopy(reader.missing_inputs),
++                    "replay_completeness": signal_evidence.decode(
++                        reader.context.get("annotations", {}).get("replay_completeness")),
+                 }
+                 result["historical_evidence_supplements"] = deepcopy(
+                     getattr(reader, "supplemental_evidence", []))
+@@ -6610,7 +6704,7 @@
+                 float(live["score"]), fear_evidence["fear_greed_index"],
+             )
+         if _now_beijing().date() >= fear_grid.SOURCE_POLICY_DATE:
+-            fear_evidence.update(fear_grid.fetch_jiu_reference(market_date))
++            fear_evidence.update(_fear_reference_evidence(market_date))
+         live["grid_target_units"] = next_units
+         live["grid_entry_source_current"] = current_source
+         live["grid_entry_source_target"] = next_source
+@@ -6652,7 +6746,7 @@
+             "quotes": quote_rows,
+         }
+     # Option maintenance keeps the original monthly reference, independent of futures.
+-    monthly_future = select_active_future(product, future_quotes, market_date)
++    monthly_future = select_active_future(product, future_quotes, market_date, purpose="maintenance_reference")
+     monthly_expiry = _third_friday(*_contract_month(str(monthly_future["instrument"])))
+     phase = _market_phase(clock)
+     close_confirmed = market_date < today or (
+@@ -7686,8 +7780,11 @@
+     # delivery with a provisional expiry. Its existing N/A fallback is strict.
+     monitor_token = _SIGNAL_CALENDAR_DIAGNOSTICS.set(None)
+     try:
+-        signal["iv_warning"] = build_iv_warning(product, signal, live, mo_quotes if product == "IM" else None, clock,
+-                                                collection_started=collection_started)
++        signal["iv_warning"] = (
++            {"status": "unavailable", "text": "IV预警：N/A（原日未归档独立监测结果；回放不重新联网）"}
++            if _original_evidence_replay() else
++            build_iv_warning(product, signal, live, mo_quotes if product == "IM" else None, clock,
++                             collection_started=collection_started))
+     finally:
+         _SIGNAL_CALENDAR_DIAGNOSTICS.reset(monitor_token)
+     if market_date >= fear_grid.CLOSE_FALLBACK_EFFECTIVE_DATE:
+@@ -7898,12 +7995,18 @@
+                 f"（{_now_beijing():%Y-%m-%d %H:%M:%S} 北京时间）\n\n"
+             )
+             msg.write("版本口径：部署服务名V1-2；本页信号规则v1.4；绩效页为另行标注的v1.3/r6冻结历史。\n\n")
++            header_maintenance = False
++            if mode == "intraday":
++                try:
++                    header_maintenance = bool(option_maintenance_notice._valid_maintenance_day(
++                        _now_beijing().date(), _option_maintenance_session))
++                except Exception as notice_exc:
++                    msg.write(f"⚠️ 月度维护日无法核验：{type(notice_exc).__name__}: {notice_exc}；维护提醒已降级。\n\n")
+             msg.write(
+                 ("本次按指定历史交易日重新核验数据。" if _HISTORICAL_REPLAY_DAY.get() is not None else "本次重新联网取数。")
+                 + "**当前仓位**是研究规则从已审计账本续接出的策略仓位，"
+                 + ("不是你的账户持仓；期货目标对应下一交易日，月度Put维护按今日收盘候选单列；各腿目标不会自动下单。\n\n"
+-                   if mode == "intraday" and option_maintenance_notice._valid_maintenance_day(
+-                       _now_beijing().date(), _option_maintenance_session)
++                   if header_maintenance
+                    else "不是你的账户持仓；**下一交易日目标**不会自动下单。\n\n")
+             )
+             msg.write("网格规则：2026-10-08信号日起，估值或恐慌≤25入单个0.5倍网格；按入场来源分别在估值退出线或恐慌≥50退出。此前信号保留当日规则。\n\n")
+@@ -7970,8 +8073,12 @@
+                 msg.write(f"### {PRODUCT_NAMES[product]}\n\n")
+                 if live.get("calendar_coverage_warning"):
+                     msg.write(f"**{live['calendar_coverage_warning']}**\n\n")
+-                monthly_notice = option_maintenance_notice.reminder(
+-                    product, live, is_session=_option_maintenance_session)
++                try:
++                    monthly_notice = option_maintenance_notice.reminder(
++                        product, live, is_session=_option_maintenance_session)
++                except Exception as notice_exc:
++                    monthly_notice = None
++                    msg.write(f"⚠️ 月度Put维护提醒无法核验，已跳过：{type(notice_exc).__name__}: {notice_exc}。\n\n")
+                 if monthly_notice:
+                     msg.write(monthly_notice + "\n\n")
+                 published = fear_grid.publication_view(live)
+--- a/ic_im_evidence_adapter_v1.py
++++ b/ic_im_evidence_adapter_v1.py
+@@ -161,11 +161,64 @@
+             return original(*args, **kwargs)
+         key = keyfn(*args, **kwargs)
+         if reader is not None:
+-            return _validate_value(strategy, role, key, reader.call(role, key))
++            if role == "fear.reference" and not any(
++                    row.get("role") == role for row in reader.manifest["entries"].values()):
++                return {"jiu_reference_only": True, "jiu_status": "unavailable",
++                        "jiu_fear_greed_index": None, "jiu_data_date": None,
++                        "jiu_warning": "原日未归档参考源，回放不重新联网"}
++            value = _validate_value(strategy, role, key, reader.call(role, key))
++            if role == "fear.score" and key.get("mode") == "close" and value.get("fear_greed_index") is None:
++                return _historical_fear_supplement(strategy, reader, key, value, original)
++            return value
+         return capture.call(role, key, lambda: _validate_value(
+             strategy, role, key, original(*args, **kwargs)))
+ 
+     setattr(owner, name, adapted)
++
++
++def _checked_historical_fear(strategy, value, day):
++    if not isinstance(value, dict) or value.get("fear_greed_index") is None:
++        raise evidence.EvidenceUnavailable(f"{day} 历史恐慌数据仍未取得；该日网格继续未确认，需historical_replay补录")
++    _number(value["fear_greed_index"], "historical Fear value", positive=False)
++    if not strategy.fear_grid.flexible_source(value):
++        raise evidence.EvidenceUnavailable("historical Fear supplement requires the approved source revision")
++    actual = datetime.now(strategy.BEIJING)
++    strategy.fear_grid.validate_source_evidence({**value, "market_date": day, "close_confirmed": True,
++        "signal_generated_at": actual.isoformat(), "signal_generation_timing": "retrospective_replay"},
++        validation_clock=actual)
++    return value
++
++
++def _historical_fear_supplement(strategy, reader, key, original_value, original):
++    """Recover a missing grid input through the approved historical provider.
++
++    Never replace an originally usable T or T-1 observation. The supplementary
++    evidence stays separate and uses the real later source/retrieval clock.
++    """
++    day = key["day"]
++    metadata = {"capture_kind": "historical_fear_supplement", "input_revision": INPUT_REVISION,
++                "original_close": False}
++    try:
++        try:
++            supplement = evidence.load_session(reader.root, day, required_roles={"fear.score"}, metadata_filter=metadata)
++            value = _checked_historical_fear(strategy, supplement.call("fear.score", key), day)
++        except evidence.EvidenceUnavailable:
++            token = evidence.current_reader.set(None)
++            try:
++                with evidence.capture_session(reader.root, day, reader.decision_at, metadata) as supplement:
++                    value = supplement.call("fear.score", key, lambda: _checked_historical_fear(
++                        strategy, original(day, "close"), day))
++            finally:
++                evidence.current_reader.reset(token)
++        supplements = getattr(reader, "supplemental_evidence", [])
++        supplements.append({"role": "fear.score", "price_day": day.isoformat(),
++                            "manifest_sha256": supplement.manifest_sha256, "original_close": False,
++                            "retrieved_at": value["fear_retrieved_at"]})
++        reader.supplemental_evidence = supplements
++        return {**value, "fear_replay_recovery": "historical_supplement"}
++    except Exception as exc:
++        return {**original_value, "fear_replay_recovery": "unavailable",
++                "fear_unavailable_reason": f"{day}历史恐慌补证失败，需对该日执行historical_replay；{type(exc).__name__}: {exc}"}
+ 
+ 
+ def _chain_close(strategy, security_id, day):
+@@ -247,6 +300,11 @@
+            lambda expiry_ym, reference_day: {"month": str(expiry_ym)[-4:], "day": reference_day})
+     _keyed(strategy, strategy, "_fear_score_evidence", "fear.score",
+            lambda signal_day, mode: {"day": signal_day, "mode": mode})
++    if hasattr(strategy, "_fear_reference_evidence"):
++        _keyed(strategy, strategy, "_fear_reference_evidence", "fear.reference", lambda signal_day: {"day": signal_day})
++    if hasattr(strategy, "_prefetch_mo_replay_verification"):
++        _keyed(strategy, strategy, "_prefetch_mo_replay_verification", "mo.replay_verification",
++               lambda quotes, clock: {"day": clock.date(), "product": "MO"})
+     _keyed(strategy, strategy, "_resolve_gov10y_evidence", "rate.resolve",
+            lambda market_day, clock, frozen_rate, anchor_day: {
+                "day": market_day, "fallback": frozen_rate, "anchor_day": anchor_day})
+@@ -279,6 +337,10 @@
+         return pd.DataFrame([row]), stamp
+     strategy.fetch_sse_existing_put_historical_quote = held_quote
+     strategy._original_evidence_installed = True
++
++
++def has_original(root, product, day):
++    return evidence.has_session(root, day, {"product": product, "original_close": True})
+ 
+ 
+ def load_original(strategy, root, product, day):
+@@ -335,17 +397,22 @@
+                         # Original listing/chain snapshots cannot be obtained
+                         # from tomorrow's current feeds. Prioritize these over
+                         # index histories that have dated historical sources.
++                        mo_frame = None
+                         if product == "IC":
+                             months = attempt(strategy.fetch_sse_510500_expiries) or []
+                             for month in months:
+                                 attempt(lambda month=month: strategy._fetch_510500_chain_for_day(month[-4:], day))
+                             attempt(strategy.fetch_sse_510500_quote)
+                         else:
+-                            attempt(lambda: strategy.fetch_cffex_quotes("MO", clock))
++                            mo_frame = attempt(lambda: strategy.fetch_cffex_quotes("MO", clock))
+                         attempt(lambda: strategy.fetch_cffex_quotes(product, clock))
+                         attempt(lambda: strategy.live_proxy(product, clock))
+-                        attempt(lambda: getattr(strategy, "_fear_score_evidence", strategy.fear_grid.fetch_score)(day, "close"))
++                        fear_value = attempt(lambda: getattr(strategy, "_fear_score_evidence", strategy.fear_grid.fetch_score)(day, "close"))
++                        if hasattr(strategy, "_fear_reference_evidence"):
++                            attempt(lambda: strategy._fear_reference_evidence(day))
+                         attempt(lambda: strategy._gov10y_for_day(product, day))
++                        if mo_frame is not None and mo_frame.attrs.get("source") == "东方财富":
++                            attempt(lambda: strategy._prefetch_mo_replay_verification(mo_frame, clock))
+                     present_roles = {entry["role"] for entry in session.entries.values()}
+                     required_roles = {"market.live", "cffex.quotes", "fear.score", "rate.resolve"}
+                     if product == "IC":
+@@ -353,6 +420,15 @@
+                     if required_roles - present_roles:
+                         session.failures.append({"role": "collector", "resolved": False,
+                             "error": "missing roles: " + ",".join(sorted(required_roles - present_roles))})
++                    session.annotate("replay_completeness", {
++                        "collection_path": "independent_of_signal_and_calendar_decision",
++                        "required_roles": sorted(required_roles), "present_roles": sorted(present_roles),
++                        "missing_roles": sorted(required_roles - present_roles),
++                        "input_capture_complete": not any(row.get("resolved") is not True for row in session.failures),
++                        "historical_supplements_needed": ["fear.score"] if isinstance(fear_value, dict)
++                            and fear_value.get("fear_greed_index") is None else [],
++                        "state_transition_validated": False,
++                        "note": "原日输入快照完整性不等于正式信号或账本资格；缺值可能仍需后日补证"})
+                 complete = session.context.get("complete") is True
+                 outcomes[product] = {"status": "captured" if complete else "incomplete",
+                                      "manifest": str(session.manifest_path), "sha256": session.manifest_sha256}
+@@ -360,6 +436,7 @@
+                     outcomes[product]["reason"] = "; ".join(
+                         str(row.get("role")) + ": " + str(row.get("error")) for row in session.context["failures"]
+                         if row.get("resolved") is not True)
++                    outcomes[product]["recovery_warning"] = f"{day}原日输入不完整；补齐日历后仍可能需人工锚定，不能承诺自动恢复"
+             except Exception as exc:
+                 outcomes[product] = {"status": "incomplete", "reason": f"{type(exc).__name__}: {exc}",
+                                      "manifest": str(session.manifest_path) if session and session.manifest_path else None}
+--- a/ic_im_signal_evidence_v1.py
++++ b/ic_im_signal_evidence_v1.py
+@@ -357,6 +357,15 @@
+         self.manifest_sha256: str | None = None
+         self.context: dict[str, Any] | None = None
+         self._finished = False
++        self.annotations: dict[str, Any] = {}
++
++    def annotate(self, name: str, value: Any) -> None:
++        if self._finished or not isinstance(name, str) or not name or len(name) > 100:
++            raise EvidenceUnavailable("invalid or closed evidence annotation")
++        encoded = encode(value)
++        if len(_dumps(encoded)) > MAX_MANIFEST_BYTES:
++            raise EvidenceUnavailable("evidence annotation exceeds limit")
++        self.annotations[name] = encoded
+ 
+     def _blob(self, data: bytes, suffix: str) -> dict[str, Any]:
+         if self._finished:
+@@ -396,9 +405,9 @@
+             self._recorded_exceptions.append(exc)
+             raise
+ 
+-    def raw_response(self, url: str, params: Any, response: Any) -> dict[str, Any]:
++    def raw_response(self, url: str, params: Any, response: Any, *, body: bytes | None = None) -> dict[str, Any]:
+         try:
+-            body = response.content
++            body = response.content if body is None else body
+             if not isinstance(body, bytes):
+                 raise EvidenceUnavailable("raw HTTP body must be bytes")
+             entry = self._blob(body, ".bin")
+@@ -426,6 +435,8 @@
+                 "entries": self.entries, "raw": self.raw, "failures": self.failures,
+                 "total_bytes": self.total_bytes,
+                 "complete": bool(self.entries) and all(x["resolved"] for x in self.failures)}
++        if self.annotations:
++            body["annotations"] = self.annotations
+         digest = hashlib.sha256(_dumps(body)).hexdigest()
+         data = _dumps({"body": body, "sha256": digest})
+         if len(data) > MAX_MANIFEST_BYTES:
+@@ -491,13 +502,80 @@
+         self.day = date.fromisoformat(body["day"])
+         self.decision_at = _aware(body["decision_at"], "decision_at")
+         self.closed_at = _aware(body["closed_at"], "closed_at")
++        self.missing_inputs: list[dict[str, Any]] = []
+ 
+     def call(self, role: str, key: dict[str, Any]) -> Any:
+         signature, _ = _signature(role, key)
+         entry = self.context["entries"].get(signature)
+         if entry is None:
++            self.missing_inputs.append({"role": role, "key": key})
+             raise EvidenceUnavailable(f"{self.day} original evidence missing role={role}, key={key}")
+         return decode(_loads(_verified_blob(self.root, entry)))
++
++    def http_response(self, url: str, params: Any) -> dict[str, Any]:
++        matches = [row for row in self.context["raw"]
++                   if row.get("url") == url and decode(row.get("params")) == params]
++        # Sina accepts a list of symbols. Project one exact original variable
++        # from a verified recorded batch; never construct prices or identities.
++        if (not matches and url == "https://hq.sinajs.cn/etag.php" and isinstance(params, dict)
++                and set(params) == {"list"} and re.fullmatch(r"P_OP_mo[0-9]{4}[CP][0-9]+", str(params["list"]))):
++            for row in reversed(self.context["raw"]):
++                key = decode(row.get("params"))
++                if row.get("url") != url or not isinstance(key, dict) or set(key) != {"list"}:
++                    continue
++                symbols = str(key["list"]).split(",")
++                if params["list"] not in symbols:
++                    continue
++                if type(row.get("status_code")) is not int or not 100 <= row["status_code"] <= 599:
++                    raise EvidenceUnavailable("recorded HTTP response status invalid")
++                body = _verified_blob(self.root, row)
++                values = list(re.finditer(rb'(?:var\s+)?hq_str_(P_OP_mo[0-9]{4}[CP][0-9]+)="([^"\r\n]*)";?', body))
++                returned = [m[1].decode("ascii") for m in values]
++                if len(returned) != len(set(returned)) or set(returned) != set(symbols):
++                    raise EvidenceUnavailable("recorded Sina verification batch identities incomplete")
++                selected = next(m[0] for m in values if m[1].decode("ascii") == params["list"])
++                return {**row, "body": selected, "projection": "exact_recorded_Sina_variable",
++                        "parent_raw_sha256": row["sha256"]}
++        if not matches:
++            self.missing_inputs.append({"role": "http", "url": url, "params": params})
++            raise EvidenceUnavailable(f"{self.day} original evidence has no recorded HTTP request: {url}")
++        row = matches[-1]
++        if type(row.get("status_code")) is not int or not 100 <= row["status_code"] <= 599:
++            raise EvidenceUnavailable("recorded HTTP response status invalid")
++        return {**row, "body": _verified_blob(self.root, row)}
++
++
++def has_session(root: str | Path, day: date, metadata_filter: dict[str, Any]) -> bool:
++    """Check verified manifest scope, including failed captures, before routing.
++
++    An unreadable manifest remains an error rather than permission to replace
++    unknown original evidence. Valid other-product and supplement manifests do
++    not disable an independent dated historical provider.
++    """
++    root, day = _canonical(Path(root)), _day(day)
++    directory = _inside(root, root / "sessions" / day.isoformat())
++    try:
++        paths = list(directory.glob("*.json"))
++    except OSError as exc:
++        raise EvidenceUnavailable(f"{day} cannot enumerate original evidence") from exc
++    if len(paths) > MAX_SESSION_FILES:
++        raise EvidenceUnavailable("evidence session count exceeds limit")
++    for path in paths:
++        try:
++            envelope = _loads(_read(_inside(root, path), MAX_MANIFEST_BYTES))
++            body = envelope["body"]
++            if (not isinstance(body, dict) or body.get("schema") != SCHEMA
++                    or body.get("day") != day.isoformat()
++                    or hashlib.sha256(_dumps(body)).hexdigest() != envelope.get("sha256")):
++                raise EvidenceUnavailable("evidence manifest scope/hash invalid")
++            metadata = decode(body["metadata"])
++            if not isinstance(metadata, dict):
++                raise EvidenceUnavailable("invalid evidence metadata")
++            if all(metadata.get(k) == v for k, v in metadata_filter.items()):
++                return True
++        except (KeyError, TypeError, ValueError, AttributeError) as exc:
++            raise EvidenceUnavailable("cannot verify original evidence scope") from exc
++    return False
+ 
+ 
+ def _load_one(root: Path, path: Path, day: date) -> EvidenceReader:
+--- /dev/null
++++ b/test_icim_round4_evidence_boundaries_20261021.py
+@@ -0,0 +1,242 @@
++"""Fourth review regressions; all injected HTTP and anchors are synthetic."""
++from copy import deepcopy
++from datetime import date, datetime, timezone
++import importlib
++import json
++from pathlib import Path
++
++import pytest
++import pandas as pd
++import requests
++
++import ic_im_evidence_adapter_v1 as adapter
++import ic_im_quarter_roll_v1_3 as quarter_roll
++import ic_im_signal_evidence_v1 as evidence
++import poe_ic_im_mainline_v1_4_bot as bot
++
++
++DAY = date(2026, 10, 21)
++CLOCK = datetime(2026, 10, 21, 16, tzinfo=bot.BEIJING)
++
++
++class Response:
++    status_code = 200
++    encoding = "utf-8"
++    def __init__(self, chunks, headers=None, advance=None):
++        self.chunks, self.headers = chunks, headers or {}
++        self.advance, self.closed = advance, False
++        self.eager_reads = 0
++        self._content = None
++        self._content_consumed = False
++    @property
++    def content(self):
++        if self._content is None:
++            self.eager_reads += 1
++            return b"".join(self.chunks)
++        return self._content
++    def iter_content(self, chunk_size=65536):
++        if self._content_consumed:
++            yield self._content
++            return
++        for chunk in self.chunks:
++            if self.advance:
++                self.advance()
++            yield chunk
++    def raise_for_status(self):
++        return None
++    def close(self):
++        self.closed = True
++
++
++@pytest.mark.parametrize("url,limit_name", [
++    ("https://www.cffex.com.cn/sj/historysj/202610/zip/202610.zip", "MAX_CFFEX_DOWNLOAD_BYTES"),
++    ("https://web.ifzq.gtimg.cn/page", "MAX_QUOTE_RESPONSE_BYTES"),
++])
++def test_stream_recording_obeys_size_before_content_access(tmp_path, monkeypatch, url, limit_name):
++    monkeypatch.setattr(bot, limit_name, 4)
++    response = Response([b"123", b"456"])
++    monkeypatch.setattr(bot.requests, "get", lambda *a, **k: response)
++    with pytest.raises(RuntimeError, match="上限|大小"):
++        with evidence.capture_session(tmp_path, DAY, CLOCK, {"purpose": "synthetic bounded stream"}) as session:
++            bot._evidence_http_get(url, stream=True)
++    assert response.eager_reads == 0
++    assert response.closed
++    assert session.context["complete"] is False
++
++
++def test_stream_recording_preserves_shared_read_budget(tmp_path, monkeypatch):
++    elapsed = [0.]
++    monkeypatch.setattr(bot.time_module, "monotonic", lambda: elapsed[0])
++    response = Response([b"PK", b"rest"], advance=lambda: elapsed.__setitem__(0, elapsed[0] + 1.))
++    monkeypatch.setattr(bot.requests, "get", lambda *a, **k: response)
++    with pytest.raises(RuntimeError, match="预算"):
++        with evidence.capture_session(tmp_path, DAY, CLOCK, {}), bot._network_budget(.5):
++            bot._evidence_http_get("https://www.cffex.com.cn/sj/historysj/202610/zip/202610.zip", stream=True)
++    assert response.eager_reads == 0
++    assert response.closed
++
++
++def test_stream_complete_body_is_recorded_without_eager_content(tmp_path, monkeypatch):
++    response = Response([b"PK", b"synthetic"], headers={"Content-Length": "11"})
++    monkeypatch.setattr(bot.requests, "get", lambda *a, **k: response)
++    with evidence.capture_session(tmp_path, DAY, CLOCK, {}) as session:
++        session.call("probe", {}, lambda: True)
++        returned = bot._evidence_http_get("https://www.cffex.com.cn/sj/historysj/202610/zip/202610.zip", stream=True)
++        assert b"".join(returned.iter_content()) == b"PKsynthetic"
++    assert response.eager_reads == 0
++    reader = evidence.load_session(tmp_path, DAY)
++    assert reader.manifest["raw"][0]["bytes"] == 11
++
++
++def test_unrecorded_replay_http_never_calls_requests(tmp_path, monkeypatch):
++    with evidence.capture_session(tmp_path, DAY, CLOCK, {}) as session:
++        session.call("probe", {}, lambda: True)
++    reader = evidence.load_session(tmp_path, DAY)
++    calls = []
++    monkeypatch.setattr(bot.requests, "get", lambda *a, **k: calls.append(a) or Response([b"current"]))
++    with evidence.replay_session(reader):
++        with pytest.raises(evidence.EvidenceUnavailable):
++            bot._evidence_http_get("https://unrecorded.invalid/quote", params={"day": str(DAY)})
++    assert calls == []
++
++
++def test_recorded_http_replays_exact_bytes_without_network(tmp_path, monkeypatch):
++    response = Response([b"original bytes"])
++    monkeypatch.setattr(bot.requests, "get", lambda *a, **k: response)
++    with evidence.capture_session(tmp_path, DAY, CLOCK, {}) as session:
++        session.call("probe", {}, lambda: True)
++        bot._evidence_http_get("https://recorded.invalid/quote", params={"symbol": "one"})
++    reader = evidence.load_session(tmp_path, DAY)
++    monkeypatch.setattr(bot.requests, "get", lambda *a, **k: pytest.fail("unrecorded network"))
++    with evidence.replay_session(reader):
++        returned = bot._evidence_http_get("https://recorded.invalid/quote", params={"symbol": "one"})
++    assert returned.content == b"original bytes"
++    assert returned.status_code == 200
++
++
++@pytest.mark.parametrize("complete", [True, False])
++def test_original_presence_is_per_product_even_for_incomplete_capture(tmp_path, complete):
++    with evidence.capture_session(tmp_path, DAY, CLOCK, {"product": "IC", "original_close": True}) as session:
++        session.call("probe", {}, lambda: True)
++        if not complete:
++            session.failures.append({"role": "synthetic", "resolved": False})
++    assert adapter.has_original(tmp_path, "IC", DAY)
++    assert not adapter.has_original(tmp_path, "IM", DAY)
++
++
++def test_other_product_archive_does_not_block_native_dated_im_replay(tmp_path, monkeypatch):
++    with evidence.capture_session(tmp_path, DAY, CLOCK, {"product": "IC", "original_close": True}) as session:
++        session.call("probe", {}, lambda: True)
++    monkeypatch.setattr(bot, "_build_live_trade_signal", lambda *a, **k: {"marker": "native_dated_provider", "v14_action": "HOLD"})
++    with adapter.evidence_location(tmp_path), bot.historical_replay(DAY):
++        result = bot.build_live_trade_signal("IM", CLOCK, "close")
++    assert result.get("marker") == "native_dated_provider"
++
++
++def coordinator(tmp_path, monkeypatch):
++    from test_icim_b3adv_state_20261021 import prepare
++    store, current, signals = prepare(tmp_path, monkeypatch)
++    monkeypatch.setenv("ICIM_STATE_DIR", str(tmp_path / "import_only"))
++    server = importlib.import_module("poe_ic_im_v1_4_server")
++    return server.LedgerCoordinator(store), signals
++
++
++def test_unknown_year_intraday_header_keeps_two_verified_snapshots(tmp_path, monkeypatch):
++    owner, _ = coordinator(tmp_path, monkeypatch)
++    before = owner.store.load_latest()["digest"]
++    text, _, observed = owner.execute_query("实时信号", datetime(2027, 1, 4, 10, tzinfo=bot.BEIJING), persist_confirmed=False)
++    assert "查询失败" not in text
++    assert text.count("最后逐腿核验快照") == 2
++    assert owner.store.load_latest()["digest"] == before
++
++
++def test_reminder_exception_preserves_both_calculated_products(tmp_path, monkeypatch):
++    owner, signals = coordinator(tmp_path, monkeypatch)
++    # State-validation seeds omit display-only fields. Reuse the retained full
++    # report layout, with the current synthetic state fields taking precedence.
++    template = json.loads((Path(__file__).resolve().parent / "tests/fixtures/icim_adversarial/legacy_close_record_20261013.json").read_text(encoding="utf-8"))["signals"]
++    signals = {p: {**template[p], **signal} for p, signal in signals.items()}
++    monkeypatch.setattr(bot, "build_live_signal_with_transport_retry", lambda product, *a: deepcopy(signals[product]))
++    monkeypatch.setattr(bot.option_maintenance_notice, "reminder", lambda *a, **k: (_ for _ in ()).throw(RuntimeError("synthetic reminder failed")))
++    text, _, observed = owner.execute_query("信号", CLOCK, persist_confirmed=False)
++    assert "查询失败" not in text
++    assert text.count("提醒无法核验") == 2
++    assert set(observed) == {"IC", "IM"}
++
++
++def test_header_calendar_callback_failure_is_isolated(tmp_path, monkeypatch):
++    owner, _ = coordinator(tmp_path, monkeypatch)
++    monkeypatch.setattr(bot.option_maintenance_notice, "_valid_maintenance_day", lambda *a: (_ for _ in ()).throw(bot.CalendarCoverageError("synthetic header gap")))
++    text, _, _ = owner.execute_query("实时信号", datetime(2027, 1, 4, 10, tzinfo=bot.BEIJING), persist_confirmed=False)
++    assert "查询失败" not in text
++    assert "月度维护日无法核验" in text
++    assert text.count("最后逐腿核验快照") == 2
++
++
++@pytest.mark.parametrize("status", [None, False, "200", 600])
++def test_batch_projection_rejects_invalid_recorded_http_status(tmp_path, status):
++    response = Response([b'var hq_str_P_OP_mo2612P7200="original";'])
++    response.status_code = status
++    with evidence.capture_session(tmp_path, DAY, CLOCK, {}) as session:
++        session.call("probe", {}, lambda: True)
++        session.raw_response("https://hq.sinajs.cn/etag.php",
++            {"list": "P_OP_mo2612P7200,P_OP_mo2612P7300"}, response)
++    reader = evidence.load_session(tmp_path, DAY)
++    with pytest.raises(evidence.EvidenceUnavailable, match="status invalid"):
++        reader.http_response("https://hq.sinajs.cn/etag.php", {"list": "P_OP_mo2612P7200"})
++
++
++def test_original_scope_corruption_does_not_enable_current_data_fallback(tmp_path, monkeypatch):
++    with evidence.capture_session(tmp_path, DAY, CLOCK, {"product": "IC", "original_close": True}) as session:
++        session.call("probe", {}, lambda: True)
++    envelope = json.loads(session.manifest_path.read_text(encoding="utf-8"))
++    envelope["body"]["metadata"] = evidence.encode({"product": "IM", "original_close": True})
++    session.manifest_path.write_text(json.dumps(envelope), encoding="utf-8")
++    monkeypatch.setattr(bot, "_build_live_trade_signal", lambda *a, **k: pytest.fail("corrupt scope must not bypass original archive"))
++    with adapter.evidence_location(tmp_path), bot.historical_replay(DAY):
++        result = bot.build_live_trade_signal("IM", CLOCK, "close")
++    assert result["diagnostic_status"] == "original_evidence_unavailable"
++    assert result["persistence_eligible"] is False
++
++
++def test_original_scope_enumeration_failure_is_classified(tmp_path, monkeypatch):
++    def fail(*a, **k):
++        raise OSError("synthetic archive permission failure")
++    monkeypatch.setattr(Path, "glob", fail)
++    with pytest.raises(evidence.EvidenceUnavailable, match="cannot enumerate"):
++        adapter.has_original(tmp_path, "IM", DAY)
++
++
++@pytest.mark.parametrize("product", ["IC", "IM"])
++def test_future_maintenance_reference_is_only_pure_comparison_exemption(product):
++    frame = pd.DataFrame({"instrument": [product + "2701", product + "2703"], "lastprice": [8000., 8001.]})
++    context = {"expiries": [], "failures": []}
++    token = bot._SIGNAL_CALENDAR_DIAGNOSTICS.set(context)
++    try:
++        reference = bot.select_active_future(product, frame, date(2026, 12, 21), purpose="maintenance_reference")
++        assert reference["instrument"] == product + "2701" and context["expiries"] == []
++        bot.select_active_future(product, frame, date(2026, 12, 21))
++        assert context["expiries"] and context["expiries"][0]["date"].startswith("2027-")
++    finally:
++        bot._SIGNAL_CALENDAR_DIAGNOSTICS.reset(token)
++    with pytest.raises(bot.CalendarCoverageError):
++        bot.select_active_future(product, frame, date(2026, 12, 21))
++
++
++@pytest.mark.parametrize("product", ["IC", "IM"])
++def test_unknown_year_formal_core_target_remains_strict(product):
++    with pytest.raises(bot.CalendarCoverageError):
++        bot.require_signal_calendar(product, {"market_date": date(2026, 12, 21),
++            "next_trade_date": date(2026, 12, 22), "core_target": product + "2703"})
++
++
++@pytest.mark.parametrize("product", ["IC", "IM"])
++def test_unknown_year_quarter_execution_is_not_proven_by_expiry_lower_bound(product):
++    def expiry(contract):
++        return bot._third_friday(2000 + int(contract[2:4]), int(contract[-2:]))
++    def covered(day):
++        bot._require_official_exchange_calendar(day, "quarter execution")
++        return bot._is_exchange_trading_day(day)
++    with pytest.raises(bot.CalendarCoverageError):
++        quarter_roll.roll_state(product, product + "2703", [product + "2703", product + "2706"],
++            date(2026, 12, 21), True, expiry, covered)
+--- /dev/null
++++ b/test_icim_round4_recovery_20261021.py
+@@ -0,0 +1,318 @@
++"""Independent collection -> public historical replay -> real temporary ledger.
++
++Prices, future acquisition clocks and the 2027 calendar are synthetic. This
++tests the real collector, rather than constructing its manifests by hand.
++"""
++from copy import deepcopy
++from datetime import date, datetime, timedelta
++import importlib
++import json
++import random
++
++import pandas as pd
++import pytest
++
++import ic_im_evidence_adapter_v1 as adapter
++import ic_im_signal_evidence_v1 as evidence
++import ic_im_v1_4_policy as policy
++import poe_ic_im_mainline_v1_4_bot as bot
++import poe_ic_im_v1_4_state as state
++import test_icim_round3_recovery_audit_20261021 as seed
++from test_icim_round4_evidence_boundaries_20261021 import Response
++
++
++def wall(monkeypatch, day):
++    now = seed.fake_wall(monkeypatch, day)
++    class Wall(datetime):
++        @classmethod
++        def now(cls, tz=None):
++            return now.astimezone(tz) if tz else now.replace(tzinfo=None)
++    monkeypatch.setattr(adapter, "datetime", Wall)
++    return now
++
++
++def providers(monkeypatch, day):
++    samples = {p: seed.values(p, day) for p in ["IC", "IM"]}
++    monkeypatch.setattr(bot, "live_proxy", lambda product, clock=None: deepcopy(samples[product][0]))
++    adapter._keyed(bot, bot, "live_proxy", "market.live", lambda product, clock=None: {"product": product})
++    monkeypatch.setattr(bot, "fetch_cffex_quotes", lambda product, clock=None:
++        deepcopy(samples["IM"][2] if product == "MO" else samples[product][1]))
++    adapter._keyed(bot, bot, "fetch_cffex_quotes", "cffex.quotes", lambda product, clock=None: {"product": product})
++    monkeypatch.setattr(bot, "_fear_score_evidence", lambda day, mode: deepcopy(samples["IM"][3]))
++    adapter._keyed(bot, bot, "_fear_score_evidence", "fear.score", lambda day, mode: {"day": day, "mode": mode})
++    monkeypatch.setattr(bot.fear_grid, "fetch_jiu_reference", lambda day:
++        {"jiu_reference_only": True, "jiu_status": "reference_only", "jiu_fear_greed_index": 50., "jiu_data_date": str(day)})
++    monkeypatch.setattr(bot, "fetch_sse_510500_expiries", lambda: ["20" + month for month in sorted(samples["IC"][4])])
++    adapter._keyed(bot, bot, "fetch_sse_510500_expiries", "ic.months", lambda: {})
++    monkeypatch.setattr(bot, "fetch_sse_510500_quote", lambda:
++        {"date": day.strftime("%Y%m%d"), "time": "150000", "last": 7.8, "prev_close": 7.8})
++    adapter._keyed(bot, bot, "fetch_sse_510500_quote", "ic.etf", lambda: {})
++    monkeypatch.setattr(bot, "_fetch_510500_chain_for_day", lambda month, day: deepcopy(samples["IC"][4][month]))
++    adapter._keyed(bot, bot, "_fetch_510500_chain_for_day", "ic.chain", lambda month, day: {"month": month, "day": day})
++    monkeypatch.delenv(bot.chinabond.FILE_ENV, raising=False)
++    return samples
++
++
++def seed_store(tmp_path, previous, day):
++    store, record = seed.temporary_store(tmp_path, previous)
++    if day.month == 12:
++        for product, anchor in record["products"].items():
++            anchor["post_core_contract"] = product + "2703"
++            for key, value in list(anchor.items()):
++                if isinstance(value, str) and value.startswith("MO2612-"):
++                    anchor[key] = value.replace("MO2612-", "MO2703-")
++                if isinstance(value, str) and value.startswith("510500P2612"):
++                    anchor[key] = value.replace("510500P2612", "510500P2703")
++                if value == "10012099":
++                    anchor[key] = "10022703"
++        record["digest"] = state._digest(record)
++        state._validate_record(record)
++        store._atomic_write(store.journal_dir / f"000000-{previous}.json", record)
++        store._atomic_write(store.latest_path, record)
++    return store, store.load_latest()
++
++
++def oracle(monkeypatch):
++    monkeypatch.setattr(bot, "_OFFICIAL_EXCHANGE_CALENDAR_YEARS", bot._OFFICIAL_EXCHANGE_CALENDAR_YEARS | {2027})
++    monkeypatch.setattr(bot, "_EXCHANGE_CLOSURES", bot._EXCHANGE_CLOSURES | {date(2027, 1, 1)})
++
++
++@pytest.mark.parametrize("day,previous,later", [
++    (date(2026, 11, 20), date(2026, 11, 19), date(2026, 11, 24)),
++    (date(2026, 12, 31), date(2026, 12, 30), date(2027, 1, 5)),
++])
++@pytest.mark.parametrize("fear_missing", [False, True])
++def test_real_independent_collector_survives_calendar_diagnostic_then_server_recovers(tmp_path, monkeypatch, day, previous, later, fear_missing):
++    monkeypatch.setattr(bot.requests, "get", lambda *a, **k: pytest.fail("network escaped stored inputs"))
++    now = wall(monkeypatch, day)
++    store, record = seed_store(tmp_path / "state", previous, day)
++    bot.install_runtime_anchors(state.anchors_from_record(record))
++    samples = providers(monkeypatch, day)
++    if fear_missing:
++        samples["IM"][3].clear()
++        samples["IM"][3].update({"fear_source_policy_revision": bot.fear_grid.SOURCE_POLICY_REVISION,
++            "fear_greed_index": None, "fear_data_date": None, "fear_data_status": "unavailable",
++            "fear_unavailable_reason": "synthetic original source outage", "fear_retrieved_at": now.isoformat(),
++            "fear_fetch_started_at": now.isoformat(), "fear_available_sources": [], "fear_selected_source": None,
++            "fear_cross_validation": "unavailable", "fear_source_warning": "synthetic outage",
++            "fear_fallback_applied": False, "fear_csv_sha256": None, "fear_page_sha256": None,
++            "fear_page_updated_at": None, "fear_page_data_date": None})
++    builder = bot._build_live_trade_signal
++    monkeypatch.setattr(bot, "_build_live_trade_signal", lambda *a, **k: pytest.fail("collector must not depend on signal conclusion"))
++    root = tmp_path / "evidence"
++    result = adapter.capture_daily(bot, root, now)
++    assert result["status"] == "captured"
++    for product in ["IC", "IM"]:
++        reader, _ = adapter.load_original(bot, root, product, day)
++        annotation = evidence.decode(reader.context["annotations"]["replay_completeness"])
++        assert annotation["input_capture_complete"] is True
++        assert annotation["missing_roles"] == []
++        assert annotation["historical_supplements_needed"] == (["fear.score"] if fear_missing else [])
++    monkeypatch.setattr(bot, "_build_live_trade_signal", builder)
++    with adapter.evidence_location(root), bot.historical_replay(day):
++        before = bot.build_live_trade_signal("IM", seed.clock(day), "close")
++    assert before["diagnostic_only"] and before["persistence_eligible"] is False
++    assert store.load_latest()["digest"] == record["digest"]
++    oracle(monkeypatch)
++    actual = wall(monkeypatch, later)
++    if fear_missing:
++        samples["IM"][3].clear()
++        samples["IM"][3].update(fear_history(day, actual))
++    monkeypatch.setattr(bot.fear_grid, "fetch_jiu_reference", lambda *a: pytest.fail("reference must be replayed"))
++    monkeypatch.setenv("ICIM_STATE_DIR", str(tmp_path / "import_only"))
++    server = importlib.import_module("poe_ic_im_v1_4_server")
++    owner = server.LedgerCoordinator(store)
++    owner.evidence_root = root
++    assert owner.catch_up_once(actual)
++    restored = store.load_latest()
++    assert restored["verified_day"] == str(day) and restored["sequence"] == 1
++    for product, signal in restored["signals"].items():
++        assert signal["signal_complete"] and signal["persistence_eligible"]
++        assert not signal.get("diagnostic_only") and not signal.get("calendar_provisional")
++        assert signal["original_evidence"]["unrecorded_inputs"] == []
++        if fear_missing:
++            assert any(row["role"] == "fear.score" and row["original_close"] is False
++                       for row in signal["historical_evidence_supplements"])
++        if day.month == 11:
++            assert signal["option_monthly_reset_due"] is True
++
++
++def fear_history(day, fetched):
++    return {"fear_source_policy_revision": bot.fear_grid.SOURCE_POLICY_REVISION,
++        "fear_greed_index": 40., "fear_data_date": str(day), "fear_data_status": "retrospective_replay",
++        "fear_retrieved_at": fetched.isoformat(), "fear_fetch_started_at": fetched.isoformat(),
++        "fear_available_sources": ["csv"], "fear_selected_source": "csv", "fear_cross_validation": "single_source",
++        "fear_source_warning": "synthetic historical CSV only", "fear_source_url": bot.fear_grid.CSV_URL,
++        "fear_csv_sha256": "a" * 64, "fear_page_sha256": None, "fear_page_updated_at": None,
++        "fear_page_data_date": None, "fear_page_value": None, "fear_csv_latest_date": str(fetched.date()),
++        "fear_csv_latest_value": 42., "fear_csv_observations": {str(day): 40.},
++        "fear_latest_available_date": str(fetched.date()), "fear_fallback_applied": False}
++
++
++def test_unavailable_original_fear_recovers_with_separate_real_time_history_supplement(tmp_path, monkeypatch):
++    day, later = date(2026, 11, 20), date(2026, 11, 24)
++    seed.archive(monkeypatch, tmp_path, "IM", day)
++    reader, runtime = adapter.load_original(bot, tmp_path, "IM", day)
++    # Record the actual unavailable observation as its own original bundle.
++    with evidence.capture_session(tmp_path, day, seed.clock(day), {"purpose": "synthetic missing Fear"}) as session:
++        session.call("fear.score", {"day": day, "mode": "close"}, lambda: {"fear_greed_index": None, "fear_data_status": "unavailable"})
++    missing = evidence.load_session(tmp_path, day, metadata_filter={"purpose": "synthetic missing Fear"})
++    actual = wall(monkeypatch, later)
++    calls = []
++    monkeypatch.setattr(bot, "_fear_score_evidence", lambda d, mode: calls.append((d, mode)) or fear_history(d, actual))
++    adapter._keyed(bot, bot, "_fear_score_evidence", "fear.score", lambda day, mode: {"day": day, "mode": mode})
++    with evidence.replay_session(missing), bot.runtime_clock(runtime):
++        value = bot._fear_score_evidence(day, "close")
++        again = bot._fear_score_evidence(day, "close")
++    assert value["fear_greed_index"] == again["fear_greed_index"] == 40.
++    assert calls == [(day, "close")]
++    assert missing.supplemental_evidence[0]["original_close"] is False
++    assert missing.supplemental_evidence[0]["retrieved_at"] == actual.isoformat()
++    assert missing.call("fear.score", {"day": day, "mode": "close"})["fear_greed_index"] is None
++    supplement = evidence.load_session(tmp_path, day, metadata_filter={"capture_kind": "historical_fear_supplement"})
++    assert supplement.metadata["original_close"] is False
++
++
++def test_missing_fear_history_remains_unresolved_and_creates_no_complete_supplement(tmp_path, monkeypatch):
++    day = date(2026, 11, 20)
++    wall(monkeypatch, day)
++    with evidence.capture_session(tmp_path, day, seed.clock(day), {"purpose": "synthetic unavailable"}) as session:
++        session.call("fear.score", {"day": day, "mode": "close"}, lambda: {"fear_greed_index": None})
++    reader = evidence.load_session(tmp_path, day)
++    wall(monkeypatch, date(2026, 11, 24))
++    monkeypatch.setattr(bot, "_fear_score_evidence", lambda *a: {"fear_greed_index": None})
++    adapter._keyed(bot, bot, "_fear_score_evidence", "fear.score", lambda day, mode: {"day": day, "mode": mode})
++    with evidence.replay_session(reader):
++        result = bot._fear_score_evidence(day, "close")
++    assert result["fear_greed_index"] is None
++    assert result["fear_replay_recovery"] == "unavailable"
++    assert str(day) in result["fear_unavailable_reason"] and "historical_replay" in result["fear_unavailable_reason"]
++    with pytest.raises(evidence.EvidenceUnavailable):
++        evidence.load_session(tmp_path, day, metadata_filter={"capture_kind": "historical_fear_supplement"})
++
++
++def test_two_actual_independent_captures_while_stale_then_sequential_server_recovery(tmp_path, monkeypatch):
++    monkeypatch.setattr(bot.requests, "get", lambda *a, **k: pytest.fail("unrecorded replay network"))
++    first, second, previous = date(2026, 11, 20), date(2026, 11, 23), date(2026, 11, 19)
++    store, original = seed_store(tmp_path / "state", previous, first)
++    bot.install_runtime_anchors(state.anchors_from_record(original))
++    root = tmp_path / "evidence"
++    with monkeypatch.context() as acquisition:
++        acquisition.setattr(bot, "_build_live_trade_signal", lambda *a, **k: pytest.fail("collector called signal builder"))
++        for day in [first, second]:
++            now = wall(acquisition, day)
++            providers(acquisition, day)
++            assert adapter.capture_daily(bot, root, now)["status"] == "captured"
++            assert store.load_latest()["digest"] == original["digest"]
++            for product in ["IC", "IM"]:
++                reader, _ = adapter.load_original(bot, root, product, day)
++                assert reader.metadata["anchor_day_at_capture"] == str(previous)
++    oracle(monkeypatch)
++    now = wall(monkeypatch, date(2026, 11, 24))
++    monkeypatch.setenv("ICIM_STATE_DIR", str(tmp_path / "import_only"))
++    server = importlib.import_module("poe_ic_im_v1_4_server")
++    owner = server.LedgerCoordinator(store)
++    owner.evidence_root = root
++    assert owner.catch_up_until_current(now, max_sessions=2) == 2, owner.last_refresh_error
++    assert store.load_latest()["verified_day"] == str(second)
++    assert store.load_latest()["sequence"] == 2
++    for product, signal in store.load_latest()["signals"].items():
++        assert signal["signal_complete"] and signal["persistence_eligible"]
++        assert signal["original_evidence"]["unrecorded_inputs"] == []
++
++
++@pytest.mark.parametrize("original_archive", [True, False])
++def test_legacy_ic_profit_rebuild_uses_original_chain_only_if_present(tmp_path, monkeypatch, original_archive):
++    day = date(2026, 11, 20)
++    wall(monkeypatch, day)
++    oracle(monkeypatch)
++    seed.archive(monkeypatch, tmp_path, "IC", day)
++    reader, runtime = adapter.load_original(bot, tmp_path, "IC", day)
++    monkeypatch.setattr(bot.requests, "get", lambda *a, **k: pytest.fail("legacy IC replay escaped stored chain"))
++    signal = {"market_date": day, "close_confirmed": True, "option_monthly_reset_due": False,
++        "etf_price": 7.8, "future_last": 7800., "core_put_target_delta": .25, "put_target_momentum_qty": 0}
++    anchor = {"v14_route_state": "future", "v14_profit_pending": True,
++        "v14_profit_execution_day": str(day), "v14_profit_trigger_day": "2026-09-25"}
++    from contextlib import nullcontext
++    with bot.runtime_clock(runtime), bot.historical_replay(day), (evidence.replay_session(reader) if original_archive else nullcontext()):
++        bot._v14_prepare_lifecycle_evidence("IC", signal, anchor, None)
++    if original_archive:
++        assert signal["v14_profit_reentry_status"] == "confirmed_close_research_price"
++        assert signal["v14_core_put_contract"].startswith("510500P2703")
++        assert reader.missing_inputs == []
++    else:
++        assert signal["v14_profit_reentry_status"] == "blocked_historical_new_contract_chain_unavailable"
++
++
++def test_batched_mo_original_crosschecks_replay_quote_and_open_without_http(tmp_path, monkeypatch):
++    day = date(2026, 10, 21)
++    clock = wall(monkeypatch, day)
++    contracts = [f"MO2612-P-{6600+i}" for i in range(130)]
++    frame = pd.DataFrame({"instrument": contracts})
++    frame.attrs["listed_instruments"] = contracts
++    calls = []
++    def get(url, params, **kwargs):
++        calls.append(params["list"])
++        bodies = []
++        for symbol in params["list"].split(","):
++            fields = ["0"] * 41
++            fields[1], fields[2], fields[3], fields[5], fields[7], fields[9] = "1.9", "2", "2.1", "10", symbol.split("P")[-1], "1"
++            fields[32], fields[40] = "2026-10-21 15:00:00", "1"
++            bodies.append(f'var hq_str_{symbol}="{",".join(fields)}";')
++        return Response(["\n".join(bodies).encode("ascii")])
++    monkeypatch.setattr(bot.requests, "get", get)
++    with evidence.capture_session(tmp_path, day, clock, {"purpose": "synthetic complete MO verification"}):
++        result = bot._prefetch_mo_replay_verification(frame, clock)
++    assert len(calls) == 3 and len(result["symbols"]) == 130
++    reader = evidence.load_session(tmp_path, day)
++    monkeypatch.setattr(bot.requests, "get", lambda *a, **k: pytest.fail("verification escaped raw original evidence"))
++    with evidence.replay_session(reader):
++        assert bot.verify_sina_option_quote(contracts[0], day, 2., clock)["lastprice"] == 2.
++        assert bot.verify_sina_option_open(contracts[-1], day, 1., clock)["openprice"] == 1.
++    assert reader.missing_inputs == []
++
++
++@pytest.mark.parametrize("fault", ["missing", "duplicate", "wrong_identity"])
++def test_incomplete_mo_verification_batch_cannot_claim_complete_archive(tmp_path, monkeypatch, fault):
++    day = date(2026, 10, 21)
++    clock = wall(monkeypatch, day)
++    frame = pd.DataFrame({"instrument": ["MO2612-P-7200", "MO2612-P-7300"]})
++    symbols = ["P_OP_mo2612P7200", "P_OP_mo2612P7300"]
++    if fault == "missing":
++        symbols.pop()
++    elif fault == "duplicate":
++        symbols[1] = symbols[0]
++    else:
++        symbols[1] = "P_OP_mo2612P7400"
++    body = "\n".join(f'var hq_str_{symbol}="";' for symbol in symbols).encode("ascii")
++    monkeypatch.setattr(bot.requests, "get", lambda *a, **k: Response([body]))
++    with evidence.capture_session(tmp_path, day, clock, {}) as session:
++        with pytest.raises(RuntimeError, match="标识不完整"):
++            bot._prefetch_mo_replay_verification(frame, clock)
++    assert session.context["complete"] is False
++
++
++@pytest.mark.parametrize("product", ["IC", "IM"])
++def test_none_roll_candidate_and_random_gate_contract_are_real_policy_compatible(monkeypatch, product):
++    from test_icim_round3_policy_repairs_20261021 import short_anchor, wire_adapter
++    from test_ic_im_v1_4_policy import _signal, _candidate
++    contract = "510500P2612M07500" if product == "IC" else "MO2612-P-7200"
++    anchor, frame = wire_adapter(monkeypatch, product, short_anchor(product, v14_short_put_contract=contract), mark=.99)
++    held = bot._apply_v14_live_policy(product, _signal(product, market_date=date(2026, 12, 1),
++        next_trade_date=date(2026, 12, 2), core_eod_contract=product + "2612"), mo_quotes=frame)
++    assert held["v14_action"] != "HOLD_FAIL_CLOSED"
++    rng = random.Random(20261021)
++    checked = 0
++    for _ in range(200):
++        signal = _signal(product, market_date=date(2026, 12, 1), next_trade_date=date(2026, 12, 2),
++                         core_eod_contract=product + "2612", v14_short_put_mark=rng.choice([.1, .99, None]))
++        signal.update(close_confirmed=rng.choice([True, False]), valuation_tier=rng.randrange(4),
++                      valuation_puts_per_full_core=rng.randrange(4), momentum_next_weight=rng.choice([0., .5]))
++        candidate = _candidate(product, contract=contract, expiry=date(2026, 12, 23 if product == "IC" else 18))
++        active = anchor if rng.choice([True, False]) else policy.default_extension(product)
++        requirements = policy.short_put_candidate_requirements(product, signal, active)
++        if not requirements["entry"] and not requirements["roll"]:
++            out = policy.apply_policy(product, signal, active, candidate=candidate, roll_candidate=candidate)
++            assert out["v14_action"] not in {"ENTER_SHORT_PUT", "ROLL_SHORT_PUT"}
++            checked += 1
++    assert checked >= 20
+--- /dev/null
++++ b/docs/ic_im_round4_evidence_calendar_20261021_v1_spec.md
+@@ -0,0 +1,16 @@
++# 第四轮复查处置：原日证据、回放与日历边界 v1
++
++日期：2026-10-21。依据：用户上传《v1.4 第四轮复查：原日存证与日历边界》及其中修复建议；原附件另有 Library 身份，工作目录保存读取投影，不冒称原始上传字节。
++
++先核对完整本地依赖，再修改已复现缺陷。前轮 2596 项与 22 项明确单列为累计基础。旧规范、测试、首次输出和回执不得重写；改生产文件前保留原字节备份。
++
++1. 核验独立收盘采集器在 11-20、12-31 日历不足时仍保存原日输入；恢复使用真实公共 builder、服务补录和临时 StateStore。原日/后日/合成证据分别披露，不宣称合成 2027 覆盖等于官方日历。
++2. 补齐回放漏出来源与按品种查找的边界。回放无未录制联网；允许的后日开盘或恐慌历史补证使用独立 original_close=False 包、真实获取时间和原有语义校验，不倒填原日已知信息。不以历史补证替代当日链身份。
++3. 恐慌不可用继续不落正式账本；优先采用现有历史 CSV 能力补录，明确失败日期/原因。不得把未核验网格沿用值混入完整账本，不改变逐日桥接规则。
++4. 流式响应录制保持现有下载字节上限及逐块网络预算，不以 response.content 在门禁之前无界读取。不能保留完整证据时明确标为不完整。
++5. 日历用途按证明放行纯比较，不依赖“休市最多一周”的未经核验上界。正式选约、数量、目标和执行安排继续严格；不通过清空诊断或虚构交易日使正式信号通过。
++6. 页头/逐品种维护提醒异常降级，保留已核验快照。核验卖 Put 候选门控与 None 兼容，增加无衰减持仓和随机状态对照。
++7. SSE 分页的宽松约定须以真实报文为依据；已有真实链及月份报文继续回放。缺 ETF 原始报文保留部署阻断，不用猜测兼容替代 oracle。
++8. 限制采集仅独立收盘路径；披露保留与容量边界，不自行删除旧证据。实际网络失败与代码缺陷分开记录。
++
++验收：先保留反例失败，再做定向和适用累计回归；绑定源码/规范/夹具、实际 XML、选择/执行集合和退出码。额外人工实证不重复计入 pytest。正式 runtime、旧工件及备份按哈希核对。本轮不部署、不发邮件、不改策略参数、Call/Put 研究边界或正式账本。
+--- /dev/null
++++ b/docs/ic_im_round4_evidence_calendar_20261021_v1_spec.md.sha256
+@@ -0,0 +1 @@
++42c2d1526067104679e249534e88edda9d99951bb61e0cc2e2ac0deb27fe50f2  ic_im_round4_evidence_calendar_20261021_v1_spec.md

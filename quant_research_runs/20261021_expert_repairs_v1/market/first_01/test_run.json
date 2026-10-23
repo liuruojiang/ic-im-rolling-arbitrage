@@ -1,0 +1,16 @@
+{
+  "exit_code": 0,
+  "files": [
+    "test_icim_expert_market_20261021.py",
+    "test_ic_im_external_review_20261021.py::test_real_saved_sina_payload_matches_independent_field_oracle",
+    "test_ic_im_external_review_20261021.py::test_real_adjusted_rows_are_quarantined_without_inventing_trading_codes",
+    "test_icim_a3_history_20261021.py",
+    "test_ic_im_historical_put_identity_20261021.py",
+    "test_ic_im_v1_4_integration_guards.py::test_fix7_ic_open_source_never_uses_a_close_as_fallback",
+    "test_ic_im_v1_4_integration_guards.py::test_fix7_ic_open_source_accepts_identical_vendor_duplicate_only",
+    "test_ohlcv_provider_validation.py"
+  ],
+  "state_dir": "C:\\Users\\ADMINI~1.DES\\AppData\\Local\\Temp\\icim_put_1c8eb956\\state",
+  "test_only_windows_mkdir_mode_adjustment": true,
+  "implicit_pytest_addopts_removed": false
+}

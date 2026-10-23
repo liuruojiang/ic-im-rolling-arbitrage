@@ -1,0 +1,83 @@
+*** Begin Patch
+*** Update File: D:\动量策略\IC和IM滚动套利\poe_ic_im_mainline_v1_4_bot.py
+@@ -5544,9 +5544,10 @@
+     if iv is None:
+         return {"tradable": False, "reason": "iv_unavailable"}
+     # IC fixed core is 0.5x.  The approved fix3 sizing scales that core
+     # notional by decision-known option Delta so the initial total short-Put
+-    # Delta is 0.5 per 1x IC, rather than retaining the old q1-notional size.
++    # Delta is 0.5 per 0.5x core sleeve (about 0.25 per 1x IC), rather
++    # than retaining the old q1-notional size.
+     abs_delta = abs(_bs_price_delta(
+         "P", etf, float(selected.strike), _gov10y_for_day("IC", signal["market_date"]),
+         float(FROZEN["IC"]["dividend"]), float(iv), years,
+     )[1])
+@@ -6188,27 +6189,8 @@
+             short_identity_verified = True
+         if product == "IC":
+             _v14_ic_core_overlay(signal, anchor)
+         _v14_prepare_lifecycle_evidence(product, signal, anchor, mo_quotes)
+-        if product == "IC":
+-            candidate = _v14_ic_short_put_candidate(signal)
+-        else:
+-            if mo_quotes is None:
+-                raise RuntimeError("IM v1.4 requires a validated MO chain")
+-            candidate = _v14_im_short_put_candidate(signal, mo_quotes)
+-        current_expiry = anchor.get("v14_short_put_expiry")
+-        current_expiry = (
+-            current_expiry if isinstance(current_expiry, date)
+-            else date.fromisoformat(str(current_expiry)[:10])
+-            if current_expiry else None
+-        )
+-        roll_candidate = None
+-        if current_expiry is not None:
+-            roll_candidate = (
+-                _v14_ic_short_put_candidate(signal, roll_from_expiry=current_expiry)
+-                if product == "IC"
+-                else _v14_im_short_put_candidate(signal, mo_quotes, roll_from_expiry=current_expiry)
+-            )
+         mark, target_entry = _v14_option_mark(product, signal, mo_quotes)
+         signal["v14_core_put_mark"] = mark
+         signal["v14_core_put_target_entry_premium"] = target_entry
+         _v14_prepare_profit_open_plan(product, signal, anchor, mo_quotes)
+@@ -6222,11 +6204,39 @@
+                     signal["v14_short_put_mark"] = float(closes.loc[stamp]) if stamp in closes.index else None
+             else:
+                 row = _quote_row(mo_quotes, str(current_short))
+                 signal["v14_short_put_mark"] = float(row["lastprice"]) if row is not None else None
++        # Admission dates and chains are only consumed when the pure policy
++        # can enter or roll. Required held/core marks above keep their own
++        # failure boundary; an unused M+1 chain cannot disable other sleeves.
++        required = v14_policy.short_put_candidate_requirements(product, signal, anchor)
++        candidate = {"tradable": False, "reason": required["reason"]}
++        roll_candidate = None
++        if required["entry"] or required["roll"]:
++            if product == "IM" and mo_quotes is None:
++                raise RuntimeError("IM v1.4 requires a validated MO chain")
++            if required["entry"]:
++                candidate = (_v14_ic_short_put_candidate(signal) if product == "IC"
++                             else _v14_im_short_put_candidate(signal, mo_quotes))
++            if required["roll"]:
++                current_expiry = anchor.get("v14_short_put_expiry")
++                if current_expiry is None:
++                    raise RuntimeError("Held short Put lacks its expiry for replacement selection")
++                current_expiry = date.fromisoformat(str(current_expiry)[:10])
++                roll_candidate = (
++                    _v14_ic_short_put_candidate(signal, roll_from_expiry=current_expiry)
++                    if product == "IC" else
++                    _v14_im_short_put_candidate(signal, mo_quotes, roll_from_expiry=current_expiry)
++                )
++        else:
++            signal["v14_candidate_data_status"] = "not_required: " + required["reason"]
+         return v14_policy.apply_policy(
+             product, signal, anchor, candidate=candidate, roll_candidate=roll_candidate
+         )
++    except (SignalTransportError, requests.ConnectionError, requests.Timeout):
++        # Let the existing bounded transport retry repeat required evidence.
++        # A failed source must not become a policy decision or a new state.
++        raise
+     except Exception as exc:
+         if not short_identity_verified:
+             # No policy projection, even for expiry, may consume an unproved
+             # held identity or a mark left in a prepared signal.
+*** End Patch

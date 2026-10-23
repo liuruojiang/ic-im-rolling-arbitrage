@@ -1,0 +1,54 @@
+{
+  "started_at": "2026-10-22T18:08:56.164113+08:00",
+  "clock_is_actual": true,
+  "synthetic_market_inputs": false,
+  "original_anchor_day": "2026-10-21",
+  "independent_core": "510500P2612M06500",
+  "original_core_qty": 15,
+  "production_runtime_write": false,
+  "driver_sha256": "e4570d0e92ee5ac345b26548300e9f058347101cf8657ab031e1994590bc5a08",
+  "stages": {
+    "capture": {
+      "day": "2026-10-22",
+      "status": "incomplete",
+      "products": {
+        "IC": {
+          "status": "incomplete",
+          "manifest": "D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261022_free_source_integration_v1\\collector_01\\evidence\\sessions\\2026-10-22\\100920039159-4d0810972c4c43b5a72bbb9da505e59f.json",
+          "sha256": "d7e2e04312eb639682cf7c15474fc339b4ea678a4aa9fe9c9355f7b44bf26088",
+          "reason": "cffex.quotes: IC所有行情源失败｜中金所官方: ProxyError: HTTPSConnectionPool(host='www.cffex.com.cn', port=443): Max retries exceeded with url: /quote_IC.txt (Caused by ProxyError('Cannot connect to proxy.', TimeoutError('timed out')))｜新浪财经: ProxyError: HTTPSConnectionPool(host='vip.stock.finance.sina.com.cn', port=443): Max retries exceeded with url: /quotes_service/api/json_v2.php/Market_Center.getHQFuturesData?page=1&num=40&sort=position&asc=0&node=zzgz_qh&base=futures (Caused by ProxyE｜东方财富: ProxyError: HTTPSConnectionPool(host='futsseapi.eastmoney.com', port=443): Max retries exceeded with url: /list/220?orderBy=dm&sort=asc&pageSize=200&pageIndex=0&token=58b2fa8f54638b60b87d69b31969089c (Caused by ProxyError('Cannot connect to proxy.', Ti; collector: missing roles: cffex.quotes",
+          "recovery_warning": "2026-10-22原日输入不完整；补齐日历后仍可能需人工锚定，不能承诺自动恢复"
+        },
+        "IM": {
+          "status": "incomplete",
+          "manifest": "D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261022_free_source_integration_v1\\collector_01\\evidence\\sessions\\2026-10-22\\100939854961-09a6e5593d7e47fa8fe537b7d0f568e5.json",
+          "sha256": "2de5c38a4735f62487b9fcffaaa2cfe33c8cad9c35ac021956afb92bc9b850a6",
+          "reason": "cffex.quotes: IM所有行情源失败｜中金所官方: ProxyError: HTTPSConnectionPool(host='www.cffex.com.cn', port=443): Max retries exceeded with url: /quote_IM.txt (Caused by ProxyError('Cannot connect to proxy.', TimeoutError('timed out')))｜新浪财经: ProxyError: HTTPSConnectionPool(host='vip.stock.finance.sina.com.cn', port=443): Max retries exceeded with url: /quotes_service/api/json_v2.php/Market_Center.getHQFuturesData?page=1&num=40&sort=position&asc=0&node=im_qh&base=futures (Caused by ProxyErr｜东方财富: ProxyError: HTTPSConnectionPool(host='futsseapi.eastmoney.com', port=443): Max retries exceeded with url: /list/220?orderBy=dm&sort=asc&pageSize=200&pageIndex=0&token=58b2fa8f54638b60b87d69b31969089c (Caused by ProxyError('Cannot connect to proxy.', Ti; mo.replay_verification: MO原日复核报文返回标识不完整；不能承诺自动恢复",
+          "recovery_warning": "2026-10-22原日输入不完整；补齐日历后仍可能需人工锚定，不能承诺自动恢复"
+        }
+      }
+    },
+    "isolated_append": {
+      "status": "BLOCKED",
+      "reason": "Both real original signals must pass normal persistence eligibility."
+    }
+  },
+  "original_signal_errors": {},
+  "collector_before_measurement": {
+    "IC": false,
+    "IM": false
+  },
+  "source_sha256": {
+    "poe_ic_im_mainline_v1_4_bot.py": "12e01f2f351d5fec6e1280294e73d847ac8a02c7dd4b95a2344dc14caeab0b30",
+    "ic_im_evidence_adapter_v1.py": "5996650f24e6a04d4ed403144a6785e30ff7131f0ac78fcc9f8878b9254dffe4",
+    "ic_im_signal_evidence_v1.py": "7de3265318211aa219c88983031dee76e7c1df4516a6d8b02183660332b28f6c",
+    "poe_ic_im_v1_4_state.py": "9244c7f1d8bbb138e8e86246261fad13e90058f42764b855f8219aa1596c1067"
+  },
+  "status": "NOT_ACCEPTED",
+  "error_type": "EvidenceUnavailable",
+  "error": "2026-10-22 original evidence unavailable: 100920039159-4d0810972c4c43b5a72bbb9da505e59f.json: evidence capture incomplete; 100939854961-09a6e5593d7e47fa8fe537b7d0f568e5.json: evidence capture incomplete",
+  "traceback": "Traceback (most recent call last):\n  File \"D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261022_free_source_integration_v1\\collector_capture.py\", line 102, in main\n    reader, replay_clock = adapter.load_original(bot,run/'evidence','IC',now.date())\n                           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"D:\\动量策略\\IC和IM滚动套利\\ic_im_evidence_adapter_v1.py\", line 369, in load_original\n    reader = evidence.load_session(root, day, required_roles=roles, metadata_filter={\n        \"product\": product, \"input_revision\": INPUT_REVISION, \"original_close\": True})\n  File \"D:\\动量策略\\IC和IM滚动套利\\ic_im_signal_evidence_v1.py\", line 723, in load_session\n    raise EvidenceUnavailable(f\"{day} original evidence unavailable: {detail}\")\nic_im_signal_evidence_v1.EvidenceUnavailable: 2026-10-22 original evidence unavailable: 100920039159-4d0810972c4c43b5a72bbb9da505e59f.json: evidence capture incomplete; 100939854961-09a6e5593d7e47fa8fe537b7d0f568e5.json: evidence capture incomplete\n",
+  "formal_runtime_unchanged": true,
+  "anchors_unchanged": true,
+  "finished_at": "2026-10-22T18:09:39.929434+08:00"
+}

@@ -1,0 +1,11 @@
+{
+  "counts": {
+    "tests": 26,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "source_files": 902,
+  "changed": [],
+  "all_current_equal": true
+}

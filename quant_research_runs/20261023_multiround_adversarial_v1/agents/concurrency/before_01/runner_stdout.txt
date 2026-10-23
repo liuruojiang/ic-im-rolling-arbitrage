@@ -1,0 +1,48 @@
+.F.......                                                                [100%]
+================================== FAILURES ===================================
+_ test_independent_four_worker_collector_cannot_seal_success_after_shutdown_deadline[46.0] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x00000177B16B5CD0>
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_3df9bb53/pytest/test_independent_four_worker_c1')
+shutdown_seconds = 46.0
+
+    @pytest.mark.parametrize('shutdown_seconds', [44., 46.])
+    def test_independent_four_worker_collector_cannot_seal_success_after_shutdown_deadline(
+            monkeypatch, tmp_path, shutdown_seconds):
+        from test_icim_free_sources_parallel_capture_20261022 import fake_strategy
+        strategy, observed = fake_strategy(monkeypatch)
+        monkeypatch.setattr(bot.time_module, 'monotonic', lambda: observed.tick)
+        base_pool = adapter.ThreadPoolExecutor
+        shutdowns = []
+        class ShutdownTailPool(base_pool):
+            def __exit__(self, *args):
+                deadline = bot._NETWORK_DEADLINE.get()
+                result = super().__exit__(*args)
+                observed.tick = deadline - 45. + shutdown_seconds
+                shutdowns.append({'deadline': deadline, 'completed_at': observed.tick})
+                return result
+        monkeypatch.setattr(adapter, 'ThreadPoolExecutor', ShutdownTailPool)
+        with bot.collection_clock(CLOCK):
+            result = adapter.capture_daily(strategy, tmp_path, CLOCK)
+        assert len(shutdowns) == 2 and not observed.active
+        if shutdown_seconds < 45:
+            assert result['status'] == 'captured', result
+        else:
+>           assert result['status'] == 'incomplete', result
+E           AssertionError: {'day': '2026-10-22', 'products': {'IC': {'manifest': 'C:\\Users\\Administrator.DESKTOP-95I7VVU\\AppData\\Local\\Temp\...256': '448f5843ee9aa84c1a0e7b077c250ae973e6ed3ab93de91c1ef0994081aa3d74', 'status': 'captured'}}, 'status': 'captured'}
+E           assert 'captured' == 'incomplete'
+E             
+E             - incomplete
+E             + captured
+
+test_icim_ma23_concurrency_20261023.py:47: AssertionError
+============================== warnings summary ===============================
+C:\Python314\Lib\site-packages\fastapi_poe\types.py:171
+  C:\Python314\Lib\site-packages\fastapi_poe\types.py:171: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    class RequestContext(BaseModel):
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED test_icim_ma23_concurrency_20261023.py::test_independent_four_worker_collector_cannot_seal_success_after_shutdown_deadline[46.0]
+1 failed, 8 passed, 1 warning in 4.16s
+

@@ -1,0 +1,510 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="36" skipped="0" tests="55" time="4.929" timestamp="2026-10-21T20:53:44.436320+08:00" hostname="DESKTOP-95I7VVU"><testcase classname="test_icim_round3_source_validation_20261021" name="test_etf_raw_price_rejected_before_numeric_coercion[True-2]" time="0.002"><failure message="Failed: DID NOT RAISE any of (&lt;class 'RuntimeError'&gt;, &lt;class 'ValueError'&gt;, &lt;class 'TypeError'&gt;)">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000002358D7F3230&gt;
+index = 2, value = True
+
+    @pytest.mark.parametrize("index", [2, 8])
+    @pytest.mark.parametrize("value", [True, np.bool_(True), False, None, float("nan"), float("inf"), 0, -1])
+    def test_etf_raw_price_rejected_before_numeric_coercion(monkeypatch, index, value):
+        payload = etf_payload()
+        payload["list"][0][index] = value
+        wire(monkeypatch, payload)
+&gt;       with pytest.raises((RuntimeError, ValueError, TypeError)):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE any of (&lt;class 'RuntimeError'&gt;, &lt;class 'ValueError'&gt;, &lt;class 'TypeError'&gt;)
+
+test_icim_round3_source_validation_20261021.py:43: Failed</failure></testcase><testcase classname="test_icim_round3_source_validation_20261021" name="test_etf_raw_price_rejected_before_numeric_coercion[True-8]" time="0.001"><failure message="Failed: DID NOT RAISE any of (&lt;class 'RuntimeError'&gt;, &lt;class 'ValueError'&gt;, &lt;class 'TypeError'&gt;)">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000002358D7F3820&gt;
+index = 8, value = True
+
+    @pytest.mark.parametrize("index", [2, 8])
+    @pytest.mark.parametrize("value", [True, np.bool_(True), False, None, float("nan"), float("inf"), 0, -1])
+    def test_etf_raw_price_rejected_before_numeric_coercion(monkeypatch, index, value):
+        payload = etf_payload()
+        payload["list"][0][index] = value
+        wire(monkeypatch, payload)
+&gt;       with pytest.raises((RuntimeError, ValueError, TypeError)):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE any of (&lt;class 'RuntimeError'&gt;, &lt;class 'ValueError'&gt;, &lt;class 'TypeError'&gt;)
+
+test_icim_round3_source_validation_20261021.py:43: Failed</failure></testcase><testcase classname="test_icim_round3_source_validation_20261021" name="test_etf_raw_price_rejected_before_numeric_coercion[value1-2]" time="0.001"><failure message="Failed: DID NOT RAISE any of (&lt;class 'RuntimeError'&gt;, &lt;class 'ValueError'&gt;, &lt;class 'TypeError'&gt;)">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000002358D85A570&gt;
+index = 2, value = np.True_
+
+    @pytest.mark.parametrize("index", [2, 8])
+    @pytest.mark.parametrize("value", [True, np.bool_(True), False, None, float("nan"), float("inf"), 0, -1])
+    def test_etf_raw_price_rejected_before_numeric_coercion(monkeypatch, index, value):
+        payload = etf_payload()
+        payload["list"][0][index] = value
+        wire(monkeypatch, payload)
+&gt;       with pytest.raises((RuntimeError, ValueError, TypeError)):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE any of (&lt;class 'RuntimeError'&gt;, &lt;class 'ValueError'&gt;, &lt;class 'TypeError'&gt;)
+
+test_icim_round3_source_validation_20261021.py:43: Failed</failure></testcase><testcase classname="test_icim_round3_source_validation_20261021" name="test_etf_raw_price_rejected_before_numeric_coercion[value1-8]" time="0.001"><failure message="Failed: DID NOT RAISE any of (&lt;class 'RuntimeError'&gt;, &lt;class 'ValueError'&gt;, &lt;class 'TypeError'&gt;)">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000002358D8D7130&gt;
+index = 8, value = np.True_
+
+    @pytest.mark.parametrize("index", [2, 8])
+    @pytest.mark.parametrize("value", [True, np.bool_(True), False, None, float("nan"), float("inf"), 0, -1])
+    def test_etf_raw_price_rejected_before_numeric_coercion(monkeypatch, index, value):
+        payload = etf_payload()
+        payload["list"][0][index] = value
+        wire(monkeypatch, payload)
+&gt;       with pytest.raises((RuntimeError, ValueError, TypeError)):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE any of (&lt;class 'RuntimeError'&gt;, &lt;class 'ValueError'&gt;, &lt;class 'TypeError'&gt;)
+
+test_icim_round3_source_validation_20261021.py:43: Failed</failure></testcase><testcase classname="test_icim_round3_source_validation_20261021" name="test_etf_raw_price_rejected_before_numeric_coercion[False-2]" time="0.001" /><testcase classname="test_icim_round3_source_validation_20261021" name="test_etf_raw_price_rejected_before_numeric_coercion[False-8]" time="0.001" /><testcase classname="test_icim_round3_source_validation_20261021" name="test_etf_raw_price_rejected_before_numeric_coercion[None-2]" time="0.036" /><testcase classname="test_icim_round3_source_validation_20261021" name="test_etf_raw_price_rejected_before_numeric_coercion[None-8]" time="0.001" /><testcase classname="test_icim_round3_source_validation_20261021" name="test_etf_raw_price_rejected_before_numeric_coercion[nan-2]" time="0.001" /><testcase classname="test_icim_round3_source_validation_20261021" name="test_etf_raw_price_rejected_before_numeric_coercion[nan-8]" time="0.001" /><testcase classname="test_icim_round3_source_validation_20261021" name="test_etf_raw_price_rejected_before_numeric_coercion[inf-2]" time="0.001" /><testcase classname="test_icim_round3_source_validation_20261021" name="test_etf_raw_price_rejected_before_numeric_coercion[inf-8]" time="0.001" /><testcase classname="test_icim_round3_source_validation_20261021" name="test_etf_raw_price_rejected_before_numeric_coercion[0-2]" time="0.001" /><testcase classname="test_icim_round3_source_validation_20261021" name="test_etf_raw_price_rejected_before_numeric_coercion[0-8]" time="0.001" /><testcase classname="test_icim_round3_source_validation_20261021" name="test_etf_raw_price_rejected_before_numeric_coercion[-1-2]" time="0.001" /><testcase classname="test_icim_round3_source_validation_20261021" name="test_etf_raw_price_rejected_before_numeric_coercion[-1-8]" time="0.001" /><testcase classname="test_icim_round3_source_validation_20261021" name="test_etf_response_must_bind_the_requested_underlying[510300]" time="0.001"><failure message="Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000002358DA0C050&gt;
+code = '510300'
+
+    @pytest.mark.parametrize("code", ["510300", "sh510500", "５１０５００", None, True, ""])
+    def test_etf_response_must_bind_the_requested_underlying(monkeypatch, code):
+        payload = etf_payload()
+        payload["list"][0][0] = code
+        wire(monkeypatch, payload)
+&gt;       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;
+
+test_icim_round3_source_validation_20261021.py:52: Failed</failure></testcase><testcase classname="test_icim_round3_source_validation_20261021" name="test_etf_response_must_bind_the_requested_underlying[sh510500]" time="0.001"><failure message="Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000002358DA0C230&gt;
+code = 'sh510500'
+
+    @pytest.mark.parametrize("code", ["510300", "sh510500", "５１０５００", None, True, ""])
+    def test_etf_response_must_bind_the_requested_underlying(monkeypatch, code):
+        payload = etf_payload()
+        payload["list"][0][0] = code
+        wire(monkeypatch, payload)
+&gt;       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;
+
+test_icim_round3_source_validation_20261021.py:52: Failed</failure></testcase><testcase classname="test_icim_round3_source_validation_20261021" name="test_etf_response_must_bind_the_requested_underlying[\uff15\uff11\uff10\uff15\uff10\uff10]" time="0.001"><failure message="Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000002358D9CCA70&gt;
+code = '５１０５００'
+
+    @pytest.mark.parametrize("code", ["510300", "sh510500", "５１０５００", None, True, ""])
+    def test_etf_response_must_bind_the_requested_underlying(monkeypatch, code):
+        payload = etf_payload()
+        payload["list"][0][0] = code
+        wire(monkeypatch, payload)
+&gt;       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;
+
+test_icim_round3_source_validation_20261021.py:52: Failed</failure></testcase><testcase classname="test_icim_round3_source_validation_20261021" name="test_etf_response_must_bind_the_requested_underlying[None]" time="0.001"><failure message="Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000002358DA3C150&gt;
+code = None
+
+    @pytest.mark.parametrize("code", ["510300", "sh510500", "５１０５００", None, True, ""])
+    def test_etf_response_must_bind_the_requested_underlying(monkeypatch, code):
+        payload = etf_payload()
+        payload["list"][0][0] = code
+        wire(monkeypatch, payload)
+&gt;       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;
+
+test_icim_round3_source_validation_20261021.py:52: Failed</failure></testcase><testcase classname="test_icim_round3_source_validation_20261021" name="test_etf_response_must_bind_the_requested_underlying[True]" time="0.001"><failure message="Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000002358D94A750&gt;
+code = True
+
+    @pytest.mark.parametrize("code", ["510300", "sh510500", "５１０５００", None, True, ""])
+    def test_etf_response_must_bind_the_requested_underlying(monkeypatch, code):
+        payload = etf_payload()
+        payload["list"][0][0] = code
+        wire(monkeypatch, payload)
+&gt;       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;
+
+test_icim_round3_source_validation_20261021.py:52: Failed</failure></testcase><testcase classname="test_icim_round3_source_validation_20261021" name="test_etf_response_must_bind_the_requested_underlying[]" time="0.001"><failure message="Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000002358DA64050&gt;
+code = ''
+
+    @pytest.mark.parametrize("code", ["510300", "sh510500", "５１０５００", None, True, ""])
+    def test_etf_response_must_bind_the_requested_underlying(monkeypatch, code):
+        payload = etf_payload()
+        payload["list"][0][0] = code
+        wire(monkeypatch, payload)
+&gt;       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;
+
+test_icim_round3_source_validation_20261021.py:52: Failed</failure></testcase><testcase classname="test_icim_round3_source_validation_20261021" name="test_etf_response_must_be_one_complete_selected_row[duplicate]" time="0.001"><failure message="Failed: DID NOT RAISE any of (&lt;class 'RuntimeError'&gt;, &lt;class 'ValueError'&gt;, &lt;class 'TypeError'&gt;)">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000002358DA641A0&gt;
+kind = 'duplicate'
+
+    @pytest.mark.parametrize("kind", ["duplicate", "extra_underlying", "short_row"])
+    def test_etf_response_must_be_one_complete_selected_row(monkeypatch, kind):
+        payload = etf_payload()
+        if kind == "short_row":
+            payload["list"][0] = payload["list"][0][:8]
+        else:
+            second = deepcopy(payload["list"][0])
+            if kind == "extra_underlying":
+                second[0] = "510300"
+            payload["list"].append(second)
+            payload.update(total=2, end=2)
+        wire(monkeypatch, payload)
+&gt;       with pytest.raises((RuntimeError, ValueError, TypeError)):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE any of (&lt;class 'RuntimeError'&gt;, &lt;class 'ValueError'&gt;, &lt;class 'TypeError'&gt;)
+
+test_icim_round3_source_validation_20261021.py:68: Failed</failure></testcase><testcase classname="test_icim_round3_source_validation_20261021" name="test_etf_response_must_be_one_complete_selected_row[extra_underlying]" time="0.001"><failure message="Failed: DID NOT RAISE any of (&lt;class 'RuntimeError'&gt;, &lt;class 'ValueError'&gt;, &lt;class 'TypeError'&gt;)">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000002358DA64520&gt;
+kind = 'extra_underlying'
+
+    @pytest.mark.parametrize("kind", ["duplicate", "extra_underlying", "short_row"])
+    def test_etf_response_must_be_one_complete_selected_row(monkeypatch, kind):
+        payload = etf_payload()
+        if kind == "short_row":
+            payload["list"][0] = payload["list"][0][:8]
+        else:
+            second = deepcopy(payload["list"][0])
+            if kind == "extra_underlying":
+                second[0] = "510300"
+            payload["list"].append(second)
+            payload.update(total=2, end=2)
+        wire(monkeypatch, payload)
+&gt;       with pytest.raises((RuntimeError, ValueError, TypeError)):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE any of (&lt;class 'RuntimeError'&gt;, &lt;class 'ValueError'&gt;, &lt;class 'TypeError'&gt;)
+
+test_icim_round3_source_validation_20261021.py:68: Failed</failure></testcase><testcase classname="test_icim_round3_source_validation_20261021" name="test_etf_response_must_be_one_complete_selected_row[short_row]" time="0.001"><failure message="IndexError: list index out of range">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000002358DA649F0&gt;
+kind = 'short_row'
+
+    @pytest.mark.parametrize("kind", ["duplicate", "extra_underlying", "short_row"])
+    def test_etf_response_must_be_one_complete_selected_row(monkeypatch, kind):
+        payload = etf_payload()
+        if kind == "short_row":
+            payload["list"][0] = payload["list"][0][:8]
+        else:
+            second = deepcopy(payload["list"][0])
+            if kind == "extra_underlying":
+                second[0] = "510300"
+            payload["list"].append(second)
+            payload.update(total=2, end=2)
+        wire(monkeypatch, payload)
+        with pytest.raises((RuntimeError, ValueError, TypeError)):
+&gt;           bot.fetch_sse_510500_quote()
+
+test_icim_round3_source_validation_20261021.py:69: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+ic_im_evidence_adapter_v1.py:161: in adapted
+    return original(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+    def fetch_sse_510500_quote() -&gt; dict[str, Any]:
+        payload = _sse_quote_json(
+            "v1/sh1/list/self/510500",
+            {
+                "select": "code,cpxxextendname,last,change,chg_rate,amp_rate,volume,amount,prev_close"
+            },
+        )
+        rows = payload.get("list") or []
+        if not rows:
+            raise RuntimeError("上交所未返回有效510500ETF行情")
+        last = float(rows[0][2])
+&gt;       prev_close = float(rows[0][8])
+                           ^^^^^^^^^^
+E       IndexError: list index out of range
+
+poe_ic_im_mainline_v1_4_bot.py:3841: IndexError</failure></testcase><testcase classname="test_icim_round3_source_validation_20261021" name="test_explicit_sse_partial_or_unverified_pagination_cannot_be_ignored[total-100-etf]" time="0.001"><failure message="Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000002358DC1FC40&gt;
+source = 'etf', field = 'total', value = 100
+
+    @pytest.mark.parametrize("source", ["etf", "months"])
+    @pytest.mark.parametrize("field,value", [("total", 100), ("begin", 1), ("end", 0), ("total", True), ("end", "1")])
+    def test_explicit_sse_partial_or_unverified_pagination_cannot_be_ignored(monkeypatch, source, field, value):
+        payload = etf_payload() if source == "etf" else months_payload()
+        payload[field] = value
+        wire(monkeypatch, payload)
+&gt;       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;
+
+test_icim_round3_source_validation_20261021.py:78: Failed</failure></testcase><testcase classname="test_icim_round3_source_validation_20261021" name="test_explicit_sse_partial_or_unverified_pagination_cannot_be_ignored[total-100-months]" time="0.002"><failure message="Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000002358DC1FD20&gt;
+source = 'months', field = 'total', value = 100
+
+    @pytest.mark.parametrize("source", ["etf", "months"])
+    @pytest.mark.parametrize("field,value", [("total", 100), ("begin", 1), ("end", 0), ("total", True), ("end", "1")])
+    def test_explicit_sse_partial_or_unverified_pagination_cannot_be_ignored(monkeypatch, source, field, value):
+        payload = etf_payload() if source == "etf" else months_payload()
+        payload[field] = value
+        wire(monkeypatch, payload)
+&gt;       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;
+
+test_icim_round3_source_validation_20261021.py:78: Failed</failure></testcase><testcase classname="test_icim_round3_source_validation_20261021" name="test_explicit_sse_partial_or_unverified_pagination_cannot_be_ignored[begin-1-etf]" time="0.002"><failure message="Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000002358DA670E0&gt;
+source = 'etf', field = 'begin', value = 1
+
+    @pytest.mark.parametrize("source", ["etf", "months"])
+    @pytest.mark.parametrize("field,value", [("total", 100), ("begin", 1), ("end", 0), ("total", True), ("end", "1")])
+    def test_explicit_sse_partial_or_unverified_pagination_cannot_be_ignored(monkeypatch, source, field, value):
+        payload = etf_payload() if source == "etf" else months_payload()
+        payload[field] = value
+        wire(monkeypatch, payload)
+&gt;       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;
+
+test_icim_round3_source_validation_20261021.py:78: Failed</failure></testcase><testcase classname="test_icim_round3_source_validation_20261021" name="test_explicit_sse_partial_or_unverified_pagination_cannot_be_ignored[begin-1-months]" time="0.001"><failure message="Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000002358DA671C0&gt;
+source = 'months', field = 'begin', value = 1
+
+    @pytest.mark.parametrize("source", ["etf", "months"])
+    @pytest.mark.parametrize("field,value", [("total", 100), ("begin", 1), ("end", 0), ("total", True), ("end", "1")])
+    def test_explicit_sse_partial_or_unverified_pagination_cannot_be_ignored(monkeypatch, source, field, value):
+        payload = etf_payload() if source == "etf" else months_payload()
+        payload[field] = value
+        wire(monkeypatch, payload)
+&gt;       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;
+
+test_icim_round3_source_validation_20261021.py:78: Failed</failure></testcase><testcase classname="test_icim_round3_source_validation_20261021" name="test_explicit_sse_partial_or_unverified_pagination_cannot_be_ignored[end-0-etf]" time="0.001"><failure message="Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000002358DA67230&gt;
+source = 'etf', field = 'end', value = 0
+
+    @pytest.mark.parametrize("source", ["etf", "months"])
+    @pytest.mark.parametrize("field,value", [("total", 100), ("begin", 1), ("end", 0), ("total", True), ("end", "1")])
+    def test_explicit_sse_partial_or_unverified_pagination_cannot_be_ignored(monkeypatch, source, field, value):
+        payload = etf_payload() if source == "etf" else months_payload()
+        payload[field] = value
+        wire(monkeypatch, payload)
+&gt;       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;
+
+test_icim_round3_source_validation_20261021.py:78: Failed</failure></testcase><testcase classname="test_icim_round3_source_validation_20261021" name="test_explicit_sse_partial_or_unverified_pagination_cannot_be_ignored[end-0-months]" time="0.001"><failure message="Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000002358DA641A0&gt;
+source = 'months', field = 'end', value = 0
+
+    @pytest.mark.parametrize("source", ["etf", "months"])
+    @pytest.mark.parametrize("field,value", [("total", 100), ("begin", 1), ("end", 0), ("total", True), ("end", "1")])
+    def test_explicit_sse_partial_or_unverified_pagination_cannot_be_ignored(monkeypatch, source, field, value):
+        payload = etf_payload() if source == "etf" else months_payload()
+        payload[field] = value
+        wire(monkeypatch, payload)
+&gt;       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;
+
+test_icim_round3_source_validation_20261021.py:78: Failed</failure></testcase><testcase classname="test_icim_round3_source_validation_20261021" name="test_explicit_sse_partial_or_unverified_pagination_cannot_be_ignored[total-True-etf]" time="0.001"><failure message="Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000002358D9C7E70&gt;
+source = 'etf', field = 'total', value = True
+
+    @pytest.mark.parametrize("source", ["etf", "months"])
+    @pytest.mark.parametrize("field,value", [("total", 100), ("begin", 1), ("end", 0), ("total", True), ("end", "1")])
+    def test_explicit_sse_partial_or_unverified_pagination_cannot_be_ignored(monkeypatch, source, field, value):
+        payload = etf_payload() if source == "etf" else months_payload()
+        payload[field] = value
+        wire(monkeypatch, payload)
+&gt;       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;
+
+test_icim_round3_source_validation_20261021.py:78: Failed</failure></testcase><testcase classname="test_icim_round3_source_validation_20261021" name="test_explicit_sse_partial_or_unverified_pagination_cannot_be_ignored[total-True-months]" time="0.002"><failure message="Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000002358D975780&gt;
+source = 'months', field = 'total', value = True
+
+    @pytest.mark.parametrize("source", ["etf", "months"])
+    @pytest.mark.parametrize("field,value", [("total", 100), ("begin", 1), ("end", 0), ("total", True), ("end", "1")])
+    def test_explicit_sse_partial_or_unverified_pagination_cannot_be_ignored(monkeypatch, source, field, value):
+        payload = etf_payload() if source == "etf" else months_payload()
+        payload[field] = value
+        wire(monkeypatch, payload)
+&gt;       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;
+
+test_icim_round3_source_validation_20261021.py:78: Failed</failure></testcase><testcase classname="test_icim_round3_source_validation_20261021" name="test_explicit_sse_partial_or_unverified_pagination_cannot_be_ignored[end-1-etf]" time="0.001"><failure message="Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000002358D9C7BD0&gt;
+source = 'etf', field = 'end', value = '1'
+
+    @pytest.mark.parametrize("source", ["etf", "months"])
+    @pytest.mark.parametrize("field,value", [("total", 100), ("begin", 1), ("end", 0), ("total", True), ("end", "1")])
+    def test_explicit_sse_partial_or_unverified_pagination_cannot_be_ignored(monkeypatch, source, field, value):
+        payload = etf_payload() if source == "etf" else months_payload()
+        payload[field] = value
+        wire(monkeypatch, payload)
+&gt;       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;
+
+test_icim_round3_source_validation_20261021.py:78: Failed</failure></testcase><testcase classname="test_icim_round3_source_validation_20261021" name="test_explicit_sse_partial_or_unverified_pagination_cannot_be_ignored[end-1-months]" time="0.001"><failure message="Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000002358D919C50&gt;
+source = 'months', field = 'end', value = '1'
+
+    @pytest.mark.parametrize("source", ["etf", "months"])
+    @pytest.mark.parametrize("field,value", [("total", 100), ("begin", 1), ("end", 0), ("total", True), ("end", "1")])
+    def test_explicit_sse_partial_or_unverified_pagination_cannot_be_ignored(monkeypatch, source, field, value):
+        payload = etf_payload() if source == "etf" else months_payload()
+        payload[field] = value
+        wire(monkeypatch, payload)
+&gt;       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;
+
+test_icim_round3_source_validation_20261021.py:78: Failed</failure></testcase><testcase classname="test_icim_round3_source_validation_20261021" name="test_invalid_month_for_requested_etf_cannot_silently_remove_a_candidate[202713]" time="0.001"><failure message="Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000002358D91BD20&gt;
+value = '202713'
+
+    @pytest.mark.parametrize("value", ["202713", "202700", "2703", "2027-03", "２０２７０３", True, None, ""])
+    def test_invalid_month_for_requested_etf_cannot_silently_remove_a_candidate(monkeypatch, value):
+        payload = months_payload()
+        payload["list"][-1][1] = value
+        wire(monkeypatch, payload)
+&gt;       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;
+
+test_icim_round3_source_validation_20261021.py:87: Failed</failure></testcase><testcase classname="test_icim_round3_source_validation_20261021" name="test_invalid_month_for_requested_etf_cannot_silently_remove_a_candidate[202700]" time="0.001"><failure message="Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000002358D91A270&gt;
+value = '202700'
+
+    @pytest.mark.parametrize("value", ["202713", "202700", "2703", "2027-03", "２０２７０３", True, None, ""])
+    def test_invalid_month_for_requested_etf_cannot_silently_remove_a_candidate(monkeypatch, value):
+        payload = months_payload()
+        payload["list"][-1][1] = value
+        wire(monkeypatch, payload)
+&gt;       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;
+
+test_icim_round3_source_validation_20261021.py:87: Failed</failure></testcase><testcase classname="test_icim_round3_source_validation_20261021" name="test_invalid_month_for_requested_etf_cannot_silently_remove_a_candidate[2703]" time="0.001"><failure message="Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000002358D91B5B0&gt;
+value = '2703'
+
+    @pytest.mark.parametrize("value", ["202713", "202700", "2703", "2027-03", "２０２７０３", True, None, ""])
+    def test_invalid_month_for_requested_etf_cannot_silently_remove_a_candidate(monkeypatch, value):
+        payload = months_payload()
+        payload["list"][-1][1] = value
+        wire(monkeypatch, payload)
+&gt;       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;
+
+test_icim_round3_source_validation_20261021.py:87: Failed</failure></testcase><testcase classname="test_icim_round3_source_validation_20261021" name="test_invalid_month_for_requested_etf_cannot_silently_remove_a_candidate[2027-03]" time="0.001"><failure message="Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000002358CC87930&gt;
+value = '2027-03'
+
+    @pytest.mark.parametrize("value", ["202713", "202700", "2703", "2027-03", "２０２７０３", True, None, ""])
+    def test_invalid_month_for_requested_etf_cannot_silently_remove_a_candidate(monkeypatch, value):
+        payload = months_payload()
+        payload["list"][-1][1] = value
+        wire(monkeypatch, payload)
+&gt;       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;
+
+test_icim_round3_source_validation_20261021.py:87: Failed</failure></testcase><testcase classname="test_icim_round3_source_validation_20261021" name="test_invalid_month_for_requested_etf_cannot_silently_remove_a_candidate[\uff12\uff10\uff12\uff17\uff10\uff13]" time="0.001"><failure message="Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000002358DA2C0C0&gt;
+value = '２０２７０３'
+
+    @pytest.mark.parametrize("value", ["202713", "202700", "2703", "2027-03", "２０２７０３", True, None, ""])
+    def test_invalid_month_for_requested_etf_cannot_silently_remove_a_candidate(monkeypatch, value):
+        payload = months_payload()
+        payload["list"][-1][1] = value
+        wire(monkeypatch, payload)
+&gt;       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;
+
+test_icim_round3_source_validation_20261021.py:87: Failed</failure></testcase><testcase classname="test_icim_round3_source_validation_20261021" name="test_invalid_month_for_requested_etf_cannot_silently_remove_a_candidate[True]" time="0.001"><failure message="Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000002358DA2C210&gt;
+value = True
+
+    @pytest.mark.parametrize("value", ["202713", "202700", "2703", "2027-03", "２０２７０３", True, None, ""])
+    def test_invalid_month_for_requested_etf_cannot_silently_remove_a_candidate(monkeypatch, value):
+        payload = months_payload()
+        payload["list"][-1][1] = value
+        wire(monkeypatch, payload)
+&gt;       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;
+
+test_icim_round3_source_validation_20261021.py:87: Failed</failure></testcase><testcase classname="test_icim_round3_source_validation_20261021" name="test_invalid_month_for_requested_etf_cannot_silently_remove_a_candidate[None]" time="0.001"><failure message="Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000002358DA2C360&gt;
+value = None
+
+    @pytest.mark.parametrize("value", ["202713", "202700", "2703", "2027-03", "２０２７０３", True, None, ""])
+    def test_invalid_month_for_requested_etf_cannot_silently_remove_a_candidate(monkeypatch, value):
+        payload = months_payload()
+        payload["list"][-1][1] = value
+        wire(monkeypatch, payload)
+&gt;       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;
+
+test_icim_round3_source_validation_20261021.py:87: Failed</failure></testcase><testcase classname="test_icim_round3_source_validation_20261021" name="test_invalid_month_for_requested_etf_cannot_silently_remove_a_candidate[]" time="0.001"><failure message="Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000002358DA2C6E0&gt;
+value = ''
+
+    @pytest.mark.parametrize("value", ["202713", "202700", "2703", "2027-03", "２０２７０３", True, None, ""])
+    def test_invalid_month_for_requested_etf_cannot_silently_remove_a_candidate(monkeypatch, value):
+        payload = months_payload()
+        payload["list"][-1][1] = value
+        wire(monkeypatch, payload)
+&gt;       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;
+
+test_icim_round3_source_validation_20261021.py:87: Failed</failure></testcase><testcase classname="test_icim_round3_source_validation_20261021" name="test_partial_pagination_metadata_is_not_a_verified_full_response[etf]" time="0.001"><failure message="Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000002358DA2C830&gt;
+source = 'etf'
+
+    @pytest.mark.parametrize("source", ["etf", "months"])
+    def test_partial_pagination_metadata_is_not_a_verified_full_response(monkeypatch, source):
+        payload = etf_payload() if source == "etf" else months_payload()
+        del payload["end"]
+        wire(monkeypatch, payload)
+&gt;       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;
+
+test_icim_round3_source_validation_20261021.py:96: Failed</failure></testcase><testcase classname="test_icim_round3_source_validation_20261021" name="test_partial_pagination_metadata_is_not_a_verified_full_response[months]" time="0.001"><failure message="Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000002358DA2CD00&gt;
+source = 'months'
+
+    @pytest.mark.parametrize("source", ["etf", "months"])
+    def test_partial_pagination_metadata_is_not_a_verified_full_response(monkeypatch, source):
+        payload = etf_payload() if source == "etf" else months_payload()
+        del payload["end"]
+        wire(monkeypatch, payload)
+&gt;       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;
+
+test_icim_round3_source_validation_20261021.py:96: Failed</failure></testcase><testcase classname="test_icim_round3_source_validation_20261021" name="test_valid_etf_projection_keeps_original_output_contract[7.8_0]" time="0.001" /><testcase classname="test_icim_round3_source_validation_20261021" name="test_valid_etf_projection_keeps_original_output_contract[7.8_1]" time="0.001" /><testcase classname="test_icim_round3_source_validation_20261021" name="test_valid_etf_projection_keeps_original_output_contract[8]" time="0.001" /><testcase classname="test_icim_round3_source_validation_20261021" name="test_months_are_complete_sorted_and_other_underlyings_remain_out_of_scope" time="0.001" /><testcase classname="test_icim_round3_source_validation_20261021" name="test_existing_projection_without_pagination_fields_remains_compatible[etf]" time="0.001" /><testcase classname="test_icim_round3_source_validation_20261021" name="test_existing_projection_without_pagination_fields_remains_compatible[months]" time="0.001" /><testcase classname="test_icim_round3_source_validation_20261021" name="test_bad_original_source_never_becomes_a_complete_archive[etf_boolean]" time="0.049"><failure message="Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;">tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_56675836/pytest/test_bad_original_source_never0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000002358DA2CC90&gt;
+source = 'etf_boolean'
+
+    @pytest.mark.parametrize("source", ["etf_boolean", "etf_wrong_code", "months"])
+    def test_bad_original_source_never_becomes_a_complete_archive(tmp_path, monkeypatch, source):
+        payload = months_payload() if source == "months" else etf_payload()
+        if source == "etf_boolean":
+            payload["list"][0][2] = True
+        elif source == "etf_wrong_code":
+            payload["list"][0][0] = "510300"
+        else:
+            payload["list"][-1][1] = "202713"
+        wire(monkeypatch, payload)
+        with bot.runtime_clock(CLOCK), evidence.capture_session(tmp_path, DAY, CLOCK, {"purpose": "synthetic regression"}) as session:
+&gt;           with pytest.raises(RuntimeError):
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;
+
+test_icim_round3_source_validation_20261021.py:139: Failed</failure></testcase><testcase classname="test_icim_round3_source_validation_20261021" name="test_bad_original_source_never_becomes_a_complete_archive[etf_wrong_code]" time="0.019"><failure message="Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;">tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_56675836/pytest/test_bad_original_source_never1')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000002358DA2D400&gt;
+source = 'etf_wrong_code'
+
+    @pytest.mark.parametrize("source", ["etf_boolean", "etf_wrong_code", "months"])
+    def test_bad_original_source_never_becomes_a_complete_archive(tmp_path, monkeypatch, source):
+        payload = months_payload() if source == "months" else etf_payload()
+        if source == "etf_boolean":
+            payload["list"][0][2] = True
+        elif source == "etf_wrong_code":
+            payload["list"][0][0] = "510300"
+        else:
+            payload["list"][-1][1] = "202713"
+        wire(monkeypatch, payload)
+        with bot.runtime_clock(CLOCK), evidence.capture_session(tmp_path, DAY, CLOCK, {"purpose": "synthetic regression"}) as session:
+&gt;           with pytest.raises(RuntimeError):
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;
+
+test_icim_round3_source_validation_20261021.py:139: Failed</failure></testcase><testcase classname="test_icim_round3_source_validation_20261021" name="test_bad_original_source_never_becomes_a_complete_archive[months]" time="0.012"><failure message="Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;">tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_56675836/pytest/test_bad_original_source_never2')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000002358DA2D940&gt;
+source = 'months'
+
+    @pytest.mark.parametrize("source", ["etf_boolean", "etf_wrong_code", "months"])
+    def test_bad_original_source_never_becomes_a_complete_archive(tmp_path, monkeypatch, source):
+        payload = months_payload() if source == "months" else etf_payload()
+        if source == "etf_boolean":
+            payload["list"][0][2] = True
+        elif source == "etf_wrong_code":
+            payload["list"][0][0] = "510300"
+        else:
+            payload["list"][-1][1] = "202713"
+        wire(monkeypatch, payload)
+        with bot.runtime_clock(CLOCK), evidence.capture_session(tmp_path, DAY, CLOCK, {"purpose": "synthetic regression"}) as session:
+&gt;           with pytest.raises(RuntimeError):
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;
+
+test_icim_round3_source_validation_20261021.py:139: Failed</failure></testcase><testcase classname="test_icim_round3_source_validation_20261021" name="test_retained_real_sse_option_chain_still_parses_all_original_identities" time="0.015" /></testsuite></testsuites>

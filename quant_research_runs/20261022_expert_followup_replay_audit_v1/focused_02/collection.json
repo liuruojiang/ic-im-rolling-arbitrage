@@ -1,0 +1,33 @@
+{
+  "collected": [
+    "test_icim_expert_followup_replay_20261022.py::test_public_ic_dedicated_core_replay_has_zero_misses_and_no_new_url[day0-previous0-2612]",
+    "test_icim_expert_followup_replay_20261022.py::test_public_ic_dedicated_core_replay_has_zero_misses_and_no_new_url[day1-previous1-2703]",
+    "test_icim_expert_followup_replay_20261022.py::test_collector_annotation_roundtrip_is_exactly_one_encoding",
+    "test_icim_expert_followup_replay_20261022.py::test_signal_calendar_2703_target_is_strict_even_with_recording[False]",
+    "test_icim_expert_followup_replay_20261022.py::test_signal_calendar_2703_target_is_strict_even_with_recording[True]",
+    "test_icim_expert_followup_replay_20261022.py::test_same_december_url_cannot_alias_2612_and_2712_bodies",
+    "test_icim_expert_followup_replay_20261022.py::test_new_historical_url_is_counted_and_never_falls_through_to_network",
+    "test_icim_expert_followup_replay_20261022.py::test_missing_fear_day_replayed_then_following_day_bridge_and_real_store_resume"
+  ],
+  "selected": [
+    "test_icim_expert_followup_replay_20261022.py::test_public_ic_dedicated_core_replay_has_zero_misses_and_no_new_url[day0-previous0-2612]",
+    "test_icim_expert_followup_replay_20261022.py::test_public_ic_dedicated_core_replay_has_zero_misses_and_no_new_url[day1-previous1-2703]",
+    "test_icim_expert_followup_replay_20261022.py::test_collector_annotation_roundtrip_is_exactly_one_encoding",
+    "test_icim_expert_followup_replay_20261022.py::test_signal_calendar_2703_target_is_strict_even_with_recording[False]",
+    "test_icim_expert_followup_replay_20261022.py::test_signal_calendar_2703_target_is_strict_even_with_recording[True]",
+    "test_icim_expert_followup_replay_20261022.py::test_same_december_url_cannot_alias_2612_and_2712_bodies",
+    "test_icim_expert_followup_replay_20261022.py::test_new_historical_url_is_counted_and_never_falls_through_to_network",
+    "test_icim_expert_followup_replay_20261022.py::test_missing_fear_day_replayed_then_following_day_bridge_and_real_store_resume"
+  ],
+  "deselected": [],
+  "executed": [
+    "test_icim_expert_followup_replay_20261022.py::test_public_ic_dedicated_core_replay_has_zero_misses_and_no_new_url[day0-previous0-2612]",
+    "test_icim_expert_followup_replay_20261022.py::test_public_ic_dedicated_core_replay_has_zero_misses_and_no_new_url[day1-previous1-2703]",
+    "test_icim_expert_followup_replay_20261022.py::test_collector_annotation_roundtrip_is_exactly_one_encoding",
+    "test_icim_expert_followup_replay_20261022.py::test_signal_calendar_2703_target_is_strict_even_with_recording[False]",
+    "test_icim_expert_followup_replay_20261022.py::test_signal_calendar_2703_target_is_strict_even_with_recording[True]",
+    "test_icim_expert_followup_replay_20261022.py::test_same_december_url_cannot_alias_2612_and_2712_bodies",
+    "test_icim_expert_followup_replay_20261022.py::test_new_historical_url_is_counted_and_never_falls_through_to_network",
+    "test_icim_expert_followup_replay_20261022.py::test_missing_fear_day_replayed_then_following_day_bridge_and_real_store_resume"
+  ]
+}

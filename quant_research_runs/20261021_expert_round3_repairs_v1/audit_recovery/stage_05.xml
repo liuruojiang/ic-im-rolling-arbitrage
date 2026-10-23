@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="6" time="5.128" timestamp="2026-10-21T19:47:49.884628+08:00" hostname="DESKTOP-95I7VVU"><testcase classname="" name="test_no_evidence_context_preserves_provider_keyword_signature" time="0.001" /><testcase classname="" name="test_same_day_snapshot_cannot_bind_requested_security_to_a_different_contract" time="0.223" /><testcase classname="" name="test_original_closed_at_after_session_never_becomes_original_day_evidence" time="0.107" /><testcase classname="" name="test_missing_candidate_month_never_uses_current_chain" time="0.153" /><testcase classname="" name="test_freeze_then_original_monthly_evidence_can_replay_and_advance_two_sessions" time="1.818" /><testcase classname="" name="test_real_server_catchup_recovers_monthly_reset_and_continues_next_session" time="0.775"><failure message="AssertionError: assert '2026-11-20' in 'RuntimeError: 自动补账观察到的完整信号未使账本恰好推进一个预期交易日'&#10; +  where 'RuntimeError: 自动补账观察到的完整信号未使账本恰好推进一个预期交易日' = &lt;poe_ic_im_v1_4_server.LedgerCoordinator object at 0x000002A7C58C6850&gt;.last_refresh_error">tmp_path = WindowsPath('D:/动量策略/IC和IM滚动套利/quant_research_runs/20261021_expert_round3_repairs_v1/audit_recovery/temp_05/test_real_server_catchup_recov0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000002A7C58DDA50&gt;
+
+    def test_real_server_catchup_recovers_monthly_reset_and_continues_next_session(tmp_path, monkeypatch):
+        store, initial = temporary_store(tmp_path / "ledger")
+        for day in [DAY, NEXT]:
+            for product in ["IC", "IM"]:
+                archive(monkeypatch, tmp_path / "evidence", product, day)
+        now = fake_wall(monkeypatch, date(2026, 11, 24), 8)
+        service = coordinator(monkeypatch, tmp_path, store, tmp_path / "evidence")
+        assert service.catch_up_until_current(now, max_sessions=4) == 0
+        assert store.load_latest()["digest"] == initial["digest"]
+&gt;       assert "2026-11-20" in service.last_refresh_error
+E       AssertionError: assert '2026-11-20' in 'RuntimeError: 自动补账观察到的完整信号未使账本恰好推进一个预期交易日'
+E        +  where 'RuntimeError: 自动补账观察到的完整信号未使账本恰好推进一个预期交易日' = &lt;poe_ic_im_v1_4_server.LedgerCoordinator object at 0x000002A7C58C6850&gt;.last_refresh_error
+
+test_icim_round3_recovery_audit_20261021.py:241: AssertionError</failure></testcase></testsuite></testsuites>

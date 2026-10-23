@@ -1,0 +1,758 @@
+................................................F.F..................... [  2%]
+........................................................................ [  4%]
+........................................................................ [  6%]
+........................................................................ [  9%]
+........................................................................ [ 11%]
+........................................................................ [ 13%]
+........................................................................ [ 16%]
+........................................................................ [ 18%]
+........................................................................ [ 20%]
+........................................................................ [ 23%]
+........................................................................ [ 25%]
+........................................................................ [ 27%]
+........................................................................ [ 29%]
+........................................................................ [ 32%]
+........................................................................ [ 34%]
+........................................................................ [ 36%]
+........................................................................ [ 39%]
+........................................................................ [ 41%]
+........................................................................ [ 43%]
+........................................................................ [ 46%]
+........................................................................ [ 48%]
+........................................................................ [ 50%]
+........................................................................ [ 53%]
+........................................................................ [ 55%]
+........................................................................ [ 57%]
+........................................................................ [ 59%]
+........................................................................ [ 62%]
+........................................................................ [ 64%]
+........................................................................ [ 66%]
+........................................................................ [ 69%]
+........................................................................ [ 71%]
+........................................................................ [ 73%]
+........................................................................ [ 76%]
+........................................................................ [ 78%]
+........................................................................ [ 80%]
+........................................................F............... [ 83%]
+................FFFF...............................F.................... [ 85%]
+........................................................................ [ 87%]
+..FF...........F........................................................ [ 89%]
+........................................................................ [ 92%]
+........................................................................ [ 94%]
+........................................................................ [ 96%]
+........................................................................ [ 99%]
+.........................                                                [100%]
+================================== FAILURES ===================================
+__ test_months_are_complete_sorted_and_other_underlyings_remain_out_of_scope __
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000016E773ABF50>
+
+    def test_months_are_complete_sorted_and_other_underlyings_remain_out_of_scope(monkeypatch):
+        payload = months_payload()
+        payload["list"][0][1] = "an unrelated source value"
+        payload["list"].append(["510500", "202611"])
+        payload.update(total=5, end=5)
+        wire(monkeypatch, payload)
+>       assert bot.fetch_sse_510500_expiries() == ["202611", "202612", "202703"]
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_icim_round3_source_validation_20261021.py:115: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_mainline_v1_4_bot.py:4384: in fetch_sse_510500_expiries
+    _require_current_510500_expiry_months(ordered_months)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+months = ['202611', '202612', '202703']
+
+    def _require_current_510500_expiry_months(months: list[str]) -> None:
+        """Validate observed listings; never create an unobserved contract month."""
+        reference_day = _now_beijing().date()
+        first = (reference_day.year, reference_day.month)
+        if reference_day > _fourth_wednesday(*first):
+            first = _month_after(*first)
+        second = _month_after(*first)
+        expected = [f"{year:04d}{month:02d}" for year, month in
+                    [first, second, *_following_quarter_months(*second, 2)]]
+        if months != expected:
+>           raise RuntimeError("510500挂牌月份陈旧或缺少当前挂牌月份，禁止按残缺月份选约")
+E           RuntimeError: 510500挂牌月份陈旧或缺少当前挂牌月份，禁止按残缺月份选约
+
+poe_ic_im_mainline_v1_4_bot.py:4361: RuntimeError
+_ test_existing_projection_without_pagination_fields_remains_compatible[months] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000016E78B5ECF0>
+source = 'months'
+
+    @pytest.mark.parametrize("source", ["etf", "months"])
+    def test_existing_projection_without_pagination_fields_remains_compatible(monkeypatch, source):
+        payload = etf_payload() if source == "etf" else months_payload()
+        for field in ["total", "begin", "end"]:
+            del payload[field]
+        wire(monkeypatch, payload)
+>       result = (bot.fetch_sse_510500_quote if source == "etf" else bot.fetch_sse_510500_expiries)()
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_icim_round3_source_validation_20261021.py:124: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_mainline_v1_4_bot.py:4384: in fetch_sse_510500_expiries
+    _require_current_510500_expiry_months(ordered_months)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+months = ['202611', '202612', '202703']
+
+    def _require_current_510500_expiry_months(months: list[str]) -> None:
+        """Validate observed listings; never create an unobserved contract month."""
+        reference_day = _now_beijing().date()
+        first = (reference_day.year, reference_day.month)
+        if reference_day > _fourth_wednesday(*first):
+            first = _month_after(*first)
+        second = _month_after(*first)
+        expected = [f"{year:04d}{month:02d}" for year, month in
+                    [first, second, *_following_quarter_months(*second, 2)]]
+        if months != expected:
+>           raise RuntimeError("510500挂牌月份陈旧或缺少当前挂牌月份，禁止按残缺月份选约")
+E           RuntimeError: 510500挂牌月份陈旧或缺少当前挂牌月份，禁止按残缺月份选约
+
+poe_ic_im_mainline_v1_4_bot.py:4361: RuntimeError
+__ test_original_closed_at_after_session_never_becomes_original_day_evidence __
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_8e2d8a0f/pytest/test_original_closed_at_after_0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000016E7875D7F0>
+
+    def test_original_closed_at_after_session_never_becomes_original_day_evidence(tmp_path, monkeypatch):
+        archive(monkeypatch, tmp_path, "IM", DAY)
+        reader = evidence.load_session(tmp_path, DAY)
+        reader.closed_at = clock(NEXT)
+        monkeypatch.setattr(evidence, "load_session", lambda *a, **k: reader)
+>       with pytest.raises(evidence.EvidenceUnavailable, match="acquisition time"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ic_im_signal_evidence_v1.EvidenceUnavailable'>
+
+test_icim_round3_recovery_audit_20261021.py:182: Failed
+______ test_batch_projection_rejects_invalid_recorded_http_status[None] _______
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_8e2d8a0f/pytest/test_batch_projection_rejects_0')
+status = None
+
+    @pytest.mark.parametrize("status", [None, False, "200", 600])
+    def test_batch_projection_rejects_invalid_recorded_http_status(tmp_path, status):
+        response = Response([b'var hq_str_P_OP_mo2612P7200="original";'])
+        response.status_code = status
+        with evidence.capture_session(tmp_path, DAY, CLOCK, {}) as session:
+            session.call("probe", {}, lambda: True)
+            session.raw_response("https://hq.sinajs.cn/etag.php",
+                {"list": "P_OP_mo2612P7200,P_OP_mo2612P7300"}, response)
+>       reader = evidence.load_session(tmp_path, DAY)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_icim_round4_evidence_boundaries_20261021.py:188: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+root = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_8e2d8a0f/pytest/test_batch_projection_rejects_0')
+day = datetime.date(2026, 10, 21), required_roles = None, metadata_filter = None
+decision_not_after = None
+
+    def load_session(root: str | Path, day: date, required_roles: Any = None,
+                     metadata_filter: dict[str, Any] | None = None,
+                     decision_not_after: datetime | None = None) -> EvidenceReader:
+        root, day = _canonical(Path(root)), _day(day)
+        cutoff = _aware(decision_not_after, "decision_not_after") if decision_not_after is not None else None
+        directory = _inside(root, root / "sessions" / day.isoformat())
+        try:
+            files = list(directory.glob("*.json"))
+        except OSError as exc:
+            raise EvidenceUnavailable(f"{day} cannot enumerate original evidence") from exc
+        if len(files) > MAX_SESSION_FILES:
+            raise EvidenceUnavailable(f"{day} evidence session count exceeds limit")
+        roles = set(required_roles or [])
+        for role in roles:
+            _role(role)
+        choices, failures = [], []
+        for path in files:
+            try:
+                reader = _load_one(root, path, day)
+                if cutoff is not None and reader.decision_at > cutoff:
+                    continue
+                if metadata_filter and any(reader.metadata.get(key) != value for key, value in metadata_filter.items()):
+                    continue
+                missing = roles - {entry["role"] for entry in reader.context["entries"].values()}
+                if missing:
+                    raise EvidenceUnavailable("missing original evidence roles=" + ",".join(sorted(missing)))
+                choices.append(reader)
+            except (EvidenceUnavailable, ValueError, TypeError, KeyError, AttributeError) as exc:
+                failures.append(f"{path.name}: {exc}")
+        if not choices:
+            detail = "; ".join(failures[:4]) or "no complete session matching requested roles, metadata and decision time"
+>           raise EvidenceUnavailable(f"{day} original evidence unavailable: {detail}")
+E           ic_im_signal_evidence_v1.EvidenceUnavailable: 2026-10-21 original evidence unavailable: 014730061212-5a959d1d13c64f27a5f04e9504d5a8de.json: evidence capture incomplete
+
+ic_im_signal_evidence_v1.py:873: EvidenceUnavailable
+______ test_batch_projection_rejects_invalid_recorded_http_status[False] ______
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_8e2d8a0f/pytest/test_batch_projection_rejects_1')
+status = False
+
+    @pytest.mark.parametrize("status", [None, False, "200", 600])
+    def test_batch_projection_rejects_invalid_recorded_http_status(tmp_path, status):
+        response = Response([b'var hq_str_P_OP_mo2612P7200="original";'])
+        response.status_code = status
+        with evidence.capture_session(tmp_path, DAY, CLOCK, {}) as session:
+            session.call("probe", {}, lambda: True)
+            session.raw_response("https://hq.sinajs.cn/etag.php",
+                {"list": "P_OP_mo2612P7200,P_OP_mo2612P7300"}, response)
+>       reader = evidence.load_session(tmp_path, DAY)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_icim_round4_evidence_boundaries_20261021.py:188: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+root = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_8e2d8a0f/pytest/test_batch_projection_rejects_1')
+day = datetime.date(2026, 10, 21), required_roles = None, metadata_filter = None
+decision_not_after = None
+
+    def load_session(root: str | Path, day: date, required_roles: Any = None,
+                     metadata_filter: dict[str, Any] | None = None,
+                     decision_not_after: datetime | None = None) -> EvidenceReader:
+        root, day = _canonical(Path(root)), _day(day)
+        cutoff = _aware(decision_not_after, "decision_not_after") if decision_not_after is not None else None
+        directory = _inside(root, root / "sessions" / day.isoformat())
+        try:
+            files = list(directory.glob("*.json"))
+        except OSError as exc:
+            raise EvidenceUnavailable(f"{day} cannot enumerate original evidence") from exc
+        if len(files) > MAX_SESSION_FILES:
+            raise EvidenceUnavailable(f"{day} evidence session count exceeds limit")
+        roles = set(required_roles or [])
+        for role in roles:
+            _role(role)
+        choices, failures = [], []
+        for path in files:
+            try:
+                reader = _load_one(root, path, day)
+                if cutoff is not None and reader.decision_at > cutoff:
+                    continue
+                if metadata_filter and any(reader.metadata.get(key) != value for key, value in metadata_filter.items()):
+                    continue
+                missing = roles - {entry["role"] for entry in reader.context["entries"].values()}
+                if missing:
+                    raise EvidenceUnavailable("missing original evidence roles=" + ",".join(sorted(missing)))
+                choices.append(reader)
+            except (EvidenceUnavailable, ValueError, TypeError, KeyError, AttributeError) as exc:
+                failures.append(f"{path.name}: {exc}")
+        if not choices:
+            detail = "; ".join(failures[:4]) or "no complete session matching requested roles, metadata and decision time"
+>           raise EvidenceUnavailable(f"{day} original evidence unavailable: {detail}")
+E           ic_im_signal_evidence_v1.EvidenceUnavailable: 2026-10-21 original evidence unavailable: 014730367862-e4f50ac9a0284db5805d1c3e40afe9c3.json: evidence capture incomplete
+
+ic_im_signal_evidence_v1.py:873: EvidenceUnavailable
+_______ test_batch_projection_rejects_invalid_recorded_http_status[200] _______
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_8e2d8a0f/pytest/test_batch_projection_rejects_2')
+status = '200'
+
+    @pytest.mark.parametrize("status", [None, False, "200", 600])
+    def test_batch_projection_rejects_invalid_recorded_http_status(tmp_path, status):
+        response = Response([b'var hq_str_P_OP_mo2612P7200="original";'])
+        response.status_code = status
+        with evidence.capture_session(tmp_path, DAY, CLOCK, {}) as session:
+            session.call("probe", {}, lambda: True)
+            session.raw_response("https://hq.sinajs.cn/etag.php",
+                {"list": "P_OP_mo2612P7200,P_OP_mo2612P7300"}, response)
+>       reader = evidence.load_session(tmp_path, DAY)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_icim_round4_evidence_boundaries_20261021.py:188: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+root = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_8e2d8a0f/pytest/test_batch_projection_rejects_2')
+day = datetime.date(2026, 10, 21), required_roles = None, metadata_filter = None
+decision_not_after = None
+
+    def load_session(root: str | Path, day: date, required_roles: Any = None,
+                     metadata_filter: dict[str, Any] | None = None,
+                     decision_not_after: datetime | None = None) -> EvidenceReader:
+        root, day = _canonical(Path(root)), _day(day)
+        cutoff = _aware(decision_not_after, "decision_not_after") if decision_not_after is not None else None
+        directory = _inside(root, root / "sessions" / day.isoformat())
+        try:
+            files = list(directory.glob("*.json"))
+        except OSError as exc:
+            raise EvidenceUnavailable(f"{day} cannot enumerate original evidence") from exc
+        if len(files) > MAX_SESSION_FILES:
+            raise EvidenceUnavailable(f"{day} evidence session count exceeds limit")
+        roles = set(required_roles or [])
+        for role in roles:
+            _role(role)
+        choices, failures = [], []
+        for path in files:
+            try:
+                reader = _load_one(root, path, day)
+                if cutoff is not None and reader.decision_at > cutoff:
+                    continue
+                if metadata_filter and any(reader.metadata.get(key) != value for key, value in metadata_filter.items()):
+                    continue
+                missing = roles - {entry["role"] for entry in reader.context["entries"].values()}
+                if missing:
+                    raise EvidenceUnavailable("missing original evidence roles=" + ",".join(sorted(missing)))
+                choices.append(reader)
+            except (EvidenceUnavailable, ValueError, TypeError, KeyError, AttributeError) as exc:
+                failures.append(f"{path.name}: {exc}")
+        if not choices:
+            detail = "; ".join(failures[:4]) or "no complete session matching requested roles, metadata and decision time"
+>           raise EvidenceUnavailable(f"{day} original evidence unavailable: {detail}")
+E           ic_im_signal_evidence_v1.EvidenceUnavailable: 2026-10-21 original evidence unavailable: 014730580296-0454f8008717450ca4c253f7f3982f7a.json: evidence capture incomplete
+
+ic_im_signal_evidence_v1.py:873: EvidenceUnavailable
+_______ test_batch_projection_rejects_invalid_recorded_http_status[600] _______
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_8e2d8a0f/pytest/test_batch_projection_rejects_3')
+status = 600
+
+    @pytest.mark.parametrize("status", [None, False, "200", 600])
+    def test_batch_projection_rejects_invalid_recorded_http_status(tmp_path, status):
+        response = Response([b'var hq_str_P_OP_mo2612P7200="original";'])
+        response.status_code = status
+        with evidence.capture_session(tmp_path, DAY, CLOCK, {}) as session:
+            session.call("probe", {}, lambda: True)
+            session.raw_response("https://hq.sinajs.cn/etag.php",
+                {"list": "P_OP_mo2612P7200,P_OP_mo2612P7300"}, response)
+>       reader = evidence.load_session(tmp_path, DAY)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_icim_round4_evidence_boundaries_20261021.py:188: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+root = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_8e2d8a0f/pytest/test_batch_projection_rejects_3')
+day = datetime.date(2026, 10, 21), required_roles = None, metadata_filter = None
+decision_not_after = None
+
+    def load_session(root: str | Path, day: date, required_roles: Any = None,
+                     metadata_filter: dict[str, Any] | None = None,
+                     decision_not_after: datetime | None = None) -> EvidenceReader:
+        root, day = _canonical(Path(root)), _day(day)
+        cutoff = _aware(decision_not_after, "decision_not_after") if decision_not_after is not None else None
+        directory = _inside(root, root / "sessions" / day.isoformat())
+        try:
+            files = list(directory.glob("*.json"))
+        except OSError as exc:
+            raise EvidenceUnavailable(f"{day} cannot enumerate original evidence") from exc
+        if len(files) > MAX_SESSION_FILES:
+            raise EvidenceUnavailable(f"{day} evidence session count exceeds limit")
+        roles = set(required_roles or [])
+        for role in roles:
+            _role(role)
+        choices, failures = [], []
+        for path in files:
+            try:
+                reader = _load_one(root, path, day)
+                if cutoff is not None and reader.decision_at > cutoff:
+                    continue
+                if metadata_filter and any(reader.metadata.get(key) != value for key, value in metadata_filter.items()):
+                    continue
+                missing = roles - {entry["role"] for entry in reader.context["entries"].values()}
+                if missing:
+                    raise EvidenceUnavailable("missing original evidence roles=" + ",".join(sorted(missing)))
+                choices.append(reader)
+            except (EvidenceUnavailable, ValueError, TypeError, KeyError, AttributeError) as exc:
+                failures.append(f"{path.name}: {exc}")
+        if not choices:
+            detail = "; ".join(failures[:4]) or "no complete session matching requested roles, metadata and decision time"
+>           raise EvidenceUnavailable(f"{day} original evidence unavailable: {detail}")
+E           ic_im_signal_evidence_v1.EvidenceUnavailable: 2026-10-21 original evidence unavailable: 014730776462-59ba18ad9c2d4e748843011b9f0578c5.json: evidence capture incomplete
+
+ic_im_signal_evidence_v1.py:873: EvidenceUnavailable
+_____ test_real_chain_adapter_coalesces_month_day_and_never_aliases_years _____
+
+args = ('https://hq.sinajs.cn/',)
+kwargs = {'headers': {'Cache-Control': 'no-cache', 'Referer': 'https://stock.finance.sina.com.cn/', 'User-Agent': 'Mozilla/5.0 POE-IC-IM-Research/1.0'}, 'params': {'list': 'OP_DOWN_5105002701'}, 'stream': True, 'timeout': 8}
+url = 'https://hq.sinajs.cn/', reader = None
+wire_kwargs = {'headers': {'Cache-Control': 'no-cache', 'Referer': 'https://stock.finance.sina.com.cn/', 'User-Agent': 'Mozilla/5.0 POE-IC-IM-Research/1.0'}, 'params': {'list': 'OP_DOWN_5105002701'}, 'stream': True, 'timeout': 8}
+params = {'list': 'OP_DOWN_5105002701'}, response = <Response [200]>
+session = <ic_im_signal_evidence_v1.CaptureSession object at 0x0000016E7B065010>
+body = None, maximum = 4194304
+
+    def _evidence_http_get(*args, **kwargs):
+        url = str(args[0] if args else kwargs.get("url", ""))
+        reader = signal_evidence.current_reader.get()
+        if reader is not None:
+            archived = reader.http_response(url, kwargs.get("params"))
+            replay = requests.Response()
+            replay.status_code = archived["status_code"]
+            replay.url = url
+            replay.headers.update(archived.get("headers", {}))
+            replay.encoding = archived.get("encoding")
+            replay._content = archived["body"]
+            replay._content_consumed = True
+            return replay
+        wire_kwargs = kwargs
+        params = kwargs.get("params")
+        if (url in {"https://hq.sinajs.cn/", "https://hq.sinajs.cn/etag.php"}
+                and isinstance(params, dict) and set(params) == {"list"}
+                and isinstance(params["list"], str)
+                and re.fullmatch(r"[A-Za-z0-9_]+(?:,[A-Za-z0-9_]+)+", params["list"])):
+            # Sina treats percent-encoded commas as part of a symbol. Keep the
+            # exact logical parameters in evidence, but serialize safe symbols
+            # literally on the wire. No provider response is reconstructed.
+            wire_kwargs = {**kwargs, "params": "list=" + params["list"]}
+        response = requests.get(*args, **wire_kwargs)
+        session = signal_evidence.current_session.get()
+        if session is not None:
+            try:
+                body = None
+                if kwargs.get("stream"):
+                    maximum = (MAX_CFFEX_DOWNLOAD_BYTES if url.startswith(
+                        "https://www.cffex.com.cn/sj/historysj/") else MAX_QUOTE_RESPONSE_BYTES)
+                    declared = response.headers.get("Content-Length")
+                    if declared:
+                        try:
+                            size = int(declared)
+                        except (TypeError, ValueError) as exc:
+                            raise RuntimeError("存证流式响应长度标头非法") from exc
+                        if size < 0 or size > maximum:
+                            raise RuntimeError("存证流式响应声明大小超过下载上限或非法")
+                    chunks, downloaded = [], 0
+                    stream = iter(response.iter_content(chunk_size=65536))
+                    while True:
+                        _bounded_timeout(5)
+                        try:
+>                           chunk = next(stream)
+                                    ^^^^^^^^^^^^
+
+poe_ic_im_mainline_v1_4_bot.py:104: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+    def generate():
+        # Special case for urllib3.
+        if hasattr(self.raw, "stream"):
+            try:
+                yield from self.raw.stream(chunk_size, decode_content=True)
+            except ProtocolError as e:
+                raise ChunkedEncodingError(e)
+            except DecodeError as e:
+                raise ContentDecodingError(e)
+            except ReadTimeoutError as e:
+                raise ConnectionError(e)
+            except SSLError as e:
+                raise RequestsSSLError(e)
+        else:
+            # Standard file-like object.
+            while True:
+>               chunk = self.raw.read(chunk_size)
+                        ^^^^^^^^^^^^^
+E               AttributeError: 'NoneType' object has no attribute 'read'
+
+C:\Python314\Lib\site-packages\requests\models.py:832: AttributeError
+
+During handling of the above exception, another exception occurred:
+
+expiry_ym = '2701'
+
+    def fetch_510500_chain_with_failover(expiry_ym: str) -> tuple[pd.DataFrame, dict[str, str]]:
+        """Use SSE first, then Sina; never substitute stale or malformed quotes."""
+        failures: list[str] = []
+        source_errors: list[Exception] = []
+        for source, fetcher in (
+            ("上交所行情接口", fetch_sse_510500_chain),
+            ("新浪财经期权详报价", fetch_sina_510500_chain),
+        ):
+            try:
+>               chain, stamp = fetcher(expiry_ym)
+                               ^^^^^^^^^^^^^^^^^^
+
+poe_ic_im_mainline_v1_4_bot.py:4311: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_mainline_v1_4_bot.py:4216: in fetch_sina_510500_chain
+    listing = _public_quote_bytes("https://hq.sinajs.cn/", "新浪510500 Put列表",
+poe_ic_im_mainline_v1_4_bot.py:4065: in _public_quote_bytes
+    response = _evidence_http_get(
+poe_ic_im_mainline_v1_4_bot.py:121: in _evidence_http_get
+    response.close()
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <Response [200]>
+
+    def close(self):
+        """Releases the connection back to the pool. Once this method has been
+        called the underlying ``raw`` object must not be accessed again.
+    
+        *Note: Should not normally need to be called explicitly.*
+        """
+        if not self._content_consumed:
+>           self.raw.close()
+            ^^^^^^^^^^^^^^
+E           AttributeError: 'NoneType' object has no attribute 'close'
+
+C:\Python314\Lib\site-packages\requests\models.py:1035: AttributeError
+
+The above exception was the direct cause of the following exception:
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_8e2d8a0f/pytest/test_real_chain_adapter_coales0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000016E7AF03F50>
+
+    def test_real_chain_adapter_coalesces_month_day_and_never_aliases_years(tmp_path, monkeypatch):
+        day = date(2026, 11, 26)
+        clock = r4.wall(monkeypatch, day)
+        calls = []
+        def get(url, params=None, **kwargs):
+            assert evidence.current_session.get() is not None
+            calls.append((url, deepcopy(params)))
+            response = requests.Response()
+            response.status_code, response.encoding = 200, "utf-8"
+            response._content = json.dumps(chain_payload(day)).encode("utf-8")
+            return response
+        monkeypatch.setattr(bot.requests, "get", get)
+        with bot.runtime_clock(clock), evidence.capture_session(tmp_path, day, clock, {}):
+>           first = bot._fetch_510500_chain_for_day("2701", day)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_icim_round5_recording_semantics_20261021.py:121: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+ic_im_evidence_adapter_v1.py:180: in adapted
+    value = capture.call(role, key, lambda: _validate_value(
+ic_im_signal_evidence_v1.py:495: in call
+    value = fetcher()
+            ^^^^^^^^^
+ic_im_evidence_adapter_v1.py:181: in <lambda>
+    strategy, role, key, original(*args, **kwargs)))
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^
+poe_ic_im_mainline_v1_4_bot.py:4341: in _fetch_510500_chain_for_day
+    chain, stamp = fetch_510500_chain_with_failover(expiry_ym)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+expiry_ym = '2701'
+
+    def fetch_510500_chain_with_failover(expiry_ym: str) -> tuple[pd.DataFrame, dict[str, str]]:
+        """Use SSE first, then Sina; never substitute stale or malformed quotes."""
+        failures: list[str] = []
+        source_errors: list[Exception] = []
+        for source, fetcher in (
+            ("上交所行情接口", fetch_sse_510500_chain),
+            ("新浪财经期权详报价", fetch_sina_510500_chain),
+        ):
+            try:
+                chain, stamp = fetcher(expiry_ym)
+                required = {"contract", "last", "strike"}
+                if not required.issubset(chain.columns) or chain.empty:
+                    raise RuntimeError("期权链为空或缺少必要字段")
+                normalized_stamp = dict(stamp)
+                normalized_stamp.setdefault("source", source)
+                reference_day = _OPTION_CHAIN_REFERENCE_DAY.get()
+                if reference_day is not None and reference_day >= sse_identity.EFFECTIVE_SIGNAL_DATE:
+                    _validate_chain_stamp_matches(source, normalized_stamp, reference_day, _now_beijing())
+                return chain, normalized_stamp
+            except Exception as exc:
+                failures.append(f"{source}: {type(exc).__name__}: {exc}")
+                source_errors.append(exc)
+>       raise _source_failure_error(
+            "510500期权链所有来源均不可用；" + "；".join(failures), source_errors
+        ) from source_errors[-1]
+E       RuntimeError: 510500期权链所有来源均不可用；上交所行情接口: AttributeError: 'NoneType' object has no attribute 'close'；新浪财经期权详报价: AttributeError: 'NoneType' object has no attribute 'close'
+
+poe_ic_im_mainline_v1_4_bot.py:4324: RuntimeError
+_ test_public_ic_dedicated_core_replay_has_zero_misses_and_no_new_url[day0-previous0-2612] _
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_8e2d8a0f/pytest/test_public_ic_dedicated_core_0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000016E00112CF0>
+day = datetime.date(2026, 10, 21), previous = datetime.date(2026, 10, 20)
+month = '2612'
+
+    @pytest.mark.parametrize('day,previous,month', [
+        (date(2026, 10, 21), date(2026, 10, 20), '2612'),
+        (date(2026, 11, 23), date(2026, 11, 20), '2703'),
+    ])
+    def test_public_ic_dedicated_core_replay_has_zero_misses_and_no_new_url(
+            tmp_path, monkeypatch, day, previous, month):
+        clock = r4.wall(monkeypatch, day)
+        if month == '2612':
+            store, original = seed.temporary_store(tmp_path / 'state', previous)
+            bot.install_runtime_anchors(state.anchors_from_record(original))
+        else:
+            store, original = r5.held_record(tmp_path / 'state', previous, month)
+        actual_chain = bot._fetch_510500_chain_for_day
+        samples = r4.providers(monkeypatch, day)
+        calls = raw_chain_provider(monkeypatch, day, samples, actual_chain)
+        root = tmp_path / 'evidence'
+>       assert adapter.capture_daily(bot, root, clock)['status'] == 'captured'
+E       AssertionError: assert 'incomplete' == 'captured'
+E         
+E         - captured
+E         + incomplete
+
+test_icim_expert_followup_replay_20261022.py:70: AssertionError
+_ test_public_ic_dedicated_core_replay_has_zero_misses_and_no_new_url[day1-previous1-2703] _
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_8e2d8a0f/pytest/test_public_ic_dedicated_core_1')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000016E7873F3F0>
+day = datetime.date(2026, 11, 23), previous = datetime.date(2026, 11, 20)
+month = '2703'
+
+    @pytest.mark.parametrize('day,previous,month', [
+        (date(2026, 10, 21), date(2026, 10, 20), '2612'),
+        (date(2026, 11, 23), date(2026, 11, 20), '2703'),
+    ])
+    def test_public_ic_dedicated_core_replay_has_zero_misses_and_no_new_url(
+            tmp_path, monkeypatch, day, previous, month):
+        clock = r4.wall(monkeypatch, day)
+        if month == '2612':
+            store, original = seed.temporary_store(tmp_path / 'state', previous)
+            bot.install_runtime_anchors(state.anchors_from_record(original))
+        else:
+            store, original = r5.held_record(tmp_path / 'state', previous, month)
+        actual_chain = bot._fetch_510500_chain_for_day
+        samples = r4.providers(monkeypatch, day)
+        calls = raw_chain_provider(monkeypatch, day, samples, actual_chain)
+        root = tmp_path / 'evidence'
+>       assert adapter.capture_daily(bot, root, clock)['status'] == 'captured'
+E       AssertionError: assert 'incomplete' == 'captured'
+E         
+E         - captured
+E         + incomplete
+
+test_icim_expert_followup_replay_20261022.py:70: AssertionError
+_ test_existing_core_and_short_identity_use_one_chain_record_without_assuming_stable_http _
+
+expiry_ym = '2612'
+
+    def fetch_510500_chain_with_failover(expiry_ym: str) -> tuple[pd.DataFrame, dict[str, str]]:
+        """Use SSE first, then Sina; never substitute stale or malformed quotes."""
+        failures: list[str] = []
+        source_errors: list[Exception] = []
+        for source, fetcher in (
+            ("上交所行情接口", fetch_sse_510500_chain),
+            ("新浪财经期权详报价", fetch_sina_510500_chain),
+        ):
+            try:
+>               chain, stamp = fetcher(expiry_ym)
+                               ^^^^^^^^^^^^^^^^^^
+
+poe_ic_im_mainline_v1_4_bot.py:4311: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_mainline_v1_4_bot.py:4216: in fetch_sina_510500_chain
+    listing = _public_quote_bytes("https://hq.sinajs.cn/", "新浪510500 Put列表",
+poe_ic_im_mainline_v1_4_bot.py:4065: in _public_quote_bytes
+    response = _evidence_http_get(
+poe_ic_im_mainline_v1_4_bot.py:83: in _evidence_http_get
+    response = requests.get(*args, **wire_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+url = 'https://hq.sinajs.cn/', params = {'list': 'OP_DOWN_5105002612'}
+kwargs = {'headers': {'Cache-Control': 'no-cache', 'Referer': 'https://stock.finance.sina.com.cn/', 'User-Agent': 'Mozilla/5.0 POE-IC-IM-Research/1.0'}, 'stream': True, 'timeout': 8}
+@py_assert1 = None, @py_assert3 = None, @py_assert5 = 1, @py_assert8 = None
+@py_assert7 = None
+
+    def get(url, params=None, **kwargs):
+        assert evidence.current_session.get() is not None
+        month = str(url).rsplit('_', 1)[-1]
+        matched = [value for ym, value in samples['IC'][4].items() if ym.endswith(month)]
+>       assert len(matched) == 1, url
+E       AssertionError: https://hq.sinajs.cn/
+E       assert 0 == 1
+E        +  where 0 = len([])
+
+test_icim_expert_followup_replay_20261022.py:37: AssertionError
+
+The above exception was the direct cause of the following exception:
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000016E7A767A10>
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_8e2d8a0f/pytest/test_existing_core_and_short_i0')
+
+    def test_existing_core_and_short_identity_use_one_chain_record_without_assuming_stable_http(monkeypatch, tmp_path):
+        clock = r4.wall(monkeypatch, DAY)
+        _, record = seed.temporary_store(tmp_path / 'state', date(2026, 10, 20))
+        import poe_ic_im_v1_4_state as state
+        bot.install_runtime_anchors(state.anchors_from_record(record))
+        real_chain = bot._fetch_510500_chain_for_day
+        samples = r4.providers(monkeypatch, DAY)
+        calls = raw_chain_provider(monkeypatch, DAY, samples, real_chain)
+        anchor = deepcopy(bot.LIVE_CONTINUATION_ANCHOR['IC'])
+        anchor.update(v14_short_put_contract=anchor['v14_core_put_contract'],
+                      v14_short_put_security_id=anchor['v14_core_put_security_id'])
+        signal = {'market_date': DAY, 'core_put_target_delta': .25, 'etf_price': 7.8, 'future_last': 7800.,
+                  'put_target_momentum_qty': 0, 'option_monthly_reset_due': False}
+        with bot.runtime_clock(clock), evidence.capture_session(tmp_path / 'evidence', DAY, clock, {}) as session:
+>           bot._fetch_510500_chain_for_day('2612', DAY)
+
+test_icim_calendar_capture_review_20261022.py:91: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+ic_im_evidence_adapter_v1.py:180: in adapted
+    value = capture.call(role, key, lambda: _validate_value(
+ic_im_signal_evidence_v1.py:495: in call
+    value = fetcher()
+            ^^^^^^^^^
+ic_im_evidence_adapter_v1.py:181: in <lambda>
+    strategy, role, key, original(*args, **kwargs)))
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^
+poe_ic_im_mainline_v1_4_bot.py:4341: in _fetch_510500_chain_for_day
+    chain, stamp = fetch_510500_chain_with_failover(expiry_ym)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+expiry_ym = '2612'
+
+    def fetch_510500_chain_with_failover(expiry_ym: str) -> tuple[pd.DataFrame, dict[str, str]]:
+        """Use SSE first, then Sina; never substitute stale or malformed quotes."""
+        failures: list[str] = []
+        source_errors: list[Exception] = []
+        for source, fetcher in (
+            ("上交所行情接口", fetch_sse_510500_chain),
+            ("新浪财经期权详报价", fetch_sina_510500_chain),
+        ):
+            try:
+                chain, stamp = fetcher(expiry_ym)
+                required = {"contract", "last", "strike"}
+                if not required.issubset(chain.columns) or chain.empty:
+                    raise RuntimeError("期权链为空或缺少必要字段")
+                normalized_stamp = dict(stamp)
+                normalized_stamp.setdefault("source", source)
+                reference_day = _OPTION_CHAIN_REFERENCE_DAY.get()
+                if reference_day is not None and reference_day >= sse_identity.EFFECTIVE_SIGNAL_DATE:
+                    _validate_chain_stamp_matches(source, normalized_stamp, reference_day, _now_beijing())
+                return chain, normalized_stamp
+            except Exception as exc:
+                failures.append(f"{source}: {type(exc).__name__}: {exc}")
+                source_errors.append(exc)
+>       raise _source_failure_error(
+            "510500期权链所有来源均不可用；" + "；".join(failures), source_errors
+        ) from source_errors[-1]
+E       RuntimeError: 510500期权链所有来源均不可用；上交所行情接口: AttributeError: 'NoneType' object has no attribute 'close'；新浪财经期权详报价: AssertionError: https://hq.sinajs.cn/
+E       assert 0 == 1
+E        +  where 0 = len([])
+
+poe_ic_im_mainline_v1_4_bot.py:4324: RuntimeError
+============================== warnings summary ===============================
+C:\Python314\Lib\site-packages\fastapi_poe\types.py:171
+  C:\Python314\Lib\site-packages\fastapi_poe\types.py:171: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    class RequestContext(BaseModel):
+
+test_icim_redteam_display_20261021.py::test_bootstrap_snapshot_retains_known_single_core_identity
+  test_icim_redteam_display_20261021.py:73: PytestWarning: record_property is incompatible with junit_family 'xunit2' (use 'legacy' or 'xunit1')
+    def test_bootstrap_snapshot_retains_known_single_core_identity(monkeypatch, record_property):
+
+test_icim_redteam_display_20261021.py::test_core_overlay_failure_cannot_label_momentum_as_current_core
+  test_icim_redteam_display_20261021.py:89: PytestWarning: record_property is incompatible with junit_family 'xunit2' (use 'legacy' or 'xunit1')
+    def test_core_overlay_failure_cannot_label_momentum_as_current_core(monkeypatch, record_property):
+
+test_icim_redteam_display_20261021.py::test_core_overlay_failure_cannot_publish_momentum_iv_as_core_monitor
+  test_icim_redteam_display_20261021.py:120: PytestWarning: record_property is incompatible with junit_family 'xunit2' (use 'legacy' or 'xunit1')
+    def test_core_overlay_failure_cannot_publish_momentum_iv_as_core_monitor(monkeypatch, record_property):
+
+test_icim_redteam_display_20261021.py::test_im_snapshot_zero_core_does_not_show_residual_contract
+  test_icim_redteam_display_20261021.py:201: PytestWarning: record_property is incompatible with junit_family 'xunit2' (use 'legacy' or 'xunit1')
+    def test_im_snapshot_zero_core_does_not_show_residual_contract(monkeypatch, record_property):
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED test_icim_round3_source_validation_20261021.py::test_months_are_complete_sorted_and_other_underlyings_remain_out_of_scope
+FAILED test_icim_round3_source_validation_20261021.py::test_existing_projection_without_pagination_fields_remains_compatible[months]
+FAILED test_icim_round3_recovery_audit_20261021.py::test_original_closed_at_after_session_never_becomes_original_day_evidence
+FAILED test_icim_round4_evidence_boundaries_20261021.py::test_batch_projection_rejects_invalid_recorded_http_status[None]
+FAILED test_icim_round4_evidence_boundaries_20261021.py::test_batch_projection_rejects_invalid_recorded_http_status[False]
+FAILED test_icim_round4_evidence_boundaries_20261021.py::test_batch_projection_rejects_invalid_recorded_http_status[200]
+FAILED test_icim_round4_evidence_boundaries_20261021.py::test_batch_projection_rejects_invalid_recorded_http_status[600]
+FAILED test_icim_round5_recording_semantics_20261021.py::test_real_chain_adapter_coalesces_month_day_and_never_aliases_years
+FAILED test_icim_expert_followup_replay_20261022.py::test_public_ic_dedicated_core_replay_has_zero_misses_and_no_new_url[day0-previous0-2612]
+FAILED test_icim_expert_followup_replay_20261022.py::test_public_ic_dedicated_core_replay_has_zero_misses_and_no_new_url[day1-previous1-2703]
+FAILED test_icim_calendar_capture_review_20261022.py::test_existing_core_and_short_identity_use_one_chain_record_without_assuming_stable_http
+11 failed, 3110 passed, 22 deselected, 5 warnings in 304.56s (0:05:04)

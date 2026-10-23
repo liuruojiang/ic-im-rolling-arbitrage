@@ -1,0 +1,98 @@
+{
+  "started_at": "2026-10-22T18:21:41.846819+08:00",
+  "clock_is_actual": true,
+  "synthetic_market_inputs": false,
+  "original_anchor_day": "2026-10-21",
+  "independent_core": "510500P2612M06500",
+  "original_core_qty": 15,
+  "production_runtime_write": false,
+  "driver_sha256": "e4570d0e92ee5ac345b26548300e9f058347101cf8657ab031e1994590bc5a08",
+  "stages": {
+    "capture": {
+      "day": "2026-10-22",
+      "status": "incomplete",
+      "products": {
+        "IC": {
+          "status": "captured",
+          "manifest": "D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261022_free_source_integration_v1\\collector_02\\evidence\\sessions\\2026-10-22\\102207168331-ba664629b7ba4b1fa7b06289bfe92dc7.json",
+          "sha256": "303ac2f104f0f5fe34cb9a6de1c0c3ca62b9372552f6668c4a26eea0ded5ea29"
+        },
+        "IM": {
+          "status": "incomplete",
+          "manifest": "D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261022_free_source_integration_v1\\collector_02\\evidence\\sessions\\2026-10-22\\102235157541-af53ba5cd562414db771d9d165071130.json",
+          "sha256": "7489a52c8f4159e0acb48eb3f33cb15466a6aa27360b4aca0393ee5fbd8579de",
+          "reason": "mo.replay_verification: HTTPSConnectionPool(host='hq.sinajs.cn', port=443): Max retries exceeded with url: /etag.php?list=P_OP_mo2611P6000,P_OP_mo2611P6100,P_OP_mo2611P6200,P_OP_mo2611P6300,P_OP_mo2611P6400,P_OP_mo2611P6500,P_OP_mo2611P6600,P_OP_mo2611P6700,P_OP_mo2611P6800,P_OP_mo2611P6900,P_OP_mo2611P7000,P_OP_mo2611P7100,P_OP_mo2611P7200,P_OP_mo2611P7300,P_OP_mo2611P7400,P_OP_mo2611P7500,P_OP_mo2611P7600,P_OP_mo2611P7700,P_OP_mo2611P7800,P_OP_mo2611P7900,P_OP_mo2611P8000,P_OP_mo2611P8100,P_OP_mo2611P8200,P_OP_mo2611P8300,P_OP_mo2611P8400,P_OP_mo2611P8500,P_OP_mo2611P8600,P_OP_mo2612P10000,P_OP_mo2612P6000,P_OP_mo2612P6100,P_OP_mo2612P6200,P_OP_mo2612P6300,P_OP_mo2612P6400,P_OP_mo2612P6500,P_OP_mo2612P6600,P_OP_mo2612P6700,P_OP_mo2612P6800,P_OP_mo2612P6900,P_OP_mo2612P7000,P_OP_mo2612P7100,P_OP_mo2612P7200,P_OP_mo2612P7300,P_OP_mo2612P7400,P_OP_mo2612P7500,P_OP_mo2612P7600,P_OP_mo2612P7700,P_OP_mo2612P7800,P_OP_mo2612P7900,P_OP_mo2612P8000,P_OP_mo2612P8100,P_OP_mo2612P8200,P_OP_mo2612P8300,P_OP_mo2612P8400,P_OP_mo2612P8500,P_OP_mo2612P8600,P_OP_mo2612P8800,P_OP_mo2612P9000,P_OP_mo2612P9200,P_OP_mo2612P9400,P_OP_mo2612P9600,P_OP_mo2612P9800,P_OP_mo2701P6000,P_OP_mo2701P6100,P_OP_mo2701P6200 (Caused by ProxyError('Cannot connect to proxy.', TimeoutError('timed out'))); mo.replay_verification: HTTPSConnectionPool(host='hq.sinajs.cn', port=443): Max retries exceeded with url: /etag.php?list=P_OP_mo2611P6000,P_OP_mo2611P6100,P_OP_mo2611P6200,P_OP_mo2611P6300,P_OP_mo2611P6400,P_OP_mo2611P6500,P_OP_mo2611P6600,P_OP_mo2611P6700,P_OP_mo2611P6800,P_OP_mo2611P6900,P_OP_mo2611P7000,P_OP_mo2611P7100,P_OP_mo2611P7200,P_OP_mo2611P7300,P_OP_mo2611P7400,P_OP_mo2611P7500,P_OP_mo2611P7600,P_OP_mo2611P7700,P_OP_mo2611P7800,P_OP_mo2611P7900,P_OP_mo2611P8000,P_OP_mo2611P8100,P_OP_mo2611P8200,P_OP_mo2611P8300,P_OP_mo2611P8400,P_OP_mo2611P8500,P_OP_mo2611P8600,P_OP_mo2612P10000,P_OP_mo2612P6000,P_OP_mo2612P6100,P_OP_mo2612P6200,P_OP_mo2612P6300,P_OP_mo2612P6400,P_OP_mo2612P6500,P_OP_mo2612P6600,P_OP_mo2612P6700,P_OP_mo2612P6800,P_OP_mo2612P6900,P_OP_mo2612P7000,P_OP_mo2612P7100,P_OP_mo2612P7200,P_OP_mo2612P7300,P_OP_mo2612P7400,P_OP_mo2612P7500,P_OP_mo2612P7600,P_OP_mo2612P7700,P_OP_mo2612P7800,P_OP_mo2612P7900,P_OP_mo2612P8000,P_OP_mo2612P8100,P_OP_mo2612P8200,P_OP_mo2612P8300,P_OP_mo2612P8400,P_OP_mo2612P8500,P_OP_mo2612P8600,P_OP_mo2612P8800,P_OP_mo2612P9000,P_OP_mo2612P9200,P_OP_mo2612P9400,P_OP_mo2612P9600,P_OP_mo2612P9800,P_OP_mo2701P6000,P_OP_mo2701P6100,P_OP_mo2701P6200 (Caused by ProxyError('Cannot connect to proxy.', TimeoutError('timed out')))",
+          "recovery_warning": "2026-10-22原日输入不完整；补齐日历后仍可能需人工锚定，不能承诺自动恢复"
+        }
+      }
+    },
+    "isolated_append": {
+      "status": "BLOCKED",
+      "reason": "Both real original signals must pass normal persistence eligibility."
+    },
+    "real_package": {
+      "status": "PASS",
+      "manifest_sha256": "303ac2f104f0f5fe34cb9a6de1c0c3ca62b9372552f6668c4a26eea0ded5ea29",
+      "raw_responses": 8,
+      "typed_inputs": 12
+    },
+    "replay": {
+      "complete": true,
+      "eligible": true,
+      "diagnostic_status": null,
+      "reason": null,
+      "caught_evidence_unavailable": [],
+      "requests": [],
+      "original_urls": [
+        "https://money.finance.sina.com.cn/quotes_service/api/json_v2.php/CN_MarketData.getKLineData?symbol=sh000905&scale=240&ma=no&datalen=10000",
+        "https://vip.stock.finance.sina.com.cn/quotes_service/api/json_v2.php/Market_Center.getHQFuturesData",
+        "https://yunhq.sse.com.cn:32042/v1/sh1/list/self/510500",
+        "https://yunhq.sse.com.cn:32042/v1/sho/list/exchange/stockexpire",
+        "https://yunhq.sse.com.cn:32042/v1/sho/list/tstyle/510500_03",
+        "https://yunhq.sse.com.cn:32042/v1/sho/list/tstyle/510500_10",
+        "https://yunhq.sse.com.cn:32042/v1/sho/list/tstyle/510500_11",
+        "https://yunhq.sse.com.cn:32042/v1/sho/list/tstyle/510500_12"
+      ],
+      "address_subset": true,
+      "read_roles": [
+        "market.live",
+        "fear.score",
+        "fear.reference",
+        "cffex.quotes",
+        "ic.chain",
+        "ic.chain",
+        "ic.chain",
+        "ic.chain",
+        "ic.etf",
+        "ic.chain",
+        "ic.chain",
+        "ic.chain",
+        "ic.chain",
+        "iv.monitor"
+      ],
+      "reported_missing": []
+    },
+    "field_comparison": {
+      "status": "BLOCKED",
+      "reason": "No eligible original isolated ledger result."
+    }
+  },
+  "original_signal_errors": {},
+  "collector_before_measurement": {
+    "IC": true,
+    "IM": false
+  },
+  "source_sha256": {
+    "poe_ic_im_mainline_v1_4_bot.py": "565d719cf7ae5b7c6b4fe8c922536cf5e7bde7d485c2b293f4cec1ba86b63af4",
+    "ic_im_evidence_adapter_v1.py": "09cde7c314fefa73bd23ffe59ac5b25843fc58f7f72890791bf4d98591fa489c",
+    "ic_im_signal_evidence_v1.py": "7de3265318211aa219c88983031dee76e7c1df4516a6d8b02183660332b28f6c",
+    "poe_ic_im_v1_4_state.py": "9244c7f1d8bbb138e8e86246261fad13e90058f42764b855f8219aa1596c1067"
+  },
+  "status": "NOT_ACCEPTED",
+  "error_type": "UnboundLocalError",
+  "error": "cannot access local variable 'original_signal' where it is not associated with a value",
+  "traceback": "Traceback (most recent call last):\n  File \"D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261022_free_source_integration_v1\\collector_capture.py\", line 150, in main\n    facts = replay_contract.compare_original_signal(original_signal, state._jsonable(replay), reader)\n                                                    ^^^^^^^^^^^^^^^\nUnboundLocalError: cannot access local variable 'original_signal' where it is not associated with a value\n",
+  "formal_runtime_unchanged": true,
+  "anchors_unchanged": true,
+  "finished_at": "2026-10-22T18:22:35.782535+08:00"
+}

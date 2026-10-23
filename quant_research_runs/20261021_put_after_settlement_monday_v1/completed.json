@@ -1,0 +1,14 @@
+{
+  "elapsed_seconds": 38.606789112091064,
+  "spec_sha256": "69471ea40969d17c385a24b9b1b6946b451a34ecf9cea114d5e003b5932b0981",
+  "scope": "Listed history theoretical account, IC fix11 full-history counterfactual; no deployment",
+  "sources": {
+    "quant_research_runs\\20261021_put_after_settlement_monday_v1\\run_study.py": "2a228a06e850e2c542e1549f39da9415080b9e5c13a37cd6d6f52a46f3e279bc",
+    "quant_research_runs\\20261021_put_after_settlement_monday_v1\\monday_controller.py": "14bf240f8784ddfbb0558cb47ea297441b9944de4dd0e9cc8fa525a36c4ad50e",
+    "quant_research_runs\\20261021_put_after_settlement_monday_v1\\account_monday_isolated.py": "2199ad68538d005be9297f9a3676ba94ae3050f7a85257a1067a8af321f45c7b",
+    "outputs\\re_certification\\icim_v14_fix4_recert_20260924\\l5_native_signal_reconstruction_20260925\\native_fix4_seller_candidates_v1.csv.gz": "31efbf4cd9985552618cba0125f3f9720a6db1bf471e91d743cab4feb5917b01",
+    "quant_research_runs\\20261016_put_execution_repairs_v1\\ic_seller_lifecycle_fixed.csv.gz": "670dff45bb5adbd81be2b33d68e242045b6170bd9a167ddf92814e013abc5094",
+    "quant_research_runs\\20261016_put_execution_repairs_v1\\im_seller_lifecycle_fixed.csv.gz": "6b8bf1eeac4376dee0c00b96d21cecc9e76b79f43bdad98198bbaa16326786df"
+  },
+  "protected_files_unchanged": 147
+}

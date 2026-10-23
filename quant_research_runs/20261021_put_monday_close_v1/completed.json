@@ -1,0 +1,11 @@
+{
+  "elapsed_seconds": 46.72495174407959,
+  "protected_files_unchanged": 159,
+  "spec_sha256": "8bdef317362cb79a5d9ebd726c911a6b390a4eb7ed4178e59ecaa11d08773eb0",
+  "sources": {
+    "quant_research_runs\\20261021_put_monday_close_v1\\run_close.py": "09a823b9177815634435a3c3002b4ad4c5cdc766ea46b24af281dbd6c2c646d8",
+    "quant_research_runs\\20261021_put_monday_close_v1\\close_controller.py": "d78c7cc84879ce0a10bda3be979a432a6acca91401d1a6a148bb203260d5b7b6",
+    "quant_research_runs\\20261021_put_monday_close_v1\\account_close_isolated.py": "331752a58aefb660ae6a7648f3f8402e4055e4e4d591c7e3cae24783434ba16c",
+    "quant_research_runs\\20261021_put_monday_close_v1\\backups\\monday_controller.py": "14bf240f8784ddfbb0558cb47ea297441b9944de4dd0e9cc8fa525a36c4ad50e"
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "scope": "E/F cache, observation clock, selected-row freshness, nested fear evidence",
+  "status": "CONFIRMED_FINDING_BEFORE_FIX",
+  "tests": {"total": 19, "failures": 2, "passes": 17},
+  "bound_files": 29,
+  "source_before_equals_after": true,
+  "findings": [
+    {
+      "id": "CLOCKS-1",
+      "severity": "P1",
+      "title": "Known Sina chain missing per-row source_stamp can produce tradable candidate",
+      "boundary": "incorrect or legacy producer input; not an observed current-parser omission",
+      "paths": ["capture -> typed validation -> _v14_ic_short_put_candidate", "hash-valid typed reader -> _v14_ic_short_put_candidate"],
+      "tests": [
+        "test_confirmed_sina_candidate_cannot_omit_consumed_row_timestamp_in_capture",
+        "test_confirmed_sina_candidate_cannot_omit_consumed_row_timestamp_in_typed_replay"
+      ],
+      "suggestion": "Carry known source provenance to consumed row; reject missing timestamp only for consumed Sina rows, preserving SSE compatibility and unused stale rows"
+    }
+  ],
+  "effective_run": "clocks_before_02",
+  "production_modified_by_agent": false,
+  "market_fixtures": "synthetic; no external HTTP or formal ledger writes"
+}

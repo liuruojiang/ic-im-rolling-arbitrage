@@ -1,0 +1,36 @@
+{
+  "status": "ready_for_isolated_recovery",
+  "ledger_write_requested": false,
+  "market_day": "2026-10-22",
+  "evidence_dir": "D:\\动量策略\\IC和IM滚动套利\\data\\icim_v14_original_inputs",
+  "products": {
+    "IC": {
+      "status": "ready",
+      "manifest": "D:\\动量策略\\IC和IM滚动套利\\data\\icim_v14_original_inputs\\sessions\\2026-10-22\\104029320612-ea2833aff9a542968f51f66ceb0f7773.json",
+      "manifest_body_sha256": "fcbfda93c687bf31908b756065d7971ec25d32112e2cdf087860b27df41dbf26",
+      "acquired_until": "2026-10-22T18:40:29.320302+08:00",
+      "typed_inputs": 11,
+      "raw_responses": 8,
+      "all_blobs_verified": true
+    },
+    "IM": {
+      "status": "ready",
+      "manifest": "D:\\动量策略\\IC和IM滚动套利\\data\\icim_v14_original_inputs\\sessions\\2026-10-22\\104108069491-79037dc09f1047eb9cff9eafb29cb247.json",
+      "manifest_body_sha256": "fbd0247754eb1dcb80ad0a7f1cd3d068a9b10e8f9675af8ef656c160fd9ea417",
+      "acquired_until": "2026-10-22T18:41:08.069189+08:00",
+      "typed_inputs": 7,
+      "raw_responses": 7,
+      "all_blobs_verified": true
+    }
+  },
+  "network_attempts": [],
+  "ledger": {
+    "verified_day": "2026-10-21",
+    "sequence": 19,
+    "digest": "c068710414dd9070d178faa4625d56835e67b9f2004c935a268900b9a1080342"
+  },
+  "next_ledger_session": "2026-10-22",
+  "source_pin_sha256": "2ac4613d82d99ef067fca103b26de33596d388617f955983f0384fc31b795c07",
+  "ledger_paths_and_bytes_unchanged": true,
+  "meaning": "Original input integrity only; formal persistence still requires complete, eligible IC and IM signals."
+}

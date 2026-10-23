@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="15" time="2.895" timestamp="2026-10-21T19:51:01.452992+08:00" hostname="DESKTOP-95I7VVU"><testcase classname="test_icim_round3_adversarial_p1_20261021" name="test_coordinator_unknown_year_keeps_both_snapshots[\u67e5\u8be2]" time="0.107" /><testcase classname="test_icim_round3_adversarial_p1_20261021" name="test_coordinator_unknown_year_keeps_both_snapshots[\u4fe1\u53f7]" time="0.026" /><testcase classname="test_icim_round3_adversarial_p1_20261021" name="test_coordinator_unknown_year_keeps_both_snapshots[\u5b9e\u65f6\u4fe1\u53f7]" time="0.027" /><testcase classname="test_icim_round3_adversarial_p1_20261021" name="test_grid_confirmation_is_recomputed_when_producer_claims_complete[True0-IC]" time="0.015" /><testcase classname="test_icim_round3_adversarial_p1_20261021" name="test_grid_confirmation_is_recomputed_when_producer_claims_complete[True0-IM]" time="0.020" /><testcase classname="test_icim_round3_adversarial_p1_20261021" name="test_grid_confirmation_is_recomputed_when_producer_claims_complete[True1-IC]" time="0.017" /><testcase classname="test_icim_round3_adversarial_p1_20261021" name="test_grid_confirmation_is_recomputed_when_producer_claims_complete[True1-IM]" time="0.014" /><testcase classname="test_icim_round3_adversarial_p1_20261021" name="test_grid_confirmation_is_recomputed_when_producer_claims_complete[1-IC]" time="0.016" /><testcase classname="test_icim_round3_adversarial_p1_20261021" name="test_grid_confirmation_is_recomputed_when_producer_claims_complete[1-IM]" time="0.015" /><testcase classname="test_icim_round3_adversarial_p1_20261021" name="test_grid_confirmation_is_recomputed_when_producer_claims_complete[forged3-IC]" time="0.018" /><testcase classname="test_icim_round3_adversarial_p1_20261021" name="test_grid_confirmation_is_recomputed_when_producer_claims_complete[forged3-IM]" time="0.016" /><testcase classname="test_icim_round3_adversarial_p1_20261021" name="test_roll_wait_survives_disallowed_seller_conditions[IC]" time="0.003" /><testcase classname="test_icim_round3_adversarial_p1_20261021" name="test_roll_wait_survives_disallowed_seller_conditions[IM]" time="0.006" /><testcase classname="test_icim_round3_adversarial_p1_20261021" name="test_admission_priority_avoids_unconsumed_profit_expiry" time="0.003"><failure message="AssertionError: unused 3x reselection must not poison admitted short-Put route&#10;assert [{'date': '20..._unverified'}] == []&#10;  &#10;  Left contains one more item: {'date': '2027-03-19', 'officially_verified': False, 'purpose': 'unused profit candidate', 'source': 'weekday_rule_unverified'}&#10;  Use -v to get more diff">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x0000028356656B10&gt;
+
+    def test_admission_priority_avoids_unconsumed_profit_expiry(monkeypatch):
+        """Seller admission precedes a newly triggered 3x plan in the real policy."""
+        profit_preparer = bot._v14_prepare_profit_open_plan
+        anchor = policy.default_extension("IM")
+        anchor.update(v14_core_put_entry_premium=1., v14_core_put_profit3x_eligible=True)
+        _anchor, frame = wire_adapter(monkeypatch, "IM", anchor)
+        monkeypatch.setattr(bot, "_v14_prepare_profit_open_plan", profit_preparer)
+        monkeypatch.setattr(bot, "_v14_option_mark", lambda *a: (3.5, None))
+        def unused_profit_selection(*args):
+            bot._require_model_expiry_calendar(date(2027, 3, 19), "unused profit candidate")
+            return pd.Series(dict(instrument="MO2703-P-7200", lastprice=10.))
+        monkeypatch.setattr(bot, "select_im_put_for_reset", unused_profit_selection)
+        candidate = _candidate("IM", contract="MO2612-P-7200", expiry=date(2026, 12, 18))
+        monkeypatch.setattr(bot, "_v14_im_short_put_candidate", lambda *a, **k: candidate)
+        signal = _signal("IM", market_date=date(2026, 11, 2), next_trade_date=date(2026, 11, 3),
+                         core_eod_contract="IM2612", core_put_current_contract="MO2612-P-7200",
+                         core_put_current_qty_normalized=1.5, core_put_target_qty_normalized=1.5,
+                         put_reference_price=7200.)
+        context = {"expiries": [], "failures": [], "signal": signal, "future": {}, "anchor": anchor}
+        token = bot._SIGNAL_CALENDAR_DIAGNOSTICS.set(context)
+        try:
+            out = bot._apply_v14_live_policy("IM", signal, mo_quotes=frame)
+        finally:
+            bot._SIGNAL_CALENDAR_DIAGNOSTICS.reset(token)
+        assert out["v14_action"] == "ENTER_SHORT_PUT"
+&gt;       assert context["expiries"] == [], "unused 3x reselection must not poison admitted short-Put route"
+E       AssertionError: unused 3x reselection must not poison admitted short-Put route
+E       assert [{'date': '20..._unverified'}] == []
+E         
+E         Left contains one more item: {'date': '2027-03-19', 'officially_verified': False, 'purpose': 'unused profit candidate', 'source': 'weekday_rule_unverified'}
+E         Use -v to get more diff
+
+test_icim_round3_adversarial_p1_20261021.py:96: AssertionError</failure></testcase><testcase classname="test_icim_round3_adversarial_p1_20261021" name="test_reference_comparison_does_not_verify_actual_target" time="0.001" /></testsuite></testsuites>

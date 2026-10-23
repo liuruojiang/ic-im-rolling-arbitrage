@@ -1,0 +1,323 @@
+FFFFFF.....                                                              [100%]
+================================== FAILURES ===================================
+_ test_reentrant_public_query_restores_outer_observer_and_anchors[same-False] _
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_2ce59de4/pytest/test_reentrant_public_query_re0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001EF9244CB00>
+inner_raises = False, relationship = 'same'
+
+    @pytest.mark.parametrize('inner_raises', [False, True])
+    @pytest.mark.parametrize('relationship', ['same', 'distinct'])
+    def test_reentrant_public_query_restores_outer_observer_and_anchors(tmp_path, monkeypatch,
+                                                                      inner_raises, relationship):
+        module = server(monkeypatch, tmp_path)
+        outer_store, _ = store(tmp_path/'outer', 'A')
+        outer = module.LedgerCoordinator(outer_store)
+        inner_store, _ = store(tmp_path/'inner', 'B')
+        inner = outer if relationship == 'same' else module.LedgerCoordinator(inner_store)
+        expected_inner = 'A' if relationship == 'same' else 'B'
+        original_poe = module._CaptureOutput('outside')
+        original_observer = lambda *_args: None
+        original_anchors = deepcopy(bot.LIVE_CONTINUATION_ANCHOR)
+        monkeypatch.setattr(bot, 'poe', original_poe)
+        monkeypatch.setattr(bot, '_SIGNAL_OBSERVER', original_observer)
+        monkeypatch.setattr(bot, 'LIVE_CONTINUATION_ANCHOR', deepcopy(original_anchors))
+        nested_results = []
+    
+        def body(_self):
+            query = bot.poe.query.text
+            label = bot.LIVE_CONTINUATION_ANCHOR['IC']['audit_context_label']
+            if query == 'outer':
+                with bot.poe.start_message() as message:
+                    message.write('before:'+label+'|')
+                if inner_raises:
+                    with pytest.raises(RuntimeError, match='inner body failure'):
+                        inner.execute_query('inner', CLOCK, persist_confirmed=False)
+                else:
+                    nested_results.append(inner.execute_query('inner', CLOCK, persist_confirmed=False))
+                label = bot.LIVE_CONTINUATION_ANCHOR['IC']['audit_context_label']
+                with bot.poe.start_message() as message:
+                    message.write('after:'+label)
+                if bot._SIGNAL_OBSERVER is not None:
+                    bot._SIGNAL_OBSERVER('IC', dict(anchor_label=label, market_date=DAY,
+                                                     close_confirmed=False))
+            else:
+                with bot.poe.start_message() as message:
+                    message.write('inner:'+label)
+                if inner_raises:
+                    raise RuntimeError('inner body failure')
+                bot._SIGNAL_OBSERVER('IC', dict(anchor_label=label, market_date=DAY,
+                                                 close_confirmed=False))
+    
+        monkeypatch.setattr(bot.ICIMMainlinesBot, 'run', body)
+        text, _, observed = outer.execute_query('outer', CLOCK, persist_confirmed=False)
+        assert text == 'before:A|after:A'
+>       assert observed['IC']['anchor_label'] == 'A'
+               ^^^^^^^^^^^^^^
+E       KeyError: 'IC'
+
+test_icim_b3adv_concurrency_20261021.py:68: KeyError
+------------------------------ Captured log call ------------------------------
+WARNING  uvicorn.default:base.py:1139 
+************* Warning *************
+WARNING  uvicorn.default:base.py:1140 Bot name or access key is not set for PoeBot.
+Bot settings will NOT be synced automatically on server start/update.Please remember to sync bot settings manually.
+
+For more information, see: https://creator.poe.com/docs/server-bots/updating-bot-settings
+WARNING  uvicorn.default:base.py:1146 
+************* Warning *************
+_ test_reentrant_public_query_restores_outer_observer_and_anchors[same-True] __
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_2ce59de4/pytest/test_reentrant_public_query_re1')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001EF9244CD60>
+inner_raises = True, relationship = 'same'
+
+    @pytest.mark.parametrize('inner_raises', [False, True])
+    @pytest.mark.parametrize('relationship', ['same', 'distinct'])
+    def test_reentrant_public_query_restores_outer_observer_and_anchors(tmp_path, monkeypatch,
+                                                                      inner_raises, relationship):
+        module = server(monkeypatch, tmp_path)
+        outer_store, _ = store(tmp_path/'outer', 'A')
+        outer = module.LedgerCoordinator(outer_store)
+        inner_store, _ = store(tmp_path/'inner', 'B')
+        inner = outer if relationship == 'same' else module.LedgerCoordinator(inner_store)
+        expected_inner = 'A' if relationship == 'same' else 'B'
+        original_poe = module._CaptureOutput('outside')
+        original_observer = lambda *_args: None
+        original_anchors = deepcopy(bot.LIVE_CONTINUATION_ANCHOR)
+        monkeypatch.setattr(bot, 'poe', original_poe)
+        monkeypatch.setattr(bot, '_SIGNAL_OBSERVER', original_observer)
+        monkeypatch.setattr(bot, 'LIVE_CONTINUATION_ANCHOR', deepcopy(original_anchors))
+        nested_results = []
+    
+        def body(_self):
+            query = bot.poe.query.text
+            label = bot.LIVE_CONTINUATION_ANCHOR['IC']['audit_context_label']
+            if query == 'outer':
+                with bot.poe.start_message() as message:
+                    message.write('before:'+label+'|')
+                if inner_raises:
+                    with pytest.raises(RuntimeError, match='inner body failure'):
+                        inner.execute_query('inner', CLOCK, persist_confirmed=False)
+                else:
+                    nested_results.append(inner.execute_query('inner', CLOCK, persist_confirmed=False))
+                label = bot.LIVE_CONTINUATION_ANCHOR['IC']['audit_context_label']
+                with bot.poe.start_message() as message:
+                    message.write('after:'+label)
+                if bot._SIGNAL_OBSERVER is not None:
+                    bot._SIGNAL_OBSERVER('IC', dict(anchor_label=label, market_date=DAY,
+                                                     close_confirmed=False))
+            else:
+                with bot.poe.start_message() as message:
+                    message.write('inner:'+label)
+                if inner_raises:
+                    raise RuntimeError('inner body failure')
+                bot._SIGNAL_OBSERVER('IC', dict(anchor_label=label, market_date=DAY,
+                                                 close_confirmed=False))
+    
+        monkeypatch.setattr(bot.ICIMMainlinesBot, 'run', body)
+        text, _, observed = outer.execute_query('outer', CLOCK, persist_confirmed=False)
+        assert text == 'before:A|after:A'
+>       assert observed['IC']['anchor_label'] == 'A'
+               ^^^^^^^^^^^^^^
+E       KeyError: 'IC'
+
+test_icim_b3adv_concurrency_20261021.py:68: KeyError
+_ test_reentrant_public_query_restores_outer_observer_and_anchors[distinct-False] _
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_2ce59de4/pytest/test_reentrant_public_query_re2')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001EF925DEE70>
+inner_raises = False, relationship = 'distinct'
+
+    @pytest.mark.parametrize('inner_raises', [False, True])
+    @pytest.mark.parametrize('relationship', ['same', 'distinct'])
+    def test_reentrant_public_query_restores_outer_observer_and_anchors(tmp_path, monkeypatch,
+                                                                      inner_raises, relationship):
+        module = server(monkeypatch, tmp_path)
+        outer_store, _ = store(tmp_path/'outer', 'A')
+        outer = module.LedgerCoordinator(outer_store)
+        inner_store, _ = store(tmp_path/'inner', 'B')
+        inner = outer if relationship == 'same' else module.LedgerCoordinator(inner_store)
+        expected_inner = 'A' if relationship == 'same' else 'B'
+        original_poe = module._CaptureOutput('outside')
+        original_observer = lambda *_args: None
+        original_anchors = deepcopy(bot.LIVE_CONTINUATION_ANCHOR)
+        monkeypatch.setattr(bot, 'poe', original_poe)
+        monkeypatch.setattr(bot, '_SIGNAL_OBSERVER', original_observer)
+        monkeypatch.setattr(bot, 'LIVE_CONTINUATION_ANCHOR', deepcopy(original_anchors))
+        nested_results = []
+    
+        def body(_self):
+            query = bot.poe.query.text
+            label = bot.LIVE_CONTINUATION_ANCHOR['IC']['audit_context_label']
+            if query == 'outer':
+                with bot.poe.start_message() as message:
+                    message.write('before:'+label+'|')
+                if inner_raises:
+                    with pytest.raises(RuntimeError, match='inner body failure'):
+                        inner.execute_query('inner', CLOCK, persist_confirmed=False)
+                else:
+                    nested_results.append(inner.execute_query('inner', CLOCK, persist_confirmed=False))
+                label = bot.LIVE_CONTINUATION_ANCHOR['IC']['audit_context_label']
+                with bot.poe.start_message() as message:
+                    message.write('after:'+label)
+                if bot._SIGNAL_OBSERVER is not None:
+                    bot._SIGNAL_OBSERVER('IC', dict(anchor_label=label, market_date=DAY,
+                                                     close_confirmed=False))
+            else:
+                with bot.poe.start_message() as message:
+                    message.write('inner:'+label)
+                if inner_raises:
+                    raise RuntimeError('inner body failure')
+                bot._SIGNAL_OBSERVER('IC', dict(anchor_label=label, market_date=DAY,
+                                                 close_confirmed=False))
+    
+        monkeypatch.setattr(bot.ICIMMainlinesBot, 'run', body)
+        text, _, observed = outer.execute_query('outer', CLOCK, persist_confirmed=False)
+>       assert text == 'before:A|after:A'
+E       AssertionError: assert 'before:A|after:B' == 'before:A|after:A'
+E         
+E         - before:A|after:A
+E         ?                ^
+E         + before:A|after:B
+E         ?                ^
+
+test_icim_b3adv_concurrency_20261021.py:67: AssertionError
+_ test_reentrant_public_query_restores_outer_observer_and_anchors[distinct-True] _
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_2ce59de4/pytest/test_reentrant_public_query_re3')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001EF92631150>
+inner_raises = True, relationship = 'distinct'
+
+    @pytest.mark.parametrize('inner_raises', [False, True])
+    @pytest.mark.parametrize('relationship', ['same', 'distinct'])
+    def test_reentrant_public_query_restores_outer_observer_and_anchors(tmp_path, monkeypatch,
+                                                                      inner_raises, relationship):
+        module = server(monkeypatch, tmp_path)
+        outer_store, _ = store(tmp_path/'outer', 'A')
+        outer = module.LedgerCoordinator(outer_store)
+        inner_store, _ = store(tmp_path/'inner', 'B')
+        inner = outer if relationship == 'same' else module.LedgerCoordinator(inner_store)
+        expected_inner = 'A' if relationship == 'same' else 'B'
+        original_poe = module._CaptureOutput('outside')
+        original_observer = lambda *_args: None
+        original_anchors = deepcopy(bot.LIVE_CONTINUATION_ANCHOR)
+        monkeypatch.setattr(bot, 'poe', original_poe)
+        monkeypatch.setattr(bot, '_SIGNAL_OBSERVER', original_observer)
+        monkeypatch.setattr(bot, 'LIVE_CONTINUATION_ANCHOR', deepcopy(original_anchors))
+        nested_results = []
+    
+        def body(_self):
+            query = bot.poe.query.text
+            label = bot.LIVE_CONTINUATION_ANCHOR['IC']['audit_context_label']
+            if query == 'outer':
+                with bot.poe.start_message() as message:
+                    message.write('before:'+label+'|')
+                if inner_raises:
+                    with pytest.raises(RuntimeError, match='inner body failure'):
+                        inner.execute_query('inner', CLOCK, persist_confirmed=False)
+                else:
+                    nested_results.append(inner.execute_query('inner', CLOCK, persist_confirmed=False))
+                label = bot.LIVE_CONTINUATION_ANCHOR['IC']['audit_context_label']
+                with bot.poe.start_message() as message:
+                    message.write('after:'+label)
+                if bot._SIGNAL_OBSERVER is not None:
+                    bot._SIGNAL_OBSERVER('IC', dict(anchor_label=label, market_date=DAY,
+                                                     close_confirmed=False))
+            else:
+                with bot.poe.start_message() as message:
+                    message.write('inner:'+label)
+                if inner_raises:
+                    raise RuntimeError('inner body failure')
+                bot._SIGNAL_OBSERVER('IC', dict(anchor_label=label, market_date=DAY,
+                                                 close_confirmed=False))
+    
+        monkeypatch.setattr(bot.ICIMMainlinesBot, 'run', body)
+        text, _, observed = outer.execute_query('outer', CLOCK, persist_confirmed=False)
+>       assert text == 'before:A|after:A'
+E       AssertionError: assert 'before:A|after:B' == 'before:A|after:A'
+E         
+E         - before:A|after:A
+E         ?                ^
+E         + before:A|after:B
+E         ?                ^
+
+test_icim_b3adv_concurrency_20261021.py:67: AssertionError
+_______ test_query_scope_does_not_remove_a_preinstalled_observer[False] _______
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_2ce59de4/pytest/test_query_scope_does_not_remo0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001EF926318C0>
+raises = False
+
+    @pytest.mark.parametrize('raises', [False, True])
+    def test_query_scope_does_not_remove_a_preinstalled_observer(tmp_path, monkeypatch, raises):
+        module = server(monkeypatch, tmp_path)
+        isolated, _ = store(tmp_path/'query', 'isolated')
+        coordinator = module.LedgerCoordinator(isolated)
+        marker = lambda *_args: None
+        original_poe = module._CaptureOutput('outside')
+        monkeypatch.setattr(bot, '_SIGNAL_OBSERVER', marker)
+        monkeypatch.setattr(bot, 'poe', original_poe)
+        monkeypatch.setattr(bot, 'LIVE_CONTINUATION_ANCHOR', deepcopy(bot.LIVE_CONTINUATION_ANCHOR))
+        original_anchors = deepcopy(bot.LIVE_CONTINUATION_ANCHOR)
+        def body(_self):
+            if raises:
+                raise RuntimeError('query failure')
+        monkeypatch.setattr(bot.ICIMMainlinesBot, 'run', body)
+        if raises:
+            with pytest.raises(RuntimeError, match='query failure'):
+                coordinator.execute_query('query', CLOCK, persist_confirmed=False)
+        else:
+            coordinator.execute_query('query', CLOCK, persist_confirmed=False)
+        assert bot.poe is original_poe
+>       assert bot._SIGNAL_OBSERVER is marker
+E       assert None is <function test_query_scope_does_not_remove_a_preinstalled_observer.<locals>.<lambda> at 0x000001EF926CD380>
+E        +  where None = bot._SIGNAL_OBSERVER
+
+test_icim_b3adv_concurrency_20261021.py:98: AssertionError
+_______ test_query_scope_does_not_remove_a_preinstalled_observer[True] ________
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_2ce59de4/pytest/test_query_scope_does_not_remo1')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001EF925FB950>
+raises = True
+
+    @pytest.mark.parametrize('raises', [False, True])
+    def test_query_scope_does_not_remove_a_preinstalled_observer(tmp_path, monkeypatch, raises):
+        module = server(monkeypatch, tmp_path)
+        isolated, _ = store(tmp_path/'query', 'isolated')
+        coordinator = module.LedgerCoordinator(isolated)
+        marker = lambda *_args: None
+        original_poe = module._CaptureOutput('outside')
+        monkeypatch.setattr(bot, '_SIGNAL_OBSERVER', marker)
+        monkeypatch.setattr(bot, 'poe', original_poe)
+        monkeypatch.setattr(bot, 'LIVE_CONTINUATION_ANCHOR', deepcopy(bot.LIVE_CONTINUATION_ANCHOR))
+        original_anchors = deepcopy(bot.LIVE_CONTINUATION_ANCHOR)
+        def body(_self):
+            if raises:
+                raise RuntimeError('query failure')
+        monkeypatch.setattr(bot.ICIMMainlinesBot, 'run', body)
+        if raises:
+            with pytest.raises(RuntimeError, match='query failure'):
+                coordinator.execute_query('query', CLOCK, persist_confirmed=False)
+        else:
+            coordinator.execute_query('query', CLOCK, persist_confirmed=False)
+        assert bot.poe is original_poe
+>       assert bot._SIGNAL_OBSERVER is marker
+E       assert None is <function test_query_scope_does_not_remove_a_preinstalled_observer.<locals>.<lambda> at 0x000001EF926CEFB0>
+E        +  where None = bot._SIGNAL_OBSERVER
+
+test_icim_b3adv_concurrency_20261021.py:98: AssertionError
+============================== warnings summary ===============================
+C:\Python314\Lib\site-packages\fastapi_poe\types.py:171
+  C:\Python314\Lib\site-packages\fastapi_poe\types.py:171: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    class RequestContext(BaseModel):
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED test_icim_b3adv_concurrency_20261021.py::test_reentrant_public_query_restores_outer_observer_and_anchors[same-False]
+FAILED test_icim_b3adv_concurrency_20261021.py::test_reentrant_public_query_restores_outer_observer_and_anchors[same-True]
+FAILED test_icim_b3adv_concurrency_20261021.py::test_reentrant_public_query_restores_outer_observer_and_anchors[distinct-False]
+FAILED test_icim_b3adv_concurrency_20261021.py::test_reentrant_public_query_restores_outer_observer_and_anchors[distinct-True]
+FAILED test_icim_b3adv_concurrency_20261021.py::test_query_scope_does_not_remove_a_preinstalled_observer[False]
+FAILED test_icim_b3adv_concurrency_20261021.py::test_query_scope_does_not_remove_a_preinstalled_observer[True]
+6 failed, 5 passed, 1 warning in 4.45s

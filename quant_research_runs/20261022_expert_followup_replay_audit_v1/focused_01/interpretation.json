@@ -1,0 +1,7 @@
+{
+  "accepted": false,
+  "tests": 8,
+  "failures": 2,
+  "errors": 0,
+  "reason": "Two new-fixture assumptions failed: 2612 seed security_id and unused rate role; wrapper stdout decoding also failed. Original XML/log retained."
+}

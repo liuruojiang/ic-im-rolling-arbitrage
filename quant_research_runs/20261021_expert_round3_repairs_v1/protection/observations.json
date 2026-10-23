@@ -1,0 +1,20 @@
+{
+  "test_cache": {
+    "restored_exact_pre_edit_sha256": "7e1b14fc3a66ab56bd8ec3b46e0676e5c7ad024cc47f7e1745594530352f2e96",
+    "observed_sha256": "efc84282c432f1a86162724a26ee29f4f9f7193c97180db9be17ebf1517c0410",
+    "basis": "exact SHA-matching deterministic reconstruction from retained JUnit node identities",
+    "old_formal_receipts_changed": false
+  },
+  "valuation_runtime_cache": {
+    "path": "quant_research_runs/20261016_put_delivery_completion_v1/formal_runtime/runtime/legulegu/latest.json",
+    "expected_old_sha256": "65b9b4fdbd581432af7bf5bb327cdef0ec9fa0d9a66e24fb63788c027dc3b887",
+    "observed_sha256": "cd8a6dab163d07619c6a38e64ec3f9fe87ecb217d4e4f8388f9b60a578d520c3",
+    "valuation_date": "2026-10-21",
+    "fetched_at": "2026-10-21T19:35:46.227187+08:00",
+    "writer": "unconfirmed",
+    "action": "kept observed runtime input cache; did not roll back current valuation to an old day",
+    "frozen_old_day_snapshot_intact": true,
+    "frozen_copy": "quant_research_runs/20261016_put_delivery_completion_v1/formal_runtime/outputs/legulegu_daily_sync/2026-10-20/snapshot.json",
+    "is_strategy_hash_chain_ledger": false
+  }
+}

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="5" time="3.677" timestamp="2026-10-21T19:44:54.343109+08:00" hostname="DESKTOP-95I7VVU"><testcase classname="" name="test_no_evidence_context_preserves_provider_keyword_signature" time="0.002" /><testcase classname="" name="test_same_day_snapshot_cannot_bind_requested_security_to_a_different_contract" time="0.275" /><testcase classname="" name="test_original_closed_at_after_session_never_becomes_original_day_evidence" time="0.100" /><testcase classname="" name="test_missing_candidate_month_never_uses_current_chain" time="0.193" /><testcase classname="" name="test_freeze_then_original_monthly_evidence_can_replay_and_advance_two_sessions" time="1.114"><failure message="assert (False is True)">tmp_path = WindowsPath('D:/动量策略/IC和IM滚动套利/quant_research_runs/20261021_expert_round3_repairs_v1/audit_recovery/temp_02/test_freeze_then_original_mont0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x00000214D59AA8B0&gt;
+
+    def test_freeze_then_original_monthly_evidence_can_replay_and_advance_two_sessions(tmp_path, monkeypatch):
+        store, current = temporary_store(tmp_path / "ledger")
+        monkeypatch.setattr(bot, "LIVE_CONTINUATION_ANCHOR", state.anchors_from_record(current))
+        root = tmp_path / "evidence"
+        for day in [DAY, NEXT]:
+            for product in ["IC", "IM"]:
+                archive(monkeypatch, root, product, day)
+        fake_wall(monkeypatch, date(2026, 11, 24))
+        monkeypatch.setenv("ICIM_EVIDENCE_DIR", str(root))
+        before = current["digest"]
+        with bot.historical_replay(DAY):
+            diagnostic = bot.build_live_trade_signal("IC", clock(DAY, 15, 20), "close")
+        assert diagnostic["diagnostic_only"] is True
+        with pytest.raises(RuntimeError):
+            store.append_confirmed_signals(current, {"IC": diagnostic, "IM": diagnostic})
+        assert store.load_latest()["digest"] == before
+        # Explicitly synthetic oracle extension: not a claim about real 2027 holidays.
+        monkeypatch.setattr(bot, "_OFFICIAL_EXCHANGE_CALENDAR_YEARS", set(bot._OFFICIAL_EXCHANGE_CALENDAR_YEARS) | {2027})
+        for day in [DAY, NEXT]:
+            bot.install_runtime_anchors(state.anchors_from_record(current))
+            with bot.historical_replay(day):
+                signals = {product: bot.build_live_trade_signal(product, clock(day, 15, 20), "close")
+                           for product in ["IC", "IM"]}
+            for product, signal in signals.items():
+                assert not signal.get("diagnostic_only"), (product, signal)
+&gt;               assert signal["signal_complete"] is True and signal["persistence_eligible"] is True
+E               assert (False is True)
+
+test_icim_round3_recovery_audit_20261021.py:209: AssertionError</failure></testcase></testsuite></testsuites>

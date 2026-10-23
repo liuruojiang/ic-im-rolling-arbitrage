@@ -1,0 +1,152 @@
+FF......                                                                 [100%]
+================================== FAILURES ===================================
+_ test_public_ic_dedicated_core_replay_has_zero_misses_and_no_new_url[day0-previous0-2612] _
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_7a561025/pytest/test_public_ic_dedicated_core_0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x00000271B9E5F230>
+day = datetime.date(2026, 10, 21), previous = datetime.date(2026, 10, 20)
+month = '2612'
+
+    @pytest.mark.parametrize('day,previous,month', [
+        (date(2026, 10, 21), date(2026, 10, 20), '2612'),
+        (date(2026, 11, 23), date(2026, 11, 20), '2703'),
+    ])
+    def test_public_ic_dedicated_core_replay_has_zero_misses_and_no_new_url(
+            tmp_path, monkeypatch, day, previous, month):
+        clock = r4.wall(monkeypatch, day)
+        store, original = r5.held_record(tmp_path / 'state', previous, month)
+        actual_chain = bot._fetch_510500_chain_for_day
+        samples = r4.providers(monkeypatch, day)
+        calls = raw_chain_provider(monkeypatch, day, samples, actual_chain)
+        root = tmp_path / 'evidence'
+        assert adapter.capture_daily(bot, root, clock)['status'] == 'captured'
+        reader, _ = adapter.load_original(bot, root, 'IC', day)
+        original_urls = {row['url'] for row in reader.context['raw']}
+        assert len(original_urls) == 4  # Nonempty actual HTTP-boundary recording.
+        assert original_urls == {url for url, _ in calls}
+        if month == '2703':
+            r4.oracle(monkeypatch)  # Synthetic only; do not modify production calendar.
+        later = r4.wall(monkeypatch, day + timedelta(days=1))
+        monkeypatch.setattr(bot.requests, 'get', lambda *a, **k: pytest.fail('replay attempted real HTTP'))
+        requested, misses, roles, held = [], [], [], []
+        http = evidence.EvidenceReader.http_response
+        typed = evidence.EvidenceReader.call
+        held_quote = bot.fetch_sse_existing_put_historical_quote
+        def trace_http(self, url, params):
+            requested.append(url)
+            try:
+                return http(self, url, params)
+            except evidence.EvidenceUnavailable as exc:
+                misses.append(str(exc))
+                raise
+        def trace_typed(self, role, key):
+            roles.append(role)
+            try:
+                return typed(self, role, key)
+            except evidence.EvidenceUnavailable as exc:
+                misses.append(str(exc))
+                raise
+        def trace_held(contract, security_id, held_day):
+            assert bot._HISTORICAL_REPLAY_DAY.get() == day
+            held.append((contract, security_id, held_day))
+            return held_quote(contract, security_id, held_day)
+        monkeypatch.setattr(evidence.EvidenceReader, 'http_response', trace_http)
+        monkeypatch.setattr(evidence.EvidenceReader, 'call', trace_typed)
+        monkeypatch.setattr(bot, 'fetch_sse_existing_put_historical_quote', trace_held)
+        with adapter.evidence_location(root), bot.historical_replay(day):
+            result = bot.build_live_trade_signal('IC', seed.clock(day), 'close')
+            assert bot._HISTORICAL_REPLAY_DAY.get() == day
+>       assert result.get('signal_complete') and result.get('persistence_eligible'), result.get('diagnostic_reason')
+E       AssertionError: 2026-10-21 original chain identity unavailable for 10022612
+E       assert (False)
+E        +  where False = <built-in method get of dict object at 0x00000271BA057FC0>('signal_complete')
+E        +    where <built-in method get of dict object at 0x00000271BA057FC0> = {'calendar_coverage_warning': '交易日历覆盖预警：距离2026年末不足90天，2027年官方交易日历尚未载入；跨年日期仅作标注诊断，执行与落账须核验。', 'calendar_diagnostics': [], 'calendar_provisional': False, 'close_confirmed': False, ...}.get
+
+test_icim_expert_followup_replay_20261022.py:103: AssertionError
+_ test_public_ic_dedicated_core_replay_has_zero_misses_and_no_new_url[day1-previous1-2703] _
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_7a561025/pytest/test_public_ic_dedicated_core_1')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x00000271BA008D60>
+day = datetime.date(2026, 11, 23), previous = datetime.date(2026, 11, 20)
+month = '2703'
+
+    @pytest.mark.parametrize('day,previous,month', [
+        (date(2026, 10, 21), date(2026, 10, 20), '2612'),
+        (date(2026, 11, 23), date(2026, 11, 20), '2703'),
+    ])
+    def test_public_ic_dedicated_core_replay_has_zero_misses_and_no_new_url(
+            tmp_path, monkeypatch, day, previous, month):
+        clock = r4.wall(monkeypatch, day)
+        store, original = r5.held_record(tmp_path / 'state', previous, month)
+        actual_chain = bot._fetch_510500_chain_for_day
+        samples = r4.providers(monkeypatch, day)
+        calls = raw_chain_provider(monkeypatch, day, samples, actual_chain)
+        root = tmp_path / 'evidence'
+        assert adapter.capture_daily(bot, root, clock)['status'] == 'captured'
+        reader, _ = adapter.load_original(bot, root, 'IC', day)
+        original_urls = {row['url'] for row in reader.context['raw']}
+        assert len(original_urls) == 4  # Nonempty actual HTTP-boundary recording.
+        assert original_urls == {url for url, _ in calls}
+        if month == '2703':
+            r4.oracle(monkeypatch)  # Synthetic only; do not modify production calendar.
+        later = r4.wall(monkeypatch, day + timedelta(days=1))
+        monkeypatch.setattr(bot.requests, 'get', lambda *a, **k: pytest.fail('replay attempted real HTTP'))
+        requested, misses, roles, held = [], [], [], []
+        http = evidence.EvidenceReader.http_response
+        typed = evidence.EvidenceReader.call
+        held_quote = bot.fetch_sse_existing_put_historical_quote
+        def trace_http(self, url, params):
+            requested.append(url)
+            try:
+                return http(self, url, params)
+            except evidence.EvidenceUnavailable as exc:
+                misses.append(str(exc))
+                raise
+        def trace_typed(self, role, key):
+            roles.append(role)
+            try:
+                return typed(self, role, key)
+            except evidence.EvidenceUnavailable as exc:
+                misses.append(str(exc))
+                raise
+        def trace_held(contract, security_id, held_day):
+            assert bot._HISTORICAL_REPLAY_DAY.get() == day
+            held.append((contract, security_id, held_day))
+            return held_quote(contract, security_id, held_day)
+        monkeypatch.setattr(evidence.EvidenceReader, 'http_response', trace_http)
+        monkeypatch.setattr(evidence.EvidenceReader, 'call', trace_typed)
+        monkeypatch.setattr(bot, 'fetch_sse_existing_put_historical_quote', trace_held)
+        with adapter.evidence_location(root), bot.historical_replay(day):
+            result = bot.build_live_trade_signal('IC', seed.clock(day), 'close')
+            assert bot._HISTORICAL_REPLAY_DAY.get() == day
+        assert result.get('signal_complete') and result.get('persistence_eligible'), result.get('diagnostic_reason')
+        assert result['v14_core_put_contract'] == '510500P' + month + 'M07500'
+        assert held and all(item[0] == result['v14_core_put_contract'] for item in held)
+>       assert {'ic.chain', 'cffex.quotes', 'ic.etf', 'market.live', 'fear.score', 'rate.resolve'} <= set(roles)
+E       AssertionError: assert {'cffex.quote...rate.resolve'} <= {'cffex.quote...'market.live'}
+E         
+E         Extra items in the left set:
+E         'rate.resolve'
+
+test_icim_expert_followup_replay_20261022.py:106: AssertionError
+============================== warnings summary ===============================
+C:\Python314\Lib\site-packages\fastapi_poe\types.py:171
+  C:\Python314\Lib\site-packages\fastapi_poe\types.py:171: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    class RequestContext(BaseModel):
+
+test_icim_expert_followup_replay_20261022.py::test_public_ic_dedicated_core_replay_has_zero_misses_and_no_new_url[day0-previous0-2612]
+test_icim_expert_followup_replay_20261022.py::test_public_ic_dedicated_core_replay_has_zero_misses_and_no_new_url[day0-previous0-2612]
+test_icim_expert_followup_replay_20261022.py::test_public_ic_dedicated_core_replay_has_zero_misses_and_no_new_url[day0-previous0-2612]
+test_icim_expert_followup_replay_20261022.py::test_public_ic_dedicated_core_replay_has_zero_misses_and_no_new_url[day0-previous0-2612]
+test_icim_expert_followup_replay_20261022.py::test_public_ic_dedicated_core_replay_has_zero_misses_and_no_new_url[day1-previous1-2703]
+test_icim_expert_followup_replay_20261022.py::test_public_ic_dedicated_core_replay_has_zero_misses_and_no_new_url[day1-previous1-2703]
+test_icim_expert_followup_replay_20261022.py::test_public_ic_dedicated_core_replay_has_zero_misses_and_no_new_url[day1-previous1-2703]
+test_icim_expert_followup_replay_20261022.py::test_public_ic_dedicated_core_replay_has_zero_misses_and_no_new_url[day1-previous1-2703]
+  D:\动量策略\IC和IM滚动套利\test_icim_expert_followup_replay_20261022.py:40: FutureWarning: Downcasting object dtype arrays on .fillna, .ffill, .bfill is deprecated and will change in a future version. Call result.infer_objects(copy=False) instead. To opt-in to the future behavior, set `pd.set_option('future.no_silent_downcasting', True)`
+    rows = frame[columns].fillna(0).values.tolist()
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED test_icim_expert_followup_replay_20261022.py::test_public_ic_dedicated_core_replay_has_zero_misses_and_no_new_url[day0-previous0-2612]
+FAILED test_icim_expert_followup_replay_20261022.py::test_public_ic_dedicated_core_replay_has_zero_misses_and_no_new_url[day1-previous1-2703]
+2 failed, 6 passed, 9 warnings in 8.43s

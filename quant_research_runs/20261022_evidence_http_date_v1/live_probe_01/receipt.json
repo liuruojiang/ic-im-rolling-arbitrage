@@ -1,0 +1,40 @@
+{
+  "status": "COMPLETE",
+  "observations": [
+    {
+      "attempt": 1,
+      "started_at": "2026-10-22T21:35:30.828497+08:00",
+      "received_at": "2026-10-22T21:35:41.271030+08:00",
+      "market_date": 20261022,
+      "market_time": 162906,
+      "body_sha256": "1585a5f2655f9572693945f21e973a8bb0729ff2d4a29f4b379220b4937015df",
+      "headers": {
+        "Date": "Thu, 22 Oct 2026 13:35:40 GMT",
+        "Content-Type": "application/json;charset=UTF-8"
+      }
+    },
+    {
+      "attempt": 2,
+      "started_at": "2026-10-22T21:35:43.271938+08:00",
+      "received_at": "2026-10-22T21:35:56.350646+08:00",
+      "market_date": 20261022,
+      "market_time": 162906,
+      "body_sha256": "1585a5f2655f9572693945f21e973a8bb0729ff2d4a29f4b379220b4937015df",
+      "headers": {
+        "Date": "Thu, 22 Oct 2026 13:35:56 GMT",
+        "Content-Type": "application/json;charset=UTF-8"
+      }
+    }
+  ],
+  "errors": [],
+  "failures": [],
+  "manifest": "D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261022_evidence_http_date_v1\\live_probe_01\\evidence\\sessions\\2026-10-22\\133556350998-736a8843555e4befb005d0900fe40c8b.json",
+  "manifest_sha256": "f1f578b4d8c86a212ba033e6ad88bbcf9a51d4cbb4fb951aa051867607c5f04f",
+  "formal_signal_generated": false,
+  "original_close": false,
+  "limitation": "one post-close repeat probe, not multi-day stability evidence",
+  "replay_matching_recordings": 2,
+  "replay_body_sha256": "1585a5f2655f9572693945f21e973a8bb0729ff2d4a29f4b379220b4937015df",
+  "distinct_dates": 2,
+  "distinct_market_bodies": 1
+}

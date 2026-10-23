@@ -1,0 +1,21 @@
+{
+  "exit_code": 0,
+  "source_before_equals_after": false,
+  "source_files": 1009,
+  "stage": "accepted_01",
+  "acceptance_error": "audit evidence rejected: source changed during test execution",
+  "diagnostic_counts": {
+    "tests": 2959,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "artifacts": {
+    "regression.xml": "ff08d01966e1fdc687d3783416b35472e76be8af31e083f88857dae48ae825d9",
+    "regression.txt": "ec6101642453521220fa313497812e2149d19121ac964a4dc6f7d9d0986cc783",
+    "source_before.json": "3b5838d45ec14e44cb26c158a8b2f14b17faea86b50e608dcb5e319a5e51600a",
+    "source_after.json": "5e8553023369a571298d65efb6c857aabe1462bfaf0055833402e6d93b546994",
+    "test_run.json": "6aa60a153cd318b3e4e36bbd6f42fdd0454b4dd5f28939438c8a719a773de5d7",
+    "collection.json": "fe6feac4669a87071bcf91201f65b77935527c64a0c8a10e5a2f338852588fc6"
+  }
+}

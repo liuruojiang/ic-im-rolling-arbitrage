@@ -1,0 +1,587 @@
+FFFFFFFFFFFFFFFFFFFFFFFFF                                                [100%]
+================================== FAILURES ===================================
+______ test_ordinary_transient_failure_retains_original_plan[error0-IC] _______
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001AE44552B10>
+product = 'IC', error = Timeout('temporary')
+
+    @pytest.mark.parametrize("product", ["IC", "IM"])
+    @pytest.mark.parametrize("error", [requests.Timeout("temporary"), RuntimeError("budget exhausted"),
+                                       ValueError("malformed"), KeyError("openprice")])
+    def test_ordinary_transient_failure_retains_original_plan(monkeypatch, product, error):
+        anchor = ordinary_anchor(product)
+        original = deepcopy(anchor)
+        monkeypatch.setitem(bot.LIVE_CONTINUATION_ANCHOR, product, anchor)
+        def unavailable(*args, **kwargs):
+            raise error
+        monkeypatch.setattr(bot, "fetch_option_dated_open", unavailable)
+        monkeypatch.setattr(bot, "fetch_cffex_quotes", unavailable)
+        event = bot._v14_ordinary_open_evidence(product, DAY, CLOCK, {})
+>       assert event["status"] == RETRY
+E       AssertionError: assert 'closed_missing_open_price' == 'awaiting_retry_open_evidence'
+E         
+E         - awaiting_retry_open_evidence
+E         + closed_missing_open_price
+
+test_ic_im_external_review_20261021.py:70: AssertionError
+______ test_ordinary_transient_failure_retains_original_plan[error0-IM] _______
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001AE44553100>
+product = 'IM', error = Timeout('temporary')
+
+    @pytest.mark.parametrize("product", ["IC", "IM"])
+    @pytest.mark.parametrize("error", [requests.Timeout("temporary"), RuntimeError("budget exhausted"),
+                                       ValueError("malformed"), KeyError("openprice")])
+    def test_ordinary_transient_failure_retains_original_plan(monkeypatch, product, error):
+        anchor = ordinary_anchor(product)
+        original = deepcopy(anchor)
+        monkeypatch.setitem(bot.LIVE_CONTINUATION_ANCHOR, product, anchor)
+        def unavailable(*args, **kwargs):
+            raise error
+        monkeypatch.setattr(bot, "fetch_option_dated_open", unavailable)
+        monkeypatch.setattr(bot, "fetch_cffex_quotes", unavailable)
+        event = bot._v14_ordinary_open_evidence(product, DAY, CLOCK, {})
+>       assert event["status"] == RETRY
+E       AssertionError: assert 'closed_missing_open_price' == 'awaiting_retry_open_evidence'
+E         
+E         - awaiting_retry_open_evidence
+E         + closed_missing_open_price
+
+test_ic_im_external_review_20261021.py:70: AssertionError
+______ test_ordinary_transient_failure_retains_original_plan[error1-IC] _______
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001AE445B17F0>
+product = 'IC', error = RuntimeError('budget exhausted')
+
+    @pytest.mark.parametrize("product", ["IC", "IM"])
+    @pytest.mark.parametrize("error", [requests.Timeout("temporary"), RuntimeError("budget exhausted"),
+                                       ValueError("malformed"), KeyError("openprice")])
+    def test_ordinary_transient_failure_retains_original_plan(monkeypatch, product, error):
+        anchor = ordinary_anchor(product)
+        original = deepcopy(anchor)
+        monkeypatch.setitem(bot.LIVE_CONTINUATION_ANCHOR, product, anchor)
+        def unavailable(*args, **kwargs):
+            raise error
+        monkeypatch.setattr(bot, "fetch_option_dated_open", unavailable)
+        monkeypatch.setattr(bot, "fetch_cffex_quotes", unavailable)
+        event = bot._v14_ordinary_open_evidence(product, DAY, CLOCK, {})
+>       assert event["status"] == RETRY
+E       AssertionError: assert 'closed_missing_open_price' == 'awaiting_retry_open_evidence'
+E         
+E         - awaiting_retry_open_evidence
+E         + closed_missing_open_price
+
+test_ic_im_external_review_20261021.py:70: AssertionError
+______ test_ordinary_transient_failure_retains_original_plan[error1-IM] _______
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001AE44649AE0>
+product = 'IM', error = RuntimeError('budget exhausted')
+
+    @pytest.mark.parametrize("product", ["IC", "IM"])
+    @pytest.mark.parametrize("error", [requests.Timeout("temporary"), RuntimeError("budget exhausted"),
+                                       ValueError("malformed"), KeyError("openprice")])
+    def test_ordinary_transient_failure_retains_original_plan(monkeypatch, product, error):
+        anchor = ordinary_anchor(product)
+        original = deepcopy(anchor)
+        monkeypatch.setitem(bot.LIVE_CONTINUATION_ANCHOR, product, anchor)
+        def unavailable(*args, **kwargs):
+            raise error
+        monkeypatch.setattr(bot, "fetch_option_dated_open", unavailable)
+        monkeypatch.setattr(bot, "fetch_cffex_quotes", unavailable)
+        event = bot._v14_ordinary_open_evidence(product, DAY, CLOCK, {})
+>       assert event["status"] == RETRY
+E       AssertionError: assert 'closed_missing_open_price' == 'awaiting_retry_open_evidence'
+E         
+E         - awaiting_retry_open_evidence
+E         + closed_missing_open_price
+
+test_ic_im_external_review_20261021.py:70: AssertionError
+______ test_ordinary_transient_failure_retains_original_plan[error2-IC] _______
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001AE4464A250>
+product = 'IC', error = ValueError('malformed')
+
+    @pytest.mark.parametrize("product", ["IC", "IM"])
+    @pytest.mark.parametrize("error", [requests.Timeout("temporary"), RuntimeError("budget exhausted"),
+                                       ValueError("malformed"), KeyError("openprice")])
+    def test_ordinary_transient_failure_retains_original_plan(monkeypatch, product, error):
+        anchor = ordinary_anchor(product)
+        original = deepcopy(anchor)
+        monkeypatch.setitem(bot.LIVE_CONTINUATION_ANCHOR, product, anchor)
+        def unavailable(*args, **kwargs):
+            raise error
+        monkeypatch.setattr(bot, "fetch_option_dated_open", unavailable)
+        monkeypatch.setattr(bot, "fetch_cffex_quotes", unavailable)
+        event = bot._v14_ordinary_open_evidence(product, DAY, CLOCK, {})
+>       assert event["status"] == RETRY
+E       AssertionError: assert 'closed_missing_open_price' == 'awaiting_retry_open_evidence'
+E         
+E         - awaiting_retry_open_evidence
+E         + closed_missing_open_price
+
+test_ic_im_external_review_20261021.py:70: AssertionError
+______ test_ordinary_transient_failure_retains_original_plan[error2-IM] _______
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001AE446BA750>
+product = 'IM', error = ValueError('malformed')
+
+    @pytest.mark.parametrize("product", ["IC", "IM"])
+    @pytest.mark.parametrize("error", [requests.Timeout("temporary"), RuntimeError("budget exhausted"),
+                                       ValueError("malformed"), KeyError("openprice")])
+    def test_ordinary_transient_failure_retains_original_plan(monkeypatch, product, error):
+        anchor = ordinary_anchor(product)
+        original = deepcopy(anchor)
+        monkeypatch.setitem(bot.LIVE_CONTINUATION_ANCHOR, product, anchor)
+        def unavailable(*args, **kwargs):
+            raise error
+        monkeypatch.setattr(bot, "fetch_option_dated_open", unavailable)
+        monkeypatch.setattr(bot, "fetch_cffex_quotes", unavailable)
+        event = bot._v14_ordinary_open_evidence(product, DAY, CLOCK, {})
+>       assert event["status"] == RETRY
+E       AssertionError: assert 'closed_missing_open_price' == 'awaiting_retry_open_evidence'
+E         
+E         - awaiting_retry_open_evidence
+E         + closed_missing_open_price
+
+test_ic_im_external_review_20261021.py:70: AssertionError
+______ test_ordinary_transient_failure_retains_original_plan[error3-IC] _______
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001AE446BAD50>
+product = 'IC', error = KeyError('openprice')
+
+    @pytest.mark.parametrize("product", ["IC", "IM"])
+    @pytest.mark.parametrize("error", [requests.Timeout("temporary"), RuntimeError("budget exhausted"),
+                                       ValueError("malformed"), KeyError("openprice")])
+    def test_ordinary_transient_failure_retains_original_plan(monkeypatch, product, error):
+        anchor = ordinary_anchor(product)
+        original = deepcopy(anchor)
+        monkeypatch.setitem(bot.LIVE_CONTINUATION_ANCHOR, product, anchor)
+        def unavailable(*args, **kwargs):
+            raise error
+        monkeypatch.setattr(bot, "fetch_option_dated_open", unavailable)
+        monkeypatch.setattr(bot, "fetch_cffex_quotes", unavailable)
+        event = bot._v14_ordinary_open_evidence(product, DAY, CLOCK, {})
+>       assert event["status"] == RETRY
+E       AssertionError: assert 'closed_missing_open_price' == 'awaiting_retry_open_evidence'
+E         
+E         - awaiting_retry_open_evidence
+E         + closed_missing_open_price
+
+test_ic_im_external_review_20261021.py:70: AssertionError
+______ test_ordinary_transient_failure_retains_original_plan[error3-IM] _______
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001AE4472AB70>
+product = 'IM', error = KeyError('openprice')
+
+    @pytest.mark.parametrize("product", ["IC", "IM"])
+    @pytest.mark.parametrize("error", [requests.Timeout("temporary"), RuntimeError("budget exhausted"),
+                                       ValueError("malformed"), KeyError("openprice")])
+    def test_ordinary_transient_failure_retains_original_plan(monkeypatch, product, error):
+        anchor = ordinary_anchor(product)
+        original = deepcopy(anchor)
+        monkeypatch.setitem(bot.LIVE_CONTINUATION_ANCHOR, product, anchor)
+        def unavailable(*args, **kwargs):
+            raise error
+        monkeypatch.setattr(bot, "fetch_option_dated_open", unavailable)
+        monkeypatch.setattr(bot, "fetch_cffex_quotes", unavailable)
+        event = bot._v14_ordinary_open_evidence(product, DAY, CLOCK, {})
+>       assert event["status"] == RETRY
+E       AssertionError: assert 'closed_missing_open_price' == 'awaiting_retry_open_evidence'
+E         
+E         - awaiting_retry_open_evidence
+E         + closed_missing_open_price
+
+test_ic_im_external_review_20261021.py:70: AssertionError
+____ test_committed_failure_cannot_roll_back_or_cancel_plan[short_put-IC] _____
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001AE4472B890>
+product = 'IC', kind = 'short_put'
+
+    @pytest.mark.parametrize("product", ["IC", "IM"])
+    @pytest.mark.parametrize("kind", ["short_put", "profit3x"])
+    def test_committed_failure_cannot_roll_back_or_cancel_plan(monkeypatch, product, kind):
+        anchor = short_anchor(product) if kind == "short_put" else profit_anchor(product)
+        original = deepcopy(anchor)
+        monkeypatch.setitem(bot.LIVE_CONTINUATION_ANCHOR, product, anchor)
+        def unavailable(*args):
+            raise requests.ConnectionError("synthetic transport failure")
+        monkeypatch.setattr(bot, "_v14_committed_open_prices", unavailable)
+        events = bot._v14_project_committed_opens(product, DAY, CLOCK, {})
+>       assert events[0]["status"] == RETRY
+E       AssertionError: assert 'closed_missing_open_price' == 'awaiting_retry_open_evidence'
+E         
+E         - awaiting_retry_open_evidence
+E         + closed_missing_open_price
+
+test_ic_im_external_review_20261021.py:89: AssertionError
+____ test_committed_failure_cannot_roll_back_or_cancel_plan[short_put-IM] _____
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001AE446AECF0>
+product = 'IM', kind = 'short_put'
+
+    @pytest.mark.parametrize("product", ["IC", "IM"])
+    @pytest.mark.parametrize("kind", ["short_put", "profit3x"])
+    def test_committed_failure_cannot_roll_back_or_cancel_plan(monkeypatch, product, kind):
+        anchor = short_anchor(product) if kind == "short_put" else profit_anchor(product)
+        original = deepcopy(anchor)
+        monkeypatch.setitem(bot.LIVE_CONTINUATION_ANCHOR, product, anchor)
+        def unavailable(*args):
+            raise requests.ConnectionError("synthetic transport failure")
+        monkeypatch.setattr(bot, "_v14_committed_open_prices", unavailable)
+        events = bot._v14_project_committed_opens(product, DAY, CLOCK, {})
+>       assert events[0]["status"] == RETRY
+E       AssertionError: assert 'closed_missing_open_price' == 'awaiting_retry_open_evidence'
+E         
+E         - awaiting_retry_open_evidence
+E         + closed_missing_open_price
+
+test_ic_im_external_review_20261021.py:89: AssertionError
+_____ test_committed_failure_cannot_roll_back_or_cancel_plan[profit3x-IC] _____
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001AE446AEEB0>
+product = 'IC', kind = 'profit3x'
+
+    @pytest.mark.parametrize("product", ["IC", "IM"])
+    @pytest.mark.parametrize("kind", ["short_put", "profit3x"])
+    def test_committed_failure_cannot_roll_back_or_cancel_plan(monkeypatch, product, kind):
+        anchor = short_anchor(product) if kind == "short_put" else profit_anchor(product)
+        original = deepcopy(anchor)
+        monkeypatch.setitem(bot.LIVE_CONTINUATION_ANCHOR, product, anchor)
+        def unavailable(*args):
+            raise requests.ConnectionError("synthetic transport failure")
+        monkeypatch.setattr(bot, "_v14_committed_open_prices", unavailable)
+        events = bot._v14_project_committed_opens(product, DAY, CLOCK, {})
+>       assert events[0]["status"] == RETRY
+E       AssertionError: assert 'closed_missing_open_price' == 'awaiting_retry_open_evidence'
+E         
+E         - awaiting_retry_open_evidence
+E         + closed_missing_open_price
+
+test_ic_im_external_review_20261021.py:89: AssertionError
+_____ test_committed_failure_cannot_roll_back_or_cancel_plan[profit3x-IM] _____
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001AE4473E000>
+product = 'IM', kind = 'profit3x'
+
+    @pytest.mark.parametrize("product", ["IC", "IM"])
+    @pytest.mark.parametrize("kind", ["short_put", "profit3x"])
+    def test_committed_failure_cannot_roll_back_or_cancel_plan(monkeypatch, product, kind):
+        anchor = short_anchor(product) if kind == "short_put" else profit_anchor(product)
+        original = deepcopy(anchor)
+        monkeypatch.setitem(bot.LIVE_CONTINUATION_ANCHOR, product, anchor)
+        def unavailable(*args):
+            raise requests.ConnectionError("synthetic transport failure")
+        monkeypatch.setattr(bot, "_v14_committed_open_prices", unavailable)
+        events = bot._v14_project_committed_opens(product, DAY, CLOCK, {})
+>       assert events[0]["status"] == RETRY
+E       AssertionError: assert 'closed_missing_open_price' == 'awaiting_retry_open_evidence'
+E         
+E         - awaiting_retry_open_evidence
+E         + closed_missing_open_price
+
+test_ic_im_external_review_20261021.py:89: AssertionError
+___ test_policy_and_new_signal_boundary_reject_unresolved_open[ordinary-IC] ___
+
+product = 'IC', kind = 'ordinary'
+
+    @pytest.mark.parametrize("product", ["IC", "IM"])
+    @pytest.mark.parametrize("kind", ["ordinary", "short_put", "profit3x"])
+    def test_policy_and_new_signal_boundary_reject_unresolved_open(product, kind):
+        anchor = fixture.anchor(product)
+        signal = fixture.signal(product, DAY)
+        if kind == "ordinary":
+            signal["v14_ordinary_put_open_status"] = RETRY
+        else:
+            signal["v14_opening_events"] = [dict(kind=kind, status=RETRY)]
+>       with pytest.raises(RuntimeError, match="unresolved opening evidence"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+test_ic_im_external_review_20261021.py:102: Failed
+___ test_policy_and_new_signal_boundary_reject_unresolved_open[ordinary-IM] ___
+
+product = 'IM', kind = 'ordinary'
+
+    @pytest.mark.parametrize("product", ["IC", "IM"])
+    @pytest.mark.parametrize("kind", ["ordinary", "short_put", "profit3x"])
+    def test_policy_and_new_signal_boundary_reject_unresolved_open(product, kind):
+        anchor = fixture.anchor(product)
+        signal = fixture.signal(product, DAY)
+        if kind == "ordinary":
+            signal["v14_ordinary_put_open_status"] = RETRY
+        else:
+            signal["v14_opening_events"] = [dict(kind=kind, status=RETRY)]
+>       with pytest.raises(RuntimeError, match="unresolved opening evidence"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+test_ic_im_external_review_20261021.py:102: Failed
+__ test_policy_and_new_signal_boundary_reject_unresolved_open[short_put-IC] ___
+
+product = 'IC', kind = 'short_put'
+
+    @pytest.mark.parametrize("product", ["IC", "IM"])
+    @pytest.mark.parametrize("kind", ["ordinary", "short_put", "profit3x"])
+    def test_policy_and_new_signal_boundary_reject_unresolved_open(product, kind):
+        anchor = fixture.anchor(product)
+        signal = fixture.signal(product, DAY)
+        if kind == "ordinary":
+            signal["v14_ordinary_put_open_status"] = RETRY
+        else:
+            signal["v14_opening_events"] = [dict(kind=kind, status=RETRY)]
+>       with pytest.raises(RuntimeError, match="unresolved opening evidence"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+test_ic_im_external_review_20261021.py:102: Failed
+__ test_policy_and_new_signal_boundary_reject_unresolved_open[short_put-IM] ___
+
+product = 'IM', kind = 'short_put'
+
+    @pytest.mark.parametrize("product", ["IC", "IM"])
+    @pytest.mark.parametrize("kind", ["ordinary", "short_put", "profit3x"])
+    def test_policy_and_new_signal_boundary_reject_unresolved_open(product, kind):
+        anchor = fixture.anchor(product)
+        signal = fixture.signal(product, DAY)
+        if kind == "ordinary":
+            signal["v14_ordinary_put_open_status"] = RETRY
+        else:
+            signal["v14_opening_events"] = [dict(kind=kind, status=RETRY)]
+>       with pytest.raises(RuntimeError, match="unresolved opening evidence"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+test_ic_im_external_review_20261021.py:102: Failed
+___ test_policy_and_new_signal_boundary_reject_unresolved_open[profit3x-IC] ___
+
+product = 'IC', kind = 'profit3x'
+
+    @pytest.mark.parametrize("product", ["IC", "IM"])
+    @pytest.mark.parametrize("kind", ["ordinary", "short_put", "profit3x"])
+    def test_policy_and_new_signal_boundary_reject_unresolved_open(product, kind):
+        anchor = fixture.anchor(product)
+        signal = fixture.signal(product, DAY)
+        if kind == "ordinary":
+            signal["v14_ordinary_put_open_status"] = RETRY
+        else:
+            signal["v14_opening_events"] = [dict(kind=kind, status=RETRY)]
+>       with pytest.raises(RuntimeError, match="unresolved opening evidence"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+test_ic_im_external_review_20261021.py:102: Failed
+___ test_policy_and_new_signal_boundary_reject_unresolved_open[profit3x-IM] ___
+
+product = 'IM', kind = 'profit3x'
+
+    @pytest.mark.parametrize("product", ["IC", "IM"])
+    @pytest.mark.parametrize("kind", ["ordinary", "short_put", "profit3x"])
+    def test_policy_and_new_signal_boundary_reject_unresolved_open(product, kind):
+        anchor = fixture.anchor(product)
+        signal = fixture.signal(product, DAY)
+        if kind == "ordinary":
+            signal["v14_ordinary_put_open_status"] = RETRY
+        else:
+            signal["v14_opening_events"] = [dict(kind=kind, status=RETRY)]
+>       with pytest.raises(RuntimeError, match="unresolved opening evidence"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+test_ic_im_external_review_20261021.py:102: Failed
+____________ test_failed_query_never_reaches_new_close_target[IC] _____________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001AE4466B050>
+product = 'IC'
+
+    @pytest.mark.parametrize("product", ["IC", "IM"])
+    def test_failed_query_never_reaches_new_close_target(monkeypatch, product):
+        anchor = ordinary_anchor(product)
+        original = deepcopy(anchor)
+        monkeypatch.setitem(bot.LIVE_CONTINUATION_ANCHOR, product, anchor)
+        monkeypatch.setattr(bot, "live_proxy", lambda *args: {"history_date": DAY})
+        monkeypatch.setattr(bot, "_validate_signal_market_date", lambda *args: True)
+        def unavailable(*args, **kwargs):
+            raise requests.Timeout("synthetic timeout")
+        monkeypatch.setattr(bot, "fetch_option_dated_open", unavailable)
+        monkeypatch.setattr(bot, "fetch_cffex_quotes", unavailable)
+        with pytest.raises(RuntimeError, match="unresolved opening evidence"):
+>           bot.build_live_trade_signal(product, CLOCK, "close")
+
+test_ic_im_external_review_20261021.py:120: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_mainline_v1_4_bot.py:5616: in build_live_trade_signal
+    return _build_live_trade_signal(product, clock, mode)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+poe_ic_im_mainline_v1_4_bot.py:5651: in _build_live_trade_signal
+    live = _apply_next_unverified_session_anchor(product, live)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+product = 'IC', live = {'history_date': datetime.date(2026, 10, 21)}
+
+    def _apply_next_unverified_session_anchor(
+        product: str,
+        live: dict[str, Any],
+        *, next_session: bool = True,
+    ) -> dict[str, Any]:
+        anchor = LIVE_CONTINUATION_ANCHOR[product]
+        result = dict(live)
+        # Momentum and grid close signals execute at the next session open.  During
+        # the first unverified session the current position is therefore the
+        # audited close target, not the position that existed before that close.
+        result["momentum_current_weight"] = float(
+>           anchor.get("verified_next_momentum_weight", anchor["verified_momentum_weight"])
+                                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            if next_session else anchor["verified_momentum_weight"]
+        )
+E       KeyError: 'verified_momentum_weight'
+
+poe_ic_im_mainline_v1_4_bot.py:4726: KeyError
+____________ test_failed_query_never_reaches_new_close_target[IM] _____________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001AE4487B290>
+product = 'IM'
+
+    @pytest.mark.parametrize("product", ["IC", "IM"])
+    def test_failed_query_never_reaches_new_close_target(monkeypatch, product):
+        anchor = ordinary_anchor(product)
+        original = deepcopy(anchor)
+        monkeypatch.setitem(bot.LIVE_CONTINUATION_ANCHOR, product, anchor)
+        monkeypatch.setattr(bot, "live_proxy", lambda *args: {"history_date": DAY})
+        monkeypatch.setattr(bot, "_validate_signal_market_date", lambda *args: True)
+        def unavailable(*args, **kwargs):
+            raise requests.Timeout("synthetic timeout")
+        monkeypatch.setattr(bot, "fetch_option_dated_open", unavailable)
+        monkeypatch.setattr(bot, "fetch_cffex_quotes", unavailable)
+        with pytest.raises(RuntimeError, match="unresolved opening evidence"):
+>           bot.build_live_trade_signal(product, CLOCK, "close")
+
+test_ic_im_external_review_20261021.py:120: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_mainline_v1_4_bot.py:5616: in build_live_trade_signal
+    return _build_live_trade_signal(product, clock, mode)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+poe_ic_im_mainline_v1_4_bot.py:5651: in _build_live_trade_signal
+    live = _apply_next_unverified_session_anchor(product, live)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+product = 'IM', live = {'history_date': datetime.date(2026, 10, 21)}
+
+    def _apply_next_unverified_session_anchor(
+        product: str,
+        live: dict[str, Any],
+        *, next_session: bool = True,
+    ) -> dict[str, Any]:
+        anchor = LIVE_CONTINUATION_ANCHOR[product]
+        result = dict(live)
+        # Momentum and grid close signals execute at the next session open.  During
+        # the first unverified session the current position is therefore the
+        # audited close target, not the position that existed before that close.
+        result["momentum_current_weight"] = float(
+>           anchor.get("verified_next_momentum_weight", anchor["verified_momentum_weight"])
+                                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            if next_session else anchor["verified_momentum_weight"]
+        )
+E       KeyError: 'verified_momentum_weight'
+
+poe_ic_im_mainline_v1_4_bot.py:4726: KeyError
+______ test_sina_last_is_trade_not_ask_and_unknown_settlement_is_not_low ______
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001AE4474CF70>
+
+    def test_sina_last_is_trade_not_ask_and_unknown_settlement_is_not_low(monkeypatch):
+        responses = sina_responses()
+        monkeypatch.setattr(bot.requests, "get", lambda *a, **k: next(responses))
+        chain, stamp = bot.fetch_sina_510500_chain("202611")
+>       assert chain.iloc[0]["last"] == .1234
+E       assert np.float64(0.2345) == 0.1234
+
+test_ic_im_external_review_20261021.py:140: AssertionError
+________ test_sina_nonfinite_or_negative_trade_cannot_enter_chain[nan] ________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001AE4474C520>
+last = 'nan'
+
+    @pytest.mark.parametrize("last", ["nan", "inf", "-0.1"])
+    def test_sina_nonfinite_or_negative_trade_cannot_enter_chain(monkeypatch, last):
+        responses = sina_responses(last=last)
+        monkeypatch.setattr(bot.requests, "get", lambda *a, **k: next(responses))
+>       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+test_ic_im_external_review_20261021.py:150: Failed
+________ test_sina_nonfinite_or_negative_trade_cannot_enter_chain[inf] ________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001AE4486F7F0>
+last = 'inf'
+
+    @pytest.mark.parametrize("last", ["nan", "inf", "-0.1"])
+    def test_sina_nonfinite_or_negative_trade_cannot_enter_chain(monkeypatch, last):
+        responses = sina_responses(last=last)
+        monkeypatch.setattr(bot.requests, "get", lambda *a, **k: next(responses))
+>       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+test_ic_im_external_review_20261021.py:150: Failed
+_______ test_sina_nonfinite_or_negative_trade_cannot_enter_chain[-0.1] ________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001AE4486F890>
+last = '-0.1'
+
+    @pytest.mark.parametrize("last", ["nan", "inf", "-0.1"])
+    def test_sina_nonfinite_or_negative_trade_cannot_enter_chain(monkeypatch, last):
+        responses = sina_responses(last=last)
+        monkeypatch.setattr(bot.requests, "get", lambda *a, **k: next(responses))
+>       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+test_ic_im_external_review_20261021.py:150: Failed
+___________ test_sina_valid_last_outside_current_spread_is_accepted ___________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001AE44894CB0>
+
+    def test_sina_valid_last_outside_current_spread_is_accepted(monkeypatch):
+        responses = sina_responses(last="0.3", ask="0.2")
+        monkeypatch.setattr(bot.requests, "get", lambda *a, **k: next(responses))
+        chain, _ = bot.fetch_sina_510500_chain("202611")
+>       assert chain.iloc[0]["last"] == .3
+E       assert np.float64(0.2) == 0.3
+
+test_ic_im_external_review_20261021.py:158: AssertionError
+============================== warnings summary ===============================
+C:\Python314\Lib\site-packages\fastapi_poe\types.py:171
+  C:\Python314\Lib\site-packages\fastapi_poe\types.py:171: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    class RequestContext(BaseModel):
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED test_ic_im_external_review_20261021.py::test_ordinary_transient_failure_retains_original_plan[error0-IC]
+FAILED test_ic_im_external_review_20261021.py::test_ordinary_transient_failure_retains_original_plan[error0-IM]
+FAILED test_ic_im_external_review_20261021.py::test_ordinary_transient_failure_retains_original_plan[error1-IC]
+FAILED test_ic_im_external_review_20261021.py::test_ordinary_transient_failure_retains_original_plan[error1-IM]
+FAILED test_ic_im_external_review_20261021.py::test_ordinary_transient_failure_retains_original_plan[error2-IC]
+FAILED test_ic_im_external_review_20261021.py::test_ordinary_transient_failure_retains_original_plan[error2-IM]
+FAILED test_ic_im_external_review_20261021.py::test_ordinary_transient_failure_retains_original_plan[error3-IC]
+FAILED test_ic_im_external_review_20261021.py::test_ordinary_transient_failure_retains_original_plan[error3-IM]
+FAILED test_ic_im_external_review_20261021.py::test_committed_failure_cannot_roll_back_or_cancel_plan[short_put-IC]
+FAILED test_ic_im_external_review_20261021.py::test_committed_failure_cannot_roll_back_or_cancel_plan[short_put-IM]
+FAILED test_ic_im_external_review_20261021.py::test_committed_failure_cannot_roll_back_or_cancel_plan[profit3x-IC]
+FAILED test_ic_im_external_review_20261021.py::test_committed_failure_cannot_roll_back_or_cancel_plan[profit3x-IM]
+FAILED test_ic_im_external_review_20261021.py::test_policy_and_new_signal_boundary_reject_unresolved_open[ordinary-IC]
+FAILED test_ic_im_external_review_20261021.py::test_policy_and_new_signal_boundary_reject_unresolved_open[ordinary-IM]
+FAILED test_ic_im_external_review_20261021.py::test_policy_and_new_signal_boundary_reject_unresolved_open[short_put-IC]
+FAILED test_ic_im_external_review_20261021.py::test_policy_and_new_signal_boundary_reject_unresolved_open[short_put-IM]
+FAILED test_ic_im_external_review_20261021.py::test_policy_and_new_signal_boundary_reject_unresolved_open[profit3x-IC]
+FAILED test_ic_im_external_review_20261021.py::test_policy_and_new_signal_boundary_reject_unresolved_open[profit3x-IM]
+FAILED test_ic_im_external_review_20261021.py::test_failed_query_never_reaches_new_close_target[IC]
+FAILED test_ic_im_external_review_20261021.py::test_failed_query_never_reaches_new_close_target[IM]
+FAILED test_ic_im_external_review_20261021.py::test_sina_last_is_trade_not_ask_and_unknown_settlement_is_not_low
+FAILED test_ic_im_external_review_20261021.py::test_sina_nonfinite_or_negative_trade_cannot_enter_chain[nan]
+FAILED test_ic_im_external_review_20261021.py::test_sina_nonfinite_or_negative_trade_cannot_enter_chain[inf]
+FAILED test_ic_im_external_review_20261021.py::test_sina_nonfinite_or_negative_trade_cannot_enter_chain[-0.1]
+FAILED test_ic_im_external_review_20261021.py::test_sina_valid_last_outside_current_spread_is_accepted
+25 failed, 1 warning in 3.55s

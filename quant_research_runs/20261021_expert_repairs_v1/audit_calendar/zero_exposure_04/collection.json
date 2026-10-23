@@ -1,0 +1,12 @@
+{
+  "collected": [
+    "test_icim_expert_audit_calendar_20261021.py::test_zero_exposure_residual_unknown_year_identity_is_not_a_consumed_target"
+  ],
+  "selected": [
+    "test_icim_expert_audit_calendar_20261021.py::test_zero_exposure_residual_unknown_year_identity_is_not_a_consumed_target"
+  ],
+  "deselected": [],
+  "executed": [
+    "test_icim_expert_audit_calendar_20261021.py::test_zero_exposure_residual_unknown_year_identity_is_not_a_consumed_target"
+  ]
+}

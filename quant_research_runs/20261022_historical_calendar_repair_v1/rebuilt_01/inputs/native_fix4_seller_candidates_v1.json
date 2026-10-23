@@ -1,0 +1,16 @@
+{
+  "classification": "NATIVE_FIX4_DATED_SELLER_CANDIDATES_NO_LIFECYCLE_OR_NAV",
+  "rows": 1929,
+  "admitted": {
+    "IC": 28,
+    "IM": 37
+  },
+  "candidate_tradable": {
+    "IC": 944,
+    "IM": 985
+  },
+  "execution_assumption": "positive dated model price with market maker; no volume veto",
+  "formal_producer_sha256": "0075c16aec68cb56b49569d03c1b89bb2707873fbd309971461082b623d0d19f",
+  "no_inherited_research_targets": true,
+  "not_a_nav": true
+}

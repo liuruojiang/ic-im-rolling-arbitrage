@@ -1,0 +1,113 @@
+{
+  "verified_at": "2026-10-21T05:58:51.988196+00:00",
+  "existing_manifest_sha256": "0ec7c6dc1079b21734ffa10a1d3a443268acf308c0f8440292922a07409081e1",
+  "manifest_entries": {
+    "command_log.txt": {
+      "expected_sha256": "99c5daa38689b47e075c47c5f68cfa4df7969357852af57901ad46835fe0eb9a",
+      "actual_sha256": "99c5daa38689b47e075c47c5f68cfa4df7969357852af57901ad46835fe0eb9a",
+      "expected_size": 44,
+      "actual_size": 44,
+      "matches": true
+    },
+    "current_state.csv": {
+      "expected_sha256": "c56ffebbb67eb179a5b8604193355a8e3d0cc5d8547c6b48c83e23fc5fb12a23",
+      "actual_sha256": "c56ffebbb67eb179a5b8604193355a8e3d0cc5d8547c6b48c83e23fc5fb12a23",
+      "expected_size": 522,
+      "actual_size": 522,
+      "matches": true
+    },
+    "daily_candidates.csv.gz": {
+      "expected_sha256": "6cbf2a441515087ac6d6ce98b03de8c54d87334e8288e0b0b9e8720155c8da35",
+      "actual_sha256": "6cbf2a441515087ac6d6ce98b03de8c54d87334e8288e0b0b9e8720155c8da35",
+      "expected_size": 275502,
+      "actual_size": 275502,
+      "matches": true
+    },
+    "data_manifest.json": {
+      "expected_sha256": "c74de3667d0c1d7ebd10d54ca35123ab4ade2ec231f41b492f95849f96a5eeee",
+      "actual_sha256": "c74de3667d0c1d7ebd10d54ca35123ab4ade2ec231f41b492f95849f96a5eeee",
+      "expected_size": 1150,
+      "actual_size": 1150,
+      "matches": true
+    },
+    "im_operational_capital_15pct.csv": {
+      "expected_sha256": "86b96569c742c9eb489561cbe8f755b55d8a2891adecc3109365ebdfc53a756b",
+      "actual_sha256": "86b96569c742c9eb489561cbe8f755b55d8a2891adecc3109365ebdfc53a756b",
+      "expected_size": 62391,
+      "actual_size": 62391,
+      "matches": true
+    },
+    "im_rolling_thresholds.csv.gz": {
+      "expected_sha256": "b4b58b2d221e0a1758d1b242c5139b50d4ea834c72b521caa87cc70b720ffef9",
+      "actual_sha256": "b4b58b2d221e0a1758d1b242c5139b50d4ea834c72b521caa87cc70b720ffef9",
+      "expected_size": 1247,
+      "actual_size": 1247,
+      "matches": true
+    },
+    "integrity_checks.json": {
+      "expected_sha256": "44a02532027db27334bca8d6fa6e884855a24626e25eff819a419fa7863f41c9",
+      "actual_sha256": "44a02532027db27334bca8d6fa6e884855a24626e25eff819a419fa7863f41c9",
+      "expected_size": 2636,
+      "actual_size": 2636,
+      "matches": true
+    },
+    "mainline_metrics.csv": {
+      "expected_sha256": "15bc7f2a6443c24dc3334afca6ef5ce0c336d4d57b921468b4b04c2a1bb7843c",
+      "actual_sha256": "15bc7f2a6443c24dc3334afca6ef5ce0c336d4d57b921468b4b04c2a1bb7843c",
+      "expected_size": 2401,
+      "actual_size": 2401,
+      "matches": true
+    },
+    "mainline_state.json": {
+      "expected_sha256": "dee20dbb2df8c140664f38284d01ceb74873c676dd4c60619a1dbb800403c435",
+      "actual_sha256": "dee20dbb2df8c140664f38284d01ceb74873c676dd4c60619a1dbb800403c435",
+      "expected_size": 1056,
+      "actual_size": 1056,
+      "matches": true
+    },
+    "put_trades.csv.gz": {
+      "expected_sha256": "f81ad3b70453d5b6df9418cd700d44a2a22d32598e09c9ff2ac8209fd61ed6c0",
+      "actual_sha256": "f81ad3b70453d5b6df9418cd700d44a2a22d32598e09c9ff2ac8209fd61ed6c0",
+      "expected_size": 8389,
+      "actual_size": 8389,
+      "matches": true
+    },
+    "record.md": {
+      "expected_sha256": "fd9d179e897d7e06b81243781efaa1427b1420033cda022f799fcbf9aede2a6e",
+      "actual_sha256": "fd9d179e897d7e06b81243781efaa1427b1420033cda022f799fcbf9aede2a6e",
+      "expected_size": 1109,
+      "actual_size": 1109,
+      "matches": true
+    },
+    "target_schedules.csv.gz": {
+      "expected_sha256": "4a7612d230882e7061da2b61d1016d9480ea11de7c4acf945980aa46a8b1d501",
+      "actual_sha256": "4a7612d230882e7061da2b61d1016d9480ea11de7c4acf945980aa46a8b1d501",
+      "expected_size": 75542,
+      "actual_size": 75542,
+      "matches": true
+    }
+  },
+  "all_12_existing_manifest_entries_match": true,
+  "head_tree": {
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "all_ref_history": {
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "tracked_index": {
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "ignored_manifest": {
+    "exit_code": 0,
+    "stdout": "outputs/ic_im_system_mainlines_v2/output_manifest.json\n",
+    "stderr": ""
+  },
+  "conclusion": "All 12 payload files match the current existing frozen output_manifest. The 13th file is that manifest itself, with no self-entry and no available committed Git bytes/history in this checkout. Therefore this is internal consistency, not independently anchored proof of unchanged bytes since the original freeze or previous repair.",
+  "acceptable_supplemental_wording": "The supplemental full-outputs baseline was captured at its recorded audit time. Subsequent comparisons prove preservation from that time only. It does not retrospectively establish protection or unchanged bytes throughout the preceding repair. Current v2 payload files separately match the existing manifest, whose historical root hash is unanchored in the available checkout."
+}

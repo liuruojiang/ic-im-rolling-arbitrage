@@ -1,0 +1,37 @@
+{
+  "verified_at": "2026-10-21T06:35:26.675314+00:00",
+  "checks": {
+    "historical_source_before_equals_after": true,
+    "historical_source_files": 845,
+    "current_old_bound_source_mismatches": [
+      "ic_im_sse_contract_identity_v1.py"
+    ],
+    "historical_artifact_mismatches": [],
+    "backed_up_file_mismatches": [],
+    "prior_evidence_mismatches": [],
+    "selected_original_immutable_mismatches": [],
+    "selected_original_immutable_count": 266,
+    "previous_source_receipt_backup_mismatches": [],
+    "previous_source_receipt_backed_up_entries": 837,
+    "runtime_mismatches": [
+      "runtime/ic_im_v1_4_r1/latest.json"
+    ],
+    "outputs_mismatches": [],
+    "outputs_path_delta": [],
+    "outputs_count": 6783,
+    "outputs_scope": "prospective only; cannot reconstruct original unrecorded history"
+  },
+  "audit_binding": {
+    "test_icim_round2_audit_evidence_20261021.py": "adf304138bc22bb7884210572690a13ea4edc73bbe7908b0c33d2ec14ad36a97",
+    "quant_research_runs/20261021_external_review_round2_redteam_v1/evidence/audit_readonly.py": "19d515a1997e64072771ad57b2e17e3678f8228144e0dc8e7e5cee40cd8c0b1e",
+    "poe_ic_im_mainline_v1_4_bot.py": "ed0a1417f1d663f0f95da67bda080a2b637be4f0d3b58ad4b644c5d64ed61128",
+    "ic_im_sse_contract_identity_v1.py": "c0a3e15519abc1f738fa2ad50d6106427cf9608ceac02eac9d2e249c7f4e7549",
+    "quant_research_runs/20261021_external_review_round2_redteam_v1/run_checks.py": "c4d1dabaa26db265339857df7887e94ba2e4aed1ff8540f1bfeb46577cc83426",
+    "quant_research_runs/20261021_external_review_round2_redteam_v1/evidence_gate.py": "491a13a031f8709990d3f3dc5fbac33234ee8b0c73dfef55ec455d483414ae2f"
+  },
+  "boundaries": [
+    "Current local verification only; no remote deployment was attempted",
+    "Outputs baseline is prospective and cannot reconstruct unrecorded history",
+    "Current old-bound source mismatches may be legitimate subsequent repairs; listed without automatic PASS/FAIL"
+  ]
+}

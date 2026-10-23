@@ -1,0 +1,12 @@
+{
+  "collected": [
+    "test_icim_round3_recovery_audit_20261021.py::test_original_closed_at_after_session_never_becomes_original_day_evidence"
+  ],
+  "selected": [
+    "test_icim_round3_recovery_audit_20261021.py::test_original_closed_at_after_session_never_becomes_original_day_evidence"
+  ],
+  "deselected": [],
+  "executed": [
+    "test_icim_round3_recovery_audit_20261021.py::test_original_closed_at_after_session_never_becomes_original_day_evidence"
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "backup_count": 1155,
+  "backup_changed": [
+    "poe_ic_im_mainline_v1_4_bot.py",
+    "poe_ic_im_v1_4_server.py",
+    "poe_ic_im_v1_4_state.py",
+    "test_adversarial_policy_20261007.py",
+    "test_ic_im_put_delivery_completion_20261016.py",
+    "test_icim_redteam_display_20261021.py"
+  ],
+  "protected_outputs_count": 6795,
+  "protected_outputs_changed": [],
+  "protected_prior_evidence_count": 643,
+  "protected_prior_evidence_changed": [
+    "quant_research_runs/20261021_adjusted_put_redteam_v1/history/record.md",
+    "quant_research_runs/20261021_adjusted_put_redteam_v1/ohlcv/record.md"
+  ],
+  "bad_backups": [],
+  "runtime_unchanged": true,
+  "frozen_specs_changed": [],
+  "runtime_unbound_lock_files_observed": [
+    "runtime/ic_im_v1_3/.ledger.lock",
+    "runtime/ic_im_v1_3_r3_redteam_candidate/.ledger.lock",
+    "runtime/ic_im_v1_3_r4_spec_erratum/.ledger.lock",
+    "runtime/ic_im_v1_3_r6/.ledger.lock",
+    "runtime/ic_im_v1_3_r7/.ledger.lock",
+    "runtime/ic_im_v1_3_r7_presync_20260915/.ledger.lock",
+    "runtime/ic_im_v1_4_r1/.ledger.lock",
+    "runtime/ic_im_v1_4_r1_pre_cloud_restore_20261007/.ledger.lock",
+    "runtime/ic_im_v1_4_r1_pre_remote_restore_20260918/.ledger.lock"
+  ],
+  "runtime_unchanged_scope": "baseline ledger JSON bytes only; lock files were not bound and their creation time is not inferred"
+}

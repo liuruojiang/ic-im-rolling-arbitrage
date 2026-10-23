@@ -1,0 +1,53 @@
+{
+  "ledger": {
+    "IC_baseline": {
+      "rows": 945,
+      "max_money_error": 1.7881393432617188e-07
+    },
+    "IC_carry_old": {
+      "rows": 945,
+      "max_money_error": 1.6391277313232422e-07
+    },
+    "IC_close_current": {
+      "rows": 945,
+      "max_money_error": 1.4901161193847656e-07
+    },
+    "IC_close_frozen": {
+      "rows": 945,
+      "max_money_error": 1.043081283569336e-07
+    },
+    "IM_baseline": {
+      "rows": 986,
+      "max_money_error": 1.043081283569336e-07
+    },
+    "IM_carry_old": {
+      "rows": 986,
+      "max_money_error": 2.086162567138672e-07
+    },
+    "IM_close_current": {
+      "rows": 986,
+      "max_money_error": 4.842877388000488e-07
+    },
+    "IM_close_frozen": {
+      "rows": 986,
+      "max_money_error": 1.7881393432617188e-07
+    }
+  },
+  "fills": {
+    "IC": 102,
+    "IM": 136
+  },
+  "causality": {
+    "IC": {
+      "close_ignores_open_volume_cases": 10,
+      "frozen_strike_independent_of_current_spot_cases": 5
+    },
+    "IM": {
+      "close_ignores_open_volume_cases": 10,
+      "frozen_strike_independent_of_current_spot_cases": 5
+    }
+  },
+  "status": "PASS",
+  "protected_files_unchanged": 159,
+  "data_files_unchanged": 59
+}

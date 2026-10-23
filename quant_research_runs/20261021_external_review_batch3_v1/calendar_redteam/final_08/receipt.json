@@ -1,0 +1,18 @@
+{
+  "exit_code": 0,
+  "counts": {
+    "tests": 17,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "source_before_equals_after": true,
+  "source_files": 3,
+  "artifacts": {
+    "regression.xml": "9b4b1a45b0d3427d2740096f08bd0173ccc5b905407cc95ed03bd62595b2a826",
+    "regression.txt": "708302f06df7cae7d7188a32a3b7204b239cb868927c59aa3d3a3e5214a17ee3",
+    "source_before.json": "a66f519745f41871f6159461e6b454c32d3431b77cc03bac7d513a09e4814f21",
+    "source_after.json": "a66f519745f41871f6159461e6b454c32d3431b77cc03bac7d513a09e4814f21",
+    "test_run.json": "f65984cd8674505a2a565bcf0b7cda137150c0d37c816af7b73b36969ab80d8c"
+  }
+}

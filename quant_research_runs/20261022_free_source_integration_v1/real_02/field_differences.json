@@ -1,0 +1,128 @@
+[
+  {
+    "path": "$.data_notes[0]",
+    "original": "本次请求重新抓取中金所/上交所/指数行情",
+    "replayed": "原日存证重放：2026-10-22；原日实际采集完成 2026-10-22T09:40:53.179194+00:00；manifest SHA-256 6a23b13e3af165496d233dbb3c630e6e1ce33e6f86ae447c8ac8eb8096d8d939。",
+    "reason": "value"
+  },
+  {
+    "path": "$.fetch_time",
+    "original": "2026-10-22 17:40:08",
+    "replayed": "2026-10-22 17:40:53",
+    "reason": "value"
+  },
+  {
+    "path": "$.historical_evidence_supplements",
+    "reason": "field_missing",
+    "original_present": false,
+    "replayed_present": true
+  },
+  {
+    "path": "$.iv_warning.comparison",
+    "reason": "field_missing",
+    "original_present": true,
+    "replayed_present": false
+  },
+  {
+    "path": "$.iv_warning.contract",
+    "reason": "field_missing",
+    "original_present": true,
+    "replayed_present": false
+  },
+  {
+    "path": "$.iv_warning.contract_unit",
+    "reason": "field_missing",
+    "original_present": true,
+    "replayed_present": false
+  },
+  {
+    "path": "$.iv_warning.expiry",
+    "reason": "field_missing",
+    "original_present": true,
+    "replayed_present": false
+  },
+  {
+    "path": "$.iv_warning.iv",
+    "reason": "field_missing",
+    "original_present": true,
+    "replayed_present": false
+  },
+  {
+    "path": "$.iv_warning.level",
+    "reason": "field_missing",
+    "original_present": true,
+    "replayed_present": false
+  },
+  {
+    "path": "$.iv_warning.market_date",
+    "reason": "field_missing",
+    "original_present": true,
+    "replayed_present": false
+  },
+  {
+    "path": "$.iv_warning.position_effect",
+    "reason": "field_missing",
+    "original_present": true,
+    "replayed_present": false
+  },
+  {
+    "path": "$.iv_warning.reference_strike",
+    "reason": "field_missing",
+    "original_present": true,
+    "replayed_present": false
+  },
+  {
+    "path": "$.iv_warning.snapshot_time",
+    "reason": "field_missing",
+    "original_present": true,
+    "replayed_present": false
+  },
+  {
+    "path": "$.iv_warning.source",
+    "reason": "field_missing",
+    "original_present": true,
+    "replayed_present": false
+  },
+  {
+    "path": "$.iv_warning.status",
+    "reason": "field_missing",
+    "original_present": false,
+    "replayed_present": true
+  },
+  {
+    "path": "$.iv_warning.text",
+    "original": "IV预警无法判断；N/A（期权报价超出IV监测20分钟时间容忍范围）；参考合约 510500P2612M06500；行情日 2026-10-22；时间 162906；来源 上交所行情接口。仅预警，不改变仓位。",
+    "replayed": "IV预警：N/A（原日未归档独立监测结果；回放不重新联网）",
+    "reason": "value"
+  },
+  {
+    "path": "$.iv_warning.thresholds",
+    "reason": "field_missing",
+    "original_present": true,
+    "replayed_present": false
+  },
+  {
+    "path": "$.iv_warning.validation_clock",
+    "reason": "field_missing",
+    "original_present": true,
+    "replayed_present": false
+  },
+  {
+    "path": "$.original_evidence",
+    "reason": "field_missing",
+    "original_present": false,
+    "replayed_present": true
+  },
+  {
+    "path": "$.signal_calculation_started_at",
+    "original": "2026-10-22T17:40:25+08:00",
+    "replayed": "2026-10-22T17:41:52+08:00",
+    "reason": "value"
+  },
+  {
+    "path": "$.signal_generation_timing",
+    "original": "close_confirmed",
+    "replayed": "retrospective_replay",
+    "reason": "value"
+  }
+]

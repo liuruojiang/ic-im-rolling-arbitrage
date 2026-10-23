@@ -1,0 +1,34 @@
+{
+  "audit_group": "ma23_state",
+  "stage": "state_03",
+  "tests": 21,
+  "passed": 16,
+  "failed": 5,
+  "bound_files": 29,
+  "source_before_equals_after": true,
+  "formal_runtime_write_requested": false,
+  "external_network_requested": false,
+  "findings": [
+    {
+      "id": "S1",
+      "severity": "P1",
+      "impact": "No original manifest after an actual capture failure leaves the page without its required missing-evidence recovery warning; no incorrect ledger advancement demonstrated.",
+      "tests": [
+        "test_failed_capture_receipt_without_manifest_must_show_original_archive_missing",
+        "test_server_capture_exception_without_manifest_must_show_original_archive_missing"
+      ],
+      "positive_control": "test_waiting_for_close_receipt_is_not_missing_evidence_warning"
+    },
+    {
+      "id": "S2",
+      "severity": "P1/P2 recovery-readiness misreport",
+      "impact": "capture_day_status reports captured for packets that load_original rejects on revision, required roles or original-day acquisition time; storage still rejects unavailable evidence.",
+      "tests": [
+        "test_daily_archive_status_does_not_claim_recovery_ready_for_unloadable_packets[old_revision]",
+        "test_daily_archive_status_does_not_claim_recovery_ready_for_unloadable_packets[missing_role]",
+        "test_daily_archive_status_does_not_claim_recovery_ready_for_unloadable_packets[crossed_midnight]"
+      ],
+      "limitation": "Synthetic API-produced packets; current capture_daily already checks required roles, so first two cases are legacy/API routing rather than a demonstrated new ordinary capture path. Midnight tail is explicitly possible for running requests."
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "protected_outputs": {
+    "outputs/.nav_r7_refresh_20260911_state/.ledger.lock": "e7ecebbc590bc88b3761fa6cd03d749f87463dabb67021a5c6768c25ec68b3f2",
+    "outputs/v1_4_doublecheck_20261007/state/isolated-test-state/.ledger.lock": "96a296d224f285c67bee93c30f8a309157f0daa35dc5b87e410b78630a09cfc7",
+    "outputs/v1_4_doublecheck_20261007/invariants/isolated_state/.ledger.lock": "df3f619804a92fdb4057192dc43dd748ea778adc52bc498ce80524c014b81119",
+    "outputs/re_certification/icim_v14_fix4_recert_20260924/l7_production_consistency_20260925/shadow_state/.ledger.lock": "8855508aade16ec573d21e6a485dfd0a7624085c1a14b5ecdd6485de0c6839a4",
+    "outputs/re_certification/icim_v14_fix4_recert_20260924/l5_repeat_short_put_20260925/ic/__pycache__/run_legacy_composite_contrast.cpython-314.pyc": "fd9f417876b489c6b406402590e6460321ce018452c5f6a126e9b3b6b1a4f232",
+    "outputs/re_certification/icim_v14_fix4_recert_20260924/l5_native_signal_reconstruction_20260925/__pycache__/native_fix4_account_v1.cpython-314.pyc": "57a4556a03c9508e4915fa18c8a9df003d5321cd400878a59c49185707828323",
+    "outputs/re_certification/icim_v14_fix4_recert_20260924/l5_native_signal_reconstruction_20260925/__pycache__/native_fix4_account_v2.cpython-314.pyc": "1e97cae6ce27d6d619335b009952f60c5353ac7cec6dcafff89489a19e89fcba",
+    "outputs/re_certification/icim_v14_fix4_recert_20260924/l5_native_signal_reconstruction_20260925/__pycache__/native_fix4_historical_sources_v1.cpython-314.pyc": "f1c4cfc688c1fd00870128562c0974ffc0b630847ebb540e3ed5b18607188d36",
+    "outputs/re_certification/icim_v14_fix4_recert_20260924/l5_native_signal_reconstruction_20260925/__pycache__/native_fix4_historical_sources_v2.cpython-314.pyc": "a143efbb23f6aca60b01548b4df9d4ecf019572240041c6856ae17f59980b4fb",
+    "outputs/re_certification/icim_v14_fix4_recert_20260924/l5_native_signal_reconstruction_20260925/__pycache__/native_fix4_ic_noseller_targets_v1.cpython-314.pyc": "5dce71225dd8c7af99dc0e3f2836c91ac893f54e46a2ccd566a36dae8de30637",
+    "outputs/re_certification/icim_v14_fix4_recert_20260924/l5_native_signal_reconstruction_20260925/__pycache__/native_fix4_im_noseller_targets_v1.cpython-314.pyc": "19354af5cfe1eb46aed12b100eeccc316218d4dd1ac2d1b79d044b20cbcbdd0e",
+    "outputs/re_certification/icim_v14_fix4_recert_20260924/l5_native_signal_reconstruction_20260925/__pycache__/native_fix4_risk_signals_v1.cpython-314.pyc": "99eb6dc09e91075656662e8c00cb01f34f4945c74a491bd1c9b4f64235413465",
+    "outputs/re_certification/icim_v14_fix4_recert_20260924/l5_native_signal_reconstruction_20260925/__pycache__/native_fix4_seller_candidates_v1.cpython-314.pyc": "3e4fde46e308ff15923da5bfa0a959d903a534a66f993883f259befe8c5217c2",
+    "outputs/re_certification/icim_v14_fix4_recert_20260924/l5_native_signal_reconstruction_20260925/__pycache__/native_fix4_seller_lifecycle_v1.cpython-314.pyc": "41a93b7cb5eaedb3ae931c62137ab9616a7dd7f6d88948730a1a185248b40517",
+    "outputs/re_certification/icim_v14_fix4_recert_20260924/l2_account_ledger_repair_20260925/__pycache__/trade_account.cpython-314.pyc": "919882b05ab624c1b86ba956245066d00f71ef5ccc3dc4ed2d5aa616146d1494",
+    "outputs/im_put102_current_check_20260910/state_copy/.ledger.lock": "96a296d224f285c67bee93c30f8a309157f0daa35dc5b87e410b78630a09cfc7",
+    "outputs/im_formal_monthly_correction_20260907/final_isolated_state/.ledger.lock": "0d5535e13cc9708d0ff0289af2fae27e564b6bcbcd9242f5140d96957744a517",
+    "outputs/im_formal_monthly_correction_20260907/isolated_state/.ledger.lock": "eb142b0cae0baa72a767ebc0823d1be94e14c5bfc52d8e417fc4302fceb6240c",
+    "outputs/fix9_nav_1y_20260928/__pycache__/refresh_510500_option_history.cpython-314.pyc": "f7350b0a15f19daf7fb289c178a753eb36bc002ec6d384191344ffb07b0b3fb6",
+    "outputs/external_review_fix_20260911/ledger_readonly_copy/.ledger.lock": "367467f43d580c3c07040a78c7890ae4262dad4778878f9a49d5f652c81689a5",
+    "outputs/external_review_fix_20260911/final_verification/ledger_readonly_copy/.ledger.lock": "367467f43d580c3c07040a78c7890ae4262dad4778878f9a49d5f652c81689a5"
+  }
+}

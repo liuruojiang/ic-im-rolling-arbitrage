@@ -1,0 +1,29 @@
+{
+  "verified_at": "2026-10-21T06:30:07.875686+00:00",
+  "checks": {
+    "historical_source_before_equals_after": true,
+    "historical_source_files": 845,
+    "current_old_bound_source_mismatches": [
+      "ic_im_sse_contract_identity_v1.py"
+    ],
+    "historical_artifact_mismatches": [],
+    "backed_up_file_mismatches": [],
+    "prior_evidence_mismatches": [],
+    "runtime_mismatches": [
+      "runtime/ic_im_v1_4_r1/latest.json"
+    ],
+    "outputs_mismatches": [],
+    "outputs_path_delta": [],
+    "outputs_count": 6783,
+    "outputs_scope": "prospective only; cannot reconstruct original unrecorded history"
+  },
+  "audit_binding": {
+    "test_icim_round2_audit_evidence_20261021.py": "20a3c024ac175d5b0d84405198dc8667f45a8c057f861d24322e0738e23b63eb",
+    "quant_research_runs/20261021_external_review_round2_redteam_v1/evidence/audit_readonly.py": "3784a19559af05169cbc74422eaa33983835282716595621175d33b6a65c9319"
+  },
+  "boundaries": [
+    "Current local verification only; no remote deployment was attempted",
+    "Outputs baseline is prospective and cannot reconstruct unrecorded history",
+    "Current old-bound source mismatches may be legitimate subsequent repairs; listed without automatic PASS/FAIL"
+  ]
+}

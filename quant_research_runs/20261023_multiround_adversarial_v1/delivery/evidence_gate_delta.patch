@@ -1,0 +1,24 @@
+--- before/evidence_gate.py
++++ after/evidence_gate.py
+@@ -116,6 +116,21 @@
+     if (selected & deselected or selected | deselected != collected or executed != selected
+             or deselected != allowed or len(selected) != counts['tests']):
+         _reject('executed selection or exclusions disagree with requested test collection')
++    # Counts alone cannot bind a successful XML from another same-sized run to
++    # this collection. Use pytest's own mapping so parameters containing "::",
++    # dots, paths or Unicode remain part of the test name, not a class address.
++    from _pytest.junitxml import mangle_test_address
++    expected_xml = set()
++    for nodeid in executed:
++        names = mangle_test_address(nodeid)
++        identity = ('.'.join(names[:-1]), names[-1])
++        if not all(identity) or identity in expected_xml:
++            _reject('invalid or colliding executed test identity for XML')
++        expected_xml.add(identity)
++    actual_xml = {(case.get('classname'), case.get('name')) for case in
++                  ET.parse(directory / 'regression.xml').getroot().findall('.//testcase')}
++    if actual_xml != expected_xml:
++        _reject('XML test identities disagree with executed collection')
+     if 'deselected' in receipt:
+         declared = receipt['deselected']
+         if not isinstance(declared, dict) or set(declared) != deselected:

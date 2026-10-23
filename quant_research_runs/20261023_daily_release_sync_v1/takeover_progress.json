@@ -1,0 +1,39 @@
+{
+  "strategy_pin": "8038980de86251b2c5133da04e788dc2c49c84ff",
+  "strategy_main": "2ed01e39814ce08f2e8b7f461c9f697a9c41f32f",
+  "automation_merge": "4d53d5fe3711403cd4a27eee5a0e2d276731bb2c",
+  "automation_pr": 161,
+  "regression_run": 39892208946,
+  "readiness_request_commit": "f2b77dd4b710101adb897b0d9e40b193faaa10c5",
+  "local_gate": {
+    "tests": 981,
+    "failed": 0,
+    "skipped": 0,
+    "deselected": 5
+  },
+  "automation_tests": {
+    "passed": 1148,
+    "subtests": 177
+  },
+  "delivery_evidence": [
+    {
+      "id": "1a1637e2477558cd",
+      "subject": "[收盘确认][无需调整] IC/IM 1.4-r1 日报 - 2026-10-22",
+      "labels": [
+        "SENT",
+        "INBOX"
+      ],
+      "time": "2026-10-22T12:02:52+00:00"
+    },
+    {
+      "id": "1a15e5796381f9da",
+      "subject": "[收盘确认][无需调整] IC/IM 1.4-r1 日报 - 2026-10-21",
+      "labels": [
+        "SENT",
+        "INBOX"
+      ],
+      "time": "2026-10-21T12:02:39+00:00"
+    }
+  ],
+  "status": "readiness_and_adversarial_audits_pending"
+}

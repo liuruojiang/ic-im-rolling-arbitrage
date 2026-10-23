@@ -1,0 +1,42 @@
+{
+  "collected": [
+    "test_icim_expert_display_retry_20261021.py::test_retry_public_builder_keeps_original_plan_and_returns_diagnostic[execution0-ordinary]",
+    "test_icim_expert_display_retry_20261021.py::test_retry_public_builder_keeps_original_plan_and_returns_diagnostic[execution0-short_put]",
+    "test_icim_expert_display_retry_20261021.py::test_retry_public_builder_keeps_original_plan_and_returns_diagnostic[execution0-profit3x]",
+    "test_icim_expert_display_retry_20261021.py::test_retry_public_builder_keeps_original_plan_and_returns_diagnostic[execution1-ordinary]",
+    "test_icim_expert_display_retry_20261021.py::test_retry_public_builder_keeps_original_plan_and_returns_diagnostic[execution1-short_put]",
+    "test_icim_expert_display_retry_20261021.py::test_retry_public_builder_keeps_original_plan_and_returns_diagnostic[execution1-profit3x]",
+    "test_icim_expert_display_retry_20261021.py::test_ic_public_monthly_reset_with_missing_quantity_is_diagnostic",
+    "test_icim_expert_display_retry_20261021.py::test_observer_failure_does_not_hide_calculated_valid_signal",
+    "test_icim_expert_display_retry_20261021.py::test_collector_cannot_mutate_nested_calculated_payload",
+    "test_icim_expert_display_retry_20261021.py::test_diagnostic_page_and_json_have_no_formal_targets_or_pending",
+    "test_icim_expert_display_retry_20261021.py::test_daily_ohlcv_wait_status_is_visible"
+  ],
+  "selected": [
+    "test_icim_expert_display_retry_20261021.py::test_retry_public_builder_keeps_original_plan_and_returns_diagnostic[execution0-ordinary]",
+    "test_icim_expert_display_retry_20261021.py::test_retry_public_builder_keeps_original_plan_and_returns_diagnostic[execution0-short_put]",
+    "test_icim_expert_display_retry_20261021.py::test_retry_public_builder_keeps_original_plan_and_returns_diagnostic[execution0-profit3x]",
+    "test_icim_expert_display_retry_20261021.py::test_retry_public_builder_keeps_original_plan_and_returns_diagnostic[execution1-ordinary]",
+    "test_icim_expert_display_retry_20261021.py::test_retry_public_builder_keeps_original_plan_and_returns_diagnostic[execution1-short_put]",
+    "test_icim_expert_display_retry_20261021.py::test_retry_public_builder_keeps_original_plan_and_returns_diagnostic[execution1-profit3x]",
+    "test_icim_expert_display_retry_20261021.py::test_ic_public_monthly_reset_with_missing_quantity_is_diagnostic",
+    "test_icim_expert_display_retry_20261021.py::test_observer_failure_does_not_hide_calculated_valid_signal",
+    "test_icim_expert_display_retry_20261021.py::test_collector_cannot_mutate_nested_calculated_payload",
+    "test_icim_expert_display_retry_20261021.py::test_diagnostic_page_and_json_have_no_formal_targets_or_pending",
+    "test_icim_expert_display_retry_20261021.py::test_daily_ohlcv_wait_status_is_visible"
+  ],
+  "deselected": [],
+  "executed": [
+    "test_icim_expert_display_retry_20261021.py::test_retry_public_builder_keeps_original_plan_and_returns_diagnostic[execution0-ordinary]",
+    "test_icim_expert_display_retry_20261021.py::test_retry_public_builder_keeps_original_plan_and_returns_diagnostic[execution0-short_put]",
+    "test_icim_expert_display_retry_20261021.py::test_retry_public_builder_keeps_original_plan_and_returns_diagnostic[execution0-profit3x]",
+    "test_icim_expert_display_retry_20261021.py::test_retry_public_builder_keeps_original_plan_and_returns_diagnostic[execution1-ordinary]",
+    "test_icim_expert_display_retry_20261021.py::test_retry_public_builder_keeps_original_plan_and_returns_diagnostic[execution1-short_put]",
+    "test_icim_expert_display_retry_20261021.py::test_retry_public_builder_keeps_original_plan_and_returns_diagnostic[execution1-profit3x]",
+    "test_icim_expert_display_retry_20261021.py::test_ic_public_monthly_reset_with_missing_quantity_is_diagnostic",
+    "test_icim_expert_display_retry_20261021.py::test_observer_failure_does_not_hide_calculated_valid_signal",
+    "test_icim_expert_display_retry_20261021.py::test_collector_cannot_mutate_nested_calculated_payload",
+    "test_icim_expert_display_retry_20261021.py::test_diagnostic_page_and_json_have_no_formal_targets_or_pending",
+    "test_icim_expert_display_retry_20261021.py::test_daily_ohlcv_wait_status_is_visible"
+  ]
+}

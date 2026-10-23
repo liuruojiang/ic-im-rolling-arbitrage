@@ -1,0 +1,7 @@
+{
+  "oracle": "quant_research_runs/20261021_expert_round3_repairs_v1/backup/ic_im_v1_4_policy.py",
+  "sha256": "f7e3ad9ddfb83935b47c6af5b5b22bcd28b5c6912b3bd14cec158a7de7f07fff",
+  "matches_pre_edit_baseline": true,
+  "baseline": "quant_research_runs/20261021_expert_round3_repairs_v1/baseline.json",
+  "note": "The 80 differential cases load this immutable pre-edit policy. This extra oracle is verified against the original backup baseline in addition to the 947 shared current bindings."
+}

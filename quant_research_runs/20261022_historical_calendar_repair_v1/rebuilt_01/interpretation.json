@@ -1,0 +1,7 @@
+{
+  "comparison_eligible": false,
+  "reason": "The arithmetic run passed but IC seller admission retained production's forward-effective date instead of the 10/16 full-history MOM120 counterfactual. Its CAGR difference mixes research scope and calendar changes and must not be used as the calendar result.",
+  "receipt_preserved": true,
+  "executed_source_archive": "history/rebuild_history_stage01.py.txt",
+  "next_stage": "rebuilt_02"
+}

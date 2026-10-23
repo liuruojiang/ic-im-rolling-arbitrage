@@ -1,0 +1,39 @@
+{
+  "verified_at": "2026-10-21T05:56:19.655774+00:00",
+  "backup_entries": 1113,
+  "backup_mismatches": [],
+  "current_changed": [
+    "ic_im_fear_grid_v1.py",
+    "ic_im_put_execution_v1.py",
+    "ic_im_v1_4_policy.py",
+    "poe_ic_im_mainline_v1_4_bot.py",
+    "poe_ic_im_v1_4_state.py",
+    "test_ic_im_v1_4_integration_guards.py",
+    "notes/mainline_registry.md"
+  ],
+  "changed_equals_receipt": true,
+  "source_delta_matches_reconstruction": true,
+  "immutable_entries": 266,
+  "immutable_mismatches": [],
+  "receipt_source_mismatches": [],
+  "old_test_count": 989,
+  "old_files": 41,
+  "old_failed_or_skipped": [],
+  "v2_files_outside_baseline_protection": [
+    "outputs/ic_im_system_mainlines_v2/command_log.txt",
+    "outputs/ic_im_system_mainlines_v2/current_state.csv",
+    "outputs/ic_im_system_mainlines_v2/daily_candidates.csv.gz",
+    "outputs/ic_im_system_mainlines_v2/data_manifest.json",
+    "outputs/ic_im_system_mainlines_v2/im_operational_capital_15pct.csv",
+    "outputs/ic_im_system_mainlines_v2/im_rolling_thresholds.csv.gz",
+    "outputs/ic_im_system_mainlines_v2/integrity_checks.json",
+    "outputs/ic_im_system_mainlines_v2/mainline_metrics.csv",
+    "outputs/ic_im_system_mainlines_v2/mainline_state.json",
+    "outputs/ic_im_system_mainlines_v2/output_manifest.json",
+    "outputs/ic_im_system_mainlines_v2/put_trades.csv.gz",
+    "outputs/ic_im_system_mainlines_v2/record.md",
+    "outputs/ic_im_system_mainlines_v2/target_schedules.csv.gz"
+  ],
+  "limitation": "No claim of actual v2 mutation; these files lack a before-hash in this repair's baseline.",
+  "raw_capture_note": "Saved Sina field/adjusted identity and SSE-row binding evidence; CFFEX live archive probe explicitly failed; no real complete 2026-10-21 IC+IM ledger/digest success run claimed."
+}

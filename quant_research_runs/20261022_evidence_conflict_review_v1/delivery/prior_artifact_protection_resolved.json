@@ -1,0 +1,33 @@
+{
+  "status": "PASS_WITH_PREEXISTING_RUNTIME_DIFFERENCES",
+  "prior_protected_objects": 9114,
+  "expected_cumulative_changes": [
+    "ic_im_evidence_adapter_v1.py",
+    "ic_im_signal_evidence_v1.py",
+    "notes/mainline_registry.md",
+    "poe_ic_im_mainline_v1_4_bot.py",
+    "poe_ic_im_v1_4_server.py",
+    "poe_ic_im_v1_4_state.py",
+    "runtime/ic_im_v1_3_r7/.ledger.lock",
+    "runtime/legulegu/latest.json",
+    "test_icim_round4_evidence_boundaries_20261021.py",
+    "test_icim_round5_recording_semantics_20261021.py"
+  ],
+  "preexisting_runtime_observations": [
+    {
+      "file": "runtime/ic_im_v1_3_r7/.ledger.lock",
+      "current_sha256": "762b023699a0e48aa95763f0cf7c0467f1d6e9880308c78ebbc1c423de7072d3",
+      "already_in_round_start_snapshot": true,
+      "mtime": "2026-10-22T19:35:33.938583+08:00",
+      "attribution": "not established; predates this round; no rollback"
+    },
+    {
+      "file": "runtime/legulegu/latest.json",
+      "current_sha256": "b6bef266f5b565f4a3efc739361b13727b0b30470c1228b6ec8a78c8c784588c",
+      "already_in_round_start_snapshot": true,
+      "mtime": "2026-10-22T19:35:36.122313+08:00",
+      "attribution": "not established; predates this round; no rollback"
+    }
+  ],
+  "changes_since_this_round_start": []
+}

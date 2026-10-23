@@ -1,0 +1,211 @@
+name: Delivery regression gate
+
+on:
+  pull_request:
+    paths: ['.github/workflows/**', 'scripts/**', 'tests/**', 'cloudflare-workers/**']
+  push:
+    branches: [main]
+    paths: ['.github/workflows/**', 'scripts/**', 'tests/**', 'cloudflare-workers/**']
+  workflow_dispatch:
+  workflow_call:
+    inputs:
+      family:
+        type: string
+        default: all
+
+permissions:
+  contents: read
+
+jobs:
+  automation-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+      - run: python -m pip install 'pytest>=8,<9' 'PyYAML>=6,<7' 'hypothesis>=6,<7'
+      - name: Check delivery contracts and all automation regressions
+        env:
+          TEST_FAMILY: ${{ inputs.family || 'all' }}
+        run: |
+          case "${TEST_FAMILY}" in
+            microcap) suites=(tests/test_microcap_*.py tests/test_v23_identity_adversarial.py tests/test_cn_publication_mode.py tests/test_delivery_regression_contract.py tests/test_cloudflare_dispatch_retry.py tests/test_restore_approved_microcap_state.py) ;;
+            icim) suites=(tests/test_ic_im_v1_4_*.py tests/test_ic_im_v1_3_*.py tests/test_ic_im_r7_spread.py tests/test_cn_publication_mode.py tests/test_delivery_regression_contract.py tests/test_adversarial_delivery.py tests/test_cloudflare_dispatch_retry.py) ;;
+            all) suites=(tests) ;;
+            *) echo "Unknown test family"; exit 1 ;;
+          esac
+          python -B -X utf8 -m pytest -q -p no:cacheprovider "${suites[@]}" --junitxml=automation-tests.xml
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: automation-regression-${{ github.run_id }}
+          path: automation-tests.xml
+
+  strategy-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      STRATEGY_REPOSITORY: ${{ matrix.family == 'microcap' && 'liuruojiang/microcap' || 'liuruojiang/ic-im-rolling-arbitrage' }}
+      STRATEGY_WORKFLOW: ${{ matrix.family == 'microcap' && 'microcap-realtime-digest.yml' || 'ic-im-v1-4-daily-digest.yml' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        family: ${{ fromJSON(inputs.family == 'microcap' && '["microcap"]' || inputs.family == 'icim' && '["icim"]' || '["microcap","icim"]') }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          path: automation
+          persist-credentials: false
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+      - name: Resolve exact published strategy pin
+        id: pin
+        run: |
+          python - <<'PY'
+          import os, re
+          from pathlib import Path
+          workflow = Path('automation/.github/workflows') / os.environ['STRATEGY_WORKFLOW']
+          pattern = r'repository: ' + re.escape(os.environ['STRATEGY_REPOSITORY']) + r'\s+ref: ([0-9a-f]{40})\b'
+          pins = set(re.findall(pattern, workflow.read_text(encoding='utf-8')))
+          if len(pins) != 1:
+              raise SystemExit('Expected exactly one consistent immutable strategy SHA')
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as handle:
+              handle.write('sha=' + pins.pop() + '\n')
+          PY
+      - uses: actions/checkout@v6
+        with:
+          repository: ${{ env.STRATEGY_REPOSITORY }}
+          ref: ${{ steps.pin.outputs.sha }}
+          path: strategy
+          persist-credentials: false
+      - name: Install Microcap regression dependencies
+        if: matrix.family == 'microcap'
+        run: python -m pip install numpy 'pandas<3' requests 'akshare==1.18.46' matplotlib 'pytest>=8,<9' hypothesis
+      - name: Install ICIM regression dependencies
+        if: matrix.family == 'icim'
+        run: python -m pip install -r strategy/requirements-poe-v1.4-server.txt 'pytest>=8,<9' hypothesis
+      - name: Test Microcap state and cloud transport invariants
+        if: matrix.family == 'microcap'
+        working-directory: strategy
+        env:
+          MICROCAP_DIGEST_SOURCE: ${{ github.workspace }}/automation/scripts/build_microcap_realtime_digest.py
+          PYTHONDONTWRITEBYTECODE: '1'
+        run: |
+          set -euo pipefail
+          # Materialize a complete, hashed real v2.3 fixture only in this disposable strategy checkout.
+          python -B -X utf8 - <<'PY'
+          import hashlib
+          import json
+          from pathlib import Path
+
+          automation = Path('../automation')
+          fixture_root = automation / 'tests/fixtures/microcap/v23_identity_20261009'
+          provenance = json.loads((fixture_root / 'fixture_provenance.json').read_text(encoding='utf-8'))
+          if provenance['signal_date'] != '2026-10-09' or provenance['source']['post_signal_whole_check']['ok'] is not True:
+              raise SystemExit('v2.3 real-output fixture provenance is not accepted')
+          for entry in provenance['files'].values():
+              source = automation / entry['fixture_path']
+              destination = Path(entry['target_path'])
+              if destination.exists():
+                  raise SystemExit(f'refusing to overwrite disposable strategy output: {destination}')
+              raw = source.read_bytes()
+              if len(raw) != entry['size_bytes'] or hashlib.sha256(raw).hexdigest() != entry['sha256_raw']:
+                  raise SystemExit(f'v2.3 real-output fixture hash mismatch: {source}')
+              normalized = raw.replace(b'\r\n', b'\n')
+              if hashlib.sha256(normalized).hexdigest() != entry['sha256_lf_normalized_manifest']:
+                  raise SystemExit(f'v2.3 fixture does not match accepted whole manifest: {source}')
+              destination.parent.mkdir(parents=True, exist_ok=True)
+              destination.write_bytes(raw)
+          PY
+          timeout --foreground 120s python -B -X utf8 -m pytest -q -p no:cacheprovider \
+            tests/test_realtime_preflight.py tests/test_realtime_state_guard_20260915.py \
+            tests/test_top100_delivery.py tests/test_top100_cloud_delivery.py \
+            tests/test_full_rebalance_cache_bundle.py tests/test_top100_data_guards.py \
+            tests/test_adversarial_microcap_delivery.py tests/test_script_delivery_adversarial.py \
+            tests/test_realtime_exchange_calendar.py tests/test_exchange_calendar_provider.py \
+            tests/test_realtime_publication_deadline.py \
+            tests/test_v20_plain_promotion.py tests/test_v23_plain_promotion.py tests/test_v25_plain_promotion.py \
+            tests/test_adversarial_v20_plain_20260904.py tests/test_adversarial_v23_plain_20260904.py \
+            tests/test_adversarial_delivery_plain_20260904.py tests/test_adversarial_delivery_state_consistency.py \
+            tests/test_v23_identity_adversarial.py tests/test_index_history_preflight.py \
+            tests/test_panel_exchange_session_guard_20261012.py \
+            tests/test_security_meta_current_st_history_resolution_20261012.py \
+            tests/test_security_meta_preserve_20260917.py \
+            tests/test_adversarial_recovery_boundaries_20261013.py \
+            tests/test_cninfo_history_fail_closed_20261015.py \
+            tests/test_exchange_session_completeness_20261015.py \
+            tests/test_return_integrity_20261015.py \
+            tests/test_security_meta_fail_closed_20261015.py \
+            tests/test_v25_realtime_artifact_invalidation.py --junitxml=regression.xml
+          python -B -X utf8 - <<'PY'
+          import xml.etree.ElementTree as ET
+          root = ET.parse('regression.xml').getroot()
+          skipped = list(root.iter('skipped'))
+          if skipped:
+              raise SystemExit(f'Microcap mandatory regression must have zero skips: {len(skipped)}')
+          print(f"Microcap mandatory regression: {len(list(root.iter('testcase')))} tests, zero skips")
+          PY
+      - name: Test ICIM source failover and persistent ledger invariants
+        if: matrix.family == 'icim'
+        working-directory: strategy
+        env:
+          ICIM_STATE_DIR: ${{ runner.temp }}/icim-regression-state
+          ICIM_REQUIRE_MIGRATION: '0'
+          PYTHONDONTWRITEBYTECODE: '1'
+        run: |
+          mkdir -p data/ic_510500_put_proxy_validation_v1
+          cp ../automation/tests/fixtures/icim/sina_000905_index.csv data/ic_510500_put_proxy_validation_v1/sina_000905_index.csv
+          # Frozen official research fixture, inside this disposable test checkout.
+          # The pytest environment still points to runner.temp, never a live ledger.
+          test ! -e runtime/ic_im_v1_4_r1
+          mkdir -p runtime
+          cp -R ../automation/tests/fixtures/icim/v14_ledger_20261008 runtime/ic_im_v1_4_r1
+          # Exact real r6/roll/calendar inputs for the unchanged historical
+          # audits; verify their hashes before installing into this checkout.
+          python -B -X utf8 ../automation/tests/fixtures/icim/quarter_roll_20261013/prepare_fixture.py --strategy-root .
+          timeout --foreground 60s python -B -X utf8 -m pytest -q -p no:cacheprovider \
+            test_delivery_transport_retry.py test_ohlcv_provider_validation.py \
+            test_poe_ic_im_v1_3_state.py test_run_ic_im_v1_3_github_digest.py \
+            test_ic_im_v1_4_policy.py test_poe_ic_im_v1_4_state.py test_ic_im_v1_4_ic_csi500_forward.py test_ic_im_fear_grid_v1.py \
+            test_ic_im_v1_4_integration_guards.py test_run_ic_im_v1_4_github_digest.py \
+            test_migrate_ic_im_v1_3_r7_to_v1_4_r1_state.py \
+            test_ic_im_daily_valuation.py test_im_put_policy.py \
+            test_adversarial_im_ledger_20260908.py test_adversarial_im_report_iv_20260908.py \
+            test_adversarial_im_put_execution_20260908.py test_im_put_price_basis.py \
+            test_live_mo_put_midpoint_20260908.py test_external_review_fixes_20260911.py \
+            test_ic_im_chinabond.py test_grid_half_release_20260913.py test_im_grid160_half_release_20260914.py \
+            test_adversarial_icim_delivery.py \
+            test_adversarial_market_20261007.py test_adversarial_state_20261007.py \
+            test_adversarial_delivery_20261007.py test_adversarial_policy_20261007.py \
+            test_adversarial_cffex_transport_20261009.py test_adversarial_cffex_close_runner_20261009.py \
+            test_tencent_ohlcv_pagination_20261012.py \
+            test_ic_im_v1_4_repeat_roll_20260925.py test_ic_im_v1_4_market_maker_quotes_20260925.py \
+            test_ic_im_quarter_roll_v1_3.py test_ic_im_month_spreads_20261018.py \
+            test_ic_im_ordinary_put_route_fix_20261013.py test_ic_im_quote_snapshot_guard_20261013.py \
+            test_ic_im_split_put_summary_20261013.py \
+            test_ic_im_put_execution_repairs_20261016.py test_ic_im_option_maintenance_notice_20261016.py \
+            test_ic_im_put_delivery_completion_20261016.py test_ic_im_fear_source_delivery_20261016.py test_ic_im_fear_delivery_adversarial_20261016.py \
+            --junitxml=regression.xml
+          python -B -X utf8 - <<'PY'
+          import xml.etree.ElementTree as ET
+          root = ET.parse('regression.xml').getroot()
+          assert not list(root.iter('skipped')), 'ICIM required regression must not skip'
+          PY
+      - name: Preserve tests and actual tested strategy SHA
+        if: always()
+        run: git -C strategy rev-parse HEAD > strategy/tested-sha.txt
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: strategy-regression-${{ matrix.family }}-${{ github.run_id }}
+          path: |
+            strategy/regression.xml
+            strategy/tested-sha.txt
+
+
+

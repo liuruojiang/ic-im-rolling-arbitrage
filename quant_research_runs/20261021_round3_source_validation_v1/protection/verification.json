@@ -1,0 +1,35 @@
+{
+  "created_at": "2026-10-21T12:59:19.225393+00:00",
+  "previous_round_and_current_runtime": {
+    "checked": 2421,
+    "changed_or_missing": []
+  },
+  "previous_frozen_protection_set": {
+    "checked": 7691,
+    "changed_or_missing": []
+  },
+  "pre_edit_backups": {
+    "checked": 4,
+    "changed_or_missing": []
+  },
+  "previous_source_binding": {
+    "checked": 947,
+    "changed_or_missing": [
+      {
+        "path": "poe_ic_im_mainline_v1_4_bot.py",
+        "expected": "763c0dedfceb8f14142961204e3344c9ed6cd3da6fa4749a2ca6748b4a30c5ae",
+        "actual": "6dbec6dc5054675ea6208e52b4c189ca78e31145e856602ce506f6a06698ac0b"
+      }
+    ]
+  },
+  "root_runtime": {
+    "before": 155,
+    "after": 155,
+    "json_before": 142,
+    "hashes_and_paths_equal": true
+  },
+  "preregistered_spec_hash_matches": true,
+  "only_authorized_production_source_changed": true,
+  "previous_bot_matches_pre_edit_backup": true,
+  "passed": true
+}

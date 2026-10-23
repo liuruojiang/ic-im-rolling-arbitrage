@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="3" skipped="0" tests="4" time="1.705" timestamp="2026-10-23T09:28:48.976542+08:00" hostname="DESKTOP-95I7VVU"><testcase classname="test_icim_ma23_market_20261023" name="test_real_mo_crosscheck_packet_still_accepts_its_requested_identity" time="0.003" /><testcase classname="test_icim_ma23_market_20261023" name="test_mo_crosscheck_rejects_unrequested_or_ambiguous_returned_variable[wrong_contract]" time="0.002"><failure message="Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x0000027E08596060&gt;
+mutation = 'wrong_contract'
+
+    @pytest.mark.parametrize('mutation', ['wrong_contract', 'wrong_namespace', 'duplicate'])
+    def test_mo_crosscheck_rejects_unrequested_or_ambiguous_returned_variable(monkeypatch, mutation):
+        packet, symbol, price = real_mo_packet()
+        if mutation == 'wrong_contract':
+            packet = packet.replace(symbol, b'P_OP_mo2611P6100', 1)
+        elif mutation == 'wrong_namespace':
+            packet = packet.replace(b'hq_str_', b'not_hq_str_', 1)
+        else:
+            packet = packet + packet
+        monkeypatch.setattr(bot.requests, 'get', lambda *a, **k: response(packet))
+&gt;       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;
+
+test_icim_ma23_market_20261023.py:214: Failed</failure></testcase><testcase classname="test_icim_ma23_market_20261023" name="test_mo_crosscheck_rejects_unrequested_or_ambiguous_returned_variable[wrong_namespace]" time="0.002"><failure message="Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x0000027E0857B770&gt;
+mutation = 'wrong_namespace'
+
+    @pytest.mark.parametrize('mutation', ['wrong_contract', 'wrong_namespace', 'duplicate'])
+    def test_mo_crosscheck_rejects_unrequested_or_ambiguous_returned_variable(monkeypatch, mutation):
+        packet, symbol, price = real_mo_packet()
+        if mutation == 'wrong_contract':
+            packet = packet.replace(symbol, b'P_OP_mo2611P6100', 1)
+        elif mutation == 'wrong_namespace':
+            packet = packet.replace(b'hq_str_', b'not_hq_str_', 1)
+        else:
+            packet = packet + packet
+        monkeypatch.setattr(bot.requests, 'get', lambda *a, **k: response(packet))
+&gt;       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;
+
+test_icim_ma23_market_20261023.py:214: Failed</failure></testcase><testcase classname="test_icim_ma23_market_20261023" name="test_mo_crosscheck_rejects_unrequested_or_ambiguous_returned_variable[duplicate]" time="0.002"><failure message="Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x0000027E0862D370&gt;
+mutation = 'duplicate'
+
+    @pytest.mark.parametrize('mutation', ['wrong_contract', 'wrong_namespace', 'duplicate'])
+    def test_mo_crosscheck_rejects_unrequested_or_ambiguous_returned_variable(monkeypatch, mutation):
+        packet, symbol, price = real_mo_packet()
+        if mutation == 'wrong_contract':
+            packet = packet.replace(symbol, b'P_OP_mo2611P6100', 1)
+        elif mutation == 'wrong_namespace':
+            packet = packet.replace(b'hq_str_', b'not_hq_str_', 1)
+        else:
+            packet = packet + packet
+        monkeypatch.setattr(bot.requests, 'get', lambda *a, **k: response(packet))
+&gt;       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;
+
+test_icim_ma23_market_20261023.py:214: Failed</failure></testcase></testsuite></testsuites>

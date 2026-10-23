@@ -1,0 +1,47 @@
+*** Begin Patch
+*** Update File: D:\动量策略\IC和IM滚动套利\poe_ic_im_mainline_v1_4_bot.py
+@@ -5961,8 +5961,10 @@
+             raise RuntimeError("T收盘预选核心Put身份不完整")
+         signal.update(v14_profit_plan_contract=contract, v14_profit_plan_qty=qty,
+                       v14_profit_plan_security_id=security_id,
+                       v14_profit_reentry_status="t_close_preselected_for_next_open")
++    except (SignalTransportError, requests.ConnectionError, requests.Timeout):
++        raise
+     except Exception as exc:
+         signal["v14_profit_reentry_status"] = f"t_close_preselection_unavailable:{type(exc).__name__}:{exc}"
+ 
+ 
+@@ -6248,9 +6250,8 @@
+         _v14_prepare_lifecycle_evidence(product, signal, anchor, mo_quotes)
+         mark, target_entry = _v14_option_mark(product, signal, mo_quotes)
+         signal["v14_core_put_mark"] = mark
+         signal["v14_core_put_target_entry_premium"] = target_entry
+-        _v14_prepare_profit_open_plan(product, signal, anchor, mo_quotes)
+         current_short = anchor.get("v14_short_put_contract")
+         if current_short:
+             if product == "IC":
+                 security_id = anchor.get("v14_short_put_security_id")
+@@ -6284,11 +6285,21 @@
+                     _v14_im_short_put_candidate(signal, mo_quotes, roll_from_expiry=current_expiry)
+                 )
+         else:
+             signal["v14_candidate_data_status"] = "not_required: " + required["reason"]
+-        return v14_policy.apply_policy(
++        projected = v14_policy.apply_policy(
+             product, signal, anchor, candidate=candidate, roll_candidate=roll_candidate
+         )
++        # A new seller route has priority over a new 3x trigger. Only resolve
++        # a 3x candidate when the pure policy actually waits for that input;
++        # completed or committed lifecycle actions never repeat preselection.
++        if (projected.get("v14_action") == "HOLD"
++                and projected.get("v14_action_reason") == "profit3x_t_close_preselection_unavailable"):
++            _v14_prepare_profit_open_plan(product, signal, anchor, mo_quotes)
++            return v14_policy.apply_policy(
++                product, signal, anchor, candidate=candidate, roll_candidate=roll_candidate
++            )
++        return projected
+     except (SignalTransportError, requests.ConnectionError, requests.Timeout):
+         # Let the existing bounded transport retry repeat required evidence.
+         # A failed source must not become a policy decision or a new state.
+         raise
+*** End Patch

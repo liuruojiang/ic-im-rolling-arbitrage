@@ -1,0 +1,75 @@
+.....FF....FF.                                                           [100%]
+================================== FAILURES ===================================
+______ test_receipt_rejects_xml_test_identity_not_in_executed_collection ______
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_e97fec3f/pytest/test_receipt_rejects_xml_test_0')
+
+    def test_receipt_rejects_xml_test_identity_not_in_executed_collection(tmp_path):
+        target = copied_receipt(tmp_path)
+        tree = ET.parse(target / 'regression.xml')
+        case = tree.getroot().find('.//testcase')
+        case.set('name', 'test_synthetic_success_from_another_run')
+        tree.write(target / 'regression.xml', encoding='utf-8', xml_declaration=True)
+        rebind_artifact(target, 'regression.xml')
+        # Counts, exit status and every artifact hash are internally consistent;
+        # the XML identity contradicts the supposedly executed nodeid list.
+>       with pytest.raises(RuntimeError, match='identity|identit|用例|执行|XML|collection'):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+test_icim_ma23_history_20261023.py:93: Failed
+___ test_receipt_rejects_wrong_collection_identity_even_with_same_xml_count ___
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_e97fec3f/pytest/test_receipt_rejects_wrong_col0')
+
+    def test_receipt_rejects_wrong_collection_identity_even_with_same_xml_count(tmp_path):
+        target = copied_receipt(tmp_path)
+        collection = read(target / 'collection.json')
+        old = collection['selected'][0]
+        replacement = 'test_unexecuted_synthetic_module.py::test_unexecuted_synthetic_case'
+        for key in ['collected', 'selected', 'executed']:
+            collection[key] = [replacement if node == old else node for node in collection[key]]
+        (target / 'collection.json').write_text(json.dumps(collection), encoding='utf-8')
+        rebind_artifact(target, 'collection.json')
+>       with pytest.raises(RuntimeError, match='identity|identit|用例|执行|XML|collection'):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+test_icim_ma23_history_20261023.py:106: Failed
+___ test_loaded_inventory_includes_actual_nonprefixed_production_dependency ___
+
+    def test_loaded_inventory_includes_actual_nonprefixed_production_dependency():
+        import capture_ic_im_v1_4_inputs as capture
+        import im_put_policy  # real production module, not an injected fake.
+        assert Path(im_put_policy.__file__).resolve() == ROOT / 'im_put_policy.py'
+>       assert 'im_put_policy.py' in capture.loaded_sources()
+E       AssertionError: assert 'im_put_policy.py' in {'capture_ic_im_v1_4_inputs.py': 'e8faad38e6528c652f92f9bd2b257277faae2087dc7cc9c047b12a6c209fcdc2'}
+E        +  where {'capture_ic_im_v1_4_inputs.py': 'e8faad38e6528c652f92f9bd2b257277faae2087dc7cc9c047b12a6c209fcdc2'} = <function loaded_sources at 0x0000018F77597D70>()
+E        +    where <function loaded_sources at 0x0000018F77597D70> = <module 'capture_ic_im_v1_4_inputs' from 'D:\\动量策略\\IC和IM滚动套利\\capture_ic_im_v1_4_inputs.py'>.loaded_sources
+
+test_icim_ma23_history_20261023.py:175: AssertionError
+_____________ test_pin_missing_real_loaded_im_policy_is_rejected ______________
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_e97fec3f/pytest/test_pin_missing_real_loaded_i0')
+
+    def test_pin_missing_real_loaded_im_policy_is_rejected(tmp_path):
+        import capture_ic_im_v1_4_inputs as capture
+        import im_put_policy
+        pin = read(PREV / 'delivery/capture_source_pin.json')
+        pin['files'] = {n:sha(ROOT/n) for n in pin['files'] if n != 'im_put_policy.py'}
+        path = tmp_path / 'deliberately_incomplete_pin.json'
+        path.write_text(json.dumps(pin), encoding='utf-8')
+        active = capture.SourcePin(path)
+        assert Path(im_put_policy.__file__).resolve().is_file()
+>       with pytest.raises(capture.SourcePinError, match='im_put_policy'):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'capture_ic_im_v1_4_inputs.SourcePinError'>
+
+test_icim_ma23_history_20261023.py:187: Failed
+=========================== short test summary info ===========================
+FAILED test_icim_ma23_history_20261023.py::test_receipt_rejects_xml_test_identity_not_in_executed_collection
+FAILED test_icim_ma23_history_20261023.py::test_receipt_rejects_wrong_collection_identity_even_with_same_xml_count
+FAILED test_icim_ma23_history_20261023.py::test_loaded_inventory_includes_actual_nonprefixed_production_dependency
+FAILED test_icim_ma23_history_20261023.py::test_pin_missing_real_loaded_im_policy_is_rejected
+4 failed, 10 passed in 2.06s
+

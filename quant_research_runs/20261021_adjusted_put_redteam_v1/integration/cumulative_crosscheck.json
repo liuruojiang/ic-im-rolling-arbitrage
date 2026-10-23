@@ -1,0 +1,21 @@
+{
+  "checked_at": "2026-10-21T08:12:57.747911+00:00",
+  "independent_counts": {
+    "tests": 36,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "cumulative_counts": {
+    "tests": 1544,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "bound_files": 13,
+  "independent_before_after_equal": true,
+  "current_matches_independent": true,
+  "cumulative_matches_all_independent_bindings": true,
+  "cumulative_receipt_sha256": "f8101e24622bfc0710ddfc9b76634f57655507ab02b7cf3d18be566ae6f9e9ce",
+  "independent_receipt_sha256": "af9ed87b3a0cca9189a17f5834e1509b9c4daf7350b718fc3e93fa4c4d2009b3"
+}

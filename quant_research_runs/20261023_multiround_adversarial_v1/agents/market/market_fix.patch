@@ -1,0 +1,192 @@
+--- baseline/poe_ic_im_mainline_v1_4_bot.py
++++ fixed/poe_ic_im_mainline_v1_4_bot.py
+@@ -3850,13 +3850,11 @@
+         },
+     )
+     response.raise_for_status()
+-    text = _response_with_size_limit(response, f"新浪MO详报价 {contract}").decode(
+-        "gbk", errors="replace"
+-    )
+-    payload_match = re.search(r'=\"([^\"]*)\"', text)
+-    if not payload_match or not payload_match.group(1):
+-        raise RuntimeError(f"新浪MO详报价 {contract} 为空")
+-    fields = payload_match.group(1).split(",")
++    raw = _response_with_size_limit(response, f"新浪MO详报价 {contract}")
++    packets = _exact_quote_variables(raw, "hq_str_P_OP_")
++    if set(packets) != {symbol}:
++        raise RuntimeError(f"新浪MO详报价 {contract} 返回合约与请求不一致")
++    fields = packets[symbol].split(",")
+     if len(fields) <= 40:
+         raise RuntimeError(f"新浪MO详报价 {contract} 字段不足")
+     try:
+@@ -3882,6 +3880,11 @@
+     ) or not math.isfinite(lastprice) or lastprice <= 0:
+         raise RuntimeError(f"新浪MO详报价 {contract} 含NaN、无穷值或非正价格")
+     source_date = stamp.date()
++    observation_clock = _iv_observation_clock(clock)
++    if observation_clock.tzinfo is None:
++        observation_clock = observation_clock.replace(tzinfo=BEIJING)
++    if stamp > observation_clock:
++        raise RuntimeError(f"新浪MO详报价 {contract} 行情时间晚于当前运行时间")
+     if pricing_basis == "live_bid_ask_mid_estimate_zero_volume":
+         if source_date != expected_date:
+             raise RuntimeError(f"新浪Put双边报价日期 {source_date} 与 {expected_date} 不一致")
+@@ -3972,6 +3975,7 @@
+     response = _evidence_http_get(
+         f"https://yunhq.sse.com.cn:32042/{path.lstrip('/')}",
+         params=params,
++        stream=True,
+         timeout=_bounded_timeout(8),
+         headers={
+             "User-Agent": "Mozilla/5.0 POE-IC-IM-Research/1.0",
+@@ -3980,8 +3984,17 @@
+             "Pragma": "no-cache",
+         },
+     )
+-    response.raise_for_status()
+-    return response.json()
++    try:
++        response.raise_for_status()
++        if callable(getattr(response, "iter_content", None)):
++            raw = _bounded_response_bytes(response, "上交所行情")
++        else:
++            raw = _response_with_size_limit(response, "上交所行情")
++        return json.loads(raw)
++    finally:
++        close = getattr(response, "close", None)
++        if callable(close):
++            close()
+ 
+ 
+ def _sse_session_time(value: Any, label: str) -> str:
+@@ -4066,7 +4079,7 @@
+ 
+ 
+ def _exact_quote_variables(raw: bytes, prefix: str) -> dict[str, str]:
+-    packets = re.findall(re.escape(prefix) + r'([A-Za-z0-9_]+)="([^"\r\n]*)"',
++    packets = re.findall(r'(?<![A-Za-z0-9_$])' + re.escape(prefix) + r'([A-Za-z0-9_]+)="([^"\r\n]*)"',
+                          raw.decode("gb18030", errors="strict"))
+     values = {}
+     for symbol, payload in packets:
+@@ -4335,6 +4348,19 @@
+         _OPTION_CHAIN_REFERENCE_DAY.reset(token)
+ 
+ 
++def _require_current_510500_expiry_months(months: list[str]) -> None:
++    """Validate observed listings; never create an unobserved contract month."""
++    reference_day = _now_beijing().date()
++    first = (reference_day.year, reference_day.month)
++    if reference_day > _fourth_wednesday(*first):
++        first = _month_after(*first)
++    second = _month_after(*first)
++    expected = [f"{year:04d}{month:02d}" for year, month in
++                [first, second, *_following_quarter_months(*second, 2)]]
++    if months != expected:
++        raise RuntimeError("510500挂牌月份陈旧或缺少当前挂牌月份，禁止按残缺月份选约")
++
++
+ def fetch_sse_510500_expiries() -> list[str]:
+     payload = _sse_quote_json(
+         "v1/sho/list/exchange/stockexpire",
+@@ -4355,6 +4381,7 @@
+     ordered_months = sorted(months)
+     if not ordered_months:
+         raise RuntimeError("上交所未返回510500ETF期权挂牌月份")
++    _require_current_510500_expiry_months(ordered_months)
+     return ordered_months
+ 
+ 
+@@ -4378,15 +4405,7 @@
+             months = months[1:]
+         if len(months) != 4 or len(set(months)) != 4 or months != sorted(months):
+             raise ValueError("incomplete/duplicate listing")
+-        reference_day = _now_beijing().date()
+-        first = (reference_day.year, reference_day.month)
+-        if reference_day > _fourth_wednesday(*first):
+-            first = _month_after(*first)
+-        second = _month_after(*first)
+-        expected = [f"{year:04d}-{month:02d}" for year, month in
+-                    [first, second, *_following_quarter_months(*second, 2)]]
+-        if months != expected:
+-            raise ValueError("observed listing is stale or omits a current listed month")
++        _require_current_510500_expiry_months([value.replace("-", "") for value in months])
+     except (ValueError, KeyError, TypeError) as exc:
+         raise RuntimeError("新浪510500挂牌月份结构、标的或完整性未经核验") from exc
+     return [value.replace("-", "") for value in months]
+@@ -4777,9 +4796,11 @@
+ 
+ 
+ def _require_selected_510500_quote_time(
+-    row: pd.Series, clock: datetime, market_date: date | None
++    row: pd.Series, clock: datetime, market_date: date | None, *, source: str | None = None
+ ) -> None:
+     if "source_stamp" not in row.index:
++        if str(source or "").startswith("新浪"):
++            raise RuntimeError("新浪510500期权合约缺少有效逐行时间戳")
+         return
+     if market_date is None:
+         raise RuntimeError("新浪510500期权逐行报价缺少信号日，禁止校验自身日期")
+@@ -4801,7 +4822,8 @@
+ 
+ 
+ def _quote_row(
+-    frame: pd.DataFrame, contract: str, market_date: date | None = None
++    frame: pd.DataFrame, contract: str, market_date: date | None = None,
++    *, quote_source: str | None = None,
+ ) -> pd.Series | None:
+     rows = (
+         frame[frame["instrument"].eq(contract)]
+@@ -4812,7 +4834,7 @@
+         return None
+     row = rows.iloc[0]
+     try:
+-        _require_selected_510500_quote_time(row, _now_beijing(), market_date)
++        _require_selected_510500_quote_time(row, _now_beijing(), market_date, source=quote_source)
+     except RuntimeError:
+         # A stale held leg is missing market evidence, not a global lookup
+         # failure.  A changing action must still fail in _require_existing_leg_quote.
+@@ -5172,7 +5194,7 @@
+         raise RuntimeError(f"{month} 没有可用标准510500ETF Put")
+     puts["strike_error"] = (puts["strike"] - 0.95 * etf_price).abs()
+     selected = puts.sort_values(["strike_error", "contract"]).iloc[0]
+-    _require_selected_510500_quote_time(selected, _now_beijing(), today)
++    _require_selected_510500_quote_time(selected, _now_beijing(), today, source=stamp.get("source"))
+     years = max((expiry - today).days, 1) / 365.0
+     iv = _implied_volatility(
+         "P",
+@@ -5967,7 +5989,7 @@
+     puts["distance"] = (puts.strike - 0.95 * etf).abs()
+     selected = puts.sort_values(["distance", "contract"]).iloc[0]
+     _require_selected_510500_quote_time(
+-        selected, _now_beijing(), signal["market_date"]
++        selected, _now_beijing(), signal["market_date"], source=stamp.get("source")
+     )
+     years = max((expiry - signal["market_date"]).days, 1) / 365.0
+     premium = float(selected["last"])
+@@ -6125,7 +6147,7 @@
+                 raise RuntimeError("IC独立核心Put合约格式错误")
+             chain, stamp = _fetch_510500_chain_for_day(match.group(1), day)
+         _validate_chain_stamp_matches("IC独立核心Put", stamp, day, _now_beijing())
+-        row = _quote_row(chain, str(contract), day)
++        row = _quote_row(chain, str(contract), day, quote_source=stamp.get("source"))
+         if row is None or not math.isfinite(float(row["last"])) or float(row["last"]) <= 0:
+             raise RuntimeError("IC独立核心Put缺少有效当日报价")
+         _require_held_ic_put_identity(str(contract), anchor.get("v14_core_put_security_id"), row, day)
+@@ -6599,7 +6621,7 @@
+     else:
+         chain, stamp = _fetch_510500_chain_for_day(match.group(1), signal["market_date"])
+     _validate_chain_stamp_matches("IC既有卖Put", stamp, signal["market_date"], _now_beijing())
+-    row = _quote_row(chain, contract, signal["market_date"])
++    row = _quote_row(chain, contract, signal["market_date"], quote_source=stamp.get("source"))
+     if row is None:
+         raise RuntimeError("IC既有卖Put缺少可验证证券身份的行情")
+     _require_held_ic_put_identity(contract, security_id, row, signal["market_date"])
+@@ -7273,7 +7295,7 @@
+             raise RuntimeError(
+                 f"上交所ETF与期权链日期不一致：{etf_day} != {chain_day}"
+             )
+-        put_quote = _quote_row(chain, put_contract, market_date)
++        put_quote = _quote_row(chain, put_contract, market_date, quote_source=sse_stamp.get("source"))
+         if put_quote is not None and float(LIVE_CONTINUATION_ANCHOR["IC"].get("post_put_qty", 0)) > 0:
+             _require_held_ic_put_identity(
+                 put_contract, LIVE_CONTINUATION_ANCHOR["IC"].get("post_put_security_id"), put_quote, market_date

@@ -1,0 +1,1142 @@
+--- a/poe_ic_im_mainline_v1_4_bot.py
++++ b/poe_ic_im_mainline_v1_4_bot.py
+@@ -25,6 +25,7 @@
+ import math
+ import re
+ import sys
++import threading
+ import time as time_module
+ import types
+ import unicodedata
+@@ -32,6 +33,7 @@
+ import zlib
+ from collections.abc import Iterable
+ from contextlib import contextmanager
++from copy import deepcopy
+ from dataclasses import dataclass
+ from datetime import date, datetime, time, timedelta
+ from email.utils import parsedate_to_datetime
+@@ -571,14 +573,25 @@
+ # deliberately optional so the original single-file Poe/CLI surface remains
+ # usable (but without cross-process persistence).
+ _SIGNAL_OBSERVER: Any = None
++STRATEGY_QUERY_LOCK = threading.RLock()
+ 
+ 
+ def install_runtime_anchors(anchors: dict[str, dict[str, Any]]) -> None:
+     """Install validated runtime anchors without replacing the frozen bootstrap."""
+-    if set(anchors) != {"IC", "IM"}:
++    with STRATEGY_QUERY_LOCK:
++        try:
++            _install_runtime_anchors(anchors)
++        except (RuntimeError, TypeError, KeyError) as exc:
++            raise ValueError(f"运行时账本字段校验失败: {exc}") from exc
++
++
++def _install_runtime_anchors(anchors: dict[str, dict[str, Any]]) -> None:
++    if not isinstance(anchors, dict) or set(anchors) != {"IC", "IM"}:
+         raise ValueError("运行时账本必须同时包含IC和IM")
+     prepared: dict[str, dict[str, Any]] = {}
+     for product in ("IC", "IM"):
++        if not isinstance(anchors[product], dict):
++            raise ValueError(f"{product}运行时账本必须为字段映射")
+         anchor = dict(anchors[product])
+         if not isinstance(anchor.get("last_verified_day"), date):
+             raise ValueError(f"{product}运行时账本缺少合法last_verified_day")
+@@ -588,8 +601,40 @@
+                     "verified_call_contracts_normalized"):
+             if key not in anchor:
+                 raise ValueError(f"{product}运行时账本缺少{key}")
++        numeric_keys = ["verified_momentum_weight", "verified_next_momentum_weight",
++                        "verified_grid_units", "verified_next_grid_units",
++                        "verified_put_qty_normalized", "verified_call_contracts_normalized"]
+         if product == "IC":
+-            breakdown = _ic_current_quantity_breakdown(anchor)
++            numeric_keys.extend(("post_put_qty", "verified_core_put_delta", "verified_momentum_put_delta",
++                                 "verified_total_put_delta"))
++        else:
++            numeric_keys.extend(("verified_core_put_qty_normalized",
++                                 "verified_momentum_put_qty_normalized", "verified_total_put_qty_normalized"))
++        for key in numeric_keys:
++            if key not in anchor:
++                raise ValueError(f"{product}运行时账本缺少{key}")
++            value = anchor[key]
++            if (isinstance(value, bool) or not isinstance(value, (int, float, np.integer, np.floating))
++                    or not math.isfinite(float(value))):
++                raise ValueError(f"{product}运行时账本{key}必须为有限数值")
++            if key != "verified_call_contracts_normalized" and float(value) < 0:
++                raise ValueError(f"{product}运行时账本{key}不能为负数")
++            if key in {"verified_core_put_delta", "verified_momentum_put_delta", "verified_total_put_delta"} and float(value) > 1:
++                raise ValueError(f"{product}运行时账本{key}不能超过1")
++        for key in ("verified_core_put_qty", "verified_momentum_put_qty"):
++            if key in anchor and (isinstance(anchor[key], bool)
++                    or not isinstance(anchor[key], (int, float, np.integer, np.floating))
++                    or not math.isfinite(float(anchor[key]))):
++                raise ValueError(f"{product}运行时账本{key}必须为有限数值")
++        if product == "IC":
++            if not math.isclose(float(anchor["verified_total_put_delta"]),
++                                float(anchor["verified_core_put_delta"]) + float(anchor["verified_momentum_put_delta"]),
++                                abs_tol=1e-12):
++                raise ValueError("IC运行时账本总Delta与分袖Delta不一致")
++            try:
++                breakdown = _ic_current_quantity_breakdown(anchor)
++            except (RuntimeError, TypeError, KeyError) as exc:
++                raise ValueError(f"IC运行时账本Put分袖数量无效: {exc}") from exc
+             if not math.isclose(float(anchor["verified_put_qty_normalized"]),
+                                 breakdown["total"], abs_tol=1e-12):
+                 raise ValueError("IC运行时账本Put兼容总量与分袖总量不一致")
+@@ -1190,6 +1235,7 @@
+     )
+     try:
+         response.raise_for_status()
++        _response_with_size_limit(response, f"新浪期权 {security_id} 历史收盘价")
+         body = response.text
+     finally:
+         close = getattr(response, "close", None)
+@@ -1264,6 +1310,7 @@
+     """Fetch SSE option closes with audited Sina -> Eastmoney failover."""
+ 
+     failures: list[str] = []
++    source_errors: list[Exception] = []
+     for source, fetcher in (
+         ("Sina", fetch_sina_option_closes),
+         ("Eastmoney", fetch_eastmoney_option_closes),
+@@ -1284,16 +1331,20 @@
+             return result
+         except Exception as exc:  # noqa: BLE001 - continue to the validated backup.
+             failures.append(f"{source}: {type(exc).__name__}: {exc}")
+-    raise RuntimeError(
+-        f"上交所期权 {security_id} 历史行情全部来源失败：{'；'.join(failures)}"
+-    )
++            source_errors.append(exc)
++    raise _source_failure_error(
++        f"上交所期权 {security_id} 历史行情全部来源失败：{'；'.join(failures)}", source_errors
++    ) from source_errors[-1]
+ 
+ 
+ def fetch_option_dated_open(security_id: str, day: date) -> tuple[float, str]:
+     """Read this contract's dated opening price; never substitute a close."""
+     if not re.fullmatch(r"[0-9]{8}", str(security_id)):
+         raise ValueError("IC Put证券代码格式异常")
++    day = adjusted_put_migration.day(day)
+     failures: list[str] = []
++    source_errors: list[Exception] = []
++    response = None
+     try:
+         response = requests.get(
+             "https://stock.finance.sina.com.cn/futures/api/jsonp_v2.php//StockOptionDaylineService.getSymbolInfo",
+@@ -1305,9 +1356,14 @@
+         match = re.search(r"\((\[.*\])\)\s*;?\s*$", response.text, flags=re.DOTALL)
+         if match is None:
+             raise RuntimeError("新浪开盘行情格式异常")
+-        rows = [item for item in json.loads(match.group(1)) if item.get("d") == day.isoformat()]
++        payload = json.loads(match.group(1))
++        if not isinstance(payload, list) or any(not isinstance(item, dict) for item in payload):
++            raise RuntimeError("新浪开盘行情结构异常")
++        rows = [item for item in payload if adjusted_put_migration.day(item.get("d")) == day]
+         if not rows:
+             raise RuntimeError("新浪缺少指定交易日期开盘记录")
++        if any(isinstance(item.get("o"), (bool, np.bool_)) for item in rows):
++            raise RuntimeError("新浪指定交易日期开盘价不能为布尔值")
+         openings = {float(item["o"]) for item in rows}
+         if len(openings) != 1:
+             raise RuntimeError("新浪同日开盘记录相互冲突")
+@@ -1317,6 +1373,11 @@
+         return opening, "Sina:dated_open"
+     except Exception as exc:
+         failures.append(f"Sina:{type(exc).__name__}:{exc}")
++        source_errors.append(exc)
++    finally:
++        close = getattr(response, "close", None)
++        if callable(close):
++            close()
+     try:
+         payload = _request_json(
+             "https://push2his.eastmoney.com/api/qt/stock/kline/get",
+@@ -1328,7 +1389,7 @@
+         if str(data.get("code") or "") != str(security_id) or int(data.get("market", -1)) != 10:
+             raise RuntimeError("东方财富期权证券身份不一致")
+         rows = [str(raw).split(",") for raw in data.get("klines") or []]
+-        matches = [fields for fields in rows if fields and fields[0] == day.isoformat()]
++        matches = [fields for fields in rows if fields and adjusted_put_migration.day(fields[0]) == day]
+         if len(matches) != 1 or len(matches[0]) < 3:
+             raise RuntimeError("东方财富指定交易日期开盘记录不唯一")
+         opening = float(matches[0][1])
+@@ -1337,7 +1398,10 @@
+         return opening, "Eastmoney:dated_open"
+     except Exception as exc:
+         failures.append(f"Eastmoney:{type(exc).__name__}:{exc}")
+-    raise RuntimeError(f"IC Put {security_id} {day} 开盘价不可核验；" + "；".join(failures))
++        source_errors.append(exc)
++    raise _source_failure_error(
++        f"IC Put {security_id} {day} 开盘价不可核验；" + "；".join(failures), source_errors
++    ) from source_errors[-1]
+ 
+ 
+ def fetch_sina_510500_security_id(contract: str) -> str:
+@@ -1714,6 +1778,14 @@
+ class DailyOHLCVNotReady(RuntimeError):
+     """No complete daily bar yet; never promote an intraday volume placeholder."""
+     status = "waiting_for_completed_daily_ohlcv"
++
++
++class DailyOHLCVSourcesUnavailable(RuntimeError):
++    """Mixed source failures; some daily bars may still be awaiting publication."""
++    status = "daily_ohlcv_sources_unavailable"
++
++
++_OHLCV_FRESHNESS_PROBE = contextvars.ContextVar("ohlcv_freshness_probe", default=False)
+ 
+ 
+ def _validate_v13_ohlcv(product: str, frame: pd.DataFrame, clock: datetime) -> pd.DataFrame:
+@@ -2119,6 +2191,14 @@
+     """All attempted sources failed in transport, not data validation."""
+ 
+ 
++def _source_failure_error(message: str, errors: list[Exception]) -> RuntimeError:
++    """Keep retries for wholly transient source failures, never malformed data."""
++    transport = (requests.ConnectionError, requests.Timeout, requests.exceptions.ChunkedEncodingError)
++    if errors and all(isinstance(exc, transport) for exc in errors):
++        return SignalTransportError(message)
++    return RuntimeError(message)
++
++
+ def _fetch_tencent_ohlcv_history(product: str, clock: datetime) -> pd.DataFrame:
+     """Fetch Tencent daily index OHLCV in same-source pages and validate once."""
+ 
+@@ -2127,15 +2207,17 @@
+     expected_day = _latest_completed_exchange_day(clock)
+     all_rows: dict[date, tuple[str, ...]] = {}
+     page_manifest: list[dict[str, Any]] = []
++    probing = bool(_OHLCV_FRESHNESS_PROBE.get())
+     year = history_start.year
+     first_page = True
+     page_number = 0
+ 
+     while True:
+-        page_start = history_start if first_page else date(year, 1, 1)
+-        page_end = min(
++        page_start = (max(history_start, expected_day - timedelta(days=30)) if probing
++                      else history_start if first_page else date(year, 1, 1))
++        page_end = (expected_day if probing else min(
+             date(year + TENCENT_OHLCV_PAGE_STEP_YEARS, 1, 31), expected_day
+-        )
++        ))
+         if page_end < page_start:
+             raise RuntimeError(
+                 f"{product} Tencent分页日期无效：{page_start}至{page_end}"
+@@ -2366,6 +2448,7 @@
+         page_manifest.append(
+             {
+                 "page": page_number,
++                "purpose": "freshness_probe" if probing else "history_page",
+                 "window_start": page_start.isoformat(),
+                 "window_end": page_end.isoformat(),
+                 "started_at": started_at.isoformat(),
+@@ -2388,6 +2471,28 @@
+             }
+         )
+ 
++        if probing:
++            probe_values = np.asarray(
++                [[float(value) for value in row[1:6]] for _, row in accepted_rows],
++                dtype=float,
++            )
++            if (probe_values.size == 0 or not np.isfinite(probe_values).all()
++                    or (probe_values <= 0).any()
++                    or (probe_values[:, 2] < probe_values[:, :2].max(axis=1)).any()
++                    or (probe_values[:, 3] > probe_values[:, :2].min(axis=1)).any()
++                    or not 1_000_000.0 <= float(np.median(probe_values[:, 4]))
++                    * TENCENT_OHLCV_VOLUME_TO_SHARES <= 1_000_000_000_000.0):
++                raise RuntimeError(f"{product} Tencent最新页OHLCV价格或成交量无效")
++            if max(page_dates) < expected_day:
++                raise DailyOHLCVNotReady(
++                    f"{product} Tencent最新日线尚未更新：最新{max(page_dates)}，"
++                    f"应覆盖{expected_day}；等待完整日线（含成交量）后重试"
++                )
++            # The recent page proves only freshness, never warmup/history
++            # completeness. Fetch and validate the full same-source history.
++            # Keep its rows so conflicting overlap is still rejected.
++            probing = False
++            continue
+         if page_end >= expected_day:
+             break
+         year += TENCENT_OHLCV_PAGE_STEP_YEARS
+@@ -2501,20 +2606,36 @@
+     except Exception as exc:
+         errors.append(f"Eastmoney: {type(exc).__name__}: {exc}")
+         causes.append(exc)
++    probe_token = _OHLCV_FRESHNESS_PROBE.set(
++        any(isinstance(exc, DailyOHLCVNotReady) for exc in causes)
++    )
+     try:
+-        frame = _fetch_tencent_ohlcv_history(product, _now_beijing())
+-        frame.attrs["source_failures"] = list(errors)
+-        return frame
+-    except Exception as exc:
+-        errors.append(f"Tencent: {type(exc).__name__}: {exc}")
+-        causes.append(exc)
++        try:
++            frame = _fetch_tencent_ohlcv_history(product, _now_beijing())
++            frame.attrs["source_failures"] = list(errors)
++            return frame
++        except Exception as exc:
++            errors.append(f"Tencent: {type(exc).__name__}: {exc}")
++            causes.append(exc)
++    finally:
++        _OHLCV_FRESHNESS_PROBE.reset(probe_token)
+     if causes and all(isinstance(exc, DailyOHLCVNotReady) for exc in causes):
+         error_type = DailyOHLCVNotReady
+     elif causes and all(isinstance(exc, (requests.ConnectionError, requests.Timeout)) for exc in causes):
+         error_type = SignalTransportError
+     else:
+-        error_type = RuntimeError
+-    raise error_type(f"{product} OHLCV全部来源失败：{'；'.join(errors)}")
++        error_type = DailyOHLCVSourcesUnavailable
++    error = error_type(f"{product} OHLCV全部来源失败：{'；'.join(errors)}")
++    error.source_failures = [
++        {"source": source, "type": type(cause).__name__, "reason": str(cause),
++         "status": getattr(cause, "status", None)}
++        for source, cause in zip(("Sina", "Eastmoney", "Tencent"), causes)
++    ]
++    error.waiting_sources = [
++        source for source, cause in zip(("Sina", "Eastmoney", "Tencent"), causes)
++        if isinstance(cause, DailyOHLCVNotReady)
++    ]
++    raise error
+ 
+ 
+ def _validated_price_history(
+@@ -3665,6 +3786,23 @@
+     return response.json()
+ 
+ 
++def _sse_session_time(value: Any, label: str) -> str:
++    """Normalize a supplied SSE time without turning missing data into midnight."""
++    if value is None or isinstance(value, (bool, np.bool_)):
++        raise RuntimeError(f"{label}缺少有效行情时间")
++    raw = str(value).strip()
++    if not re.fullmatch(r"[0-9]{1,6}", raw):
++        raise RuntimeError(f"{label}行情时间格式无效")
++    normalized = raw.zfill(6)
++    try:
++        observed = datetime.strptime(normalized, "%H%M%S").time()
++    except ValueError as exc:
++        raise RuntimeError(f"{label}行情时间无效") from exc
++    if observed < time(9, 15):
++        raise RuntimeError(f"{label}行情时间早于09:15，不能作为有效盘中行情")
++    return normalized
++
++
+ def fetch_sse_510500_quote() -> dict[str, Any]:
+     payload = _sse_quote_json(
+         "v1/sh1/list/self/510500",
+@@ -3681,7 +3819,7 @@
+         raise RuntimeError("上交所510500ETF行情含NaN、无穷值或非正价格")
+     return {
+         "date": str(payload.get("date", "")),
+-        "time": str(payload.get("time", "")).zfill(6),
++        "time": _sse_session_time(payload.get("time"), "上交所510500ETF"),
+         "last": last,
+         "prev_close": prev_close,
+     }
+@@ -3704,7 +3842,7 @@
+     frame = _numeric_frame(pd.DataFrame(rows, columns=columns), skip=("contract", "security_id"))
+     return frame, {
+         "date": str(payload.get("date", "")),
+-        "time": str(payload.get("time", "")).zfill(6),
++        "time": _sse_session_time(payload.get("time"), "上交所510500期权链"),
+         "source": "上交所行情接口",
+     }
+ 
+@@ -3820,6 +3958,7 @@
+ def fetch_510500_chain_with_failover(expiry_ym: str) -> tuple[pd.DataFrame, dict[str, str]]:
+     """Use SSE first, then Sina; never substitute stale or malformed quotes."""
+     failures: list[str] = []
++    source_errors: list[Exception] = []
+     for source, fetcher in (
+         ("上交所行情接口", fetch_sse_510500_chain),
+         ("新浪财经期权详报价", fetch_sina_510500_chain),
+@@ -3837,7 +3976,10 @@
+             return chain, normalized_stamp
+         except Exception as exc:
+             failures.append(f"{source}: {type(exc).__name__}: {exc}")
+-    raise RuntimeError("510500期权链所有来源均不可用；" + "；".join(failures))
++            source_errors.append(exc)
++    raise _source_failure_error(
++        "510500期权链所有来源均不可用；" + "；".join(failures), source_errors
++    ) from source_errors[-1]
+ 
+ 
+ def _fetch_510500_chain_for_day(expiry_ym: str, reference_day: date):
+@@ -3884,7 +4026,7 @@
+         if len(row) >= 3
+     }
+     if day not in points:
+-        raise RuntimeError(f"上交所510500ETF历史日线缺少 {day} 收盘")
++        raise RuntimeError(f"腾讯510500ETF历史日线缺少 {day} 收盘")
+     ordered = sorted(points)
+     location = ordered.index(day)
+     previous = points[ordered[location - 1]] if location else points[day]
+@@ -3893,6 +4035,7 @@
+         "time": "150000",
+         "last": float(points[day]),
+         "prev_close": float(previous),
++        "source": "腾讯510500ETF历史日线",
+     }
+ 
+ 
+@@ -3911,11 +4054,15 @@
+                      "Referer": "https://www.sse.com.cn/assortment/options/disclo/info/",
+                      "Cache-Control": "no-cache", "Pragma": "no-cache"},
+         )
++    except (requests.ConnectionError, requests.Timeout, requests.exceptions.ChunkedEncodingError) as exc:
++        raise SignalTransportError("IC历史Put官方逐日身份来源不可用，禁止猜测历史条款") from exc
+     except requests.RequestException as exc:
+         raise RuntimeError("IC历史Put官方逐日身份来源不可用，禁止猜测历史条款") from exc
+     try:
+         response.raise_for_status()
+         payload = json.loads(_bounded_response_bytes(response, "IC历史Put官方主表"))
++    except (requests.ConnectionError, requests.Timeout, requests.exceptions.ChunkedEncodingError) as exc:
++        raise SignalTransportError("IC历史Put官方逐日身份响应传输中断") from exc
+     except (requests.RequestException, ValueError) as exc:
+         raise RuntimeError("IC历史Put官方逐日身份响应无效") from exc
+     finally:
+@@ -3989,13 +4136,95 @@
+     return day not in _EXCHANGE_CLOSURES
+ 
+ 
++class CalendarCoverageError(RuntimeError):
++    """A scheduling or delivery date lacks official calendar evidence."""
++
++
++_SIGNAL_CALENDAR_DIAGNOSTICS = contextvars.ContextVar("signal_calendar_diagnostics", default=None)
++
++
+ def _require_official_exchange_calendar(day: date, label: str) -> None:
+     if day.year not in _OFFICIAL_EXCHANGE_CALENDAR_YEARS:
++        context = _SIGNAL_CALENDAR_DIAGNOSTICS.get()
++        if context is not None:
++            item = {"date": day.isoformat(), "purpose": label,
++                    "source": "missing_official_calendar", "officially_verified": False}
++            if item not in context["failures"]:
++                context["failures"].append(item)
+         covered = "/".join(str(year) for year in sorted(_OFFICIAL_EXCHANGE_CALENDAR_YEARS))
+-        raise RuntimeError(
++        raise CalendarCoverageError(
+             f"{label}需要{day.year}年官方交易日历，但脚本仅覆盖{covered}年；"
+             "暂停实时新鲜度判定和新增信号"
+         )
++
++
++def _require_model_expiry_calendar(day: date, label: str) -> None:
++    """Only an explicit signal-diagnostic context may estimate a model expiry.
++
++    Recording an estimate never authorizes selection, sizing or scheduling as a
++    formal target. The public builder must return a separate diagnostic payload.
++    Direct selector callers retain their original strict behavior.
++    """
++    if day.year in _OFFICIAL_EXCHANGE_CALENDAR_YEARS:
++        return
++    context = _SIGNAL_CALENDAR_DIAGNOSTICS.get()
++    if context is None:
++        _require_official_exchange_calendar(day, label)
++        return
++    item = {"date": day.isoformat(), "purpose": label,
++            "source": "weekday_rule_unverified", "officially_verified": False}
++    if item not in context["expiries"]:
++        context["expiries"].append(item)
++
++
++def make_diagnostic_signal(
++    product: str, clock: datetime, reason: str, *,
++    source_signal: dict[str, Any] | None = None,
++    status: str = "calendar_unverified",
++) -> dict[str, Any]:
++    """Return observations with no executable targets or pending-plan fields."""
++    clock = _beijing_clock(clock)
++    context = _SIGNAL_CALENDAR_DIAGNOSTICS.get()
++    source = source_signal or (context.get("signal", {}) if context else {})
++    anchor = context.get("anchor", LIVE_CONTINUATION_ANCHOR[product]) if context else LIVE_CONTINUATION_ANCHOR[product]
++    calendar_rows = list(context["expiries"] + context["failures"]) if context else []
++    future = dict(context.get("future", {})) if context else {}
++    future.update(formal_target_available=False, scope="verified_quotes_or_last_verified_identity_only")
++    future.setdefault("last_verified_contract", anchor.get("post_core_contract"))
++    future.setdefault("last_verified_day", anchor.get("last_verified_day"))
++    result = {
++        "product": product, "mode": source.get("mode", "intraday"),
++        "market_date": source.get("market_date", clock.date()),
++        "market_phase": source.get("market_phase", _market_phase(clock)),
++        "close_confirmed": source.get("close_confirmed", False),
++        "state_anchor_day": source.get("state_anchor_day", anchor.get("last_verified_day")),
++        "fetch_time": clock.strftime("%Y-%m-%d %H:%M:%S"),
++        "diagnostic_only": True, "signal_complete": False,
++        "persistence_eligible": False, "v14_action": "HOLD_FAIL_CLOSED",
++        "diagnostic_status": status, "diagnostic_reason": str(reason),
++        "calendar_provisional": bool(calendar_rows) or status == "calendar_unverified",
++        "calendar_diagnostics": calendar_rows,
++        "calendar_coverage_warning": (_calendar_coverage_warning(clock.date())
++            or _calendar_coverage_note(date.fromisoformat(row["date"]) for row in calendar_rows)),
++        "diagnostic_future": future,
++        "diagnostic_model": {key: source[key] for key in (
++            "index_price", "score", "momentum_120", "momentum_score",
++            "put_sizing_iv", "put_sizing_option_abs_delta", "put_sizing_expiry",
++        ) if key in source},
++        "data_notes": list(source.get("data_notes", [])),
++    }
++    # Deliberately do not copy the source dict: even a failed policy path can
++    # contain newly-created ordinary/short/profit pending plans and targets.
++    return result
++
++
++def _calendar_coverage_warning(day: date) -> str | None:
++    year_end = date(day.year, 12, 31)
++    if ((year_end - day).days <= 90
++            and day.year + 1 not in _OFFICIAL_EXCHANGE_CALENDAR_YEARS):
++        return (f"交易日历覆盖预警：距离{day.year}年末不足90天，"
++                f"{day.year + 1}年官方交易日历尚未载入；跨年日期仅作标注诊断，执行与落账须核验。")
++    return None
+ 
+ 
+ def _roll_backward_exchange_day(
+@@ -4090,7 +4319,7 @@
+             f"{product} 行情中的期货合约均已到期（最晚规则到期日 {latest}）"
+         )
+     selected = eligible.iloc[0]
+-    _require_official_exchange_calendar(selected["expiry"], "selected future expiry")
++    _require_model_expiry_calendar(selected["expiry"], "selected future expiry")
+     return selected
+ 
+ 
+@@ -4412,7 +4641,7 @@
+     if not match:
+         raise RuntimeError(f"无法解析IC Put月份或行权价: {contract}")
+     expiry = _fourth_wednesday(2000 + int(match.group(1)), int(match.group(2)))
+-    _require_official_exchange_calendar(expiry, "held IC Put sizing expiry")
++    _require_model_expiry_calendar(expiry, "held IC Put sizing expiry")
+     strike = float(match.group(3)) / 1000.0
+     market_price = float(quote.get("last", np.nan))
+     years = max((expiry - today).days, 1) / 365.0
+@@ -4515,7 +4744,7 @@
+     month, expiry = min(
+         candidates, key=lambda item: (abs((item[1] - target_day).days), item[1])
+     )
+-    _require_official_exchange_calendar(expiry, "selected IC Put expiry")
++    _require_model_expiry_calendar(expiry, "selected IC Put expiry")
+     chain, stamp = _fetch_510500_chain_for_day(month[2:], today)
+     puts = chain[
+         chain["contract"].str.contains(rf"510500P{month[2:]}M", regex=True)
+@@ -4614,7 +4843,7 @@
+     if not expiries:
+         raise RuntimeError("没有未来MO Put挂牌月份")
+     expiry = min(expiries, key=lambda value: (abs((value - target_day).days), -value.toordinal()))
+-    _require_official_exchange_calendar(expiry, "selected IM Put expiry")
++    _require_model_expiry_calendar(expiry, "selected IM Put expiry")
+     listed_month = listed_puts[listed_puts["expiry"].eq(expiry)].copy()
+     listed_month["strike_error"] = (listed_month["strike"] - im_put_policy.moneyness(today) * spot).abs()
+     selected_contract = str(
+@@ -4646,7 +4875,7 @@
+         raise RuntimeError("没有未来MO Put挂牌月份")
+     # Historical independent replay chooses the later actual expiry on a tie.
+     expiry = min(expiries, key=lambda value: (abs((value - target_day).days), -value.toordinal()))
+-    _require_official_exchange_calendar(expiry, "independent IM Put expiry")
++    _require_model_expiry_calendar(expiry, "independent IM Put expiry")
+     return expiry
+ 
+ 
+@@ -4807,7 +5036,9 @@
+ 
+ 
+ def _is_pre_expiry_close(today: date, active_expiry: date, close_confirmed: bool) -> bool:
+-    _require_official_exchange_calendar(active_expiry, "option maintenance expiry")
++    # The expiry may be a diagnostic estimate. The comparison session itself
++    # remains strict, and any estimate prevents formal signal delivery.
++    _require_model_expiry_calendar(active_expiry, "option maintenance expiry")
+     next_trading_day = _roll_forward_exchange_day(today + timedelta(days=1), require_official=True)
+     return next_trading_day == active_expiry and close_confirmed is True
+ 
+@@ -4947,6 +5178,8 @@
+             observed = _iv_monitor_stamp(reference_day, stamp.get("date"), raw_time, label)
+         except ValueError as exc:
+             raise RuntimeError(f"{label}行情时间无效") from exc
++        if observed.time() < time(9, 15):
++            raise RuntimeError(f"{label}行情时间早于09:15，不能作为有效盘中行情")
+         now = clock.astimezone(BEIJING) if clock.tzinfo else clock.replace(tzinfo=BEIJING)
+         if observed > now:
+             raise RuntimeError(f"{label}行情时间晚于当前运行时间")
+@@ -5393,6 +5626,17 @@
+ def _v14_option_mark(product: str, signal: dict[str, Any], quotes: pd.DataFrame | None) -> tuple[float | None, float | None]:
+     if product == "IC":
+         mark = signal.get("iv_monitor_option_price")
++        if signal.get("put_current_core_qty") is not None:
++            if float(signal["put_current_core_qty"]) <= 0:
++                mark = None
++            else:
++                core = signal.get("v14_core_put_current_contract") or signal.get("put_current_contract")
++                evidence = signal.get("iv_monitor_evidence")
++                if isinstance(evidence, dict):
++                    mark = (evidence.get("option_price")
++                            if evidence.get("sleeve") == "core" and evidence.get("contract") == core else None)
++                elif signal.get("put_current_contract") != core:
++                    mark = None
+         target = (
+             signal.get("v14_selected_core_entry_premium")
+             if signal.get("option_monthly_reset_due")
+@@ -5474,7 +5718,7 @@
+                 if not expiry_match:
+                     raise RuntimeError("IC独立核心Put格式无效")
+                 expiry = _fourth_wednesday(2000+int(expiry_match.group(1)),int(expiry_match.group(2)))
+-                _require_official_exchange_calendar(expiry, "dedicated IC core Put sizing expiry")
++                _require_model_expiry_calendar(expiry, "dedicated IC core Put sizing expiry")
+                 years = (expiry-day).days/365.0
+                 spot = float(signal["etf_price"])
+                 strike = int(expiry_match.group(3))/1000.0
+@@ -5681,7 +5925,7 @@
+     if market_date > execution_day:
+         return {"status": put_execution.RETRY_OPEN_STATUS if market_date >= put_execution.OPEN_EVIDENCE_EFFECTIVE_DATE
+                 else "closed_missed_execution_day", "plan": plan,
+-                "reason": "Replay the original execution day; do not execute on a later date"}
++                "reason": f"需对 {execution_day} 执行 historical_replay，保留原计划和原执行日"}
+     # A monthly reset is a same-day close event and has priority over a
+     # preselected ordinary opening change on that date.
+     if market_date == _third_friday(market_date.year, market_date.month):
+@@ -5728,6 +5972,44 @@
+         return {"status": status, "plan": plan,
+                 "reason": f"{type(exc).__name__}: {exc}"}
+     return {"status": "confirmed_open_research_price", "plan": plan, "prices": prices}
++
++
++def _opening_retry_diagnostic(
++    product: str, clock: datetime, market_date: date, live: dict[str, Any],
++    events: list[dict[str, Any]], *, original_anchor: dict[str, Any] | None = None,
++) -> dict[str, Any]:
++    """Expose missing original-day evidence without creating replacement plans."""
++    pending = [event for event in events if event.get("status") == put_execution.RETRY_OPEN_STATUS]
++    anchor = original_anchor if original_anchor is not None else LIVE_CONTINUATION_ANCHOR[product]
++    retained = [("ordinary", anchor.get("v14_ordinary_put_pending")),
++                ("short_put", anchor.get("v14_short_put_open_pending"))]
++    if anchor.get("v14_profit_pending") and anchor.get("v14_profit_execution_day"):
++        execution = put_execution.as_day(anchor["v14_profit_execution_day"])
++        if execution <= market_date and (execution < market_date or market_date != _third_friday(market_date.year, market_date.month)):
++            retained.append(("profit3x", put_execution.profit_plan(product, anchor, execution)))
++    def fingerprint(plan: dict[str, Any]) -> str:
++        return json.dumps(plan, sort_keys=True, default=str)
++    seen = {fingerprint(event["plan"]) for event in pending}
++    for kind, plan in retained:
++        if (isinstance(plan, dict) and put_execution.as_day(plan["execution_day"]) <= market_date
++                and fingerprint(plan) not in seen):
++            pending.append(dict(kind=kind, plan=plan, status=put_execution.RETRY_OPEN_STATUS,
++                                reason="原计划保留；完整组合开盘证据尚未全部确认"))
++            seen.add(fingerprint(plan))
++    plans = [json.loads(json.dumps(event["plan"], default=str)) for event in pending]
++    days = sorted({str(plan["execution_day"])[:10] for plan in plans})
++    reason = "原执行日开盘证据尚未确认，Put腿待确认；保留原计划。"
++    if days:
++        reason += "执行日：" + "、".join(days) + "。"
++        missed = [day for day in days if date.fromisoformat(day) < market_date]
++        reason += ("需对 " + "、".join(missed) + " 执行 historical_replay。" if missed
++                   else "请等待原执行日开盘数据后重试；若已跨日，须对原执行日执行 historical_replay。")
++    source = {**live, "market_date": market_date}
++    diagnostic = make_diagnostic_signal(product, clock, reason, source_signal=source,
++                                        status="awaiting_opening_evidence")
++    diagnostic.update(retry_original_plans=plans, retry_execution_days=days,
++                      retry_evidence_failures=[str(event.get("reason", "")) for event in pending])
++    return diagnostic
+ 
+ 
+ def _v14_ic_ordinary_core_target(signal: dict[str, Any]) -> tuple[str | None, str | None, float]:
+@@ -6004,6 +6286,12 @@
+ 
+ def _v14_project_committed_opens(product: str, day: date, clock: datetime,
+                                  quote_cache: dict[str, pd.DataFrame]) -> list[dict[str, Any]]:
++    with STRATEGY_QUERY_LOCK:
++        return _v14_project_committed_opens_locked(product, day, clock, quote_cache)
++
++
++def _v14_project_committed_opens_locked(product: str, day: date, clock: datetime,
++                                        quote_cache: dict[str, pd.DataFrame]) -> list[dict[str, Any]]:
+     if not put_execution.active(day):
+         return []
+     events = []
+@@ -6015,7 +6303,10 @@
+         if day > execution:
+             event["status"] = (put_execution.RETRY_OPEN_STATUS if day >= put_execution.OPEN_EVIDENCE_EFFECTIVE_DATE
+                                else "closed_missed_execution_day")
+-            event["reason"] = "Replay the original execution day; do not execute on a later date"
++            event["reason"] = (
++                f"需对 {execution.isoformat()} 执行 historical_replay；"
++                "保留原执行日和计划，不在后续日期补做成交"
++            )
+         elif day == execution:
+             try:
+                 event.update(status="confirmed_open_research_price",
+@@ -6026,6 +6317,14 @@
+                 event.update(status=status, reason=f"{type(exc).__name__}: {exc}")
+         anchor = put_execution.project_short_open(product, anchor, event, day)
+         events.append(event)
++    if (day >= put_execution.OPEN_EVIDENCE_EFFECTIVE_DATE and anchor.get("v14_profit_pending")
++            and anchor.get("v14_profit_execution_day")
++            and put_execution.as_day(anchor["v14_profit_execution_day"]) < day):
++        execution = put_execution.as_day(anchor["v14_profit_execution_day"])
++        original_plan = put_execution.profit_plan(product, anchor, execution)
++        if original_plan is not None:
++            events.append(dict(kind="profit3x", plan=original_plan, status=put_execution.RETRY_OPEN_STATUS,
++                               reason=f"需对 {execution} 执行 historical_replay；保留原计划和原执行日"))
+     plan = put_execution.profit_plan(product, anchor, day)
+     # Monthly priority is calendar-known, unchanged by this repair.
+     if plan and day != _third_friday(day.year, day.month):
+@@ -6037,7 +6336,10 @@
+         except (RuntimeError, ValueError, KeyError, TypeError, requests.RequestException) as exc:
+             status = (put_execution.RETRY_OPEN_STATUS if day >= put_execution.OPEN_EVIDENCE_EFFECTIVE_DATE
+                       else "closed_missing_open_price")
+-            event.update(status=status, reason=f"{type(exc).__name__}: {exc}")
++            execution = put_execution.as_day(plan["execution_day"])
++            replay = (f"需对 {execution.isoformat()} 执行 historical_replay；"
++                      if day > execution else "")
++            event.update(status=status, reason=f"{replay}{type(exc).__name__}: {exc}")
+         events.append(event)
+     LIVE_CONTINUATION_ANCHOR[product] = anchor
+     return events
+@@ -6047,18 +6349,39 @@
+     product: str, now: datetime | None = None, mode: str = "intraday",
+ ) -> dict[str, Any]:
+     clock = _beijing_clock(now or _now_beijing())
+-    with runtime_clock(clock):
++    with STRATEGY_QUERY_LOCK, runtime_clock(clock):
+         # The exchange session ends at 15:00.  The generic snapshot route is
+         # deliberately more conservative until 15:30; these are not one gate.
+         if mode == "close" and _is_exchange_trading_day(clock.date()) and _market_phase(clock) != "收盘后":
+             raise RuntimeError("今日尚未收盘，收盘确认信号尚不可用；盘中研究请查询实时信号")
+         original_anchor = LIVE_CONTINUATION_ANCHOR[product]
++        context = {"expiries": [], "failures": [], "signal": {}, "future": {}, "anchor": original_anchor}
++        token = _SIGNAL_CALENDAR_DIAGNOSTICS.set(context)
+         try:
+-            return _build_live_trade_signal(product, clock, mode)
++            try:
++                result = _build_live_trade_signal(product, clock, mode)
++            except CalendarCoverageError as exc:
++                result = make_diagnostic_signal(product, clock, str(exc))
++            if not result.get("diagnostic_only") and (
++                context["expiries"] or context["failures"]
++                or result.get("v14_action") == "HOLD_FAIL_CLOSED"
++            ):
++                result = make_diagnostic_signal(
++                    product, clock,
++                    ("到期日或执行日尚未经官方日历核验；估值仅作诊断，组合目标未确认。"
++                     if context["expiries"] or context["failures"] else
++                      str(result.get("v14_action_reason") or result.get("v14_reason")
++                          or "Put腿未能完成核验，组合目标未确认。")),
++                    source_signal=result,
++                    status="calendar_unverified" if context["expiries"] or context["failures"] else "put_fail_closed",
++                )
++            result["mode"] = mode
++            return result
+         finally:
+             # Opening confirmation is an in-memory projection for this query.
+             # Only the state store may persist a fully validated close signal.
+             LIVE_CONTINUATION_ANCHOR[product] = original_anchor
++            _SIGNAL_CALENDAR_DIAGNOSTICS.reset(token)
+ 
+ 
+ def _build_live_trade_signal(
+@@ -6085,6 +6408,8 @@
+     opening_anchor = LIVE_CONTINUATION_ANCHOR[product]
+     put_execution.require_supported_ic_contracts(product, opening_anchor)
+     opening = _v14_ordinary_open_evidence(product, market_date, clock, quote_cache)
++    if opening is not None and opening.get("status") == put_execution.RETRY_OPEN_STATUS:
++        return _opening_retry_diagnostic(product, clock, market_date, live, [opening], original_anchor=opening_anchor)
+     put_execution.require_resolved_opening_evidence(
+         {"v14_ordinary_put_open_status": opening["status"] if opening else None}
+     )
+@@ -6093,6 +6418,8 @@
+             product, LIVE_CONTINUATION_ANCHOR[product], opening["plan"], opening["prices"]
+         )
+     opening_events = _v14_project_committed_opens(product, market_date, clock, quote_cache)
++    if any(event.get("status") == put_execution.RETRY_OPEN_STATUS for event in opening_events):
++        return _opening_retry_diagnostic(product, clock, market_date, live, opening_events, original_anchor=opening_anchor)
+     put_execution.require_resolved_opening_evidence({"v14_opening_events": opening_events})
+     put_execution.require_due_openings(product, opening_anchor,
+         {"v14_ordinary_put_open_status": opening["status"] if opening else None,
+@@ -6149,6 +6476,27 @@
+     _require_intraday_bridge_source_day(
+         f"{product}期货", future_quote_date, market_date, bridge_from_anchor
+     )
++    calendar_context = _SIGNAL_CALENDAR_DIAGNOSTICS.get()
++    if calendar_context is not None:
++        try:
++            observed_day = pd.Timestamp(future_quote_date).date() if future_quote_date is not None else None
++        except (ValueError, TypeError):
++            observed_day = None
++        quote_rows = []
++        if observed_day == market_date:
++            for _, row in future_quotes.iterrows():
++                contract = str(row.get("instrument", ""))
++                price = row.get("lastprice")
++                if (re.fullmatch(rf"{product}[0-9]{{4}}", contract)
++                        and not isinstance(price, (bool, np.bool_))
++                        and price is not None and math.isfinite(float(price)) and float(price) > 0):
++                    quote_rows.append({"contract": contract, "lastprice": float(price)})
++        calendar_context["future"] = {
++            "quote_source": future_quote_source,
++            "quote_date": str(future_quote_date) if future_quote_date is not None else None,
++            "quote_status": "signal_date_matched" if observed_day == market_date else "unverified_date",
++            "quotes": quote_rows,
++        }
+     # Option maintenance keeps the original monthly reference, independent of futures.
+     monthly_future = select_active_future(product, future_quotes, market_date)
+     monthly_expiry = _third_friday(*_contract_month(str(monthly_future["instrument"])))
+@@ -6346,6 +6694,8 @@
+         "grid_policy": grid_rule(product, market_date),
+         "data_notes": data_notes,
+     }
++    if calendar_context is not None:
++        calendar_context["signal"] = signal
+     if fear_evidence is not None:
+         signal.update(fear_evidence)
+         if market_date >= fear_grid.CLOSE_FALLBACK_EFFECTIVE_DATE:
+@@ -6383,13 +6733,16 @@
+         else:
+             chain, sse_stamp = _fetch_510500_chain_for_day(match.group(1), market_date)
+             etf = fetch_sse_510500_quote()
+-        chain_day = _validate_market_stamp("上交所510500期权链", sse_stamp["date"], clock)
+-        etf_day = _validate_market_stamp("上交所510500ETF", etf["date"], clock)
++        chain_label = f"{sse_stamp.get('source', '上交所')}510500期权链"
++        etf_label = str(etf.get("source", "上交所510500ETF"))
++        data_notes.append(f"期权链实际来源：{sse_stamp.get('source', '上交所')}；ETF现价实际来源：{etf_label}")
++        chain_day = _validate_market_stamp(chain_label, sse_stamp["date"], clock)
++        etf_day = _validate_market_stamp(etf_label, etf["date"], clock)
+         _require_intraday_bridge_source_day(
+-            "上交所510500期权链", chain_day, market_date, bridge_from_anchor
++            chain_label, chain_day, market_date, bridge_from_anchor
+         )
+         _require_intraday_bridge_source_day(
+-            "上交所510500ETF", etf_day, market_date, bridge_from_anchor
++            etf_label, etf_day, market_date, bridge_from_anchor
+         )
+         if chain_day != etf_day:
+             raise RuntimeError(
+@@ -6519,6 +6872,11 @@
+                     etf_day,
+                     clock,
+                 )
++            if reset["qty"] is None:
++                return make_diagnostic_signal(
++                    product, clock, "IC维护候选合约已选，但IV或Delta不足以确认张数，Put腿待核验。",
++                    source_signal=signal, status="put_quantity_unresolved",
++                )
+             if reset["qty"] == 0:
+                 put_target = "无需Put，绝对Delta 0%"
+                 put_market = "无（目标Delta为0%）"
+@@ -6736,7 +7094,7 @@
+         core_put_expiry = None
+         if core_put_contract is not None and core_put_current_normalized > 0.0:
+             core_put_expiry = _third_friday(*_contract_month(core_put_contract))
+-            _require_official_exchange_calendar(core_put_expiry, "held IM core Put maintenance")
++            _require_model_expiry_calendar(core_put_expiry, "held IM core Put maintenance")
+         core_put_reselect = put_target > 0 and (
+             im_put_reset_due or core_put_current_normalized == 0.0
+             or (core_put_expiry is not None and core_put_expiry <= market_date)
+@@ -6782,7 +7140,7 @@
+                 else None
+             )
+             if current_expiry is not None:
+-                _require_official_exchange_calendar(current_expiry, "held IM momentum Put maintenance")
++                _require_model_expiry_calendar(current_expiry, "held IM momentum Put maintenance")
+             if (
+                 momentum_put_contract and momentum_put_current_normalized > 0.0
+                 and not im_put_reset_due and current_expiry > market_date
+@@ -7130,20 +7488,45 @@
+             "total_units_change": target_total_units - current_total_units,
+         }
+     )
++    if calendar_context is not None and calendar_context["expiries"]:
++        return make_diagnostic_signal(
++            product, clock, "Put或期货到期日未经官方日历核验；模型估值仅作诊断，正式目标未确认。",
++            source_signal=signal,
++        )
++    # Validate adopted contracts before policy/scheduler code can create any
++    # new pending plan. Unconsumed listed months remain warning-only inputs.
++    require_signal_calendar(product, signal)
+     signal = _apply_v14_live_policy(
+         product,
+         signal,
+         mo_quotes=mo_quotes if product == "IM" else None,
+     )
+     put_execution.require_resolved_held_identity(product, signal)
++    if signal.get("v14_action") == "HOLD_FAIL_CLOSED" or (
++        calendar_context is not None and (calendar_context["expiries"] or calendar_context["failures"])
++    ):
++        calendar_failure = bool(calendar_context and (calendar_context["expiries"] or calendar_context["failures"]))
++        return make_diagnostic_signal(
++            product, clock,
++            str(signal.get("v14_action_reason") or signal.get("v14_reason")
++                or "Put腿未完成核验，保留独立行情观察；组合目标未确认。"),
++            source_signal=signal,
++            status="calendar_unverified" if calendar_failure else "put_fail_closed",
++        )
+     if put_execution.active(market_date):
+         signal["v14_execution_revision"] = put_execution.REVISION
+         signal["v14_opening_events"] = opening_events
+     _v14_schedule_ordinary_put(product, signal, LIVE_CONTINUATION_ANCHOR[product], opening)
+     if product == "IC":
+         _refresh_ic_put_text(signal, LIVE_CONTINUATION_ANCHOR[product])
+-    signal["iv_warning"] = build_iv_warning(product, signal, live, mo_quotes if product == "IM" else None, clock,
+-                                            collection_started=collection_started)
++    # A monitor-only candidate must not contaminate an otherwise verified
++    # delivery with a provisional expiry. Its existing N/A fallback is strict.
++    monitor_token = _SIGNAL_CALENDAR_DIAGNOSTICS.set(None)
++    try:
++        signal["iv_warning"] = build_iv_warning(product, signal, live, mo_quotes if product == "IM" else None, clock,
++                                                collection_started=collection_started)
++    finally:
++        _SIGNAL_CALENDAR_DIAGNOSTICS.reset(monitor_token)
+     if market_date >= fear_grid.CLOSE_FALLBACK_EFFECTIVE_DATE:
+         finished = datetime.now(BEIJING)
+         signal.update(signal_generated_at=finished.isoformat(timespec="seconds"),
+@@ -7151,11 +7534,56 @@
+                       _HISTORICAL_REPLAY_DAY.get() is not None or finished.date() > market_date else
+                       "intraday_hypothetical_if_now_close" if not close_confirmed else "close_confirmed")
+     require_signal_calendar(product, signal)
++    signal["calendar_provisional"] = False
++    signal["signal_complete"] = True
++    signal["persistence_eligible"] = bool(signal.get("close_confirmed"))
++    signal["calendar_coverage_warning"] = "；".join(
++        note for note in (_calendar_coverage_warning(market_date), calendar_note) if note
++    ) or None
+     return signal
+ 
+ 
+ def _sm() -> Any:
+     return poe.start_message()
++
++
++def _write_diagnostic_signal(msg: Any, product: str, signal: dict[str, Any]) -> None:
++    """Keep incomplete observations visible without using the normal target table."""
++    msg.write(f"### {PRODUCT_NAMES[product]}\n\n")
++    msg.write("**部分数据可用；Put及完整组合目标尚未确认。**\n\n")
++    msg.write(f"{signal.get('diagnostic_reason', '数据待核验')}\n\n")
++    msg.write(f"信号日：`{signal.get('market_date')}`；状态：`{signal.get('diagnostic_status')}`。\n\n")
++    warning = signal.get("calendar_coverage_warning")
++    if warning:
++        msg.write(f"**{warning}**\n\n")
++    for row in signal.get("calendar_diagnostics", []):
++        msg.write(f"- 到期或执行日期 `{row.get('date')}` 未经官方日历核验（{row.get('purpose')}）。\n")
++    if signal.get("calendar_diagnostics"):
++        msg.write("\n")
++    future = signal.get("diagnostic_future", {})
++    if future.get("last_verified_contract"):
++        msg.write(f"最后已核验期货合约：`{future['last_verified_contract']}`；账本日：`{future.get('last_verified_day')}`。\n\n")
++    if future.get("quotes"):
++        msg.write("已核验期货报价（仅行情观察）：\n\n")
++        for row in future["quotes"]:
++            msg.write(f"- `{row.get('contract', row.get('instrument'))}`：{row.get('lastprice', row.get('price'))}。\n")
++        msg.write("\n")
++    msg.write("完整目标：N/A；本次结果仅供研究诊断，不生成新执行计划，不写入正式账本。\n\n")
++    def safe(value: Any) -> Any:
++        if isinstance(value, dict):
++            return {str(key): safe(item) for key, item in value.items()}
++        if isinstance(value, (list, tuple)):
++            return [safe(item) for item in value]
++        if isinstance(value, (float, np.floating)):
++            return float(value) if math.isfinite(float(value)) else None
++        if isinstance(value, (date, datetime, pd.Timestamp)):
++            return value.isoformat()
++        if value is None or isinstance(value, (str, int, bool)):
++            return value
++        return str(value)
++    msg.attach_file(name=f"{product.lower()}_diagnostic_{signal.get('market_date')}.json",
++                    contents=json.dumps(safe(signal), ensure_ascii=False, allow_nan=False, indent=2).encode("utf-8"),
++                    content_type="application/json", is_inline=False)
+ 
+ 
+ def _write_last_verified_snapshot(msg: Any, product: str) -> None:
+@@ -7284,6 +7712,7 @@
+                 f"## IC / IM 1.4 {title}｜构建 {report_build_id}"
+                 f"（{_now_beijing():%Y-%m-%d %H:%M:%S} 北京时间）\n\n"
+             )
++            msg.write("版本口径：部署服务名V1-2；本页信号规则v1.4；绩效页为另行标注的v1.3/r6冻结历史。\n\n")
+             msg.write(
+                 "本次重新联网取数。**当前仓位**是研究规则从已审计账本续接出的策略仓位，"
+                 + ("不是你的账户持仓；期货目标对应下一交易日，月度Put维护按今日收盘候选单列；各腿目标不会自动下单。\n\n"
+@@ -7297,8 +7726,6 @@
+             for product in products:
+                 try:
+                     live = build_live_signal_with_transport_retry(product, mode, per_product_budget)
+-                    if _SIGNAL_OBSERVER is not None:
+-                        _SIGNAL_OBSERVER(product, dict(live))
+                 except Exception as exc:  # noqa: BLE001 - isolate each live product.
+                     fear_line = ""
+                     if _now_beijing().date() >= fear_grid.EFFECTIVE_SIGNAL_DATE:
+@@ -7320,8 +7747,13 @@
+                         if _now_beijing().date() >= fear_grid.SOURCE_POLICY_DATE:
+                             reference = fear_grid.observed_in_batch("jiu", _now_beijing().date()) or {}
+                             fear_line += fear_grid.reference_disclosure(reference) + "\n\n"
++                    wait_hint = (f"指数日线尚未更新，请稍后重试（状态：{exc.status}）。"
++                                 if getattr(exc, "status", None) == DailyOHLCVNotReady.status else "")
++                    if not wait_hint and getattr(exc, "waiting_sources", []):
++                        wait_hint = ("部分来源日线尚未更新，其他来源也未通过校验，请稍后重试"
++                                     f"（状态：{getattr(exc, 'status', 'sources_unavailable')}）。")
+                     msg.write(
+-                        f"### {PRODUCT_NAMES[product]}\n\n⚠️ 当日信号警告：{exc}\n\n"
++                        f"### {PRODUCT_NAMES[product]}\n\n⚠️ 当日信号警告：{wait_hint}{exc}\n\n"
+                         + fear_line
+                         + "该品种的新目标尚未确认；不会用NaN、陈旧行情或未重放账本"
+                         "推导替代目标。\n\n"
+@@ -7335,7 +7767,18 @@
+                             "请核对持久账本；本品种不提供当前仓位或目标。\n\n"
+                         )
+                     continue
++                if _SIGNAL_OBSERVER is not None:
++                    try:
++                        _SIGNAL_OBSERVER(product, deepcopy(live))
++                    except Exception as observer_exc:  # noqa: BLE001 - computed result remains available.
++                        msg.write(f"⚠️ {PRODUCT_NAMES[product]}信号已生成，但结构化结果采集失败；"
++                                  f"持久化状态未确认：{type(observer_exc).__name__}: {observer_exc}。\n\n")
++                if live.get("diagnostic_only"):
++                    _write_diagnostic_signal(msg, product, live)
++                    continue
+                 msg.write(f"### {PRODUCT_NAMES[product]}\n\n")
++                if live.get("calendar_coverage_warning"):
++                    msg.write(f"**{live['calendar_coverage_warning']}**\n\n")
+                 monthly_notice = option_maintenance_notice.reminder(
+                     product, live, is_session=_option_maintenance_session)
+                 if monthly_notice:
+@@ -7446,7 +7889,7 @@
+                 )
+                 msg.write(
+                     f"| 裸滚核心袖 | {live['core_units_current']:g}倍 `{live['core_current']}` | {live['core_units_target']:g}倍 `{live['core_target']}` | "
+-                    f"{ACTION_CN[live['core_action']]} | 季度换仓：IC T-3 / IM T-1收盘 |\n"
++                    f"{ACTION_CN.get(live['core_action'], live['core_action'])} | 季度换仓：IC T-3 / IM T-1收盘 |\n"
+                 )
+                 msg.write(
+                     f"| 动量指引袖 | {live['momentum_units_current']:g}倍（权重 {live['momentum_current_weight']:g}） | "
+@@ -7471,11 +7914,11 @@
+                     )
+                 msg.write(
+                     f"| Put | {live['put_current']} | {put_target_day + '：' if monthly_put_today else ''}{live['put_target']} | "
+-                    f"{ACTION_CN[live['put_action']]} | {put_timing} |\n"
++                    f"{ACTION_CN.get(live['put_action'], live['put_action'])} | {put_timing} |\n"
+                 )
+                 msg.write(
+                     f"| Call | {live['call_current']} | {live['call_target']} | "
+-                    f"{ACTION_CN[live['call_action']]} | T收盘评估 → T+1收盘 |\n\n"
++                    f"{ACTION_CN.get(live['call_action'], live['call_action'])} | T收盘评估 → T+1收盘 |\n\n"
+                 )
+                 if live["market_date"] >= fear_grid.EFFECTIVE_SIGNAL_DATE:
+                     fear_basis = (
+@@ -7501,7 +7944,7 @@
+                 if product == "IM":
+                     msg.write(
+                         f"- **Call 独立维护**：当前 {live['call_current']}；目标 {live['call_target']}；"
+-                        f"动作 **{ACTION_CN[live['call_action']]}**；{live['call_market']}。\n\n"
++                        f"动作 **{ACTION_CN.get(live['call_action'], live['call_action'])}**；{live['call_market']}。\n\n"
+                     )
+                 else:
+                     msg.write("- **Call**：IC 1.4 明确禁止，当前和目标均无。\n\n")
+@@ -7735,7 +8178,7 @@
+                         "与0.1%单边换手成本；成交量/高分清仓过滤关闭。\n"
+                     )
+                     msg.write("- 买Put：固定核心达到入场权利金3倍时，自2026-09-28信号日起T收盘预选合约、下一共同交易日开盘平旧买新；此前旧信号按T+1收盘旧规则。动量Put独立，不随核心兑现。\n")
+-                    msg.write("- 卖Put路由：2026-09-28及以前信号沿用原执行动量许可；自2026-09-29信号日起，固定核心处于估值0/1档、中证500价格指数MOM120非负且M+1约95%行权价Put IV严格>30%时，以q_delta05（每1倍IC初始总Delta 0.5）切换；动量腿可为空仓，买Put两日防抖不作卖方准入条件。自2026-09-26信号日起，权利金衰减50%且新腿仍满足准入时可反复提前展期。\n")
++                    msg.write("- 卖Put路由：2026-09-28及以前信号沿用原执行动量许可；自2026-09-29信号日起，固定核心处于估值0/1档、中证500价格指数MOM120非负且M+1约95%行权价Put IV严格>30%时，以q_delta05（每0.5倍核心袖初始总Delta 0.5，约合每1倍IC总Delta 0.25）切换；动量腿可为空仓，买Put两日防抖不作卖方准入条件。自2026-09-26信号日起，权利金衰减50%且新腿仍满足准入时可反复提前展期。\n")
+                     msg.write("- 卖Put或恢复路线期间固定核心买Put暂停；到期输出模型条件分支，不要求账户成交或交割回执。\n")
+                     msg.write("- 网格：≤0.500 加0.5倍，≥1.000 退出；新增腿不配Put。\n")
+                     msg.write("- IC不卖Call。\n\n")
+@@ -7853,8 +8296,8 @@
+                     f"净值图已叠加 **{benchmark_cn}** 收盘价格曲线；两条曲线均按查询区间首日归一为1。\n\n"
+                 )
+             msg.write(
+-                "绩效口径：IC按1.3 NAV防守后的新动量权重重跑期货成本、Put成交与现金，再叠加独立网格；IM为0.5倍核心+0.5倍1.3动量，"
+-                "核心与动量分别持有独立Put，Call仍只覆盖核心袖，并叠加1.60/2.00独立网格。每1倍期货按30%保证金/缓冲、"
++                f"绩效口径：以上来自截至{DATA_CUTOFF}的v1.3/r6冻结历史参考，"
++                "未按当前v1.4信号规则重新回测。每1倍期货按30%保证金/缓冲、"
+                 "剩余现金3%；未另行加入滑点、冲击、涨跌停未成交、容量、动态保证金上调和税费。\n\n"
+                 "2015年至期权上市前包含理论/代理段；本结果是只读研究参考，不是实盘授权。\n\n"
+             )
+--- a/poe_ic_im_v1_4_server.py
++++ b/poe_ic_im_v1_4_server.py
+@@ -11,7 +11,6 @@
+ import asyncio
+ import os
+ import re
+-import threading
+ import types
+ from contextlib import asynccontextmanager, suppress
+ from datetime import date, datetime, timedelta
+@@ -76,7 +75,7 @@
+ 
+ # Coordinators share strategy module globals (Poe output, observers and anchors).
+ # A per-store or per-instance lock cannot protect those request-scoped swaps.
+-_STRATEGY_QUERY_LOCK = threading.RLock()
++_STRATEGY_QUERY_LOCK = strategy.STRATEGY_QUERY_LOCK
+ 
+ 
+ class LedgerCoordinator:
+@@ -149,15 +148,25 @@
+                 strategy.install_signal_observer(None)
+                 strategy.poe = original_poe
+             if persist_confirmed and set(observed) == {"IC", "IM"} and all(
+-                bool(item.get("close_confirmed")) for item in observed.values()
++                item.get("close_confirmed") is True for item in observed.values()
+             ):
+-                latest = self.store.load_latest()
+-                observed_day = next(
+-                    iter({str(item["market_date"]) for item in observed.values()})
+-                )
+-                if observed_day > str(latest["verified_day"]):
+-                    self.store.append_confirmed_signals(latest, observed)
+-                    self.last_refresh_error = None
++                stage = "持久化资格校验"
++                try:
++                    for product, signal in observed.items():
++                        state.require_persistence_eligible(signal, product)
++                    stage = "持久化"
++                    latest = self.store.load_latest()
++                    observed_day = next(
++                        iter({str(item["market_date"]) for item in observed.values()})
++                    )
++                    if observed_day > str(latest["verified_day"]):
++                        self.store.append_confirmed_signals(latest, observed)
++                        self.last_refresh_error = None
++                except Exception as exc:  # preserve already-calculated research results.
++                    self.last_refresh_error = f"{stage}失败：{type(exc).__name__}: {exc}"
++                    message = ("信号已生成，但持久化失败" if stage == "持久化"
++                               else "诊断结果已生成，但尚不具备持久化资格")
++                    capture.text.append(f"\n\n⚠️ {message}：{exc}。账本未确认推进。\n\n")
+             return "".join(capture.text), capture.attachments, observed
+ 
+     def catch_up_once(self, now: datetime | None = None) -> bool:
+--- a/poe_ic_im_v1_4_state.py
++++ b/poe_ic_im_v1_4_state.py
+@@ -221,6 +221,22 @@
+     if not math.isfinite(number):
+         raise RuntimeError(f"{label}不是有限数")
+     return number
++
++
++def require_persistence_eligible(signal: dict[str, Any], product: str) -> None:
++    """Reject diagnostic/incomplete results at new-write boundaries only.
++
++    Older hash-verified records are still read with their original schema.  An
++    omitted new marker remains compatible, but a present marker must be bool.
++    """
++    for field in ("calendar_provisional", "diagnostic_only"):
++        if field in signal and (type(signal[field]) is not bool or signal[field]):
++            raise RuntimeError(f"{product} {field}诊断信号禁止持久化")
++    for field in ("signal_complete", "persistence_eligible"):
++        if field in signal and (type(signal[field]) is not bool or signal[field] is not True):
++            raise RuntimeError(f"{product} {field}未确认，禁止持久化")
++    if signal.get("v14_action") == "HOLD_FAIL_CLOSED":
++        raise RuntimeError(f"{product} HOLD_FAIL_CLOSED信号禁止持久化")
+ 
+ 
+ def validate_delivery_values(signal: dict[str, Any], product: str, *, historical_record: bool = False) -> None:
+@@ -941,6 +957,8 @@
+     _validate_record(current)
+     if set(signals) != set(PRODUCTS):
+         raise RuntimeError("只有IC/IM均完整成功，才允许推进统一审计账本")
++    for product in PRODUCTS:
++        require_persistence_eligible(signals[product], product)
+     current_anchors = anchors_from_record(current)
+     signal_days = {signal.get("market_date") for signal in signals.values()}
+     if len(signal_days) != 1:

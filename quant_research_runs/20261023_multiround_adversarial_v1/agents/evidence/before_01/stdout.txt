@@ -1,0 +1,137 @@
+FFFFFF......................                                             [100%]
+================================== FAILURES ===================================
+_ test_raw_http_metadata_must_be_valid_before_complete_loader_acceptance[status-None] _
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_7eaa1b72/pytest/test_raw_http_metadata_must_be0')
+field = 'status', value = None
+
+    @pytest.mark.parametrize('field,value', [('status', None), ('status', True), ('status', 200.0),
+                                           ('status', 99), ('status', 600), ('encoding', 42)])
+    def test_raw_http_metadata_must_be_valid_before_complete_loader_acceptance(tmp_path, field, value):
+        """A normal capture API can currently seal malformed HTTP metadata.
+    
+        This is a format-consistency test, not a claim requests normally emits it.
+        Typed-role-only replay otherwise never reaches http_response's validation.
+        """
+        packet = response(**{field: value})
+        session = capture(tmp_path, [(URL, {'list': ONE}, packet)])
+        # No forged SHA or mutation: the production recorder produced this archive.
+>       with pytest.raises(evidence.EvidenceUnavailable, match='invalid|status|encoding|incomplete'):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ic_im_signal_evidence_v1.EvidenceUnavailable'>
+
+test_icim_ma23_evidence_20261023.py:64: Failed
+_ test_raw_http_metadata_must_be_valid_before_complete_loader_acceptance[status-True] _
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_7eaa1b72/pytest/test_raw_http_metadata_must_be1')
+field = 'status', value = True
+
+    @pytest.mark.parametrize('field,value', [('status', None), ('status', True), ('status', 200.0),
+                                           ('status', 99), ('status', 600), ('encoding', 42)])
+    def test_raw_http_metadata_must_be_valid_before_complete_loader_acceptance(tmp_path, field, value):
+        """A normal capture API can currently seal malformed HTTP metadata.
+    
+        This is a format-consistency test, not a claim requests normally emits it.
+        Typed-role-only replay otherwise never reaches http_response's validation.
+        """
+        packet = response(**{field: value})
+        session = capture(tmp_path, [(URL, {'list': ONE}, packet)])
+        # No forged SHA or mutation: the production recorder produced this archive.
+>       with pytest.raises(evidence.EvidenceUnavailable, match='invalid|status|encoding|incomplete'):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ic_im_signal_evidence_v1.EvidenceUnavailable'>
+
+test_icim_ma23_evidence_20261023.py:64: Failed
+_ test_raw_http_metadata_must_be_valid_before_complete_loader_acceptance[status-200.0] _
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_7eaa1b72/pytest/test_raw_http_metadata_must_be2')
+field = 'status', value = 200.0
+
+    @pytest.mark.parametrize('field,value', [('status', None), ('status', True), ('status', 200.0),
+                                           ('status', 99), ('status', 600), ('encoding', 42)])
+    def test_raw_http_metadata_must_be_valid_before_complete_loader_acceptance(tmp_path, field, value):
+        """A normal capture API can currently seal malformed HTTP metadata.
+    
+        This is a format-consistency test, not a claim requests normally emits it.
+        Typed-role-only replay otherwise never reaches http_response's validation.
+        """
+        packet = response(**{field: value})
+        session = capture(tmp_path, [(URL, {'list': ONE}, packet)])
+        # No forged SHA or mutation: the production recorder produced this archive.
+>       with pytest.raises(evidence.EvidenceUnavailable, match='invalid|status|encoding|incomplete'):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ic_im_signal_evidence_v1.EvidenceUnavailable'>
+
+test_icim_ma23_evidence_20261023.py:64: Failed
+_ test_raw_http_metadata_must_be_valid_before_complete_loader_acceptance[status-99] _
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_7eaa1b72/pytest/test_raw_http_metadata_must_be3')
+field = 'status', value = 99
+
+    @pytest.mark.parametrize('field,value', [('status', None), ('status', True), ('status', 200.0),
+                                           ('status', 99), ('status', 600), ('encoding', 42)])
+    def test_raw_http_metadata_must_be_valid_before_complete_loader_acceptance(tmp_path, field, value):
+        """A normal capture API can currently seal malformed HTTP metadata.
+    
+        This is a format-consistency test, not a claim requests normally emits it.
+        Typed-role-only replay otherwise never reaches http_response's validation.
+        """
+        packet = response(**{field: value})
+        session = capture(tmp_path, [(URL, {'list': ONE}, packet)])
+        # No forged SHA or mutation: the production recorder produced this archive.
+>       with pytest.raises(evidence.EvidenceUnavailable, match='invalid|status|encoding|incomplete'):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ic_im_signal_evidence_v1.EvidenceUnavailable'>
+
+test_icim_ma23_evidence_20261023.py:64: Failed
+_ test_raw_http_metadata_must_be_valid_before_complete_loader_acceptance[status-600] _
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_7eaa1b72/pytest/test_raw_http_metadata_must_be4')
+field = 'status', value = 600
+
+    @pytest.mark.parametrize('field,value', [('status', None), ('status', True), ('status', 200.0),
+                                           ('status', 99), ('status', 600), ('encoding', 42)])
+    def test_raw_http_metadata_must_be_valid_before_complete_loader_acceptance(tmp_path, field, value):
+        """A normal capture API can currently seal malformed HTTP metadata.
+    
+        This is a format-consistency test, not a claim requests normally emits it.
+        Typed-role-only replay otherwise never reaches http_response's validation.
+        """
+        packet = response(**{field: value})
+        session = capture(tmp_path, [(URL, {'list': ONE}, packet)])
+        # No forged SHA or mutation: the production recorder produced this archive.
+>       with pytest.raises(evidence.EvidenceUnavailable, match='invalid|status|encoding|incomplete'):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ic_im_signal_evidence_v1.EvidenceUnavailable'>
+
+test_icim_ma23_evidence_20261023.py:64: Failed
+_ test_raw_http_metadata_must_be_valid_before_complete_loader_acceptance[encoding-42] _
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_7eaa1b72/pytest/test_raw_http_metadata_must_be5')
+field = 'encoding', value = 42
+
+    @pytest.mark.parametrize('field,value', [('status', None), ('status', True), ('status', 200.0),
+                                           ('status', 99), ('status', 600), ('encoding', 42)])
+    def test_raw_http_metadata_must_be_valid_before_complete_loader_acceptance(tmp_path, field, value):
+        """A normal capture API can currently seal malformed HTTP metadata.
+    
+        This is a format-consistency test, not a claim requests normally emits it.
+        Typed-role-only replay otherwise never reaches http_response's validation.
+        """
+        packet = response(**{field: value})
+        session = capture(tmp_path, [(URL, {'list': ONE}, packet)])
+        # No forged SHA or mutation: the production recorder produced this archive.
+>       with pytest.raises(evidence.EvidenceUnavailable, match='invalid|status|encoding|incomplete'):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ic_im_signal_evidence_v1.EvidenceUnavailable'>
+
+test_icim_ma23_evidence_20261023.py:64: Failed
+=========================== short test summary info ===========================
+FAILED test_icim_ma23_evidence_20261023.py::test_raw_http_metadata_must_be_valid_before_complete_loader_acceptance[status-None]
+FAILED test_icim_ma23_evidence_20261023.py::test_raw_http_metadata_must_be_valid_before_complete_loader_acceptance[status-True]
+FAILED test_icim_ma23_evidence_20261023.py::test_raw_http_metadata_must_be_valid_before_complete_loader_acceptance[status-200.0]
+FAILED test_icim_ma23_evidence_20261023.py::test_raw_http_metadata_must_be_valid_before_complete_loader_acceptance[status-99]
+FAILED test_icim_ma23_evidence_20261023.py::test_raw_http_metadata_must_be_valid_before_complete_loader_acceptance[status-600]
+FAILED test_icim_ma23_evidence_20261023.py::test_raw_http_metadata_must_be_valid_before_complete_loader_acceptance[encoding-42]
+6 failed, 22 passed in 2.98s
+

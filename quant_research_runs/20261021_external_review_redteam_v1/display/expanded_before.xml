@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="4" skipped="0" tests="14" time="2.250" timestamp="2026-10-21T13:54:40.246083+08:00" hostname="DESKTOP-95I7VVU"><testcase classname="test_icim_redteam_display_20261021" name="test_final_text_distinct_legs_and_zero_residual_identity" time="0.001" /><testcase classname="test_icim_redteam_display_20261021" name="test_nonfuture_zero_core_does_not_show_residual_contract[short_put]" time="0.001" /><testcase classname="test_icim_redteam_display_20261021" name="test_nonfuture_zero_core_does_not_show_residual_contract[assigned_etf]" time="0.001" /><testcase classname="test_icim_redteam_display_20261021" name="test_nonfuture_zero_core_does_not_show_residual_contract[cash_wait]" time="0.001" /><testcase classname="test_icim_redteam_display_20261021" name="test_nonfuture_zero_core_does_not_show_residual_contract[recovery_future]" time="0.001" /><testcase classname="test_icim_redteam_display_20261021" name="test_bootstrap_snapshot_retains_known_single_core_identity" time="0.002"><properties><property name="anchor_core_contract" value="None" /><property name="anchor_shared_contract" value="510500P2612M07500" /><property name="rendered" value="**最后逐腿核验快照（2026-08-24，仅研究审计）**&#10;&#10;- 0.5倍核心期货：`IC2609`（路线 `future`）&#10;- 动量袖：权重 0.5，期货名义 0.25倍&#10;- 独立网格：0倍；期货合计：0.75倍&#10;- Put：核心 14张 `身份待核验`；动量 0张；合计 14张；Call：无（IC禁止Call）&#10;- 这只是最后已核验状态，不是当前账户持仓；联网或账本续接恢复前，不生成下一交易日目标。&#10;&#10;" /></properties><failure message="AssertionError: Known bootstrap economic core identity lost in revised snapshot&#10;assert '510500P2612M07500' in '**最后逐腿核验快照（2026-08-24，仅研究审计）**\n\n- 0.5倍核心期货：`IC2609`（路线 `future`）\n- 动量袖：权重 0.5，期货名义 0.25倍\n- 独立网格：0倍；期货合计：0.75倍\n- Put：核心 14张 `身份待核验`；动量 0张；合计 14张；Call：无（IC禁止Call）\n- 这只是最后已核验状态，不是当前账户持仓；联网或账本续接恢复前，不生成下一交易日目标。\n\n'">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000002AC7763DD50&gt;
+record_property = &lt;function record_property.&lt;locals&gt;.append_property at 0x000002AC77672770&gt;
+
+    def test_bootstrap_snapshot_retains_known_single_core_identity(monkeypatch, record_property):
+        record = state.bootstrap_record()
+        anchors = state.anchors_from_record(record)
+        anchor = anchors['IC']
+        assert anchor.get('v14_core_put_contract') is None
+        assert bot._ic_current_quantity_breakdown(anchor)['core'] &gt; 0
+        monkeypatch.setitem(bot.LIVE_CONTINUATION_ANCHOR, 'IC', anchor)
+        msg = Mock()
+        bot._write_last_verified_snapshot(msg, 'IC')
+        rendered = msg.write.call_args.args[0]
+        record_property('anchor_core_contract', anchor.get('v14_core_put_contract'))
+        record_property('anchor_shared_contract', anchor['post_put_contract'])
+        record_property('rendered', rendered)
+&gt;       assert anchor['post_put_contract'] in rendered, 'Known bootstrap economic core identity lost in revised snapshot'
+E       AssertionError: Known bootstrap economic core identity lost in revised snapshot
+E       assert '510500P2612M07500' in '**最后逐腿核验快照（2026-08-24，仅研究审计）**\n\n- 0.5倍核心期货：`IC2609`（路线 `future`）\n- 动量袖：权重 0.5，期货名义 0.25倍\n- 独立网格：0倍；期货合计：0.75倍\n- Put：核心 14张 `身份待核验`；动量 0张；合计 14张；Call：无（IC禁止Call）\n- 这只是最后已核验状态，不是当前账户持仓；联网或账本续接恢复前，不生成下一交易日目标。\n\n'
+
+test_icim_redteam_display_20261021.py:86: AssertionError</failure></testcase><testcase classname="test_icim_redteam_display_20261021" name="test_core_overlay_failure_cannot_label_momentum_as_current_core" time="0.001"><properties><property name="rendered_current" value="核心 5张 `510500P2611M06500`；动量 3张 `510500P2611M06500`" /><property name="held_core" value="510500P2612M07500" /><property name="held_momentum" value="510500P2611M06500" /><property name="candidate_status" value="unavailable: RuntimeError: dedicated core quote unavailable" /></properties><failure message="AssertionError: Core quote failure silently attaches momentum contract to held core quantity&#10;assert '510500P2612M07500' in '核心 5张 `510500P2611M06500`；动量 3张 `510500P2611M06500`'">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000002AC7763EC50&gt;
+record_property = &lt;function record_property.&lt;locals&gt;.append_property at 0x000002AC776733D0&gt;
+
+    def test_core_overlay_failure_cannot_label_momentum_as_current_core(monkeypatch, record_property):
+        anchor = split_anchor()
+        monkeypatch.setitem(bot.LIVE_CONTINUATION_ANCHOR, 'IC', anchor)
+        monkeypatch.setattr(bot, 'fetch_510500_chain_with_failover',
+                            Mock(side_effect=RuntimeError('dedicated core quote unavailable')))
+        out = bot._apply_v14_live_policy('IC', split_signal())
+        assert out['v14_action'] == 'HOLD_FAIL_CLOSED'
+        bot._refresh_ic_put_text(out)
+        record_property('rendered_current', out['put_current'])
+        record_property('held_core', anchor['v14_core_put_contract'])
+        record_property('held_momentum', anchor['post_put_contract'])
+        record_property('candidate_status', out.get('v14_candidate_data_status'))
+        # A failed mark does not make the held, independently verified identity unknown.
+&gt;       assert CORE in out['put_current'], 'Core quote failure silently attaches momentum contract to held core quantity'
+E       AssertionError: Core quote failure silently attaches momentum contract to held core quantity
+E       assert '510500P2612M07500' in '核心 5张 `510500P2611M06500`；动量 3张 `510500P2611M06500`'
+
+test_icim_redteam_display_20261021.py:102: AssertionError</failure></testcase><testcase classname="test_icim_redteam_display_20261021" name="test_successful_core_overlay_corrects_split_before_render" time="0.003" /><testcase classname="test_icim_redteam_display_20261021" name="test_core_overlay_failure_cannot_publish_momentum_iv_as_core_monitor" time="0.003"><properties><property name="warning" value="{'level': 'high', 'iv': 0.45, 'thresholds': [0.4, 0.5], 'comparison': 'strictly_greater', 'source': '上交所510500当日持仓Put报价反解IV', 'market_date': '2026-10-21', 'snapshot_time': '133000', 'contract': '510500P2611M06500', 'text': 'IV超过40%：高波动预警；IV 45.00%；参考合约 510500P2611M06500；行情日 2026-10-21；时间 133000；来源 上交所510500当日持仓Put报价反解IV。仅预警，不改变仓位。', 'position_effect': 'none', 'validation_clock': '2026-10-21T13:30:00+08:00', 'reference_strike': 6.5, 'expiry': '2026-11-25', 'contract_unit': 10000}" /><property name="candidate_status" value="unavailable: RuntimeError: dedicated core quote unavailable" /></properties><failure message="AssertionError: Missing dedicated-core evidence published another sleeve finite IV&#10;assert 0.45 is None">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000002AC77714050&gt;
+record_property = &lt;function record_property.&lt;locals&gt;.append_property at 0x000002AC77673B60&gt;
+
+    def test_core_overlay_failure_cannot_publish_momentum_iv_as_core_monitor(monkeypatch, record_property):
+        anchor = split_anchor()
+        monkeypatch.setitem(bot.LIVE_CONTINUATION_ANCHOR, 'IC', anchor)
+        monkeypatch.setattr(bot, 'fetch_510500_chain_with_failover',
+                            Mock(side_effect=RuntimeError('dedicated core quote unavailable')))
+        monkeypatch.setattr(bot, '_gov10y_for_day', lambda *args: .02)
+        pricing = Mock(return_value=.45)
+        monkeypatch.setattr(bot, '_implied_volatility', pricing)
+        signal = split_signal(iv_monitor_option_price=.15, sse_time='133000',
+                              etf_quote_date='20261021', etf_quote_time='133000')
+        out = bot._apply_v14_live_policy('IC', signal)
+        warning = bot.build_iv_warning('IC', out, {}, None, CLOCK)
+        record_property('warning', str(warning))
+        record_property('candidate_status', out.get('v14_candidate_data_status'))
+&gt;       assert warning['iv'] is None, 'Missing dedicated-core evidence published another sleeve finite IV'
+E       AssertionError: Missing dedicated-core evidence published another sleeve finite IV
+E       assert 0.45 is None
+
+test_icim_redteam_display_20261021.py:134: AssertionError</failure></testcase><testcase classname="test_icim_redteam_display_20261021" name="test_failed_core_overlay_cannot_schedule_close_plan_or_mutate_anchor" time="0.001" /><testcase classname="test_icim_redteam_display_20261021" name="test_im_snapshot_zero_core_does_not_show_residual_contract" time="0.001"><properties><property name="rendered" value="**最后逐腿核验快照（2026-10-16，仅研究审计）**&#10;&#10;- 核心路线：`cash_wait`；核心期货0倍&#10;- 动量袖：权重 1，期货名义 0.5倍&#10;- 独立网格：0倍；期货合计：0.5倍&#10;- Put：核心 0张 `MO2612-P-7600`；动量 0.5张 `MO2611-P-6500`；合计 0.5张；Call：规范化 0张&#10;- 这只是最后已核验状态，不是当前账户持仓；联网或账本续接恢复前，不生成下一交易日目标。&#10;&#10;" /></properties><failure message="AssertionError: Zero-quantity residual core identity remains in snapshot&#10;assert 'MO2612-P-7600' not in '**最后逐腿核验快照（...下一交易日目标。\n\n'&#10;  &#10;  'MO2612-P-7600' is contained here:&#10;    ut：核心 0张 `MO2612-P-7600`；动量 0.5张 `MO2611-P-6500`；合计 0.5张；Call：规范化 0张&#10;  ?           +++++++++++++&#10;    - 这只是最后已核验状态，不是当前账户持仓；联网或账本续接恢复前，不生成下一交易日目标。">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000002AC776F8AD0&gt;
+record_property = &lt;function record_property.&lt;locals&gt;.append_property at 0x000002AC77710A90&gt;
+
+    def test_im_snapshot_zero_core_does_not_show_residual_contract(monkeypatch, record_property):
+        anchor = deepcopy(bot.LIVE_CONTINUATION_ANCHOR['IM'])
+        anchor.update(fixture.anchor('IM'))
+        anchor.update(v14_route_state='cash_wait', verified_momentum_weight=1.,
+                      verified_grid_units=0., verified_call_contracts_normalized=0.,
+                      verified_core_put_qty_normalized=0., verified_momentum_put_qty_normalized=.5,
+                      verified_put_qty_normalized=.5, post_core_put_contract='MO2612-P-7600',
+                      post_momentum_put_contract='MO2611-P-6500')
+        monkeypatch.setitem(bot.LIVE_CONTINUATION_ANCHOR, 'IM', anchor)
+        message = Mock()
+        bot._write_last_verified_snapshot(message, 'IM')
+        text = message.write.call_args.args[0]
+        record_property('rendered', text)
+&gt;       assert 'MO2612-P-7600' not in text, 'Zero-quantity residual core identity remains in snapshot'
+E       AssertionError: Zero-quantity residual core identity remains in snapshot
+E       assert 'MO2612-P-7600' not in '**最后逐腿核验快照（...下一交易日目标。\n\n'
+E         
+E         'MO2612-P-7600' is contained here:
+E           ut：核心 0张 `MO2612-P-7600`；动量 0.5张 `MO2611-P-6500`；合计 0.5张；Call：规范化 0张
+E         ?           +++++++++++++
+E           - 这只是最后已核验状态，不是当前账户持仓；联网或账本续接恢复前，不生成下一交易日目标。
+
+test_icim_redteam_display_20261021.py:165: AssertionError</failure></testcase><testcase classname="test_icim_redteam_display_20261021" name="test_observation_mode_day_and_copy_boundaries" time="0.001" /><testcase classname="test_icim_redteam_display_20261021" name="test_failed_multi_product_preserves_independent_snapshot_and_shared_observation" time="0.001" /><testcase classname="test_icim_redteam_display_20261021" name="test_failure_does_not_reuse_previous_report_observation" time="0.001" /></testsuite></testsuites>

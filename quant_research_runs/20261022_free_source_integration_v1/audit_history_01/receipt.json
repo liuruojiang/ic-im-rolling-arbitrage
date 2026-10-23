@@ -1,0 +1,20 @@
+{
+  "exit_code": 0,
+  "source_before_equals_after": true,
+  "source_files": 987,
+  "stage": "audit_history_01",
+  "counts": {
+    "tests": 1,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "artifacts": {
+    "regression.xml": "562dbbde2a2305b41ea96607b4f9f43b208704b5c754d7dc3c4a0b7206eb0c81",
+    "regression.txt": "a0ecac9e2793ccd5ecb6845dad6fe997a8a354c189999df47847409c7eca2988",
+    "source_before.json": "453b63f0733627c80d73ad0a5284a6936e928209acf5689655f8230d67161f97",
+    "source_after.json": "453b63f0733627c80d73ad0a5284a6936e928209acf5689655f8230d67161f97",
+    "test_run.json": "9caf9c1a08724cacc2a4e78abb3923f306a119870328b21e6076341fd96de76f",
+    "collection.json": "7579e836b735ad35cac73de46ce06faaee752bec05686fa6d094966e06902aca"
+  }
+}

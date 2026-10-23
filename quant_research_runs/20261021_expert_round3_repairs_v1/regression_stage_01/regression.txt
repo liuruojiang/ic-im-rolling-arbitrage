@@ -1,0 +1,2100 @@
+........................................................................ [  3%]
+........................................................................ [  6%]
+................................................F....................... [  9%]
+........................................................................ [ 12%]
+........................................................................ [ 15%]
+........................................................................ [ 18%]
+........................................................................ [ 21%]
+........................................F............................... [ 24%]
+.............................................F.......................... [ 27%]
+........................................................................ [ 30%]
+........................................................................ [ 33%]
+........................................................................ [ 36%]
+.....F............FFFF..F............................................... [ 39%]
+.......FFFFFF..........F................................................ [ 42%]
+........................................................................ [ 45%]
+....................................F................................... [ 48%]
+..............................................FFF....................... [ 51%]
+........................................................................ [ 54%]
+............................FF.......................................... [ 57%]
+........................................................................ [ 60%]
+.....................................................FF................. [ 63%]
+......................F......................F.......................... [ 66%]
+..................................................F..................... [ 69%]
+..........................F............................................. [ 72%]
+......F..........F........F............................................. [ 75%]
+........................................................................ [ 78%]
+........................................................................ [ 81%]
+........................................................................ [ 84%]
+........................................................................ [ 87%]
+........................................................................ [ 90%]
+........................................................................ [ 93%]
+........................................................................ [ 96%]
+........................................................................ [ 99%]
+........                                                                 [100%]
+================================== FAILURES ===================================
+___ test_real_realtime_artifact_distinguishes_partial_from_complete[False] ____
+
+    def build_artifacts(
+        *,
+        state_dir: Path,
+        out_dir: Path,
+        clock: datetime,
+        max_sessions: int,
+        mode: str = "close",
+        expected_market_date: str = "",
+    ) -> dict[str, Any]:
+        if mode not in MODES:
+            raise ValueError(f"unsupported mode: {mode}")
+        if max_sessions <= 0:
+            raise ValueError("max_sessions必须为正")
+        if mode == "realtime" and strategy._market_phase(clock) != "盘中":
+            raise RuntimeError("盘中实时邮件只能在连续交易时段生成")
+        completed_day = strategy._latest_completed_exchange_day(clock)
+        actual_market_date = clock.date() if mode == "realtime" else completed_day
+        if expected_market_date and actual_market_date.isoformat() != expected_market_date:
+            raise RuntimeError(
+                f"日报日期不匹配：expected={expected_market_date} actual={actual_market_date}"
+            )
+        store = StateStore(state_dir)
+        coordinator = LedgerCoordinator(store)
+        advanced = coordinator.catch_up_until_current(clock, max_sessions=max_sessions)
+        health = coordinator.health(clock)
+        if health.get("status") != "ok":
+            raise _ArtifactBuildError(
+                str(health.get("refresh_error") or "账本补写状态异常"),
+                getattr(coordinator, "last_refresh_diagnostic", None),
+            )
+        if str(health.get("verified_day"))[:10] != completed_day.isoformat():
+            raise RuntimeError(
+                "账本未追平最近完成交易日："
+                f"verified={health.get('verified_day')} completed={completed_day}"
+            )
+    
+        latest = store.load_latest()
+        if mode == "realtime":
+            if strategy._market_phase(clock) != "盘中":
+                raise RuntimeError("盘中实时邮件只能在连续交易时段生成")
+            report, attachments, observed = coordinator.execute_query(
+                "实时信号", clock, persist_confirmed=False
+            )
+            _atomic_write_text(out_dir / "diagnostic_report.md", report)
+            after = store.load_latest()
+            if set(observed) != set(PRODUCTS):
+                failures = re.findall(r"(?:完整信号失败|当日信号警告)：([^\n]+)", report)
+                raise _ArtifactBuildError(
+                    "盘中产物必须同时包含IC和IM完整信号；已取得="
+                    + ",".join(sorted(observed))
+                    + "；逐品种失败=" + "；".join(failures)
+                    + "；完整诊断见 diagnostic_report.md",
+                    report,
+                )
+            try:
+>               validate_realtime_artifact(
+                    clock=clock,
+                    completed_day=completed_day,
+                    before=latest,
+                    after=after,
+                    observed=observed,
+                )
+
+run_ic_im_v1_4_github_digest.py:453: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+run_ic_im_v1_4_github_digest.py:138: in validate_realtime_artifact
+    state_module.validate_delivery_values(signal, product)
+poe_ic_im_v1_4_state.py:263: in validate_delivery_values
+    validate_v14_new_signal(signal, product)
+poe_ic_im_v1_4_state.py:390: in validate_v14_new_signal
+    require_persistence_eligible(signal, product)
+poe_ic_im_v1_4_state.py:252: in require_persistence_eligible
+    require_confirmed_grid_target(signal, product)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+signal = {'call_action': 'HOLD', 'call_current': '无', 'call_current_contract': None, 'call_target': '无（IC 1.3明确禁止Call）', ...}
+product = 'IC'
+
+    def require_confirmed_grid_target(signal: dict[str, Any], product: str) -> None:
+        """Recompute publication eligibility instead of trusting producer markers.
+    
+        An unavailable Fear observation can legitimately preserve the internal
+        grid state for display.  That preserved state is not a confirmed complete
+        portfolio target and must not advance the shared ledger.
+        """
+        view = strategy.fear_grid.publication_view(signal)
+        if view.get("grid_target_confirmed", True) is not True:
+>           raise RuntimeError(f"{product} 网格目标未确认，禁止持久化")
+E           RuntimeError: IC 网格目标未确认，禁止持久化
+
+poe_ic_im_v1_4_state.py:235: RuntimeError
+
+The above exception was the direct cause of the following exception:
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000019A78EDE350>
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_f6c7b735/pytest/test_real_realtime_artifact_di0')
+published_fear = False
+
+    @pytest.mark.parametrize("published_fear", [False, True, "previous_session"])
+    def test_real_realtime_artifact_distinguishes_partial_from_complete(monkeypatch, tmp_path, published_fear):
+        original = _real_unpublished_result()
+        observed = copy.deepcopy(original["signals"])
+        if published_fear:
+            for signal in observed.values():
+                signal.update(fear_greed_index=40.0, fear_data_date=signal["market_date"],
+                              fear_data_status="intraday_provisional")
+        if published_fear == "previous_session":
+            _apply_previous_session_evidence(observed)
+        before_signals = copy.deepcopy(observed)
+        latest = {key: original[key] for key in ["sequence", "digest", "verified_day"]}
+    
+        class Store:
+            def __init__(self, *_args):
+                pass
+    
+            def load_latest(self):
+                return latest
+    
+        class Coordinator:
+            def __init__(self, *_args):
+                pass
+    
+            def catch_up_until_current(self, *_args, **_kwargs):
+                return 0
+    
+            def health(self, *_args):
+                return {"status": "ok", "verified_day": latest["verified_day"]}
+    
+            def execute_query(self, *_args, **_kwargs):
+                return "frozen formal-query fixture", [], observed
+    
+        monkeypatch.setattr(digest, "StateStore", Store)
+        monkeypatch.setattr(digest, "LedgerCoordinator", Coordinator)
+>       result = digest.build_artifacts(
+            state_dir=tmp_path / "isolated", out_dir=tmp_path / "out",
+            clock=datetime.fromisoformat(original["generated_at"]), max_sessions=1,
+            mode="realtime", expected_market_date=original["market_date"],
+        )
+
+test_run_ic_im_v1_4_github_digest.py:69: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+    def build_artifacts(
+        *,
+        state_dir: Path,
+        out_dir: Path,
+        clock: datetime,
+        max_sessions: int,
+        mode: str = "close",
+        expected_market_date: str = "",
+    ) -> dict[str, Any]:
+        if mode not in MODES:
+            raise ValueError(f"unsupported mode: {mode}")
+        if max_sessions <= 0:
+            raise ValueError("max_sessions必须为正")
+        if mode == "realtime" and strategy._market_phase(clock) != "盘中":
+            raise RuntimeError("盘中实时邮件只能在连续交易时段生成")
+        completed_day = strategy._latest_completed_exchange_day(clock)
+        actual_market_date = clock.date() if mode == "realtime" else completed_day
+        if expected_market_date and actual_market_date.isoformat() != expected_market_date:
+            raise RuntimeError(
+                f"日报日期不匹配：expected={expected_market_date} actual={actual_market_date}"
+            )
+        store = StateStore(state_dir)
+        coordinator = LedgerCoordinator(store)
+        advanced = coordinator.catch_up_until_current(clock, max_sessions=max_sessions)
+        health = coordinator.health(clock)
+        if health.get("status") != "ok":
+            raise _ArtifactBuildError(
+                str(health.get("refresh_error") or "账本补写状态异常"),
+                getattr(coordinator, "last_refresh_diagnostic", None),
+            )
+        if str(health.get("verified_day"))[:10] != completed_day.isoformat():
+            raise RuntimeError(
+                "账本未追平最近完成交易日："
+                f"verified={health.get('verified_day')} completed={completed_day}"
+            )
+    
+        latest = store.load_latest()
+        if mode == "realtime":
+            if strategy._market_phase(clock) != "盘中":
+                raise RuntimeError("盘中实时邮件只能在连续交易时段生成")
+            report, attachments, observed = coordinator.execute_query(
+                "实时信号", clock, persist_confirmed=False
+            )
+            _atomic_write_text(out_dir / "diagnostic_report.md", report)
+            after = store.load_latest()
+            if set(observed) != set(PRODUCTS):
+                failures = re.findall(r"(?:完整信号失败|当日信号警告)：([^\n]+)", report)
+                raise _ArtifactBuildError(
+                    "盘中产物必须同时包含IC和IM完整信号；已取得="
+                    + ",".join(sorted(observed))
+                    + "；逐品种失败=" + "；".join(failures)
+                    + "；完整诊断见 diagnostic_report.md",
+                    report,
+                )
+            try:
+                validate_realtime_artifact(
+                    clock=clock,
+                    completed_day=completed_day,
+                    before=latest,
+                    after=after,
+                    observed=observed,
+                )
+            except RuntimeError as exc:
+>               raise _ArtifactBuildError(str(exc), report) from exc
+E               run_ic_im_v1_4_github_digest._ArtifactBuildError: IC 网格目标未确认，禁止持久化
+
+run_ic_im_v1_4_github_digest.py:461: _ArtifactBuildError
+______ test_partial_publication_is_rejected_at_the_ledger_value_boundary ______
+
+    def test_partial_publication_is_rejected_at_the_ledger_value_boundary():
+        view = fear_grid.publication_view(_saved_unpublished_signal())
+        with pytest.raises(RuntimeError, match="total_units_target.*数值"):
+>           state.validate_delivery_values(view, "IC")
+
+test_ic_im_fear_grid_v1.py:133: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_v1_4_state.py:263: in validate_delivery_values
+    validate_v14_new_signal(signal, product)
+poe_ic_im_v1_4_state.py:390: in validate_v14_new_signal
+    require_persistence_eligible(signal, product)
+poe_ic_im_v1_4_state.py:252: in require_persistence_eligible
+    require_confirmed_grid_target(signal, product)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+signal = {'call_action': 'HOLD', 'call_current': '无', 'call_current_contract': None, 'call_target': '无（IC 1.3明确禁止Call）', ...}
+product = 'IC'
+
+    def require_confirmed_grid_target(signal: dict[str, Any], product: str) -> None:
+        """Recompute publication eligibility instead of trusting producer markers.
+    
+        An unavailable Fear observation can legitimately preserve the internal
+        grid state for display.  That preserved state is not a confirmed complete
+        portfolio target and must not advance the shared ledger.
+        """
+        view = strategy.fear_grid.publication_view(signal)
+        if view.get("grid_target_confirmed", True) is not True:
+>           raise RuntimeError(f"{product} 网格目标未确认，禁止持久化")
+E           RuntimeError: IC 网格目标未确认，禁止持久化
+
+poe_ic_im_v1_4_state.py:235: RuntimeError
+
+During handling of the above exception, another exception occurred:
+
+    def test_partial_publication_is_rejected_at_the_ledger_value_boundary():
+        view = fear_grid.publication_view(_saved_unpublished_signal())
+>       with pytest.raises(RuntimeError, match="total_units_target.*数值"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: Regex pattern did not match.
+E         Expected regex: 'total_units_target.*数值'
+E         Actual message: 'IC 网格目标未确认，禁止持久化'
+
+test_ic_im_fear_grid_v1.py:132: AssertionError
+___ test_adversarial_runner_rejects_forged_T_evidence_completed_after_1500 ____
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000019A78586DD0>
+
+    def test_adversarial_runner_rejects_forged_T_evidence_completed_after_1500(monkeypatch):
+        import run_ic_im_v1_4_github_digest as digest
+        signal=_adversarial_same_day_signal(monkeypatch)
+        # Preserve the old vulnerable payload's valid T value and full financial schema.
+        # A producer status change alone cannot protect a consumer of an older payload.
+        signal["fear_retrieved_at"]="2026-10-14T15:00:01+08:00"
+        observed,latest=_adversarial_runner_signals(signal)
+        with pytest.raises(RuntimeError,match="15:00"):
+>           digest.validate_realtime_artifact(clock=datetime(2026,10,14,14,59,58,tzinfo=fear_grid.BEIJING),
+                completed_day=date(2026,10,13),before=latest,after=latest,observed=observed)
+
+test_ic_im_fear_grid_v1.py:505: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+run_ic_im_v1_4_github_digest.py:138: in validate_realtime_artifact
+    state_module.validate_delivery_values(signal, product)
+poe_ic_im_v1_4_state.py:263: in validate_delivery_values
+    validate_v14_new_signal(signal, product)
+poe_ic_im_v1_4_state.py:390: in validate_v14_new_signal
+    require_persistence_eligible(signal, product)
+poe_ic_im_v1_4_state.py:252: in require_persistence_eligible
+    require_confirmed_grid_target(signal, product)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+signal = {'call_action': 'HOLD', 'call_current': '无', 'call_current_contract': None, 'call_target': '无（IC 1.3明确禁止Call）', ...}
+product = 'IC'
+
+    def require_confirmed_grid_target(signal: dict[str, Any], product: str) -> None:
+        """Recompute publication eligibility instead of trusting producer markers.
+    
+        An unavailable Fear observation can legitimately preserve the internal
+        grid state for display.  That preserved state is not a confirmed complete
+        portfolio target and must not advance the shared ledger.
+        """
+        view = strategy.fear_grid.publication_view(signal)
+        if view.get("grid_target_confirmed", True) is not True:
+>           raise RuntimeError(f"{product} 网格目标未确认，禁止持久化")
+E           RuntimeError: IC 网格目标未确认，禁止持久化
+
+poe_ic_im_v1_4_state.py:235: RuntimeError
+
+During handling of the above exception, another exception occurred:
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000019A78586DD0>
+
+    def test_adversarial_runner_rejects_forged_T_evidence_completed_after_1500(monkeypatch):
+        import run_ic_im_v1_4_github_digest as digest
+        signal=_adversarial_same_day_signal(monkeypatch)
+        # Preserve the old vulnerable payload's valid T value and full financial schema.
+        # A producer status change alone cannot protect a consumer of an older payload.
+        signal["fear_retrieved_at"]="2026-10-14T15:00:01+08:00"
+        observed,latest=_adversarial_runner_signals(signal)
+>       with pytest.raises(RuntimeError,match="15:00"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: Regex pattern did not match.
+E         Expected regex: '15:00'
+E         Actual message: 'IC 网格目标未确认，禁止持久化'
+
+test_ic_im_fear_grid_v1.py:504: AssertionError
+____ test_both_missing_preserve_other_modules_and_never_publish_zero_hold _____
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000019A785F2270>
+
+    def test_both_missing_preserve_other_modules_and_never_publish_zero_hold(monkeypatch):
+        setup_feed(monkeypatch, csv_ok=False, page_ok=False)
+        evidence = feed.fetch_score(DAY, "close")
+        signal = signal_for(evidence)
+>       state.validate_fear_grid_signal(signal, "IC")
+
+test_ic_im_fear_source_delivery_20261016.py:83: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_v1_4_state.py:319: in validate_fear_grid_signal
+    require_confirmed_grid_target(signal, product)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+signal = {'close_confirmed': True, 'core_units_target': 0.5, 'fear_available_sources': [], 'fear_cross_validation': 'unavailable', ...}
+product = 'IC'
+
+    def require_confirmed_grid_target(signal: dict[str, Any], product: str) -> None:
+        """Recompute publication eligibility instead of trusting producer markers.
+    
+        An unavailable Fear observation can legitimately preserve the internal
+        grid state for display.  That preserved state is not a confirmed complete
+        portfolio target and must not advance the shared ledger.
+        """
+        view = strategy.fear_grid.publication_view(signal)
+        if view.get("grid_target_confirmed", True) is not True:
+>           raise RuntimeError(f"{product} 网格目标未确认，禁止持久化")
+E           RuntimeError: IC 网格目标未确认，禁止持久化
+
+poe_ic_im_v1_4_state.py:235: RuntimeError
+________ test_selected_csv_scalar_cannot_disagree_with_source_snapshot ________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000019A785B6970>
+
+    def test_selected_csv_scalar_cannot_disagree_with_source_snapshot(monkeypatch):
+        setup_feed(monkeypatch, page_ok=False)
+        evidence = feed.fetch_score(DAY, "close")
+        evidence["fear_greed_index"] = 80.
+        signal = signal_for(evidence)
+        with pytest.raises(RuntimeError, match="来源快照"):
+>           state.validate_fear_grid_signal(signal, "IC")
+
+test_ic_im_fear_delivery_adversarial_20261016.py:19: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_v1_4_state.py:319: in validate_fear_grid_signal
+    require_confirmed_grid_target(signal, product)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+signal = {'close_confirmed': True, 'core_units_target': 0.5, 'fear_available_sources': ['csv'], 'fear_cross_validation': 'single_source', ...}
+product = 'IC'
+
+    def require_confirmed_grid_target(signal: dict[str, Any], product: str) -> None:
+        """Recompute publication eligibility instead of trusting producer markers.
+    
+        An unavailable Fear observation can legitimately preserve the internal
+        grid state for display.  That preserved state is not a confirmed complete
+        portfolio target and must not advance the shared ledger.
+        """
+        view = strategy.fear_grid.publication_view(signal)
+        if view.get("grid_target_confirmed", True) is not True:
+>           raise RuntimeError(f"{product} 网格目标未确认，禁止持久化")
+E           RuntimeError: IC 网格目标未确认，禁止持久化
+
+poe_ic_im_v1_4_state.py:235: RuntimeError
+
+During handling of the above exception, another exception occurred:
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000019A785B6970>
+
+    def test_selected_csv_scalar_cannot_disagree_with_source_snapshot(monkeypatch):
+        setup_feed(monkeypatch, page_ok=False)
+        evidence = feed.fetch_score(DAY, "close")
+        evidence["fear_greed_index"] = 80.
+        signal = signal_for(evidence)
+>       with pytest.raises(RuntimeError, match="来源快照"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: Regex pattern did not match.
+E         Expected regex: '来源快照'
+E         Actual message: 'IC 网格目标未确认，禁止持久化'
+
+test_ic_im_fear_delivery_adversarial_20261016.py:18: AssertionError
+__________ test_selected_page_intraday_scalar_is_bound_to_page_value __________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000019A792234D0>
+
+    def test_selected_page_intraday_scalar_is_bound_to_page_value(monkeypatch):
+        setup_feed(monkeypatch, csv_ok=False, hour=14)
+        get = feed._bounded_get
+        monkeypatch.setattr(feed, "_bounded_get", lambda *args: get(*args).replace(b"15:03", b"14:03"))
+        evidence = feed.fetch_score(DAY, "intraday")
+        signal = {**signal_for(evidence), "close_confirmed": False}
+        state.validate_fear_grid_signal(signal, "IC")
+        signal["fear_greed_index"] = 80.
+        with pytest.raises(RuntimeError, match="来源快照"):
+>           state.validate_fear_grid_signal(signal, "IC")
+
+test_ic_im_fear_delivery_adversarial_20261016.py:32: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_v1_4_state.py:319: in validate_fear_grid_signal
+    require_confirmed_grid_target(signal, product)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+signal = {'close_confirmed': False, 'core_units_target': 0.5, 'fear_available_sources': ['page'], 'fear_cross_validation': 'single_source', ...}
+product = 'IC'
+
+    def require_confirmed_grid_target(signal: dict[str, Any], product: str) -> None:
+        """Recompute publication eligibility instead of trusting producer markers.
+    
+        An unavailable Fear observation can legitimately preserve the internal
+        grid state for display.  That preserved state is not a confirmed complete
+        portfolio target and must not advance the shared ledger.
+        """
+        view = strategy.fear_grid.publication_view(signal)
+        if view.get("grid_target_confirmed", True) is not True:
+>           raise RuntimeError(f"{product} 网格目标未确认，禁止持久化")
+E           RuntimeError: IC 网格目标未确认，禁止持久化
+
+poe_ic_im_v1_4_state.py:235: RuntimeError
+
+During handling of the above exception, another exception occurred:
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000019A792234D0>
+
+    def test_selected_page_intraday_scalar_is_bound_to_page_value(monkeypatch):
+        setup_feed(monkeypatch, csv_ok=False, hour=14)
+        get = feed._bounded_get
+        monkeypatch.setattr(feed, "_bounded_get", lambda *args: get(*args).replace(b"15:03", b"14:03"))
+        evidence = feed.fetch_score(DAY, "intraday")
+        signal = {**signal_for(evidence), "close_confirmed": False}
+        state.validate_fear_grid_signal(signal, "IC")
+        signal["fear_greed_index"] = 80.
+>       with pytest.raises(RuntimeError, match="来源快照"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: Regex pattern did not match.
+E         Expected regex: '来源快照'
+E         Actual message: 'IC 网格目标未确认，禁止持久化'
+
+test_ic_im_fear_delivery_adversarial_20261016.py:31: AssertionError
+______ test_today_observed_cannot_be_labeled_unpublished_to_force_prior _______
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000019A792224A0>
+
+    def test_today_observed_cannot_be_labeled_unpublished_to_force_prior(monkeypatch):
+        setup_feed(monkeypatch, page_ok=False)
+        evidence = feed.fetch_score(DAY, "close")
+        evidence.update(fear_greed_index=39.32, fear_data_date="2026-10-15",
+                        fear_data_status=feed.CLOSE_FALLBACK_STATUS, fear_fallback_applied=True,
+                        fear_previous_exchange_date="2026-10-15", fear_fallback_reason="same_day_not_published",
+                        fear_fallback_timing="same_day_post_close")
+        with pytest.raises(RuntimeError, match="已有当日值"):
+>           state.validate_fear_grid_signal(signal_for(evidence), "IC")
+
+test_ic_im_fear_delivery_adversarial_20261016.py:43: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_v1_4_state.py:319: in validate_fear_grid_signal
+    require_confirmed_grid_target(signal, product)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+signal = {'close_confirmed': True, 'core_units_target': 0.5, 'fear_available_sources': ['csv'], 'fear_cross_validation': 'single_source', ...}
+product = 'IC'
+
+    def require_confirmed_grid_target(signal: dict[str, Any], product: str) -> None:
+        """Recompute publication eligibility instead of trusting producer markers.
+    
+        An unavailable Fear observation can legitimately preserve the internal
+        grid state for display.  That preserved state is not a confirmed complete
+        portfolio target and must not advance the shared ledger.
+        """
+        view = strategy.fear_grid.publication_view(signal)
+        if view.get("grid_target_confirmed", True) is not True:
+>           raise RuntimeError(f"{product} 网格目标未确认，禁止持久化")
+E           RuntimeError: IC 网格目标未确认，禁止持久化
+
+poe_ic_im_v1_4_state.py:235: RuntimeError
+
+During handling of the above exception, another exception occurred:
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000019A792224A0>
+
+    def test_today_observed_cannot_be_labeled_unpublished_to_force_prior(monkeypatch):
+        setup_feed(monkeypatch, page_ok=False)
+        evidence = feed.fetch_score(DAY, "close")
+        evidence.update(fear_greed_index=39.32, fear_data_date="2026-10-15",
+                        fear_data_status=feed.CLOSE_FALLBACK_STATUS, fear_fallback_applied=True,
+                        fear_previous_exchange_date="2026-10-15", fear_fallback_reason="same_day_not_published",
+                        fear_fallback_timing="same_day_post_close")
+>       with pytest.raises(RuntimeError, match="已有当日值"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: Regex pattern did not match.
+E         Expected regex: '已有当日值'
+E         Actual message: 'IC 网格目标未确认，禁止持久化'
+
+test_ic_im_fear_delivery_adversarial_20261016.py:42: AssertionError
+___ test_generation_crossing_midnight_requires_replay_even_without_pending ____
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000019A792214E0>
+
+    def test_generation_crossing_midnight_requires_replay_even_without_pending(monkeypatch):
+        setup_feed(monkeypatch)
+        signal = signal_for(feed.fetch_score(DAY, "close"))
+        signal.update(signal_generated_at="2026-10-17T00:00:01+08:00", signal_generation_timing="close_confirmed")
+        monkeypatch.setattr(feed, "_validation_clock", lambda: datetime(2026, 10, 17, 1, tzinfo=feed.BEIJING))
+        with pytest.raises(RuntimeError, match="跨日补录"):
+>           state.validate_fear_grid_signal(signal, "IC")
+
+test_ic_im_fear_delivery_adversarial_20261016.py:52: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_v1_4_state.py:319: in validate_fear_grid_signal
+    require_confirmed_grid_target(signal, product)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+signal = {'close_confirmed': True, 'core_units_target': 0.5, 'fear_available_sources': ['csv', 'page'], 'fear_cross_validation': 'matched', ...}
+product = 'IC'
+
+    def require_confirmed_grid_target(signal: dict[str, Any], product: str) -> None:
+        """Recompute publication eligibility instead of trusting producer markers.
+    
+        An unavailable Fear observation can legitimately preserve the internal
+        grid state for display.  That preserved state is not a confirmed complete
+        portfolio target and must not advance the shared ledger.
+        """
+        view = strategy.fear_grid.publication_view(signal)
+        if view.get("grid_target_confirmed", True) is not True:
+>           raise RuntimeError(f"{product} 网格目标未确认，禁止持久化")
+E           RuntimeError: IC 网格目标未确认，禁止持久化
+
+poe_ic_im_v1_4_state.py:235: RuntimeError
+
+During handling of the above exception, another exception occurred:
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000019A792214E0>
+
+    def test_generation_crossing_midnight_requires_replay_even_without_pending(monkeypatch):
+        setup_feed(monkeypatch)
+        signal = signal_for(feed.fetch_score(DAY, "close"))
+        signal.update(signal_generated_at="2026-10-17T00:00:01+08:00", signal_generation_timing="close_confirmed")
+        monkeypatch.setattr(feed, "_validation_clock", lambda: datetime(2026, 10, 17, 1, tzinfo=feed.BEIJING))
+>       with pytest.raises(RuntimeError, match="跨日补录"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: Regex pattern did not match.
+E         Expected regex: '跨日补录'
+E         Actual message: 'IC 网格目标未确认，禁止持久化'
+
+test_ic_im_fear_delivery_adversarial_20261016.py:51: AssertionError
+____________ test_latest_csv_today_cannot_delete_today_observation ____________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000019A79220AD0>
+
+    def test_latest_csv_today_cannot_delete_today_observation(monkeypatch):
+        setup_feed(monkeypatch, page_ok=False)
+        evidence = feed.fetch_score(DAY, "close")
+        del evidence["fear_csv_observations"][DAY.isoformat()]
+        evidence.update(fear_greed_index=39.32, fear_data_date="2026-10-15",
+                        fear_data_status=feed.CLOSE_FALLBACK_STATUS, fear_fallback_applied=True,
+                        fear_previous_exchange_date="2026-10-15", fear_fallback_reason="same_day_not_published",
+                        fear_fallback_timing="same_day_post_close")
+        with pytest.raises(RuntimeError, match="观察快照删除"):
+>           state.validate_fear_grid_signal(signal_for(evidence), "IC")
+
+test_ic_im_fear_delivery_adversarial_20261016.py:89: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_v1_4_state.py:319: in validate_fear_grid_signal
+    require_confirmed_grid_target(signal, product)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+signal = {'close_confirmed': True, 'core_units_target': 0.5, 'fear_available_sources': ['csv'], 'fear_cross_validation': 'single_source', ...}
+product = 'IC'
+
+    def require_confirmed_grid_target(signal: dict[str, Any], product: str) -> None:
+        """Recompute publication eligibility instead of trusting producer markers.
+    
+        An unavailable Fear observation can legitimately preserve the internal
+        grid state for display.  That preserved state is not a confirmed complete
+        portfolio target and must not advance the shared ledger.
+        """
+        view = strategy.fear_grid.publication_view(signal)
+        if view.get("grid_target_confirmed", True) is not True:
+>           raise RuntimeError(f"{product} 网格目标未确认，禁止持久化")
+E           RuntimeError: IC 网格目标未确认，禁止持久化
+
+poe_ic_im_v1_4_state.py:235: RuntimeError
+
+During handling of the above exception, another exception occurred:
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000019A79220AD0>
+
+    def test_latest_csv_today_cannot_delete_today_observation(monkeypatch):
+        setup_feed(monkeypatch, page_ok=False)
+        evidence = feed.fetch_score(DAY, "close")
+        del evidence["fear_csv_observations"][DAY.isoformat()]
+        evidence.update(fear_greed_index=39.32, fear_data_date="2026-10-15",
+                        fear_data_status=feed.CLOSE_FALLBACK_STATUS, fear_fallback_applied=True,
+                        fear_previous_exchange_date="2026-10-15", fear_fallback_reason="same_day_not_published",
+                        fear_fallback_timing="same_day_post_close")
+>       with pytest.raises(RuntimeError, match="观察快照删除"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: Regex pattern did not match.
+E         Expected regex: '观察快照删除'
+E         Actual message: 'IC 网格目标未确认，禁止持久化'
+
+test_ic_im_fear_delivery_adversarial_20261016.py:88: AssertionError
+___ test_policy_and_new_signal_boundary_reject_unresolved_open[ordinary-IC] ___
+
+product = 'IC', kind = 'ordinary'
+
+    @pytest.mark.parametrize("product", ["IC", "IM"])
+    @pytest.mark.parametrize("kind", ["ordinary", "short_put", "profit3x"])
+    def test_policy_and_new_signal_boundary_reject_unresolved_open(product, kind):
+        anchor = fixture.anchor(product)
+        signal = fixture.signal(product, DAY)
+        if kind == "ordinary":
+            signal["v14_ordinary_put_open_status"] = RETRY
+        else:
+            signal["v14_opening_events"] = [dict(kind=kind, status=RETRY)]
+        with pytest.raises(RuntimeError, match="unresolved opening evidence"):
+            policy.apply_policy(product, signal, anchor, candidate={"tradable": False})
+        with pytest.raises(RuntimeError, match="unresolved opening evidence"):
+>           state.validate_v14_new_signal(signal, product)
+
+test_ic_im_external_review_20261021.py:107: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_v1_4_state.py:390: in validate_v14_new_signal
+    require_persistence_eligible(signal, product)
+poe_ic_im_v1_4_state.py:252: in require_persistence_eligible
+    require_confirmed_grid_target(signal, product)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+signal = {'call_current_contract': None, 'close_confirmed': True, 'core_current': 'IC2612', 'core_put_driver': 'mom120', ...}
+product = 'IC'
+
+    def require_confirmed_grid_target(signal: dict[str, Any], product: str) -> None:
+        """Recompute publication eligibility instead of trusting producer markers.
+    
+        An unavailable Fear observation can legitimately preserve the internal
+        grid state for display.  That preserved state is not a confirmed complete
+        portfolio target and must not advance the shared ledger.
+        """
+        view = strategy.fear_grid.publication_view(signal)
+        if view.get("grid_target_confirmed", True) is not True:
+>           raise RuntimeError(f"{product} 网格目标未确认，禁止持久化")
+E           RuntimeError: IC 网格目标未确认，禁止持久化
+
+poe_ic_im_v1_4_state.py:235: RuntimeError
+
+During handling of the above exception, another exception occurred:
+
+product = 'IC', kind = 'ordinary'
+
+    @pytest.mark.parametrize("product", ["IC", "IM"])
+    @pytest.mark.parametrize("kind", ["ordinary", "short_put", "profit3x"])
+    def test_policy_and_new_signal_boundary_reject_unresolved_open(product, kind):
+        anchor = fixture.anchor(product)
+        signal = fixture.signal(product, DAY)
+        if kind == "ordinary":
+            signal["v14_ordinary_put_open_status"] = RETRY
+        else:
+            signal["v14_opening_events"] = [dict(kind=kind, status=RETRY)]
+        with pytest.raises(RuntimeError, match="unresolved opening evidence"):
+            policy.apply_policy(product, signal, anchor, candidate={"tradable": False})
+>       with pytest.raises(RuntimeError, match="unresolved opening evidence"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: Regex pattern did not match.
+E         Expected regex: 'unresolved opening evidence'
+E         Actual message: 'IC 网格目标未确认，禁止持久化'
+
+test_ic_im_external_review_20261021.py:106: AssertionError
+___ test_policy_and_new_signal_boundary_reject_unresolved_open[ordinary-IM] ___
+
+product = 'IM', kind = 'ordinary'
+
+    @pytest.mark.parametrize("product", ["IC", "IM"])
+    @pytest.mark.parametrize("kind", ["ordinary", "short_put", "profit3x"])
+    def test_policy_and_new_signal_boundary_reject_unresolved_open(product, kind):
+        anchor = fixture.anchor(product)
+        signal = fixture.signal(product, DAY)
+        if kind == "ordinary":
+            signal["v14_ordinary_put_open_status"] = RETRY
+        else:
+            signal["v14_opening_events"] = [dict(kind=kind, status=RETRY)]
+        with pytest.raises(RuntimeError, match="unresolved opening evidence"):
+            policy.apply_policy(product, signal, anchor, candidate={"tradable": False})
+        with pytest.raises(RuntimeError, match="unresolved opening evidence"):
+>           state.validate_v14_new_signal(signal, product)
+
+test_ic_im_external_review_20261021.py:107: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_v1_4_state.py:390: in validate_v14_new_signal
+    require_persistence_eligible(signal, product)
+poe_ic_im_v1_4_state.py:252: in require_persistence_eligible
+    require_confirmed_grid_target(signal, product)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+signal = {'call_current_contract': None, 'close_confirmed': True, 'core_current': 'IM2612', 'core_put_driver': 'mom120', ...}
+product = 'IM'
+
+    def require_confirmed_grid_target(signal: dict[str, Any], product: str) -> None:
+        """Recompute publication eligibility instead of trusting producer markers.
+    
+        An unavailable Fear observation can legitimately preserve the internal
+        grid state for display.  That preserved state is not a confirmed complete
+        portfolio target and must not advance the shared ledger.
+        """
+        view = strategy.fear_grid.publication_view(signal)
+        if view.get("grid_target_confirmed", True) is not True:
+>           raise RuntimeError(f"{product} 网格目标未确认，禁止持久化")
+E           RuntimeError: IM 网格目标未确认，禁止持久化
+
+poe_ic_im_v1_4_state.py:235: RuntimeError
+
+During handling of the above exception, another exception occurred:
+
+product = 'IM', kind = 'ordinary'
+
+    @pytest.mark.parametrize("product", ["IC", "IM"])
+    @pytest.mark.parametrize("kind", ["ordinary", "short_put", "profit3x"])
+    def test_policy_and_new_signal_boundary_reject_unresolved_open(product, kind):
+        anchor = fixture.anchor(product)
+        signal = fixture.signal(product, DAY)
+        if kind == "ordinary":
+            signal["v14_ordinary_put_open_status"] = RETRY
+        else:
+            signal["v14_opening_events"] = [dict(kind=kind, status=RETRY)]
+        with pytest.raises(RuntimeError, match="unresolved opening evidence"):
+            policy.apply_policy(product, signal, anchor, candidate={"tradable": False})
+>       with pytest.raises(RuntimeError, match="unresolved opening evidence"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: Regex pattern did not match.
+E         Expected regex: 'unresolved opening evidence'
+E         Actual message: 'IM 网格目标未确认，禁止持久化'
+
+test_ic_im_external_review_20261021.py:106: AssertionError
+__ test_policy_and_new_signal_boundary_reject_unresolved_open[short_put-IC] ___
+
+product = 'IC', kind = 'short_put'
+
+    @pytest.mark.parametrize("product", ["IC", "IM"])
+    @pytest.mark.parametrize("kind", ["ordinary", "short_put", "profit3x"])
+    def test_policy_and_new_signal_boundary_reject_unresolved_open(product, kind):
+        anchor = fixture.anchor(product)
+        signal = fixture.signal(product, DAY)
+        if kind == "ordinary":
+            signal["v14_ordinary_put_open_status"] = RETRY
+        else:
+            signal["v14_opening_events"] = [dict(kind=kind, status=RETRY)]
+        with pytest.raises(RuntimeError, match="unresolved opening evidence"):
+            policy.apply_policy(product, signal, anchor, candidate={"tradable": False})
+        with pytest.raises(RuntimeError, match="unresolved opening evidence"):
+>           state.validate_v14_new_signal(signal, product)
+
+test_ic_im_external_review_20261021.py:107: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_v1_4_state.py:390: in validate_v14_new_signal
+    require_persistence_eligible(signal, product)
+poe_ic_im_v1_4_state.py:252: in require_persistence_eligible
+    require_confirmed_grid_target(signal, product)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+signal = {'call_current_contract': None, 'close_confirmed': True, 'core_current': 'IC2612', 'core_put_driver': 'mom120', ...}
+product = 'IC'
+
+    def require_confirmed_grid_target(signal: dict[str, Any], product: str) -> None:
+        """Recompute publication eligibility instead of trusting producer markers.
+    
+        An unavailable Fear observation can legitimately preserve the internal
+        grid state for display.  That preserved state is not a confirmed complete
+        portfolio target and must not advance the shared ledger.
+        """
+        view = strategy.fear_grid.publication_view(signal)
+        if view.get("grid_target_confirmed", True) is not True:
+>           raise RuntimeError(f"{product} 网格目标未确认，禁止持久化")
+E           RuntimeError: IC 网格目标未确认，禁止持久化
+
+poe_ic_im_v1_4_state.py:235: RuntimeError
+
+During handling of the above exception, another exception occurred:
+
+product = 'IC', kind = 'short_put'
+
+    @pytest.mark.parametrize("product", ["IC", "IM"])
+    @pytest.mark.parametrize("kind", ["ordinary", "short_put", "profit3x"])
+    def test_policy_and_new_signal_boundary_reject_unresolved_open(product, kind):
+        anchor = fixture.anchor(product)
+        signal = fixture.signal(product, DAY)
+        if kind == "ordinary":
+            signal["v14_ordinary_put_open_status"] = RETRY
+        else:
+            signal["v14_opening_events"] = [dict(kind=kind, status=RETRY)]
+        with pytest.raises(RuntimeError, match="unresolved opening evidence"):
+            policy.apply_policy(product, signal, anchor, candidate={"tradable": False})
+>       with pytest.raises(RuntimeError, match="unresolved opening evidence"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: Regex pattern did not match.
+E         Expected regex: 'unresolved opening evidence'
+E         Actual message: 'IC 网格目标未确认，禁止持久化'
+
+test_ic_im_external_review_20261021.py:106: AssertionError
+__ test_policy_and_new_signal_boundary_reject_unresolved_open[short_put-IM] ___
+
+product = 'IM', kind = 'short_put'
+
+    @pytest.mark.parametrize("product", ["IC", "IM"])
+    @pytest.mark.parametrize("kind", ["ordinary", "short_put", "profit3x"])
+    def test_policy_and_new_signal_boundary_reject_unresolved_open(product, kind):
+        anchor = fixture.anchor(product)
+        signal = fixture.signal(product, DAY)
+        if kind == "ordinary":
+            signal["v14_ordinary_put_open_status"] = RETRY
+        else:
+            signal["v14_opening_events"] = [dict(kind=kind, status=RETRY)]
+        with pytest.raises(RuntimeError, match="unresolved opening evidence"):
+            policy.apply_policy(product, signal, anchor, candidate={"tradable": False})
+        with pytest.raises(RuntimeError, match="unresolved opening evidence"):
+>           state.validate_v14_new_signal(signal, product)
+
+test_ic_im_external_review_20261021.py:107: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_v1_4_state.py:390: in validate_v14_new_signal
+    require_persistence_eligible(signal, product)
+poe_ic_im_v1_4_state.py:252: in require_persistence_eligible
+    require_confirmed_grid_target(signal, product)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+signal = {'call_current_contract': None, 'close_confirmed': True, 'core_current': 'IM2612', 'core_put_driver': 'mom120', ...}
+product = 'IM'
+
+    def require_confirmed_grid_target(signal: dict[str, Any], product: str) -> None:
+        """Recompute publication eligibility instead of trusting producer markers.
+    
+        An unavailable Fear observation can legitimately preserve the internal
+        grid state for display.  That preserved state is not a confirmed complete
+        portfolio target and must not advance the shared ledger.
+        """
+        view = strategy.fear_grid.publication_view(signal)
+        if view.get("grid_target_confirmed", True) is not True:
+>           raise RuntimeError(f"{product} 网格目标未确认，禁止持久化")
+E           RuntimeError: IM 网格目标未确认，禁止持久化
+
+poe_ic_im_v1_4_state.py:235: RuntimeError
+
+During handling of the above exception, another exception occurred:
+
+product = 'IM', kind = 'short_put'
+
+    @pytest.mark.parametrize("product", ["IC", "IM"])
+    @pytest.mark.parametrize("kind", ["ordinary", "short_put", "profit3x"])
+    def test_policy_and_new_signal_boundary_reject_unresolved_open(product, kind):
+        anchor = fixture.anchor(product)
+        signal = fixture.signal(product, DAY)
+        if kind == "ordinary":
+            signal["v14_ordinary_put_open_status"] = RETRY
+        else:
+            signal["v14_opening_events"] = [dict(kind=kind, status=RETRY)]
+        with pytest.raises(RuntimeError, match="unresolved opening evidence"):
+            policy.apply_policy(product, signal, anchor, candidate={"tradable": False})
+>       with pytest.raises(RuntimeError, match="unresolved opening evidence"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: Regex pattern did not match.
+E         Expected regex: 'unresolved opening evidence'
+E         Actual message: 'IM 网格目标未确认，禁止持久化'
+
+test_ic_im_external_review_20261021.py:106: AssertionError
+___ test_policy_and_new_signal_boundary_reject_unresolved_open[profit3x-IC] ___
+
+product = 'IC', kind = 'profit3x'
+
+    @pytest.mark.parametrize("product", ["IC", "IM"])
+    @pytest.mark.parametrize("kind", ["ordinary", "short_put", "profit3x"])
+    def test_policy_and_new_signal_boundary_reject_unresolved_open(product, kind):
+        anchor = fixture.anchor(product)
+        signal = fixture.signal(product, DAY)
+        if kind == "ordinary":
+            signal["v14_ordinary_put_open_status"] = RETRY
+        else:
+            signal["v14_opening_events"] = [dict(kind=kind, status=RETRY)]
+        with pytest.raises(RuntimeError, match="unresolved opening evidence"):
+            policy.apply_policy(product, signal, anchor, candidate={"tradable": False})
+        with pytest.raises(RuntimeError, match="unresolved opening evidence"):
+>           state.validate_v14_new_signal(signal, product)
+
+test_ic_im_external_review_20261021.py:107: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_v1_4_state.py:390: in validate_v14_new_signal
+    require_persistence_eligible(signal, product)
+poe_ic_im_v1_4_state.py:252: in require_persistence_eligible
+    require_confirmed_grid_target(signal, product)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+signal = {'call_current_contract': None, 'close_confirmed': True, 'core_current': 'IC2612', 'core_put_driver': 'mom120', ...}
+product = 'IC'
+
+    def require_confirmed_grid_target(signal: dict[str, Any], product: str) -> None:
+        """Recompute publication eligibility instead of trusting producer markers.
+    
+        An unavailable Fear observation can legitimately preserve the internal
+        grid state for display.  That preserved state is not a confirmed complete
+        portfolio target and must not advance the shared ledger.
+        """
+        view = strategy.fear_grid.publication_view(signal)
+        if view.get("grid_target_confirmed", True) is not True:
+>           raise RuntimeError(f"{product} 网格目标未确认，禁止持久化")
+E           RuntimeError: IC 网格目标未确认，禁止持久化
+
+poe_ic_im_v1_4_state.py:235: RuntimeError
+
+During handling of the above exception, another exception occurred:
+
+product = 'IC', kind = 'profit3x'
+
+    @pytest.mark.parametrize("product", ["IC", "IM"])
+    @pytest.mark.parametrize("kind", ["ordinary", "short_put", "profit3x"])
+    def test_policy_and_new_signal_boundary_reject_unresolved_open(product, kind):
+        anchor = fixture.anchor(product)
+        signal = fixture.signal(product, DAY)
+        if kind == "ordinary":
+            signal["v14_ordinary_put_open_status"] = RETRY
+        else:
+            signal["v14_opening_events"] = [dict(kind=kind, status=RETRY)]
+        with pytest.raises(RuntimeError, match="unresolved opening evidence"):
+            policy.apply_policy(product, signal, anchor, candidate={"tradable": False})
+>       with pytest.raises(RuntimeError, match="unresolved opening evidence"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: Regex pattern did not match.
+E         Expected regex: 'unresolved opening evidence'
+E         Actual message: 'IC 网格目标未确认，禁止持久化'
+
+test_ic_im_external_review_20261021.py:106: AssertionError
+___ test_policy_and_new_signal_boundary_reject_unresolved_open[profit3x-IM] ___
+
+product = 'IM', kind = 'profit3x'
+
+    @pytest.mark.parametrize("product", ["IC", "IM"])
+    @pytest.mark.parametrize("kind", ["ordinary", "short_put", "profit3x"])
+    def test_policy_and_new_signal_boundary_reject_unresolved_open(product, kind):
+        anchor = fixture.anchor(product)
+        signal = fixture.signal(product, DAY)
+        if kind == "ordinary":
+            signal["v14_ordinary_put_open_status"] = RETRY
+        else:
+            signal["v14_opening_events"] = [dict(kind=kind, status=RETRY)]
+        with pytest.raises(RuntimeError, match="unresolved opening evidence"):
+            policy.apply_policy(product, signal, anchor, candidate={"tradable": False})
+        with pytest.raises(RuntimeError, match="unresolved opening evidence"):
+>           state.validate_v14_new_signal(signal, product)
+
+test_ic_im_external_review_20261021.py:107: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_v1_4_state.py:390: in validate_v14_new_signal
+    require_persistence_eligible(signal, product)
+poe_ic_im_v1_4_state.py:252: in require_persistence_eligible
+    require_confirmed_grid_target(signal, product)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+signal = {'call_current_contract': None, 'close_confirmed': True, 'core_current': 'IM2612', 'core_put_driver': 'mom120', ...}
+product = 'IM'
+
+    def require_confirmed_grid_target(signal: dict[str, Any], product: str) -> None:
+        """Recompute publication eligibility instead of trusting producer markers.
+    
+        An unavailable Fear observation can legitimately preserve the internal
+        grid state for display.  That preserved state is not a confirmed complete
+        portfolio target and must not advance the shared ledger.
+        """
+        view = strategy.fear_grid.publication_view(signal)
+        if view.get("grid_target_confirmed", True) is not True:
+>           raise RuntimeError(f"{product} 网格目标未确认，禁止持久化")
+E           RuntimeError: IM 网格目标未确认，禁止持久化
+
+poe_ic_im_v1_4_state.py:235: RuntimeError
+
+During handling of the above exception, another exception occurred:
+
+product = 'IM', kind = 'profit3x'
+
+    @pytest.mark.parametrize("product", ["IC", "IM"])
+    @pytest.mark.parametrize("kind", ["ordinary", "short_put", "profit3x"])
+    def test_policy_and_new_signal_boundary_reject_unresolved_open(product, kind):
+        anchor = fixture.anchor(product)
+        signal = fixture.signal(product, DAY)
+        if kind == "ordinary":
+            signal["v14_ordinary_put_open_status"] = RETRY
+        else:
+            signal["v14_opening_events"] = [dict(kind=kind, status=RETRY)]
+        with pytest.raises(RuntimeError, match="unresolved opening evidence"):
+            policy.apply_policy(product, signal, anchor, candidate={"tradable": False})
+>       with pytest.raises(RuntimeError, match="unresolved opening evidence"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: Regex pattern did not match.
+E         Expected regex: 'unresolved opening evidence'
+E         Actual message: 'IM 网格目标未确认，禁止持久化'
+
+test_ic_im_external_review_20261021.py:106: AssertionError
+__________ test_adjusted_guard_survives_candidate_exception_fallback __________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000019A79FB33F0>
+
+    def test_adjusted_guard_survives_candidate_exception_fallback(monkeypatch):
+        anchor = fixture.anchor("IC")
+        anchor["v14_core_put_contract"] = "510500P2612A07500"
+        monkeypatch.setitem(bot.LIVE_CONTINUATION_ANCHOR, "IC", anchor)
+        with pytest.raises(RuntimeError, match="adjusted contract master"):
+            bot._apply_v14_live_policy("IC", fixture.signal("IC", DAY))
+        with pytest.raises(RuntimeError, match="adjusted contract master"):
+            policy.apply_policy("IC", fixture.signal("IC", DAY), anchor, candidate={"tradable": False})
+        with pytest.raises(RuntimeError, match="adjusted contract master"):
+>           state.validate_v14_new_signal({**fixture.signal("IC", DAY),
+                                          "v14_core_put_contract":"510500P2612A07500"}, "IC")
+
+test_ic_im_external_review_20261021.py:255: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_v1_4_state.py:390: in validate_v14_new_signal
+    require_persistence_eligible(signal, product)
+poe_ic_im_v1_4_state.py:252: in require_persistence_eligible
+    require_confirmed_grid_target(signal, product)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+signal = {'call_current_contract': None, 'close_confirmed': True, 'core_current': 'IC2612', 'core_put_driver': 'mom120', ...}
+product = 'IC'
+
+    def require_confirmed_grid_target(signal: dict[str, Any], product: str) -> None:
+        """Recompute publication eligibility instead of trusting producer markers.
+    
+        An unavailable Fear observation can legitimately preserve the internal
+        grid state for display.  That preserved state is not a confirmed complete
+        portfolio target and must not advance the shared ledger.
+        """
+        view = strategy.fear_grid.publication_view(signal)
+        if view.get("grid_target_confirmed", True) is not True:
+>           raise RuntimeError(f"{product} 网格目标未确认，禁止持久化")
+E           RuntimeError: IC 网格目标未确认，禁止持久化
+
+poe_ic_im_v1_4_state.py:235: RuntimeError
+
+During handling of the above exception, another exception occurred:
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000019A79FB33F0>
+
+    def test_adjusted_guard_survives_candidate_exception_fallback(monkeypatch):
+        anchor = fixture.anchor("IC")
+        anchor["v14_core_put_contract"] = "510500P2612A07500"
+        monkeypatch.setitem(bot.LIVE_CONTINUATION_ANCHOR, "IC", anchor)
+        with pytest.raises(RuntimeError, match="adjusted contract master"):
+            bot._apply_v14_live_policy("IC", fixture.signal("IC", DAY))
+        with pytest.raises(RuntimeError, match="adjusted contract master"):
+            policy.apply_policy("IC", fixture.signal("IC", DAY), anchor, candidate={"tradable": False})
+>       with pytest.raises(RuntimeError, match="adjusted contract master"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: Regex pattern did not match.
+E         Expected regex: 'adjusted contract master'
+E         Actual message: 'IC 网格目标未确认，禁止持久化'
+
+test_ic_im_external_review_20261021.py:254: AssertionError
+____ test_failed_core_overlay_cannot_schedule_close_plan_or_mutate_anchor _____
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000019A784BE2E0>
+
+    def test_failed_core_overlay_cannot_schedule_close_plan_or_mutate_anchor(monkeypatch):
+        anchor = split_anchor()
+        before = deepcopy(anchor)
+        monkeypatch.setitem(bot.LIVE_CONTINUATION_ANCHOR, 'IC', anchor)
+        monkeypatch.setattr(bot, 'fetch_510500_chain_with_failover',
+                            Mock(side_effect=RuntimeError('dedicated core quote unavailable')))
+        signal = split_signal(close_confirmed=True)
+        out = bot._apply_v14_live_policy('IC', signal)
+        bot._v14_schedule_ordinary_put('IC', out, anchor, None)
+        assert out['v14_action'] == 'HOLD_FAIL_CLOSED'
+        assert out['v14_ordinary_put_pending'] is None
+        assert bot.LIVE_CONTINUATION_ANCHOR['IC'] == before
+        build, rule = bot.v14_policy.identity_for_signal_day(DAY)
+        out.update(strategy_version=state.STRATEGY_VERSION, strategy_revision=state.STRATEGY_REVISION,
+                   v14_build_id=build, v14_rule_revision=rule,
+                   v14_execution_revision=bot.put_execution.REVISION)
+        with pytest.raises(RuntimeError) as rejected:
+            state.validate_v14_new_signal(out, 'IC')
+>       assert '\u76ee\u6807' in str(rejected.value), str(rejected.value)
+E       AssertionError: IC HOLD_FAIL_CLOSED信号禁止持久化
+E       assert '目标' in 'IC HOLD_FAIL_CLOSED信号禁止持久化'
+E        +  where 'IC HOLD_FAIL_CLOSED信号禁止持久化' = str(RuntimeError('IC HOLD_FAIL_CLOSED信号禁止持久化'))
+E        +    where RuntimeError('IC HOLD_FAIL_CLOSED信号禁止持久化') = <ExceptionInfo RuntimeError('IC HOLD_FAIL_CLOSED信号禁止持久化') tblen=3>.value
+
+test_icim_redteam_display_20261021.py:156: AssertionError
+_ test_actual_date_persistence_rejects_due_plan_without_lowering_cutoff[None] _
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_f6c7b735/pytest/test_actual_date_persistence_r0')
+status = None
+
+    @pytest.mark.parametrize("status", [None, "closed_missing_open_price", execution.RETRY_OPEN_STATUS])
+    def test_actual_date_persistence_rejects_due_plan_without_lowering_cutoff(tmp_path, status):
+        store, record = recent_store(tmp_path / "state")
+        before = snapshot(store.root)
+        signals = {product: {"market_date": DAY, "v14_opening_events": []}
+                   for product in state.PRODUCTS}
+        signals["IC"]["v14_ordinary_put_open_status"] = status
+        # The due-plan gate precedes unrelated quote/fear/delivery validation.
+        # Thus the exact error, not merely rejection, is the asserted boundary.
+        with pytest.raises(RuntimeError, match="unresolved opening evidence"):
+>           store.append_confirmed_signals(record, signals)
+
+test_icim_redteam_integration_20261021.py:87: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_v1_4_state.py:1504: in append_confirmed_signals
+    return self._append_locked(current, signals)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+poe_ic_im_v1_4_state.py:1507: in _append_locked
+    anchors = derive_next_anchors(current, signals)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+poe_ic_im_v1_4_state.py:981: in derive_next_anchors
+    require_persistence_eligible(signals[product], product)
+poe_ic_im_v1_4_state.py:252: in require_persistence_eligible
+    require_confirmed_grid_target(signal, product)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+signal = {'market_date': datetime.date(2026, 10, 21), 'v14_opening_events': [], 'v14_ordinary_put_open_status': None}
+product = 'IC'
+
+    def require_confirmed_grid_target(signal: dict[str, Any], product: str) -> None:
+        """Recompute publication eligibility instead of trusting producer markers.
+    
+        An unavailable Fear observation can legitimately preserve the internal
+        grid state for display.  That preserved state is not a confirmed complete
+        portfolio target and must not advance the shared ledger.
+        """
+        view = strategy.fear_grid.publication_view(signal)
+        if view.get("grid_target_confirmed", True) is not True:
+>           raise RuntimeError(f"{product} 网格目标未确认，禁止持久化")
+E           RuntimeError: IC 网格目标未确认，禁止持久化
+
+poe_ic_im_v1_4_state.py:235: RuntimeError
+
+During handling of the above exception, another exception occurred:
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_f6c7b735/pytest/test_actual_date_persistence_r0')
+status = None
+
+    @pytest.mark.parametrize("status", [None, "closed_missing_open_price", execution.RETRY_OPEN_STATUS])
+    def test_actual_date_persistence_rejects_due_plan_without_lowering_cutoff(tmp_path, status):
+        store, record = recent_store(tmp_path / "state")
+        before = snapshot(store.root)
+        signals = {product: {"market_date": DAY, "v14_opening_events": []}
+                   for product in state.PRODUCTS}
+        signals["IC"]["v14_ordinary_put_open_status"] = status
+        # The due-plan gate precedes unrelated quote/fear/delivery validation.
+        # Thus the exact error, not merely rejection, is the asserted boundary.
+>       with pytest.raises(RuntimeError, match="unresolved opening evidence"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: Regex pattern did not match.
+E         Expected regex: 'unresolved opening evidence'
+E         Actual message: 'IC 网格目标未确认，禁止持久化'
+
+test_icim_redteam_integration_20261021.py:86: AssertionError
+_ test_actual_date_persistence_rejects_due_plan_without_lowering_cutoff[closed_missing_open_price] _
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_f6c7b735/pytest/test_actual_date_persistence_r1')
+status = 'closed_missing_open_price'
+
+    @pytest.mark.parametrize("status", [None, "closed_missing_open_price", execution.RETRY_OPEN_STATUS])
+    def test_actual_date_persistence_rejects_due_plan_without_lowering_cutoff(tmp_path, status):
+        store, record = recent_store(tmp_path / "state")
+        before = snapshot(store.root)
+        signals = {product: {"market_date": DAY, "v14_opening_events": []}
+                   for product in state.PRODUCTS}
+        signals["IC"]["v14_ordinary_put_open_status"] = status
+        # The due-plan gate precedes unrelated quote/fear/delivery validation.
+        # Thus the exact error, not merely rejection, is the asserted boundary.
+        with pytest.raises(RuntimeError, match="unresolved opening evidence"):
+>           store.append_confirmed_signals(record, signals)
+
+test_icim_redteam_integration_20261021.py:87: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_v1_4_state.py:1504: in append_confirmed_signals
+    return self._append_locked(current, signals)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+poe_ic_im_v1_4_state.py:1507: in _append_locked
+    anchors = derive_next_anchors(current, signals)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+poe_ic_im_v1_4_state.py:981: in derive_next_anchors
+    require_persistence_eligible(signals[product], product)
+poe_ic_im_v1_4_state.py:252: in require_persistence_eligible
+    require_confirmed_grid_target(signal, product)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+signal = {'market_date': datetime.date(2026, 10, 21), 'v14_opening_events': [], 'v14_ordinary_put_open_status': 'closed_missing_open_price'}
+product = 'IC'
+
+    def require_confirmed_grid_target(signal: dict[str, Any], product: str) -> None:
+        """Recompute publication eligibility instead of trusting producer markers.
+    
+        An unavailable Fear observation can legitimately preserve the internal
+        grid state for display.  That preserved state is not a confirmed complete
+        portfolio target and must not advance the shared ledger.
+        """
+        view = strategy.fear_grid.publication_view(signal)
+        if view.get("grid_target_confirmed", True) is not True:
+>           raise RuntimeError(f"{product} 网格目标未确认，禁止持久化")
+E           RuntimeError: IC 网格目标未确认，禁止持久化
+
+poe_ic_im_v1_4_state.py:235: RuntimeError
+
+During handling of the above exception, another exception occurred:
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_f6c7b735/pytest/test_actual_date_persistence_r1')
+status = 'closed_missing_open_price'
+
+    @pytest.mark.parametrize("status", [None, "closed_missing_open_price", execution.RETRY_OPEN_STATUS])
+    def test_actual_date_persistence_rejects_due_plan_without_lowering_cutoff(tmp_path, status):
+        store, record = recent_store(tmp_path / "state")
+        before = snapshot(store.root)
+        signals = {product: {"market_date": DAY, "v14_opening_events": []}
+                   for product in state.PRODUCTS}
+        signals["IC"]["v14_ordinary_put_open_status"] = status
+        # The due-plan gate precedes unrelated quote/fear/delivery validation.
+        # Thus the exact error, not merely rejection, is the asserted boundary.
+>       with pytest.raises(RuntimeError, match="unresolved opening evidence"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: Regex pattern did not match.
+E         Expected regex: 'unresolved opening evidence'
+E         Actual message: 'IC 网格目标未确认，禁止持久化'
+
+test_icim_redteam_integration_20261021.py:86: AssertionError
+_ test_actual_date_persistence_rejects_due_plan_without_lowering_cutoff[awaiting_retry_open_evidence] _
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_f6c7b735/pytest/test_actual_date_persistence_r2')
+status = 'awaiting_retry_open_evidence'
+
+    @pytest.mark.parametrize("status", [None, "closed_missing_open_price", execution.RETRY_OPEN_STATUS])
+    def test_actual_date_persistence_rejects_due_plan_without_lowering_cutoff(tmp_path, status):
+        store, record = recent_store(tmp_path / "state")
+        before = snapshot(store.root)
+        signals = {product: {"market_date": DAY, "v14_opening_events": []}
+                   for product in state.PRODUCTS}
+        signals["IC"]["v14_ordinary_put_open_status"] = status
+        # The due-plan gate precedes unrelated quote/fear/delivery validation.
+        # Thus the exact error, not merely rejection, is the asserted boundary.
+        with pytest.raises(RuntimeError, match="unresolved opening evidence"):
+>           store.append_confirmed_signals(record, signals)
+
+test_icim_redteam_integration_20261021.py:87: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_v1_4_state.py:1504: in append_confirmed_signals
+    return self._append_locked(current, signals)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+poe_ic_im_v1_4_state.py:1507: in _append_locked
+    anchors = derive_next_anchors(current, signals)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+poe_ic_im_v1_4_state.py:981: in derive_next_anchors
+    require_persistence_eligible(signals[product], product)
+poe_ic_im_v1_4_state.py:252: in require_persistence_eligible
+    require_confirmed_grid_target(signal, product)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+signal = {'market_date': datetime.date(2026, 10, 21), 'v14_opening_events': [], 'v14_ordinary_put_open_status': 'awaiting_retry_open_evidence'}
+product = 'IC'
+
+    def require_confirmed_grid_target(signal: dict[str, Any], product: str) -> None:
+        """Recompute publication eligibility instead of trusting producer markers.
+    
+        An unavailable Fear observation can legitimately preserve the internal
+        grid state for display.  That preserved state is not a confirmed complete
+        portfolio target and must not advance the shared ledger.
+        """
+        view = strategy.fear_grid.publication_view(signal)
+        if view.get("grid_target_confirmed", True) is not True:
+>           raise RuntimeError(f"{product} 网格目标未确认，禁止持久化")
+E           RuntimeError: IC 网格目标未确认，禁止持久化
+
+poe_ic_im_v1_4_state.py:235: RuntimeError
+
+During handling of the above exception, another exception occurred:
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_f6c7b735/pytest/test_actual_date_persistence_r2')
+status = 'awaiting_retry_open_evidence'
+
+    @pytest.mark.parametrize("status", [None, "closed_missing_open_price", execution.RETRY_OPEN_STATUS])
+    def test_actual_date_persistence_rejects_due_plan_without_lowering_cutoff(tmp_path, status):
+        store, record = recent_store(tmp_path / "state")
+        before = snapshot(store.root)
+        signals = {product: {"market_date": DAY, "v14_opening_events": []}
+                   for product in state.PRODUCTS}
+        signals["IC"]["v14_ordinary_put_open_status"] = status
+        # The due-plan gate precedes unrelated quote/fear/delivery validation.
+        # Thus the exact error, not merely rejection, is the asserted boundary.
+>       with pytest.raises(RuntimeError, match="unresolved opening evidence"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: Regex pattern did not match.
+E         Expected regex: 'unresolved opening evidence'
+E         Actual message: 'IC 网格目标未确认，禁止持久化'
+
+test_icim_redteam_integration_20261021.py:86: AssertionError
+_ test_unverified_identity_marker_rejected_before_projection_or_write[new_signal] _
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_f6c7b735/pytest/test_unverified_identity_marke2')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000019A789C4A60>
+boundary = 'new_signal'
+
+    @pytest.mark.parametrize('boundary',['execution','policy','new_signal','store'])
+    def test_unverified_identity_marker_rejected_before_projection_or_write(tmp_path,monkeypatch,boundary):
+        store,record=recent_store(tmp_path/'ledger')
+        anchors=state.anchors_from_record(record)
+        signals={p:ledger._signal(p,anchors[p],DAY) for p in state.PRODUCTS}
+        signals['IC']['v14_held_put_identity_status']='unverified'
+        before_disk,before_anchors=snapshot(store.root),deepcopy(anchors)
+        with pytest.raises(RuntimeError,match='unresolved held Put identity'):
+            if boundary=='execution':
+                execution.require_resolved_held_identity('IC',signals['IC'])
+            elif boundary=='policy':
+                policy.apply_policy('IC',signals['IC'],anchors['IC'],candidate={'tradable':False})
+            elif boundary=='new_signal':
+>               state.validate_v14_new_signal(signals['IC'],'IC')
+
+test_icim_round2_audit_lifecycle_20261021.py:524: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_v1_4_state.py:390: in validate_v14_new_signal
+    require_persistence_eligible(signal, product)
+poe_ic_im_v1_4_state.py:252: in require_persistence_eligible
+    require_confirmed_grid_target(signal, product)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+signal = {'call_action': 'HOLD', 'call_current_contract': None, 'call_target_contract': None, 'call_target_expiry': None, ...}
+product = 'IC'
+
+    def require_confirmed_grid_target(signal: dict[str, Any], product: str) -> None:
+        """Recompute publication eligibility instead of trusting producer markers.
+    
+        An unavailable Fear observation can legitimately preserve the internal
+        grid state for display.  That preserved state is not a confirmed complete
+        portfolio target and must not advance the shared ledger.
+        """
+        view = strategy.fear_grid.publication_view(signal)
+        if view.get("grid_target_confirmed", True) is not True:
+>           raise RuntimeError(f"{product} 网格目标未确认，禁止持久化")
+E           RuntimeError: IC 网格目标未确认，禁止持久化
+
+poe_ic_im_v1_4_state.py:235: RuntimeError
+
+During handling of the above exception, another exception occurred:
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_f6c7b735/pytest/test_unverified_identity_marke2')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000019A789C4A60>
+boundary = 'new_signal'
+
+    @pytest.mark.parametrize('boundary',['execution','policy','new_signal','store'])
+    def test_unverified_identity_marker_rejected_before_projection_or_write(tmp_path,monkeypatch,boundary):
+        store,record=recent_store(tmp_path/'ledger')
+        anchors=state.anchors_from_record(record)
+        signals={p:ledger._signal(p,anchors[p],DAY) for p in state.PRODUCTS}
+        signals['IC']['v14_held_put_identity_status']='unverified'
+        before_disk,before_anchors=snapshot(store.root),deepcopy(anchors)
+>       with pytest.raises(RuntimeError,match='unresolved held Put identity'):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: Regex pattern did not match.
+E         Expected regex: 'unresolved held Put identity'
+E         Actual message: 'IC 网格目标未确认，禁止持久化'
+
+test_icim_round2_audit_lifecycle_20261021.py:518: AssertionError
+_ test_unverified_identity_marker_rejected_before_projection_or_write[store] __
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_f6c7b735/pytest/test_unverified_identity_marke3')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000019A79A6A120>
+boundary = 'store'
+
+    @pytest.mark.parametrize('boundary',['execution','policy','new_signal','store'])
+    def test_unverified_identity_marker_rejected_before_projection_or_write(tmp_path,monkeypatch,boundary):
+        store,record=recent_store(tmp_path/'ledger')
+        anchors=state.anchors_from_record(record)
+        signals={p:ledger._signal(p,anchors[p],DAY) for p in state.PRODUCTS}
+        signals['IC']['v14_held_put_identity_status']='unverified'
+        before_disk,before_anchors=snapshot(store.root),deepcopy(anchors)
+        with pytest.raises(RuntimeError,match='unresolved held Put identity'):
+            if boundary=='execution':
+                execution.require_resolved_held_identity('IC',signals['IC'])
+            elif boundary=='policy':
+                policy.apply_policy('IC',signals['IC'],anchors['IC'],candidate={'tradable':False})
+            elif boundary=='new_signal':
+                state.validate_v14_new_signal(signals['IC'],'IC')
+            else:
+>               store.append_confirmed_signals(record,signals)
+
+test_icim_round2_audit_lifecycle_20261021.py:526: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_v1_4_state.py:1504: in append_confirmed_signals
+    return self._append_locked(current, signals)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+poe_ic_im_v1_4_state.py:1507: in _append_locked
+    anchors = derive_next_anchors(current, signals)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+poe_ic_im_v1_4_state.py:981: in derive_next_anchors
+    require_persistence_eligible(signals[product], product)
+poe_ic_im_v1_4_state.py:252: in require_persistence_eligible
+    require_confirmed_grid_target(signal, product)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+signal = {'call_action': 'HOLD', 'call_current_contract': None, 'call_target_contract': None, 'call_target_expiry': None, ...}
+product = 'IC'
+
+    def require_confirmed_grid_target(signal: dict[str, Any], product: str) -> None:
+        """Recompute publication eligibility instead of trusting producer markers.
+    
+        An unavailable Fear observation can legitimately preserve the internal
+        grid state for display.  That preserved state is not a confirmed complete
+        portfolio target and must not advance the shared ledger.
+        """
+        view = strategy.fear_grid.publication_view(signal)
+        if view.get("grid_target_confirmed", True) is not True:
+>           raise RuntimeError(f"{product} 网格目标未确认，禁止持久化")
+E           RuntimeError: IC 网格目标未确认，禁止持久化
+
+poe_ic_im_v1_4_state.py:235: RuntimeError
+
+During handling of the above exception, another exception occurred:
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_f6c7b735/pytest/test_unverified_identity_marke3')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000019A79A6A120>
+boundary = 'store'
+
+    @pytest.mark.parametrize('boundary',['execution','policy','new_signal','store'])
+    def test_unverified_identity_marker_rejected_before_projection_or_write(tmp_path,monkeypatch,boundary):
+        store,record=recent_store(tmp_path/'ledger')
+        anchors=state.anchors_from_record(record)
+        signals={p:ledger._signal(p,anchors[p],DAY) for p in state.PRODUCTS}
+        signals['IC']['v14_held_put_identity_status']='unverified'
+        before_disk,before_anchors=snapshot(store.root),deepcopy(anchors)
+>       with pytest.raises(RuntimeError,match='unresolved held Put identity'):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: Regex pattern did not match.
+E         Expected regex: 'unresolved held Put identity'
+E         Actual message: 'IC 网格目标未确认，禁止持久化'
+
+test_icim_round2_audit_lifecycle_20261021.py:518: AssertionError
+_____ test_real_boundaries_reject_a_identity_despite_preview[new_signal] ______
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_f6c7b735/pytest/test_real_boundaries_reject_a_2')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000019A78A8C0C0>
+boundary = 'new_signal'
+
+    @pytest.mark.parametrize('boundary',['builder','policy','new_signal','store'])
+    def test_real_boundaries_reject_a_identity_despite_preview(tmp_path,monkeypatch,boundary):
+        store,record = lifecycle.recent_store(tmp_path/'ledger')
+        anchors = state.anchors_from_record(record)
+        source = deepcopy(anchors['IC'])
+        source['v14_core_put_contract'] = A
+        source['migration_preview'] = dict(engine_supported=True,ledger_write_authorized=True)
+        before = lifecycle.snapshot(store.root)
+        with pytest.raises(RuntimeError,match='adjusted contract master'):
+            if boundary == 'builder':
+                monkeypatch.setattr(bot,'LIVE_CONTINUATION_ANCHOR',{**anchors,'IC':source})
+                monkeypatch.setattr(bot,'live_proxy',lambda *args:dict(history_date=DAY))
+                bot.build_live_trade_signal('IC',lifecycle.CLOCK,mode='close')
+            elif boundary == 'policy':
+                policy.apply_policy('IC',policy_seed._signal('IC',market_date=DAY),source,
+                                    candidate={'tradable':False})
+            else:
+                signals = {p:ledger._signal(p,anchors[p],DAY) for p in state.PRODUCTS}
+                signals['IC']['v14_core_put_contract'] = A
+                signals['IC']['migration_preview'] = source['migration_preview']
+                if boundary == 'new_signal':
+>                   state.validate_v14_new_signal(signals['IC'],'IC')
+
+test_icim_a3_integration_20261021.py:151: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_v1_4_state.py:390: in validate_v14_new_signal
+    require_persistence_eligible(signal, product)
+poe_ic_im_v1_4_state.py:252: in require_persistence_eligible
+    require_confirmed_grid_target(signal, product)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+signal = {'call_action': 'HOLD', 'call_current_contract': None, 'call_target_contract': None, 'call_target_expiry': None, ...}
+product = 'IC'
+
+    def require_confirmed_grid_target(signal: dict[str, Any], product: str) -> None:
+        """Recompute publication eligibility instead of trusting producer markers.
+    
+        An unavailable Fear observation can legitimately preserve the internal
+        grid state for display.  That preserved state is not a confirmed complete
+        portfolio target and must not advance the shared ledger.
+        """
+        view = strategy.fear_grid.publication_view(signal)
+        if view.get("grid_target_confirmed", True) is not True:
+>           raise RuntimeError(f"{product} 网格目标未确认，禁止持久化")
+E           RuntimeError: IC 网格目标未确认，禁止持久化
+
+poe_ic_im_v1_4_state.py:235: RuntimeError
+
+During handling of the above exception, another exception occurred:
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_f6c7b735/pytest/test_real_boundaries_reject_a_2')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000019A78A8C0C0>
+boundary = 'new_signal'
+
+    @pytest.mark.parametrize('boundary',['builder','policy','new_signal','store'])
+    def test_real_boundaries_reject_a_identity_despite_preview(tmp_path,monkeypatch,boundary):
+        store,record = lifecycle.recent_store(tmp_path/'ledger')
+        anchors = state.anchors_from_record(record)
+        source = deepcopy(anchors['IC'])
+        source['v14_core_put_contract'] = A
+        source['migration_preview'] = dict(engine_supported=True,ledger_write_authorized=True)
+        before = lifecycle.snapshot(store.root)
+>       with pytest.raises(RuntimeError,match='adjusted contract master'):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: Regex pattern did not match.
+E         Expected regex: 'adjusted contract master'
+E         Actual message: 'IC 网格目标未确认，禁止持久化'
+
+test_icim_a3_integration_20261021.py:138: AssertionError
+________ test_real_boundaries_reject_a_identity_despite_preview[store] ________
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_f6c7b735/pytest/test_real_boundaries_reject_a_3')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000019A79A68E50>
+boundary = 'store'
+
+    @pytest.mark.parametrize('boundary',['builder','policy','new_signal','store'])
+    def test_real_boundaries_reject_a_identity_despite_preview(tmp_path,monkeypatch,boundary):
+        store,record = lifecycle.recent_store(tmp_path/'ledger')
+        anchors = state.anchors_from_record(record)
+        source = deepcopy(anchors['IC'])
+        source['v14_core_put_contract'] = A
+        source['migration_preview'] = dict(engine_supported=True,ledger_write_authorized=True)
+        before = lifecycle.snapshot(store.root)
+        with pytest.raises(RuntimeError,match='adjusted contract master'):
+            if boundary == 'builder':
+                monkeypatch.setattr(bot,'LIVE_CONTINUATION_ANCHOR',{**anchors,'IC':source})
+                monkeypatch.setattr(bot,'live_proxy',lambda *args:dict(history_date=DAY))
+                bot.build_live_trade_signal('IC',lifecycle.CLOCK,mode='close')
+            elif boundary == 'policy':
+                policy.apply_policy('IC',policy_seed._signal('IC',market_date=DAY),source,
+                                    candidate={'tradable':False})
+            else:
+                signals = {p:ledger._signal(p,anchors[p],DAY) for p in state.PRODUCTS}
+                signals['IC']['v14_core_put_contract'] = A
+                signals['IC']['migration_preview'] = source['migration_preview']
+                if boundary == 'new_signal':
+                    state.validate_v14_new_signal(signals['IC'],'IC')
+                else:
+>                   store.append_confirmed_signals(record,signals)
+
+test_icim_a3_integration_20261021.py:153: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_v1_4_state.py:1504: in append_confirmed_signals
+    return self._append_locked(current, signals)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+poe_ic_im_v1_4_state.py:1507: in _append_locked
+    anchors = derive_next_anchors(current, signals)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+poe_ic_im_v1_4_state.py:981: in derive_next_anchors
+    require_persistence_eligible(signals[product], product)
+poe_ic_im_v1_4_state.py:252: in require_persistence_eligible
+    require_confirmed_grid_target(signal, product)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+signal = {'call_action': 'HOLD', 'call_current_contract': None, 'call_target_contract': None, 'call_target_expiry': None, ...}
+product = 'IC'
+
+    def require_confirmed_grid_target(signal: dict[str, Any], product: str) -> None:
+        """Recompute publication eligibility instead of trusting producer markers.
+    
+        An unavailable Fear observation can legitimately preserve the internal
+        grid state for display.  That preserved state is not a confirmed complete
+        portfolio target and must not advance the shared ledger.
+        """
+        view = strategy.fear_grid.publication_view(signal)
+        if view.get("grid_target_confirmed", True) is not True:
+>           raise RuntimeError(f"{product} 网格目标未确认，禁止持久化")
+E           RuntimeError: IC 网格目标未确认，禁止持久化
+
+poe_ic_im_v1_4_state.py:235: RuntimeError
+
+During handling of the above exception, another exception occurred:
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_f6c7b735/pytest/test_real_boundaries_reject_a_3')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000019A79A68E50>
+boundary = 'store'
+
+    @pytest.mark.parametrize('boundary',['builder','policy','new_signal','store'])
+    def test_real_boundaries_reject_a_identity_despite_preview(tmp_path,monkeypatch,boundary):
+        store,record = lifecycle.recent_store(tmp_path/'ledger')
+        anchors = state.anchors_from_record(record)
+        source = deepcopy(anchors['IC'])
+        source['v14_core_put_contract'] = A
+        source['migration_preview'] = dict(engine_supported=True,ledger_write_authorized=True)
+        before = lifecycle.snapshot(store.root)
+>       with pytest.raises(RuntimeError,match='adjusted contract master'):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: Regex pattern did not match.
+E         Expected regex: 'adjusted contract master'
+E         Actual message: 'IC 网格目标未确认，禁止持久化'
+
+test_icim_a3_integration_20261021.py:138: AssertionError
+________ test_selected_monthly_maintenance_date_requires_covered_year _________
+
+    def test_selected_monthly_maintenance_date_requires_covered_year():
+>       with pytest.raises(RuntimeError,match='2027'):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+test_icim_batch3_calendar_20261021.py:22: Failed
+__ test_persistent_entry_checks_actual_im_target_before_other_schema_errors ___
+
+    def test_persistent_entry_checks_actual_im_target_before_other_schema_errors():
+        signal=base()
+        signal.update(core_put_current_contract='MO2612-P-7500',
+                      core_put_target_contract='MO2703-P-7500',
+                      core_put_target_qty_normalized=1.)
+        with pytest.raises(RuntimeError,match='2027'):
+>           state.validate_v14_new_signal(signal,'IM')
+
+test_icim_batch3_calendar_redteam_20261021.py:137: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_v1_4_state.py:390: in validate_v14_new_signal
+    require_persistence_eligible(signal, product)
+poe_ic_im_v1_4_state.py:252: in require_persistence_eligible
+    require_confirmed_grid_target(signal, product)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+signal = {'core_current': 'IM2612', 'core_put_current_contract': 'MO2612-P-7500', 'core_put_target_contract': 'MO2703-P-7500', 'core_put_target_qty_normalized': 1.0, ...}
+product = 'IM'
+
+    def require_confirmed_grid_target(signal: dict[str, Any], product: str) -> None:
+        """Recompute publication eligibility instead of trusting producer markers.
+    
+        An unavailable Fear observation can legitimately preserve the internal
+        grid state for display.  That preserved state is not a confirmed complete
+        portfolio target and must not advance the shared ledger.
+        """
+        view = strategy.fear_grid.publication_view(signal)
+        if view.get("grid_target_confirmed", True) is not True:
+>           raise RuntimeError(f"{product} 网格目标未确认，禁止持久化")
+E           RuntimeError: IM 网格目标未确认，禁止持久化
+
+poe_ic_im_v1_4_state.py:235: RuntimeError
+
+During handling of the above exception, another exception occurred:
+
+    def test_persistent_entry_checks_actual_im_target_before_other_schema_errors():
+        signal=base()
+        signal.update(core_put_current_contract='MO2612-P-7500',
+                      core_put_target_contract='MO2703-P-7500',
+                      core_put_target_qty_normalized=1.)
+>       with pytest.raises(RuntimeError,match='2027'):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: Regex pattern did not match.
+E         Expected regex: '2027'
+E         Actual message: 'IM 网格目标未确认，禁止持久化'
+
+test_icim_batch3_calendar_redteam_20261021.py:136: AssertionError
+_____ test_historical_unbound_older_signal_cannot_advance_current_ledger ______
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000019A783EECF0>
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_f6c7b735/pytest/test_historical_unbound_older_0')
+
+    def test_historical_unbound_older_signal_cannot_advance_current_ledger(monkeypatch,tmp_path):
+        store,record=lifecycle.recent_store(tmp_path/'ledger')
+        anchors=state.anchors_from_record(record)
+        signals={p:lifecycle.close_evidence(ledger._signal(p,anchors[p],PREVIOUS)) for p in ['IC','IM']}
+        for value in signals.values():
+            value['market_date']=PREVIOUS
+            value['v14_opening_events']=[]
+        before=lifecycle.snapshot(store.root)
+        with pytest.raises(RuntimeError,match='逐交易日推进'):
+>           store.append_confirmed_signals(record,signals)
+
+test_icim_batch3_valuation_20261021.py:235: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_v1_4_state.py:1504: in append_confirmed_signals
+    return self._append_locked(current, signals)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+poe_ic_im_v1_4_state.py:1507: in _append_locked
+    anchors = derive_next_anchors(current, signals)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+poe_ic_im_v1_4_state.py:981: in derive_next_anchors
+    require_persistence_eligible(signals[product], product)
+poe_ic_im_v1_4_state.py:252: in require_persistence_eligible
+    require_confirmed_grid_target(signal, product)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+signal = {'call_action': 'HOLD', 'call_current_contract': None, 'call_target_contract': None, 'call_target_expiry': None, ...}
+product = 'IC'
+
+    def require_confirmed_grid_target(signal: dict[str, Any], product: str) -> None:
+        """Recompute publication eligibility instead of trusting producer markers.
+    
+        An unavailable Fear observation can legitimately preserve the internal
+        grid state for display.  That preserved state is not a confirmed complete
+        portfolio target and must not advance the shared ledger.
+        """
+        view = strategy.fear_grid.publication_view(signal)
+        if view.get("grid_target_confirmed", True) is not True:
+>           raise RuntimeError(f"{product} 网格目标未确认，禁止持久化")
+E           RuntimeError: IC 网格目标未确认，禁止持久化
+
+poe_ic_im_v1_4_state.py:235: RuntimeError
+
+During handling of the above exception, another exception occurred:
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000019A783EECF0>
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_f6c7b735/pytest/test_historical_unbound_older_0')
+
+    def test_historical_unbound_older_signal_cannot_advance_current_ledger(monkeypatch,tmp_path):
+        store,record=lifecycle.recent_store(tmp_path/'ledger')
+        anchors=state.anchors_from_record(record)
+        signals={p:lifecycle.close_evidence(ledger._signal(p,anchors[p],PREVIOUS)) for p in ['IC','IM']}
+        for value in signals.values():
+            value['market_date']=PREVIOUS
+            value['v14_opening_events']=[]
+        before=lifecycle.snapshot(store.root)
+>       with pytest.raises(RuntimeError,match='逐交易日推进'):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: Regex pattern did not match.
+E         Expected regex: '逐交易日推进'
+E         Actual message: 'IC 网格目标未确认，禁止持久化'
+
+test_icim_batch3_valuation_20261021.py:234: AssertionError
+__________ test_background_refresh_propagates_real_task_cancellation __________
+
+fut = <coroutine object Event.wait at 0x0000019A79F70AC0>, timeout = 5
+
+    async def wait_for(fut, timeout):
+        """Wait for the single Future or coroutine to complete, with timeout.
+    
+        Coroutine will be wrapped in Task.
+    
+        Returns result of the Future or coroutine.  When a timeout occurs,
+        it cancels the task and raises TimeoutError.  To avoid the task
+        cancellation, wrap it in shield().
+    
+        If the wait is cancelled, the task is also cancelled.
+    
+        If the task suppresses the cancellation and returns a value instead,
+        that value is returned.
+    
+        This function is a coroutine.
+        """
+        # The special case for timeout <= 0 is for the following case:
+        #
+        # async def test_waitfor():
+        #     func_started = False
+        #
+        #     async def func():
+        #         nonlocal func_started
+        #         func_started = True
+        #
+        #     try:
+        #         await asyncio.wait_for(func(), 0)
+        #     except asyncio.TimeoutError:
+        #         assert not func_started
+        #     else:
+        #         assert False
+        #
+        # asyncio.run(test_waitfor())
+    
+    
+        if timeout is not None and timeout <= 0:
+            fut = ensure_future(fut)
+    
+            if fut.done():
+                return fut.result()
+    
+            await _cancel_and_wait(fut)
+            try:
+                return fut.result()
+            except exceptions.CancelledError as exc:
+                raise TimeoutError from exc
+    
+        async with timeouts.timeout(timeout):
+>           return await fut
+                   ^^^^^^^^^
+
+C:\Python314\Lib\asyncio\tasks.py:488: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <asyncio.locks.Event object at 0x0000019A7A228C20 [unset]>
+
+    async def wait(self):
+        """Block until the internal flag is true.
+    
+        If the internal flag is true on entry, return True
+        immediately.  Otherwise, block until another task calls
+        set() to set the flag to true, then return True.
+        """
+        if self._value:
+            return True
+    
+        fut = self._get_loop().create_future()
+        self._waiters.append(fut)
+        try:
+>           await fut
+E           asyncio.exceptions.CancelledError
+
+C:\Python314\Lib\asyncio\locks.py:213: CancelledError
+
+The above exception was the direct cause of the following exception:
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_f6c7b735/pytest/test_background_refresh_propag0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000019A789FD0F0>
+
+    def test_background_refresh_propagates_real_task_cancellation(tmp_path, monkeypatch):
+        module = server(monkeypatch, tmp_path)
+        isolated, current = store(tmp_path/'state')
+        coordinator = module.LedgerCoordinator(isolated)
+        monkeypatch.setattr(module, 'coordinator', coordinator)
+        clock = datetime(2026, 10, 21, 15, 20, tzinfo=bot.BEIJING)
+        monkeypatch.setattr(bot, '_now_beijing', lambda: clock)
+        release = threading.Event()
+        sleep_calls = []
+        async def forbidden_sleep(seconds):
+            sleep_calls.append(seconds)
+            raise AssertionError('cancelled refresh task resumed its retry loop')
+        monkeypatch.setattr(module.asyncio, 'sleep', forbidden_sleep)
+        async def scenario():
+            entered = asyncio.Event()
+            loop = asyncio.get_running_loop()
+            def bounded_worker(_clock):
+                loop.call_soon_threadsafe(entered.set)
+                assert release.wait(5), 'test did not release cancelled worker'
+                return False
+            monkeypatch.setattr(coordinator, 'catch_up_once', bounded_worker)
+            task = asyncio.create_task(module._refresh_loop())
+            try:
+                await asyncio.wait_for(entered.wait(), timeout=5)
+                task.cancel()
+                with pytest.raises(asyncio.CancelledError):
+                    await asyncio.wait_for(task, timeout=5)
+                assert task.cancelled()
+            finally:
+                release.set()
+>       asyncio.run(scenario())
+
+test_icim_b3adv_concurrency_20261021.py:453: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+C:\Python314\Lib\asyncio\runners.py:204: in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+C:\Python314\Lib\asyncio\runners.py:127: in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Python314\Lib\asyncio\base_events.py:719: in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+test_icim_b3adv_concurrency_20261021.py:446: in scenario
+    await asyncio.wait_for(entered.wait(), timeout=5)
+C:\Python314\Lib\asyncio\tasks.py:487: in wait_for
+    async with timeouts.timeout(timeout):
+               ^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <Timeout [expired]>
+exc_type = <class 'asyncio.exceptions.CancelledError'>
+exc_val = CancelledError(), exc_tb = <traceback object at 0x0000019A79D4A0C0>
+
+    async def __aexit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc_val: BaseException | None,
+        exc_tb: TracebackType | None,
+    ) -> bool | None:
+        assert self._state in (_State.ENTERED, _State.EXPIRING)
+    
+        if self._timeout_handler is not None:
+            self._timeout_handler.cancel()
+            self._timeout_handler = None
+    
+        if self._state is _State.EXPIRING:
+            self._state = _State.EXPIRED
+    
+            if self._task.uncancel() <= self._cancelling and exc_type is not None:
+                # Since there are no new cancel requests, we're
+                # handling this.
+                if issubclass(exc_type, exceptions.CancelledError):
+>                   raise TimeoutError from exc_val
+E                   TimeoutError
+
+C:\Python314\Lib\asyncio\timeouts.py:114: TimeoutError
+_________ test_prepared_short_expiry_month_identity_mismatch_rejected _________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000019A78B3CFA0>
+
+    def test_prepared_short_expiry_month_identity_mismatch_rejected(monkeypatch):
+        # Full new-signal validator must enforce the code/expiry identity, even
+        # when both dates lie within the one covered official year.
+        anchor = ledger._record()['products']['IM']
+        ledger._route(anchor, 'IM', 'short_put')
+        anchor['v14_short_put_expiry'] = '2026-12-18'
+        signal = ledger._signal('IM', anchor, DAY)
+        with pytest.raises(RuntimeError, match='到期日|月份|identity'):
+>           state.validate_v14_new_signal(signal, 'IM')
+
+test_icim_b3adv_state_20261021.py:103: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_v1_4_state.py:390: in validate_v14_new_signal
+    require_persistence_eligible(signal, product)
+poe_ic_im_v1_4_state.py:252: in require_persistence_eligible
+    require_confirmed_grid_target(signal, product)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+signal = {'call_action': 'HOLD', 'call_current_contract': None, 'call_target': '目标空仓（fix6停止卖Call）', 'call_target_contract': None, ...}
+product = 'IM'
+
+    def require_confirmed_grid_target(signal: dict[str, Any], product: str) -> None:
+        """Recompute publication eligibility instead of trusting producer markers.
+    
+        An unavailable Fear observation can legitimately preserve the internal
+        grid state for display.  That preserved state is not a confirmed complete
+        portfolio target and must not advance the shared ledger.
+        """
+        view = strategy.fear_grid.publication_view(signal)
+        if view.get("grid_target_confirmed", True) is not True:
+>           raise RuntimeError(f"{product} 网格目标未确认，禁止持久化")
+E           RuntimeError: IM 网格目标未确认，禁止持久化
+
+poe_ic_im_v1_4_state.py:235: RuntimeError
+
+During handling of the above exception, another exception occurred:
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000019A78B3CFA0>
+
+    def test_prepared_short_expiry_month_identity_mismatch_rejected(monkeypatch):
+        # Full new-signal validator must enforce the code/expiry identity, even
+        # when both dates lie within the one covered official year.
+        anchor = ledger._record()['products']['IM']
+        ledger._route(anchor, 'IM', 'short_put')
+        anchor['v14_short_put_expiry'] = '2026-12-18'
+        signal = ledger._signal('IM', anchor, DAY)
+>       with pytest.raises(RuntimeError, match='到期日|月份|identity'):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: Regex pattern did not match.
+E         Expected regex: '到期日|月份|identity'
+E         Actual message: 'IM 网格目标未确认，禁止持久化'
+
+test_icim_b3adv_state_20261021.py:102: AssertionError
+________ test_im_short_expiry_model_branches_are_not_a_new_short_open _________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000019A7BCEA890>
+
+    def test_im_short_expiry_model_branches_are_not_a_new_short_open(monkeypatch):
+        anchor = ledger._record()['products']['IM']
+        ledger._route(anchor, 'IM', 'short_put')
+        signal = ledger._signal('IM', anchor, date(2026,10,16))
+        assert signal['v14_action'] == 'PUBLISH_SHORT_PUT_EXPIRY_BRANCHES'
+        assert signal['v14_short_put_expiry'] == date(2026,10,16) or str(signal['v14_short_put_expiry']) == '2026-10-16'
+>       state.validate_v14_new_signal(signal, 'IM')
+
+test_icim_b3adv_state_20261021.py:209: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_v1_4_state.py:390: in validate_v14_new_signal
+    require_persistence_eligible(signal, product)
+poe_ic_im_v1_4_state.py:252: in require_persistence_eligible
+    require_confirmed_grid_target(signal, product)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+signal = {'call_action': 'HOLD', 'call_current_contract': None, 'call_target': '目标空仓（fix6停止卖Call）', 'call_target_contract': None, ...}
+product = 'IM'
+
+    def require_confirmed_grid_target(signal: dict[str, Any], product: str) -> None:
+        """Recompute publication eligibility instead of trusting producer markers.
+    
+        An unavailable Fear observation can legitimately preserve the internal
+        grid state for display.  That preserved state is not a confirmed complete
+        portfolio target and must not advance the shared ledger.
+        """
+        view = strategy.fear_grid.publication_view(signal)
+        if view.get("grid_target_confirmed", True) is not True:
+>           raise RuntimeError(f"{product} 网格目标未确认，禁止持久化")
+E           RuntimeError: IM 网格目标未确认，禁止持久化
+
+poe_ic_im_v1_4_state.py:235: RuntimeError
+_ test_public_unknown_positive_momentum_held_expiry_is_diagnostic_not_target __
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000019A7BCE84B0>
+
+    def test_public_unknown_positive_momentum_held_expiry_is_diagnostic_not_target(monkeypatch):
+        legacy.wire(monkeypatch,held=False)
+        contract='MO2703-P-7000'
+        bot.LIVE_CONTINUATION_ANCHOR['IM'].update(
+            post_momentum_put_contract=contract,verified_momentum_put_qty_normalized=.5)
+        frame=bot.fetch_cffex_quotes('MO')
+        frame.loc[len(frame)]=dict(instrument=contract,lastprice=100.,bprice=99.,sprice=101.,
+                                  volume=10.,position=20.)
+        frame.attrs['listed_instruments']=list(frame.instrument)
+        original=bot.live_proxy
+        def positive_momentum(*args):
+            live=original(*args)
+            live.update(momentum_next_weight=.5,momentum_current_weight=.5)
+            return live
+        monkeypatch.setattr(bot,'live_proxy',positive_momentum)
+        before=deepcopy(bot.LIVE_CONTINUATION_ANCHOR)
+        result=bot.build_live_trade_signal('IM',legacy.CLOCK,'close')
+        assert_diagnostic_only(result)
+        assert result['calendar_provisional'] is True
+>       assert any(row['purpose']=='held IM momentum Put maintenance' for row in result['calendar_diagnostics'])
+E       assert False
+E        +  where False = any(<generator object test_public_unknown_positive_momentum_held_expiry_is_diagnostic_not_target.<locals>.<genexpr> at 0x0000019A7BD375E0>)
+
+test_icim_expert_calendar_20261021.py:72: AssertionError
+============================== warnings summary ===============================
+C:\Python314\Lib\site-packages\fastapi_poe\types.py:171
+  C:\Python314\Lib\site-packages\fastapi_poe\types.py:171: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    class RequestContext(BaseModel):
+
+test_icim_redteam_display_20261021.py::test_bootstrap_snapshot_retains_known_single_core_identity
+  test_icim_redteam_display_20261021.py:73: PytestWarning: record_property is incompatible with junit_family 'xunit2' (use 'legacy' or 'xunit1')
+    def test_bootstrap_snapshot_retains_known_single_core_identity(monkeypatch, record_property):
+
+test_icim_redteam_display_20261021.py::test_core_overlay_failure_cannot_label_momentum_as_current_core
+  test_icim_redteam_display_20261021.py:89: PytestWarning: record_property is incompatible with junit_family 'xunit2' (use 'legacy' or 'xunit1')
+    def test_core_overlay_failure_cannot_label_momentum_as_current_core(monkeypatch, record_property):
+
+test_icim_redteam_display_20261021.py::test_core_overlay_failure_cannot_publish_momentum_iv_as_core_monitor
+  test_icim_redteam_display_20261021.py:120: PytestWarning: record_property is incompatible with junit_family 'xunit2' (use 'legacy' or 'xunit1')
+    def test_core_overlay_failure_cannot_publish_momentum_iv_as_core_monitor(monkeypatch, record_property):
+
+test_icim_redteam_display_20261021.py::test_im_snapshot_zero_core_does_not_show_residual_contract
+  test_icim_redteam_display_20261021.py:201: PytestWarning: record_property is incompatible with junit_family 'xunit2' (use 'legacy' or 'xunit1')
+    def test_im_snapshot_zero_core_does_not_show_residual_contract(monkeypatch, record_property):
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED test_run_ic_im_v1_4_github_digest.py::test_real_realtime_artifact_distinguishes_partial_from_complete[False]
+FAILED test_ic_im_fear_grid_v1.py::test_partial_publication_is_rejected_at_the_ledger_value_boundary
+FAILED test_ic_im_fear_grid_v1.py::test_adversarial_runner_rejects_forged_T_evidence_completed_after_1500
+FAILED test_ic_im_fear_source_delivery_20261016.py::test_both_missing_preserve_other_modules_and_never_publish_zero_hold
+FAILED test_ic_im_fear_delivery_adversarial_20261016.py::test_selected_csv_scalar_cannot_disagree_with_source_snapshot
+FAILED test_ic_im_fear_delivery_adversarial_20261016.py::test_selected_page_intraday_scalar_is_bound_to_page_value
+FAILED test_ic_im_fear_delivery_adversarial_20261016.py::test_today_observed_cannot_be_labeled_unpublished_to_force_prior
+FAILED test_ic_im_fear_delivery_adversarial_20261016.py::test_generation_crossing_midnight_requires_replay_even_without_pending
+FAILED test_ic_im_fear_delivery_adversarial_20261016.py::test_latest_csv_today_cannot_delete_today_observation
+FAILED test_ic_im_external_review_20261021.py::test_policy_and_new_signal_boundary_reject_unresolved_open[ordinary-IC]
+FAILED test_ic_im_external_review_20261021.py::test_policy_and_new_signal_boundary_reject_unresolved_open[ordinary-IM]
+FAILED test_ic_im_external_review_20261021.py::test_policy_and_new_signal_boundary_reject_unresolved_open[short_put-IC]
+FAILED test_ic_im_external_review_20261021.py::test_policy_and_new_signal_boundary_reject_unresolved_open[short_put-IM]
+FAILED test_ic_im_external_review_20261021.py::test_policy_and_new_signal_boundary_reject_unresolved_open[profit3x-IC]
+FAILED test_ic_im_external_review_20261021.py::test_policy_and_new_signal_boundary_reject_unresolved_open[profit3x-IM]
+FAILED test_ic_im_external_review_20261021.py::test_adjusted_guard_survives_candidate_exception_fallback
+FAILED test_icim_redteam_display_20261021.py::test_failed_core_overlay_cannot_schedule_close_plan_or_mutate_anchor
+FAILED test_icim_redteam_integration_20261021.py::test_actual_date_persistence_rejects_due_plan_without_lowering_cutoff[None]
+FAILED test_icim_redteam_integration_20261021.py::test_actual_date_persistence_rejects_due_plan_without_lowering_cutoff[closed_missing_open_price]
+FAILED test_icim_redteam_integration_20261021.py::test_actual_date_persistence_rejects_due_plan_without_lowering_cutoff[awaiting_retry_open_evidence]
+FAILED test_icim_round2_audit_lifecycle_20261021.py::test_unverified_identity_marker_rejected_before_projection_or_write[new_signal]
+FAILED test_icim_round2_audit_lifecycle_20261021.py::test_unverified_identity_marker_rejected_before_projection_or_write[store]
+FAILED test_icim_a3_integration_20261021.py::test_real_boundaries_reject_a_identity_despite_preview[new_signal]
+FAILED test_icim_a3_integration_20261021.py::test_real_boundaries_reject_a_identity_despite_preview[store]
+FAILED test_icim_batch3_calendar_20261021.py::test_selected_monthly_maintenance_date_requires_covered_year
+FAILED test_icim_batch3_calendar_redteam_20261021.py::test_persistent_entry_checks_actual_im_target_before_other_schema_errors
+FAILED test_icim_batch3_valuation_20261021.py::test_historical_unbound_older_signal_cannot_advance_current_ledger
+FAILED test_icim_b3adv_concurrency_20261021.py::test_background_refresh_propagates_real_task_cancellation
+FAILED test_icim_b3adv_state_20261021.py::test_prepared_short_expiry_month_identity_mismatch_rejected
+FAILED test_icim_b3adv_state_20261021.py::test_im_short_expiry_model_branches_are_not_a_new_short_open
+FAILED test_icim_expert_calendar_20261021.py::test_public_unknown_positive_momentum_held_expiry_is_diagnostic_not_target
+31 failed, 2353 passed, 18 deselected, 5 warnings in 206.44s (0:03:26)

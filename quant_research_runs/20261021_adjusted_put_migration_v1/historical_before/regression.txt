@@ -1,0 +1,262 @@
+FFFFFFF.FFFFF.FFF                                                        [100%]
+================================== FAILURES ===================================
+_ test_old_m_label_cannot_take_adjusted_id_price_even_before_new_signal_boundary _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x00000201EC922C40>
+
+    def test_old_m_label_cannot_take_adjusted_id_price_even_before_new_signal_boundary(monkeypatch):
+        calls = setup_sources(monkeypatch)
+>       with pytest.raises(RuntimeError, match="身份|identity|adjusted"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+test_ic_im_historical_put_identity_20261021.py:42: Failed
+_ test_real_dated_master_can_support_standard_m_without_copying_requested_identity _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x00000201EC922EA0>
+
+    def test_real_dated_master_can_support_standard_m_without_copying_requested_identity(monkeypatch):
+        calls = setup_sources(monkeypatch)
+        frame, stamp = bot.fetch_sse_existing_put_historical_quote(M, NEW_M_ID, DAY)
+>       assert calls == [("identity", DAY), ("price", NEW_M_ID)]
+E       AssertionError: assert [('price', '10012099')] == [('identity',..., '10012099')]
+E         
+E         At index 0 diff: ('price', '10012099') != ('identity', datetime.date(2026, 10, 20))
+E         Right contains one more item: ('price', '10012099')
+E         Use -v to get more diff
+
+test_ic_im_historical_put_identity_20261021.py:50: AssertionError
+__________ test_missing_dated_identity_must_fail_before_price_fetch ___________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x00000201EC9896D0>
+
+    def test_missing_dated_identity_must_fail_before_price_fetch(monkeypatch):
+        calls = setup_sources(monkeypatch, mapping={})
+>       with pytest.raises(RuntimeError, match="身份|identity"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+test_ic_im_historical_put_identity_20261021.py:61: Failed
+_________ test_bad_price_is_rejected_after_independent_identity[nan] __________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x00000201ECA12470>
+price = nan
+
+    @pytest.mark.parametrize("price", [float("nan"), float("inf"), -.01, True])
+    def test_bad_price_is_rejected_after_independent_identity(monkeypatch, price):
+        setup_sources(monkeypatch, price=price)
+>       with pytest.raises(RuntimeError, match="价格|price"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+test_ic_im_historical_put_identity_20261021.py:69: Failed
+_________ test_bad_price_is_rejected_after_independent_identity[inf] __________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x00000201ECA12AD0>
+price = inf
+
+    @pytest.mark.parametrize("price", [float("nan"), float("inf"), -.01, True])
+    def test_bad_price_is_rejected_after_independent_identity(monkeypatch, price):
+        setup_sources(monkeypatch, price=price)
+>       with pytest.raises(RuntimeError, match="价格|price"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+test_ic_im_historical_put_identity_20261021.py:69: Failed
+________ test_bad_price_is_rejected_after_independent_identity[-0.01] _________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x00000201ECA85950>
+price = -0.01
+
+    @pytest.mark.parametrize("price", [float("nan"), float("inf"), -.01, True])
+    def test_bad_price_is_rejected_after_independent_identity(monkeypatch, price):
+        setup_sources(monkeypatch, price=price)
+>       with pytest.raises(RuntimeError, match="价格|price"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+test_ic_im_historical_put_identity_20261021.py:69: Failed
+_________ test_bad_price_is_rejected_after_independent_identity[True] _________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x00000201ECA86150>
+price = True
+
+    @pytest.mark.parametrize("price", [float("nan"), float("inf"), -.01, True])
+    def test_bad_price_is_rejected_after_independent_identity(monkeypatch, price):
+        setup_sources(monkeypatch, price=price)
+>       with pytest.raises(RuntimeError, match="价格|price"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+test_ic_im_historical_put_identity_20261021.py:69: Failed
+__________ test_adjusted_code_remains_blocked_until_engine_migration __________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x00000201ECB015E0>
+
+    def test_adjusted_code_remains_blocked_until_engine_migration(monkeypatch):
+        calls = setup_sources(monkeypatch)
+        with pytest.raises(RuntimeError, match="adjusted"):
+>           bot.fetch_sse_existing_put_historical_quote("510500P2612A07500", OLD_ID, DAY)
+
+test_ic_im_historical_put_identity_20261021.py:82: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+contract = '510500P2612A07500', security_id = '10011470'
+day = datetime.date(2026, 10, 20)
+
+    def fetch_sse_existing_put_historical_quote(
+        contract: str, security_id: str, day: date
+    ) -> tuple[pd.DataFrame, dict[str, Any]]:
+        closes = fetch_option_closes(security_id)
+        stamp = pd.Timestamp(day)
+        if stamp not in closes.index:
+            raise RuntimeError(f"上交所期权 {contract} 历史日线缺少 {day} 收盘")
+        match = re.fullmatch(r"510500P[0-9]{4}M([0-9]{5})", contract)
+        if not match:
+>           raise RuntimeError(f"无法解析IC Put行权价: {contract}")
+E           RuntimeError: 无法解析IC Put行权价: 510500P2612A07500
+
+poe_ic_im_mainline_v1_4_bot.py:3837: RuntimeError
+
+During handling of the above exception, another exception occurred:
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x00000201ECB015E0>
+
+    def test_adjusted_code_remains_blocked_until_engine_migration(monkeypatch):
+        calls = setup_sources(monkeypatch)
+>       with pytest.raises(RuntimeError, match="adjusted"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: Regex pattern did not match.
+E         Expected regex: 'adjusted'
+E         Actual message: '无法解析IC Put行权价: 510500P2612A07500'
+
+test_ic_im_historical_put_identity_20261021.py:81: AssertionError
+_ test_bad_requested_id_does_not_become_an_output_id[\uff11\uff10\uff10\uff11\uff12\uff10\uff19\uff19] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x00000201ECC01C50>
+identity = '１００１２０９９'
+
+    @pytest.mark.parametrize("identity", ["１００１２０９９", "1001209", "100120990", None])
+    def test_bad_requested_id_does_not_become_an_output_id(monkeypatch, identity):
+        calls = setup_sources(monkeypatch)
+>       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+test_ic_im_historical_put_identity_20261021.py:89: Failed
+_________ test_bad_requested_id_does_not_become_an_output_id[1001209] _________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x00000201ECC01B70>
+identity = '1001209'
+
+    @pytest.mark.parametrize("identity", ["１００１２０９９", "1001209", "100120990", None])
+    def test_bad_requested_id_does_not_become_an_output_id(monkeypatch, identity):
+        calls = setup_sources(monkeypatch)
+>       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+test_ic_im_historical_put_identity_20261021.py:89: Failed
+________ test_bad_requested_id_does_not_become_an_output_id[100120990] ________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x00000201EBC636C0>
+identity = '100120990'
+
+    @pytest.mark.parametrize("identity", ["１００１２０９９", "1001209", "100120990", None])
+    def test_bad_requested_id_does_not_become_an_output_id(monkeypatch, identity):
+        calls = setup_sources(monkeypatch)
+>       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+test_ic_im_historical_put_identity_20261021.py:89: Failed
+__________ test_bad_requested_id_does_not_become_an_output_id[None] ___________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x00000201ECBDFA10>
+identity = None
+
+    @pytest.mark.parametrize("identity", ["１００１２０９９", "1001209", "100120990", None])
+    def test_bad_requested_id_does_not_become_an_output_id(monkeypatch, identity):
+        calls = setup_sources(monkeypatch)
+>       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+test_ic_im_historical_put_identity_20261021.py:89: Failed
+_ test_official_fetch_validates_actual_timesave_and_closes_response[requested0] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x00000201ECA5B330>
+requested = datetime.date(2026, 10, 20)
+
+    @pytest.mark.parametrize("requested", [DAY, date(2026,10,19), date(2026,10,21)])
+    def test_official_fetch_validates_actual_timesave_and_closes_response(monkeypatch, requested):
+        response = Response(master_payload())
+        calls = []
+        def get(url, **kwargs):
+            calls.append((url,kwargs))
+            return response
+        monkeypatch.setattr(bot.requests, "get", get)
+>       fetch = getattr(bot, "fetch_sse_510500_dated_master")
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'poe_ic_im_mainline_v1_4_bot' has no attribute 'fetch_sse_510500_dated_master'
+
+test_ic_im_historical_put_identity_20261021.py:123: AttributeError
+_ test_official_fetch_validates_actual_timesave_and_closes_response[requested1] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x00000201ECA5AAF0>
+requested = datetime.date(2026, 10, 19)
+
+    @pytest.mark.parametrize("requested", [DAY, date(2026,10,19), date(2026,10,21)])
+    def test_official_fetch_validates_actual_timesave_and_closes_response(monkeypatch, requested):
+        response = Response(master_payload())
+        calls = []
+        def get(url, **kwargs):
+            calls.append((url,kwargs))
+            return response
+        monkeypatch.setattr(bot.requests, "get", get)
+>       fetch = getattr(bot, "fetch_sse_510500_dated_master")
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'poe_ic_im_mainline_v1_4_bot' has no attribute 'fetch_sse_510500_dated_master'
+
+test_ic_im_historical_put_identity_20261021.py:123: AttributeError
+_ test_official_fetch_validates_actual_timesave_and_closes_response[requested2] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x00000201ECBF3CF0>
+requested = datetime.date(2026, 10, 21)
+
+    @pytest.mark.parametrize("requested", [DAY, date(2026,10,19), date(2026,10,21)])
+    def test_official_fetch_validates_actual_timesave_and_closes_response(monkeypatch, requested):
+        response = Response(master_payload())
+        calls = []
+        def get(url, **kwargs):
+            calls.append((url,kwargs))
+            return response
+        monkeypatch.setattr(bot.requests, "get", get)
+>       fetch = getattr(bot, "fetch_sse_510500_dated_master")
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'poe_ic_im_mainline_v1_4_bot' has no attribute 'fetch_sse_510500_dated_master'
+
+test_ic_im_historical_put_identity_20261021.py:123: AttributeError
+============================== warnings summary ===============================
+C:\Python314\Lib\site-packages\fastapi_poe\types.py:171
+  C:\Python314\Lib\site-packages\fastapi_poe\types.py:171: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    class RequestContext(BaseModel):
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED test_ic_im_historical_put_identity_20261021.py::test_old_m_label_cannot_take_adjusted_id_price_even_before_new_signal_boundary
+FAILED test_ic_im_historical_put_identity_20261021.py::test_real_dated_master_can_support_standard_m_without_copying_requested_identity
+FAILED test_ic_im_historical_put_identity_20261021.py::test_missing_dated_identity_must_fail_before_price_fetch
+FAILED test_ic_im_historical_put_identity_20261021.py::test_bad_price_is_rejected_after_independent_identity[nan]
+FAILED test_ic_im_historical_put_identity_20261021.py::test_bad_price_is_rejected_after_independent_identity[inf]
+FAILED test_ic_im_historical_put_identity_20261021.py::test_bad_price_is_rejected_after_independent_identity[-0.01]
+FAILED test_ic_im_historical_put_identity_20261021.py::test_bad_price_is_rejected_after_independent_identity[True]
+FAILED test_ic_im_historical_put_identity_20261021.py::test_adjusted_code_remains_blocked_until_engine_migration
+FAILED test_ic_im_historical_put_identity_20261021.py::test_bad_requested_id_does_not_become_an_output_id[\uff11\uff10\uff10\uff11\uff12\uff10\uff19\uff19]
+FAILED test_ic_im_historical_put_identity_20261021.py::test_bad_requested_id_does_not_become_an_output_id[1001209]
+FAILED test_ic_im_historical_put_identity_20261021.py::test_bad_requested_id_does_not_become_an_output_id[100120990]
+FAILED test_ic_im_historical_put_identity_20261021.py::test_bad_requested_id_does_not_become_an_output_id[None]
+FAILED test_ic_im_historical_put_identity_20261021.py::test_official_fetch_validates_actual_timesave_and_closes_response[requested0]
+FAILED test_ic_im_historical_put_identity_20261021.py::test_official_fetch_validates_actual_timesave_and_closes_response[requested1]
+FAILED test_ic_im_historical_put_identity_20261021.py::test_official_fetch_validates_actual_timesave_and_closes_response[requested2]
+15 failed, 2 passed, 1 warning in 2.81s

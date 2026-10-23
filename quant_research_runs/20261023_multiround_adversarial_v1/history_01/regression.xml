@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="6" skipped="0" tests="14" time="1.853" timestamp="2026-10-23T09:25:53.099102+08:00" hostname="DESKTOP-95I7VVU"><testcase classname="test_icim_ma23_history_20261023" name="test_receipt_identity_mapping_preserves_class_cloud_and_parameter_boundaries[test_m.py::test_x[a::b.c]]" time="0.012" /><testcase classname="test_icim_ma23_history_20261023" name="test_receipt_identity_mapping_preserves_class_cloud_and_parameter_boundaries[cloud/tests/test_m.py::TestC::test_x[folder/a.py::fn]]" time="0.012" /><testcase classname="test_icim_ma23_history_20261023" name="test_receipt_identity_mapping_preserves_class_cloud_and_parameter_boundaries[test_nested.py::Outer::Inner::test_method[case.with.dots]]" time="0.011" /><testcase classname="test_icim_ma23_history_20261023" name="test_receipt_identity_mapping_preserves_class_cloud_and_parameter_boundaries[tests/test_win.py::test_x[C:\\tmp\\folder.a]]" time="0.012" /><testcase classname="test_icim_ma23_history_20261023" name="test_receipt_identity_mapping_preserves_class_cloud_and_parameter_boundaries[test_unicode.py::test_contract[\u5408\u7ea62703::\u65e5\u671f]]" time="0.012" /><testcase classname="test_icim_ma23_history_20261023" name="test_receipt_rejects_xml_test_identity_not_in_executed_collection" time="0.080"><failure message="Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;">tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_8bf9e6cb/pytest/test_receipt_rejects_xml_test_0')
+
+    def test_receipt_rejects_xml_test_identity_not_in_executed_collection(tmp_path):
+        target = copied_receipt(tmp_path)
+        tree = ET.parse(target / 'regression.xml')
+        case = tree.getroot().find('.//testcase')
+        case.set('name', 'test_synthetic_success_from_another_run')
+        tree.write(target / 'regression.xml', encoding='utf-8', xml_declaration=True)
+        rebind_artifact(target, 'regression.xml')
+        # Counts, exit status and every artifact hash are internally consistent;
+        # the XML identity contradicts the supposedly executed nodeid list.
+&gt;       with pytest.raises(RuntimeError, match='identity|identit|用例|执行|XML|collection'):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;
+
+test_icim_ma23_history_20261023.py:93: Failed</failure></testcase><testcase classname="test_icim_ma23_history_20261023" name="test_receipt_rejects_wrong_collection_identity_even_with_same_xml_count" time="0.053"><failure message="Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;">tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_8bf9e6cb/pytest/test_receipt_rejects_wrong_col0')
+
+    def test_receipt_rejects_wrong_collection_identity_even_with_same_xml_count(tmp_path):
+        target = copied_receipt(tmp_path)
+        collection = read(target / 'collection.json')
+        old = collection['selected'][0]
+        replacement = 'test_unexecuted_synthetic_module.py::test_unexecuted_synthetic_case'
+        for key in ['collected', 'selected', 'executed']:
+            collection[key] = [replacement if node == old else node for node in collection[key]]
+        (target / 'collection.json').write_text(json.dumps(collection), encoding='utf-8')
+        rebind_artifact(target, 'collection.json')
+&gt;       with pytest.raises(RuntimeError, match='identity|identit|用例|执行|XML|collection'):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;
+
+test_icim_ma23_history_20261023.py:106: Failed</failure></testcase><testcase classname="test_icim_ma23_history_20261023" name="test_previous_accepted_receipt_has_matching_real_case_inventory" time="0.019"><failure message="AssertionError: assert {('test_adver...append'), ...} == {('test_adver...append'), ...}&#10;  &#10;  Extra items in the left set:&#10;  ('test_icim_b3adv_scope_20261021', 'test_inherited_pytest_selection_cannot_hide_a_requested_failure[--deselect=test_selection.py::test_hidden_failure]')&#10;  Extra items in the right set:&#10;  ('test_icim_b3adv_scope_20261021.test_inherited_pytest_selection_cannot_hide_a_requested_failure[--deselect=test_selection.py', 'test_hidden_failure]')&#10;  Use -v to get more diff">def test_previous_accepted_receipt_has_matching_real_case_inventory():
+        collection = read(PREV / 'accepted_01/collection.json')
+        cases = ET.parse(PREV / 'accepted_01/regression.xml').getroot().findall('.//testcase')
+        expected = set()
+        for nodeid in collection['executed']:
+            path, *parts = nodeid.split('::')
+            module = path.removesuffix('.py').replace('/', '.').replace('\\', '.')
+            expected.add(('.'.join([module, *parts[:-1]]), parts[-1]))
+&gt;       assert {(c.get('classname'), c.get('name')) for c in cases} == expected
+E       AssertionError: assert {('test_adver...append'), ...} == {('test_adver...append'), ...}
+E         
+E         Extra items in the left set:
+E         ('test_icim_b3adv_scope_20261021', 'test_inherited_pytest_selection_cannot_hide_a_requested_failure[--deselect=test_selection.py::test_hidden_failure]')
+E         Extra items in the right set:
+E         ('test_icim_b3adv_scope_20261021.test_inherited_pytest_selection_cannot_hide_a_requested_failure[--deselect=test_selection.py', 'test_hidden_failure]')
+E         Use -v to get more diff
+
+test_icim_ma23_history_20261023.py:118: AssertionError</failure></testcase><testcase classname="test_icim_ma23_history_20261023" name="test_22_exclusions_have_not_grown_across_the_four_recent_rounds" time="0.025" /><testcase classname="test_icim_ma23_history_20261023" name="test_A_to_H_provenance_snapshots_match_the_original_accepted_code" time="0.019" /><testcase classname="test_icim_ma23_history_20261023" name="test_current_28_file_pin_covers_actual_static_capture_dependency_closure" time="0.652" /><testcase classname="test_icim_ma23_history_20261023" name="test_loaded_inventory_includes_actual_nonprefixed_production_dependency" time="0.006"><failure message="AssertionError: assert 'im_put_policy.py' in {'capture_ic_im_v1_4_inputs.py': 'e8faad38e6528c652f92f9bd2b257277faae2087dc7cc9c047b12a6c209fcdc2'}&#10; +  where {'capture_ic_im_v1_4_inputs.py': 'e8faad38e6528c652f92f9bd2b257277faae2087dc7cc9c047b12a6c209fcdc2'} = &lt;function loaded_sources at 0x000001AAEA1003B0&gt;()&#10; +    where &lt;function loaded_sources at 0x000001AAEA1003B0&gt; = &lt;module 'capture_ic_im_v1_4_inputs' from 'D:\\动量策略\\IC和IM滚动套利\\capture_ic_im_v1_4_inputs.py'&gt;.loaded_sources">def test_loaded_inventory_includes_actual_nonprefixed_production_dependency():
+        import capture_ic_im_v1_4_inputs as capture
+        import im_put_policy  # real production module, not an injected fake.
+        assert Path(im_put_policy.__file__).resolve() == ROOT / 'im_put_policy.py'
+&gt;       assert 'im_put_policy.py' in capture.loaded_sources()
+E       AssertionError: assert 'im_put_policy.py' in {'capture_ic_im_v1_4_inputs.py': 'e8faad38e6528c652f92f9bd2b257277faae2087dc7cc9c047b12a6c209fcdc2'}
+E        +  where {'capture_ic_im_v1_4_inputs.py': 'e8faad38e6528c652f92f9bd2b257277faae2087dc7cc9c047b12a6c209fcdc2'} = &lt;function loaded_sources at 0x000001AAEA1003B0&gt;()
+E        +    where &lt;function loaded_sources at 0x000001AAEA1003B0&gt; = &lt;module 'capture_ic_im_v1_4_inputs' from 'D:\\动量策略\\IC和IM滚动套利\\capture_ic_im_v1_4_inputs.py'&gt;.loaded_sources
+
+test_icim_ma23_history_20261023.py:175: AssertionError</failure></testcase><testcase classname="test_icim_ma23_history_20261023" name="test_pin_missing_real_loaded_im_policy_is_rejected" time="0.040"><failure message="Failed: DID NOT RAISE &lt;class 'capture_ic_im_v1_4_inputs.SourcePinError'&gt;">tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_8bf9e6cb/pytest/test_pin_missing_real_loaded_i0')
+
+    def test_pin_missing_real_loaded_im_policy_is_rejected(tmp_path):
+        import capture_ic_im_v1_4_inputs as capture
+        import im_put_policy
+        pin = read(PREV / 'delivery/capture_source_pin.json')
+        pin['files'] = {n:sha(ROOT/n) for n in pin['files'] if n != 'im_put_policy.py'}
+        path = tmp_path / 'deliberately_incomplete_pin.json'
+        path.write_text(json.dumps(pin), encoding='utf-8')
+        active = capture.SourcePin(path)
+        assert Path(im_put_policy.__file__).resolve().is_file()
+&gt;       with pytest.raises(capture.SourcePinError, match='im_put_policy'):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'capture_ic_im_v1_4_inputs.SourcePinError'&gt;
+
+test_icim_ma23_history_20261023.py:187: Failed</failure></testcase><testcase classname="test_icim_ma23_history_20261023" name="test_historical_numeric_functions_and_inputs_remain_bound_to_prior_versions" time="0.714"><failure message="AssertionError: assert ('35.3924' in '# 历史日历修复与完整账户重算 v1\n\n2026-10-22，本地完成。历史回测入口已恢复；补齐真实历史日历后，IC 的理论回测收益需要下调，IM 逐日收益不变。原冻结研究结果保留，新的实算结果单独存档，不回写旧记录或正式账本。\...5% 卖方 NAV 可行性是继承假设，不是券商验证。历史 IC 合约身份有重建、Fear 使用后下载数据，普通买 Put 仍继承代理定价/开盘处理，不能升级为点时或真实成交认证。没有据此调整参数，也没有部署、发送日报或续写正式账本。\n')">def test_historical_numeric_functions_and_inputs_remain_bound_to_prior_versions():
+        prior_bot = ROOT / 'quant_research_runs/20261022_free_source_integration_v1/backup/poe_ic_im_mainline_v1_4_bot.py'
+        def selected(path):
+            return {node.name: ast.dump(node, include_attributes=False) for node in ast.parse(
+                path.read_text(encoding='utf-8-sig')).body if isinstance(node, ast.FunctionDef)
+                    and node.name in {'_bs_price_delta', 'implied_volatility', 'fetch_sina_option_closes',
+                                      'fetch_option_dated_open', 'fetch_510500_historical_price'}}
+        old, current = selected(prior_bot), selected(ROOT / 'poe_ic_im_mainline_v1_4_bot.py')
+        assert old and old == current
+        source = read(PREV / 'accepted_01/source_after.json')
+        protected = {n: h for n, h in source.items() if n.startswith(
+            'quant_research_runs/20261022_historical_calendar_repair_v1/')}
+        assert protected
+        assert all(sha(ROOT / n) == h for n, h in protected.items())
+        # The calendar extension DID alter IC historically; this is not zero impact.
+        record = (ROOT / 'quant_research_runs/20261022_historical_calendar_repair_v1/record.md').read_text(encoding='utf-8')
+&gt;       assert '35.3924' in record and '34.8145' in record
+E       AssertionError: assert ('35.3924' in '# 历史日历修复与完整账户重算 v1\n\n2026-10-22，本地完成。历史回测入口已恢复；补齐真实历史日历后，IC 的理论回测收益需要下调，IM 逐日收益不变。原冻结研究结果保留，新的实算结果单独存档，不回写旧记录或正式账本。\...5% 卖方 NAV 可行性是继承假设，不是券商验证。历史 IC 合约身份有重建、Fear 使用后下载数据，普通买 Put 仍继承代理定价/开盘处理，不能升级为点时或真实成交认证。没有据此调整参数，也没有部署、发送日报或续写正式账本。\n')
+
+test_icim_ma23_history_20261023.py:207: AssertionError</failure></testcase></testsuite></testsuites>

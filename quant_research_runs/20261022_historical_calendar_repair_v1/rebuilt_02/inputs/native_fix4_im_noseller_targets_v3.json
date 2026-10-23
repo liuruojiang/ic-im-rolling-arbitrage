@@ -1,0 +1,16 @@
+{
+  "classification": "NATIVE_IM_RISK_AND_OPTION_TARGET_STAGE_NO_3X_SELLER_ACCOUNT_NAV",
+  "rows": 986,
+  "counts": {
+    "core_put_selections": 46,
+    "momentum_put_selections": 30,
+    "call_openings": 0,
+    "call_rescues": 0
+  },
+  "fail_closed_events": [],
+  "version": "v3",
+  "execution_assumption": "market-maker paper fill at dated positive official quote; recorded daily volume does not veto",
+  "formal_producer_sha256": "0075c16aec68cb56b49569d03c1b89bb2707873fbd309971461082b623d0d19f",
+  "input_risk_sha256": "0f9a932a2fc631497427e261890e4540d7d19ecd653d0cf4f13c334265f2e3df",
+  "not_a_nav": true
+}

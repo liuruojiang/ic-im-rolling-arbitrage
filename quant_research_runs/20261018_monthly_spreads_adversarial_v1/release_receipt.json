@@ -1,0 +1,21 @@
+{
+  "strategy_execution_sha": "dc81478f0552f9ac685588d79679f2258caaca19",
+  "automation_consumer_sha": "bf7bcc5ea95c98789f932dd2b3b77b6e5eef0b5a",
+  "automation_main_merge": "c6e6a7bd49421cca709ff474ff3261cbccd39c03",
+  "ci_run": 39123053963,
+  "ci_conclusion": "success",
+  "source_blob_files": 10,
+  "source_blob_match": true,
+  "live_strategy_pin_match": true,
+  "local_required_files": 40,
+  "local_tests_passed": 941,
+  "cloud_automation_tests_passed": 1137,
+  "cloud_icim_tests_passed": 999,
+  "independent_numeric_regressions": 6,
+  "independent_consumer_matrix_cases": 1434,
+  "calendar_2026_product_sessions": 484,
+  "known_historical_calendar_product_days": 4,
+  "upstream_boolean_conversion_repaired": false,
+  "message_sent": false,
+  "formal_ledger_json_written": false
+}

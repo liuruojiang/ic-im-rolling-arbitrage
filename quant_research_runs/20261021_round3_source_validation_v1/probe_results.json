@@ -1,0 +1,82 @@
+{
+  "results": [
+    {
+      "name": "sse_etf",
+      "url": "https://yunhq.sse.com.cn:32042/v1/sh1/list/self/510500",
+      "params": {
+        "select": "code,cpxxextendname,last,change,chg_rate,amp_rate,volume,amount,prev_close"
+      },
+      "started_at": "2026-10-21T12:47:38.668340+00:00",
+      "purpose": "actual_public_feed_probe",
+      "preopen_or_intraday_oracle": false,
+      "status": "failed",
+      "error_type": "ProxyError",
+      "error": "HTTPSConnectionPool(host='yunhq.sse.com.cn', port=32042): Max retries exceeded with url: /v1/sh1/list/self/510500?select=code%2Ccpxxextendname%2Clast%2Cchange%2Cchg_rate%2Camp_rate%2Cvolume%2Camount%2Cprev_close (Caused by ProxyError('Cannot connect to proxy.', TimeoutError('timed out')))",
+      "finished_at": "2026-10-21T12:47:42.741820+00:00",
+      "elapsed_seconds": 4.073
+    },
+    {
+      "name": "sse_months",
+      "url": "https://yunhq.sse.com.cn:32042/v1/sho/list/exchange/stockexpire",
+      "params": {
+        "select": "stockid,expiremonth"
+      },
+      "started_at": "2026-10-21T12:47:38.668822+00:00",
+      "purpose": "actual_public_feed_probe",
+      "preopen_or_intraday_oracle": false,
+      "status": "failed",
+      "error_type": "ProxyError",
+      "error": "HTTPSConnectionPool(host='yunhq.sse.com.cn', port=32042): Max retries exceeded with url: /v1/sho/list/exchange/stockexpire?select=stockid%2Cexpiremonth (Caused by ProxyError('Cannot connect to proxy.', TimeoutError('timed out')))",
+      "finished_at": "2026-10-21T12:47:42.743117+00:00",
+      "elapsed_seconds": 4.074
+    },
+    {
+      "name": "sina_etf",
+      "url": "https://hq.sinajs.cn/",
+      "params": {
+        "list": "sh510500"
+      },
+      "started_at": "2026-10-21T12:47:38.669076+00:00",
+      "purpose": "actual_public_feed_probe",
+      "preopen_or_intraday_oracle": false,
+      "status": "failed",
+      "error_type": "ProxyError",
+      "error": "HTTPSConnectionPool(host='hq.sinajs.cn', port=443): Max retries exceeded with url: /?list=sh510500 (Caused by ProxyError('Cannot connect to proxy.', TimeoutError('timed out')))",
+      "finished_at": "2026-10-21T12:47:42.742959+00:00",
+      "elapsed_seconds": 4.074
+    },
+    {
+      "name": "sina_months",
+      "url": "https://stock.finance.sina.com.cn/futures/api/openapi.php/StockOptionService.getStockName",
+      "params": {
+        "exchange": "null",
+        "cate": "510500"
+      },
+      "started_at": "2026-10-21T12:47:42.742768+00:00",
+      "purpose": "actual_public_feed_probe",
+      "preopen_or_intraday_oracle": false,
+      "status": "failed",
+      "error_type": "ProxyError",
+      "error": "HTTPSConnectionPool(host='stock.finance.sina.com.cn', port=443): Max retries exceeded with url: /futures/api/openapi.php/StockOptionService.getStockName?exchange=null&cate=510500 (Caused by ProxyError('Cannot connect to proxy.', TimeoutError('timed out')))",
+      "finished_at": "2026-10-21T12:47:46.760105+00:00",
+      "elapsed_seconds": 4.017
+    },
+    {
+      "name": "sina_dated_open",
+      "url": "https://stock.finance.sina.com.cn/futures/api/jsonp_v2.php//StockOptionDaylineService.getSymbolInfo",
+      "params": {
+        "symbol": "10011810"
+      },
+      "started_at": "2026-10-21T12:47:42.742975+00:00",
+      "purpose": "actual_public_feed_probe",
+      "preopen_or_intraday_oracle": false,
+      "status": "failed",
+      "error_type": "ProxyError",
+      "error": "HTTPSConnectionPool(host='stock.finance.sina.com.cn', port=443): Max retries exceeded with url: /futures/api/jsonp_v2.php//StockOptionDaylineService.getSymbolInfo?symbol=10011810 (Caused by ProxyError('Cannot connect to proxy.', TimeoutError('timed out')))",
+      "finished_at": "2026-10-21T12:47:46.759717+00:00",
+      "elapsed_seconds": 4.017
+    }
+  ],
+  "strategy_ledger_written": false,
+  "market_phase_assertion": "actual acquisition only; not an intraday oracle"
+}

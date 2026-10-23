@@ -1,0 +1,13 @@
+{
+  "name": "sina_listed_months",
+  "family": "Sina",
+  "url": "https://stock.finance.sina.com.cn/futures/api/openapi.php/StockOptionService.getStockName",
+  "params": {
+    "exchange": "null",
+    "cate": "500ETF"
+  },
+  "started_at": "2026-10-22T16:56:20.872702+08:00",
+  "status": "FAILED",
+  "error_type": "ProxyError",
+  "seconds": 4.009
+}

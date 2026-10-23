@@ -1,0 +1,9 @@
+{
+  "checked_at": "2026-10-21T11:03:13.257404+00:00",
+  "command_execution_verified": true,
+  "python_version": "3.14.4",
+  "windows_version": "10.0.19045",
+  "config_windows_sandbox": "elevated",
+  "config_repaired_by": "local_user",
+  "runtime_configuration_effectiveness": "command startup and isolated test execution both succeeded"
+}

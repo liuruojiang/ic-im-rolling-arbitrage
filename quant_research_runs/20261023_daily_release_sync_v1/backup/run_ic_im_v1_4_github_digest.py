@@ -1,0 +1,663 @@
+"""Build one IC/IM v1.4 signal artifact for GitHub Actions.
+
+The runner owns no scheduler and sends no email.  It restores/updates the
+hash-chained ledger through :class:`StateStore`.  Close-confirmed reports must
+match the just-committed ledger record.  Realtime reports must be generated
+during the continuous session from the latest completed ledger and may never
+mutate that ledger.
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import os
+import re
+import sys
+import tempfile
+from datetime import date, datetime
+from pathlib import Path
+from typing import Any
+
+import poe_ic_im_mainline_v1_4_bot as strategy
+import poe_ic_im_v1_4_state as state_module
+import ic_im_option_maintenance_notice as option_maintenance_notice
+from poe_ic_im_v1_4_server import LedgerCoordinator
+from poe_ic_im_v1_4_state import StateStore, _jsonable
+
+
+PRODUCTS = ("IC", "IM")
+FIX4_DELIVERY_REVISION = "20260924-v14-coreput3x-fixedshort95-fix4-integrated-iciv30-qdelta05"
+FIX6_DELIVERY_REVISION = "20260926-v14-coreput3x-fixedshort95-fix6-nocall-repeatroll-iciv30-qdelta05"
+FIX7_DELIVERY_REVISION = "20260928-v14-coreput3x-open-fix7-nocall-repeatroll-iciv30-qdelta05"
+FIX9_DELIVERY_REVISION = "20260929-v14-ordinary-put-open-ic-seller-mom120-fix9"
+FIX10_DELIVERY_REVISION = "20261008-v14-fear-grid25-50-fix10"
+DELIVERY_REVISION = "20261008-v14-ic-csi500-abs40-fix11"
+MODES = ("close", "realtime")
+
+
+class _ArtifactBuildError(RuntimeError):
+    """Carry only this attempt's query text into the failure artifact."""
+
+    def __init__(self, message: str, diagnostic_report: str | None = None) -> None:
+        super().__init__(message)
+        self.diagnostic_report = diagnostic_report
+
+
+def delivery_revision_for_signal_day(signal_day: date) -> str:
+    if signal_day >= strategy.v14_policy.IC_CSI500_EFFECTIVE_SIGNAL_DATE:
+        return DELIVERY_REVISION
+    if signal_day >= strategy.v14_policy.FEAR_GRID_EFFECTIVE_SIGNAL_DATE:
+        return FIX10_DELIVERY_REVISION
+    if signal_day >= strategy.v14_policy.ORDINARY_PUT_OPEN_EFFECTIVE_SIGNAL_DATE:
+        return FIX9_DELIVERY_REVISION
+    if signal_day >= strategy.v14_policy.PROFIT_OPEN_EFFECTIVE_SIGNAL_DATE:
+        return FIX7_DELIVERY_REVISION
+    if signal_day >= strategy.v14_policy.FIX6_BUILD_EFFECTIVE_SIGNAL_DATE:
+        return FIX6_DELIVERY_REVISION
+    return FIX4_DELIVERY_REVISION
+
+
+def _atomic_write_text(path: Path, text: str) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    handle, temporary_name = tempfile.mkstemp(
+        prefix=f".{path.name}.", suffix=".tmp", dir=path.parent
+    )
+    temporary = Path(temporary_name)
+    try:
+        with os.fdopen(handle, "w", encoding="utf-8", newline="\n") as stream:
+            stream.write(text)
+            stream.flush()
+            os.fsync(stream.fileno())
+        os.replace(temporary, path)
+    finally:
+        temporary.unlink(missing_ok=True)
+
+
+def parse_clock(value: str) -> datetime:
+    if not value.strip():
+        return strategy._now_beijing()
+    parsed = datetime.fromisoformat(value.strip())
+    if parsed.tzinfo is None:
+        parsed = parsed.replace(tzinfo=strategy.BEIJING)
+    return parsed.astimezone(strategy.BEIJING)
+
+
+def _signal_day(signal: dict[str, Any]) -> date:
+    value = signal.get("market_date")
+    return value if isinstance(value, date) else date.fromisoformat(str(value)[:10])
+
+
+def validate_close_artifact(
+    *,
+    completed_day: date,
+    latest: dict[str, Any],
+    observed: dict[str, dict[str, Any]],
+) -> None:
+    if set(observed) != set(PRODUCTS):
+        raise RuntimeError("收盘产物必须同时包含IC和IM完整信号")
+    signal_days = {_signal_day(observed[product]) for product in PRODUCTS}
+    if signal_days != {completed_day}:
+        raise RuntimeError(
+            f"收盘信号日期不一致：期望 {completed_day}，实际 {sorted(signal_days)}"
+        )
+    for product in PRODUCTS:
+        signal = observed[product]
+        state_module.validate_delivery_values(signal, product)
+        if not bool(signal.get("close_confirmed")):
+            raise RuntimeError(f"{product}不是收盘确认信号")
+        if str(signal.get("product")) != product:
+            raise RuntimeError(f"{product}信号产品标签不一致")
+    if str(latest.get("verified_day"))[:10] != completed_day.isoformat():
+        raise RuntimeError("持久账本尚未推进到最近完成交易日")
+    if _jsonable(observed) != latest.get("signals"):
+        raise RuntimeError("邮件信号与持久账本最新逐腿记录不一致")
+    if completed_day >= date(2026, 9, 7):
+        state_module.validate_im_put_execution_evidence(observed["IM"])
+
+
+def validate_realtime_artifact(
+    *,
+    clock: datetime,
+    completed_day: date,
+    before: dict[str, Any],
+    after: dict[str, Any],
+    observed: dict[str, dict[str, Any]],
+) -> None:
+    if strategy._market_phase(clock) != "盘中":
+        raise RuntimeError("盘中实时邮件只能在连续交易时段生成")
+    if set(observed) != set(PRODUCTS):
+        raise RuntimeError("盘中产物必须同时包含IC和IM完整信号")
+    signal_days = {_signal_day(observed[product]) for product in PRODUCTS}
+    if signal_days != {clock.date()}:
+        raise RuntimeError(
+            f"盘中信号日期不一致：期望 {clock.date()}，实际 {sorted(signal_days)}"
+        )
+    for product in PRODUCTS:
+        signal = observed[product]
+        state_module.validate_delivery_values(signal, product, require_complete=False)
+        if bool(signal.get("close_confirmed")):
+            raise RuntimeError(f"{product}盘中信号被错误标记为收盘确认")
+        if str(signal.get("product")) != product:
+            raise RuntimeError(f"{product}信号产品标签不一致")
+        if str(signal.get("market_phase")) != "盘中":
+            raise RuntimeError(f"{product}行情不处于连续交易时段")
+        if str(signal.get("state_anchor_day"))[:10] != completed_day.isoformat():
+            raise RuntimeError(f"{product}没有从最近完成交易日账本续接")
+    if str(before.get("verified_day"))[:10] != completed_day.isoformat():
+        raise RuntimeError("持久账本尚未推进到最近完成交易日")
+    if (
+        before.get("digest") != after.get("digest")
+        or before.get("sequence") != after.get("sequence")
+        or before.get("verified_day") != after.get("verified_day")
+    ):
+        raise RuntimeError("盘中信号不得改写持久收盘账本")
+    if clock.date() >= date(2026, 9, 7):
+        state_module.validate_im_put_execution_evidence(observed["IM"])
+
+
+def _execution_timing_lines(product: str, signal: dict[str, Any]) -> list[str]:
+    """Render execution timing separately from signal targets.
+
+    A close report contains both next-open sleeve targets and quarterly futures
+    roll state.  They must not be presented as one undifferentiated action.
+    """
+    next_trade_day = signal.get("next_trade_date", "N/A")
+    lines = [
+        "- 常规仓位（动量／网格）：今日收盘形成目标；仅在目标变化时，于 "
+        f"{next_trade_day} 开盘执行。",
+    ]
+    if signal.get("roll_policy", {}).get("tenor") != "strict_quarter":
+        lines.append(
+            "- 季度期货展期：本记录早于 r7 生效日；2026-09-04 起才采用 "
+            "IM T-1／IC T-3 收盘展期。"
+        )
+        return lines
+
+    execution_day = signal.get("roll_execution_date", "N/A")
+    current = signal.get("core_current", "N/A")
+    destination = signal.get("core_eod_contract", "N/A")
+    if signal.get("roll_confirmed"):
+        lines.append(
+            f"- 季度期货展期：**已于 {execution_day} 收盘完成**，"
+            f"{current} → {destination}；不是下一交易日开盘动作。"
+        )
+    elif signal.get("core_action") == "ROLL":
+        lines.append(
+            f"- 季度期货展期：**仅预告**，计划于 {execution_day} 收盘执行，"
+            f"{current} → {signal.get('core_target', 'N/A')}；尚未写入账本。"
+        )
+    else:
+        lines.append(
+            f"- 季度期货展期：当前无执行；下一计划日为 {execution_day} 收盘，"
+            f"当前仍为 {current}。"
+        )
+    lines.append("- Put／Call：独立于季度期货展期，按各自维护日历处理。")
+    return lines
+
+
+def _put_contract_display(contract: Any, quantity: Any, *, no_contract: str) -> str:
+    if contract:
+        return str(contract)
+    if quantity in (None, "N/A"):
+        return "N/A（合约或数量字段未记录）"
+    try:
+        quantity_is_zero = float(quantity) == 0.0
+    except (TypeError, ValueError):
+        quantity_is_zero = False
+    if quantity_is_zero:
+        return no_contract
+    return "N/A（数量非零但合约字段缺失）"
+
+
+def render_stored_close_report(latest: dict[str, Any]) -> str:
+    signals = latest.get("signals", {})
+    signal_day = date.fromisoformat(str(latest["verified_day"])[:10])
+    lines = [
+        "# IC / IM 1.4 收盘确认账本",
+        "",
+        f"本记录信号构建：`{signals.get('IC', {}).get('v14_build_id', 'N/A')}`；当前程序构建：`{strategy.BUILD_ID}`；网格参数版本：`{strategy.grid_policy_revision(signal_day)}`；IC动量版本：`{strategy.ic_momentum_policy_revision(signal_day)}`；IM/MOM120防抖版本：`{strategy.MOMENTUM_DEBOUNCE_POLICY_REVISION}`。",
+        "卖Put展期规则：2026-09-25及以前信号最多成功展期一次；2026-09-26及以后信号每次满足条件可继续展期。本记录以逐腿信号版本为准。",
+        "IM卖Call规则：2026-09-25及以前信号保留旧版；2026-09-26及以后信号目标为空仓，若模型账本有旧仓只输出平仓目标。本记录以逐腿信号版本为准。",
+        "自2026-09-16信号日起，IC与IM的核心Put在MOM120<0时立即保护，连续两日均>+1%才解除；IM Abs20恢复仍须连续两日均>+1%；Score不变。",
+        ("IC动量自2026-10-08信号日起用MA105/Mom24/W1.6、Abs40>0即时恢复；Abs两日恢复防抖关闭，6%基础NAV回撤门沿单条旧新拼接路径承接。"
+         if signal_day >= strategy.IC_MOMENTUM_EFFECTIVE_SIGNAL_DATE else
+         "IC动量沿用MA110/Mom24/W2、Abs20；自2026-09-16信号日起Abs20恢复须连续两日均>+1%。"),
+        ("网格新版本：2026-10-08信号日起，估值或恐慌≤25入单个0.5倍网格；按冻结的入场来源分别在估值退出线或恐慌≥50退出。"
+         if signal_day >= strategy.v14_policy.FEAR_GRID_EFFECTIVE_SIGNAL_DATE else
+         "网格版本：2026-09-15信号日起，IM恢复1.6进入/2.0退出、0.5倍，仅估值；IC保持0.5进入/1.0退出、0.5倍。此前信号保留当日规则。"),
+        "策略字段来自已通过SHA-256日志链校验的持久账本；9圈参考在报告采集时补充，不参与信号重算。",
+        "它是研究审计记录，不是账户持仓，也不会自动下单。",
+        "",
+        f"- 已核验日期：`{latest.get('verified_day', 'N/A')}`",
+        f"- 账本序号：`{latest.get('sequence', 'N/A')}`",
+        f"- 账本摘要：`{latest.get('digest', 'N/A')}`",
+    ]
+    for product in PRODUCTS:
+        raw_signal = signals[product]
+        signal = (strategy.fear_grid.publication_view(raw_signal)
+                  if strategy.fear_grid.flexible_source(raw_signal) else raw_signal)
+        opening_events = signal.get("v14_opening_events", [])
+        for event in opening_events:
+            title = "三倍兑现" if event.get("kind") == "profit3x" else "卖Put成本"
+            plan = event.get("plan", {})
+            lines.append(f"- {product} {title}独立开盘事件：{plan.get('execution_day')}；"
+                         f"{event.get('status')}；{event.get('reason', '')}；仅研究价格核验。")
+            if event.get("status") == "confirmed_open_research_price":
+                for item in event.get("prices", []):
+                    lines.append(f"  - {item.get('contract')} 开盘价 {item.get('openprice')}；"
+                                 f"日期 {item.get('price_day')}；来源 {item.get('source')}。")
+        short_pending = signal.get("v14_short_put_open_pending")
+        if short_pending:
+            lines.append(f"- {product} 卖Put待执行：{short_pending.get('execution_day')} 开盘，"
+                         f"新腿 {short_pending.get('new_contract')}，数量 {short_pending.get('new_qty')}；"
+                         "候选收盘报价不是入场成本，开盘证据未齐前不启用衰减展期。")
+        if signal_day >= strategy.v14_policy.FEAR_GRID_EFFECTIVE_SIGNAL_DATE:
+            lines.append(
+                f"- {product} 恐贪 {signal.get('fear_greed_index', '缺失')}"
+                f"（{signal.get('fear_data_date') or '缺失'}，"
+                f"{signal.get('fear_data_status', 'N/A')}）；网格来源 "
+                f"`{signal.get('grid_entry_source_current', 'N/A')}` → "
+                f"`{signal.get('grid_entry_source_target', 'N/A')}`；"
+                f"CSV SHA-256 `{signal.get('fear_csv_sha256', 'N/A')}`。"
+            )
+        if signal_day >= strategy.fear_grid.EFFECTIVE_SIGNAL_DATE:
+            lines.extend(["- **百分位取数提示：" + strategy.fear_grid.source_disclosure(signal) + "**",
+                          "- " + strategy.fear_grid.reference_disclosure(signal)])
+        profit_detail = []
+        if signal.get("v14_profit_reentry_status") == "scheduled_t_plus_1_open":
+            profit_detail.append(
+                ("- 3倍兑现历史模型计划（补录，非原日发布）：" if signal.get("signal_generation_timing") == "retrospective_replay" else "- 3倍兑现次日开盘计划：")
+                + f"{signal.get('v14_profit_execution_day')} 卖旧 "
+                f"{signal.get('v14_profit_old_contract')}、买预选 "
+                f"{signal.get('v14_profit_reentry_contract')}，数量 "
+                f"{signal.get('v14_profit_reentry_qty')}；尚非成交。"
+            )
+        elif signal.get("v14_profit_reentry_status") == "confirmed_open_research_price":
+            profit_detail.append(
+                f"- 3倍兑现开盘纸面确认：{signal.get('v14_profit_open_price_day')} 旧 "
+                f"{signal.get('v14_profit_open_old_contract')} @ {signal.get('v14_profit_exit_open_price')}；"
+                f"新 {signal.get('v14_profit_open_executed_contract')} @ "
+                f"{signal.get('v14_profit_reentry_entry_premium')}，数量 "
+                f"{signal.get('v14_profit_open_executed_qty')}；非账户成交。"
+            )
+        ordinary = signal.get("v14_ordinary_put_pending")
+        identity_migration = bool(
+            product == "IC"
+            and signal.get("v14_ordinary_put_plan_status") == "scheduled_t_plus_1_open"
+            and ordinary
+            and state_module.ic_ordinary_put_transition_identity_only(signal, ordinary)
+        )
+        if signal.get("v14_ordinary_put_plan_status") == "scheduled_t_plus_1_open" and ordinary:
+            if identity_migration:
+                profit_detail.append(
+                    "- 普通核心买Put：内部迁移身份已与正式持仓对齐；"
+                    "合约和数量均未变化，不构成调整。"
+                )
+            else:
+                profit_detail.append(
+                    (f"- 普通核心/动量买Put：按{ordinary.get('signal_day')}收盘口径补录模型计划；"
+                     f"实际创建{ordinary.get('created_at')}；下一模型执行日{ordinary.get('execution_day')}；尚非纸面成交。"
+                     if ordinary.get("creation_timing") == "retrospective_replay" else
+                     f"- 普通核心/动量买Put：{ordinary.get('signal_day')}收盘预选，"
+                     f"{ordinary.get('execution_day')}开盘待确认；尚非纸面成交。")
+                )
+        if signal.get("v14_ordinary_put_open_status") == "confirmed_open_research_price":
+            profit_detail.append("- 普通核心/动量买Put：按预选合约及当日正开盘价完成纸面确认；非账户成交。")
+        elif str(signal.get("v14_ordinary_put_open_status", "")).startswith("closed_"):
+            profit_detail.append(
+                f"- 普通买Put前次开盘计划关闭：{signal['v14_ordinary_put_open_status']}；"
+                f"{signal.get('v14_ordinary_put_open_reason', '未取得完整开盘依据')}。未记纸面成交。"
+            )
+        expiry_branches = signal.get("v14_expiry_conditional_signal")
+        expiry_line = (
+            "- 卖Put到期条件信号：模型结算依据尚待核验；价外失效→结束卖Put周期并返回普通期货路线；"
+            "价内行权/现金结算→进入模型承接与恢复路线。实际账户操作由用户自行处理。"
+            if isinstance(expiry_branches, dict)
+            else ""
+        )
+        lifecycle_contract = signal.get("v14_core_put_contract")
+        lifecycle_qty = signal.get("v14_core_put_qty", "N/A")
+        lifecycle_contract_display = _put_contract_display(
+            lifecycle_contract,
+            lifecycle_qty,
+            no_contract="N/A（当前无独立生命周期合约）",
+        )
+        if product == "IC":
+            ordinary_qty = signal.get("put_target_core_qty", "N/A")
+            ordinary_contract = signal.get("v14_core_put_contract") or signal.get("put_target_contract")
+            if ordinary_qty not in (None, "N/A"):
+                # After the IC identity split, put_target_contract can belong
+                # to the momentum leg. Use the ordinary planner's core target;
+                # monthly targets are already updated in the stored signal,
+                # while an unexecuted 3x replacement stays in its separate plan.
+                ordinary_contract, _, _ = strategy._v14_ic_ordinary_core_target(signal)
+        else:
+            ordinary_contract = signal.get("core_put_target_contract")
+            ordinary_qty = signal.get("core_put_target_qty_normalized", "N/A")
+        ordinary_contract_display = _put_contract_display(
+            ordinary_contract,
+            ordinary_qty,
+            no_contract="无（普通核心保护目标数量为0）",
+        )
+        lines.extend(
+            [
+                "",
+                f"## {product}",
+                f"- 实际信号生成：{signal.get('signal_generated_at', 'N/A（历史记录未存）')}；"
+                f"时点语义：{signal.get('signal_generation_timing', '原历史记录')}。",
+                ("- **历史模型补录 retrospective_replay；不是原信号日已发布的前瞻目标。**"
+                 if signal.get("signal_generation_timing") == "retrospective_replay" else ""),
+                f"- 恐慌输入：{signal.get('fear_greed_index', 'N/A')}；真实数据日 "
+                f"{signal.get('fear_data_date', 'N/A')}；状态 {signal.get('fear_data_status', 'N/A')}；"
+                + ("**沿用上一交易日（当日未发布）**。" if signal.get('fear_fallback_applied') else "当日/原历史输入。"),
+                str(signal.get("iv_warning", {}).get("text", "IV预警：N/A（历史记录未保存IV监测值）")),
+                str(signal.get("im_put_policy_description", "")),
+                "",
+                "**" + strategy.daily_valuation.disclosure(signal.get("valuation_provenance")) + "**",
+                "",
+                *["- " + line for line in strategy.quarter_roll.format_spreads(signal, product=product)],
+                *_execution_timing_lines(product, signal),
+                f"- 期货总仓：{signal.get('total_units_current', 'N/A')} → "
+                f"{signal.get('total_units_target') if signal.get('total_units_target') is not None else 'N/A（未确认）'}",
+                f"- 核心动作：`{signal.get('core_action', 'N/A')}`；"
+                f"动量动作：`{signal.get('momentum_action', 'N/A')}`；"
+                f"网格动作：`{signal.get('grid_action', 'N/A')}`",
+                f"- v1.4独立生命周期核心Put：{lifecycle_contract_display}；数量：{lifecycle_qty}；兑现状态：{signal.get('v14_profit_reentry_status', 'N/A')}；模型生命周期：{signal.get('v14_lifecycle_evidence_status', 'N/A')}",
+                f"- 普通核心保护Put目标：{ordinary_contract_display}；数量：{ordinary_qty}（普通保护规则，独立于上列生命周期字段）",
+                "- 买Put时点：3倍兑现自2026-09-28起T收盘预选、T+1开盘核价；普通核心/动量Put自2026-09-29起同样执行。月度维护按原定当日收盘，季度期货展期时钟不变。",
+                *profit_detail,
+                *(
+                    [
+                        "- 注：下方完整逐腿JSON保留哈希账本原始字段；其中核心Put的0→目标数量是内部身份迁移记录。恢复器会先按同合约同数量持仓对齐并清除待执行状态，因此不代表下一交易日开仓。"
+                    ]
+                    if identity_migration else []
+                ),
+                "- 信号边界：本报告只发布策略参考信号；实际成交、行权、结算、交割和账户持仓由用户自行处理。",
+                expiry_line,
+                f"- Put动作：`{signal.get('put_action', 'N/A')}`；"
+                f"Call动作：`{signal.get('call_action', 'N/A')}`",
+                "",
+                "<details><summary>完整逐腿JSON</summary>",
+                "",
+                "```json",
+                json.dumps(_jsonable(signal), ensure_ascii=False, indent=2),
+                "```",
+                "",
+                "</details>",
+            ]
+        )
+    notices = option_maintenance_notice.reminders(
+        signals, signal_day=signal_day, is_session=strategy._option_maintenance_session,
+        historical=latest.get("signal_timing") == "retrospective_replay")
+    if notices:
+        lines[2:2] = ["## ⚠️ 月度Put维护日历提醒", "", *[n + "\n" for n in notices]]
+    return "\n".join(lines) + "\n"
+
+
+def build_artifacts(
+    *,
+    state_dir: Path,
+    out_dir: Path,
+    clock: datetime,
+    max_sessions: int,
+    mode: str = "close",
+    expected_market_date: str = "",
+) -> dict[str, Any]:
+    if mode not in MODES:
+        raise ValueError(f"unsupported mode: {mode}")
+    if max_sessions <= 0:
+        raise ValueError("max_sessions必须为正")
+    if mode == "realtime" and strategy._market_phase(clock) != "盘中":
+        raise RuntimeError("盘中实时邮件只能在连续交易时段生成")
+    completed_day = strategy._latest_completed_exchange_day(clock)
+    actual_market_date = clock.date() if mode == "realtime" else completed_day
+    if expected_market_date and actual_market_date.isoformat() != expected_market_date:
+        raise RuntimeError(
+            f"日报日期不匹配：expected={expected_market_date} actual={actual_market_date}"
+        )
+    store = StateStore(state_dir)
+    coordinator = LedgerCoordinator(store)
+    advanced = coordinator.catch_up_until_current(clock, max_sessions=max_sessions)
+    health = coordinator.health(clock)
+    if health.get("status") != "ok":
+        raise _ArtifactBuildError(
+            str(health.get("refresh_error") or "账本补写状态异常"),
+            getattr(coordinator, "last_refresh_diagnostic", None),
+        )
+    if str(health.get("verified_day"))[:10] != completed_day.isoformat():
+        raise RuntimeError(
+            "账本未追平最近完成交易日："
+            f"verified={health.get('verified_day')} completed={completed_day}"
+        )
+
+    latest = store.load_latest()
+    if mode == "realtime":
+        if strategy._market_phase(clock) != "盘中":
+            raise RuntimeError("盘中实时邮件只能在连续交易时段生成")
+        report, attachments, observed = coordinator.execute_query(
+            "实时信号", clock, persist_confirmed=False
+        )
+        _atomic_write_text(out_dir / "diagnostic_report.md", report)
+        after = store.load_latest()
+        if set(observed) != set(PRODUCTS):
+            failures = re.findall(r"(?:完整信号失败|当日信号警告)：([^\n]+)", report)
+            raise _ArtifactBuildError(
+                "盘中产物必须同时包含IC和IM完整信号；已取得="
+                + ",".join(sorted(observed))
+                + "；逐品种失败=" + "；".join(failures)
+                + "；完整诊断见 diagnostic_report.md",
+                report,
+            )
+        try:
+            validate_realtime_artifact(
+                clock=clock,
+                completed_day=completed_day,
+                before=latest,
+                after=after,
+                observed=observed,
+            )
+        except RuntimeError as exc:
+            raise _ArtifactBuildError(str(exc), report) from exc
+        report_name = "ic_im_v1_4_realtime_signal.md"
+        publication_mode = "realtime"
+        signal_day = clock.date()
+    else:
+        observed = latest.get("signals", {})
+        validate_close_artifact(
+            completed_day=completed_day,
+            latest=latest,
+            observed=observed,
+        )
+        reference = (strategy.fear_grid.fetch_jiu_reference(completed_day)
+                     if datetime.now(strategy.BEIJING).date() >= strategy.fear_grid.SOURCE_POLICY_DATE else {})
+        report_signals = {product: {**signal, **reference} for product, signal in observed.items()}
+        report = render_stored_close_report({**latest, "signals": report_signals})
+        attachments = []
+        report_name = "ic_im_v1_4_close_signal.md"
+        publication_mode = "close_confirmed"
+        signal_day = completed_day
+
+    out_dir.mkdir(parents=True, exist_ok=True)
+    report_path = out_dir / report_name
+    _atomic_write_text(report_path, report)
+    published = {
+        product: strategy.fear_grid.publication_view(signal)
+        for product, signal in observed.items()
+    }
+    incomplete = [
+        f"{product}.{component}"
+        for product, signal in published.items()
+        for component in signal.get("incomplete_components", [])
+    ]
+    result = {
+        "status": "partial" if incomplete else "ok",
+        "delivery_revision": delivery_revision_for_signal_day(signal_day),
+        "strategy": "IC/IM research signal 1.4",
+        "strategy_revision": state_module.STRATEGY_REVISION,
+        "build": observed["IC"].get("v14_build_id"),
+        "signal_build": observed["IC"].get("v14_build_id"),
+        "signal_rule_revision": observed["IC"].get("v14_rule_revision"),
+        "grid_policy_revision": strategy.grid_policy_revision(signal_day),
+        "momentum_debounce_policy_revision": strategy.MOMENTUM_DEBOUNCE_POLICY_REVISION,
+        "momentum_debounce_effective_date": strategy.MOMENTUM_DEBOUNCE_EFFECTIVE_DATE.isoformat(),
+        "ic_momentum_policy_revision": strategy.ic_momentum_policy_revision(signal_day),
+        "ic_momentum_effective_signal_date": strategy.IC_MOMENTUM_EFFECTIVE_SIGNAL_DATE.isoformat(),
+        "grid_release_note": (
+            "2026-10-08信号日起：估值或恐慌≤25入单个0.5倍网格，按冻结来源分别由估值退出线或恐慌≥50退出；旧日规则不回写。"
+            if signal_day >= strategy.v14_policy.FEAR_GRID_EFFECTIVE_SIGNAL_DATE else
+            "2026-09-15信号日起：IM恢复1.6进入/2.0退出、0.5倍，仅估值；IC保持0.5进入/1.0退出、0.5倍。此前信号保留当日规则，当前仓位以账本为准。"
+        ),
+        "im_put_policy_revision": strategy.IM_PUT_POLICY_REVISION,
+        "im_execution_fix_revision": strategy.IM_EXECUTION_FIX_REVISION,
+        "im_put_execution_revision": observed["IM"].get(
+            "im_put_execution_revision", "historical_before_monthly_correction"
+        ),
+        "generated_at": clock.isoformat(),
+        "report_generated_at": datetime.now(strategy.BEIJING).isoformat(timespec="seconds"),
+        "publication_mode": publication_mode,
+        "signal_timing": "retrospective_replay" if any(
+            signal.get("signal_generation_timing") == "retrospective_replay"
+            for signal in observed.values()
+        ) else "intraday_hypothetical_if_now_close" if mode == "realtime" else "close_confirmed",
+        "market_date": signal_day.isoformat(),
+        "completed_day": completed_day.isoformat(),
+        "next_trade_day": str(observed["IC"].get("next_trade_date")),
+        "advanced_sessions": advanced,
+        "verified_day": str(latest["verified_day"])[:10],
+        "sequence": int(latest["sequence"]),
+        "digest": str(latest["digest"]),
+        "report_file": report_path.name,
+        "attachments": [str(item.get("name", "")) for item in attachments],
+        "signals": _jsonable(published),
+        "jiu_reference": reference if mode != "realtime" else {},
+        "option_maintenance_notice_revision": option_maintenance_notice.REVISION,
+        "option_maintenance_notices": option_maintenance_notice.reminders(
+            observed, signal_day=signal_day, is_session=strategy._option_maintenance_session,
+            historical=any(s.get("signal_generation_timing") == "retrospective_replay" for s in observed.values())),
+    }
+    if incomplete:
+        result["signal_completeness"] = "partial"
+        result["incomplete_components"] = incomplete
+    _atomic_write_text(
+        out_dir / "result.json", json.dumps(result, ensure_ascii=False, indent=2) + "\n"
+    )
+    (out_dir / "failure.txt").unlink(missing_ok=True)
+    return result
+
+
+def write_failure(
+    out_dir: Path, clock: datetime, exc: Exception, *, mode: str = "close",
+    expected_market_date: str = "",
+) -> None:
+    out_dir.mkdir(parents=True, exist_ok=True)
+    for stale_name in (
+        "ic_im_v1_4_close_signal.md",
+        "ic_im_v1_4_realtime_signal.md",
+    ):
+        (out_dir / stale_name).unlink(missing_ok=True)
+    try:
+        signal_day = (date.fromisoformat(expected_market_date) if expected_market_date else
+                      clock.date() if mode == "realtime" else strategy._latest_completed_exchange_day(clock))
+    except (ValueError, RuntimeError):
+        signal_day = clock.date()
+    fear_observation: dict[str, Any] = {
+        "fear_greed_index": None,
+        "fear_data_date": None,
+        "fear_data_status": "unavailable",
+        "fear_warning": "当日恐慌指数尚未取得可核验读数",
+    }
+    if signal_day >= strategy.v14_policy.FEAR_GRID_EFFECTIVE_SIGNAL_DATE:
+        if clock.date() >= strategy.fear_grid.SOURCE_POLICY_DATE:
+            fear_observation.update(strategy.fear_grid.fetch_jiu_reference(signal_day))
+        try:
+            observed = strategy.fear_grid.fetch_score(
+                signal_day, "intraday" if mode == "realtime" else "close"
+            )
+            fear_observation.update({
+                key: observed.get(key)
+                for key in observed if key.startswith(("fear_", "jiu_"))
+            })
+            fear_observation["fear_warning"] = "信号未确认；恐慌读数仅为独立观察"
+        except Exception as fear_exc:
+            fear_observation["fear_warning"] = (
+                f"当日恐慌指数未核验：{type(fear_exc).__name__}: {fear_exc}"
+            )
+    payload = {
+        "status": "failed",
+        "delivery_revision": delivery_revision_for_signal_day(signal_day),
+        "strategy": "IC/IM research signal 1.4",
+        "strategy_revision": state_module.STRATEGY_REVISION,
+        "build": strategy.v14_policy.identity_for_signal_day(signal_day)[0],
+        "market_date": signal_day.isoformat(),
+        "im_put_policy_revision": strategy.IM_PUT_POLICY_REVISION,
+        "im_execution_fix_revision": strategy.IM_EXECUTION_FIX_REVISION,
+        "generated_at": clock.isoformat(),
+        "publication_mode": "realtime" if mode == "realtime" else "close_confirmed",
+        "error_type": type(exc).__name__,
+        "error": str(exc),
+        **fear_observation,
+    }
+    _atomic_write_text(
+        out_dir / "result.json", json.dumps(payload, ensure_ascii=False, indent=2) + "\n"
+    )
+    _atomic_write_text(out_dir / "failure.txt", f"{type(exc).__name__}: {exc}\n")
+    diagnostic = (
+        "# 本次 IC/IM 失败诊断\n\n"
+        f"生成时间：{clock.isoformat()}\n"
+        f"目标行情日：{signal_day.isoformat()}\n"
+        f"模式：{mode}\n\n"
+        f"{type(exc).__name__}: {exc}\n\n"
+        "目标行情日不代表已取得该日完整信号；以下内容仅用于诊断，不能作为有效目标。\n\n"
+    )
+    query_diagnostic = getattr(exc, "diagnostic_report", None)
+    if query_diagnostic:
+        diagnostic += str(query_diagnostic)
+    else:
+        diagnostic += "本次失败前未取得可保存的逐腿查询诊断。\n"
+    _atomic_write_text(out_dir / "diagnostic_report.md", diagnostic)
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--state-dir", required=True)
+    parser.add_argument("--out-dir", required=True)
+    parser.add_argument("--now", default="")
+    parser.add_argument("--max-sessions", type=int, default=20)
+    parser.add_argument("--mode", choices=MODES, default="close")
+    parser.add_argument("--expected-market-date", default="")
+    parser.add_argument("--network-budget-per-product", type=float, default=None)
+    args = parser.parse_args()
+    if args.max_sessions <= 0:
+        raise SystemExit("--max-sessions must be positive")
+
+    clock = parse_clock(args.now)
+    out_dir = Path(args.out_dir)
+    try:
+        with strategy.collection_clock(clock), strategy.signal_product_budget_override(
+            args.network_budget_per_product
+        ):
+            result = build_artifacts(
+                state_dir=Path(args.state_dir),
+                out_dir=out_dir,
+                clock=clock,
+                max_sessions=args.max_sessions,
+                mode=args.mode,
+                expected_market_date=args.expected_market_date,
+            )
+    except Exception as exc:
+        write_failure(out_dir, clock, exc, mode=args.mode,
+                      expected_market_date=args.expected_market_date)
+        print(f"ic_im_digest_failed: {type(exc).__name__}: {exc}", file=sys.stderr)
+        return 1
+    print(
+        f"ic_im_digest_{result['status']}: "
+        f"mode={result['publication_mode']} "
+        f"verified_day={result['verified_day']} sequence={result['sequence']} "
+        f"build={result['build']}"
+    )
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

@@ -1,0 +1,5 @@
+{
+  "status": "TOOL_CHECK_CORRECTED",
+  "error": "audit tool compared receipt canonical manifest-body SHA with outer JSON file SHA; production manifest and receipt body digests agree",
+  "production_change": false
+}

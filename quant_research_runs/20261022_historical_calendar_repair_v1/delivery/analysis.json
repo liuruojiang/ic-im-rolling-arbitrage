@@ -1,0 +1,1030 @@
+{
+  "created_at": "2026-10-22T03:02:01.558497+00:00",
+  "original_unchanged_entry_control": {
+    "files": 18,
+    "rows": 73884,
+    "max_numeric_difference": 0.0,
+    "status": "PASS",
+    "comparisons": [
+      {
+        "old": "quant_research_runs\\20261016_put_execution_repairs_v1\\daily_paths.csv.gz",
+        "new": "quant_research_runs\\20261022_historical_calendar_repair_v1\\original_entry_runs\\execution_history_after\\daily_paths.csv.gz",
+        "old_sha256": "2d99e2fcb67c06e2ee12bc2cff39dc42810c43968ae509d73bd1d51c8fcd6a74",
+        "new_sha256": "cc82880c6818bfb896fb197018e90b3c451626f0489331d1a098b8d0c47d0d8d",
+        "rows": 7724,
+        "columns": 15,
+        "max_numeric_difference": 0.0,
+        "column_differences": {
+          "equity_close": 0.0,
+          "cash_close": 0.0,
+          "margin_reserved": 0.0,
+          "option_value": 0.0,
+          "etf_value": 0.0,
+          "seller_buffer": 0.0,
+          "call_buffer": 0.0,
+          "fees_cumulative": 0.0,
+          "profit3x_resets_to_date": 0.0,
+          "nav": 0.0,
+          "return_net": 0.0
+        },
+        "errors": [],
+        "status": "PASS"
+      },
+      {
+        "old": "quant_research_runs\\20261016_put_execution_repairs_v1\\events.csv.gz",
+        "new": "quant_research_runs\\20261022_historical_calendar_repair_v1\\original_entry_runs\\execution_history_after\\events.csv.gz",
+        "old_sha256": "4280d0eda975d2b2ae19129c2990463661b0b079ee1373af2d629a30416eb4e2",
+        "new_sha256": "47a708bbed639434fdb4356cdf7136b82eadaaefff49cf5f72c3f7753bdcd673",
+        "rows": 50600,
+        "columns": 19,
+        "max_numeric_difference": 0.0,
+        "column_differences": {
+          "cash_change": 0.0,
+          "equity_change": 0.0,
+          "quantity_change": 0.0,
+          "price": 0.0,
+          "fee": 0.0,
+          "shares_received": 0.0
+        },
+        "errors": [],
+        "status": "PASS"
+      },
+      {
+        "old": "quant_research_runs\\20261016_put_execution_repairs_v1\\ic_seller_lifecycle_baseline.csv.gz",
+        "new": "quant_research_runs\\20261022_historical_calendar_repair_v1\\original_entry_runs\\execution_history_after\\ic_seller_lifecycle_baseline.csv.gz",
+        "old_sha256": "f9eedd0a58727cf4f6b0e05f8e37889749621445997d792aff9704dd1378d009",
+        "new_sha256": "9a67ece946e2922e4a9fe62e49963ff4e45677dd530b6565eeccedd2ecafe064",
+        "rows": 944,
+        "columns": 25,
+        "max_numeric_difference": 0.0,
+        "column_differences": {
+          "held_mark_t": 0.0,
+          "candidate_iv": 0.0,
+          "candidate_premium_t": 0.0,
+          "roll_candidate_iv": 0.0,
+          "roll_candidate_premium_t": 0.0,
+          "entry_premium_state_after": 0.0,
+          "early_roll_used_after": 0.0,
+          "fill_old_t1": 0.0,
+          "fill_new_t1": 0.0,
+          "settlement_value": 0.0,
+          "cycle_pnl_reference": 0.0,
+          "recovery_pnl_reference": 0.0
+        },
+        "errors": [],
+        "status": "PASS"
+      },
+      {
+        "old": "quant_research_runs\\20261016_put_execution_repairs_v1\\ic_seller_lifecycle_fixed.csv.gz",
+        "new": "quant_research_runs\\20261022_historical_calendar_repair_v1\\original_entry_runs\\execution_history_after\\ic_seller_lifecycle_fixed.csv.gz",
+        "old_sha256": "670dff45bb5adbd81be2b33d68e242045b6170bd9a167ddf92814e013abc5094",
+        "new_sha256": "f690174ebfac169e0e92e80c107850f0ebf94dd6aaf9ac66e45a01aaa192b766",
+        "rows": 944,
+        "columns": 25,
+        "max_numeric_difference": 0.0,
+        "column_differences": {
+          "held_mark_t": 0.0,
+          "candidate_iv": 0.0,
+          "candidate_premium_t": 0.0,
+          "roll_candidate_iv": 0.0,
+          "roll_candidate_premium_t": 0.0,
+          "entry_premium_state_after": 0.0,
+          "early_roll_used_after": 0.0,
+          "fill_old_t1": 0.0,
+          "fill_new_t1": 0.0,
+          "settlement_value": 0.0,
+          "cycle_pnl_reference": 0.0,
+          "recovery_pnl_reference": 0.0
+        },
+        "errors": [],
+        "status": "PASS"
+      },
+      {
+        "old": "quant_research_runs\\20261016_put_execution_repairs_v1\\im_seller_lifecycle_baseline.csv.gz",
+        "new": "quant_research_runs\\20261022_historical_calendar_repair_v1\\original_entry_runs\\execution_history_after\\im_seller_lifecycle_baseline.csv.gz",
+        "old_sha256": "178f005ec84c459b9001a5198b98ca8b766cf9d34dad89a2e73cb8c946f03c26",
+        "new_sha256": "660d82397b75f8cc0142e1bba163068056a475f1bc6752f15c88cad381e9041b",
+        "rows": 985,
+        "columns": 25,
+        "max_numeric_difference": 0.0,
+        "column_differences": {
+          "held_mark_t": 0.0,
+          "candidate_iv": 0.0,
+          "candidate_premium_t": 0.0,
+          "roll_candidate_iv": 0.0,
+          "roll_candidate_premium_t": 0.0,
+          "entry_premium_state_after": 0.0,
+          "early_roll_used_after": 0.0,
+          "fill_old_t1": 0.0,
+          "fill_new_t1": 0.0,
+          "settlement_value": 0.0,
+          "cycle_pnl_reference": 0.0,
+          "recovery_pnl_reference": 0.0
+        },
+        "errors": [],
+        "status": "PASS"
+      },
+      {
+        "old": "quant_research_runs\\20261016_put_execution_repairs_v1\\im_seller_lifecycle_fixed.csv.gz",
+        "new": "quant_research_runs\\20261022_historical_calendar_repair_v1\\original_entry_runs\\execution_history_after\\im_seller_lifecycle_fixed.csv.gz",
+        "old_sha256": "6b8bf1eeac4376dee0c00b96d21cecc9e76b79f43bdad98198bbaa16326786df",
+        "new_sha256": "90ea012891baf68720500586b2044424e4f4d6def9dd753df0e7132418332109",
+        "rows": 985,
+        "columns": 25,
+        "max_numeric_difference": 0.0,
+        "column_differences": {
+          "held_mark_t": 0.0,
+          "candidate_iv": 0.0,
+          "candidate_premium_t": 0.0,
+          "roll_candidate_iv": 0.0,
+          "roll_candidate_premium_t": 0.0,
+          "entry_premium_state_after": 0.0,
+          "early_roll_used_after": 0.0,
+          "fill_old_t1": 0.0,
+          "fill_new_t1": 0.0,
+          "settlement_value": 0.0,
+          "cycle_pnl_reference": 0.0,
+          "recovery_pnl_reference": 0.0
+        },
+        "errors": [],
+        "status": "PASS"
+      },
+      {
+        "old": "quant_research_runs\\20261016_put_execution_repairs_v1\\inputs\\ic\\native_fix4_ic_noseller_targets_v2.csv.gz",
+        "new": "quant_research_runs\\20261022_historical_calendar_repair_v1\\original_entry_runs\\execution_history_after\\inputs\\ic\\native_fix4_ic_noseller_targets_v2.csv.gz",
+        "old_sha256": "b62e1b41ccb761577499cc0804888bbeaaae38058e18206f953455732d172100",
+        "new_sha256": "b62e1b41ccb761577499cc0804888bbeaaae38058e18206f953455732d172100",
+        "rows": 945,
+        "columns": 15,
+        "max_numeric_difference": 0.0,
+        "column_differences": {
+          "quarter_roll_confirmed": 0.0,
+          "monthly_reset_due": 0.0,
+          "core_put_qty_target": 0.0,
+          "momentum_put_qty_target": 0.0,
+          "total_put_qty_target": 0.0,
+          "new_put_selection": 0.0,
+          "future_close": 0.0,
+          "etf_close": 0.0
+        },
+        "errors": [],
+        "status": "PASS"
+      },
+      {
+        "old": "quant_research_runs\\20261016_put_execution_repairs_v1\\inputs\\ic\\native_fix4_ic_risk_signals_v1.csv.gz",
+        "new": "quant_research_runs\\20261022_historical_calendar_repair_v1\\original_entry_runs\\execution_history_after\\inputs\\ic\\native_fix4_ic_risk_signals_v1.csv.gz",
+        "old_sha256": "b6e73b2f011e36d33de3adbc8c662285117a7cb332af215ee593b1ca957bde45",
+        "new_sha256": "ab0f5bd9410aa71f5b0e5694e8ec41f59be9fe5479295bc2abba9fb5eb580d80",
+        "rows": 945,
+        "columns": 15,
+        "max_numeric_difference": 0.0,
+        "column_differences": {
+          "score": 0.0,
+          "momentum_120": 0.0,
+          "mom120_floor_active": 0.0,
+          "momentum_target_weight": 0.0,
+          "grid_target_units": 0.0,
+          "core_future_units": 0.0,
+          "momentum_future_units": 0.0,
+          "valuation_tier": 0.0,
+          "core_put_target_delta": 0.0,
+          "momentum_put_target_delta": 0.0
+        },
+        "errors": [],
+        "status": "PASS"
+      },
+      {
+        "old": "quant_research_runs\\20261016_put_execution_repairs_v1\\inputs\\im\\native_fix4_im_noseller_targets_v3.csv.gz",
+        "new": "quant_research_runs\\20261022_historical_calendar_repair_v1\\original_entry_runs\\execution_history_after\\inputs\\im\\native_fix4_im_noseller_targets_v3.csv.gz",
+        "old_sha256": "b80e8e93a316d9bc4ff4c4260f8f2677e01f3280060f57328a1f82f464c5bd83",
+        "new_sha256": "b80e8e93a316d9bc4ff4c4260f8f2677e01f3280060f57328a1f82f464c5bd83",
+        "rows": 986,
+        "columns": 19,
+        "max_numeric_difference": 0.0,
+        "column_differences": {
+          "quarter_roll_confirmed": 0.0,
+          "monthly_reset_due": 0.0,
+          "core_put_qty_target": 0.0,
+          "core_put_new_selection": 0.0,
+          "momentum_put_qty_target": 0.0,
+          "momentum_put_new_selection": 0.0,
+          "call_qty_normalized_target": 0.0,
+          "call_rescue_count": 0.0,
+          "future_close": 0.0,
+          "index_close": 0.0
+        },
+        "errors": [],
+        "status": "PASS"
+      },
+      {
+        "old": "quant_research_runs\\20261016_put_execution_repairs_v1\\inputs\\im\\native_fix4_im_risk_signals_v1.csv.gz",
+        "new": "quant_research_runs\\20261022_historical_calendar_repair_v1\\original_entry_runs\\execution_history_after\\inputs\\im\\native_fix4_im_risk_signals_v1.csv.gz",
+        "old_sha256": "c503a21f12ab801ef742d9ec396df1414f5ccc4e97d416f7d9c5ce5cc9672f26",
+        "new_sha256": "b592aca1a104b8567fedc2dc9385adba88a74abafaa2ecd65233ed21022f627f",
+        "rows": 986,
+        "columns": 17,
+        "max_numeric_difference": 0.0,
+        "column_differences": {
+          "score": 0.0,
+          "momentum_120": 0.0,
+          "mom120_floor_active": 0.0,
+          "momentum_target_weight": 0.0,
+          "grid_target_units": 0.0,
+          "core_future_units": 0.0,
+          "momentum_future_units": 0.0,
+          "valuation_tier": 0.0,
+          "core_put_target_qty_normalized": 0.0,
+          "momentum_put_target_qty_normalized": 0.0
+        },
+        "errors": [],
+        "status": "PASS"
+      },
+      {
+        "old": "quant_research_runs\\20261016_put_execution_repairs_v1\\lifecycle_inputs\\ic\\native_fix4_ic_noseller_targets_v2.csv.gz",
+        "new": "quant_research_runs\\20261022_historical_calendar_repair_v1\\original_entry_runs\\execution_history_after\\lifecycle_inputs\\ic\\native_fix4_ic_noseller_targets_v2.csv.gz",
+        "old_sha256": "9f756da88ffd144685c2be828c9062b154a2706d970a86efa6739f946ba061b6",
+        "new_sha256": "9f756da88ffd144685c2be828c9062b154a2706d970a86efa6739f946ba061b6",
+        "rows": 945,
+        "columns": 15,
+        "max_numeric_difference": 0.0,
+        "column_differences": {
+          "quarter_roll_confirmed": 0.0,
+          "monthly_reset_due": 0.0,
+          "core_put_qty_target": 0.0,
+          "momentum_put_qty_target": 0.0,
+          "total_put_qty_target": 0.0,
+          "new_put_selection": 0.0,
+          "future_close": 0.0,
+          "etf_close": 0.0
+        },
+        "errors": [],
+        "status": "PASS"
+      },
+      {
+        "old": "quant_research_runs\\20261016_put_execution_repairs_v1\\lifecycle_inputs\\ic\\native_fix4_ic_risk_signals_v1.csv.gz",
+        "new": "quant_research_runs\\20261022_historical_calendar_repair_v1\\original_entry_runs\\execution_history_after\\lifecycle_inputs\\ic\\native_fix4_ic_risk_signals_v1.csv.gz",
+        "old_sha256": "4f4ae7e41b9d9430decb42d0117107303765f9f59da6fae0dd812cda2281aa13",
+        "new_sha256": "4f4ae7e41b9d9430decb42d0117107303765f9f59da6fae0dd812cda2281aa13",
+        "rows": 945,
+        "columns": 15,
+        "max_numeric_difference": 0.0,
+        "column_differences": {
+          "score": 0.0,
+          "momentum_120": 0.0,
+          "mom120_floor_active": 0.0,
+          "momentum_target_weight": 0.0,
+          "grid_target_units": 0.0,
+          "core_future_units": 0.0,
+          "momentum_future_units": 0.0,
+          "valuation_tier": 0.0,
+          "core_put_target_delta": 0.0,
+          "momentum_put_target_delta": 0.0
+        },
+        "errors": [],
+        "status": "PASS"
+      },
+      {
+        "old": "quant_research_runs\\20261016_put_execution_repairs_v1\\lifecycle_inputs\\ic\\native_fix4_seller_candidates_v1.csv.gz",
+        "new": "quant_research_runs\\20261022_historical_calendar_repair_v1\\original_entry_runs\\execution_history_after\\lifecycle_inputs\\ic\\native_fix4_seller_candidates_v1.csv.gz",
+        "old_sha256": "31efbf4cd9985552618cba0125f3f9720a6db1bf471e91d743cab4feb5917b01",
+        "new_sha256": "31efbf4cd9985552618cba0125f3f9720a6db1bf471e91d743cab4feb5917b01",
+        "rows": 1929,
+        "columns": 14,
+        "max_numeric_difference": 0.0,
+        "column_differences": {
+          "candidate_security_id": 0.0,
+          "candidate_strike": 0.0,
+          "candidate_premium": 0.0,
+          "candidate_iv": 0.0,
+          "candidate_qty_normalized": 0.0,
+          "candidate_tradable": 0.0,
+          "seller_permission": 0.0
+        },
+        "errors": [],
+        "status": "PASS"
+      },
+      {
+        "old": "quant_research_runs\\20261016_put_execution_repairs_v1\\lifecycle_inputs\\im\\native_fix4_im_noseller_targets_v3.csv.gz",
+        "new": "quant_research_runs\\20261022_historical_calendar_repair_v1\\original_entry_runs\\execution_history_after\\lifecycle_inputs\\im\\native_fix4_im_noseller_targets_v3.csv.gz",
+        "old_sha256": "b80e8e93a316d9bc4ff4c4260f8f2677e01f3280060f57328a1f82f464c5bd83",
+        "new_sha256": "b80e8e93a316d9bc4ff4c4260f8f2677e01f3280060f57328a1f82f464c5bd83",
+        "rows": 986,
+        "columns": 19,
+        "max_numeric_difference": 0.0,
+        "column_differences": {
+          "quarter_roll_confirmed": 0.0,
+          "monthly_reset_due": 0.0,
+          "core_put_qty_target": 0.0,
+          "core_put_new_selection": 0.0,
+          "momentum_put_qty_target": 0.0,
+          "momentum_put_new_selection": 0.0,
+          "call_qty_normalized_target": 0.0,
+          "call_rescue_count": 0.0,
+          "future_close": 0.0,
+          "index_close": 0.0
+        },
+        "errors": [],
+        "status": "PASS"
+      },
+      {
+        "old": "quant_research_runs\\20261016_put_execution_repairs_v1\\lifecycle_inputs\\im\\native_fix4_im_risk_signals_v1.csv.gz",
+        "new": "quant_research_runs\\20261022_historical_calendar_repair_v1\\original_entry_runs\\execution_history_after\\lifecycle_inputs\\im\\native_fix4_im_risk_signals_v1.csv.gz",
+        "old_sha256": "80adb115e4f489e28ad7bda9f8da279cbc282f54221eb0ff10a99d8ff5db7c9d",
+        "new_sha256": "80adb115e4f489e28ad7bda9f8da279cbc282f54221eb0ff10a99d8ff5db7c9d",
+        "rows": 986,
+        "columns": 17,
+        "max_numeric_difference": 0.0,
+        "column_differences": {
+          "score": 0.0,
+          "momentum_120": 0.0,
+          "mom120_floor_active": 0.0,
+          "momentum_target_weight": 0.0,
+          "grid_target_units": 0.0,
+          "core_future_units": 0.0,
+          "momentum_future_units": 0.0,
+          "valuation_tier": 0.0,
+          "core_put_target_qty_normalized": 0.0,
+          "momentum_put_target_qty_normalized": 0.0
+        },
+        "errors": [],
+        "status": "PASS"
+      },
+      {
+        "old": "quant_research_runs\\20261016_put_execution_repairs_v1\\lifecycle_inputs\\im\\native_fix4_seller_candidates_v1.csv.gz",
+        "new": "quant_research_runs\\20261022_historical_calendar_repair_v1\\original_entry_runs\\execution_history_after\\lifecycle_inputs\\im\\native_fix4_seller_candidates_v1.csv.gz",
+        "old_sha256": "31efbf4cd9985552618cba0125f3f9720a6db1bf471e91d743cab4feb5917b01",
+        "new_sha256": "31efbf4cd9985552618cba0125f3f9720a6db1bf471e91d743cab4feb5917b01",
+        "rows": 1929,
+        "columns": 14,
+        "max_numeric_difference": 0.0,
+        "column_differences": {
+          "candidate_security_id": 0.0,
+          "candidate_strike": 0.0,
+          "candidate_premium": 0.0,
+          "candidate_iv": 0.0,
+          "candidate_qty_normalized": 0.0,
+          "candidate_tradable": 0.0,
+          "seller_permission": 0.0
+        },
+        "errors": [],
+        "status": "PASS"
+      },
+      {
+        "old": "quant_research_runs\\20261016_put_execution_repairs_v1\\seller_state_changes.csv",
+        "new": "quant_research_runs\\20261022_historical_calendar_repair_v1\\original_entry_runs\\execution_history_after\\seller_state_changes.csv",
+        "old_sha256": "68ea3d91691c5c7528530dc82664087f713f3b88b5777f95a1fd6eeb6f9275a6",
+        "new_sha256": "68ea3d91691c5c7528530dc82664087f713f3b88b5777f95a1fd6eeb6f9275a6",
+        "rows": 96,
+        "columns": 6,
+        "max_numeric_difference": 0.0,
+        "column_differences": {},
+        "errors": [],
+        "status": "PASS"
+      },
+      {
+        "old": "quant_research_runs\\20261016_put_execution_repairs_v1\\window_metrics.csv",
+        "new": "quant_research_runs\\20261022_historical_calendar_repair_v1\\original_entry_runs\\execution_history_after\\window_metrics.csv",
+        "old_sha256": "289d7620e999f5234a5823c5178dadaeb512f8058f5ecb47431c431927c7c81c",
+        "new_sha256": "289d7620e999f5234a5823c5178dadaeb512f8058f5ecb47431c431927c7c81c",
+        "rows": 24,
+        "columns": 12,
+        "max_numeric_difference": 0.0,
+        "column_differences": {
+          "rows": 0.0,
+          "cagr": 0.0,
+          "max_dd": 0.0,
+          "sharpe": 0.0,
+          "final_nav": 0.0,
+          "fees": 0.0
+        },
+        "errors": [],
+        "status": "PASS"
+      }
+    ]
+  },
+  "accepted_rebuilt_stage": "rebuilt_02",
+  "rejected_comparison_stage": "rebuilt_01",
+  "source_and_data": {
+    "bot_sha256": "0075c16aec68cb56b49569d03c1b89bb2707873fbd309971461082b623d0d19f",
+    "after_receipt_sha256": "1f86da2dc489827e27958fc42f8f4677f5869de669b16642d838921fe55883f2",
+    "before_daily_sha256": "2d99e2fcb67c06e2ee12bc2cff39dc42810c43968ae509d73bd1d51c8fcd6a74",
+    "after_daily_sha256": "fc272e5b2b3d099dbf67f2c6d3137b9a9b80eeb322ad6811b437397da104d957"
+  },
+  "results": {
+    "IC": {
+      "before": {
+        "rows": 945,
+        "start": "2022-09-19",
+        "end": "2026-08-13",
+        "cagr": 0.3539239482434806,
+        "max_dd": -0.0900126650909463,
+        "final_nav": 3.1151467679122904,
+        "sharpe": 2.0361290663351856,
+        "fees": 2392720.2037204998
+      },
+      "after": {
+        "rows": 945,
+        "start": "2022-09-19",
+        "end": "2026-08-13",
+        "cagr": 0.3481453813513582,
+        "max_dd": -0.0900126650909463,
+        "final_nav": 3.065580541128547,
+        "sharpe": 2.0094632224733298,
+        "fees": 2378643.9054980306
+      },
+      "return_changed_days": 198,
+      "first_return_change": "2024-02-19",
+      "max_daily_return_difference": 0.0052599845595278005,
+      "max_nav_difference": 0.04956622678374867,
+      "risk_comparison": {
+        "signal_date": {
+          "different_rows": 0,
+          "max_abs_numeric_difference": null
+        },
+        "execution_date": {
+          "different_rows": 0,
+          "max_abs_numeric_difference": null
+        },
+        "score": {
+          "different_rows": 0,
+          "max_abs_numeric_difference": 4.440892098500626e-16
+        },
+        "valuation_source_date": {
+          "different_rows": 0,
+          "max_abs_numeric_difference": null
+        },
+        "gov_source_date": {
+          "different_rows": 0,
+          "max_abs_numeric_difference": null
+        },
+        "momentum_120": {
+          "different_rows": 0,
+          "max_abs_numeric_difference": 0.0
+        },
+        "mom120_floor_active": {
+          "different_rows": 0,
+          "max_abs_numeric_difference": 0.0
+        },
+        "momentum_target_weight": {
+          "different_rows": 0,
+          "max_abs_numeric_difference": 0.0
+        },
+        "grid_target_units": {
+          "different_rows": 0,
+          "max_abs_numeric_difference": 0.0
+        },
+        "core_future_units": {
+          "different_rows": 0,
+          "max_abs_numeric_difference": 0.0
+        },
+        "momentum_future_units": {
+          "different_rows": 0,
+          "max_abs_numeric_difference": 0.0
+        },
+        "put_driver": {
+          "different_rows": 0,
+          "max_abs_numeric_difference": null
+        },
+        "valuation_tier": {
+          "different_rows": 0,
+          "max_abs_numeric_difference": 0.0
+        },
+        "core_put_target_delta": {
+          "different_rows": 0,
+          "max_abs_numeric_difference": 0.0
+        },
+        "momentum_put_target_delta": {
+          "different_rows": 0,
+          "max_abs_numeric_difference": 0.0
+        }
+      },
+      "target_comparison": {
+        "signal_date": {
+          "different_rows": 0,
+          "max_abs_numeric_difference": null
+        },
+        "execution_date": {
+          "different_rows": 0,
+          "max_abs_numeric_difference": null
+        },
+        "quarter_core_before": {
+          "different_rows": 0,
+          "max_abs_numeric_difference": null
+        },
+        "quarter_core_eod": {
+          "different_rows": 0,
+          "max_abs_numeric_difference": null
+        },
+        "quarter_roll_confirmed": {
+          "different_rows": 0,
+          "max_abs_numeric_difference": 0.0
+        },
+        "monthly_reference": {
+          "different_rows": 1,
+          "max_abs_numeric_difference": null
+        },
+        "monthly_reset_due": {
+          "different_rows": 2,
+          "max_abs_numeric_difference": 1.0
+        },
+        "monthly_reset_reference_day": {
+          "different_rows": 1,
+          "max_abs_numeric_difference": null
+        },
+        "core_put_contract_target": {
+          "different_rows": 19,
+          "max_abs_numeric_difference": null
+        },
+        "core_put_qty_target": {
+          "different_rows": 19,
+          "max_abs_numeric_difference": 2.0
+        },
+        "momentum_put_qty_target": {
+          "different_rows": 0,
+          "max_abs_numeric_difference": 0.0
+        },
+        "total_put_qty_target": {
+          "different_rows": 19,
+          "max_abs_numeric_difference": 2.0
+        },
+        "new_put_selection": {
+          "different_rows": 2,
+          "max_abs_numeric_difference": 1.0
+        },
+        "future_close": {
+          "different_rows": 0,
+          "max_abs_numeric_difference": 0.0
+        },
+        "etf_close": {
+          "different_rows": 0,
+          "max_abs_numeric_difference": 0.0
+        }
+      },
+      "seller_lifecycle_comparison": {
+        "product": {
+          "different_rows": 0,
+          "max_abs_numeric_difference": null
+        },
+        "arm": {
+          "different_rows": 0,
+          "max_abs_numeric_difference": null
+        },
+        "signal_date": {
+          "different_rows": 0,
+          "max_abs_numeric_difference": null
+        },
+        "execution_date": {
+          "different_rows": 0,
+          "max_abs_numeric_difference": null
+        },
+        "route_before": {
+          "different_rows": 0,
+          "max_abs_numeric_difference": null
+        },
+        "route_after_execution": {
+          "different_rows": 0,
+          "max_abs_numeric_difference": null
+        },
+        "action": {
+          "different_rows": 0,
+          "max_abs_numeric_difference": null
+        },
+        "action_reason": {
+          "different_rows": 34,
+          "max_abs_numeric_difference": null
+        },
+        "held_contract": {
+          "different_rows": 0,
+          "max_abs_numeric_difference": null
+        },
+        "held_mark_t": {
+          "different_rows": 0,
+          "max_abs_numeric_difference": 0.0
+        },
+        "candidate_contract": {
+          "different_rows": 0,
+          "max_abs_numeric_difference": null
+        },
+        "candidate_iv": {
+          "different_rows": 22,
+          "max_abs_numeric_difference": 0.01446041917743332
+        },
+        "candidate_premium_t": {
+          "different_rows": 0,
+          "max_abs_numeric_difference": 0.0
+        },
+        "roll_candidate_contract": {
+          "different_rows": 0,
+          "max_abs_numeric_difference": null
+        },
+        "roll_candidate_iv": {
+          "different_rows": 0,
+          "max_abs_numeric_difference": 0.0
+        },
+        "roll_candidate_premium_t": {
+          "different_rows": 0,
+          "max_abs_numeric_difference": 0.0
+        },
+        "active_contract_after": {
+          "different_rows": 0,
+          "max_abs_numeric_difference": null
+        },
+        "entry_premium_state_after": {
+          "different_rows": 0,
+          "max_abs_numeric_difference": 0.0
+        },
+        "early_roll_used_after": {
+          "different_rows": 0,
+          "max_abs_numeric_difference": 0.0
+        },
+        "settlement": {
+          "different_rows": 0,
+          "max_abs_numeric_difference": null
+        },
+        "fill_old_t1": {
+          "different_rows": 0,
+          "max_abs_numeric_difference": 0.0
+        },
+        "fill_new_t1": {
+          "different_rows": 0,
+          "max_abs_numeric_difference": 0.0
+        },
+        "settlement_value": {
+          "different_rows": 0,
+          "max_abs_numeric_difference": 0.0
+        },
+        "cycle_pnl_reference": {
+          "different_rows": 0,
+          "max_abs_numeric_difference": 0.0
+        },
+        "recovery_pnl_reference": {
+          "different_rows": 0,
+          "max_abs_numeric_difference": 0.0
+        }
+      },
+      "actual_trade_rows": 272,
+      "target_change_days_excluding_call": [
+        "2024-02-08",
+        "2024-02-19",
+        "2024-02-20",
+        "2024-02-21",
+        "2024-02-22",
+        "2024-02-23",
+        "2024-02-26",
+        "2024-02-27",
+        "2024-02-28",
+        "2024-02-29",
+        "2024-03-01",
+        "2024-03-04",
+        "2024-03-05",
+        "2024-03-06",
+        "2024-03-07",
+        "2024-03-08",
+        "2024-03-11",
+        "2024-03-12",
+        "2024-03-13"
+      ]
+    },
+    "IM": {
+      "before": {
+        "rows": 986,
+        "start": "2022-07-22",
+        "end": "2026-08-14",
+        "cagr": 0.29933061454760646,
+        "max_dd": -0.12918214325598654,
+        "final_nav": 2.785805410209434,
+        "sharpe": 1.6321202722346435,
+        "fees": 2253394.32051773
+      },
+      "after": {
+        "rows": 986,
+        "start": "2022-07-22",
+        "end": "2026-08-14",
+        "cagr": 0.29933061454760646,
+        "max_dd": -0.12918214325598654,
+        "final_nav": 2.785805410209434,
+        "sharpe": 1.6321202722346435,
+        "fees": 2253394.32051773
+      },
+      "return_changed_days": 0,
+      "first_return_change": null,
+      "max_daily_return_difference": 0.0,
+      "max_nav_difference": 0.0,
+      "risk_comparison": {
+        "signal_date": {
+          "different_rows": 0,
+          "max_abs_numeric_difference": null
+        },
+        "execution_date": {
+          "different_rows": 0,
+          "max_abs_numeric_difference": null
+        },
+        "score": {
+          "different_rows": 0,
+          "max_abs_numeric_difference": 4.440892098500626e-16
+        },
+        "valuation_source_date": {
+          "different_rows": 0,
+          "max_abs_numeric_difference": null
+        },
+        "gov_source_date": {
+          "different_rows": 0,
+          "max_abs_numeric_difference": null
+        },
+        "momentum_120": {
+          "different_rows": 0,
+          "max_abs_numeric_difference": 0.0
+        },
+        "mom120_floor_active": {
+          "different_rows": 0,
+          "max_abs_numeric_difference": 0.0
+        },
+        "momentum_target_weight": {
+          "different_rows": 0,
+          "max_abs_numeric_difference": 0.0
+        },
+        "grid_target_units": {
+          "different_rows": 0,
+          "max_abs_numeric_difference": 0.0
+        },
+        "core_future_units": {
+          "different_rows": 0,
+          "max_abs_numeric_difference": 0.0
+        },
+        "momentum_future_units": {
+          "different_rows": 0,
+          "max_abs_numeric_difference": 0.0
+        },
+        "put_driver": {
+          "different_rows": 0,
+          "max_abs_numeric_difference": null
+        },
+        "valuation_tier": {
+          "different_rows": 0,
+          "max_abs_numeric_difference": 0.0
+        },
+        "relative_thresholds": {
+          "different_rows": 0,
+          "max_abs_numeric_difference": null
+        },
+        "threshold_last_input_month": {
+          "different_rows": 0,
+          "max_abs_numeric_difference": null
+        },
+        "core_put_target_qty_normalized": {
+          "different_rows": 0,
+          "max_abs_numeric_difference": 0.0
+        },
+        "momentum_put_target_qty_normalized": {
+          "different_rows": 0,
+          "max_abs_numeric_difference": 0.0
+        }
+      },
+      "target_comparison": {
+        "signal_date": {
+          "different_rows": 0,
+          "max_abs_numeric_difference": null
+        },
+        "execution_date": {
+          "different_rows": 0,
+          "max_abs_numeric_difference": null
+        },
+        "quarter_core_before": {
+          "different_rows": 0,
+          "max_abs_numeric_difference": null
+        },
+        "quarter_core_eod": {
+          "different_rows": 0,
+          "max_abs_numeric_difference": null
+        },
+        "quarter_roll_confirmed": {
+          "different_rows": 0,
+          "max_abs_numeric_difference": 0.0
+        },
+        "monthly_reference": {
+          "different_rows": 0,
+          "max_abs_numeric_difference": null
+        },
+        "monthly_reset_due": {
+          "different_rows": 0,
+          "max_abs_numeric_difference": 0.0
+        },
+        "core_put_contract_target": {
+          "different_rows": 0,
+          "max_abs_numeric_difference": null
+        },
+        "core_put_qty_target": {
+          "different_rows": 0,
+          "max_abs_numeric_difference": 0.0
+        },
+        "core_put_new_selection": {
+          "different_rows": 0,
+          "max_abs_numeric_difference": 0.0
+        },
+        "momentum_put_contract_target": {
+          "different_rows": 0,
+          "max_abs_numeric_difference": null
+        },
+        "momentum_put_qty_target": {
+          "different_rows": 0,
+          "max_abs_numeric_difference": 0.0
+        },
+        "momentum_put_new_selection": {
+          "different_rows": 0,
+          "max_abs_numeric_difference": 0.0
+        },
+        "call_contract_target": {
+          "different_rows": 383,
+          "max_abs_numeric_difference": null
+        },
+        "call_qty_normalized_target": {
+          "different_rows": 383,
+          "max_abs_numeric_difference": 1.0
+        },
+        "call_action": {
+          "different_rows": 384,
+          "max_abs_numeric_difference": null
+        },
+        "call_rescue_count": {
+          "different_rows": 165,
+          "max_abs_numeric_difference": 4.0
+        },
+        "future_close": {
+          "different_rows": 0,
+          "max_abs_numeric_difference": 0.0
+        },
+        "index_close": {
+          "different_rows": 0,
+          "max_abs_numeric_difference": 0.0
+        }
+      },
+      "seller_lifecycle_comparison": {
+        "product": {
+          "different_rows": 0,
+          "max_abs_numeric_difference": null
+        },
+        "arm": {
+          "different_rows": 0,
+          "max_abs_numeric_difference": null
+        },
+        "signal_date": {
+          "different_rows": 0,
+          "max_abs_numeric_difference": null
+        },
+        "execution_date": {
+          "different_rows": 0,
+          "max_abs_numeric_difference": null
+        },
+        "route_before": {
+          "different_rows": 0,
+          "max_abs_numeric_difference": null
+        },
+        "route_after_execution": {
+          "different_rows": 0,
+          "max_abs_numeric_difference": null
+        },
+        "action": {
+          "different_rows": 0,
+          "max_abs_numeric_difference": null
+        },
+        "action_reason": {
+          "different_rows": 0,
+          "max_abs_numeric_difference": null
+        },
+        "held_contract": {
+          "different_rows": 0,
+          "max_abs_numeric_difference": null
+        },
+        "held_mark_t": {
+          "different_rows": 0,
+          "max_abs_numeric_difference": 0.0
+        },
+        "candidate_contract": {
+          "different_rows": 0,
+          "max_abs_numeric_difference": null
+        },
+        "candidate_iv": {
+          "different_rows": 0,
+          "max_abs_numeric_difference": 0.0
+        },
+        "candidate_premium_t": {
+          "different_rows": 0,
+          "max_abs_numeric_difference": 0.0
+        },
+        "roll_candidate_contract": {
+          "different_rows": 0,
+          "max_abs_numeric_difference": null
+        },
+        "roll_candidate_iv": {
+          "different_rows": 0,
+          "max_abs_numeric_difference": 0.0
+        },
+        "roll_candidate_premium_t": {
+          "different_rows": 0,
+          "max_abs_numeric_difference": 0.0
+        },
+        "active_contract_after": {
+          "different_rows": 0,
+          "max_abs_numeric_difference": null
+        },
+        "entry_premium_state_after": {
+          "different_rows": 0,
+          "max_abs_numeric_difference": 0.0
+        },
+        "early_roll_used_after": {
+          "different_rows": 0,
+          "max_abs_numeric_difference": 0.0
+        },
+        "settlement": {
+          "different_rows": 0,
+          "max_abs_numeric_difference": null
+        },
+        "fill_old_t1": {
+          "different_rows": 0,
+          "max_abs_numeric_difference": 0.0
+        },
+        "fill_new_t1": {
+          "different_rows": 0,
+          "max_abs_numeric_difference": 0.0
+        },
+        "settlement_value": {
+          "different_rows": 0,
+          "max_abs_numeric_difference": 0.0
+        },
+        "cycle_pnl_reference": {
+          "different_rows": 0,
+          "max_abs_numeric_difference": 0.0
+        },
+        "recovery_pnl_reference": {
+          "different_rows": 0,
+          "max_abs_numeric_difference": 0.0
+        }
+      },
+      "actual_trade_rows": 340,
+      "target_change_days_excluding_call": []
+    }
+  },
+  "windows": [
+    {
+      "product": "IC",
+      "window": "full",
+      "before_cagr": 0.3539239482434806,
+      "after_cagr": 0.3481453813513582,
+      "cagr_change_pp": -0.5778566892122416,
+      "before_max_dd": -0.0900126650909463,
+      "after_max_dd": -0.0900126650909463,
+      "max_dd_change_pp": 0.0
+    },
+    {
+      "product": "IC",
+      "window": "3Y",
+      "before_cagr": 0.4779520557079955,
+      "after_cagr": 0.46975787866244634,
+      "cagr_change_pp": -0.8194177045549145,
+      "before_max_dd": -0.07120495707574503,
+      "after_max_dd": -0.07120503582095228,
+      "max_dd_change_pp": -7.874520724371337e-06
+    },
+    {
+      "product": "IC",
+      "window": "1Y",
+      "before_cagr": 0.6242454618685473,
+      "after_cagr": 0.6242454618685116,
+      "cagr_change_pp": -3.574918139293004e-12,
+      "before_max_dd": -0.06035869435323915,
+      "after_max_dd": -0.060358694353231934,
+      "max_dd_change_pp": 7.216449660063518e-13
+    },
+    {
+      "product": "IM",
+      "window": "full",
+      "before_cagr": 0.29933061454760646,
+      "after_cagr": 0.29933061454760646,
+      "cagr_change_pp": 0.0,
+      "before_max_dd": -0.12918214325598654,
+      "after_max_dd": -0.12918214325598654,
+      "max_dd_change_pp": 0.0
+    },
+    {
+      "product": "IM",
+      "window": "3Y",
+      "before_cagr": 0.4222999530682914,
+      "after_cagr": 0.4222999530682914,
+      "cagr_change_pp": 0.0,
+      "before_max_dd": -0.12918214325598676,
+      "after_max_dd": -0.12918214325598676,
+      "max_dd_change_pp": 0.0
+    },
+    {
+      "product": "IM",
+      "window": "1Y",
+      "before_cagr": 0.3681585317989282,
+      "after_cagr": 0.3681585317989282,
+      "cagr_change_pp": 0.0,
+      "before_max_dd": -0.10149360718472089,
+      "after_max_dd": -0.10149360718472089,
+      "max_dd_change_pp": 0.0
+    }
+  ],
+  "interpretation": "Risk inputs and seller financial paths unchanged; IC buyer targets change at the 2024-02 holiday-shifted maintenance. IM Call target metadata removed because the inherited account already disables Call."
+}

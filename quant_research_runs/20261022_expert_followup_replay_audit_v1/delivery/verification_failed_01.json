@@ -1,0 +1,5 @@
+{
+  "status": "FAIL",
+  "check": "runtime exact path set",
+  "reason": "Copied prior protected paths omitted a journal created before this turn; no protected bytes changed. Needs explicit preexisting-file evidence."
+}

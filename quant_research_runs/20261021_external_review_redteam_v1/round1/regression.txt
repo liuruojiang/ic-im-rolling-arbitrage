@@ -1,0 +1,88 @@
+........................................................................ [ 42%]
+.......................F................................................ [ 84%]
+...........................                                              [100%]
+================================== FAILURES ===================================
+________ test_real_saved_sina_payload_matches_independent_field_oracle ________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000024DAAA4C8A0>
+
+    def test_real_saved_sina_payload_matches_independent_field_oracle(monkeypatch):
+        root = Path(__file__).parent / "tests/fixtures/icim_external_review_20261021"
+        responses = iter([SimpleNamespace(content=(root/name).read_bytes(), headers={},
+                                          raise_for_status=lambda: None)
+                          for name in ["sina_listing.bin", "sina_quotes_literal.bin"]])
+        monkeypatch.setattr(bot.requests, "get", lambda *a, **k: next(responses))
+>       chain, _ = bot.fetch_sina_510500_chain("202611")
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_ic_im_external_review_20261021.py:169: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+expiry_ym = '202611'
+
+    def fetch_sina_510500_chain(expiry_ym: str) -> tuple[pd.DataFrame, dict[str, str]]:
+        """Fetch a live 510500 Put chain from Sina as an audited SSE outage fallback."""
+        match = re.fullmatch(r"(20)?(\d{2})(\d{2})", str(expiry_ym))
+        if not match:
+            raise ValueError(f"非法ETF期权月份: {expiry_ym}")
+        yy, month = match.group(2), match.group(3)
+        headers = {
+            "User-Agent": "Mozilla/5.0 POE-IC-IM-Research/1.0",
+            "Referer": "https://stock.finance.sina.com.cn/",
+            "Cache-Control": "no-cache",
+        }
+        listing_response = requests.get(
+            "https://hq.sinajs.cn/",
+            params={"list": f"OP_DOWN_510500{yy}{month}"},
+            timeout=_bounded_timeout(8),
+            headers=headers,
+        )
+        listing_response.raise_for_status()
+        _response_with_size_limit(listing_response, "新浪510500 Put列表")
+        listing = listing_response.content.decode("gbk", errors="replace")
+        ids = sorted(set(re.findall(r"CON_OP_(\d+)", listing)))
+        if not ids:
+            raise RuntimeError(f"新浪未返回510500 Put月份 {yy}{month} 的证券代码列表")
+        details_response = requests.get(
+            "https://hq.sinajs.cn/list=" + ",".join(f"CON_OP_{value}" for value in ids),
+            timeout=_bounded_timeout(8),
+            headers=headers,
+        )
+        details_response.raise_for_status()
+        _response_with_size_limit(details_response, "新浪510500 Put详情")
+        rows: list[dict[str, Any]] = []
+        stamps: list[datetime] = []
+        details = details_response.content.decode("gbk", errors="replace")
+        unresolved_adjusted: list[dict[str, Any]] = []
+        packets = re.findall(r'hq_str_CON_OP_(\d+)="([^"]*)"', details)
+        returned_ids = [security_id for security_id, _ in packets]
+        if len(returned_ids) != len(set(returned_ids)) or set(returned_ids) != set(ids):
+>           raise RuntimeError("新浪510500 Put证券集合缺失、未请求或重复，禁止跳选其他行权价")
+E           RuntimeError: 新浪510500 Put证券集合缺失、未请求或重复，禁止跳选其他行权价
+
+poe_ic_im_mainline_v1_4_bot.py:3685: RuntimeError
+============================== warnings summary ===============================
+C:\Python314\Lib\site-packages\fastapi_poe\types.py:171
+  C:\Python314\Lib\site-packages\fastapi_poe\types.py:171: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    class RequestContext(BaseModel):
+
+test_icim_redteam_display_20261021.py::test_bootstrap_snapshot_retains_known_single_core_identity
+  test_icim_redteam_display_20261021.py:73: PytestWarning: record_property is incompatible with junit_family 'xunit2' (use 'legacy' or 'xunit1')
+    def test_bootstrap_snapshot_retains_known_single_core_identity(monkeypatch, record_property):
+
+test_icim_redteam_display_20261021.py::test_core_overlay_failure_cannot_label_momentum_as_current_core
+  test_icim_redteam_display_20261021.py:89: PytestWarning: record_property is incompatible with junit_family 'xunit2' (use 'legacy' or 'xunit1')
+    def test_core_overlay_failure_cannot_label_momentum_as_current_core(monkeypatch, record_property):
+
+test_icim_redteam_display_20261021.py::test_core_overlay_failure_cannot_publish_momentum_iv_as_core_monitor
+  test_icim_redteam_display_20261021.py:120: PytestWarning: record_property is incompatible with junit_family 'xunit2' (use 'legacy' or 'xunit1')
+    def test_core_overlay_failure_cannot_publish_momentum_iv_as_core_monitor(monkeypatch, record_property):
+
+test_icim_redteam_display_20261021.py::test_im_snapshot_zero_core_does_not_show_residual_contract
+  test_icim_redteam_display_20261021.py:199: PytestWarning: record_property is incompatible with junit_family 'xunit2' (use 'legacy' or 'xunit1')
+    def test_im_snapshot_zero_core_does_not_show_residual_contract(monkeypatch, record_property):
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED test_ic_im_external_review_20261021.py::test_real_saved_sina_payload_matches_independent_field_oracle
+1 failed, 170 passed, 5 warnings in 4.17s

@@ -1,0 +1,25 @@
+{
+  "accepted": "accepted_batch3_2",
+  "independent": "calendar_redteam/final_08",
+  "all_sources_match": true,
+  "source_count": 3,
+  "accepted_receipt_sha256": "d1d663f4ddb5a4f627accd5c89d6599d8edd2e828b6467828186b5abda58798b",
+  "independent_receipt_sha256": "c8bee1fda28669debe6c600761c73837b9bf35d8331d15ae7c93a953643f2b99",
+  "sources": {
+    "poe_ic_im_mainline_v1_4_bot.py": {
+      "independent": "194cb2f1dec12ed5829cbeae6957103fd69f975af919a60a28f274ad2713664e",
+      "cumulative": "194cb2f1dec12ed5829cbeae6957103fd69f975af919a60a28f274ad2713664e",
+      "matches": true
+    },
+    "poe_ic_im_v1_4_state.py": {
+      "independent": "3676ac66729e540053fdd910fff2da033813d6dd18121243addab27090ce4c07",
+      "cumulative": "3676ac66729e540053fdd910fff2da033813d6dd18121243addab27090ce4c07",
+      "matches": true
+    },
+    "test_icim_batch3_calendar_redteam_20261021.py": {
+      "independent": "7b758a06f3e58535001ed78aec1053712bed15efe3f3dd5824cad4217fe48250",
+      "cumulative": "7b758a06f3e58535001ed78aec1053712bed15efe3f3dd5824cad4217fe48250",
+      "matches": true
+    }
+  }
+}

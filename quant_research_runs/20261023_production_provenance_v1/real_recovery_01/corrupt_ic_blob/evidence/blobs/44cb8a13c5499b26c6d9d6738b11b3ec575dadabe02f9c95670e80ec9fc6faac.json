@@ -1,0 +1,1 @@
+{"t":"dict","v":[["revision","chinabond_10y_daily_v1"],["mode","frozen_fallback"],["yield_decimal",{"t":"float","v":"0x1.15f02c4d65e46p-6"}],["used_date","2026-08-14"],["observed_date",null],["reason","未接入中债当日快照"],["source","https://yield.chinabond.com.cn/cbweb-pbc-web/pbc/more?locale=cn_zh"]]}

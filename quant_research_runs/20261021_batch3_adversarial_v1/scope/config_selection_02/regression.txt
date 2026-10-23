@@ -1,0 +1,68 @@
+FF                                                                       [100%]
+================================== FAILURES ===================================
+_ test_external_collection_configuration_cannot_hide_requested_test_functions[pytest.ini] _
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_8a30e66a/pytest/test_external_collection_confi0')
+config = 'pytest.ini'
+
+    @pytest.mark.parametrize('config', ['pytest.ini', 'pyproject.toml'])
+    def test_external_collection_configuration_cannot_hide_requested_test_functions(tmp_path, config):
+        project, scripts = skeleton(tmp_path)
+        (project/'test_selection.py').write_bytes(
+            b'def test_visible_pass():\n    assert True\n\ndef test_hidden_failure():\n    assert False, "requested test must execute"\n')
+        (project/config).write_bytes((
+            '[pytest]\npython_functions = test_visible_*\n' if config == 'pytest.ini' else
+            '[tool.pytest.ini_options]\npython_functions = ["test_visible_*"]\n').encode())
+        env = dict(os.environ)
+        env.pop('PYTEST_ADDOPTS', None)
+        result = subprocess.run([sys.executable, str(scripts/'run_independent.py'), 'config_selection',
+                                 'test_selection.py'], cwd=project, env=env, capture_output=True,
+                                text=True, encoding='utf-8', timeout=40)
+        accepted = scripts/'config_selection/receipt.json'
+        observation('config_'+config.replace('.','_')+'.json', dict(returncode=result.returncode,
+                    accepted_receipt=accepted.read_text(encoding='utf-8') if accepted.exists() else None,
+                    child_output=result.stdout[-1200:],child_error=result.stderr[-800:]))
+>       assert result.returncode != 0 and not accepted.exists(), 'unbound config hid a requested failure yet received strict PASS'
+E       AssertionError: unbound config hid a requested failure yet received strict PASS
+E       assert (0 != 0)
+E        +  where 0 = CompletedProcess(args=['C:\\Python314\\python.exe', 'C:\\Users\\Administrator.DESKTOP-95I7VVU\\AppData\\Local\\Temp\\i..."config_selection", "counts": {"tests": 1, "failures": 0, "errors": 0, "skipped": 0}, "source_files": 4}\n', stderr='').returncode
+
+test_icim_b3adv_scope_20261021.py:85: AssertionError
+_ test_external_collection_configuration_cannot_hide_requested_test_functions[pyproject.toml] _
+
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_8a30e66a/pytest/test_external_collection_confi1')
+config = 'pyproject.toml'
+
+    @pytest.mark.parametrize('config', ['pytest.ini', 'pyproject.toml'])
+    def test_external_collection_configuration_cannot_hide_requested_test_functions(tmp_path, config):
+        project, scripts = skeleton(tmp_path)
+        (project/'test_selection.py').write_bytes(
+            b'def test_visible_pass():\n    assert True\n\ndef test_hidden_failure():\n    assert False, "requested test must execute"\n')
+        (project/config).write_bytes((
+            '[pytest]\npython_functions = test_visible_*\n' if config == 'pytest.ini' else
+            '[tool.pytest.ini_options]\npython_functions = ["test_visible_*"]\n').encode())
+        env = dict(os.environ)
+        env.pop('PYTEST_ADDOPTS', None)
+        result = subprocess.run([sys.executable, str(scripts/'run_independent.py'), 'config_selection',
+                                 'test_selection.py'], cwd=project, env=env, capture_output=True,
+                                text=True, encoding='utf-8', timeout=40)
+        accepted = scripts/'config_selection/receipt.json'
+        observation('config_'+config.replace('.','_')+'.json', dict(returncode=result.returncode,
+                    accepted_receipt=accepted.read_text(encoding='utf-8') if accepted.exists() else None,
+                    child_output=result.stdout[-1200:],child_error=result.stderr[-800:]))
+>       assert result.returncode != 0 and not accepted.exists(), 'unbound config hid a requested failure yet received strict PASS'
+E       AssertionError: unbound config hid a requested failure yet received strict PASS
+E       assert (0 != 0)
+E        +  where 0 = CompletedProcess(args=['C:\\Python314\\python.exe', 'C:\\Users\\Administrator.DESKTOP-95I7VVU\\AppData\\Local\\Temp\\i..."config_selection", "counts": {"tests": 1, "failures": 0, "errors": 0, "skipped": 0}, "source_files": 4}\n', stderr='').returncode
+
+test_icim_b3adv_scope_20261021.py:85: AssertionError
+============================== warnings summary ===============================
+C:\Python314\Lib\site-packages\fastapi_poe\types.py:171
+  C:\Python314\Lib\site-packages\fastapi_poe\types.py:171: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    class RequestContext(BaseModel):
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED test_icim_b3adv_scope_20261021.py::test_external_collection_configuration_cannot_hide_requested_test_functions[pytest.ini]
+FAILED test_icim_b3adv_scope_20261021.py::test_external_collection_configuration_cannot_hide_requested_test_functions[pyproject.toml]
+2 failed, 1 warning in 5.16s

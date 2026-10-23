@@ -1,0 +1,16 @@
+{
+  "protected_content_files": 445,
+  "changed_content": [],
+  "runtime_lock_metadata_changes": [
+    "runtime/ic_im_v1_4_r1/.ledger.lock"
+  ],
+  "ledger_json_changed": [],
+  "quarter_trading_policy_ast_unchanged": true,
+  "trading_functions_compared": [
+    "policy",
+    "shift_session",
+    "quarter_contracts",
+    "next_quarter",
+    "roll_state"
+  ]
+}

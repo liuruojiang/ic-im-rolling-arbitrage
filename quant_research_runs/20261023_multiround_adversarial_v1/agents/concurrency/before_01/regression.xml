@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="9" time="3.497" timestamp="2026-10-23T09:24:38.041503+08:00" hostname="DESKTOP-95I7VVU"><testcase classname="test_icim_ma23_concurrency_20261023" name="test_independent_four_worker_collector_cannot_seal_success_after_shutdown_deadline[44.0]" time="0.221" /><testcase classname="test_icim_ma23_concurrency_20261023" name="test_independent_four_worker_collector_cannot_seal_success_after_shutdown_deadline[46.0]" time="0.208"><failure message="AssertionError: {'day': '2026-10-22', 'products': {'IC': {'manifest': 'C:\\Users\\Administrator.DESKTOP-95I7VVU\\AppData\\Local\\Temp\...256': '448f5843ee9aa84c1a0e7b077c250ae973e6ed3ab93de91c1ef0994081aa3d74', 'status': 'captured'}}, 'status': 'captured'}&#10;assert 'captured' == 'incomplete'&#10;  &#10;  - incomplete&#10;  + captured">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x00000177B16B5CD0&gt;
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_3df9bb53/pytest/test_independent_four_worker_c1')
+shutdown_seconds = 46.0
+
+    @pytest.mark.parametrize('shutdown_seconds', [44., 46.])
+    def test_independent_four_worker_collector_cannot_seal_success_after_shutdown_deadline(
+            monkeypatch, tmp_path, shutdown_seconds):
+        from test_icim_free_sources_parallel_capture_20261022 import fake_strategy
+        strategy, observed = fake_strategy(monkeypatch)
+        monkeypatch.setattr(bot.time_module, 'monotonic', lambda: observed.tick)
+        base_pool = adapter.ThreadPoolExecutor
+        shutdowns = []
+        class ShutdownTailPool(base_pool):
+            def __exit__(self, *args):
+                deadline = bot._NETWORK_DEADLINE.get()
+                result = super().__exit__(*args)
+                observed.tick = deadline - 45. + shutdown_seconds
+                shutdowns.append({'deadline': deadline, 'completed_at': observed.tick})
+                return result
+        monkeypatch.setattr(adapter, 'ThreadPoolExecutor', ShutdownTailPool)
+        with bot.collection_clock(CLOCK):
+            result = adapter.capture_daily(strategy, tmp_path, CLOCK)
+        assert len(shutdowns) == 2 and not observed.active
+        if shutdown_seconds &lt; 45:
+            assert result['status'] == 'captured', result
+        else:
+&gt;           assert result['status'] == 'incomplete', result
+E           AssertionError: {'day': '2026-10-22', 'products': {'IC': {'manifest': 'C:\\Users\\Administrator.DESKTOP-95I7VVU\\AppData\\Local\\Temp\...256': '448f5843ee9aa84c1a0e7b077c250ae973e6ed3ab93de91c1ef0994081aa3d74', 'status': 'captured'}}, 'status': 'captured'}
+E           assert 'captured' == 'incomplete'
+E             
+E             - incomplete
+E             + captured
+
+test_icim_ma23_concurrency_20261023.py:47: AssertionError</failure></testcase><testcase classname="test_icim_ma23_concurrency_20261023" name="test_parallel_same_role_fetch_is_single_and_each_consumer_gets_private_value" time="0.044" /><testcase classname="test_icim_ma23_concurrency_20261023" name="test_baseexception_waits_for_real_active_writer_before_context_seal[KeyboardInterrupt]" time="0.021" /><testcase classname="test_icim_ma23_concurrency_20261023" name="test_baseexception_waits_for_real_active_writer_before_context_seal[SystemExit]" time="0.035" /><testcase classname="test_icim_ma23_concurrency_20261023" name="test_concurrent_raw_byte_budget_is_atomic_and_unsealed_result_never_promoted" time="0.032" /><testcase classname="test_icim_ma23_concurrency_20261023" name="test_sina_batch_retry_inherits_parent_deadline_and_cannot_start_after_it" time="0.002" /><testcase classname="test_icim_ma23_concurrency_20261023" name="test_thread_batch_context_and_result_order_do_not_follow_completion_order" time="0.134" /><testcase classname="test_icim_ma23_concurrency_20261023" name="test_nested_same_thread_role_wrapper_counts_one_blob_and_no_orphan_bytes" time="0.095" /></testsuite></testsuites>

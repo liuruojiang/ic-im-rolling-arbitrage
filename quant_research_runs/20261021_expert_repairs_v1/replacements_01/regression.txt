@@ -1,0 +1,151 @@
+..FFFF.................................................................. [ 72%]
+...........................                                              [100%]
+================================== FAILURES ===================================
+_ test_coexisting_failed_openings_restore_anchor_and_publish_no_new_plan[ordinary-IC] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001C7445716D0>
+product = 'IC', failed = 'ordinary'
+
+    @pytest.mark.parametrize("product", ["IC", "IM"])
+    @pytest.mark.parametrize("failed", ["ordinary", "short_put"])
+    def test_coexisting_failed_openings_restore_anchor_and_publish_no_new_plan(monkeypatch, product, failed):
+        anchor = execution_seed.with_independent_momentum(external.short_anchor(product), product)
+        bot.v14_policy.validate_extension(product, anchor)
+        original = deepcopy(anchor)
+        monkeypatch.setitem(bot.LIVE_CONTINUATION_ANCHOR, product, anchor)
+        monkeypatch.setattr(bot, "live_proxy", lambda *a: {"history_date": execution_seed.DAY})
+        monkeypatch.setattr(bot, "_validate_signal_market_date", lambda *a: True)
+        plan = anchor["v14_ordinary_put_pending"]
+        opening = dict(status=bot.put_execution.RETRY_OPEN_STATUS if failed == "ordinary" else "confirmed_open_research_price",
+                       plan=plan, prices=execution_seed.ordinary_prices(plan, execution_seed.DAY))
+        monkeypatch.setattr(bot, "_v14_ordinary_open_evidence", lambda *a: deepcopy(opening))
+        calls = []
+        def failed_short(*a):
+            calls.append(a)
+            raise requests.Timeout("same legacy coexisting opening input")
+        monkeypatch.setattr(bot, "_v14_committed_open_prices", failed_short)
+        out = bot.build_live_trade_signal(product, execution_seed.CLOCK, "close")
+        assert_diagnostic(out)
+        assert len(calls) == (0 if failed == "ordinary" else 1)
+        assert bot.LIVE_CONTINUATION_ANCHOR[product] is anchor
+        assert bot.LIVE_CONTINUATION_ANCHOR[product] == original
+        assert len(out["retry_original_plans"]) == 2
+>       assert out["diagnostic_future"]["last_verified_contract"] == original["post_core_contract"]
+                                                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'post_core_contract'
+
+test_icim_expert_contract_replacements_20261021.py:73: KeyError
+_ test_coexisting_failed_openings_restore_anchor_and_publish_no_new_plan[ordinary-IM] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001C7445C47C0>
+product = 'IM', failed = 'ordinary'
+
+    @pytest.mark.parametrize("product", ["IC", "IM"])
+    @pytest.mark.parametrize("failed", ["ordinary", "short_put"])
+    def test_coexisting_failed_openings_restore_anchor_and_publish_no_new_plan(monkeypatch, product, failed):
+        anchor = execution_seed.with_independent_momentum(external.short_anchor(product), product)
+        bot.v14_policy.validate_extension(product, anchor)
+        original = deepcopy(anchor)
+        monkeypatch.setitem(bot.LIVE_CONTINUATION_ANCHOR, product, anchor)
+        monkeypatch.setattr(bot, "live_proxy", lambda *a: {"history_date": execution_seed.DAY})
+        monkeypatch.setattr(bot, "_validate_signal_market_date", lambda *a: True)
+        plan = anchor["v14_ordinary_put_pending"]
+        opening = dict(status=bot.put_execution.RETRY_OPEN_STATUS if failed == "ordinary" else "confirmed_open_research_price",
+                       plan=plan, prices=execution_seed.ordinary_prices(plan, execution_seed.DAY))
+        monkeypatch.setattr(bot, "_v14_ordinary_open_evidence", lambda *a: deepcopy(opening))
+        calls = []
+        def failed_short(*a):
+            calls.append(a)
+            raise requests.Timeout("same legacy coexisting opening input")
+        monkeypatch.setattr(bot, "_v14_committed_open_prices", failed_short)
+        out = bot.build_live_trade_signal(product, execution_seed.CLOCK, "close")
+        assert_diagnostic(out)
+        assert len(calls) == (0 if failed == "ordinary" else 1)
+        assert bot.LIVE_CONTINUATION_ANCHOR[product] is anchor
+        assert bot.LIVE_CONTINUATION_ANCHOR[product] == original
+        assert len(out["retry_original_plans"]) == 2
+>       assert out["diagnostic_future"]["last_verified_contract"] == original["post_core_contract"]
+                                                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'post_core_contract'
+
+test_icim_expert_contract_replacements_20261021.py:73: KeyError
+_ test_coexisting_failed_openings_restore_anchor_and_publish_no_new_plan[short_put-IC] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001C7445C4380>
+product = 'IC', failed = 'short_put'
+
+    @pytest.mark.parametrize("product", ["IC", "IM"])
+    @pytest.mark.parametrize("failed", ["ordinary", "short_put"])
+    def test_coexisting_failed_openings_restore_anchor_and_publish_no_new_plan(monkeypatch, product, failed):
+        anchor = execution_seed.with_independent_momentum(external.short_anchor(product), product)
+        bot.v14_policy.validate_extension(product, anchor)
+        original = deepcopy(anchor)
+        monkeypatch.setitem(bot.LIVE_CONTINUATION_ANCHOR, product, anchor)
+        monkeypatch.setattr(bot, "live_proxy", lambda *a: {"history_date": execution_seed.DAY})
+        monkeypatch.setattr(bot, "_validate_signal_market_date", lambda *a: True)
+        plan = anchor["v14_ordinary_put_pending"]
+        opening = dict(status=bot.put_execution.RETRY_OPEN_STATUS if failed == "ordinary" else "confirmed_open_research_price",
+                       plan=plan, prices=execution_seed.ordinary_prices(plan, execution_seed.DAY))
+        monkeypatch.setattr(bot, "_v14_ordinary_open_evidence", lambda *a: deepcopy(opening))
+        calls = []
+        def failed_short(*a):
+            calls.append(a)
+            raise requests.Timeout("same legacy coexisting opening input")
+        monkeypatch.setattr(bot, "_v14_committed_open_prices", failed_short)
+        out = bot.build_live_trade_signal(product, execution_seed.CLOCK, "close")
+        assert_diagnostic(out)
+        assert len(calls) == (0 if failed == "ordinary" else 1)
+        assert bot.LIVE_CONTINUATION_ANCHOR[product] is anchor
+        assert bot.LIVE_CONTINUATION_ANCHOR[product] == original
+        assert len(out["retry_original_plans"]) == 2
+>       assert out["diagnostic_future"]["last_verified_contract"] == original["post_core_contract"]
+                                                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'post_core_contract'
+
+test_icim_expert_contract_replacements_20261021.py:73: KeyError
+_ test_coexisting_failed_openings_restore_anchor_and_publish_no_new_plan[short_put-IM] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001C7445E6050>
+product = 'IM', failed = 'short_put'
+
+    @pytest.mark.parametrize("product", ["IC", "IM"])
+    @pytest.mark.parametrize("failed", ["ordinary", "short_put"])
+    def test_coexisting_failed_openings_restore_anchor_and_publish_no_new_plan(monkeypatch, product, failed):
+        anchor = execution_seed.with_independent_momentum(external.short_anchor(product), product)
+        bot.v14_policy.validate_extension(product, anchor)
+        original = deepcopy(anchor)
+        monkeypatch.setitem(bot.LIVE_CONTINUATION_ANCHOR, product, anchor)
+        monkeypatch.setattr(bot, "live_proxy", lambda *a: {"history_date": execution_seed.DAY})
+        monkeypatch.setattr(bot, "_validate_signal_market_date", lambda *a: True)
+        plan = anchor["v14_ordinary_put_pending"]
+        opening = dict(status=bot.put_execution.RETRY_OPEN_STATUS if failed == "ordinary" else "confirmed_open_research_price",
+                       plan=plan, prices=execution_seed.ordinary_prices(plan, execution_seed.DAY))
+        monkeypatch.setattr(bot, "_v14_ordinary_open_evidence", lambda *a: deepcopy(opening))
+        calls = []
+        def failed_short(*a):
+            calls.append(a)
+            raise requests.Timeout("same legacy coexisting opening input")
+        monkeypatch.setattr(bot, "_v14_committed_open_prices", failed_short)
+        out = bot.build_live_trade_signal(product, execution_seed.CLOCK, "close")
+        assert_diagnostic(out)
+        assert len(calls) == (0 if failed == "ordinary" else 1)
+        assert bot.LIVE_CONTINUATION_ANCHOR[product] is anchor
+        assert bot.LIVE_CONTINUATION_ANCHOR[product] == original
+        assert len(out["retry_original_plans"]) == 2
+>       assert out["diagnostic_future"]["last_verified_contract"] == original["post_core_contract"]
+                                                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'post_core_contract'
+
+test_icim_expert_contract_replacements_20261021.py:73: KeyError
+============================== warnings summary ===============================
+C:\Python314\Lib\site-packages\fastapi_poe\types.py:171
+  C:\Python314\Lib\site-packages\fastapi_poe\types.py:171: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    class RequestContext(BaseModel):
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED test_icim_expert_contract_replacements_20261021.py::test_coexisting_failed_openings_restore_anchor_and_publish_no_new_plan[ordinary-IC]
+FAILED test_icim_expert_contract_replacements_20261021.py::test_coexisting_failed_openings_restore_anchor_and_publish_no_new_plan[ordinary-IM]
+FAILED test_icim_expert_contract_replacements_20261021.py::test_coexisting_failed_openings_restore_anchor_and_publish_no_new_plan[short_put-IC]
+FAILED test_icim_expert_contract_replacements_20261021.py::test_coexisting_failed_openings_restore_anchor_and_publish_no_new_plan[short_put-IM]
+4 failed, 95 passed, 1 warning in 4.82s

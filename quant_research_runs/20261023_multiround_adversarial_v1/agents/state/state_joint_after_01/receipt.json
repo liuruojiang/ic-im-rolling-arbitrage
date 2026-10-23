@@ -1,0 +1,14 @@
+{
+  "exit_code": 0,
+  "stage": "state_joint_after_01",
+  "counts": {
+    "tests": 34,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "source_before_equals_after": true,
+  "bound_files": 31,
+  "formal_runtime_write_requested": false,
+  "external_network_requested": false
+}

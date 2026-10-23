@@ -1,0 +1,34 @@
+{
+  "classification": "Earlier separately preregistered and accepted production-behavior repair",
+  "introduced_in": "20261022_historical_calendar_repair_v1",
+  "preregistration": "docs/ic_im_historical_calendar_repair_20261022_v1_spec.md",
+  "accepted_receipt": "quant_research_runs/20261022_historical_calendar_repair_v1/accepted_02/receipt.json",
+  "accepted_tests": 2738,
+  "before_calendar_bot_sha256": "db3c61be35f39390267c3d78d36cc4cab818fd6fed47e02dd6e0866dc3129c46",
+  "after_calendar_bot_sha256": "0075c16aec68cb56b49569d03c1b89bb2707873fbd309971461082b623d0d19f",
+  "last_followup_bot_sha256": "0075c16aec68cb56b49569d03c1b89bb2707873fbd309971461082b623d0d19f",
+  "current_bot_sha256": "0075c16aec68cb56b49569d03c1b89bb2707873fbd309971461082b623d0d19f",
+  "same_in_all_three_stages": true,
+  "current_new_production_change": "Independent collector marks conflicting raw HTTP inputs incomplete; does not alter calendar",
+  "new_production_source": "ic_im_evidence_adapter_v1.py",
+  "new_production_sha256": "7f3581c3b01024845b3e1c63ec5ae804cc32176446522620c4c049aad12da1b3",
+  "etf_oracle_fixture": "tests\\fixtures\\icim_sse_2301_expiry_20261022.json",
+  "etf_oracle_sha256": "36862a661c096dd37490762be4e1beb5d1e224ab7d290e6e9977429e70071b23",
+  "official_etf_announcements": [
+    {
+      "url": "https://www.sse.com.cn/assortment/options/disclo/update/c/c_20221209_5713793.shtml",
+      "document_number": "上证公告(衍生品)〔2022〕73号",
+      "published": "2022-12-09",
+      "scope": "All SSE underlying instruments with January 2023 expiry",
+      "original_expiry_day": "2023-01-25",
+      "announced_expiry_day": "2023-01-30"
+    },
+    {
+      "url": "https://www.sse.com.cn/assortment/options/disclo/update/c/c_20230117_5715310.shtml",
+      "document_number": "上证公告（衍生品）〔2023〕5号",
+      "published": "2023-01-18",
+      "scope": "Explicitly includes 500ETF options with January 2023 expiry",
+      "announced_expiry_day": "2023-01-30"
+    }
+  ]
+}

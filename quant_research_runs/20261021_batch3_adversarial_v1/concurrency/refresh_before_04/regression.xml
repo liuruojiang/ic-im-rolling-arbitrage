@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="2.503" timestamp="2026-10-21T17:37:17.931476+08:00" hostname="DESKTOP-95I7VVU"><testcase classname="test_icim_b3adv_concurrency_20261021" name="test_background_refresh_survives_unknown_calendar_and_retries" time="0.077"><failure message="RuntimeError: 实时行情新鲜度校验需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号">tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_4df77d31/pytest/test_background_refresh_surviv0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x0000026DBD65DA70&gt;
+
+    def test_background_refresh_survives_unknown_calendar_and_retries(tmp_path, monkeypatch):
+        module = server(monkeypatch, tmp_path)
+        isolated, current = store(tmp_path/'state')
+        coordinator = module.LedgerCoordinator(isolated)
+        monkeypatch.setattr(module, 'coordinator', coordinator)
+        unknown_calendar_clock = datetime(2027, 1, 4, 15, 20, tzinfo=bot.BEIJING)
+        monkeypatch.setattr(bot, '_now_beijing', lambda: unknown_calendar_clock)
+        sleeps = []
+        async def controlled_sleep(seconds):
+            sleeps.append(seconds)
+            if len(sleeps) == 2:
+                raise asyncio.CancelledError
+        monkeypatch.setattr(module.asyncio, 'sleep', controlled_sleep)
+        with pytest.raises(asyncio.CancelledError):
+&gt;           asyncio.run(module._refresh_loop())
+
+test_icim_b3adv_concurrency_20261021.py:388: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+C:\Python314\Lib\asyncio\runners.py:204: in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+C:\Python314\Lib\asyncio\runners.py:127: in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Python314\Lib\asyncio\base_events.py:719: in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+poe_ic_im_v1_4_server.py:295: in _refresh_loop
+    await asyncio.to_thread(coordinator.catch_up_once, now)
+C:\Python314\Lib\asyncio\threads.py:25: in to_thread
+    return await loop.run_in_executor(None, func_call)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Python314\Lib\concurrent\futures\thread.py:86: in run
+    result = ctx.run(self.task)
+             ^^^^^^^^^^^^^^^^^^
+C:\Python314\Lib\concurrent\futures\thread.py:73: in run
+    return fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^
+poe_ic_im_v1_4_server.py:169: in catch_up_once
+    completed = strategy._latest_completed_exchange_day(clock)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+poe_ic_im_mainline_v1_4_bot.py:4018: in _latest_completed_exchange_day
+    _require_official_exchange_calendar(clock.date(), "实时行情新鲜度校验")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+day = datetime.date(2027, 1, 4), label = '实时行情新鲜度校验'
+
+    def _require_official_exchange_calendar(day: date, label: str) -&gt; None:
+        if day.year not in _OFFICIAL_EXCHANGE_CALENDAR_YEARS:
+            covered = "/".join(str(year) for year in sorted(_OFFICIAL_EXCHANGE_CALENDAR_YEARS))
+&gt;           raise RuntimeError(
+                f"{label}需要{day.year}年官方交易日历，但脚本仅覆盖{covered}年；"
+                "暂停实时新鲜度判定和新增信号"
+            )
+E           RuntimeError: 实时行情新鲜度校验需要2027年官方交易日历，但脚本仅覆盖2026年；暂停实时新鲜度判定和新增信号
+
+poe_ic_im_mainline_v1_4_bot.py:3995: RuntimeError</failure></testcase></testsuite></testsuites>

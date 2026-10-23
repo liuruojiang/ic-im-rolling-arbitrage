@@ -1,0 +1,21 @@
+{
+  "exit_code": 1,
+  "source_before_equals_after": true,
+  "source_files": 1004,
+  "stage": "compatibility_01",
+  "acceptance_error": "audit evidence rejected: test process did not exit zero",
+  "diagnostic_counts": {
+    "tests": 158,
+    "failures": 4,
+    "errors": 0,
+    "skipped": 0
+  },
+  "artifacts": {
+    "regression.xml": "acd5a4d9933bc9d835705c549c8894a8dabb199a6d9a32d235a03e609b029768",
+    "regression.txt": "54157fa4c422dcd615d25c9b222c53fb7157d336343e3b74b5a53163b3fec7c9",
+    "source_before.json": "0f745eab4167ed52a5ae3d9a0962eafa1782046cdacf8343f1b83c0e5a62b8d7",
+    "source_after.json": "0f745eab4167ed52a5ae3d9a0962eafa1782046cdacf8343f1b83c0e5a62b8d7",
+    "test_run.json": "ec9dd78350f0416586b730c4d8e76b97d6cba805b14e461ec75260769f091f20",
+    "collection.json": "3f3563f65ca7218e4fc211812eb42136f87ad6cbdb78bc28b4b731eef83e2ffa"
+  }
+}

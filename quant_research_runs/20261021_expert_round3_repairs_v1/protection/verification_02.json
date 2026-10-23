@@ -1,0 +1,106 @@
+{
+  "created_at": "2026-10-21T12:34:09.235915+00:00",
+  "prior_backups": {
+    "checked": 1163,
+    "changed_or_missing": []
+  },
+  "prior_evidence": {
+    "checked": 26680,
+    "changed_or_missing": [
+      {
+        "path": "quant_research_runs/20261016_put_delivery_completion_v1/formal_runtime/runtime/legulegu/latest.json",
+        "expected": "65b9b4fdbd581432af7bf5bb327cdef0ec9fa0d9a66e24fb63788c027dc3b887",
+        "actual": "cd8a6dab163d07619c6a38e64ec3f9fe87ecb217d4e4f8388f9b60a578d520c3"
+      }
+    ]
+  },
+  "prior_frozen_outputs": {
+    "checked": 6774,
+    "changed_or_missing": []
+  },
+  "current_frozen_runtime_and_reports": {
+    "checked": 7691,
+    "changed_or_missing": []
+  },
+  "new_backups": {
+    "checked": 12,
+    "changed_or_missing": []
+  },
+  "runtime_files": {
+    "before": 155,
+    "after": 155,
+    "json_before": 142,
+    "json_after": 142,
+    "added": [],
+    "missing": [],
+    "hashes_equal": true
+  },
+  "current_outputs": {
+    "checked": 6804,
+    "changed_or_missing": []
+  },
+  "final_tests": {
+    "counts": {
+      "tests": 2541,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "current_binding": {
+      "checked": 947,
+      "changed_or_missing": []
+    },
+    "independent_counts": {
+      "tests": 95,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "independent_binding_equals_final": true,
+    "declared_exclusions_match": true,
+    "test_files": 85,
+    "new_test_files": {
+      "test_icim_round3_adversarial_p1_20261021.py": 95,
+      "test_icim_round3_calendar_comparison_20261021.py": 20,
+      "test_icim_round3_display_repairs_20261021.py": 16,
+      "test_icim_round3_evidence_integration_20261021.py": 14,
+      "test_icim_round3_evidence_store_20261021.py": 63,
+      "test_icim_round3_grid_contract_replacements_20261021.py": 19,
+      "test_icim_round3_grid_persistence_20261021.py": 24,
+      "test_icim_round3_policy_repairs_20261021.py": 247,
+      "test_icim_round3_recovery_audit_20261021.py": 22
+    },
+    "new_tests": 520,
+    "applicable_prior_tests": 2021,
+    "deselected": 22
+  },
+  "runtime_cache_observation": {
+    "path": "quant_research_runs/20261016_put_delivery_completion_v1/formal_runtime/runtime/legulegu/latest.json",
+    "expected_old_sha256": "65b9b4fdbd581432af7bf5bb327cdef0ec9fa0d9a66e24fb63788c027dc3b887",
+    "observed_sha256": "cd8a6dab163d07619c6a38e64ec3f9fe87ecb217d4e4f8388f9b60a578d520c3",
+    "valuation_date": "2026-10-21",
+    "fetched_at": "2026-10-21T19:35:46.227187+08:00",
+    "writer": "unconfirmed",
+    "action": "kept observed runtime input cache; did not roll back current valuation to an old day",
+    "frozen_old_day_snapshot_intact": true,
+    "frozen_copy": "quant_research_runs/20261016_put_delivery_completion_v1/formal_runtime/outputs/legulegu_daily_sync/2026-10-20/snapshot.json",
+    "is_strategy_hash_chain_ledger": false,
+    "matches_preserved_observation": true,
+    "preserved_observed_copy_sha256": "cd8a6dab163d07619c6a38e64ec3f9fe87ecb217d4e4f8388f9b60a578d520c3",
+    "frozen_original_snapshot_sha256": "65b9b4fdbd581432af7bf5bb327cdef0ec9fa0d9a66e24fb63788c027dc3b887"
+  },
+  "test_cache_restore": {
+    "restored_exact_pre_edit_sha256": "7e1b14fc3a66ab56bd8ec3b46e0676e5c7ad024cc47f7e1745594530352f2e96",
+    "observed_sha256": "efc84282c432f1a86162724a26ee29f4f9f7193c97180db9be17ebf1517c0410",
+    "basis": "exact SHA-matching deterministic reconstruction from retained JUnit node identities",
+    "old_formal_receipts_changed": false,
+    "current_sha256": "7e1b14fc3a66ab56bd8ec3b46e0676e5c7ad024cc47f7e1745594530352f2e96"
+  },
+  "preregistered_spec": {
+    "declared_sha256": "520fd262d58f31b01b53b297d18cb5cb533a2dfae2c631fb8a804665e1d180e6",
+    "actual_sha256": "520fd262d58f31b01b53b297d18cb5cb533a2dfae2c631fb8a804665e1d180e6"
+  },
+  "all_prior_paths_unchanged": false,
+  "immutable_files_verified": true,
+  "status": "verified_with_runtime_cache_observation"
+}

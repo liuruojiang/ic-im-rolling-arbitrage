@@ -1,0 +1,249 @@
+--- a/poe_ic_im_mainline_v1_4_bot.py
++++ b/poe_ic_im_mainline_v1_4_bot.py
+@@ -3827,6 +3827,22 @@
+     return normalized
+ 
+ 
++def _sse_projection_rows(payload: Any, label: str) -> list[Any]:
++    """Do not accept an explicitly truncated SSE select projection."""
++    if not isinstance(payload, dict) or not isinstance(payload.get("list"), list):
++        raise RuntimeError(f"{label}行情结构异常")
++    rows = payload["list"]
++    # Older supplied projections can omit pagination altogether. Once the
++    # source advertises pagination, all three fields must prove a full page;
++    # missing/malformed metadata cannot silently shrink the candidate set.
++    if any(name in payload for name in ("total", "begin", "end")):
++        for name, expected in (("total", len(rows)), ("begin", 0), ("end", len(rows))):
++            value = payload.get(name)
++            if type(value) is not int or value != expected:
++                raise RuntimeError(f"{label}行情分页不完整或未经核验")
++    return rows
++
++
+ def fetch_sse_510500_quote() -> dict[str, Any]:
+     payload = _sse_quote_json(
+         "v1/sh1/list/self/510500",
+@@ -3834,11 +3850,19 @@
+             "select": "code,cpxxextendname,last,change,chg_rate,amp_rate,volume,amount,prev_close"
+         },
+     )
+-    rows = payload.get("list") or []
++    rows = _sse_projection_rows(payload, "上交所510500ETF")
+     if not rows:
+         raise RuntimeError("上交所未返回有效510500ETF行情")
+-    last = float(rows[0][2])
+-    prev_close = float(rows[0][8])
++    if (len(rows) != 1 or not isinstance(rows[0], list) or len(rows[0]) != 9
++            or str(rows[0][0]) != "510500"):
++        raise RuntimeError("上交所510500ETF行情标的或字段不匹配")
++    prices = rows[0][2], rows[0][8]
++    if any(isinstance(value, (bool, np.bool_)) for value in prices):
++        raise RuntimeError("上交所510500ETF行情价格不能为布尔值")
++    try:
++        last, prev_close = map(float, prices)
++    except (TypeError, ValueError, OverflowError) as exc:
++        raise RuntimeError("上交所510500ETF行情价格格式无效") from exc
+     if not all(math.isfinite(value) and value > 0 for value in (last, prev_close)):
+         raise RuntimeError("上交所510500ETF行情含NaN、无穷值或非正价格")
+     return {
+@@ -4024,14 +4048,17 @@
+         {"select": "stockid,expiremonth"},
+     )
+     months: set[str] = set()
+-    for row in payload.get("list") or []:
+-        if len(row) < 2 or str(row[0]) != "510500":
++    for row in _sse_projection_rows(payload, "上交所510500ETF挂牌月份"):
++        if not isinstance(row, list) or len(row) != 2:
++            raise RuntimeError("上交所期权挂牌月份字段缺失或格式异常")
++        if str(row[0]) != "510500":
+             continue
+         value = str(row[1]).strip()
+-        if not re.fullmatch(r"20\d{4}", value):
+-            continue
+-        if 1 <= int(value[4:]) <= 12:
+-            months.add(value)
++        if not re.fullmatch(r"20[0-9]{4}", value) or not 1 <= int(value[4:]) <= 12:
++            # A malformed requested month is unknown, not proven unlisted.
++            # Dropping it could change the nearest-expiry target.
++            raise RuntimeError("上交所510500ETF挂牌月份存在无效值，禁止按残缺月份选约")
++        months.add(value)
+     ordered_months = sorted(months)
+     if not ordered_months:
+         raise RuntimeError("上交所未返回510500ETF期权挂牌月份")
+--- /dev/null
++++ b/test_icim_round3_source_validation_20261021.py
+@@ -0,0 +1,154 @@
++"""Source-boundary regressions; mutated ETF/month payloads are synthetic.
++
++The unchanged option-chain oracle is a retained real 2026-10-21 SSE response.
++These tests do not establish real pre-open or morning daily-bar availability.
++"""
++from copy import deepcopy
++from datetime import date, datetime
++import json
++from pathlib import Path
++
++import numpy as np
++import pytest
++
++import ic_im_signal_evidence_v1 as evidence
++import poe_ic_im_mainline_v1_4_bot as bot
++
++
++DAY = date(2026, 10, 21)
++CLOCK = datetime(2026, 10, 21, 15, 30, tzinfo=bot.BEIJING)
++
++
++def etf_payload():
++    return {"date": "20261021", "time": "150000", "total": 1, "begin": 0, "end": 1,
++            "list": [["510500", "ETF", 7.8, 0, 0, 0, 1000, 7800, 7.7]]}
++
++
++def months_payload():
++    return {"date": "20261021", "time": "150000", "total": 4, "begin": 0, "end": 4,
++            "list": [["510300", "202612"], ["510500", "202611"],
++                     ["510500", "202612"], ["510500", "202703"]]}
++
++
++def wire(monkeypatch, payload):
++    monkeypatch.setattr(bot, "_sse_quote_json", lambda *a, **kw: deepcopy(payload))
++
++
++@pytest.mark.parametrize("index", [2, 8])
++@pytest.mark.parametrize("value", [True, np.bool_(True), False, None, float("nan"), float("inf"), 0, -1])
++def test_etf_raw_price_rejected_before_numeric_coercion(monkeypatch, index, value):
++    payload = etf_payload()
++    payload["list"][0][index] = value
++    wire(monkeypatch, payload)
++    with pytest.raises((RuntimeError, ValueError, TypeError)):
++        bot.fetch_sse_510500_quote()
++
++
++@pytest.mark.parametrize("code", ["510300", "sh510500", "５１０５００", None, True, ""])
++def test_etf_response_must_bind_the_requested_underlying(monkeypatch, code):
++    payload = etf_payload()
++    payload["list"][0][0] = code
++    wire(monkeypatch, payload)
++    with pytest.raises(RuntimeError):
++        bot.fetch_sse_510500_quote()
++
++
++@pytest.mark.parametrize("kind", ["duplicate", "extra_underlying", "short_row"])
++def test_etf_response_must_be_one_complete_selected_row(monkeypatch, kind):
++    payload = etf_payload()
++    if kind == "short_row":
++        payload["list"][0] = payload["list"][0][:8]
++    else:
++        second = deepcopy(payload["list"][0])
++        if kind == "extra_underlying":
++            second[0] = "510300"
++        payload["list"].append(second)
++        payload.update(total=2, end=2)
++    wire(monkeypatch, payload)
++    with pytest.raises((RuntimeError, ValueError, TypeError)):
++        bot.fetch_sse_510500_quote()
++
++
++@pytest.mark.parametrize("source", ["etf", "months"])
++@pytest.mark.parametrize("field,value", [("total", 100), ("begin", 1), ("end", 0), ("total", True), ("end", "1")])
++def test_explicit_sse_partial_or_unverified_pagination_cannot_be_ignored(monkeypatch, source, field, value):
++    payload = etf_payload() if source == "etf" else months_payload()
++    payload[field] = value
++    wire(monkeypatch, payload)
++    with pytest.raises(RuntimeError):
++        (bot.fetch_sse_510500_quote if source == "etf" else bot.fetch_sse_510500_expiries)()
++
++
++@pytest.mark.parametrize("value", ["202713", "202700", "2703", "2027-03", "２０２７０３", True, None, ""])
++def test_invalid_month_for_requested_etf_cannot_silently_remove_a_candidate(monkeypatch, value):
++    payload = months_payload()
++    payload["list"][-1][1] = value
++    wire(monkeypatch, payload)
++    with pytest.raises(RuntimeError):
++        bot.fetch_sse_510500_expiries()
++
++
++@pytest.mark.parametrize("source", ["etf", "months"])
++def test_partial_pagination_metadata_is_not_a_verified_full_response(monkeypatch, source):
++    payload = etf_payload() if source == "etf" else months_payload()
++    del payload["end"]
++    wire(monkeypatch, payload)
++    with pytest.raises(RuntimeError):
++        (bot.fetch_sse_510500_quote if source == "etf" else bot.fetch_sse_510500_expiries)()
++
++
++@pytest.mark.parametrize("price", [7.8, "7.8", 8])
++def test_valid_etf_projection_keeps_original_output_contract(monkeypatch, price):
++    payload = etf_payload()
++    payload["list"][0][2] = price
++    wire(monkeypatch, payload)
++    assert bot.fetch_sse_510500_quote() == {
++        "date": "20261021", "time": "150000", "last": float(price), "prev_close": 7.7}
++
++
++def test_months_are_complete_sorted_and_other_underlyings_remain_out_of_scope(monkeypatch):
++    payload = months_payload()
++    payload["list"][0][1] = "an unrelated source value"
++    payload["list"].append(["510500", "202611"])
++    payload.update(total=5, end=5)
++    wire(monkeypatch, payload)
++    assert bot.fetch_sse_510500_expiries() == ["202611", "202612", "202703"]
++
++
++@pytest.mark.parametrize("source", ["etf", "months"])
++def test_existing_projection_without_pagination_fields_remains_compatible(monkeypatch, source):
++    payload = etf_payload() if source == "etf" else months_payload()
++    for field in ["total", "begin", "end"]:
++        del payload[field]
++    wire(monkeypatch, payload)
++    result = (bot.fetch_sse_510500_quote if source == "etf" else bot.fetch_sse_510500_expiries)()
++    assert result
++
++
++@pytest.mark.parametrize("source", ["etf_boolean", "etf_wrong_code", "months"])
++def test_bad_original_source_never_becomes_a_complete_archive(tmp_path, monkeypatch, source):
++    payload = months_payload() if source == "months" else etf_payload()
++    if source == "etf_boolean":
++        payload["list"][0][2] = True
++    elif source == "etf_wrong_code":
++        payload["list"][0][0] = "510300"
++    else:
++        payload["list"][-1][1] = "202713"
++    wire(monkeypatch, payload)
++    with bot.runtime_clock(CLOCK), evidence.capture_session(tmp_path, DAY, CLOCK, {"purpose": "synthetic regression"}) as session:
++        with pytest.raises(RuntimeError):
++            (bot.fetch_sse_510500_expiries if source == "months" else bot.fetch_sse_510500_quote)()
++    assert session.context["complete"] is False
++    assert session.context["entries"] == {}
++    with pytest.raises(evidence.EvidenceUnavailable):
++        evidence.load_session(tmp_path, DAY)
++
++
++def test_retained_real_sse_option_chain_still_parses_all_original_identities(monkeypatch):
++    path = Path(__file__).resolve().parent / "tests/fixtures/icim_external_review_round2_20261021/sse_december_identity.json"
++    payload = json.loads(path.read_bytes())
++    wire(monkeypatch, payload)
++    frame, stamp = bot.fetch_sse_510500_chain("2612")
++    assert len(frame) == payload["total"] == 58
++    assert frame["security_id"].tolist() == [row[5] for row in payload["list"]]
++    assert stamp["date"] == "20261021"
+--- /dev/null
++++ b/docs/ic_im_round3_source_validation_20261021_v1_spec.md
+@@ -0,0 +1,13 @@
++# 第三批续修：真实来源与采集链验证 v1
++
++预注册日期：2026-10-21。用户指令：“继续”。承接第三批复查修订，不重写上一轮规范、回执或冻结输出。
++
++本轮先做真实来源验证，再处理有可复现证据的采集链缺陷。优先级：原日存证是否能保留真实输入及失败原因；SSE/Sina 报文与既有解析口径；缺证和日历门禁的准确披露。不得把闭市后采集称为早盘或开盘前 oracle，不把请求日期或证券 ID 当作返回身份依据。
++
++1. 对现行 SSE ETF/挂牌月份、Sina ETF/月份/指定证券日线做有大小、次数和超时上限的只读原始报文采集。保留真实 UTC 获取时间、URL、参数、状态、必要公开响应头和 SHA-256；不取账户信息、不写策略账本。
++2. 核对本地已有真实报文，区分来源已取得、格式可解析、时点匹配和完整恢复四种证据。网络失败保留为失败，不能用合成 fixture 填补真实证据。
++3. 只有确认实际调用链缺陷后才修改生产文件，先备份原字节，并增加能够复现同一路径的验证；不得为提高可用性放开身份、日期、挂牌完整性、数量或执行门禁。
++4. 2027 日历只认交易所正式安排；本轮检索未取得可核验通知时继续保留未覆盖状态，不采用第三方推算。
++5. 不新增策略、参数、Call、Put 研究候选或交易授权。不部署、不发邮件、不续写正式账本；本地结果、存证及剩余限制写入独立记录。
++
++验收：真实采集工件可核 SHA；失败原因可复核；新增修复有针对性回归，涉及生产源变化时重跑适用既有累计验收，明确单列旧契约，不改写原测试和旧回执。正式 runtime、上一轮接受的源码备份和冻结工件按哈希保护。
+--- /dev/null
++++ b/docs/ic_im_round3_source_validation_20261021_v1_spec.md.sha256
+@@ -0,0 +1 @@
++d0bc5f2a3c2d043e79e8aac7592def60f084ff719f6f5feda1c31b1feaee45e3  ic_im_round3_source_validation_20261021_v1_spec.md

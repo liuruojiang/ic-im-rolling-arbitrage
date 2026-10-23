@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="2" failures="0" skipped="0" tests="30" time="4.598" timestamp="2026-10-18T18:54:42.695942+08:00" hostname="DESKTOP-95I7VVU"><properties><property name="hypothesis-statistics-test_ic_im_quarter_roll_v1_3.py::test_spread_scale_invariance" value="dGVzdF9pY19pbV9xdWFydGVyX3JvbGxfdjFfMy5weTo6dGVzdF9zcHJlYWRfc2NhbGVfaW52YXJpYW5jZToKCiAgLSBkdXJpbmcgZ2VuZXJhdGUgcGhhc2UgKDAuNDAgc2Vjb25kcyk6CiAgICAtIFR5cGljYWwgcnVudGltZXM6IH4gMm1zLCBvZiB3aGljaCA8IDFtcyBpbiBkYXRhIGdlbmVyYXRpb24KICAgIC0gMTAwIHBhc3NpbmcsIDAgZmFpbGluZywgYW5kIDAgaW52YWxpZCB0ZXN0IGNhc2VzCgogIC0gU3RvcHBlZCBiZWNhdXNlIHNldHRpbmdzLm1heF9leGFtcGxlcz0xMDA=" /></properties><testcase classname="test_ic_im_quarter_roll_v1_3" name="test_preview_intraday_close_and_next_day[IC-15-14]" time="0.002" /><testcase classname="test_ic_im_quarter_roll_v1_3" name="test_preview_intraday_close_and_next_day[IM-17-16]" time="0.001" /><testcase classname="test_ic_im_quarter_roll_v1_3" name="test_october_holds_december_and_crossyear_next_is_march" time="0.001" /><testcase classname="test_ic_im_quarter_roll_v1_3" name="test_missing_roll_and_missing_next_quarter_fail_closed" time="0.001" /><testcase classname="test_ic_im_quarter_roll_v1_3" name="test_spread_scale_invariance" time="0.407" /><testcase classname="test_ic_im_quarter_roll_v1_3" name="test_spread_invalid_inputs_are_na[stale]" time="0.001" /><testcase classname="test_ic_im_quarter_roll_v1_3" name="test_spread_invalid_inputs_are_na[nan]" time="0.003" /><testcase classname="test_ic_im_quarter_roll_v1_3" name="test_spread_invalid_inputs_are_na[missing]" time="0.001" /><testcase classname="test_ic_im_quarter_roll_v1_3" name="test_spread_invalid_inputs_are_na[gap]" time="0.001" /><testcase classname="test_ic_im_quarter_roll_v1_3" name="test_spread_invalid_inputs_are_na[duplicate]" time="0.003" /><testcase classname="test_ic_im_quarter_roll_v1_3" name="test_real_r6_migration_preserves_every_anchor" time="0.002"><error message="failed on setup with &quot;PermissionError: [WinError 5] 拒绝访问。: 'C:\\Users\\Administrator.DESKTOP-95I7VVU\\AppData\\Local\\Temp\\pytest-of-Administrator'&quot;">cls = &lt;class '_pytest.runner.CallInfo'&gt;
+func = &lt;function call_and_report.&lt;locals&gt;.&lt;lambda&gt; at 0x000001E862F6FCC0&gt;
+when = 'setup'
+reraise = (&lt;class '_pytest.outcomes.Exit'&gt;, &lt;class 'KeyboardInterrupt'&gt;)
+
+    @classmethod
+    def from_call(
+        cls,
+        func: Callable[[], TResult],
+        when: Literal["collect", "setup", "call", "teardown"],
+        reraise: type[BaseException] | tuple[type[BaseException], ...] | None = None,
+    ) -&gt; CallInfo[TResult]:
+        """Call func, wrapping the result in a CallInfo.
+    
+        :param func:
+            The function to call. Called without arguments.
+        :type func: Callable[[], _pytest.runner.TResult]
+        :param when:
+            The phase in which the function is called.
+        :param reraise:
+            Exception or exceptions that shall propagate if raised by the
+            function, instead of being wrapped in the CallInfo.
+        """
+        excinfo = None
+        instant = timing.Instant()
+        try:
+&gt;           result: TResult | None = func()
+                                     ^^^^^^
+
+C:\Python314\Lib\site-packages\_pytest\runner.py:353: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+C:\Python314\Lib\site-packages\_pytest\runner.py:245: in &lt;lambda&gt;
+    lambda: runtest_hook(item=item, **kwds),
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Python314\Lib\site-packages\pluggy\_hooks.py:512: in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Python314\Lib\site-packages\pluggy\_manager.py:120: in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Python314\Lib\site-packages\_pytest\logging.py:843: in pytest_runtest_setup
+    yield
+C:\Python314\Lib\site-packages\_pytest\capture.py:895: in pytest_runtest_setup
+    return (yield)
+            ^^^^^
+C:\Python314\Lib\site-packages\_pytest\runner.py:165: in pytest_runtest_setup
+    item.session._setupstate.setup(item)
+C:\Python314\Lib\site-packages\_pytest\runner.py:523: in setup
+    col.setup()
+C:\Python314\Lib\site-packages\_pytest\python.py:1723: in setup
+    self._request._fillfixtures()
+C:\Python314\Lib\site-packages\_pytest\fixtures.py:707: in _fillfixtures
+    item.funcargs[argname] = self.getfixturevalue(argname)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Python314\Lib\site-packages\_pytest\fixtures.py:539: in getfixturevalue
+    fixturedef = self._get_active_fixturedef(argname)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Python314\Lib\site-packages\_pytest\fixtures.py:627: in _get_active_fixturedef
+    fixturedef.execute(request=subrequest)
+C:\Python314\Lib\site-packages\_pytest\fixtures.py:1110: in execute
+    result: FixtureValue = ihook.pytest_fixture_setup(
+C:\Python314\Lib\site-packages\pluggy\_hooks.py:512: in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Python314\Lib\site-packages\pluggy\_manager.py:120: in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Python314\Lib\site-packages\pluggy\_callers.py:53: in run_old_style_hookwrapper
+    return result.get_result()
+           ^^^^^^^^^^^^^^^^^^^
+C:\Python314\Lib\site-packages\pluggy\_callers.py:38: in run_old_style_hookwrapper
+    res = yield
+          ^^^^^
+C:\Python314\Lib\site-packages\_pytest\setuponly.py:36: in pytest_fixture_setup
+    return (yield)
+            ^^^^^
+C:\Python314\Lib\site-packages\_pytest\fixtures.py:1202: in pytest_fixture_setup
+    result = call_fixture_func(fixturefunc, request, kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Python314\Lib\site-packages\_pytest\fixtures.py:908: in call_fixture_func
+    fixture_result = next(generator)
+                     ^^^^^^^^^^^^^^^
+C:\Python314\Lib\site-packages\_pytest\tmpdir.py:289: in tmp_path
+    path = _mk_tmp(request, tmp_path_factory)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Python314\Lib\site-packages\_pytest\tmpdir.py:276: in _mk_tmp
+    return factory.mktemp(name, numbered=True)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Python314\Lib\site-packages\_pytest\tmpdir.py:131: in mktemp
+    basename = self._ensure_relative_to_basetemp(basename)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Python314\Lib\site-packages\_pytest\tmpdir.py:112: in _ensure_relative_to_basetemp
+    if (self.getbasetemp() / basename).resolve().parent != self.getbasetemp():
+        ^^^^^^^^^^^^^^^^^^
+C:\Python314\Lib\site-packages\_pytest\tmpdir.py:208: in getbasetemp
+    basetemp = make_numbered_dir_with_cleanup(
+C:\Python314\Lib\site-packages\_pytest\pathlib.py:407: in make_numbered_dir_with_cleanup
+    raise e
+C:\Python314\Lib\site-packages\_pytest\pathlib.py:388: in make_numbered_dir_with_cleanup
+    p = make_numbered_dir(root, prefix, mode)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Python314\Lib\site-packages\_pytest\pathlib.py:229: in make_numbered_dir
+    max_existing = max(map(parse_num, find_suffixes(root, prefix)), default=-1)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Python314\Lib\site-packages\_pytest\pathlib.py:188: in extract_suffixes
+    for entry in iter:
+                 ^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+root = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/pytest-of-Administrator')
+prefix = 'pytest-'
+
+    def find_prefixed(root: Path, prefix: str) -&gt; Iterator[os.DirEntry[str]]:
+        """Find all elements in root that begin with the prefix, case-insensitive."""
+        l_prefix = prefix.lower()
+&gt;       for x in os.scandir(root):
+                 ^^^^^^^^^^^^^^^^
+E       PermissionError: [WinError 5] 拒绝访问。: 'C:\\Users\\Administrator.DESKTOP-95I7VVU\\AppData\\Local\\Temp\\pytest-of-Administrator'
+
+C:\Python314\Lib\site-packages\_pytest\pathlib.py:176: PermissionError</error></testcase><testcase classname="test_ic_im_quarter_roll_v1_3" name="test_real_scan_calendar_parity[IC-quarter_T3_fixed-20260904_ic_v13_full_roll_tenor_timing_v2]" time="0.104" /><testcase classname="test_ic_im_quarter_roll_v1_3" name="test_real_scan_calendar_parity[IM-quarter_T1_close-20260904_im_v13_quarter_t3_close_impact_v4]" time="0.028" /><testcase classname="test_ic_im_quarter_roll_v1_3" name="test_old_continuation_cannot_claim_r7_returns" time="0.000" /><testcase classname="test_ic_im_quarter_roll_v1_3" name="test_legacy_migration_cannot_silently_generate_r7" time="0.001"><error message="failed on setup with &quot;PermissionError: [WinError 5] 拒绝访问。: 'C:\\Users\\Administrator.DESKTOP-95I7VVU\\AppData\\Local\\Temp\\pytest-of-Administrator'&quot;">cls = &lt;class '_pytest.runner.CallInfo'&gt;
+func = &lt;function call_and_report.&lt;locals&gt;.&lt;lambda&gt; at 0x000001E862E8DFE0&gt;
+when = 'setup'
+reraise = (&lt;class '_pytest.outcomes.Exit'&gt;, &lt;class 'KeyboardInterrupt'&gt;)
+
+    @classmethod
+    def from_call(
+        cls,
+        func: Callable[[], TResult],
+        when: Literal["collect", "setup", "call", "teardown"],
+        reraise: type[BaseException] | tuple[type[BaseException], ...] | None = None,
+    ) -&gt; CallInfo[TResult]:
+        """Call func, wrapping the result in a CallInfo.
+    
+        :param func:
+            The function to call. Called without arguments.
+        :type func: Callable[[], _pytest.runner.TResult]
+        :param when:
+            The phase in which the function is called.
+        :param reraise:
+            Exception or exceptions that shall propagate if raised by the
+            function, instead of being wrapped in the CallInfo.
+        """
+        excinfo = None
+        instant = timing.Instant()
+        try:
+&gt;           result: TResult | None = func()
+                                     ^^^^^^
+
+C:\Python314\Lib\site-packages\_pytest\runner.py:353: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+C:\Python314\Lib\site-packages\_pytest\runner.py:245: in &lt;lambda&gt;
+    lambda: runtest_hook(item=item, **kwds),
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Python314\Lib\site-packages\pluggy\_hooks.py:512: in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Python314\Lib\site-packages\pluggy\_manager.py:120: in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Python314\Lib\site-packages\_pytest\logging.py:843: in pytest_runtest_setup
+    yield
+C:\Python314\Lib\site-packages\_pytest\capture.py:895: in pytest_runtest_setup
+    return (yield)
+            ^^^^^
+C:\Python314\Lib\site-packages\_pytest\runner.py:165: in pytest_runtest_setup
+    item.session._setupstate.setup(item)
+C:\Python314\Lib\site-packages\_pytest\runner.py:523: in setup
+    col.setup()
+C:\Python314\Lib\site-packages\_pytest\python.py:1723: in setup
+    self._request._fillfixtures()
+C:\Python314\Lib\site-packages\_pytest\fixtures.py:707: in _fillfixtures
+    item.funcargs[argname] = self.getfixturevalue(argname)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Python314\Lib\site-packages\_pytest\fixtures.py:539: in getfixturevalue
+    fixturedef = self._get_active_fixturedef(argname)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Python314\Lib\site-packages\_pytest\fixtures.py:627: in _get_active_fixturedef
+    fixturedef.execute(request=subrequest)
+C:\Python314\Lib\site-packages\_pytest\fixtures.py:1110: in execute
+    result: FixtureValue = ihook.pytest_fixture_setup(
+C:\Python314\Lib\site-packages\pluggy\_hooks.py:512: in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Python314\Lib\site-packages\pluggy\_manager.py:120: in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Python314\Lib\site-packages\pluggy\_callers.py:53: in run_old_style_hookwrapper
+    return result.get_result()
+           ^^^^^^^^^^^^^^^^^^^
+C:\Python314\Lib\site-packages\pluggy\_callers.py:38: in run_old_style_hookwrapper
+    res = yield
+          ^^^^^
+C:\Python314\Lib\site-packages\_pytest\setuponly.py:36: in pytest_fixture_setup
+    return (yield)
+            ^^^^^
+C:\Python314\Lib\site-packages\_pytest\fixtures.py:1202: in pytest_fixture_setup
+    result = call_fixture_func(fixturefunc, request, kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Python314\Lib\site-packages\_pytest\fixtures.py:908: in call_fixture_func
+    fixture_result = next(generator)
+                     ^^^^^^^^^^^^^^^
+C:\Python314\Lib\site-packages\_pytest\tmpdir.py:289: in tmp_path
+    path = _mk_tmp(request, tmp_path_factory)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Python314\Lib\site-packages\_pytest\tmpdir.py:276: in _mk_tmp
+    return factory.mktemp(name, numbered=True)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Python314\Lib\site-packages\_pytest\tmpdir.py:131: in mktemp
+    basename = self._ensure_relative_to_basetemp(basename)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Python314\Lib\site-packages\_pytest\tmpdir.py:112: in _ensure_relative_to_basetemp
+    if (self.getbasetemp() / basename).resolve().parent != self.getbasetemp():
+        ^^^^^^^^^^^^^^^^^^
+C:\Python314\Lib\site-packages\_pytest\tmpdir.py:208: in getbasetemp
+    basetemp = make_numbered_dir_with_cleanup(
+C:\Python314\Lib\site-packages\_pytest\pathlib.py:407: in make_numbered_dir_with_cleanup
+    raise e
+C:\Python314\Lib\site-packages\_pytest\pathlib.py:388: in make_numbered_dir_with_cleanup
+    p = make_numbered_dir(root, prefix, mode)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Python314\Lib\site-packages\_pytest\pathlib.py:229: in make_numbered_dir
+    max_existing = max(map(parse_num, find_suffixes(root, prefix)), default=-1)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Python314\Lib\site-packages\_pytest\pathlib.py:188: in extract_suffixes
+    for entry in iter:
+                 ^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+root = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/pytest-of-Administrator')
+prefix = 'pytest-'
+
+    def find_prefixed(root: Path, prefix: str) -&gt; Iterator[os.DirEntry[str]]:
+        """Find all elements in root that begin with the prefix, case-insensitive."""
+        l_prefix = prefix.lower()
+&gt;       for x in os.scandir(root):
+                 ^^^^^^^^^^^^^^^^
+E       PermissionError: [WinError 5] 拒绝访问。: 'C:\\Users\\Administrator.DESKTOP-95I7VVU\\AppData\\Local\\Temp\\pytest-of-Administrator'
+
+C:\Python314\Lib\site-packages\_pytest\pathlib.py:176: PermissionError</error></testcase><testcase classname="test_ic_im_quarter_roll_v1_3" name="test_quarter_cannot_skip_missing_december" time="0.001" /><testcase classname="test_ic_im_quarter_roll_v1_3" name="test_month_spreads_use_front_month_not_held_quarter[IC]" time="0.003" /><testcase classname="test_ic_im_quarter_roll_v1_3" name="test_month_spreads_use_front_month_not_held_quarter[IM]" time="0.003" /><testcase classname="test_ic_im_quarter_roll_v1_3" name="test_expiry_session_included_then_front_month_advances" time="0.003" /><testcase classname="test_ic_im_quarter_roll_v1_3" name="test_quarter_month_overlap_and_december_crossyear" time="0.002" /><testcase classname="test_ic_im_quarter_roll_v1_3" name="test_month_spreads_reject_bad_legs_without_affecting_other_pairs[stale]" time="0.001" /><testcase classname="test_ic_im_quarter_roll_v1_3" name="test_month_spreads_reject_bad_legs_without_affecting_other_pairs[missing]" time="0.030" /><testcase classname="test_ic_im_quarter_roll_v1_3" name="test_month_spreads_reject_bad_legs_without_affecting_other_pairs[duplicate]" time="0.002" /><testcase classname="test_ic_im_quarter_roll_v1_3" name="test_month_spreads_reject_bad_legs_without_affecting_other_pairs[nan]" time="0.002" /><testcase classname="test_ic_im_quarter_roll_v1_3" name="test_month_spreads_reject_bad_legs_without_affecting_other_pairs[zero]" time="0.002" /><testcase classname="test_ic_im_quarter_roll_v1_3" name="test_month_spreads_reject_bad_legs_without_affecting_other_pairs[inf]" time="0.003" /><testcase classname="test_ic_im_quarter_roll_v1_3" name="test_month_spreads_reject_bad_legs_without_affecting_other_pairs[skip_next]" time="0.002" /><testcase classname="test_ic_im_quarter_roll_v1_3" name="test_month_spreads_reject_bad_legs_without_affecting_other_pairs[skip_quarter]" time="0.002" /><testcase classname="test_ic_im_quarter_roll_v1_3" name="test_month_spreads_independently_match_real_official_closes[IC-data/ic_monthly_discount_roll_v1/cffex_ic_contracts.csv]" time="0.021" /><testcase classname="test_ic_im_quarter_roll_v1_3" name="test_month_spreads_independently_match_real_official_closes[IM-data/im_monthly_roll_3m_lowest_put_v1/cffex_im_contracts.csv]" time="0.013" /></testsuite></testsuites>

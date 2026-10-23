@@ -1,0 +1,112 @@
+{
+  "checked_at": "2026-10-21T08:40:49.518680+00:00",
+  "final_stage": "accepted_batch3_2",
+  "all_equal": true,
+  "checks": {
+    "poe_ic_im_mainline_v1_4_bot.py": {
+      "independent": "194cb2f1dec12ed5829cbeae6957103fd69f975af919a60a28f274ad2713664e",
+      "accepted": "194cb2f1dec12ed5829cbeae6957103fd69f975af919a60a28f274ad2713664e",
+      "current": "194cb2f1dec12ed5829cbeae6957103fd69f975af919a60a28f274ad2713664e"
+    },
+    "poe_ic_im_v1_4_server.py": {
+      "independent": "640e33bae36d1043b144bfe50a7a0d08138946041f354e9cd0fd23000b2f2816",
+      "accepted": "640e33bae36d1043b144bfe50a7a0d08138946041f354e9cd0fd23000b2f2816",
+      "current": "640e33bae36d1043b144bfe50a7a0d08138946041f354e9cd0fd23000b2f2816"
+    },
+    "poe_ic_im_v1_4_state.py": {
+      "independent": "3676ac66729e540053fdd910fff2da033813d6dd18121243addab27090ce4c07",
+      "accepted": "3676ac66729e540053fdd910fff2da033813d6dd18121243addab27090ce4c07",
+      "current": "3676ac66729e540053fdd910fff2da033813d6dd18121243addab27090ce4c07"
+    },
+    "ic_im_daily_valuation.py": {
+      "independent": "b389a81475836fb3e4e96dbc92216a54afeb199029d524f51efbb8d029e4257c",
+      "accepted": "b389a81475836fb3e4e96dbc92216a54afeb199029d524f51efbb8d029e4257c",
+      "current": "b389a81475836fb3e4e96dbc92216a54afeb199029d524f51efbb8d029e4257c"
+    },
+    "ic_im_chinabond.py": {
+      "independent": "4e1098b2f4c253d9950c084eafcc655ea8e5e820478a01a29393d638e6d40ab9",
+      "accepted": "4e1098b2f4c253d9950c084eafcc655ea8e5e820478a01a29393d638e6d40ab9",
+      "current": "4e1098b2f4c253d9950c084eafcc655ea8e5e820478a01a29393d638e6d40ab9"
+    },
+    "ic_im_fear_grid_v1.py": {
+      "independent": "a21578621eb7695af5dcc669670cdcfa2bef2f0d9fceb4ad40a3ddae707fcc67",
+      "accepted": "a21578621eb7695af5dcc669670cdcfa2bef2f0d9fceb4ad40a3ddae707fcc67",
+      "current": "a21578621eb7695af5dcc669670cdcfa2bef2f0d9fceb4ad40a3ddae707fcc67"
+    },
+    "ic_im_v1_4_policy.py": {
+      "independent": "f7e3ad9ddfb83935b47c6af5b5b22bcd28b5c6912b3bd14cec158a7de7f07fff",
+      "accepted": "f7e3ad9ddfb83935b47c6af5b5b22bcd28b5c6912b3bd14cec158a7de7f07fff",
+      "current": "f7e3ad9ddfb83935b47c6af5b5b22bcd28b5c6912b3bd14cec158a7de7f07fff"
+    },
+    "ic_im_put_execution_v1.py": {
+      "independent": "8cdda4e3761bda7889c16b0102ee0106d2efaaa61088b7cb6fc83a08d67b2368",
+      "accepted": "8cdda4e3761bda7889c16b0102ee0106d2efaaa61088b7cb6fc83a08d67b2368",
+      "current": "8cdda4e3761bda7889c16b0102ee0106d2efaaa61088b7cb6fc83a08d67b2368"
+    },
+    "ic_im_adjusted_put_migration_v1.py": {
+      "independent": "f4bbdaa49225e51b83ccfe441b9c6f4dc36b7f3206acf509098f4d8628215c29",
+      "accepted": "f4bbdaa49225e51b83ccfe441b9c6f4dc36b7f3206acf509098f4d8628215c29",
+      "current": "f4bbdaa49225e51b83ccfe441b9c6f4dc36b7f3206acf509098f4d8628215c29"
+    },
+    "ic_im_sse_contract_identity_v1.py": {
+      "independent": "47a2d81f665d2b199eaa2c2043c90271cdd242aa9776620002c833f3cdafacc8",
+      "accepted": "47a2d81f665d2b199eaa2c2043c90271cdd242aa9776620002c833f3cdafacc8",
+      "current": "47a2d81f665d2b199eaa2c2043c90271cdd242aa9776620002c833f3cdafacc8"
+    },
+    "test_icim_batch3_valuation_20261021.py": {
+      "independent": "58a2d81611b483dcfb40e6e6448ff7ed11c7227fe527745985c7709b13991978",
+      "accepted": "58a2d81611b483dcfb40e6e6448ff7ed11c7227fe527745985c7709b13991978",
+      "current": "58a2d81611b483dcfb40e6e6448ff7ed11c7227fe527745985c7709b13991978"
+    },
+    "test_icim_round2_audit_lifecycle_20261021.py": {
+      "independent": "3c92189672444fd9745f9d30a327aa93aeecd6ba9f1b53fc49ddbe3d91e0b8ff",
+      "accepted": "3c92189672444fd9745f9d30a327aa93aeecd6ba9f1b53fc49ddbe3d91e0b8ff",
+      "current": "3c92189672444fd9745f9d30a327aa93aeecd6ba9f1b53fc49ddbe3d91e0b8ff"
+    },
+    "test_ic_im_external_review_round2_20261021.py": {
+      "independent": "9940691c2ac3db928a8e0b0b16b096361d709d9437255e07b70c2f159367ed48",
+      "accepted": "9940691c2ac3db928a8e0b0b16b096361d709d9437255e07b70c2f159367ed48",
+      "current": "9940691c2ac3db928a8e0b0b16b096361d709d9437255e07b70c2f159367ed48"
+    },
+    "test_ic_im_ordinary_put_route_fix_20261013.py": {
+      "independent": "ff69d0f7e5ce2ca9faa4a1ef9457365bc08cb3b87ba7c913890bcbe7d942d1dd",
+      "accepted": "ff69d0f7e5ce2ca9faa4a1ef9457365bc08cb3b87ba7c913890bcbe7d942d1dd",
+      "current": "ff69d0f7e5ce2ca9faa4a1ef9457365bc08cb3b87ba7c913890bcbe7d942d1dd"
+    },
+    "run_ic_im_v1_4_github_digest.py": {
+      "independent": "b4f3a18c480f61e46b5729f2b01cf21fb79a2735a1f131e853129ed3dbb12a83",
+      "accepted": "b4f3a18c480f61e46b5729f2b01cf21fb79a2735a1f131e853129ed3dbb12a83",
+      "current": "b4f3a18c480f61e46b5729f2b01cf21fb79a2735a1f131e853129ed3dbb12a83"
+    },
+    "quant_research_runs/20261021_external_review_batch3_v1/run_checks.py": {
+      "independent": "c1339d458f2282a2faa81a47748a4297188a7bd20b1b766f7fa2e396bbf1a981",
+      "accepted": "c1339d458f2282a2faa81a47748a4297188a7bd20b1b766f7fa2e396bbf1a981",
+      "current": "c1339d458f2282a2faa81a47748a4297188a7bd20b1b766f7fa2e396bbf1a981"
+    },
+    "tests/fixtures/icim_external_review_round2_20261021/manifest.json": {
+      "independent": "4dd8aafcd1f1167dfe7f552b069233c1dd71b647e53106eb4a17c99806701562",
+      "accepted": "4dd8aafcd1f1167dfe7f552b069233c1dd71b647e53106eb4a17c99806701562",
+      "current": "4dd8aafcd1f1167dfe7f552b069233c1dd71b647e53106eb4a17c99806701562"
+    },
+    "tests/fixtures/icim_external_review_round2_20261021/official_adjustment.bin": {
+      "independent": "1042ff0c9e5b8237ca2ef9e75cfd7d4809571f94c87ebc6f984e1d11c11dcf6f",
+      "accepted": "1042ff0c9e5b8237ca2ef9e75cfd7d4809571f94c87ebc6f984e1d11c11dcf6f",
+      "current": "1042ff0c9e5b8237ca2ef9e75cfd7d4809571f94c87ebc6f984e1d11c11dcf6f"
+    },
+    "tests/fixtures/icim_external_review_round2_20261021/sse_adjustment_20260715.json": {
+      "independent": "85f3f74d8c088e586d7d6275697f104ad5a5774a1e32bc32217db178b5557596",
+      "accepted": "85f3f74d8c088e586d7d6275697f104ad5a5774a1e32bc32217db178b5557596",
+      "current": "85f3f74d8c088e586d7d6275697f104ad5a5774a1e32bc32217db178b5557596"
+    },
+    "tests/fixtures/icim_external_review_round2_20261021/sse_contract_master.json": {
+      "independent": "22ebf371548b9c64f0cdab36bf263aa48ad525c702a4e672d37529b0ba940425",
+      "accepted": "22ebf371548b9c64f0cdab36bf263aa48ad525c702a4e672d37529b0ba940425",
+      "current": "22ebf371548b9c64f0cdab36bf263aa48ad525c702a4e672d37529b0ba940425"
+    },
+    "tests/fixtures/icim_external_review_round2_20261021/sse_december_identity.json": {
+      "independent": "327aacd4c032bda5be4535ad6ef2312fe179ea791a293b81944368a0003476b7",
+      "accepted": "327aacd4c032bda5be4535ad6ef2312fe179ea791a293b81944368a0003476b7",
+      "current": "327aacd4c032bda5be4535ad6ef2312fe179ea791a293b81944368a0003476b7"
+    }
+  }
+}

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="2.250" timestamp="2026-10-21T17:38:16.496908+08:00" hostname="DESKTOP-95I7VVU"><testcase classname="test_icim_b3adv_concurrency_20261021" name="test_background_refresh_retries_after_a_transient_head_read_error" time="0.078"><failure message="OSError: synthetic transient head read failure">tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_ff75e23a/pytest/test_background_refresh_retrie0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000001E4028BDA70&gt;
+
+    def test_background_refresh_retries_after_a_transient_head_read_error(tmp_path, monkeypatch):
+        module = server(monkeypatch, tmp_path)
+        isolated, current = store(tmp_path/'state')
+        coordinator = module.LedgerCoordinator(isolated)
+        monkeypatch.setattr(module, 'coordinator', coordinator)
+        # The next retry observes an already-current head, so no quote providers or
+        # business-body mocks are needed and no network access is possible.
+        clock = datetime(2026, 10, 20, 15, 20, tzinfo=bot.BEIJING)
+        monkeypatch.setattr(bot, '_now_beijing', lambda: clock)
+        actual_read = isolated.load_latest
+        reads, sleeps = [], []
+        def transient_read():
+            reads.append('read')
+            if len(reads) == 1:
+                raise OSError('synthetic transient head read failure')
+            return actual_read()
+        monkeypatch.setattr(isolated, 'load_latest', transient_read)
+        async def controlled_sleep(seconds):
+            sleeps.append(seconds)
+            if len(sleeps) == 2:
+                raise asyncio.CancelledError
+        monkeypatch.setattr(module.asyncio, 'sleep', controlled_sleep)
+        with pytest.raises(asyncio.CancelledError):
+&gt;           asyncio.run(module._refresh_loop())
+
+test_icim_b3adv_concurrency_20261021.py:417: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+C:\Python314\Lib\asyncio\runners.py:204: in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+C:\Python314\Lib\asyncio\runners.py:127: in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Python314\Lib\asyncio\base_events.py:719: in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+poe_ic_im_v1_4_server.py:295: in _refresh_loop
+    await asyncio.to_thread(coordinator.catch_up_once, now)
+C:\Python314\Lib\asyncio\threads.py:25: in to_thread
+    return await loop.run_in_executor(None, func_call)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Python314\Lib\concurrent\futures\thread.py:86: in run
+    result = ctx.run(self.task)
+             ^^^^^^^^^^^^^^^^^^
+C:\Python314\Lib\concurrent\futures\thread.py:73: in run
+    return fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^
+poe_ic_im_v1_4_server.py:167: in catch_up_once
+    latest = self.store.load_latest()
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+    def transient_read():
+        reads.append('read')
+        if len(reads) == 1:
+&gt;           raise OSError('synthetic transient head read failure')
+E           OSError: synthetic transient head read failure
+
+test_icim_b3adv_concurrency_20261021.py:408: OSError</failure></testcase></testsuite></testsuites>

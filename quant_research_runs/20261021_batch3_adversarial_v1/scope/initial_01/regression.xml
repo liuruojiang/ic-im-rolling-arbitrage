@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="7" skipped="0" tests="19" time="6.949" timestamp="2026-10-21T17:25:13.232628+08:00" hostname="DESKTOP-95I7VVU"><testcase classname="test_icim_b3adv_scope_20261021" name="test_inherited_pytest_selection_cannot_hide_a_requested_failure[-k visible_pass]" time="0.986"><failure message="AssertionError: implicit PYTEST_ADDOPTS hid a requested failing test&#10;assert 0 != 0&#10; +  where 0 = CompletedProcess(args=['C:\\Python314\\python.exe', 'C:\\Users\\Administrator.DESKTOP-95I7VVU\\AppData\\Local\\Temp\\i...                                                               [100%]\n1 passed, 1 deselected in 0.28s\n\n', stderr='').returncode">tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_8acc2009/pytest/test_inherited_pytest_selectio0')
+inherited = '-k visible_pass'
+
+    @pytest.mark.parametrize('inherited', [
+        '-k visible_pass', '--deselect=test_selection.py::test_hidden_failure'])
+    def test_inherited_pytest_selection_cannot_hide_a_requested_failure(tmp_path, inherited):
+        project, scripts = skeleton(tmp_path)
+        (project/'test_selection.py').write_bytes(
+            b'def test_visible_pass():\n    assert True\n\ndef test_hidden_failure():\n    assert False, "requested test must execute"\n')
+        env = dict(os.environ, PYTEST_ADDOPTS=inherited, ICIM_AUDIT_STAGE='child')
+        result = subprocess.run([sys.executable, str(scripts/'run_checks.py'), 'test_selection.py'],
+                                cwd=project, env=env, capture_output=True, text=True,
+                                encoding='utf-8', timeout=40)
+        xml = scripts/'child/regression.xml'
+        observation('inherited_'+('k' if inherited.startswith('-k') else 'deselect')+'.json',
+                    dict(returncode=result.returncode, implicit_options=inherited,
+                         xml=xml.read_text(encoding='utf-8') if xml.exists() else None,
+                         child_output=result.stdout[-1500:]))
+&gt;       assert result.returncode != 0, 'implicit PYTEST_ADDOPTS hid a requested failing test'
+E       AssertionError: implicit PYTEST_ADDOPTS hid a requested failing test
+E       assert 0 != 0
+E        +  where 0 = CompletedProcess(args=['C:\\Python314\\python.exe', 'C:\\Users\\Administrator.DESKTOP-95I7VVU\\AppData\\Local\\Temp\\i...                                                               [100%]\n1 passed, 1 deselected in 0.28s\n\n', stderr='').returncode
+
+test_icim_b3adv_scope_20261021.py:65: AssertionError</failure></testcase><testcase classname="test_icim_b3adv_scope_20261021" name="test_inherited_pytest_selection_cannot_hide_a_requested_failure[--deselect=test_selection.py::test_hidden_failure]" time="0.912"><failure message="AssertionError: implicit PYTEST_ADDOPTS hid a requested failing test&#10;assert 0 != 0&#10; +  where 0 = CompletedProcess(args=['C:\\Python314\\python.exe', 'C:\\Users\\Administrator.DESKTOP-95I7VVU\\AppData\\Local\\Temp\\i...                                                               [100%]\n1 passed, 1 deselected in 0.26s\n\n', stderr='').returncode">tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_8acc2009/pytest/test_inherited_pytest_selectio1')
+inherited = '--deselect=test_selection.py::test_hidden_failure'
+
+    @pytest.mark.parametrize('inherited', [
+        '-k visible_pass', '--deselect=test_selection.py::test_hidden_failure'])
+    def test_inherited_pytest_selection_cannot_hide_a_requested_failure(tmp_path, inherited):
+        project, scripts = skeleton(tmp_path)
+        (project/'test_selection.py').write_bytes(
+            b'def test_visible_pass():\n    assert True\n\ndef test_hidden_failure():\n    assert False, "requested test must execute"\n')
+        env = dict(os.environ, PYTEST_ADDOPTS=inherited, ICIM_AUDIT_STAGE='child')
+        result = subprocess.run([sys.executable, str(scripts/'run_checks.py'), 'test_selection.py'],
+                                cwd=project, env=env, capture_output=True, text=True,
+                                encoding='utf-8', timeout=40)
+        xml = scripts/'child/regression.xml'
+        observation('inherited_'+('k' if inherited.startswith('-k') else 'deselect')+'.json',
+                    dict(returncode=result.returncode, implicit_options=inherited,
+                         xml=xml.read_text(encoding='utf-8') if xml.exists() else None,
+                         child_output=result.stdout[-1500:]))
+&gt;       assert result.returncode != 0, 'implicit PYTEST_ADDOPTS hid a requested failing test'
+E       AssertionError: implicit PYTEST_ADDOPTS hid a requested failing test
+E       assert 0 != 0
+E        +  where 0 = CompletedProcess(args=['C:\\Python314\\python.exe', 'C:\\Users\\Administrator.DESKTOP-95I7VVU\\AppData\\Local\\Temp\\i...                                                               [100%]\n1 passed, 1 deselected in 0.26s\n\n', stderr='').returncode
+
+test_icim_b3adv_scope_20261021.py:65: AssertionError</failure></testcase><testcase classname="test_icim_b3adv_scope_20261021" name="test_independent_source_binding_normalizes_selected_test_path[bare]" time="0.008" /><testcase classname="test_icim_b3adv_scope_20261021" name="test_independent_source_binding_normalizes_selected_test_path[dot]" time="0.012"><failure message="AssertionError: executed test module is omitted from source binding&#10;assert None == '465d277b382257dbcffc27da1605c3cf55c2ccdd4576de480bd34dc3e0abe3b5'&#10; +  where None = &lt;built-in method get of dict object at 0x0000019E1F6F45C0&gt;('test_icim_b3adv_probe.py')&#10; +    where &lt;built-in method get of dict object at 0x0000019E1F6F45C0&gt; = {'quant_research_runs/probe/evidence_gate.py': '491a13a031f8709990d3f3dc5fbac33234ee8b0c73dfef55ec455d483414ae2f', 'qu...5', 'quant_research_runs/probe/run_independent.py': 'c31bd81ee285b88099bc9b3ffe3f6e8a7a4e001f713fa7e64d2423dcbb277021'}.get&#10; +    and   'test_icim_b3adv_probe.py' = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_8acc2009/pytest/test_independent_source_bindin1/project/test_icim_b3adv_probe.py').name&#10; +  and   '465d277b382257dbcffc27da1605c3cf55c2ccdd4576de480bd34dc3e0abe3b5' = sha(WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_8acc2009/pytest/test_independent_source_bindin1/project/test_icim_b3adv_probe.py'))">tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_8acc2009/pytest/test_independent_source_bindin1')
+form = 'dot'
+
+    @pytest.mark.parametrize('form', ['bare', 'dot', 'absolute', 'dot_node'])
+    def test_independent_source_binding_normalizes_selected_test_path(tmp_path, form):
+        project, scripts = skeleton(tmp_path)
+        selected = project/'test_icim_b3adv_probe.py'
+        selected.write_bytes(b'def test_one():\n    assert True\n')
+        arg = {'bare':selected.name, 'dot':'./'+selected.name,
+               'absolute':str(selected), 'dot_node':'./'+selected.name+'::test_one'}[form]
+        tree = ast.parse((scripts/'run_independent.py').read_text(encoding='utf-8'))
+        functions = ast.Module(body=[node for node in tree.body
+                                    if isinstance(node, ast.FunctionDef) and node.name in {'sha','sources'}],
+                               type_ignores=[])
+        namespace = dict(ROOT=project, HERE=scripts, tests=[arg], hashlib=hashlib, Path=Path)
+        exec(compile(functions, str(scripts/'run_independent.py'), 'exec'), namespace)
+        bound = namespace['sources']()
+&gt;       assert bound.get(selected.name) == sha(selected), 'executed test module is omitted from source binding'
+E       AssertionError: executed test module is omitted from source binding
+E       assert None == '465d277b382257dbcffc27da1605c3cf55c2ccdd4576de480bd34dc3e0abe3b5'
+E        +  where None = &lt;built-in method get of dict object at 0x0000019E1F6F45C0&gt;('test_icim_b3adv_probe.py')
+E        +    where &lt;built-in method get of dict object at 0x0000019E1F6F45C0&gt; = {'quant_research_runs/probe/evidence_gate.py': '491a13a031f8709990d3f3dc5fbac33234ee8b0c73dfef55ec455d483414ae2f', 'qu...5', 'quant_research_runs/probe/run_independent.py': 'c31bd81ee285b88099bc9b3ffe3f6e8a7a4e001f713fa7e64d2423dcbb277021'}.get
+E        +    and   'test_icim_b3adv_probe.py' = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_8acc2009/pytest/test_independent_source_bindin1/project/test_icim_b3adv_probe.py').name
+E        +  and   '465d277b382257dbcffc27da1605c3cf55c2ccdd4576de480bd34dc3e0abe3b5' = sha(WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_8acc2009/pytest/test_independent_source_bindin1/project/test_icim_b3adv_probe.py'))
+
+test_icim_b3adv_scope_20261021.py:82: AssertionError</failure></testcase><testcase classname="test_icim_b3adv_scope_20261021" name="test_independent_source_binding_normalizes_selected_test_path[absolute]" time="0.008"><failure message="AssertionError: executed test module is omitted from source binding&#10;assert None == '465d277b382257dbcffc27da1605c3cf55c2ccdd4576de480bd34dc3e0abe3b5'&#10; +  where None = &lt;built-in method get of dict object at 0x0000019E1F727BC0&gt;('test_icim_b3adv_probe.py')&#10; +    where &lt;built-in method get of dict object at 0x0000019E1F727BC0&gt; = {'quant_research_runs/probe/evidence_gate.py': '491a13a031f8709990d3f3dc5fbac33234ee8b0c73dfef55ec455d483414ae2f', 'qu...5', 'quant_research_runs/probe/run_independent.py': 'c31bd81ee285b88099bc9b3ffe3f6e8a7a4e001f713fa7e64d2423dcbb277021'}.get&#10; +    and   'test_icim_b3adv_probe.py' = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_8acc2009/pytest/test_independent_source_bindin2/project/test_icim_b3adv_probe.py').name&#10; +  and   '465d277b382257dbcffc27da1605c3cf55c2ccdd4576de480bd34dc3e0abe3b5' = sha(WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_8acc2009/pytest/test_independent_source_bindin2/project/test_icim_b3adv_probe.py'))">tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_8acc2009/pytest/test_independent_source_bindin2')
+form = 'absolute'
+
+    @pytest.mark.parametrize('form', ['bare', 'dot', 'absolute', 'dot_node'])
+    def test_independent_source_binding_normalizes_selected_test_path(tmp_path, form):
+        project, scripts = skeleton(tmp_path)
+        selected = project/'test_icim_b3adv_probe.py'
+        selected.write_bytes(b'def test_one():\n    assert True\n')
+        arg = {'bare':selected.name, 'dot':'./'+selected.name,
+               'absolute':str(selected), 'dot_node':'./'+selected.name+'::test_one'}[form]
+        tree = ast.parse((scripts/'run_independent.py').read_text(encoding='utf-8'))
+        functions = ast.Module(body=[node for node in tree.body
+                                    if isinstance(node, ast.FunctionDef) and node.name in {'sha','sources'}],
+                               type_ignores=[])
+        namespace = dict(ROOT=project, HERE=scripts, tests=[arg], hashlib=hashlib, Path=Path)
+        exec(compile(functions, str(scripts/'run_independent.py'), 'exec'), namespace)
+        bound = namespace['sources']()
+&gt;       assert bound.get(selected.name) == sha(selected), 'executed test module is omitted from source binding'
+E       AssertionError: executed test module is omitted from source binding
+E       assert None == '465d277b382257dbcffc27da1605c3cf55c2ccdd4576de480bd34dc3e0abe3b5'
+E        +  where None = &lt;built-in method get of dict object at 0x0000019E1F727BC0&gt;('test_icim_b3adv_probe.py')
+E        +    where &lt;built-in method get of dict object at 0x0000019E1F727BC0&gt; = {'quant_research_runs/probe/evidence_gate.py': '491a13a031f8709990d3f3dc5fbac33234ee8b0c73dfef55ec455d483414ae2f', 'qu...5', 'quant_research_runs/probe/run_independent.py': 'c31bd81ee285b88099bc9b3ffe3f6e8a7a4e001f713fa7e64d2423dcbb277021'}.get
+E        +    and   'test_icim_b3adv_probe.py' = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_8acc2009/pytest/test_independent_source_bindin2/project/test_icim_b3adv_probe.py').name
+E        +  and   '465d277b382257dbcffc27da1605c3cf55c2ccdd4576de480bd34dc3e0abe3b5' = sha(WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_8acc2009/pytest/test_independent_source_bindin2/project/test_icim_b3adv_probe.py'))
+
+test_icim_b3adv_scope_20261021.py:82: AssertionError</failure></testcase><testcase classname="test_icim_b3adv_scope_20261021" name="test_independent_source_binding_normalizes_selected_test_path[dot_node]" time="0.007"><failure message="AssertionError: executed test module is omitted from source binding&#10;assert None == '465d277b382257dbcffc27da1605c3cf55c2ccdd4576de480bd34dc3e0abe3b5'&#10; +  where None = &lt;built-in method get of dict object at 0x0000019E1F72EAC0&gt;('test_icim_b3adv_probe.py')&#10; +    where &lt;built-in method get of dict object at 0x0000019E1F72EAC0&gt; = {'quant_research_runs/probe/evidence_gate.py': '491a13a031f8709990d3f3dc5fbac33234ee8b0c73dfef55ec455d483414ae2f', 'qu...5', 'quant_research_runs/probe/run_independent.py': 'c31bd81ee285b88099bc9b3ffe3f6e8a7a4e001f713fa7e64d2423dcbb277021'}.get&#10; +    and   'test_icim_b3adv_probe.py' = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_8acc2009/pytest/test_independent_source_bindin3/project/test_icim_b3adv_probe.py').name&#10; +  and   '465d277b382257dbcffc27da1605c3cf55c2ccdd4576de480bd34dc3e0abe3b5' = sha(WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_8acc2009/pytest/test_independent_source_bindin3/project/test_icim_b3adv_probe.py'))">tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_8acc2009/pytest/test_independent_source_bindin3')
+form = 'dot_node'
+
+    @pytest.mark.parametrize('form', ['bare', 'dot', 'absolute', 'dot_node'])
+    def test_independent_source_binding_normalizes_selected_test_path(tmp_path, form):
+        project, scripts = skeleton(tmp_path)
+        selected = project/'test_icim_b3adv_probe.py'
+        selected.write_bytes(b'def test_one():\n    assert True\n')
+        arg = {'bare':selected.name, 'dot':'./'+selected.name,
+               'absolute':str(selected), 'dot_node':'./'+selected.name+'::test_one'}[form]
+        tree = ast.parse((scripts/'run_independent.py').read_text(encoding='utf-8'))
+        functions = ast.Module(body=[node for node in tree.body
+                                    if isinstance(node, ast.FunctionDef) and node.name in {'sha','sources'}],
+                               type_ignores=[])
+        namespace = dict(ROOT=project, HERE=scripts, tests=[arg], hashlib=hashlib, Path=Path)
+        exec(compile(functions, str(scripts/'run_independent.py'), 'exec'), namespace)
+        bound = namespace['sources']()
+&gt;       assert bound.get(selected.name) == sha(selected), 'executed test module is omitted from source binding'
+E       AssertionError: executed test module is omitted from source binding
+E       assert None == '465d277b382257dbcffc27da1605c3cf55c2ccdd4576de480bd34dc3e0abe3b5'
+E        +  where None = &lt;built-in method get of dict object at 0x0000019E1F72EAC0&gt;('test_icim_b3adv_probe.py')
+E        +    where &lt;built-in method get of dict object at 0x0000019E1F72EAC0&gt; = {'quant_research_runs/probe/evidence_gate.py': '491a13a031f8709990d3f3dc5fbac33234ee8b0c73dfef55ec455d483414ae2f', 'qu...5', 'quant_research_runs/probe/run_independent.py': 'c31bd81ee285b88099bc9b3ffe3f6e8a7a4e001f713fa7e64d2423dcbb277021'}.get
+E        +    and   'test_icim_b3adv_probe.py' = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_8acc2009/pytest/test_independent_source_bindin3/project/test_icim_b3adv_probe.py').name
+E        +  and   '465d277b382257dbcffc27da1605c3cf55c2ccdd4576de480bd34dc3e0abe3b5' = sha(WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_8acc2009/pytest/test_independent_source_bindin3/project/test_icim_b3adv_probe.py'))
+
+test_icim_b3adv_scope_20261021.py:82: AssertionError</failure></testcase><testcase classname="test_icim_b3adv_scope_20261021" name="test_executed_test_self_change_is_rejected_even_with_prefixed_path[dot]" time="1.049"><failure message="AssertionError: unbound executed test changed yet received a strict PASS&#10;assert (0 != 0)&#10; +  where 0 = CompletedProcess(args=['C:\\Python314\\python.exe', 'C:\\Users\\Administrator.DESKTOP-95I7VVU\\AppData\\Local\\Temp\\i...ge&quot;: &quot;self_change&quot;, &quot;counts&quot;: {&quot;tests&quot;: 1, &quot;failures&quot;: 0, &quot;errors&quot;: 0, &quot;skipped&quot;: 0}, &quot;source_files&quot;: 3}\n', stderr='').returncode">tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_8acc2009/pytest/test_executed_test_self_change0')
+form = 'dot'
+
+    @pytest.mark.parametrize('form', ['dot', 'absolute'])
+    def test_executed_test_self_change_is_rejected_even_with_prefixed_path(tmp_path, form):
+        project, scripts = skeleton(tmp_path)
+        selected = project/'test_icim_b3adv_self_change.py'
+        selected.write_bytes(b'from pathlib import Path\ndef test_self_change():\n'
+                             b'    p=Path(__file__)\n    p.write_bytes(p.read_bytes()+b"\\n# changed during run\\n")\n')
+        arg = './'+selected.name if form == 'dot' else str(selected)
+        env = dict(os.environ)
+        env.pop('PYTEST_ADDOPTS', None)
+        result = subprocess.run([sys.executable, str(scripts/'run_independent.py'), 'self_change', arg],
+                                cwd=project, env=env, capture_output=True, text=True,
+                                encoding='utf-8', timeout=40)
+        accepted = scripts/'self_change/receipt.json'
+        observation('self_change_'+form+'.json', dict(returncode=result.returncode,
+                    accepted_receipt=accepted.read_text(encoding='utf-8') if accepted.exists() else None,
+                    child_output=result.stdout[-1000:], child_error=result.stderr[-1000:]))
+&gt;       assert result.returncode != 0 and not accepted.exists(), 'unbound executed test changed yet received a strict PASS'
+E       AssertionError: unbound executed test changed yet received a strict PASS
+E       assert (0 != 0)
+E        +  where 0 = CompletedProcess(args=['C:\\Python314\\python.exe', 'C:\\Users\\Administrator.DESKTOP-95I7VVU\\AppData\\Local\\Temp\\i...ge": "self_change", "counts": {"tests": 1, "failures": 0, "errors": 0, "skipped": 0}, "source_files": 3}\n', stderr='').returncode
+
+test_icim_b3adv_scope_20261021.py:101: AssertionError</failure></testcase><testcase classname="test_icim_b3adv_scope_20261021" name="test_executed_test_self_change_is_rejected_even_with_prefixed_path[absolute]" time="1.090"><failure message="AssertionError: unbound executed test changed yet received a strict PASS&#10;assert (0 != 0)&#10; +  where 0 = CompletedProcess(args=['C:\\Python314\\python.exe', 'C:\\Users\\Administrator.DESKTOP-95I7VVU\\AppData\\Local\\Temp\\i...ge&quot;: &quot;self_change&quot;, &quot;counts&quot;: {&quot;tests&quot;: 1, &quot;failures&quot;: 0, &quot;errors&quot;: 0, &quot;skipped&quot;: 0}, &quot;source_files&quot;: 3}\n', stderr='').returncode">tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_8acc2009/pytest/test_executed_test_self_change1')
+form = 'absolute'
+
+    @pytest.mark.parametrize('form', ['dot', 'absolute'])
+    def test_executed_test_self_change_is_rejected_even_with_prefixed_path(tmp_path, form):
+        project, scripts = skeleton(tmp_path)
+        selected = project/'test_icim_b3adv_self_change.py'
+        selected.write_bytes(b'from pathlib import Path\ndef test_self_change():\n'
+                             b'    p=Path(__file__)\n    p.write_bytes(p.read_bytes()+b"\\n# changed during run\\n")\n')
+        arg = './'+selected.name if form == 'dot' else str(selected)
+        env = dict(os.environ)
+        env.pop('PYTEST_ADDOPTS', None)
+        result = subprocess.run([sys.executable, str(scripts/'run_independent.py'), 'self_change', arg],
+                                cwd=project, env=env, capture_output=True, text=True,
+                                encoding='utf-8', timeout=40)
+        accepted = scripts/'self_change/receipt.json'
+        observation('self_change_'+form+'.json', dict(returncode=result.returncode,
+                    accepted_receipt=accepted.read_text(encoding='utf-8') if accepted.exists() else None,
+                    child_output=result.stdout[-1000:], child_error=result.stderr[-1000:]))
+&gt;       assert result.returncode != 0 and not accepted.exists(), 'unbound executed test changed yet received a strict PASS'
+E       AssertionError: unbound executed test changed yet received a strict PASS
+E       assert (0 != 0)
+E        +  where 0 = CompletedProcess(args=['C:\\Python314\\python.exe', 'C:\\Users\\Administrator.DESKTOP-95I7VVU\\AppData\\Local\\Temp\\i...ge": "self_change", "counts": {"tests": 1, "failures": 0, "errors": 0, "skipped": 0}, "source_files": 3}\n', stderr='').returncode
+
+test_icim_b3adv_scope_20261021.py:101: AssertionError</failure></testcase><testcase classname="test_icim_b3adv_scope_20261021" name="test_local_call_inventory_uses_verified_state_and_preserves_journal_bytes" time="0.038" /><testcase classname="test_icim_b3adv_scope_20261021" name="test_positive_ask_does_not_turn_unpriced_legacy_call_into_new_entry[0.0]" time="0.016" /><testcase classname="test_icim_b3adv_scope_20261021" name="test_positive_ask_does_not_turn_unpriced_legacy_call_into_new_entry[nan]" time="0.009" /><testcase classname="test_icim_b3adv_scope_20261021" name="test_unconfirmed_legacy_oi_cannot_open_replacement_call[0.0]" time="0.011" /><testcase classname="test_icim_b3adv_scope_20261021" name="test_unconfirmed_legacy_oi_cannot_open_replacement_call[-1.0]" time="0.011" /><testcase classname="test_icim_b3adv_scope_20261021" name="test_unconfirmed_legacy_oi_cannot_open_replacement_call[nan]" time="0.009" /><testcase classname="test_icim_b3adv_scope_20261021" name="test_crossed_or_infinite_quote_does_not_support_legacy_call_close[102.0-101.0]" time="0.011" /><testcase classname="test_icim_b3adv_scope_20261021" name="test_crossed_or_infinite_quote_does_not_support_legacy_call_close[99.0-inf]" time="0.009" /><testcase classname="test_icim_b3adv_scope_20261021" name="test_legacy_buyback_positive_control_never_calls_new_call_selection" time="0.038" /><testcase classname="test_icim_b3adv_scope_20261021" name="test_production_dynamic_import_and_config_paths_do_not_reach_put_candidates" time="0.577" /><testcase classname="test_icim_b3adv_scope_20261021" name="test_formal_reset_keeps_nearest_expiry_instead_of_adopting_minimum_three_months" time="0.009" /></testsuite></testsuites>

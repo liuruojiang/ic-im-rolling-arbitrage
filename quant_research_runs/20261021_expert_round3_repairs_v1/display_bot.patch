@@ -1,0 +1,111 @@
+*** Begin Patch
+*** Update File: poe_ic_im_mainline_v1_4_bot.py
+@@ -222,11 +222,16 @@
+     if mode not in {"intraday", "close"}:
+         raise ValueError(f"unsupported signal report mode: {mode}")
+     current = clock or _now_beijing()
+-    signal_day = (
+-        current.date()
+-        if mode == "intraday"
+-        else _latest_completed_exchange_day(current)
+-    )
++    try:
++        signal_day = (
++            current.date()
++            if mode == "intraday"
++            else _latest_completed_exchange_day(current)
++        )
++    except CalendarCoverageError:
++        # Report metadata must not prevent the verified snapshots below from
++        # being shown when the next calendar has not yet been installed.
++        return "未核验（官方交易日历缺失）"
+     return v14_policy.identity_for_signal_day(signal_day)[0]
+ 
+ 
+@@ -4213,6 +4218,30 @@
+         ) if key in source},
+         "data_notes": list(source.get("data_notes", [])),
+     }
++    # These are model observations, not independent confirmed futures targets:
++    # the fixed-core route and quarter schedule can still depend on a Put leg
++    # or the missing calendar. Copy only already-computed scalar values.
++    references = {}
++    for source_key, reference_key in (
++        ("momentum_next_weight", "momentum_weight_reference"),
++        ("grid_target", "grid_units_reference"),
++        ("core_action", "quarter_action_reference"),
++        ("roll_execution_date", "quarter_execution_date_reference"),
++        ("roll_preview", "quarter_preview_reference"),
++        ("roll_confirmed", "quarter_model_roll_reference"),
++    ):
++        value = source.get(source_key)
++        if value is None or not isinstance(value, (str, bool, int, float, np.generic, date)):
++            continue
++        if isinstance(value, (float, np.floating)) and not math.isfinite(float(value)):
++            continue
++        references[reference_key] = deepcopy(value)
++    if references:
++        result["diagnostic_model"]["unconfirmed_references"] = {
++            "confirmed": False,
++            "label": "参考计算值（未确认）",
++            **references,
++        }
+     # Deliberately do not copy the source dict: even a failed policy path can
+     # contain newly-created ordinary/short/profit pending plans and targets.
+     return result
+@@ -7568,12 +7597,30 @@
+         for row in future["quotes"]:
+             msg.write(f"- `{row.get('contract', row.get('instrument'))}`：{row.get('lastprice', row.get('price'))}。\n")
+         msg.write("\n")
++    references = signal.get("diagnostic_model", {}).get("unconfirmed_references", {})
++    if references:
++        msg.write("参考计算值（未确认；不作为正式目标或执行安排）：\n\n")
++        for key, label in (
++            ("momentum_weight_reference", "动量袖权重参考"),
++            ("grid_units_reference", "网格倍数参考"),
++            ("quarter_action_reference", "季度换仓动作参考"),
++            ("quarter_execution_date_reference", "季度执行日期参考（仍需日历核验）"),
++            ("quarter_preview_reference", "季度预告状态参考"),
++            ("quarter_model_roll_reference", "季度模型换仓状态参考"),
++        ):
++            if key in references:
++                msg.write(f"- {label}：{references[key]}。\n")
++        msg.write("\n")
+     msg.write("完整目标：N/A；本次结果仅供研究诊断，不生成新执行计划，不写入正式账本。\n\n")
+     def safe(value: Any) -> Any:
+         if isinstance(value, dict):
+             return {str(key): safe(item) for key, item in value.items()}
+         if isinstance(value, (list, tuple)):
+             return [safe(item) for item in value]
++        if isinstance(value, (np.bool_, bool)):
++            return bool(value)
++        if isinstance(value, (np.integer, int)):
++            return int(value)
+         if isinstance(value, (float, np.floating)):
+             return float(value) if math.isfinite(float(value)) else None
+         if isinstance(value, (date, datetime, pd.Timestamp)):
+@@ -7587,7 +7634,10 @@
+ 
+ 
+ def _write_last_verified_snapshot(msg: Any, product: str) -> None:
+-    anchor = LIVE_CONTINUATION_ANCHOR[product]
++    # The builder may temporarily install an opening projection while holding
++    # this same lock. Copy under the lock; rendering must use that stable copy.
++    with STRATEGY_QUERY_LOCK:
++        anchor = deepcopy(LIVE_CONTINUATION_ANCHOR[product])
+     momentum_weight = float(anchor["verified_momentum_weight"])
+     grid_units = float(anchor["verified_grid_units"])
+     route = anchor.get("v14_route_state", "future")
+@@ -7775,6 +7825,11 @@
+                                   f"持久化状态未确认：{type(observer_exc).__name__}: {observer_exc}。\n\n")
+                 if live.get("diagnostic_only"):
+                     _write_diagnostic_signal(msg, product, live)
++                    try:
++                        _write_last_verified_snapshot(msg, product)
++                    except Exception as snapshot_exc:  # Keep the other product visible.
++                        msg.write("最后已核验快照无法安全渲染："
++                                  f"{type(snapshot_exc).__name__}: {snapshot_exc}。\n\n")
+                     continue
+                 msg.write(f"### {PRODUCT_NAMES[product]}\n\n")
+                 if live.get("calendar_coverage_warning"):
+*** End Patch

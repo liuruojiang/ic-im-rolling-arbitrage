@@ -1,0 +1,18 @@
+[
+  {
+    "Path": "D:\\动量策略\\IC和IM滚动套利\\poe_ic_im_mainline_v1_4_bot.py",
+    "Hash": "ED0A1417F1D663F0F95DA67BDA080A2B637BE4F0D3B58AD4B644C5D64ED61128"
+  },
+  {
+    "Path": "D:\\动量策略\\IC和IM滚动套利\\ic_im_sse_contract_identity_v1.py",
+    "Hash": "C0A3E15519ABC1F738FA2AD50D6106427CF9608CEAC02EAC9D2E249C7F4E7549"
+  },
+  {
+    "Path": "D:\\动量策略\\IC和IM滚动套利\\test_icim_round2_audit_market_20261021.py",
+    "Hash": "8F65AEDC18CF9E4551BF2346BA5D3CDD292FA288B77DAC73FD2A14A88995C2A0"
+  },
+  {
+    "Path": "D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261021_external_review_round2_redteam_v1\\market\\run_checks.py",
+    "Hash": "98C2B70D04B3B5F38620FCEBC413D86CF6E3F65F51671A0CD6EBB24CEC32643C"
+  }
+]

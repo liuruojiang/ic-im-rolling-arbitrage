@@ -1,0 +1,142 @@
+FFFFFF.                                                                  [100%]
+================================== FAILURES ===================================
+__________ test_canonical_open_plan_with_dict_legs_remains_accepted ___________
+
+    def test_canonical_open_plan_with_dict_legs_remains_accepted():
+        signal=base()
+        signal['v14_ordinary_put_open_plan']=plan()
+>       bot.require_signal_calendar('IM',signal)
+
+test_icim_batch3_calendar_redteam_20261021.py:47: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+product = 'IM'
+signal = {'core_current': 'IM2612', 'core_target': 'IM2612', 'market_date': datetime.date(2026, 10, 21), 'next_trade_date': datetime.date(2026, 10, 22), ...}
+
+    def require_signal_calendar(product: str, signal: dict[str, Any]) -> None:
+        """Guard consumed signal dates without treating every listed row as a target."""
+        def covered(value: Any, label: str) -> None:
+            if value is not None:
+                day = value if isinstance(value, date) else date.fromisoformat(str(value)[:10])
+                _require_official_exchange_calendar(day, f"{product} {label}")
+    
+        def contract_covered(value: Any, label: str) -> None:
+            if not value:
+                return
+            match = re.fullmatch(r"(?:IC|IM|MO)([0-9]{2})([0-9]{2})(?:-[PC]-[0-9]+)?", str(value))
+            if match is None:
+                match = re.fullmatch(r"510500P([0-9]{2})([0-9]{2})[MA][0-9]{5}", str(value))
+            if match is not None:
+                covered(date(2000 + int(match.group(1)), int(match.group(2)), 1), label)
+    
+        covered(signal.get("market_date"), "market date")
+        covered(signal.get("next_trade_date"), "next session")
+        # next_core and quote-frame expiries are diagnostics until actually adopted.
+        contract_covered(signal.get("core_target"), "core target")
+        for target, current in (("put_target_contract", "put_current_contract"),
+                                ("v14_core_put_contract", "v14_core_put_current_contract"),
+                                ("momentum_put_target_contract", "momentum_put_current_contract")):
+            if signal.get(target) != signal.get(current):
+                contract_covered(signal.get(target), target)
+        if signal.get("v14_action") in {"ENTER_SHORT_PUT", "ROLL_SHORT_PUT"}:
+            covered(signal.get("v14_short_put_expiry"), "new short Put expiry")
+            contract_covered(signal.get("v14_short_put_contract"), "new short Put")
+        if signal.get("v14_profit_pending"):
+            covered(signal.get("v14_profit_execution_day"), "profit reentry execution")
+            contract_covered(signal.get("v14_profit_reentry_contract"), "profit reentry")
+        for key in ("v14_ordinary_put_open_plan", "v14_ordinary_put_open_pending", "v14_short_put_open_pending"):
+            plan = signal.get(key)
+            if not isinstance(plan, dict):
+                continue
+            covered(plan.get("execution_day"), key)
+            contract_covered(plan.get("new_contract"), key)
+            for leg in plan.get("legs", []):
+>               if leg.get("changed") and float(leg.get("new_qty", 0) or 0) > 0:
+                   ^^^^^^^
+E               AttributeError: 'str' object has no attribute 'get'
+
+poe_ic_im_mainline_v1_4_bot.py:4863: AttributeError
+____ test_canonical_ordinary_pending_is_guarded[MO2703-P-7500-execution0] _____
+
+contract = 'MO2703-P-7500', execution = datetime.date(2026, 10, 22)
+
+    @pytest.mark.parametrize('contract,execution',[
+        ('MO2703-P-7500',date(2026,10,22)),
+        ('MO2612-P-7500',date(2027,1,4)),
+    ])
+    def test_canonical_ordinary_pending_is_guarded(contract,execution):
+        signal=base()
+        signal['v14_ordinary_put_pending']=plan(contract,execution)
+>       with pytest.raises(RuntimeError,match='2027'):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+test_icim_batch3_calendar_redteam_20261021.py:57: Failed
+____ test_canonical_ordinary_pending_is_guarded[MO2612-P-7500-execution1] _____
+
+contract = 'MO2612-P-7500', execution = datetime.date(2027, 1, 4)
+
+    @pytest.mark.parametrize('contract,execution',[
+        ('MO2703-P-7500',date(2026,10,22)),
+        ('MO2612-P-7500',date(2027,1,4)),
+    ])
+    def test_canonical_ordinary_pending_is_guarded(contract,execution):
+        signal=base()
+        signal['v14_ordinary_put_pending']=plan(contract,execution)
+>       with pytest.raises(RuntimeError,match='2027'):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+test_icim_batch3_calendar_redteam_20261021.py:57: Failed
+_________________ test_im_actual_core_target_field_is_guarded _________________
+
+    def test_im_actual_core_target_field_is_guarded():
+        signal=base()
+        signal.update(core_put_current_contract='MO2612-P-7500',
+                      core_put_target_contract='MO2703-P-7500',
+                      core_put_target_qty_normalized=1.)
+>       with pytest.raises(RuntimeError,match='2027'):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+test_icim_batch3_calendar_redteam_20261021.py:66: Failed
+_ test_im_maintenance_actual_execution_field_is_guarded[put_monthly_reset_preview] _
+
+flag = 'put_monthly_reset_preview'
+
+    @pytest.mark.parametrize('flag',['put_monthly_reset_preview','option_monthly_reset_due'])
+    def test_im_maintenance_actual_execution_field_is_guarded(flag):
+        signal=base()
+        signal.update({flag:True,'put_monthly_reset_execution_date':date(2027,1,15)})
+>       with pytest.raises(RuntimeError,match='2027'):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+test_icim_batch3_calendar_redteam_20261021.py:74: Failed
+_ test_im_maintenance_actual_execution_field_is_guarded[option_monthly_reset_due] _
+
+flag = 'option_monthly_reset_due'
+
+    @pytest.mark.parametrize('flag',['put_monthly_reset_preview','option_monthly_reset_due'])
+    def test_im_maintenance_actual_execution_field_is_guarded(flag):
+        signal=base()
+        signal.update({flag:True,'put_monthly_reset_execution_date':date(2027,1,15)})
+>       with pytest.raises(RuntimeError,match='2027'):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+test_icim_batch3_calendar_redteam_20261021.py:74: Failed
+============================== warnings summary ===============================
+C:\Python314\Lib\site-packages\fastapi_poe\types.py:171
+  C:\Python314\Lib\site-packages\fastapi_poe\types.py:171: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    class RequestContext(BaseModel):
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED test_icim_batch3_calendar_redteam_20261021.py::test_canonical_open_plan_with_dict_legs_remains_accepted
+FAILED test_icim_batch3_calendar_redteam_20261021.py::test_canonical_ordinary_pending_is_guarded[MO2703-P-7500-execution0]
+FAILED test_icim_batch3_calendar_redteam_20261021.py::test_canonical_ordinary_pending_is_guarded[MO2612-P-7500-execution1]
+FAILED test_icim_batch3_calendar_redteam_20261021.py::test_im_actual_core_target_field_is_guarded
+FAILED test_icim_batch3_calendar_redteam_20261021.py::test_im_maintenance_actual_execution_field_is_guarded[put_monthly_reset_preview]
+FAILED test_icim_batch3_calendar_redteam_20261021.py::test_im_maintenance_actual_execution_field_is_guarded[option_monthly_reset_due]
+6 failed, 1 passed, 1 warning in 2.51s

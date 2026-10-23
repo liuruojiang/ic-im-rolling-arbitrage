@@ -1,0 +1,101 @@
+{
+  "verified_at": "2026-10-22T18:44:08.672691+08:00",
+  "status": "PASS",
+  "protected_objects": 9114,
+  "intended_production_changes": [
+    "ic_im_evidence_adapter_v1.py",
+    "ic_im_signal_evidence_v1.py",
+    "poe_ic_im_mainline_v1_4_bot.py"
+  ],
+  "intended_documentation_changes": [
+    "notes/mainline_registry.md"
+  ],
+  "unchanged_protected_objects": 9110,
+  "unexpected_changes": [],
+  "backup_checks": {
+    "poe_ic_im_mainline_v1_4_bot.py": true,
+    "ic_im_evidence_adapter_v1.py": true,
+    "ic_im_signal_evidence_v1.py": true,
+    "poe_ic_im_v1_4_state.py": true,
+    "poe_ic_im_v1_4_server.py": true,
+    "notes/mainline_registry.md": true
+  },
+  "formal_runtime_files": 156,
+  "formal_runtime_paths_and_bytes_unchanged": true,
+  "formal_ledger": {
+    "sequence": 19,
+    "verified_day": "2026-10-21",
+    "digest": "c068710414dd9070d178faa4625d56835e67b9f2004c935a268900b9a1080342"
+  },
+  "accepted_tests": {
+    "tests": 2918,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "accepted_binding_files": 1012,
+  "accepted_binding_still_current": true,
+  "original_exclusions_unchanged": 22,
+  "fifth_round_tests_executed": 19,
+  "fixture_adaptations": {
+    "single_response_chain_batch_size_64": [
+      "test_ic_im_v1_4_integration_guards.py::test_sina_chain_marks_one_yesterday_row_without_reselecting_another_strike",
+      "test_ic_im_external_review_20261021.py::test_real_adjusted_rows_are_quarantined_without_inventing_trading_codes",
+      "test_icim_redteam_market_20261021.py::test_full_real_adjusted_chain_preserves_fifteen_legal_m_contracts"
+    ],
+    "synthetic_etf_previous_close_7_8": [
+      "test_icim_round2_audit_lifecycle_20261021.py::test_full_public_builder_real_sse_current_holding_identity[10012099]",
+      "test_icim_round2_audit_lifecycle_20261021.py::test_full_public_builder_real_sse_current_holding_identity[10011470]",
+      "test_icim_round2_audit_lifecycle_20261021.py::test_full_public_builder_real_sse_current_holding_identity[None]",
+      "test_icim_round2_audit_lifecycle_20261021.py::test_actual_builder_independent_sleeves_never_cross_identity[None]",
+      "test_icim_round2_audit_lifecycle_20261021.py::test_actual_builder_independent_sleeves_never_cross_identity[core]",
+      "test_icim_round2_audit_lifecycle_20261021.py::test_actual_builder_independent_sleeves_never_cross_identity[momentum]",
+      "test_icim_round2_audit_lifecycle_20261021.py::test_legal_zero_put_holding_does_not_require_unheld_legacy_identity",
+      "test_icim_round2_audit_lifecycle_20261021.py::test_actual_short_mark_must_not_trust_stale_m_label_for_adjusted_security",
+      "test_icim_batch3_valuation_20261021.py::test_complete_ic_builder_replaces_legacy_state_before_formal_target[-100.0]",
+      "test_icim_batch3_valuation_20261021.py::test_complete_ic_builder_replaces_legacy_state_before_formal_target[100.0]",
+      "test_icim_expert_display_retry_20261021.py::test_ic_public_monthly_reset_with_missing_quantity_is_diagnostic",
+      "test_icim_expert_audit_calendar_20261021.py::test_actual_ic_quarter_roll_preview_and_close_remain_diagnostic[day0]",
+      "test_icim_expert_audit_calendar_20261021.py::test_actual_ic_quarter_roll_preview_and_close_remain_diagnostic[day1]"
+    ],
+    "note": "Only these isolated test inputs are adapted. Original assertions and 22 exclusions remain unchanged; production defaults/validators are unchanged.",
+    "sina_wire_string_mock_boundary": [
+      "test_icim_round4_recovery_20261021.py::test_batched_mo_original_crosschecks_replay_quote_and_open_without_http"
+    ]
+  },
+  "real_ic_facts_acceptance": "PASS_FACTS_AND_VERIFIED_REPLAY_METADATA",
+  "real_source_sha256": {
+    "poe_ic_im_mainline_v1_4_bot.py": "565d719cf7ae5b7c6b4fe8c922536cf5e7bde7d485c2b293f4cec1ba86b63af4",
+    "ic_im_evidence_adapter_v1.py": "09cde7c314fefa73bd23ffe59ac5b25843fc58f7f72890791bf4d98591fa489c",
+    "ic_im_signal_evidence_v1.py": "7de3265318211aa219c88983031dee76e7c1df4516a6d8b02183660332b28f6c",
+    "poe_ic_im_v1_4_state.py": "9244c7f1d8bbb138e8e86246261fad13e90058f42764b855f8219aa1596c1067"
+  },
+  "source_pin_files": 28,
+  "source_pin_sha256": "fc55321fd48d30582e22dc3e76511e6a579facff17bcaddcecf0fa3533ae87d9",
+  "math_and_history_functions_ast_unchanged": [
+    "historical_replay",
+    "_cffex_historical_quote_frame",
+    "_cffex_historical_quote_frame_impl",
+    "fetch_sse_510500_historical_quote",
+    "fetch_sse_existing_put_historical_quote",
+    "_is_exchange_trading_day",
+    "_third_friday",
+    "_fourth_wednesday",
+    "_bs_price_delta"
+  ],
+  "historical_nav_rerun_this_round": false,
+  "spec_sha256": {
+    "ic_im_free_source_integration_20261022_v1_spec.md": "2395d2509ba77168e90e5d5a94db3c8b6b6d72e9d19708a664eea1de01d71bcf",
+    "ic_im_free_source_replay_contract_20261022_v1_spec.md": "83ab7de96e00506fd320c7fa93693721e99712fba6880727326f1873b8034626",
+    "ic_im_bounded_parallel_capture_20261022_v1_spec.md": "9982a1ba638345185c8d02785e7ad0e1545d17bf9192526e52455482da31ff23",
+    "ic_im_sina_batch_wire_20261022_v1_spec.md": "2b4f5b1617e11c00f297b3e56fff92d43f359d8a00a968a918a82b4db6eea418"
+  },
+  "launch": {
+    "pid": 14116,
+    "started_at": "2026-10-22T18:34:06.8275014+08:00",
+    "python": "C:\\Python314\\python.exe",
+    "source_pin": "D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261022_free_source_integration_v1\\delivery\\capture_source_pin.json",
+    "evidence_dir": "D:\\动量策略\\IC和IM滚动套利\\data\\icim_v14_original_inputs",
+    "state_read_only": "D:\\动量策略\\IC和IM滚动套利\\runtime\\ic_im_v1_4_r1"
+  }
+}

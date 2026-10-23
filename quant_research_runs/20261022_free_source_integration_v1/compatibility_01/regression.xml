@@ -1,0 +1,629 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="11" skipped="0" tests="122" time="11.455" timestamp="2026-10-22T18:05:32.282315+08:00" hostname="DESKTOP-95I7VVU"><testcase classname="test_icim_round3_evidence_integration_20261021" name="test_index_failure_still_preserves_perishable_original_chains" time="0.106" /><testcase classname="test_icim_round3_evidence_integration_20261021" name="test_one_chain_failure_preserves_other_months_and_other_product" time="0.092" /><testcase classname="test_icim_round3_evidence_integration_20261021" name="test_source_has_no_key_adapter_side_effect_without_evidence_context" time="0.001" /><testcase classname="test_icim_round3_evidence_integration_20261021" name="test_native_script_survives_removed_module_registration_and_keeps_shared_providers" time="0.368" /><testcase classname="test_icim_round3_evidence_integration_20261021" name="test_rate_keyword_interface_is_preserved" time="0.001" /><testcase classname="test_icim_round3_evidence_integration_20261021" name="test_health_retains_verified_head_when_calendar_is_missing" time="0.087" /><testcase classname="test_icim_round3_evidence_integration_20261021" name="test_capture_retries_partial_then_refreshes_after_rate_publication" time="0.014" /><testcase classname="test_icim_round3_evidence_integration_20261021" name="test_sole_refresh_loop_collects_today_even_when_old_catchup_raises" time="0.009" /><testcase classname="test_icim_round3_evidence_integration_20261021" name="test_default_evidence_root_stays_inside_the_mounted_state_directory" time="0.014" /><testcase classname="test_icim_round3_evidence_integration_20261021" name="test_invalid_open_supplement_never_publishes_complete_manifest[bad0]" time="0.369" /><testcase classname="test_icim_round3_evidence_integration_20261021" name="test_invalid_open_supplement_never_publishes_complete_manifest[bad1]" time="0.441" /><testcase classname="test_icim_round3_evidence_integration_20261021" name="test_invalid_open_supplement_never_publishes_complete_manifest[bad2]" time="0.386" /><testcase classname="test_icim_round3_evidence_integration_20261021" name="test_early_calendar_failure_retains_already_computed_model_references" time="0.005" /><testcase classname="test_icim_round3_evidence_integration_20261021" name="test_original_close_replay_discloses_archive_identity_and_actual_acquisition" time="0.358"><failure message="AssertionError: assert ('原日存证重放' in '市场输入来源、日期及回退情况见以下审计记录')">tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_7b1a9578/pytest/test_original_close_replay_dis0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x00000221FFAAB7D0&gt;
+
+    def test_original_close_replay_discloses_archive_identity_and_actual_acquisition(tmp_path, monkeypatch):
+        recovery.archive(monkeypatch, tmp_path, "IC", recovery.DAY)
+        monkeypatch.setattr(bot, "LIVE_CONTINUATION_ANCHOR", deepcopy(bot.LIVE_CONTINUATION_ANCHOR))
+        bot.install_runtime_anchors(recovery.state.anchors_from_record(recovery.prepared_record()))
+        monkeypatch.setattr(bot, "_OFFICIAL_EXCHANGE_CALENDAR_YEARS", set(bot._OFFICIAL_EXCHANGE_CALENDAR_YEARS) | {2027})
+        monkeypatch.setattr(bot, "build_iv_warning", lambda *a, **k: {"status": "audit_monitor_omitted"})
+        monkeypatch.setattr(bot.fear_grid, "fetch_jiu_reference", lambda *a, **k: {})
+        with adapter.evidence_location(tmp_path), bot.historical_replay(recovery.DAY):
+            signal = bot.build_live_trade_signal("IC", recovery.clock(recovery.DAY, 15, 20), "close")
+        assert not signal.get("diagnostic_only"), signal
+        note = signal["data_notes"][0]
+&gt;       assert "原日存证重放" in note and "原日实际采集完成" in note
+E       AssertionError: assert ('原日存证重放' in '市场输入来源、日期及回退情况见以下审计记录')
+
+test_icim_round3_evidence_integration_20261021.py:191: AssertionError</failure></testcase><testcase classname="test_icim_round4_recovery_20261021" name="test_real_independent_collector_survives_calendar_diagnostic_then_server_recovers[False-day0-previous0-later0]" time="0.333"><failure message="ic_im_signal_evidence_v1.EvidenceUnavailable: 2026-11-20 original evidence unavailable: 100000000000-8089f365d74f460ba6bc20768274ed11.json: evidence byte total mismatch or exceeds limit">tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_7b1a9578/pytest/test_real_independent_collecto0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x00000221814C5F40&gt;
+day = datetime.date(2026, 11, 20), previous = datetime.date(2026, 11, 19)
+later = datetime.date(2026, 11, 24), fear_missing = False
+
+    @pytest.mark.parametrize("day,previous,later", [
+        (date(2026, 11, 20), date(2026, 11, 19), date(2026, 11, 24)),
+        (date(2026, 12, 31), date(2026, 12, 30), date(2027, 1, 5)),
+    ])
+    @pytest.mark.parametrize("fear_missing", [False, True])
+    def test_real_independent_collector_survives_calendar_diagnostic_then_server_recovers(tmp_path, monkeypatch, day, previous, later, fear_missing):
+        monkeypatch.setattr(bot.requests, "get", lambda *a, **k: pytest.fail("network escaped stored inputs"))
+        now = wall(monkeypatch, day)
+        store, record = seed_store(tmp_path / "state", previous, day)
+        bot.install_runtime_anchors(state.anchors_from_record(record))
+        samples = providers(monkeypatch, day)
+        if fear_missing:
+            samples["IM"][3].clear()
+            samples["IM"][3].update({"fear_source_policy_revision": bot.fear_grid.SOURCE_POLICY_REVISION,
+                "fear_greed_index": None, "fear_data_date": None, "fear_data_status": "unavailable",
+                "fear_unavailable_reason": "synthetic original source outage", "fear_retrieved_at": now.isoformat(),
+                "fear_fetch_started_at": now.isoformat(), "fear_available_sources": [], "fear_selected_source": None,
+                "fear_cross_validation": "unavailable", "fear_source_warning": "synthetic outage",
+                "fear_fallback_applied": False, "fear_csv_sha256": None, "fear_page_sha256": None,
+                "fear_page_updated_at": None, "fear_page_data_date": None})
+        builder = bot._build_live_trade_signal
+        monkeypatch.setattr(bot, "_build_live_trade_signal", lambda *a, **k: pytest.fail("collector must not depend on signal conclusion"))
+        root = tmp_path / "evidence"
+        result = adapter.capture_daily(bot, root, now)
+        assert result["status"] == "captured"
+        for product in ["IC", "IM"]:
+&gt;           reader, _ = adapter.load_original(bot, root, product, day)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_icim_round4_recovery_20261021.py:106: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+ic_im_evidence_adapter_v1.py:369: in load_original
+    reader = evidence.load_session(root, day, required_roles=roles, metadata_filter={
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+root = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_7b1a9578/pytest/test_real_independent_collecto0/evidence')
+day = datetime.date(2026, 11, 20)
+required_roles = {'cffex.quotes', 'fear.score', 'ic.chain', 'ic.etf', 'ic.months', 'market.live', ...}
+metadata_filter = {'input_revision': 'ic_im_original_inputs_20261021_v1', 'original_close': True, 'product': 'IC'}
+decision_not_after = None
+
+    def load_session(root: str | Path, day: date, required_roles: Any = None,
+                     metadata_filter: dict[str, Any] | None = None,
+                     decision_not_after: datetime | None = None) -&gt; EvidenceReader:
+        root, day = _canonical(Path(root)), _day(day)
+        cutoff = _aware(decision_not_after, "decision_not_after") if decision_not_after is not None else None
+        directory = _inside(root, root / "sessions" / day.isoformat())
+        try:
+            files = list(directory.glob("*.json"))
+        except OSError as exc:
+            raise EvidenceUnavailable(f"{day} cannot enumerate original evidence") from exc
+        if len(files) &gt; MAX_SESSION_FILES:
+            raise EvidenceUnavailable(f"{day} evidence session count exceeds limit")
+        roles = set(required_roles or [])
+        for role in roles:
+            _role(role)
+        choices, failures = [], []
+        for path in files:
+            try:
+                reader = _load_one(root, path, day)
+                if cutoff is not None and reader.decision_at &gt; cutoff:
+                    continue
+                if metadata_filter and any(reader.metadata.get(key) != value for key, value in metadata_filter.items()):
+                    continue
+                missing = roles - {entry["role"] for entry in reader.context["entries"].values()}
+                if missing:
+                    raise EvidenceUnavailable("missing original evidence roles=" + ",".join(sorted(missing)))
+                choices.append(reader)
+            except (EvidenceUnavailable, ValueError, TypeError, KeyError, AttributeError) as exc:
+                failures.append(f"{path.name}: {exc}")
+        if not choices:
+            detail = "; ".join(failures[:4]) or "no complete session matching requested roles, metadata and decision time"
+&gt;           raise EvidenceUnavailable(f"{day} original evidence unavailable: {detail}")
+E           ic_im_signal_evidence_v1.EvidenceUnavailable: 2026-11-20 original evidence unavailable: 100000000000-8089f365d74f460ba6bc20768274ed11.json: evidence byte total mismatch or exceeds limit
+
+ic_im_signal_evidence_v1.py:713: EvidenceUnavailable</failure></testcase><testcase classname="test_icim_round4_recovery_20261021" name="test_real_independent_collector_survives_calendar_diagnostic_then_server_recovers[False-day1-previous1-later1]" time="0.317"><failure message="ic_im_signal_evidence_v1.EvidenceUnavailable: 2026-12-31 original evidence unavailable: 100000000000-a0344bab330b4bd190a69a849fa70bcf.json: evidence byte total mismatch or exceeds limit">tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_7b1a9578/pytest/test_real_independent_collecto1')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x00000221814C6570&gt;
+day = datetime.date(2026, 12, 31), previous = datetime.date(2026, 12, 30)
+later = datetime.date(2027, 1, 5), fear_missing = False
+
+    @pytest.mark.parametrize("day,previous,later", [
+        (date(2026, 11, 20), date(2026, 11, 19), date(2026, 11, 24)),
+        (date(2026, 12, 31), date(2026, 12, 30), date(2027, 1, 5)),
+    ])
+    @pytest.mark.parametrize("fear_missing", [False, True])
+    def test_real_independent_collector_survives_calendar_diagnostic_then_server_recovers(tmp_path, monkeypatch, day, previous, later, fear_missing):
+        monkeypatch.setattr(bot.requests, "get", lambda *a, **k: pytest.fail("network escaped stored inputs"))
+        now = wall(monkeypatch, day)
+        store, record = seed_store(tmp_path / "state", previous, day)
+        bot.install_runtime_anchors(state.anchors_from_record(record))
+        samples = providers(monkeypatch, day)
+        if fear_missing:
+            samples["IM"][3].clear()
+            samples["IM"][3].update({"fear_source_policy_revision": bot.fear_grid.SOURCE_POLICY_REVISION,
+                "fear_greed_index": None, "fear_data_date": None, "fear_data_status": "unavailable",
+                "fear_unavailable_reason": "synthetic original source outage", "fear_retrieved_at": now.isoformat(),
+                "fear_fetch_started_at": now.isoformat(), "fear_available_sources": [], "fear_selected_source": None,
+                "fear_cross_validation": "unavailable", "fear_source_warning": "synthetic outage",
+                "fear_fallback_applied": False, "fear_csv_sha256": None, "fear_page_sha256": None,
+                "fear_page_updated_at": None, "fear_page_data_date": None})
+        builder = bot._build_live_trade_signal
+        monkeypatch.setattr(bot, "_build_live_trade_signal", lambda *a, **k: pytest.fail("collector must not depend on signal conclusion"))
+        root = tmp_path / "evidence"
+        result = adapter.capture_daily(bot, root, now)
+        assert result["status"] == "captured"
+        for product in ["IC", "IM"]:
+&gt;           reader, _ = adapter.load_original(bot, root, product, day)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_icim_round4_recovery_20261021.py:106: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+ic_im_evidence_adapter_v1.py:369: in load_original
+    reader = evidence.load_session(root, day, required_roles=roles, metadata_filter={
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+root = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_7b1a9578/pytest/test_real_independent_collecto1/evidence')
+day = datetime.date(2026, 12, 31)
+required_roles = {'cffex.quotes', 'fear.score', 'ic.chain', 'ic.etf', 'ic.months', 'market.live', ...}
+metadata_filter = {'input_revision': 'ic_im_original_inputs_20261021_v1', 'original_close': True, 'product': 'IC'}
+decision_not_after = None
+
+    def load_session(root: str | Path, day: date, required_roles: Any = None,
+                     metadata_filter: dict[str, Any] | None = None,
+                     decision_not_after: datetime | None = None) -&gt; EvidenceReader:
+        root, day = _canonical(Path(root)), _day(day)
+        cutoff = _aware(decision_not_after, "decision_not_after") if decision_not_after is not None else None
+        directory = _inside(root, root / "sessions" / day.isoformat())
+        try:
+            files = list(directory.glob("*.json"))
+        except OSError as exc:
+            raise EvidenceUnavailable(f"{day} cannot enumerate original evidence") from exc
+        if len(files) &gt; MAX_SESSION_FILES:
+            raise EvidenceUnavailable(f"{day} evidence session count exceeds limit")
+        roles = set(required_roles or [])
+        for role in roles:
+            _role(role)
+        choices, failures = [], []
+        for path in files:
+            try:
+                reader = _load_one(root, path, day)
+                if cutoff is not None and reader.decision_at &gt; cutoff:
+                    continue
+                if metadata_filter and any(reader.metadata.get(key) != value for key, value in metadata_filter.items()):
+                    continue
+                missing = roles - {entry["role"] for entry in reader.context["entries"].values()}
+                if missing:
+                    raise EvidenceUnavailable("missing original evidence roles=" + ",".join(sorted(missing)))
+                choices.append(reader)
+            except (EvidenceUnavailable, ValueError, TypeError, KeyError, AttributeError) as exc:
+                failures.append(f"{path.name}: {exc}")
+        if not choices:
+            detail = "; ".join(failures[:4]) or "no complete session matching requested roles, metadata and decision time"
+&gt;           raise EvidenceUnavailable(f"{day} original evidence unavailable: {detail}")
+E           ic_im_signal_evidence_v1.EvidenceUnavailable: 2026-12-31 original evidence unavailable: 100000000000-a0344bab330b4bd190a69a849fa70bcf.json: evidence byte total mismatch or exceeds limit
+
+ic_im_signal_evidence_v1.py:713: EvidenceUnavailable</failure></testcase><testcase classname="test_icim_round4_recovery_20261021" name="test_real_independent_collector_survives_calendar_diagnostic_then_server_recovers[True-day0-previous0-later0]" time="0.358"><failure message="ic_im_signal_evidence_v1.EvidenceUnavailable: 2026-11-20 original evidence unavailable: 100000000000-d7fdafc4d7194f888703d07e708c9c40.json: evidence byte total mismatch or exceeds limit">tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_7b1a9578/pytest/test_real_independent_collecto2')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000002218105EB70&gt;
+day = datetime.date(2026, 11, 20), previous = datetime.date(2026, 11, 19)
+later = datetime.date(2026, 11, 24), fear_missing = True
+
+    @pytest.mark.parametrize("day,previous,later", [
+        (date(2026, 11, 20), date(2026, 11, 19), date(2026, 11, 24)),
+        (date(2026, 12, 31), date(2026, 12, 30), date(2027, 1, 5)),
+    ])
+    @pytest.mark.parametrize("fear_missing", [False, True])
+    def test_real_independent_collector_survives_calendar_diagnostic_then_server_recovers(tmp_path, monkeypatch, day, previous, later, fear_missing):
+        monkeypatch.setattr(bot.requests, "get", lambda *a, **k: pytest.fail("network escaped stored inputs"))
+        now = wall(monkeypatch, day)
+        store, record = seed_store(tmp_path / "state", previous, day)
+        bot.install_runtime_anchors(state.anchors_from_record(record))
+        samples = providers(monkeypatch, day)
+        if fear_missing:
+            samples["IM"][3].clear()
+            samples["IM"][3].update({"fear_source_policy_revision": bot.fear_grid.SOURCE_POLICY_REVISION,
+                "fear_greed_index": None, "fear_data_date": None, "fear_data_status": "unavailable",
+                "fear_unavailable_reason": "synthetic original source outage", "fear_retrieved_at": now.isoformat(),
+                "fear_fetch_started_at": now.isoformat(), "fear_available_sources": [], "fear_selected_source": None,
+                "fear_cross_validation": "unavailable", "fear_source_warning": "synthetic outage",
+                "fear_fallback_applied": False, "fear_csv_sha256": None, "fear_page_sha256": None,
+                "fear_page_updated_at": None, "fear_page_data_date": None})
+        builder = bot._build_live_trade_signal
+        monkeypatch.setattr(bot, "_build_live_trade_signal", lambda *a, **k: pytest.fail("collector must not depend on signal conclusion"))
+        root = tmp_path / "evidence"
+        result = adapter.capture_daily(bot, root, now)
+        assert result["status"] == "captured"
+        for product in ["IC", "IM"]:
+&gt;           reader, _ = adapter.load_original(bot, root, product, day)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_icim_round4_recovery_20261021.py:106: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+ic_im_evidence_adapter_v1.py:369: in load_original
+    reader = evidence.load_session(root, day, required_roles=roles, metadata_filter={
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+root = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_7b1a9578/pytest/test_real_independent_collecto2/evidence')
+day = datetime.date(2026, 11, 20)
+required_roles = {'cffex.quotes', 'fear.score', 'ic.chain', 'ic.etf', 'ic.months', 'market.live', ...}
+metadata_filter = {'input_revision': 'ic_im_original_inputs_20261021_v1', 'original_close': True, 'product': 'IC'}
+decision_not_after = None
+
+    def load_session(root: str | Path, day: date, required_roles: Any = None,
+                     metadata_filter: dict[str, Any] | None = None,
+                     decision_not_after: datetime | None = None) -&gt; EvidenceReader:
+        root, day = _canonical(Path(root)), _day(day)
+        cutoff = _aware(decision_not_after, "decision_not_after") if decision_not_after is not None else None
+        directory = _inside(root, root / "sessions" / day.isoformat())
+        try:
+            files = list(directory.glob("*.json"))
+        except OSError as exc:
+            raise EvidenceUnavailable(f"{day} cannot enumerate original evidence") from exc
+        if len(files) &gt; MAX_SESSION_FILES:
+            raise EvidenceUnavailable(f"{day} evidence session count exceeds limit")
+        roles = set(required_roles or [])
+        for role in roles:
+            _role(role)
+        choices, failures = [], []
+        for path in files:
+            try:
+                reader = _load_one(root, path, day)
+                if cutoff is not None and reader.decision_at &gt; cutoff:
+                    continue
+                if metadata_filter and any(reader.metadata.get(key) != value for key, value in metadata_filter.items()):
+                    continue
+                missing = roles - {entry["role"] for entry in reader.context["entries"].values()}
+                if missing:
+                    raise EvidenceUnavailable("missing original evidence roles=" + ",".join(sorted(missing)))
+                choices.append(reader)
+            except (EvidenceUnavailable, ValueError, TypeError, KeyError, AttributeError) as exc:
+                failures.append(f"{path.name}: {exc}")
+        if not choices:
+            detail = "; ".join(failures[:4]) or "no complete session matching requested roles, metadata and decision time"
+&gt;           raise EvidenceUnavailable(f"{day} original evidence unavailable: {detail}")
+E           ic_im_signal_evidence_v1.EvidenceUnavailable: 2026-11-20 original evidence unavailable: 100000000000-d7fdafc4d7194f888703d07e708c9c40.json: evidence byte total mismatch or exceeds limit
+
+ic_im_signal_evidence_v1.py:713: EvidenceUnavailable</failure></testcase><testcase classname="test_icim_round4_recovery_20261021" name="test_real_independent_collector_survives_calendar_diagnostic_then_server_recovers[True-day1-previous1-later1]" time="0.358"><failure message="ic_im_signal_evidence_v1.EvidenceUnavailable: 2026-12-31 original evidence unavailable: 100000000000-237f6f67a3044b5e98e28900e2d1085a.json: evidence byte total mismatch or exceeds limit">tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_7b1a9578/pytest/test_real_independent_collecto3')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000002218105FD90&gt;
+day = datetime.date(2026, 12, 31), previous = datetime.date(2026, 12, 30)
+later = datetime.date(2027, 1, 5), fear_missing = True
+
+    @pytest.mark.parametrize("day,previous,later", [
+        (date(2026, 11, 20), date(2026, 11, 19), date(2026, 11, 24)),
+        (date(2026, 12, 31), date(2026, 12, 30), date(2027, 1, 5)),
+    ])
+    @pytest.mark.parametrize("fear_missing", [False, True])
+    def test_real_independent_collector_survives_calendar_diagnostic_then_server_recovers(tmp_path, monkeypatch, day, previous, later, fear_missing):
+        monkeypatch.setattr(bot.requests, "get", lambda *a, **k: pytest.fail("network escaped stored inputs"))
+        now = wall(monkeypatch, day)
+        store, record = seed_store(tmp_path / "state", previous, day)
+        bot.install_runtime_anchors(state.anchors_from_record(record))
+        samples = providers(monkeypatch, day)
+        if fear_missing:
+            samples["IM"][3].clear()
+            samples["IM"][3].update({"fear_source_policy_revision": bot.fear_grid.SOURCE_POLICY_REVISION,
+                "fear_greed_index": None, "fear_data_date": None, "fear_data_status": "unavailable",
+                "fear_unavailable_reason": "synthetic original source outage", "fear_retrieved_at": now.isoformat(),
+                "fear_fetch_started_at": now.isoformat(), "fear_available_sources": [], "fear_selected_source": None,
+                "fear_cross_validation": "unavailable", "fear_source_warning": "synthetic outage",
+                "fear_fallback_applied": False, "fear_csv_sha256": None, "fear_page_sha256": None,
+                "fear_page_updated_at": None, "fear_page_data_date": None})
+        builder = bot._build_live_trade_signal
+        monkeypatch.setattr(bot, "_build_live_trade_signal", lambda *a, **k: pytest.fail("collector must not depend on signal conclusion"))
+        root = tmp_path / "evidence"
+        result = adapter.capture_daily(bot, root, now)
+        assert result["status"] == "captured"
+        for product in ["IC", "IM"]:
+&gt;           reader, _ = adapter.load_original(bot, root, product, day)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_icim_round4_recovery_20261021.py:106: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+ic_im_evidence_adapter_v1.py:369: in load_original
+    reader = evidence.load_session(root, day, required_roles=roles, metadata_filter={
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+root = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_7b1a9578/pytest/test_real_independent_collecto3/evidence')
+day = datetime.date(2026, 12, 31)
+required_roles = {'cffex.quotes', 'fear.score', 'ic.chain', 'ic.etf', 'ic.months', 'market.live', ...}
+metadata_filter = {'input_revision': 'ic_im_original_inputs_20261021_v1', 'original_close': True, 'product': 'IC'}
+decision_not_after = None
+
+    def load_session(root: str | Path, day: date, required_roles: Any = None,
+                     metadata_filter: dict[str, Any] | None = None,
+                     decision_not_after: datetime | None = None) -&gt; EvidenceReader:
+        root, day = _canonical(Path(root)), _day(day)
+        cutoff = _aware(decision_not_after, "decision_not_after") if decision_not_after is not None else None
+        directory = _inside(root, root / "sessions" / day.isoformat())
+        try:
+            files = list(directory.glob("*.json"))
+        except OSError as exc:
+            raise EvidenceUnavailable(f"{day} cannot enumerate original evidence") from exc
+        if len(files) &gt; MAX_SESSION_FILES:
+            raise EvidenceUnavailable(f"{day} evidence session count exceeds limit")
+        roles = set(required_roles or [])
+        for role in roles:
+            _role(role)
+        choices, failures = [], []
+        for path in files:
+            try:
+                reader = _load_one(root, path, day)
+                if cutoff is not None and reader.decision_at &gt; cutoff:
+                    continue
+                if metadata_filter and any(reader.metadata.get(key) != value for key, value in metadata_filter.items()):
+                    continue
+                missing = roles - {entry["role"] for entry in reader.context["entries"].values()}
+                if missing:
+                    raise EvidenceUnavailable("missing original evidence roles=" + ",".join(sorted(missing)))
+                choices.append(reader)
+            except (EvidenceUnavailable, ValueError, TypeError, KeyError, AttributeError) as exc:
+                failures.append(f"{path.name}: {exc}")
+        if not choices:
+            detail = "; ".join(failures[:4]) or "no complete session matching requested roles, metadata and decision time"
+&gt;           raise EvidenceUnavailable(f"{day} original evidence unavailable: {detail}")
+E           ic_im_signal_evidence_v1.EvidenceUnavailable: 2026-12-31 original evidence unavailable: 100000000000-237f6f67a3044b5e98e28900e2d1085a.json: evidence byte total mismatch or exceeds limit
+
+ic_im_signal_evidence_v1.py:713: EvidenceUnavailable</failure></testcase><testcase classname="test_icim_round4_recovery_20261021" name="test_unavailable_original_fear_recovers_with_separate_real_time_history_supplement" time="0.502" /><testcase classname="test_icim_round4_recovery_20261021" name="test_missing_fear_history_remains_unresolved_and_creates_no_complete_supplement" time="0.110" /><testcase classname="test_icim_round4_recovery_20261021" name="test_two_actual_independent_captures_while_stale_then_sequential_server_recovery" time="0.305"><failure message="ic_im_signal_evidence_v1.EvidenceUnavailable: 2026-11-20 original evidence unavailable: 100000000000-f8b4a7d1ac7649d499d33c83b3cb7e33.json: evidence byte total mismatch or exceeds limit">tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_7b1a9578/pytest/test_two_actual_independent_ca0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x00000221812C0650&gt;
+
+    def test_two_actual_independent_captures_while_stale_then_sequential_server_recovery(tmp_path, monkeypatch):
+        monkeypatch.setattr(bot.requests, "get", lambda *a, **k: pytest.fail("unrecorded replay network"))
+        first, second, previous = date(2026, 11, 20), date(2026, 11, 23), date(2026, 11, 19)
+        store, original = seed_store(tmp_path / "state", previous, first)
+        bot.install_runtime_anchors(state.anchors_from_record(original))
+        root = tmp_path / "evidence"
+        with monkeypatch.context() as acquisition:
+            acquisition.setattr(bot, "_build_live_trade_signal", lambda *a, **k: pytest.fail("collector called signal builder"))
+            for day in [first, second]:
+                now = wall(acquisition, day)
+                providers(acquisition, day)
+                assert adapter.capture_daily(bot, root, now)["status"] == "captured"
+                assert store.load_latest()["digest"] == original["digest"]
+                for product in ["IC", "IM"]:
+&gt;                   reader, _ = adapter.load_original(bot, root, product, day)
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_icim_round4_recovery_20261021.py:208: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+ic_im_evidence_adapter_v1.py:369: in load_original
+    reader = evidence.load_session(root, day, required_roles=roles, metadata_filter={
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+root = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_7b1a9578/pytest/test_two_actual_independent_ca0/evidence')
+day = datetime.date(2026, 11, 20)
+required_roles = {'cffex.quotes', 'fear.score', 'ic.chain', 'ic.etf', 'ic.months', 'market.live', ...}
+metadata_filter = {'input_revision': 'ic_im_original_inputs_20261021_v1', 'original_close': True, 'product': 'IC'}
+decision_not_after = None
+
+    def load_session(root: str | Path, day: date, required_roles: Any = None,
+                     metadata_filter: dict[str, Any] | None = None,
+                     decision_not_after: datetime | None = None) -&gt; EvidenceReader:
+        root, day = _canonical(Path(root)), _day(day)
+        cutoff = _aware(decision_not_after, "decision_not_after") if decision_not_after is not None else None
+        directory = _inside(root, root / "sessions" / day.isoformat())
+        try:
+            files = list(directory.glob("*.json"))
+        except OSError as exc:
+            raise EvidenceUnavailable(f"{day} cannot enumerate original evidence") from exc
+        if len(files) &gt; MAX_SESSION_FILES:
+            raise EvidenceUnavailable(f"{day} evidence session count exceeds limit")
+        roles = set(required_roles or [])
+        for role in roles:
+            _role(role)
+        choices, failures = [], []
+        for path in files:
+            try:
+                reader = _load_one(root, path, day)
+                if cutoff is not None and reader.decision_at &gt; cutoff:
+                    continue
+                if metadata_filter and any(reader.metadata.get(key) != value for key, value in metadata_filter.items()):
+                    continue
+                missing = roles - {entry["role"] for entry in reader.context["entries"].values()}
+                if missing:
+                    raise EvidenceUnavailable("missing original evidence roles=" + ",".join(sorted(missing)))
+                choices.append(reader)
+            except (EvidenceUnavailable, ValueError, TypeError, KeyError, AttributeError) as exc:
+                failures.append(f"{path.name}: {exc}")
+        if not choices:
+            detail = "; ".join(failures[:4]) or "no complete session matching requested roles, metadata and decision time"
+&gt;           raise EvidenceUnavailable(f"{day} original evidence unavailable: {detail}")
+E           ic_im_signal_evidence_v1.EvidenceUnavailable: 2026-11-20 original evidence unavailable: 100000000000-f8b4a7d1ac7649d499d33c83b3cb7e33.json: evidence byte total mismatch or exceeds limit
+
+ic_im_signal_evidence_v1.py:713: EvidenceUnavailable</failure></testcase><testcase classname="test_icim_round4_recovery_20261021" name="test_legacy_ic_profit_rebuild_uses_original_chain_only_if_present[True]" time="0.187" /><testcase classname="test_icim_round4_recovery_20261021" name="test_legacy_ic_profit_rebuild_uses_original_chain_only_if_present[False]" time="0.189" /><testcase classname="test_icim_round4_recovery_20261021" name="test_batched_mo_original_crosschecks_replay_quote_and_open_without_http" time="0.111" /><testcase classname="test_icim_round4_recovery_20261021" name="test_incomplete_mo_verification_batch_cannot_claim_complete_archive[missing]" time="0.012" /><testcase classname="test_icim_round4_recovery_20261021" name="test_incomplete_mo_verification_batch_cannot_claim_complete_archive[duplicate]" time="0.012" /><testcase classname="test_icim_round4_recovery_20261021" name="test_incomplete_mo_verification_batch_cannot_claim_complete_archive[wrong_identity]" time="0.013" /><testcase classname="test_icim_round4_recovery_20261021" name="test_none_roll_candidate_and_random_gate_contract_are_real_policy_compatible[IC]" time="0.026" /><testcase classname="test_icim_round4_recovery_20261021" name="test_none_roll_candidate_and_random_gate_contract_are_real_policy_compatible[IM]" time="0.019" /><testcase classname="test_icim_round5_recording_semantics_20261021" name="test_conflicting_same_url_parameters_are_rejected_instead_of_taking_last[body]" time="0.066" /><testcase classname="test_icim_round5_recording_semantics_20261021" name="test_conflicting_same_url_parameters_are_rejected_instead_of_taking_last[headers]" time="0.064" /><testcase classname="test_icim_round5_recording_semantics_20261021" name="test_conflicting_same_url_parameters_are_rejected_instead_of_taking_last[status]" time="0.067" /><testcase classname="test_icim_round5_recording_semantics_20261021" name="test_conflicting_same_url_parameters_are_rejected_instead_of_taking_last[encoding]" time="0.066" /><testcase classname="test_icim_round5_recording_semantics_20261021" name="test_identical_repeat_http_is_reusable_without_consuming_invented_request_order" time="0.092" /><testcase classname="test_icim_round5_recording_semantics_20261021" name="test_overlapping_sina_batches_must_agree_on_the_exact_projected_variable[True]" time="0.114" /><testcase classname="test_icim_round5_recording_semantics_20261021" name="test_overlapping_sina_batches_must_agree_on_the_exact_projected_variable[False]" time="0.067" /><testcase classname="test_icim_round5_recording_semantics_20261021" name="test_annotation_is_encoded_once_and_capture_context_is_active" time="0.023" /><testcase classname="test_icim_round5_recording_semantics_20261021" name="test_real_chain_adapter_coalesces_month_day_and_never_aliases_years" time="0.071" /><testcase classname="test_icim_round5_recording_semantics_20261021" name="test_wrong_year_return_from_same_month_url_cannot_form_a_complete_chain_archive" time="0.013" /><testcase classname="test_icim_round5_recording_semantics_20261021" name="test_existing_unknown_year_ic_put_collects_without_new_expiry_then_real_server_recovers[day0-previous0-2703]" time="0.293"><failure message="ic_im_signal_evidence_v1.EvidenceUnavailable: 2026-11-23 original evidence unavailable: 100000000000-3a511b12e0dd44d69024dc0de6ee58db.json: evidence byte total mismatch or exceeds limit">tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_7b1a9578/pytest/test_existing_unknown_year_ic_0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000002218124B700&gt;
+day = datetime.date(2026, 11, 23), previous = datetime.date(2026, 11, 20)
+month = '2703'
+
+    @pytest.mark.parametrize("day,previous,month", [
+        (date(2026, 11, 23), date(2026, 11, 20), "2703"),
+        (date(2026, 11, 26), date(2026, 11, 25), "2701"),
+    ])
+    def test_existing_unknown_year_ic_put_collects_without_new_expiry_then_real_server_recovers(tmp_path, monkeypatch, day, previous, month):
+        clock = r4.wall(monkeypatch, day)
+        store, original = held_record(tmp_path / "state", previous, month)
+        samples = r4.providers(monkeypatch, day)
+        assert month in samples["IC"][4]  # Rule-shaped listing, never add a missing month for the test.
+        monkeypatch.setattr(bot.requests, "get", lambda *a, **k: pytest.fail("unrecorded original/replay HTTP"))
+        root = tmp_path / "evidence"
+        with monkeypatch.context() as capture_patch:
+            capture_patch.setattr(bot, "_build_live_trade_signal", lambda *a, **k: pytest.fail("independent collector invoked builder"))
+            assert adapter.capture_daily(bot, root, clock)["status"] == "captured"
+&gt;       reader, runtime = adapter.load_original(bot, root, "IC", day)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_icim_round5_recording_semantics_20261021.py:183: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+ic_im_evidence_adapter_v1.py:369: in load_original
+    reader = evidence.load_session(root, day, required_roles=roles, metadata_filter={
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+root = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_7b1a9578/pytest/test_existing_unknown_year_ic_0/evidence')
+day = datetime.date(2026, 11, 23)
+required_roles = {'cffex.quotes', 'fear.score', 'ic.chain', 'ic.etf', 'ic.months', 'market.live', ...}
+metadata_filter = {'input_revision': 'ic_im_original_inputs_20261021_v1', 'original_close': True, 'product': 'IC'}
+decision_not_after = None
+
+    def load_session(root: str | Path, day: date, required_roles: Any = None,
+                     metadata_filter: dict[str, Any] | None = None,
+                     decision_not_after: datetime | None = None) -&gt; EvidenceReader:
+        root, day = _canonical(Path(root)), _day(day)
+        cutoff = _aware(decision_not_after, "decision_not_after") if decision_not_after is not None else None
+        directory = _inside(root, root / "sessions" / day.isoformat())
+        try:
+            files = list(directory.glob("*.json"))
+        except OSError as exc:
+            raise EvidenceUnavailable(f"{day} cannot enumerate original evidence") from exc
+        if len(files) &gt; MAX_SESSION_FILES:
+            raise EvidenceUnavailable(f"{day} evidence session count exceeds limit")
+        roles = set(required_roles or [])
+        for role in roles:
+            _role(role)
+        choices, failures = [], []
+        for path in files:
+            try:
+                reader = _load_one(root, path, day)
+                if cutoff is not None and reader.decision_at &gt; cutoff:
+                    continue
+                if metadata_filter and any(reader.metadata.get(key) != value for key, value in metadata_filter.items()):
+                    continue
+                missing = roles - {entry["role"] for entry in reader.context["entries"].values()}
+                if missing:
+                    raise EvidenceUnavailable("missing original evidence roles=" + ",".join(sorted(missing)))
+                choices.append(reader)
+            except (EvidenceUnavailable, ValueError, TypeError, KeyError, AttributeError) as exc:
+                failures.append(f"{path.name}: {exc}")
+        if not choices:
+            detail = "; ".join(failures[:4]) or "no complete session matching requested roles, metadata and decision time"
+&gt;           raise EvidenceUnavailable(f"{day} original evidence unavailable: {detail}")
+E           ic_im_signal_evidence_v1.EvidenceUnavailable: 2026-11-23 original evidence unavailable: 100000000000-3a511b12e0dd44d69024dc0de6ee58db.json: evidence byte total mismatch or exceeds limit
+
+ic_im_signal_evidence_v1.py:713: EvidenceUnavailable</failure></testcase><testcase classname="test_icim_round5_recording_semantics_20261021" name="test_existing_unknown_year_ic_put_collects_without_new_expiry_then_real_server_recovers[day1-previous1-2701]" time="0.307"><failure message="ic_im_signal_evidence_v1.EvidenceUnavailable: 2026-11-26 original evidence unavailable: 100000000000-ed249742ff7c4941b96b06a761b0f439.json: evidence byte total mismatch or exceeds limit">tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_7b1a9578/pytest/test_existing_unknown_year_ic_1')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x00000221814B0670&gt;
+day = datetime.date(2026, 11, 26), previous = datetime.date(2026, 11, 25)
+month = '2701'
+
+    @pytest.mark.parametrize("day,previous,month", [
+        (date(2026, 11, 23), date(2026, 11, 20), "2703"),
+        (date(2026, 11, 26), date(2026, 11, 25), "2701"),
+    ])
+    def test_existing_unknown_year_ic_put_collects_without_new_expiry_then_real_server_recovers(tmp_path, monkeypatch, day, previous, month):
+        clock = r4.wall(monkeypatch, day)
+        store, original = held_record(tmp_path / "state", previous, month)
+        samples = r4.providers(monkeypatch, day)
+        assert month in samples["IC"][4]  # Rule-shaped listing, never add a missing month for the test.
+        monkeypatch.setattr(bot.requests, "get", lambda *a, **k: pytest.fail("unrecorded original/replay HTTP"))
+        root = tmp_path / "evidence"
+        with monkeypatch.context() as capture_patch:
+            capture_patch.setattr(bot, "_build_live_trade_signal", lambda *a, **k: pytest.fail("independent collector invoked builder"))
+            assert adapter.capture_daily(bot, root, clock)["status"] == "captured"
+&gt;       reader, runtime = adapter.load_original(bot, root, "IC", day)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_icim_round5_recording_semantics_20261021.py:183: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+ic_im_evidence_adapter_v1.py:369: in load_original
+    reader = evidence.load_session(root, day, required_roles=roles, metadata_filter={
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+root = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_7b1a9578/pytest/test_existing_unknown_year_ic_1/evidence')
+day = datetime.date(2026, 11, 26)
+required_roles = {'cffex.quotes', 'fear.score', 'ic.chain', 'ic.etf', 'ic.months', 'market.live', ...}
+metadata_filter = {'input_revision': 'ic_im_original_inputs_20261021_v1', 'original_close': True, 'product': 'IC'}
+decision_not_after = None
+
+    def load_session(root: str | Path, day: date, required_roles: Any = None,
+                     metadata_filter: dict[str, Any] | None = None,
+                     decision_not_after: datetime | None = None) -&gt; EvidenceReader:
+        root, day = _canonical(Path(root)), _day(day)
+        cutoff = _aware(decision_not_after, "decision_not_after") if decision_not_after is not None else None
+        directory = _inside(root, root / "sessions" / day.isoformat())
+        try:
+            files = list(directory.glob("*.json"))
+        except OSError as exc:
+            raise EvidenceUnavailable(f"{day} cannot enumerate original evidence") from exc
+        if len(files) &gt; MAX_SESSION_FILES:
+            raise EvidenceUnavailable(f"{day} evidence session count exceeds limit")
+        roles = set(required_roles or [])
+        for role in roles:
+            _role(role)
+        choices, failures = [], []
+        for path in files:
+            try:
+                reader = _load_one(root, path, day)
+                if cutoff is not None and reader.decision_at &gt; cutoff:
+                    continue
+                if metadata_filter and any(reader.metadata.get(key) != value for key, value in metadata_filter.items()):
+                    continue
+                missing = roles - {entry["role"] for entry in reader.context["entries"].values()}
+                if missing:
+                    raise EvidenceUnavailable("missing original evidence roles=" + ",".join(sorted(missing)))
+                choices.append(reader)
+            except (EvidenceUnavailable, ValueError, TypeError, KeyError, AttributeError) as exc:
+                failures.append(f"{path.name}: {exc}")
+        if not choices:
+            detail = "; ".join(failures[:4]) or "no complete session matching requested roles, metadata and decision time"
+&gt;           raise EvidenceUnavailable(f"{day} original evidence unavailable: {detail}")
+E           ic_im_signal_evidence_v1.EvidenceUnavailable: 2026-11-26 original evidence unavailable: 100000000000-ed249742ff7c4941b96b06a761b0f439.json: evidence byte total mismatch or exceeds limit
+
+ic_im_signal_evidence_v1.py:713: EvidenceUnavailable</failure></testcase><testcase classname="test_icim_round5_recording_semantics_20261021" name="test_nov23_ic_2701_not_in_rule_shaped_listing_never_becomes_a_formal_target" time="0.172"><failure message="AssertionError: assert 'incomplete' == 'captured'&#10;  &#10;  - captured&#10;  + incomplete">tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_7b1a9578/pytest/test_nov23_ic_2701_not_in_rule0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x00000221814919B0&gt;
+
+    def test_nov23_ic_2701_not_in_rule_shaped_listing_never_becomes_a_formal_target(tmp_path, monkeypatch):
+        day = date(2026, 11, 23)
+        clock = r4.wall(monkeypatch, day)
+        store, original = held_record(tmp_path / "state", date(2026, 11, 20), "2701")
+        samples = r4.providers(monkeypatch, day)
+        assert set(samples["IC"][4]) == {"2611", "2612", "2703", "2706"}
+        monkeypatch.setattr(bot.requests, "get", lambda *a, **k: pytest.fail("unrecorded HTTP cannot repair missing held identity"))
+        root = tmp_path / "evidence"
+&gt;       assert adapter.capture_daily(bot, root, clock)["status"] == "captured"
+E       AssertionError: assert 'incomplete' == 'captured'
+E         
+E         - captured
+E         + incomplete
+
+test_icim_round5_recording_semantics_20261021.py:217: AssertionError</failure></testcase><testcase classname="test_icim_round5_recording_semantics_20261021" name="test_replay_freezes_real_collection_end_despite_outer_elapsed_query_clock" time="0.146" /><testcase classname="test_icim_round5_recording_semantics_20261021" name="test_close_quote_freshness_is_consistent_at_original_elapsed_and_replay_end[15-0-True]" time="0.001" /><testcase classname="test_icim_round5_recording_semantics_20261021" name="test_close_quote_freshness_is_consistent_at_original_elapsed_and_replay_end[14-54-False]" time="0.001" /><testcase classname="test_icim_round5_recording_semantics_20261021" name="test_close_quote_freshness_is_consistent_at_original_elapsed_and_replay_end[18-1-False]" time="0.001" /><testcase classname="test_icim_round5_recording_semantics_20261021" name="test_none_and_untradable_roll_candidate_leave_unneeded_gate_actions_identical[IC]" time="0.027" /><testcase classname="test_icim_round5_recording_semantics_20261021" name="test_none_and_untradable_roll_candidate_leave_unneeded_gate_actions_identical[IM]" time="0.035" /><testcase classname="test_icim_calendar_capture_review_20261022" name="test_510500_2301_expiry_comes_from_official_option_announcements" time="0.008" /><testcase classname="test_icim_calendar_capture_review_20261022" name="test_calendar_extension_precedes_last_followup_and_this_round" time="0.006"><failure message="AssertionError: assert 'fc271297a5b9...506ecd66a8967' == '0075c16aec68...082b623d0d19f'&#10;  &#10;  - 0075c16aec68cb56b49569d03c1b89bb2707873fbd309971461082b623d0d19f&#10;  + fc271297a5b90247fb25b61071f505ec1d292911d964c18209d506ecd66a8967">def test_calendar_extension_precedes_last_followup_and_this_round():
+        name = 'poe_ic_im_mainline_v1_4_bot.py'
+        def bound(folder, stage):
+            p = ROOT / 'quant_research_runs' / folder / stage / 'source_after.json'
+            return json.loads(p.read_text())[name]
+        digest = hashlib.sha256((ROOT / name).read_bytes()).hexdigest()
+&gt;       assert digest == bound('20261022_historical_calendar_repair_v1', 'accepted_02')
+E       AssertionError: assert 'fc271297a5b9...506ecd66a8967' == '0075c16aec68...082b623d0d19f'
+E         
+E         - 0075c16aec68cb56b49569d03c1b89bb2707873fbd309971461082b623d0d19f
+E         + fc271297a5b90247fb25b61071f505ec1d292911d964c18209d506ecd66a8967
+
+test_icim_calendar_capture_review_20261022.py:50: AssertionError</failure></testcase><testcase classname="test_icim_calendar_capture_review_20261022" name="test_collector_never_opens_original_close_session_before_close_or_on_weekend[day0-9-15]" time="0.002" /><testcase classname="test_icim_calendar_capture_review_20261022" name="test_collector_never_opens_original_close_session_before_close_or_on_weekend[day1-14-59]" time="0.003" /><testcase classname="test_icim_calendar_capture_review_20261022" name="test_collector_never_opens_original_close_session_before_close_or_on_weekend[day2-18-0]" time="0.003" /><testcase classname="test_icim_calendar_capture_review_20261022" name="test_existing_core_and_short_identity_use_one_chain_record_without_assuming_stable_http" time="0.062" /><testcase classname="test_icim_calendar_capture_review_20261022" name="test_ambiguous_capture_is_incomplete_and_does_not_break_normal_query[identical]" time="0.408"><failure message="ic_im_signal_evidence_v1.EvidenceUnavailable: 2026-10-21 original evidence unavailable: 100000000000-6668b4f4e04d49e78c0ecc9b8c9257dc.json: evidence byte total mismatch or exceeds limit">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x00000221FFC76200&gt;
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_7b1a9578/pytest/test_ambiguous_capture_is_inco0')
+difference = 'identical'
+
+    @pytest.mark.parametrize('difference', ['identical', 'body', 'time', 'headers', 'status', 'encoding'])
+    def test_ambiguous_capture_is_incomplete_and_does_not_break_normal_query(monkeypatch, tmp_path, difference):
+        clock = changing_raw_providers(monkeypatch, tmp_path, difference)
+        root = tmp_path / 'evidence'
+        result = adapter.capture_daily(bot, root, clock)
+        if difference == 'identical':
+            assert result['status'] == 'captured'
+&gt;           reader, _ = adapter.load_original(bot, root, 'IC', DAY)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_icim_calendar_capture_review_20261022.py:126: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+ic_im_evidence_adapter_v1.py:369: in load_original
+    reader = evidence.load_session(root, day, required_roles=roles, metadata_filter={
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+root = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_7b1a9578/pytest/test_ambiguous_capture_is_inco0/evidence')
+day = datetime.date(2026, 10, 21)
+required_roles = {'cffex.quotes', 'fear.score', 'ic.chain', 'ic.etf', 'ic.months', 'market.live', ...}
+metadata_filter = {'input_revision': 'ic_im_original_inputs_20261021_v1', 'original_close': True, 'product': 'IC'}
+decision_not_after = None
+
+    def load_session(root: str | Path, day: date, required_roles: Any = None,
+                     metadata_filter: dict[str, Any] | None = None,
+                     decision_not_after: datetime | None = None) -&gt; EvidenceReader:
+        root, day = _canonical(Path(root)), _day(day)
+        cutoff = _aware(decision_not_after, "decision_not_after") if decision_not_after is not None else None
+        directory = _inside(root, root / "sessions" / day.isoformat())
+        try:
+            files = list(directory.glob("*.json"))
+        except OSError as exc:
+            raise EvidenceUnavailable(f"{day} cannot enumerate original evidence") from exc
+        if len(files) &gt; MAX_SESSION_FILES:
+            raise EvidenceUnavailable(f"{day} evidence session count exceeds limit")
+        roles = set(required_roles or [])
+        for role in roles:
+            _role(role)
+        choices, failures = [], []
+        for path in files:
+            try:
+                reader = _load_one(root, path, day)
+                if cutoff is not None and reader.decision_at &gt; cutoff:
+                    continue
+                if metadata_filter and any(reader.metadata.get(key) != value for key, value in metadata_filter.items()):
+                    continue
+                missing = roles - {entry["role"] for entry in reader.context["entries"].values()}
+                if missing:
+                    raise EvidenceUnavailable("missing original evidence roles=" + ",".join(sorted(missing)))
+                choices.append(reader)
+            except (EvidenceUnavailable, ValueError, TypeError, KeyError, AttributeError) as exc:
+                failures.append(f"{path.name}: {exc}")
+        if not choices:
+            detail = "; ".join(failures[:4]) or "no complete session matching requested roles, metadata and decision time"
+&gt;           raise EvidenceUnavailable(f"{day} original evidence unavailable: {detail}")
+E           ic_im_signal_evidence_v1.EvidenceUnavailable: 2026-10-21 original evidence unavailable: 100000000000-6668b4f4e04d49e78c0ecc9b8c9257dc.json: evidence byte total mismatch or exceeds limit
+
+ic_im_signal_evidence_v1.py:713: EvidenceUnavailable</failure></testcase><testcase classname="test_icim_calendar_capture_review_20261022" name="test_ambiguous_capture_is_incomplete_and_does_not_break_normal_query[body]" time="0.330" /><testcase classname="test_icim_calendar_capture_review_20261022" name="test_ambiguous_capture_is_incomplete_and_does_not_break_normal_query[time]" time="0.358" /><testcase classname="test_icim_calendar_capture_review_20261022" name="test_ambiguous_capture_is_incomplete_and_does_not_break_normal_query[headers]" time="0.398" /><testcase classname="test_icim_calendar_capture_review_20261022" name="test_ambiguous_capture_is_incomplete_and_does_not_break_normal_query[status]" time="0.284" /><testcase classname="test_icim_calendar_capture_review_20261022" name="test_ambiguous_capture_is_incomplete_and_does_not_break_normal_query[encoding]" time="0.283" /><testcase classname="test_icim_calendar_capture_review_20261022" name="test_archive_io_failure_stays_in_independent_collector_and_signal_still_returns" time="0.176" /><testcase classname="test_icim_calendar_capture_review_20261022" name="test_real_package_comparator_does_not_silently_ignore_strategy_or_source_changes[qty-2]" time="0.003" /><testcase classname="test_icim_calendar_capture_review_20261022" name="test_real_package_comparator_does_not_silently_ignore_strategy_or_source_changes[price-0.5]" time="0.002" /><testcase classname="test_icim_calendar_capture_review_20261022" name="test_real_package_comparator_does_not_silently_ignore_strategy_or_source_changes[reason-different]" time="0.003" /><testcase classname="test_icim_calendar_capture_review_20261022" name="test_real_package_comparator_does_not_silently_ignore_strategy_or_source_changes[source-different]" time="0.003" /><testcase classname="test_icim_calendar_capture_review_20261022" name="test_real_package_comparator_does_not_silently_ignore_strategy_or_source_changes[signal_complete-False]" time="0.003" /><testcase classname="test_icim_calendar_capture_review_20261022" name="test_real_package_comparator_allows_only_explicit_generation_timestamp" time="0.003" /><testcase classname="test_icim_calendar_capture_review_20261022" name="test_real_package_comparator_rejects_extra_replay_fields" time="0.004" /><testcase classname="test_icim_expert_market_20261021" name="test_sse_missing_or_non_session_time_is_not_invented[None-quote]" time="0.001" /><testcase classname="test_icim_expert_market_20261021" name="test_sse_missing_or_non_session_time_is_not_invented[None-chain]" time="0.002" /><testcase classname="test_icim_expert_market_20261021" name="test_sse_missing_or_non_session_time_is_not_invented[-quote]" time="0.001" /><testcase classname="test_icim_expert_market_20261021" name="test_sse_missing_or_non_session_time_is_not_invented[-chain]" time="0.001" /><testcase classname="test_icim_expert_market_20261021" name="test_sse_missing_or_non_session_time_is_not_invented[   -quote]" time="0.001" /><testcase classname="test_icim_expert_market_20261021" name="test_sse_missing_or_non_session_time_is_not_invented[   -chain]" time="0.002" /><testcase classname="test_icim_expert_market_20261021" name="test_sse_missing_or_non_session_time_is_not_invented[True-quote]" time="0.001" /><testcase classname="test_icim_expert_market_20261021" name="test_sse_missing_or_non_session_time_is_not_invented[True-chain]" time="0.002" /><testcase classname="test_icim_expert_market_20261021" name="test_sse_missing_or_non_session_time_is_not_invented[bad4-quote]" time="0.001" /><testcase classname="test_icim_expert_market_20261021" name="test_sse_missing_or_non_session_time_is_not_invented[bad4-chain]" time="0.002" /><testcase classname="test_icim_expert_market_20261021" name="test_sse_missing_or_non_session_time_is_not_invented[000000-quote]" time="0.001" /><testcase classname="test_icim_expert_market_20261021" name="test_sse_missing_or_non_session_time_is_not_invented[000000-chain]" time="0.002" /><testcase classname="test_icim_expert_market_20261021" name="test_sse_missing_or_non_session_time_is_not_invented[091459-quote]" time="0.001" /><testcase classname="test_icim_expert_market_20261021" name="test_sse_missing_or_non_session_time_is_not_invented[091459-chain]" time="0.002" /><testcase classname="test_icim_expert_market_20261021" name="test_sse_missing_or_non_session_time_is_not_invented[24:00:00-quote]" time="0.001" /><testcase classname="test_icim_expert_market_20261021" name="test_sse_missing_or_non_session_time_is_not_invented[24:00:00-chain]" time="0.001" /><testcase classname="test_icim_expert_market_20261021" name="test_sse_missing_or_non_session_time_is_not_invented[93000.0-quote]" time="0.001" /><testcase classname="test_icim_expert_market_20261021" name="test_sse_missing_or_non_session_time_is_not_invented[93000.0-chain]" time="0.002" /><testcase classname="test_icim_expert_market_20261021" name="test_sse_supplied_valid_time_can_be_zero_padded[91500-091500-quote]" time="0.001" /><testcase classname="test_icim_expert_market_20261021" name="test_sse_supplied_valid_time_can_be_zero_padded[91500-091500-chain]" time="0.002" /><testcase classname="test_icim_expert_market_20261021" name="test_sse_supplied_valid_time_can_be_zero_padded[93000-093000-quote]" time="0.001" /><testcase classname="test_icim_expert_market_20261021" name="test_sse_supplied_valid_time_can_be_zero_padded[93000-093000-chain]" time="0.002" /><testcase classname="test_icim_expert_market_20261021" name="test_sse_supplied_valid_time_can_be_zero_padded[150000-150000-quote]" time="0.001" /><testcase classname="test_icim_expert_market_20261021" name="test_sse_supplied_valid_time_can_be_zero_padded[150000-150000-chain]" time="0.002" /><testcase classname="test_icim_expert_market_20261021" name="test_general_stamp_gate_rejects_pre_session_time[000000]" time="0.001" /><testcase classname="test_icim_expert_market_20261021" name="test_general_stamp_gate_rejects_pre_session_time[090000]" time="0.001" /><testcase classname="test_icim_expert_market_20261021" name="test_general_stamp_gate_rejects_pre_session_time[091459]" time="0.001" /><testcase classname="test_icim_expert_market_20261021" name="test_general_stamp_gate_keeps_future_timestamp_rejection" time="0.001" /><testcase classname="test_icim_expert_market_20261021" name="test_dated_open_uses_the_same_exact_date_parser_as_closes[2026-10-21]" time="0.001" /><testcase classname="test_icim_expert_market_20261021" name="test_dated_open_uses_the_same_exact_date_parser_as_closes[20261021_0]" time="0.001" /><testcase classname="test_icim_expert_market_20261021" name="test_dated_open_uses_the_same_exact_date_parser_as_closes[20261021_1]" time="0.001" /><testcase classname="test_icim_expert_market_20261021" name="test_invalid_open_does_not_turn_into_execution_evidence[True]" time="0.001" /><testcase classname="test_icim_expert_market_20261021" name="test_invalid_open_does_not_turn_into_execution_evidence[False]" time="0.001" /><testcase classname="test_icim_expert_market_20261021" name="test_invalid_open_does_not_turn_into_execution_evidence[NaN]" time="0.001" /><testcase classname="test_icim_expert_market_20261021" name="test_invalid_open_does_not_turn_into_execution_evidence[Infinity]" time="0.001" /><testcase classname="test_icim_expert_market_20261021" name="test_invalid_open_does_not_turn_into_execution_evidence[0]" time="0.001" /><testcase classname="test_icim_expert_market_20261021" name="test_invalid_open_does_not_turn_into_execution_evidence[-1]" time="0.001" /><testcase classname="test_icim_expert_market_20261021" name="test_normalized_duplicate_opening_days_cannot_hide_conflicting_marks" time="0.001" /><testcase classname="test_icim_expert_market_20261021" name="test_sina_closes_size_bound_precedes_text_parsing_and_closes_response[None]" time="0.001" /><testcase classname="test_icim_expert_market_20261021" name="test_sina_closes_size_bound_precedes_text_parsing_and_closes_response[101]" time="0.001" /><testcase classname="test_icim_expert_market_20261021" name="test_bounded_sina_closes_preserve_valid_daily_marks" time="0.001" /><testcase classname="test_icim_expert_market_20261021" name="test_dated_master_request_failure_keeps_transport_classification[error0]" time="0.001" /><testcase classname="test_icim_expert_market_20261021" name="test_dated_master_request_failure_keeps_transport_classification[error1]" time="0.001" /><testcase classname="test_icim_expert_market_20261021" name="test_dated_master_request_failure_keeps_transport_classification[error2]" time="0.001" /><testcase classname="test_icim_expert_market_20261021" name="test_dated_master_body_transport_failure_remains_retryable_and_is_closed" time="0.001" /><testcase classname="test_icim_expert_market_20261021" name="test_dated_master_validation_failure_is_not_transport_retry[error0]" time="0.001" /><testcase classname="test_icim_expert_market_20261021" name="test_dated_master_validation_failure_is_not_transport_retry[error1]" time="0.001" /><testcase classname="test_icim_expert_market_20261021" name="test_source_aggregation_retries_only_when_all_failures_are_transport[False-chain]" time="0.001" /><testcase classname="test_icim_expert_market_20261021" name="test_source_aggregation_retries_only_when_all_failures_are_transport[False-closes]" time="0.001" /><testcase classname="test_icim_expert_market_20261021" name="test_source_aggregation_retries_only_when_all_failures_are_transport[False-dated_open]" time="0.001" /><testcase classname="test_icim_expert_market_20261021" name="test_source_aggregation_retries_only_when_all_failures_are_transport[True-chain]" time="0.001" /><testcase classname="test_icim_expert_market_20261021" name="test_source_aggregation_retries_only_when_all_failures_are_transport[True-closes]" time="0.001" /><testcase classname="test_icim_expert_market_20261021" name="test_source_aggregation_retries_only_when_all_failures_are_transport[True-dated_open]" time="0.001" /><testcase classname="test_icim_expert_market_20261021" name="test_existing_product_retry_recognizes_wrapped_master_transport_failure" time="0.001" /></testsuite></testsuites>

@@ -1,0 +1,45 @@
+FF.................                                                      [100%]
+================================== FAILURES ===================================
+_ test_confirmed_sina_candidate_cannot_omit_consumed_row_timestamp_in_capture _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000017A0DE55A70>
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_8971370c/pytest/test_confirmed_sina_candidate_0')
+
+    def test_confirmed_sina_candidate_cannot_omit_consumed_row_timestamp_in_capture(monkeypatch, tmp_path):
+        """Wrong/old producer, not a claim the current Sina wire parser drops this column."""
+        pricing(monkeypatch)
+        monkeypatch.setattr(bot, 'fetch_510500_chain_with_failover',
+                            lambda month: chain('2611', include_stamp=False))
+        with bot.runtime_clock(CLOCK), evidence.capture_session(tmp_path, DAY, CLOCK, {}):
+>           with pytest.raises((RuntimeError, evidence.EvidenceUnavailable), match='时间|timestamp|stamp'):
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ic_im_signal_evidence_v1.EvidenceUnavailable'>)
+
+test_icim_ma23_clocks_20261023.py:56: Failed
+_ test_confirmed_sina_candidate_cannot_omit_consumed_row_timestamp_in_typed_replay _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000017A0DE562C0>
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_8971370c/pytest/test_confirmed_sina_candidate_1')
+
+    def test_confirmed_sina_candidate_cannot_omit_consumed_row_timestamp_in_typed_replay(monkeypatch, tmp_path):
+        """A hash-valid old producer bundle must still meet today's semantic gate."""
+        pricing(monkeypatch)
+        with evidence.capture_session(tmp_path, DAY, CLOCK, {}) as session:
+            session.call('ic.chain', {'month':'2611','day':DAY}, lambda: chain('2611', include_stamp=False))
+        reader = evidence.load_session(tmp_path, DAY)
+        with bot.runtime_clock(CLOCK), bot.historical_replay(DAY), evidence.replay_session(reader):
+>           with pytest.raises((RuntimeError, evidence.EvidenceUnavailable), match='时间|timestamp|stamp'):
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           Failed: DID NOT RAISE any of (<class 'RuntimeError'>, <class 'ic_im_signal_evidence_v1.EvidenceUnavailable'>)
+
+test_icim_ma23_clocks_20261023.py:67: Failed
+============================== warnings summary ===============================
+C:\Python314\Lib\site-packages\fastapi_poe\types.py:171
+  C:\Python314\Lib\site-packages\fastapi_poe\types.py:171: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    class RequestContext(BaseModel):
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED test_icim_ma23_clocks_20261023.py::test_confirmed_sina_candidate_cannot_omit_consumed_row_timestamp_in_capture
+FAILED test_icim_ma23_clocks_20261023.py::test_confirmed_sina_candidate_cannot_omit_consumed_row_timestamp_in_typed_replay
+2 failed, 17 passed, 1 warning in 2.10s

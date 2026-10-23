@@ -1,0 +1,13 @@
+{
+  "path": "runtime/ic_im_v1_4_r1/journal/000019-2026-10-21.json",
+  "sha256": "af2d4b65fc20101e87517eceebaad989c17a5f5e0d37db026b9ce39448ecd254",
+  "matches_start_bound_latest_sha256": "af2d4b65fc20101e87517eceebaad989c17a5f5e0d37db026b9ce39448ecd254",
+  "file_created_at_local": "2026-10-22T14:32:23.649031",
+  "baseline_created_at_local": "2026-10-22T15:53:56.459612",
+  "known_runtime_paths_unchanged": 155,
+  "current_runtime_files": 156,
+  "sequence": 19,
+  "verified_day": "2026-10-21",
+  "digest": "c068710414dd9070d178faa4625d56835e67b9f2004c935a268900b9a1080342",
+  "interpretation": "Predates this turn; bytes equal the already-bound latest at start. Writer not identified; preserved, not rolled back."
+}

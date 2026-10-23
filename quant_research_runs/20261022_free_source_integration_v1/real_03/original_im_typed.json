@@ -1,0 +1,1614 @@
+{
+  "t": "dict",
+  "v": [
+    [
+      "product",
+      "IM"
+    ],
+    [
+      "mode",
+      "close"
+    ],
+    [
+      "market_phase",
+      "收盘后"
+    ],
+    [
+      "market_date",
+      {
+        "t": "date",
+        "v": "2026-10-22"
+      }
+    ],
+    [
+      "close_confirmed",
+      true
+    ],
+    [
+      "state_anchor_day",
+      {
+        "t": "date",
+        "v": "2026-10-21"
+      }
+    ],
+    [
+      "stage",
+      "最近已完成交易日 2026-10-22 的收盘信号"
+    ],
+    [
+      "fetch_time",
+      "2026-10-22 18:28:16"
+    ],
+    [
+      "index_price",
+      {
+        "t": "float",
+        "v": "0x1.9b245a1cac083p+12"
+      }
+    ],
+    [
+      "score",
+      {
+        "t": "float",
+        "v": "0x1.b5d81edb51701p+0"
+      }
+    ],
+    [
+      "valuation_provenance",
+      {
+        "t": "dict",
+        "v": [
+          [
+            "revision",
+            "legulegu_daily_v1"
+          ],
+          [
+            "mode",
+            "proxy"
+          ],
+          [
+            "market_date",
+            "2026-10-22"
+          ],
+          [
+            "real_data_date",
+            "2026-10-21"
+          ],
+          [
+            "proxy_anchor_date",
+            "2026-08-14"
+          ],
+          [
+            "reason",
+            "VIP数据日期与信号日不一致（过期或未来日期）"
+          ],
+          [
+            "auxiliary_inputs",
+            "股息和相对估值阈值沿用原冻结口径"
+          ],
+          [
+            "gov10y",
+            {
+              "t": "dict",
+              "v": [
+                [
+                  "revision",
+                  "chinabond_10y_daily_v1"
+                ],
+                [
+                  "mode",
+                  "frozen_fallback"
+                ],
+                [
+                  "yield_decimal",
+                  {
+                    "t": "float",
+                    "v": "0x1.15f02c4d65e46p-6"
+                  }
+                ],
+                [
+                  "used_date",
+                  "2026-08-14"
+                ],
+                [
+                  "observed_date",
+                  null
+                ],
+                [
+                  "reason",
+                  "未接入中债当日快照"
+                ],
+                [
+                  "source",
+                  "https://yield.chinabond.com.cn/cbweb-pbc-web/pbc/more?locale=cn_zh"
+                ]
+              ]
+            }
+          ]
+        ]
+      }
+    ],
+    [
+      "momentum_120",
+      {
+        "t": "float",
+        "v": "-0x1.b5023cbc22248p-3"
+      }
+    ],
+    [
+      "momentum_score",
+      {
+        "t": "float",
+        "v": "-0x1.08a6b2443f48ap+6"
+      }
+    ],
+    [
+      "momentum_abs20",
+      {
+        "t": "float",
+        "v": "-0x1.10642f232b900p-3"
+      }
+    ],
+    [
+      "momentum_abs",
+      {
+        "t": "float",
+        "v": "-0x1.10642f232b900p-3"
+      }
+    ],
+    [
+      "momentum_abs_days",
+      20
+    ],
+    [
+      "momentum_abs_on",
+      false
+    ],
+    [
+      "momentum_abs_debounce_active",
+      true
+    ],
+    [
+      "momentum_volume_ratio",
+      {
+        "t": "float",
+        "v": "0x1.6ed67866d058bp-1"
+      }
+    ],
+    [
+      "momentum_volume_pass",
+      false
+    ],
+    [
+      "momentum_volume_placeholder",
+      false
+    ],
+    [
+      "momentum_score_hot",
+      false
+    ],
+    [
+      "momentum_base_nav",
+      {
+        "t": "float",
+        "v": "nan"
+      }
+    ],
+    [
+      "momentum_base_dd",
+      {
+        "t": "float",
+        "v": "nan"
+      }
+    ],
+    [
+      "momentum_nav_defense",
+      false
+    ],
+    [
+      "momentum_ohlcv_source",
+      "Sina"
+    ],
+    [
+      "momentum_ohlcv_source_audit",
+      []
+    ],
+    [
+      "momentum_ohlcv_source_failures",
+      []
+    ],
+    [
+      "momentum_ohlcv_source_volume_scale",
+      null
+    ],
+    [
+      "momentum_current_weight",
+      {
+        "t": "float",
+        "v": "0x0.0p+0"
+      }
+    ],
+    [
+      "momentum_next_weight",
+      {
+        "t": "float",
+        "v": "0x0.0p+0"
+      }
+    ],
+    [
+      "momentum_signal_date",
+      {
+        "t": "date",
+        "v": "2026-10-22"
+      }
+    ],
+    [
+      "momentum_current_source_date",
+      {
+        "t": "date",
+        "v": "2026-10-21"
+      }
+    ],
+    [
+      "next_trade_date",
+      {
+        "t": "date",
+        "v": "2026-10-23"
+      }
+    ],
+    [
+      "core_current",
+      "IM2612"
+    ],
+    [
+      "core_target",
+      "IM2612"
+    ],
+    [
+      "core_action",
+      "HOLD"
+    ],
+    [
+      "future_last",
+      {
+        "t": "float",
+        "v": "0x1.947999999999ap+12"
+      }
+    ],
+    [
+      "future_bid",
+      {
+        "t": "float",
+        "v": "0x1.9470000000000p+12"
+      }
+    ],
+    [
+      "future_ask",
+      {
+        "t": "float",
+        "v": "0x1.947999999999ap+12"
+      }
+    ],
+    [
+      "future_quote_source",
+      "东方财富"
+    ],
+    [
+      "future_quote_date",
+      {
+        "t": "date",
+        "v": "2026-10-22"
+      }
+    ],
+    [
+      "future_expiry",
+      {
+        "t": "date",
+        "v": "2026-12-18"
+      }
+    ],
+    [
+      "next_core",
+      "IM2703"
+    ],
+    [
+      "roll_date",
+      {
+        "t": "date",
+        "v": "2026-12-18"
+      }
+    ],
+    [
+      "roll_execution_date",
+      {
+        "t": "date",
+        "v": "2026-12-17"
+      }
+    ],
+    [
+      "scheduled_roll_completed",
+      false
+    ],
+    [
+      "core_eod_contract",
+      "IM2612"
+    ],
+    [
+      "roll_confirmed",
+      false
+    ],
+    [
+      "roll_policy",
+      {
+        "t": "dict",
+        "v": [
+          [
+            "tenor",
+            "strict_quarter"
+          ],
+          [
+            "trading_days_before_expiry",
+            1
+          ],
+          [
+            "execution",
+            "close"
+          ],
+          [
+            "effective_date",
+            "2026-09-04"
+          ],
+          [
+            "options",
+            "original_independent_monthly_maintenance"
+          ]
+        ]
+      }
+    ],
+    [
+      "quarter_spread",
+      {
+        "t": "dict",
+        "v": [
+          [
+            "status",
+            "ok"
+          ],
+          [
+            "convention",
+            "near_minus_far"
+          ],
+          [
+            "source",
+            "东方财富"
+          ],
+          [
+            "source_date",
+            "2026-10-22"
+          ],
+          [
+            "price_type",
+            "same_snapshot_lastprice"
+          ],
+          [
+            "near_contract",
+            "IM2612"
+          ],
+          [
+            "far_contract",
+            "IM2703"
+          ],
+          [
+            "near_price",
+            {
+              "t": "float",
+              "v": "0x1.947999999999ap+12"
+            }
+          ],
+          [
+            "far_price",
+            {
+              "t": "float",
+              "v": "0x1.8a6cccccccccdp+12"
+            }
+          ],
+          [
+            "points",
+            {
+              "t": "float",
+              "v": "0x1.41999999999a0p+7"
+            }
+          ],
+          [
+            "ratio",
+            {
+              "t": "float",
+              "v": "0x1.9717f8c8e3792p-6"
+            }
+          ],
+          [
+            "annualized",
+            {
+              "t": "float",
+              "v": "0x1.98364788bcb6bp-4"
+            }
+          ],
+          [
+            "expiry_gap_days",
+            91
+          ],
+          [
+            "near_expiry",
+            "2026-12-18"
+          ],
+          [
+            "far_expiry",
+            "2027-03-19"
+          ]
+        ]
+      }
+    ],
+    [
+      "month_next_spread",
+      {
+        "t": "dict",
+        "v": [
+          [
+            "status",
+            "ok"
+          ],
+          [
+            "convention",
+            "near_minus_far"
+          ],
+          [
+            "label",
+            "当月－次月"
+          ],
+          [
+            "source",
+            "东方财富"
+          ],
+          [
+            "source_date",
+            "2026-10-22"
+          ],
+          [
+            "price_type",
+            "same_snapshot_lastprice"
+          ],
+          [
+            "near_contract",
+            "IM2611"
+          ],
+          [
+            "far_contract",
+            "IM2612"
+          ],
+          [
+            "near_price",
+            {
+              "t": "float",
+              "v": "0x1.9783333333333p+12"
+            }
+          ],
+          [
+            "far_price",
+            {
+              "t": "float",
+              "v": "0x1.947999999999ap+12"
+            }
+          ],
+          [
+            "points",
+            {
+              "t": "float",
+              "v": "0x1.84ccccccccc80p+5"
+            }
+          ],
+          [
+            "ratio",
+            {
+              "t": "float",
+              "v": "0x1.e87d5382f4d57p-8"
+            }
+          ],
+          [
+            "annualized",
+            {
+              "t": "float",
+              "v": "0x1.8dfcf6e58d303p-4"
+            }
+          ],
+          [
+            "same_contract",
+            false
+          ],
+          [
+            "expiry_gap_days",
+            28
+          ],
+          [
+            "near_expiry",
+            "2026-11-20"
+          ],
+          [
+            "far_expiry",
+            "2026-12-18"
+          ]
+        ]
+      }
+    ],
+    [
+      "month_quarter_spread",
+      {
+        "t": "dict",
+        "v": [
+          [
+            "status",
+            "ok"
+          ],
+          [
+            "convention",
+            "near_minus_far"
+          ],
+          [
+            "label",
+            "当月－当季"
+          ],
+          [
+            "source",
+            "东方财富"
+          ],
+          [
+            "source_date",
+            "2026-10-22"
+          ],
+          [
+            "price_type",
+            "same_snapshot_lastprice"
+          ],
+          [
+            "near_contract",
+            "IM2611"
+          ],
+          [
+            "far_contract",
+            "IM2612"
+          ],
+          [
+            "near_price",
+            {
+              "t": "float",
+              "v": "0x1.9783333333333p+12"
+            }
+          ],
+          [
+            "far_price",
+            {
+              "t": "float",
+              "v": "0x1.947999999999ap+12"
+            }
+          ],
+          [
+            "points",
+            {
+              "t": "float",
+              "v": "0x1.84ccccccccc80p+5"
+            }
+          ],
+          [
+            "ratio",
+            {
+              "t": "float",
+              "v": "0x1.e87d5382f4d57p-8"
+            }
+          ],
+          [
+            "annualized",
+            {
+              "t": "float",
+              "v": "0x1.8dfcf6e58d303p-4"
+            }
+          ],
+          [
+            "same_contract",
+            false
+          ],
+          [
+            "expiry_gap_days",
+            28
+          ],
+          [
+            "near_expiry",
+            "2026-11-20"
+          ],
+          [
+            "far_expiry",
+            "2026-12-18"
+          ]
+        ]
+      }
+    ],
+    [
+      "option_monthly_reset_due",
+      false
+    ],
+    [
+      "option_monthly_reset_preview",
+      false
+    ],
+    [
+      "option_monthly_reset_execution_date",
+      {
+        "t": "date",
+        "v": "2026-11-20"
+      }
+    ],
+    [
+      "option_reference_contract",
+      "IM2611"
+    ],
+    [
+      "grid_current",
+      {
+        "t": "float",
+        "v": "0x1.0000000000000p-1"
+      }
+    ],
+    [
+      "grid_target",
+      {
+        "t": "float",
+        "v": "0x1.0000000000000p-1"
+      }
+    ],
+    [
+      "grid_action",
+      "HOLD"
+    ],
+    [
+      "grid_policy_revision",
+      "ic_im_or_fear25_paired_exit50_20261008_v1"
+    ],
+    [
+      "grid_policy",
+      {
+        "t": "dict",
+        "v": [
+          [
+            "entry",
+            {
+              "t": "float",
+              "v": "0x1.999999999999ap+0"
+            }
+          ],
+          [
+            "exit",
+            {
+              "t": "float",
+              "v": "0x1.0000000000000p+1"
+            }
+          ],
+          [
+            "units",
+            {
+              "t": "float",
+              "v": "0x1.0000000000000p-1"
+            }
+          ],
+          [
+            "fear_entry",
+            {
+              "t": "float",
+              "v": "0x1.9000000000000p+4"
+            }
+          ],
+          [
+            "fear_exit",
+            {
+              "t": "float",
+              "v": "0x1.9000000000000p+5"
+            }
+          ]
+        ]
+      }
+    ],
+    [
+      "data_notes",
+      [
+        "市场输入来源、日期及回退情况见以下审计记录",
+        "代理估值／非当日真实PE、PB：VIP数据日期与信号日不一致（过期或未来日期）；可用真实数据日期 2026-10-21；代理锚点 2026-08-14，按指数价格比例推算。国债利率回退：未接入中债当日快照；沿用 2026-08-14 冻结值 1.6964%，非当日利率；本次源日期 未取得（估值与期权定价共用）。股息和相对估值阈值沿用原冻结口径。",
+        "MOM120沿用价格指数动量口径",
+        "IM期货源：东方财富，as-of 2026-10-22",
+        "中证1000 OHLCV源：Sina；成交量已通过日期、OHLC关系、正值与数量级校验",
+        "账本下一交易日桥接：当前腿固定取2026-10-21已核验收盘锚点；2026-10-22行情只形成下一交易日目标",
+        "百分位CSV与网页读数一致，已完成双侧验证。",
+        "9圈恐慌贪婪指数：3.6；数据日 2026-10-21；采集 2026-10-22T18:28:02+08:00；与百分位数据日不同；仅供参考，不参与网格信号。官网：https://jiucaishuo.com/indicators?tab=fg",
+        "恐贪来源：same_day_post_close，数据日 2026-10-22，分数 26.13；网页更新 2026-10-22T15:03+08:00；CSV SHA-256 ba3f5675de8cd83512a4f63df466aa7aff3b1b21be1887d655a8f71bf64e1567",
+        "行情源回退/不可用汇总：中金所官方: RuntimeError: 剩余联网预算12.4秒，已跳过官方源并为备用源预留时间；新浪财经: ProxyError: HTTPSConnectionPool(host='vip.stock.finance.sina.com.cn', port=443): Max retries exceeded with url: /quotes_service/api/json_v2.php/Market_Center.getHQFuturesData?page=1&num=40&sort=position&asc=0&node=im_qh&base=futures (Caused by ProxyErr",
+        "挂牌合约包含2027年到期日，但脚本尚未载入该年度官方休市表；这些到期日未核验，仅供诊断展示，不能作为新增目标、维护或提醒的日期依据；须补齐官方安排后验证",
+        "MO期权链源：东方财富，as-of 2026-10-22",
+        "MO行情源回退/不可用汇总：中金所官方: ProxyError: HTTPSConnectionPool(host='www.cffex.com.cn', port=443): Max retries exceeded with url: /quote_MO.txt (Caused by ProxyError('Cannot connect to proxy.', TimeoutError('timed out')))"
+      ]
+    ],
+    [
+      "fear_source_policy_revision",
+      "baifenwei_either_source_20261016_v1"
+    ],
+    [
+      "fear_greed_index",
+      {
+        "t": "float",
+        "v": "0x1.a2147ae147ae1p+4"
+      }
+    ],
+    [
+      "fear_data_date",
+      "2026-10-22"
+    ],
+    [
+      "fear_data_status",
+      "same_day_post_close"
+    ],
+    [
+      "fear_retrieved_at",
+      "2026-10-22T18:27:53+08:00"
+    ],
+    [
+      "fear_fetch_started_at",
+      "2026-10-22T18:27:38+08:00"
+    ],
+    [
+      "fear_available_sources",
+      [
+        "csv",
+        "page"
+      ]
+    ],
+    [
+      "fear_selected_source",
+      "csv"
+    ],
+    [
+      "fear_cross_validation",
+      "matched"
+    ],
+    [
+      "fear_source_warning",
+      ""
+    ],
+    [
+      "fear_source_errors",
+      {
+        "t": "dict",
+        "v": []
+      }
+    ],
+    [
+      "fear_source_url",
+      "https://baifenwei.com/data/fear-greed/fear-greed-full.csv"
+    ],
+    [
+      "fear_csv_sha256",
+      "ba3f5675de8cd83512a4f63df466aa7aff3b1b21be1887d655a8f71bf64e1567"
+    ],
+    [
+      "fear_page_sha256",
+      "3a0796b74f94ec8944eac91f633a0d82bd115f489b6a49c652f06444ccec9b0a"
+    ],
+    [
+      "fear_page_updated_at",
+      "2026-10-22T15:03+08:00"
+    ],
+    [
+      "fear_page_data_date",
+      "2026-10-22"
+    ],
+    [
+      "fear_page_value",
+      {
+        "t": "float",
+        "v": "0x1.a2147ae147ae1p+4"
+      }
+    ],
+    [
+      "fear_csv_latest_date",
+      "2026-10-22"
+    ],
+    [
+      "fear_csv_latest_value",
+      {
+        "t": "float",
+        "v": "0x1.a2147ae147ae1p+4"
+      }
+    ],
+    [
+      "fear_csv_observations",
+      {
+        "t": "dict",
+        "v": [
+          [
+            "2026-10-21",
+            {
+              "t": "float",
+              "v": "0x1.250a3d70a3d71p+5"
+            }
+          ],
+          [
+            "2026-10-22",
+            {
+              "t": "float",
+              "v": "0x1.a2147ae147ae1p+4"
+            }
+          ]
+        ]
+      }
+    ],
+    [
+      "fear_latest_available_date",
+      "2026-10-22"
+    ],
+    [
+      "fear_unavailable_reason",
+      null
+    ],
+    [
+      "fear_fallback_applied",
+      false
+    ],
+    [
+      "jiu_fear_greed_index",
+      {
+        "t": "float",
+        "v": "0x1.ccccccccccccdp+1"
+      }
+    ],
+    [
+      "jiu_data_date",
+      "2026-10-21"
+    ],
+    [
+      "jiu_reference_only",
+      true
+    ],
+    [
+      "jiu_source_url",
+      "https://ai2.jiucaishuo.com/api/fear-greed"
+    ],
+    [
+      "jiu_page_url",
+      "https://jiucaishuo.com/indicators?tab=fg"
+    ],
+    [
+      "jiu_sha256",
+      "f7af0ff948b6491804dca0e0ca7e9618333d3d12b7e9346874723a71d5214f79"
+    ],
+    [
+      "jiu_status",
+      "reference_only"
+    ],
+    [
+      "jiu_warning",
+      "数据日早于信号日"
+    ],
+    [
+      "jiu_retrieved_at",
+      "2026-10-22T18:28:02+08:00"
+    ],
+    [
+      "signal_calculation_started_at",
+      "2026-10-22T18:28:16+08:00"
+    ],
+    [
+      "signal_generation_timing",
+      "close_confirmed"
+    ],
+    [
+      "grid_entry_source_current",
+      "valuation_only"
+    ],
+    [
+      "grid_entry_source_target",
+      "valuation_only"
+    ],
+    [
+      "grid_transition_reason",
+      "hold_grid"
+    ],
+    [
+      "put_current",
+      "核心Put 1.5张 MO2612-P-6700；独立动量Put 0张；合计 1.5张"
+    ],
+    [
+      "put_target",
+      "0.5倍核心袖规范化多 1.5张 MO2612-P-6700（父规则每1倍 3张）；独立动量Put 0张；合计 1.5张"
+    ],
+    [
+      "put_action",
+      "HOLD"
+    ],
+    [
+      "put_market",
+      "核心：`MO2612-P-6700`，最新 413.8，买/卖 413.6/416.2；动量：无（目标与当前均为空仓）"
+    ],
+    [
+      "put_current_contract",
+      "MO2612-P-6700"
+    ],
+    [
+      "put_target_contract",
+      "MO2612-P-6700"
+    ],
+    [
+      "core_put_current_contract",
+      "MO2612-P-6700"
+    ],
+    [
+      "core_put_target_contract",
+      "MO2612-P-6700"
+    ],
+    [
+      "momentum_put_current_contract",
+      null
+    ],
+    [
+      "momentum_put_target_contract",
+      null
+    ],
+    [
+      "call_current",
+      "规范化0张（已核验空仓）"
+    ],
+    [
+      "call_target",
+      "目标空仓（fix6停止卖Call）"
+    ],
+    [
+      "call_action",
+      "HOLD"
+    ],
+    [
+      "call_market",
+      "无（已核验Call仓位为0）"
+    ],
+    [
+      "call_current_contract",
+      null
+    ],
+    [
+      "call_target_contract",
+      null
+    ],
+    [
+      "call_target_expiry",
+      null
+    ],
+    [
+      "call_target_strike",
+      null
+    ],
+    [
+      "call_target_qty_normalized",
+      {
+        "t": "float",
+        "v": "0x0.0p+0"
+      }
+    ],
+    [
+      "call_target_threat_roll_count",
+      0
+    ],
+    [
+      "call_otm",
+      {
+        "t": "float",
+        "v": "nan"
+      }
+    ],
+    [
+      "call_expiry",
+      null
+    ],
+    [
+      "call_has_position",
+      false
+    ],
+    [
+      "threat_roll_count",
+      0
+    ],
+    [
+      "core_put_target_qty_normalized",
+      {
+        "t": "float",
+        "v": "0x1.8000000000000p+0"
+      }
+    ],
+    [
+      "core_put_current_qty_normalized",
+      {
+        "t": "float",
+        "v": "0x1.8000000000000p+0"
+      }
+    ],
+    [
+      "v13_parent_puts_per_full_core",
+      3
+    ],
+    [
+      "v13_current_parent_puts_per_full_core",
+      3
+    ],
+    [
+      "momentum_put_target_qty_normalized",
+      {
+        "t": "float",
+        "v": "0x0.0p+0"
+      }
+    ],
+    [
+      "momentum_put_current_qty_normalized",
+      {
+        "t": "float",
+        "v": "0x0.0p+0"
+      }
+    ],
+    [
+      "total_put_target_qty_normalized",
+      {
+        "t": "float",
+        "v": "0x1.8000000000000p+0"
+      }
+    ],
+    [
+      "total_put_current_qty_normalized",
+      {
+        "t": "float",
+        "v": "0x1.8000000000000p+0"
+      }
+    ],
+    [
+      "core_put_action",
+      "HOLD"
+    ],
+    [
+      "momentum_put_action",
+      "HOLD"
+    ],
+    [
+      "momentum_put_selection_note",
+      "MOM120非负或动量执行权重为0，目标空仓"
+    ],
+    [
+      "im_put_execution_revision",
+      "im_monthly_reset_20260907_v1"
+    ],
+    [
+      "im_execution_fix_revision",
+      "im_put_execution_guards_20260908_v2"
+    ],
+    [
+      "im_put_policy_revision",
+      "im_mom120_put102_20260908_v1"
+    ],
+    [
+      "im_put_policy_description",
+      "核心Put保留估值与MOM120取高；动量Put仅MOM120<0时按3×0.5×动量执行权重配置；两条Put新选约均为当前持有IM价格的102%"
+    ],
+    [
+      "im_put_target_moneyness",
+      {
+        "t": "float",
+        "v": "0x1.051eb851eb852p+0"
+      }
+    ],
+    [
+      "momentum_put_parent_qty",
+      3
+    ],
+    [
+      "im_put_calendar_revision",
+      "execution_day_20260911_v1"
+    ],
+    [
+      "put_monthly_reset_preview",
+      false
+    ],
+    [
+      "put_reference_price_date",
+      {
+        "t": "date",
+        "v": "2026-10-22"
+      }
+    ],
+    [
+      "option_calendar_reset_due",
+      false
+    ],
+    [
+      "put_monthly_reset_already_recorded",
+      false
+    ],
+    [
+      "put_monthly_reset_execution_date",
+      null
+    ],
+    [
+      "put_reference_future",
+      "IM2612"
+    ],
+    [
+      "put_reference_price",
+      {
+        "t": "float",
+        "v": "0x1.947999999999ap+12"
+      }
+    ],
+    [
+      "absolute_valuation_tier",
+      0
+    ],
+    [
+      "absolute_valuation_tier_label",
+      "基础观察档（低于2.450）"
+    ],
+    [
+      "relative_valuation_tier",
+      0
+    ],
+    [
+      "relative_valuation_tier_label",
+      "基础观察档（低于1.976）"
+    ],
+    [
+      "valuation_puts_per_full_core",
+      0
+    ],
+    [
+      "mom120_floor_puts_per_full_core",
+      3
+    ],
+    [
+      "core_put_driver",
+      "MOM120负动量下限"
+    ],
+    [
+      "put_selection_note",
+      "2026-10-21已核验账本续接；非月换日沿用既有合约，只按保护档调整张数"
+    ],
+    [
+      "put_pricing_evidence",
+      {
+        "t": "dict",
+        "v": [
+          [
+            "put_current_contract",
+            {
+              "t": "dict",
+              "v": [
+                [
+                  "contract",
+                  "MO2612-P-6700"
+                ],
+                [
+                  "pricing_basis",
+                  "source_last_quote"
+                ],
+                [
+                  "market_text",
+                  "`MO2612-P-6700`，最新 413.8，买/卖 413.6/416.2"
+                ]
+              ]
+            }
+          ],
+          [
+            "core_put_target_contract",
+            {
+              "t": "dict",
+              "v": [
+                [
+                  "contract",
+                  "MO2612-P-6700"
+                ],
+                [
+                  "pricing_basis",
+                  "source_last_quote"
+                ],
+                [
+                  "market_text",
+                  "`MO2612-P-6700`，最新 413.8，买/卖 413.6/416.2"
+                ]
+              ]
+            }
+          ]
+        ]
+      }
+    ],
+    [
+      "core_units_current",
+      {
+        "t": "float",
+        "v": "0x1.0000000000000p-1"
+      }
+    ],
+    [
+      "core_units_target",
+      {
+        "t": "float",
+        "v": "0x1.0000000000000p-1"
+      }
+    ],
+    [
+      "momentum_units_current",
+      {
+        "t": "float",
+        "v": "0x0.0p+0"
+      }
+    ],
+    [
+      "momentum_units_target",
+      {
+        "t": "float",
+        "v": "0x0.0p+0"
+      }
+    ],
+    [
+      "momentum_units_change",
+      {
+        "t": "float",
+        "v": "0x0.0p+0"
+      }
+    ],
+    [
+      "momentum_action",
+      "HOLD"
+    ],
+    [
+      "total_units_current",
+      {
+        "t": "float",
+        "v": "0x1.0000000000000p+0"
+      }
+    ],
+    [
+      "total_units_target",
+      {
+        "t": "float",
+        "v": "0x1.0000000000000p+0"
+      }
+    ],
+    [
+      "total_units_change",
+      {
+        "t": "float",
+        "v": "0x0.0p+0"
+      }
+    ],
+    [
+      "v14_signal_scope",
+      "research_model_signal_only"
+    ],
+    [
+      "v14_account_execution_status",
+      "not_observed_out_of_scope"
+    ],
+    [
+      "v14_lifecycle_evidence_status",
+      "model_future_route_active"
+    ],
+    [
+      "v14_lifecycle_evidence_note",
+      "策略参考路径；实际执行由用户自行完成。"
+    ],
+    [
+      "v14_core_put_mark",
+      {
+        "t": "float",
+        "v": "0x1.9dccccccccccdp+8"
+      }
+    ],
+    [
+      "v14_core_put_target_entry_premium",
+      null
+    ],
+    [
+      "v14_candidate_data_status",
+      "not_required: mom120_negative"
+    ],
+    [
+      "v14_execution_revision",
+      "put_execution_order_and_short_basis_20261016_v1"
+    ],
+    [
+      "strategy_version",
+      "1.4"
+    ],
+    [
+      "strategy_revision",
+      "r1"
+    ],
+    [
+      "v14_build_id",
+      "v1.4-20261008-r1-ic-csi500-abs40-fix11"
+    ],
+    [
+      "v14_rule_revision",
+      "ic_im_v1_4_ic_csi500_ma105_w16_abs40_static_20261008_v1"
+    ],
+    [
+      "v14_effective_signal_date",
+      {
+        "t": "date",
+        "v": "2026-09-18"
+      }
+    ],
+    [
+      "v14_route_state",
+      "future"
+    ],
+    [
+      "v14_cycle_id",
+      null
+    ],
+    [
+      "v14_short_put_contract",
+      null
+    ],
+    [
+      "v14_short_put_security_id",
+      null
+    ],
+    [
+      "v14_short_put_qty_normalized",
+      {
+        "t": "float",
+        "v": "0x0.0p+0"
+      }
+    ],
+    [
+      "v14_short_put_entry_premium",
+      null
+    ],
+    [
+      "v14_short_put_open_pending",
+      null
+    ],
+    [
+      "v14_short_put_entry_price_day",
+      null
+    ],
+    [
+      "v14_short_put_cost_basis",
+      null
+    ],
+    [
+      "v14_short_put_expiry",
+      null
+    ],
+    [
+      "v14_settlement_pending",
+      false
+    ],
+    [
+      "v14_settlement_trigger_day",
+      null
+    ],
+    [
+      "v14_early_roll_used",
+      false
+    ],
+    [
+      "v14_roll_pending",
+      false
+    ],
+    [
+      "v14_roll_trigger_day",
+      null
+    ],
+    [
+      "v14_roll_wait_reason",
+      null
+    ],
+    [
+      "v14_recovery_net_pnl",
+      {
+        "t": "float",
+        "v": "0x0.0p+0"
+      }
+    ],
+    [
+      "v14_core_put_entry_premium",
+      {
+        "t": "float",
+        "v": "0x1.5e00000000000p+8"
+      }
+    ],
+    [
+      "v14_core_put_contract",
+      null
+    ],
+    [
+      "v14_core_put_security_id",
+      null
+    ],
+    [
+      "v14_core_put_qty",
+      {
+        "t": "float",
+        "v": "0x0.0p+0"
+      }
+    ],
+    [
+      "v14_core_put_profit3x_eligible",
+      true
+    ],
+    [
+      "v14_profit_pending",
+      false
+    ],
+    [
+      "v14_profit_trigger_day",
+      null
+    ],
+    [
+      "v14_profit_execution_day",
+      null
+    ],
+    [
+      "v14_profit_old_contract",
+      null
+    ],
+    [
+      "v14_profit_old_security_id",
+      null
+    ],
+    [
+      "v14_profit_old_qty",
+      {
+        "t": "float",
+        "v": "0x0.0p+0"
+      }
+    ],
+    [
+      "v14_profit_reentry_contract",
+      null
+    ],
+    [
+      "v14_profit_reentry_security_id",
+      null
+    ],
+    [
+      "v14_profit_reentry_qty",
+      {
+        "t": "float",
+        "v": "0x0.0p+0"
+      }
+    ],
+    [
+      "v14_ordinary_put_pending",
+      null
+    ],
+    [
+      "v14_last_event_id",
+      null
+    ],
+    [
+      "v14_action",
+      "HOLD"
+    ],
+    [
+      "v14_action_reason",
+      "candidate_untradable"
+    ],
+    [
+      "v14_seller_permission",
+      false
+    ],
+    [
+      "v14_seller_permission_reason",
+      "candidate_untradable"
+    ],
+    [
+      "v14_short_put_candidate",
+      {
+        "t": "dict",
+        "v": [
+          [
+            "tradable",
+            false
+          ],
+          [
+            "reason",
+            "mom120_negative"
+          ]
+        ]
+      }
+    ],
+    [
+      "v14_opening_events",
+      []
+    ],
+    [
+      "iv_warning",
+      {
+        "t": "dict",
+        "v": [
+          [
+            "level",
+            "unavailable"
+          ],
+          [
+            "iv",
+            null
+          ],
+          [
+            "thresholds",
+            [
+              {
+                "t": "float",
+                "v": "0x1.999999999999ap-2"
+              },
+              {
+                "t": "float",
+                "v": "0x1.0000000000000p-1"
+              }
+            ]
+          ],
+          [
+            "comparison",
+            "strictly_greater"
+          ],
+          [
+            "source",
+            "东方财富"
+          ],
+          [
+            "market_date",
+            "2026-10-22"
+          ],
+          [
+            "snapshot_time",
+            null
+          ],
+          [
+            "contract",
+            ""
+          ],
+          [
+            "text",
+            "IV预警无法判断；N/A（independent IM Put expiry需要2027年官方交易日历，但脚本仅覆盖2022/2023/2024/2025/2026年；暂停实时新鲜度判定和新增信号）；参考合约 N/A；行情日 2026-10-22；时间 N/A；来源 东方财富。仅预警，不改变仓位。"
+          ],
+          [
+            "position_effect",
+            "none"
+          ],
+          [
+            "validation_clock",
+            "2026-10-22T18:28:30.983670+08:00"
+          ]
+        ]
+      }
+    ],
+    [
+      "signal_generated_at",
+      "2026-10-22T18:28:30+08:00"
+    ],
+    [
+      "calendar_provisional",
+      false
+    ],
+    [
+      "signal_complete",
+      true
+    ],
+    [
+      "persistence_eligible",
+      true
+    ],
+    [
+      "calendar_coverage_warning",
+      "交易日历覆盖预警：距离2026年末不足90天，2027年官方交易日历尚未载入；跨年日期仅作标注诊断，执行与落账须核验。；挂牌合约包含2027年到期日，但脚本尚未载入该年度官方休市表；这些到期日未核验，仅供诊断展示，不能作为新增目标、维护或提醒的日期依据；须补齐官方安排后验证"
+    ]
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "only_security_id_input_changed": true,
+  "source": "test_ic_im_v1_4_integration_guards.py",
+  "old_backup_sha256": "b055d6d0bc4f8cb10567cd6b5e41d49f3bbec0dab3a19999e061137be6316ad1",
+  "current_sha256": "39ad921eed2976fd0fc8ba8f8a17a41fbb4ec7cb914c1d3eafd8bf71d7102cb5",
+  "replacements": [
+    {
+      "line": 636,
+      "replacement_from": "CON_OP_10001001",
+      "replacement_to": "CON_OP_1001"
+    },
+    {
+      "line": 636,
+      "replacement_from": "CON_OP_10001002",
+      "replacement_to": "CON_OP_1002"
+    },
+    {
+      "line": 636,
+      "replacement_from": "CON_OP_10001003",
+      "replacement_to": "CON_OP_1003"
+    },
+    {
+      "line": 638,
+      "replacement_from": "CON_OP_10001003",
+      "replacement_to": "CON_OP_1003"
+    },
+    {
+      "line": 637,
+      "replacement_from": "CON_OP_10001002",
+      "replacement_to": "CON_OP_1002"
+    },
+    {
+      "line": 637,
+      "replacement_from": "CON_OP_10001001",
+      "replacement_to": "CON_OP_1001"
+    }
+  ],
+  "method": "Normalize only three CON_OP security-ID constants in current AST, then require exact full AST equality to audit-start backup. Prices, times, statements and assertions remain equal."
+}

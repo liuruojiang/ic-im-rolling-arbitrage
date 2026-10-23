@@ -1,0 +1,18 @@
+{
+  "finished_at": "2026-10-21T07:47:36.649169+00:00",
+  "counts": {
+    "tests": 36,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "source_before_equals_after": true,
+  "source_files": 13,
+  "artifacts": {
+    "source_before.json": "1f7399b5845a75589524afa61176f5b59441e321f55748bea5de52fa95434a8a",
+    "source_after.json": "1f7399b5845a75589524afa61176f5b59441e321f55748bea5de52fa95434a8a",
+    "regression.xml": "edb83ca3d15dba5cec764251cdf1329bcfed0d4d82aa0d02203e1aaa9337246e",
+    "regression.txt": "95dd6a04f86884d44bf23d2a19ac0baaa74a3a33f9c3f97c7bec6f891657f970",
+    "test_run.json": "c41a4ca757bab15ad1b09b3de369f7a289f76207bbf563009b65bfec32e4abac"
+  }
+}

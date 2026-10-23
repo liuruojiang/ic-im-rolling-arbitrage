@@ -1,0 +1,139 @@
+--- before/notes/mainline_registry.md
++++ after/notes/mainline_registry.md
+@@ -1,4 +1,12 @@
+ # IC / IM 系统主线登记表
++
++## 外部评审按序续作：历史身份与成本迁移基础（2026-10-21，本地）
++
++- 修复历史Put适配器仅按请求ID取价格、再从请求M代码推导strike的错误身份构造：新计算必须取得TIMESAVE严格同日的官方合约主表，独立绑定ID/代码/strike/unit后才取价格。标准M有依据时支持回放；旧M对应A、缺主表、错日期或无效价格均拒绝。旧账本读取和冻结输出不回写，不能将该修复称为全历史补账已完成。
++- 新增`ic_im_adjusted_put_migration_v1.py`，完成带生效区间的M→A条款、现金成本守恒、三倍/衰减的每张现金比较及冻结计划迁移预览；真实114条调整事件、58条主表与58条盘中报价核对14个A型Put。成本示例为合成，不冒充账户成本；A生产门禁仍关闭，单位/成本/计划的正式引擎与账本迁移仍未闭环。新模块须与bot及原身份模块完整交付。
++- 只读核对本地19个节点及最新seq18/2026-10-20，未发现活跃A标签或已知7月调整证券ID的存量；不代表券商或云端仓位。数量研究继续支持保留现配量，未找到足以支持翻倍的明确批准。真实CFFEX归档及未覆盖日期官方主表联网核验仍受连接失败阻断。
++- 收盘后缺当日OHLCV原已被新鲜度门禁拒绝，本轮细化为`waiting_for_completed_daily_ohlcv`及明确等待提示，不将昨日成交量污染正式账本描述为已证事实。2027跨年到期/维护日历仍待专项，不凭普通工作日补成正式安排；Put等待ETF挂牌候选不并入正式规则。
++- 累计结果、保护核对和未结项以`quant_research_runs/20261021_adjusted_put_migration_v1/record.md`及`final_verification.json`为准。保持fix11、schema4/r1、配量和策略阈值；本轮未发布、写正式账本或发邮件。预注册为本日`adjusted_put_migration`、`historical_put_identity`及`ohlcv_waiting`三份v1规范。
+ 
+ ## 第二轮修复多智能体对抗审计（2026-10-21，本地）
+ 
+--- before/poe_ic_im_mainline_v1_4_bot.py
++++ after/poe_ic_im_mainline_v1_4_bot.py
+@@ -200,6 +200,7 @@
+ import ic_im_v1_4_policy as v14_policy
+ import ic_im_put_execution_v1 as put_execution
+ import ic_im_sse_contract_identity_v1 as sse_identity
++import ic_im_adjusted_put_migration_v1 as adjusted_put_migration
+ import im_put_policy
+ 
+ BUILD_ID = v14_policy.BUILD_ID
+@@ -1685,6 +1686,11 @@
+     return pd.Series(result, index=close.index, dtype=bool, name="mom120_floor_active")
+ 
+ 
++class DailyOHLCVNotReady(RuntimeError):
++    """No complete daily bar yet; never promote an intraday volume placeholder."""
++    status = "waiting_for_completed_daily_ohlcv"
++
++
+ def _validate_v13_ohlcv(product: str, frame: pd.DataFrame, clock: datetime) -> pd.DataFrame:
+     if frame.empty:
+         raise RuntimeError(f"{product} OHLCV为空")
+@@ -1721,9 +1727,10 @@
+         raise RuntimeError(f"{product} OHLCV日期范围无效")
+     expected = _latest_completed_exchange_day(clock)
+     if result.index[-1].date() < expected:
+-        raise RuntimeError(
+-            f"{product} OHLCV已过期：最新 {result.index[-1].date()}，应覆盖 {expected}"
+-        )
++        message = f"{product} OHLCV已过期：最新 {result.index[-1].date()}，应覆盖 {expected}"
++        if expected == clock.date() and _market_phase(clock) == "收盘后":
++            raise DailyOHLCVNotReady(message + "；等待当日完整日线（含成交量）更新，暂停收盘确认")
++        raise RuntimeError(message)
+     history_start, history_rows, expected_history_hash = V13_HISTORY_DATE_INDEX[product]
+     fixed_dates = result.loc[
+         (result.index.date >= history_start) & (result.index.date <= DATA_CUTOFF)
+@@ -3825,22 +3832,71 @@
+     }
+ 
+ 
++def fetch_sse_510500_dated_master(day: date) -> dict[str, adjusted_put_migration.Terms]:
++    """A requested historical date is not evidence of the returned master date."""
++    reference = adjusted_put_migration.day(day)
++    try:
++        response = requests.get(
++            "https://query.sse.com.cn/commonQuery.do",
++            params={"isPagination": "false", "sqlId": adjusted_put_migration.MASTER_SQL,
++                    "securityId": "510500", "queryDate": reference.strftime("%Y%m%d"),
++                    "pageHelp.pageSize": "1000", "pageHelp.pageNo": "1"},
++            timeout=_bounded_timeout(8),
++            headers={"User-Agent": "Mozilla/5.0 POE-IC-IM-Research/1.0",
++                     "Referer": "https://www.sse.com.cn/assortment/options/disclo/info/",
++                     "Cache-Control": "no-cache", "Pragma": "no-cache"},
++        )
++    except requests.RequestException as exc:
++        raise RuntimeError("IC历史Put官方逐日身份来源不可用，禁止猜测历史条款") from exc
++    try:
++        response.raise_for_status()
++        payload = response.json()
++    except (requests.RequestException, ValueError) as exc:
++        raise RuntimeError("IC历史Put官方逐日身份响应无效") from exc
++    finally:
++        response.close()
++    return adjusted_put_migration.master_terms(payload, as_of=reference)
++
++
+ def fetch_sse_existing_put_historical_quote(
+     contract: str, security_id: str, day: date
+ ) -> tuple[pd.DataFrame, dict[str, Any]]:
++    # This is a new calculation, even for a pre-fix date. Reading an old ledger
++    # remains compatible; constructing a new row from an unproved M alias does
++    # not. Obtain independent dated terms BEFORE any ID-keyed historical price.
++    if (not isinstance(security_id, str) or not re.fullmatch(r"[0-9]{8}", security_id)
++            or not isinstance(contract, str)):
++        raise RuntimeError("IC历史Put请求证券身份格式无效")
++    if re.fullmatch(r"510500P[0-9]{4}A[0-9]{5}", contract):
++        raise RuntimeError("IC adjusted historical Put requires full unit/cost engine migration")
++    if not re.fullmatch(r"510500P[0-9]{4}M[0-9]{5}", contract):
++        raise RuntimeError("IC历史Put请求合约身份格式无效")
++    terms = fetch_sse_510500_dated_master(day).get(security_id)
++    if (not isinstance(terms, adjusted_put_migration.Terms)
++            or terms.security_id != security_id or terms.contract != contract or terms.unit != 10000):
++        raise RuntimeError("IC历史Put独立主数据与请求证券身份不一致")
++    terms.require_available(day)
+     closes = fetch_option_closes(security_id)
+     stamp = pd.Timestamp(day)
+     if stamp not in closes.index:
+         raise RuntimeError(f"上交所期权 {contract} 历史日线缺少 {day} 收盘")
+-    match = re.fullmatch(r"510500P[0-9]{4}M([0-9]{5})", contract)
+-    if not match:
+-        raise RuntimeError(f"无法解析IC Put行权价: {contract}")
++    value = closes.loc[stamp]
++    try:
++        if isinstance(value, (bool, np.bool_, pd.Series)):
++            raise ValueError("ambiguous or boolean price")
++        price = float(value)
++        if not math.isfinite(price) or price < 0:
++            raise ValueError("nonfinite or negative price")
++    except (ValueError, TypeError, OverflowError) as exc:
++        raise RuntimeError("IC历史Put价格无效或同日价格不唯一") from exc
+     frame = pd.DataFrame(
+         [
+             {
+-                "contract": contract,
+-                "last": float(closes.loc[stamp]),
+-                "strike": float(match.group(1)) / 1000.0,
++                "contract": terms.contract,
++                "security_id": terms.security_id,
++                "contract_unit": terms.unit,
++                "last": price,
++                "strike": float(terms.strike),
+             }
+         ]
+     )
+@@ -3849,6 +3905,9 @@
+         "time": "150000",
+         "source": str(closes.attrs.get("source") or "unknown"),
+         "source_failures": list(closes.attrs.get("source_failures") or []),
++        "identity_date": day.isoformat(),
++        "identity_source": "上交所逐日合约主表",
++        "identity_payload_sha256": terms.source_hash,
+     }
+ 
+ 

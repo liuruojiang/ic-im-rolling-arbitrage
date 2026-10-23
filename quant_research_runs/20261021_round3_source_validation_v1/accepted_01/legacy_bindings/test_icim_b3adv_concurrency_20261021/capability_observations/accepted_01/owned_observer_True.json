@@ -1,0 +1,6 @@
+{
+  "preinstalled_external_observer_restored": false,
+  "coordinator_clears_owned_observer": true,
+  "query_raises": true,
+  "production_reachability_of_nested_callback_established": false
+}

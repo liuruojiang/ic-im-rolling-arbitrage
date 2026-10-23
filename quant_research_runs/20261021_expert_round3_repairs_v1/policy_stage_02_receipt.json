@@ -1,0 +1,17 @@
+{
+  "exit_code": 0,
+  "tests": 295,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "by_module": {
+    "test_icim_round3_policy_repairs_20261021.py": 238,
+    "test_ic_im_v1_4_policy.py": 57
+  },
+  "source_snapshot": {
+    "ic_im_v1_4_policy.py": "cd3028d36275df32550471c0d3700ca2c0420b4f6675db7225068f41029a5339",
+    "test_icim_round3_policy_repairs_20261021.py": "1409810ad91744957c1750cf1097a4b4b6cde950a9efa2ca613b57bfeb500f24",
+    "test_ic_im_v1_4_policy.py": "3f6b4bc5828be1cc6aa4a73c5f5c631ce45cfe006ad1499feec8059b53bf59ac"
+  },
+  "note": "Root is concurrently integrating bot evidence; bot hash not claimed stable by this bounded stage. Final root suite must bind all final sources."
+}

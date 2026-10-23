@@ -1,0 +1,92 @@
+{
+  "status": "PASS",
+  "verified_at": "2026-10-22T21:11:43.475662+08:00",
+  "production_files_changed": [
+    "capture_ic_im_v1_4_inputs.py",
+    "ic_im_evidence_adapter_v1.py",
+    "ic_im_signal_evidence_v1.py",
+    "poe_ic_im_mainline_v1_4_bot.py",
+    "poe_ic_im_v1_4_server.py",
+    "poe_ic_im_v1_4_state.py"
+  ],
+  "test_contract_files_updated": [
+    "test_icim_round4_evidence_boundaries_20261021.py",
+    "test_icim_round5_recording_semantics_20261021.py"
+  ],
+  "formal_runtime_files_unchanged": 156,
+  "existing_original_evidence_files_unchanged": 64,
+  "formal_ledger": {
+    "verified_day": "2026-10-21",
+    "sequence": 19,
+    "digest": "c068710414dd9070d178faa4625d56835e67b9f2004c935a268900b9a1080342"
+  },
+  "accepted_tests": {
+    "tests": 2941,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "accepted_binding_files": 1005,
+  "original_exclusions_unchanged": 22,
+  "fifth_round_tests_included": 19,
+  "new_conflict_tests": 23,
+  "calendar_data_ast_unchanged": true,
+  "http_wrapper_function_ast_unchanged": true,
+  "bs_formula_ast_unchanged": true,
+  "real_recovery_scenarios": 5,
+  "real_recovery_status": "PASS",
+  "new_source_pin_sha256": "17d8b694f41fe106cf2e8800ca308a90495430452fd937a9414d0a166310e85c",
+  "collector": {
+    "Id": 45512,
+    "ProcessName": "python",
+    "StartTime": "/Date(1792674147063)/",
+    "CPU": 13.75
+  },
+  "collector_receipt": "D:\\动量策略\\IC和IM滚动套利\\data\\icim_v14_original_inputs\\capture_receipts\\2026-10-22\\211012227414-db632ec8072541e8bd33ea26a5e93064.json",
+  "collector_attempt_status": "incomplete",
+  "day_archive_status": "captured",
+  "day_statistics": {
+    "day": "2026-10-22",
+    "status": "captured",
+    "products": {
+      "IC": {
+        "attempts": 6,
+        "complete_attempts": 3,
+        "incomplete_attempts": 3,
+        "conflict_attempts": 0,
+        "conflict_requests": 0,
+        "conflict_frequency": 0.0
+      },
+      "IM": {
+        "attempts": 5,
+        "complete_attempts": 1,
+        "incomplete_attempts": 4,
+        "conflict_attempts": 0,
+        "conflict_requests": 0,
+        "conflict_frequency": 0.0
+      }
+    },
+    "missing_products": [],
+    "unreadable_manifests": [],
+    "denominator": "sealed original-close sessions per product; polling receipts excluded",
+    "recovery_warning": null
+  },
+  "available_packages": {
+    "IC": {
+      "manifest": "D:\\动量策略\\IC和IM滚动套利\\data\\icim_v14_original_inputs\\sessions\\2026-10-22\\104029320612-ea2833aff9a542968f51f66ceb0f7773.json",
+      "sha256": "fcbfda93c687bf31908b756065d7971ec25d32112e2cdf087860b27df41dbf26",
+      "all_blobs_verified": true
+    },
+    "IM": {
+      "manifest": "D:\\动量策略\\IC和IM滚动套利\\data\\icim_v14_original_inputs\\sessions\\2026-10-22\\104108069491-79037dc09f1047eb9cff9eafb29cb247.json",
+      "sha256": "fbd0247754eb1dcb80ad0a7f1cd3d068a9b10e8f9675af8ef656c160fd9ea417",
+      "all_blobs_verified": true
+    }
+  },
+  "http_date_probe": "body/time unchanged, HTTP Date changed; rejected under existing strict identity",
+  "observed_trading_days": 1,
+  "generic_url_response_cache_added": false,
+  "historical_nav_recalculated": false,
+  "remote_poe_configuration_changed": false,
+  "spec_sha256": "7d550f5f9bf40dbeae10e800aeaec678da60281fb756b095488dd3cd5c618211"
+}

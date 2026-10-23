@@ -1,0 +1,17 @@
+{
+  "files": {
+    "findings.json": "2412968dfe5915dd1dd4474315bff8480f31634dfdf627f143e7d9804f6c3711",
+    "report.md": "70fbec4ff74053fb37f502976d606ef37ea90d0659d4909ef9a4ffdb73905667",
+    "run_audit.py": "9891dfaf27cc5e35a3d6014ce846641c74745904724167fa07338019d9792fb1",
+    "state_02/receipt.json": "5a50dc1ceec8a8c4f40c034a0339c206ce4798c77e9ea394cc2b9dde09d3f7eb",
+    "state_02/runner_stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "state_02/runner_stdout.txt": "a543bd49538ba20270361fb18796f7dd05b9096bb2acdf6bb2734de1bc8dd9c0",
+    "state_02/source_after.json": "e8cfd15778e8d0885b71dd4b304eb7ddaf06f8d2913776571dfb3e5ea064c1fb",
+    "state_02/source_before.json": "e8cfd15778e8d0885b71dd4b304eb7ddaf06f8d2913776571dfb3e5ea064c1fb",
+    "state_03/receipt.json": "dcef4678dc75f99957d3da671482a224fc91ec81baa5d48c4c79d63d18d1d5aa",
+    "state_03/runner_stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "state_03/runner_stdout.txt": "215220b8c011823b275303bd8eca668038c3fcdb697ab1c05b5e1d47c69b656d",
+    "state_03/source_after.json": "7d29f859d4512bc40e04d7e6468217edbb4804b0447e2a96d60e3b8b4c8ad74e",
+    "state_03/source_before.json": "7d29f859d4512bc40e04d7e6468217edbb4804b0447e2a96d60e3b8b4c8ad74e"
+  }
+}

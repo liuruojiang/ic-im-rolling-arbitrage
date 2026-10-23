@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="24" time="4.288" timestamp="2026-10-21T16:20:51.978619+08:00" hostname="DESKTOP-95I7VVU"><testcase classname="test_icim_batch3_valuation_20261021" name="test_actual_score_and_next_put_targets_survive_opposite_legacy_proxy[-100.0-IC]" time="0.188" /><testcase classname="test_icim_batch3_valuation_20261021" name="test_actual_score_and_next_put_targets_survive_opposite_legacy_proxy[-100.0-IM]" time="0.071" /><testcase classname="test_icim_batch3_valuation_20261021" name="test_actual_score_and_next_put_targets_survive_opposite_legacy_proxy[100.0-IC]" time="0.165" /><testcase classname="test_icim_batch3_valuation_20261021" name="test_actual_score_and_next_put_targets_survive_opposite_legacy_proxy[100.0-IM]" time="0.071" /><testcase classname="test_icim_batch3_valuation_20261021" name="test_anchor_overwrites_proxy_current_state_without_overwriting_real_target[False-IC]" time="0.170" /><testcase classname="test_icim_batch3_valuation_20261021" name="test_anchor_overwrites_proxy_current_state_without_overwriting_real_target[False-IM]" time="0.064" /><testcase classname="test_icim_batch3_valuation_20261021" name="test_anchor_overwrites_proxy_current_state_without_overwriting_real_target[True-IC]" time="0.159" /><testcase classname="test_icim_batch3_valuation_20261021" name="test_anchor_overwrites_proxy_current_state_without_overwriting_real_target[True-IM]" time="0.070" /><testcase classname="test_icim_batch3_valuation_20261021" name="test_authorized_proxy_fallback_remains_explicit_and_date_exact[missing-IC]" time="0.002" /><testcase classname="test_icim_batch3_valuation_20261021" name="test_authorized_proxy_fallback_remains_explicit_and_date_exact[missing-IM]" time="0.002" /><testcase classname="test_icim_batch3_valuation_20261021" name="test_authorized_proxy_fallback_remains_explicit_and_date_exact[stale-IC]" time="0.002" /><testcase classname="test_icim_batch3_valuation_20261021" name="test_authorized_proxy_fallback_remains_explicit_and_date_exact[stale-IM]" time="0.002" /><testcase classname="test_icim_batch3_valuation_20261021" name="test_authorized_proxy_fallback_remains_explicit_and_date_exact[future-IC]" time="0.002" /><testcase classname="test_icim_batch3_valuation_20261021" name="test_authorized_proxy_fallback_remains_explicit_and_date_exact[future-IM]" time="0.002" /><testcase classname="test_icim_batch3_valuation_20261021" name="test_authorized_proxy_fallback_remains_explicit_and_date_exact[partial-IC]" time="0.002" /><testcase classname="test_icim_batch3_valuation_20261021" name="test_authorized_proxy_fallback_remains_explicit_and_date_exact[partial-IM]" time="0.027" /><testcase classname="test_icim_batch3_valuation_20261021" name="test_authorized_proxy_fallback_remains_explicit_and_date_exact[before_fetch-IC]" time="0.002" /><testcase classname="test_icim_batch3_valuation_20261021" name="test_authorized_proxy_fallback_remains_explicit_and_date_exact[before_fetch-IM]" time="0.002" /><testcase classname="test_icim_batch3_valuation_20261021" name="test_authorized_proxy_fallback_remains_explicit_and_date_exact[intraday-IC]" time="0.002" /><testcase classname="test_icim_batch3_valuation_20261021" name="test_authorized_proxy_fallback_remains_explicit_and_date_exact[intraday-IM]" time="0.002" /><testcase classname="test_icim_batch3_valuation_20261021" name="test_complete_ic_builder_replaces_legacy_state_before_formal_target[-100.0]" time="0.205"><failure message="KeyError: 'used_date'">proxy_score = -100.0
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000001C1FD0B6050&gt;
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_581a571f/pytest/test_complete_ic_builder_repla0')
+
+    @pytest.mark.parametrize('proxy_score',[-100.,100.])
+    def test_complete_ic_builder_replaces_legacy_state_before_formal_target(proxy_score,monkeypatch,tmp_path):
+        store,record=lifecycle.recent_store(tmp_path/'ledger')
+        anchors=state.anchors_from_record(record)
+        chain,stamp=real.wire(monkeypatch)
+        monkeypatch.setattr(bot,'LIVE_CONTINUATION_ANCHOR',anchors)
+        original_live_proxy=bot.live_proxy
+        lifecycle.builder_inputs(monkeypatch,anchors['IC'],chain,stamp)
+        monkeypatch.setattr(bot,'live_proxy',original_live_proxy)
+        live_sources(monkeypatch,tmp_path,'IC',proxy_score=proxy_score)
+        monkeypatch.setattr(bot,'fetch_sse_510500_expiries',lambda:['202612'])
+        before=lifecycle.snapshot(store.root)
+&gt;       result=bot.build_live_trade_signal('IC',CLOCK,'close')
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_icim_batch3_valuation_20261021.py:151: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_mainline_v1_4_bot.py:5954: in build_live_trade_signal
+    return _build_live_trade_signal(product, clock, mode)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+poe_ic_im_mainline_v1_4_bot.py:6124: in _build_live_trade_signal
+    daily_valuation.disclosure(live.get("valuation_provenance")),
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ic_im_daily_valuation.py:116: in disclosure
+    text += rate_disclosure(p["gov10y"])
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+value = {'frozen_date': '2026-08-14', 'mode': 'frozen', 'reason': 'synthetic audit rate', 'source_date': None, ...}
+
+    def disclosure(value: dict) -&gt; str:
+        rate = float(value["yield_decimal"])
+        if value["mode"] == "official_actual":
+            return f"国债利率：中债官方10年期 {rate:.4%}，数据日期 {value['used_date']}（估值与期权定价共用）。"
+&gt;       return (f"国债利率回退：{value['reason']}；沿用 {value['used_date']} 冻结值 {rate:.4%}，"
+                                               ^^^^^^^^^^^^^^^^^^
+                f"非当日利率；本次源日期 {value.get('observed_date') or '未取得'}（估值与期权定价共用）。")
+E       KeyError: 'used_date'
+
+ic_im_chinabond.py:159: KeyError</failure></testcase><testcase classname="test_icim_batch3_valuation_20261021" name="test_complete_ic_builder_replaces_legacy_state_before_formal_target[100.0]" time="0.222"><failure message="KeyError: 'used_date'">proxy_score = 100.0
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000001C1FD06F380&gt;
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_581a571f/pytest/test_complete_ic_builder_repla1')
+
+    @pytest.mark.parametrize('proxy_score',[-100.,100.])
+    def test_complete_ic_builder_replaces_legacy_state_before_formal_target(proxy_score,monkeypatch,tmp_path):
+        store,record=lifecycle.recent_store(tmp_path/'ledger')
+        anchors=state.anchors_from_record(record)
+        chain,stamp=real.wire(monkeypatch)
+        monkeypatch.setattr(bot,'LIVE_CONTINUATION_ANCHOR',anchors)
+        original_live_proxy=bot.live_proxy
+        lifecycle.builder_inputs(monkeypatch,anchors['IC'],chain,stamp)
+        monkeypatch.setattr(bot,'live_proxy',original_live_proxy)
+        live_sources(monkeypatch,tmp_path,'IC',proxy_score=proxy_score)
+        monkeypatch.setattr(bot,'fetch_sse_510500_expiries',lambda:['202612'])
+        before=lifecycle.snapshot(store.root)
+&gt;       result=bot.build_live_trade_signal('IC',CLOCK,'close')
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_icim_batch3_valuation_20261021.py:151: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_mainline_v1_4_bot.py:5954: in build_live_trade_signal
+    return _build_live_trade_signal(product, clock, mode)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+poe_ic_im_mainline_v1_4_bot.py:6124: in _build_live_trade_signal
+    daily_valuation.disclosure(live.get("valuation_provenance")),
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ic_im_daily_valuation.py:116: in disclosure
+    text += rate_disclosure(p["gov10y"])
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+value = {'frozen_date': '2026-08-14', 'mode': 'frozen', 'reason': 'synthetic audit rate', 'source_date': None, ...}
+
+    def disclosure(value: dict) -&gt; str:
+        rate = float(value["yield_decimal"])
+        if value["mode"] == "official_actual":
+            return f"国债利率：中债官方10年期 {rate:.4%}，数据日期 {value['used_date']}（估值与期权定价共用）。"
+&gt;       return (f"国债利率回退：{value['reason']}；沿用 {value['used_date']} 冻结值 {rate:.4%}，"
+                                               ^^^^^^^^^^^^^^^^^^
+                f"非当日利率；本次源日期 {value.get('observed_date') or '未取得'}（估值与期权定价共用）。")
+E       KeyError: 'used_date'
+
+ic_im_chinabond.py:159: KeyError</failure></testcase><testcase classname="test_icim_batch3_valuation_20261021" name="test_current_day_snapshot_cannot_relabel_historical_valuation" time="0.002" /><testcase classname="test_icim_batch3_valuation_20261021" name="test_historical_unbound_older_signal_cannot_advance_current_ledger" time="0.051" /></testsuite></testsuites>

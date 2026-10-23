@@ -1,0 +1,26 @@
+F                                                                        [100%]
+================================== FAILURES ===================================
+________ test_new_master_source_rejects_a_complete_oversize_json_body _________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000019382862FD0>
+
+    def test_new_master_source_rejects_a_complete_oversize_json_body(monkeypatch):
+        body = payload()
+        body['synthetic_ignored_field'] = 'x'*(bot.MAX_QUOTE_RESPONSE_BYTES+1)
+        response = Response(body)
+        assert len(response.content) > bot.MAX_QUOTE_RESPONSE_BYTES
+        monkeypatch.setattr(bot.requests,'get',lambda *a,**k: response)
+>       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+test_icim_a3_history_20261021.py:135: Failed
+============================== warnings summary ===============================
+C:\Python314\Lib\site-packages\fastapi_poe\types.py:171
+  C:\Python314\Lib\site-packages\fastapi_poe\types.py:171: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    class RequestContext(BaseModel):
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED test_icim_a3_history_20261021.py::test_new_master_source_rejects_a_complete_oversize_json_body
+1 failed, 1 warning in 2.20s

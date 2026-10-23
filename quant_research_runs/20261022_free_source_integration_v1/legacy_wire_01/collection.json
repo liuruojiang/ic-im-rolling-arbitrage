@@ -1,0 +1,12 @@
+{
+  "collected": [
+    "test_icim_round4_recovery_20261021.py::test_batched_mo_original_crosschecks_replay_quote_and_open_without_http"
+  ],
+  "selected": [
+    "test_icim_round4_recovery_20261021.py::test_batched_mo_original_crosschecks_replay_quote_and_open_without_http"
+  ],
+  "deselected": [],
+  "executed": [
+    "test_icim_round4_recovery_20261021.py::test_batched_mo_original_crosschecks_replay_quote_and_open_without_http"
+  ]
+}

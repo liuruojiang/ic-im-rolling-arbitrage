@@ -1,0 +1,7 @@
+{
+  "production_changes": false,
+  "checks_corrected": [
+    "receipt uses canonical manifest-body SHA, not enclosing file SHA",
+    "final allowed delta includes required mainline registry append; prior registry text and original backup are checked unchanged"
+  ]
+}

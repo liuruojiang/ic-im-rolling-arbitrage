@@ -1,0 +1,1 @@
+# isolated empty compile target

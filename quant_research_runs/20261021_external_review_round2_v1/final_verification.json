@@ -1,0 +1,57 @@
+{
+  "verified_at": "2026-10-21T06:23:16.873006+00:00",
+  "passed": true,
+  "checks": {
+    "backup_mismatches": [],
+    "prior_evidence_mismatches": [],
+    "selected_immutable_mismatches": [],
+    "previous_source_receipt_backup_mismatches": [],
+    "cumulative_bound_source_mismatches": [],
+    "cumulative_artifact_mismatches": [],
+    "prospective_outputs_mismatches": [],
+    "unexpected_changes": [],
+    "prospective_output_path_delta": [],
+    "fixture_mismatches": [],
+    "fixture_raw_mismatches": [],
+    "spec_mismatches": []
+  },
+  "changed_baseline_files": [
+    "poe_ic_im_mainline_v1_4_bot.py",
+    "test_ic_im_external_review_display_cache_20261021.py",
+    "notes/mainline_registry.md"
+  ],
+  "new_runtime_and_test_files": [
+    "ic_im_sse_contract_identity_v1.py",
+    "test_ic_im_external_review_round2_20261021.py"
+  ],
+  "backups": 1126,
+  "protected_prior_evidence": 166,
+  "original_selected_immutable": 266,
+  "prospective_outputs": 6783,
+  "prospective_outputs_bytes": 916698104,
+  "prospective_scope": "prospective only; cannot reconstruct original unrecorded history",
+  "previous_source_receipt_backed_up_entries": 837,
+  "cumulative": {
+    "tests": 1192,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "source_before_equals_after": true,
+  "compiled_files": [
+    "poe_ic_im_mainline_v1_4_bot.py",
+    "ic_im_sse_contract_identity_v1.py",
+    "test_ic_im_external_review_round2_20261021.py",
+    "test_ic_im_external_review_display_cache_20261021.py"
+  ],
+  "git_diff_check_exit": 0,
+  "git_diff_check_output": "",
+  "source_delta_sha256": "d7561c326a80f13f3e9eee953f95d3c56c0e1f86b7e2ac3fa907c8b2740a3d1f",
+  "final_sha256": {
+    "ic_im_sse_contract_identity_v1.py": "c9a9f1a38ffcfae5b3355c97d9a279a0059caf6458d0af8e56f2a13eb0eb9376",
+    "test_ic_im_external_review_round2_20261021.py": "9940691c2ac3db928a8e0b0b16b096361d709d9437255e07b70c2f159367ed48",
+    "notes/mainline_registry.md": "d11ad47c957bba52354972d445e2f193e73c6c8a5e7c7e5d79a73e7abd9b0b3a",
+    "poe_ic_im_mainline_v1_4_bot.py": "ed0a1417f1d663f0f95da67bda080a2b637be4f0d3b58ad4b644c5d64ed61128",
+    "test_ic_im_external_review_display_cache_20261021.py": "e04daa6df260b35a8b065eb01b7ec88a913d6a2f94f18daf9c2153a606e93f9b"
+  }
+}

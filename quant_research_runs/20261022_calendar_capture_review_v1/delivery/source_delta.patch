@@ -1,0 +1,1159 @@
+--- a/ic_im_evidence_adapter_v1.py
++++ b/ic_im_evidence_adapter_v1.py
+@@ -7,6 +7,7 @@
+ from __future__ import annotations
+ 
+ import contextvars
++import json
+ import math
+ import os
+ import re
+@@ -360,6 +361,28 @@
+     return reader, closed
+ 
+ 
++def _record_http_conflicts(session):
++    """Mark ambiguous independent evidence without interrupting signal queries.
++
++    Named provider inputs normally coalesce repeated calls. If raw requests
++    still repeat, use the reader's strict body/status/encoding/header identity;
++    recording both observations must not advertise a complete recovery pack.
++    """
++    seen, reported = {}, set()
++    def canonical(value):
++        return json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
++    for row in session.raw:
++        request = (row["url"], canonical(row["params"]))
++        response = (row["sha256"], row.get("status_code"), row.get("encoding"),
++                    canonical(row.get("headers", {})))
++        if request in seen and seen[request] != response and request not in reported:
++            session.failures.append({"role": "raw_http_conflict", "url": row["url"],
++                "error": "同一URL/参数录得不同响应，原日存证不完整；正常查询独立运行，采集可重试",
++                "resolved": False})
++            reported.add(request)
++        seen.setdefault(request, response)
++
++
+ def capture_daily(strategy, root, clock):
+     """Bounded prospective collector; it deliberately ignores ledger freshness."""
+     day = clock.date()
+@@ -413,6 +436,7 @@
+                         attempt(lambda: strategy._gov10y_for_day(product, day))
+                         if mo_frame is not None and mo_frame.attrs.get("source") == "东方财富":
+                             attempt(lambda: strategy._prefetch_mo_replay_verification(mo_frame, clock))
++                    _record_http_conflicts(session)
+                     present_roles = {entry["role"] for entry in session.entries.values()}
+                     required_roles = {"market.live", "cffex.quotes", "fear.score", "rate.resolve"}
+                     if product == "IC":
+--- a/notes/mainline_registry.md
++++ b/notes/mainline_registry.md
+@@ -1,4 +1,13 @@
+ # IC / IM 系统主线登记表
++
++## 日历归属、ETF到期与采集冲突隔离（2026-10-22，本地）
++
++- 明确累计版本的2022—2025日历扩展属于此前 historical_calendar_repair_v1 生产修复（2738项验收）；上一轮8项补测及当前bot均为同一0075c16a…源码，不应将“补测轮无新增生产改动”解释为累计版本没有日历变更。
++- 上交所2022年73号调整公告与2023年5号到期提醒独立确认510500/2301到期日2023-01-30，另存期权oracle；原48期货oracle不冒称ETF验证。
++- 本轮唯一生产变更为ic_im_evidence_adapter_v1.py：独立采集结束前将同URL/参数不同原始响应标为不完整，可重试；正常查询独立，回放严格拒绝不变。不假定收盘后报文稳定；同会话既有链/核心叠加/卖方身份核验复用一次链HTTP已测试。
++- 新增20项（修前5失败保留），累计93文件2766通过，原第五轮19项/上一轮8项包含，22项单列不变；978份绑定前后一致。8912既有保护对象及5备份核对，实际runtime156文件全路径/字节不变。未部署、发日报、续账或重写历史收益。
++- 规范docs/ic_im_calendar_provenance_capture_20261022_v1_spec.md；证据、精确增量和未结项见quant_research_runs/20261022_calendar_capture_review_v1/record.md及delivery/final_verification.json。真实IC原日包、2027官方日历和11-20前部署继续待办，严格字段比较工具不能代替真实包验收。
++
+ 
+ ## 专家续审核对：回放地址与两日桥接（2026-10-22，本地）
+ 
+--- /dev/null
++++ b/docs/ic_im_calendar_provenance_capture_20261022_v1_spec.md
+@@ -0,0 +1,13 @@
++# 日历变更归属、ETF 到期 oracle 与存证故障隔离 v1
++
++预注册：2026-10-22，承接专家再次反馈。
++
++2022—2025 日历扩展属于先前 20261022_historical_calendar_repair_v1 的生产行为修复；随后 20261022_expert_followup_replay_audit_v1 没有新增该改动。本轮保存修前源码和受保护工件哈希，明确比较起点，不改旧冻结规范、首次输出、旧回执或历史绩效。
++
++新增由上交所官方合约调整及到期提醒公告直接给出的 510500/2301 到期 oracle：2023-01-30。不将48个期货 oracle 冒称 ETF 期权验证。不改变年份、休市集合、排序、数量、模型公式或2027严格门禁。
++
++运行时核实独立采集只在当日收盘后运行、同会话同日同月具名链输入复用，以及正常查询不启用该采集会话。不假定收盘后报文必然稳定。若独立采集中实际录下同 URL/参数的不一致 HTTP 响应，应将该次独立存证标为不完整并允许重试，不抛出该一致性问题击穿用户正常信号查询；回放对歧义 HTTP 的拒绝保持。
++
++本轮允许的生产变更仅为独立采集完成前的一致性核验和状态分类，修改前先备份。传输、字节预算、身份、真实数据验证和正式持久化门槛不放宽。市场/未来日期反例继续标为合成，不等同真实完整 IC 原日包。真实包验收采用独立核心 Put、保留历史标志、零未命中、请求地址子集和与原日落账逐字段相等（仅明示时间戳例外），不通过忽略原因/价格/数量差异伪装相等。
++
++本轮仍仅本地修改及测试，不部署、发日报或写正式账本。2027官方日历、真实完整证据包和11-20收盘前部署继续单列。
+--- /dev/null
++++ b/docs/ic_im_calendar_provenance_capture_20261022_v1_spec.md.sha256
+@@ -0,0 +1 @@
++c883d3a98f52061849ad162ecaf6a919db19cd0d945e22c88969334910eea764  ic_im_calendar_provenance_capture_20261022_v1_spec.md
+--- /dev/null
++++ b/quant_research_runs/20261022_calendar_capture_review_v1/bootstrap.py
+@@ -0,0 +1,45 @@
++"""Freeze all actual runtime paths as well as earlier audit objects."""
++import hashlib
++import json
++import shutil
++from pathlib import Path
++
++HERE = Path(__file__).resolve().parent
++ROOT = HERE.parents[1]
++PRIOR = ROOT / 'quant_research_runs/20261022_expert_followup_replay_audit_v1'
++
++
++def sha(path):
++    return hashlib.sha256(path.read_bytes()).hexdigest()
++
++
++def main():
++    assert not (HERE / 'baseline.json').exists()
++    base = json.loads((PRIOR / 'baseline.json').read_text())
++    paths = {ROOT / n for n in base['protected']}
++    paths.update(p for p in PRIOR.rglob('*') if p.is_file() and '__pycache__' not in p.parts and '.pytest_cache' not in p.parts)
++    paths.update(p for p in (ROOT / 'runtime').rglob('*') if p.is_file())
++    sources = ['ic_im_evidence_adapter_v1.py', 'ic_im_signal_evidence_v1.py',
++               'poe_ic_im_mainline_v1_4_bot.py', 'poe_ic_im_v1_4_server.py', 'notes/mainline_registry.md']
++    for name in sources:
++        backup = HERE / 'backup' / name
++        backup.parent.mkdir(parents=True, exist_ok=True)
++        shutil.copyfile(ROOT / name, backup)
++    for name in ['run_bound.py', 'run_checks.py', 'evidence_gate.py', 'pytest.ini', 'exclusions.json']:
++        shutil.copyfile(PRIOR / name, HERE / name)
++    args = json.loads((PRIOR / 'final_args.json').read_text())
++    test = 'test_icim_calendar_capture_review_20261022.py'
++    (HERE / 'final_args.json').write_text(json.dumps(args + [test], indent=2), encoding='utf-8')
++    (HERE / 'focused_args.json').write_text(json.dumps([test]), encoding='utf-8')
++    spec = ROOT / 'docs/ic_im_calendar_provenance_capture_20261022_v1_spec.md'
++    spec.with_suffix('.md.sha256').write_text(sha(spec) + '  ' + spec.name + '\n', encoding='utf-8')
++    (HERE / 'baseline.json').write_text(json.dumps({
++        'protected': {p.relative_to(ROOT).as_posix(): sha(p) for p in sorted(paths)},
++        'backups': {n: sha(ROOT / n) for n in sources}, 'spec_sha256': sha(spec),
++        'runtime': {p.relative_to(ROOT).as_posix(): sha(p) for p in (ROOT / 'runtime').rglob('*') if p.is_file()}
++    }, indent=2), encoding='utf-8')
++    print(json.dumps({'protected': len(paths), 'runtime': len(list((ROOT/'runtime').rglob('*.json')))}))
++
++
++if __name__ == '__main__':
++    main()
+--- /dev/null
++++ b/quant_research_runs/20261022_calendar_capture_review_v1/delivery/finalize.py
+@@ -0,0 +1,191 @@
++"""Seal exact source provenance, official oracle and capture-isolation tests."""
++import difflib
++import hashlib
++import json
++import subprocess
++import xml.etree.ElementTree as ET
++from datetime import datetime, timezone
++from pathlib import Path
++
++HERE = Path(__file__).resolve().parent
++RUN = HERE.parent
++ROOT = RUN.parents[1]
++
++
++def sha(path):
++    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
++
++
++def read(path):
++    return json.loads(Path(path).read_text(encoding='utf-8-sig'))
++
++
++def save(path, value):
++    assert not path.exists(), path
++    path.write_text(json.dumps(value, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
++
++
++def main():
++    baseline = read(RUN / 'baseline.json')
++    accepted = read(RUN / 'accepted_01/receipt.json')
++    assert accepted['exit_code'] == 0 and accepted['source_before_equals_after']
++    assert accepted['counts'] == dict(tests=2766, failures=0, errors=0, skipped=0)
++    sources = read(RUN / 'accepted_01/source_after.json')
++    assert all(sha(ROOT / n) == h for n, h in sources.items())
++    for name, expected in accepted['artifacts'].items():
++        assert sha(RUN / 'accepted_01' / name) == expected
++    cases = list(ET.parse(RUN / 'accepted_01/regression.xml').getroot().iter('testcase'))
++    assert sum(c.get('classname', '').startswith('test_icim_calendar_capture_review_20261022') for c in cases) == 20
++    assert sum(c.get('classname', '').startswith('test_icim_round5_recording_semantics_20261021') for c in cases) == 19
++    assert sum(c.get('classname', '').startswith('test_icim_expert_followup_replay_20261022') for c in cases) == 8
++    selection = read(RUN / 'accepted_01/collection.json')
++    assert len({node.split('::')[0] for node in selection['executed']}) == 93
++    previous = ROOT / 'quant_research_runs/20261022_expert_followup_replay_audit_v1'
++    assert (RUN / 'exclusions.json').read_bytes() == (previous / 'exclusions.json').read_bytes()
++    expected = {'ic_im_evidence_adapter_v1.py'}
++    changed_before_registry = {n for n, h in baseline['protected'].items() if sha(ROOT / n) != h}
++    assert changed_before_registry == expected, changed_before_registry
++    for name, value in baseline['backups'].items():
++        assert sha(RUN / 'backup' / name) == value
++    spec = ROOT / 'docs/ic_im_calendar_provenance_capture_20261022_v1_spec.md'
++    assert sha(spec) == baseline['spec_sha256'] == spec.with_suffix('.md.sha256').read_text().split()[0]
++    runtime = {p.relative_to(ROOT).as_posix(): sha(p) for p in (ROOT / 'runtime').rglob('*') if p.is_file()}
++    assert runtime == baseline['runtime']
++
++    calendar = ROOT / 'quant_research_runs/20261022_historical_calendar_repair_v1'
++    bot = 'poe_ic_im_mainline_v1_4_bot.py'
++    calendar_bound = read(calendar / 'accepted_02/source_after.json')[bot]
++    previous_bound = read(previous / 'accepted_01/source_after.json')[bot]
++    assert sha(ROOT / bot) == calendar_bound == previous_bound
++    fixture = ROOT / 'tests/fixtures/icim_sse_2301_expiry_20261022.json'
++    oracle = read(fixture)
++    assert oracle['expiry_day'] == '2023-01-30'
++    provenance = {'classification': 'Earlier separately preregistered and accepted production-behavior repair',
++        'introduced_in': '20261022_historical_calendar_repair_v1',
++        'preregistration': 'docs/ic_im_historical_calendar_repair_20261022_v1_spec.md',
++        'accepted_receipt': 'quant_research_runs/20261022_historical_calendar_repair_v1/accepted_02/receipt.json',
++        'accepted_tests': 2738, 'before_calendar_bot_sha256': read(calendar/'baseline.json')['backup'][bot],
++        'after_calendar_bot_sha256': calendar_bound, 'last_followup_bot_sha256': previous_bound,
++        'current_bot_sha256': sha(ROOT/bot), 'same_in_all_three_stages': True,
++        'current_new_production_change': 'Independent collector marks conflicting raw HTTP inputs incomplete; does not alter calendar',
++        'new_production_source': 'ic_im_evidence_adapter_v1.py',
++        'new_production_sha256': sha(ROOT/'ic_im_evidence_adapter_v1.py'),
++        'etf_oracle_fixture': str(fixture.relative_to(ROOT)), 'etf_oracle_sha256': sha(fixture),
++        'official_etf_announcements': oracle['sources']}
++    save(HERE / 'calendar_provenance.json', provenance)
++
++    report = '''# 日历变更归属、ETF 到期 oracle 与存证隔离复核
++
++2026-10-22（Asia/Shanghai），本地完成。本轮明确区分“打包版本累计改动”和“单轮新增改动”：历史日历扩展是生产行为变更，发生于此前单独验收的历史日历修复；本轮新增的生产改动则仅是独立采集的一致性/完整性分类。
++
++## 1. 日历扩展的准确归属
++
++2022—2025 年日历由 quant_research_runs/20261022_historical_calendar_repair_v1 单独预注册、备份、修复并以 accepted_02 的 2738 项测试验收。其 docs/ic_im_historical_calendar_repair_20261022_v1_spec.md、delivery/source_delta.patch、receipt 和完整账户重算均保留。
++
++该轮修后的 bot SHA-256 为 0075c16aec68cb56b49569d03c1b89bb2707873fbd309971461082b623d0d19f。上一轮8项续审补测的验收记录与本轮当前 bot 都是同一哈希。因此，上一轮“未改生产逻辑”只表示相对历史日历修复后的起点无新增生产修改，不能概括整个累计交付版本。部署清单必须单列此前日历变更。本轮没有再次修改年份/休市集合。
++
++历史影响已在那一轮单独重建：2402 到期顺延到 2024-02-19，修正 IC 漏维护，19 个目标日受影响；统一口径 IC 全期理论年化从35.3924%改为34.8145%，IM逐日收益不变、年化29.9331%。本轮未重新调参或重写这些结果。2026 全年交易会话和 DATA_CUTOFF 后 OHLCV 校验不因本轮改变，2027仍未加入覆盖。
++
++## 2. 510500/2301 的独立官方 oracle
++
++已有测试虽然断言 2023-01-30，但此前48个“已观测期货到期日”不能充当 ETF 期权 oracle。本轮另存 tests/fixtures/icim_sse_2301_expiry_20261022.json，期望日期直接来自以下已打开核对的上交所官网公告，不由日期函数产生：
++
++- [上证公告(衍生品)〔2022〕73号，2022-12-09](https://www.sse.com.cn/assortment/options/disclo/update/c/c_20221209_5713793.shtml)：所有标的2301期权的最后交易日、行权日、到期日从1月25日调整为1月30日，交收日为1月31日。
++- [上证公告（衍生品）〔2023〕5号，2023-01-18](https://www.sse.com.cn/assortment/options/disclo/update/c/c_20230117_5715310.shtml)：明确包括500ETF期权，最后交易日、行权日、到期日为1月30日。
++
++新用例将510500/2301对应的 _fourth_wednesday(2023,1) 与该独立公告期望值比对。fixture 是带来源的规范化事实，不冒称原始HTTP正文；期货48个 oracle 与期权公告 oracle 分开标注。
++
++## 3. 重复报文的真实调用链与本轮生产修复
++
++专家所述“raw_response遇到不同重复报文就抛错”与当前代码不符：raw_response负责保存；歧义拒绝位于 EvidenceReader.http_response 的回放读取阶段。CaptureSession.call 对同一 role/key 复用已存结果，ic.chain 的键含完整年月和交易日。新增测试在同一会话中依次运行既有链、独立核心 Put 叠加、卖 Put 身份核验三个真实函数，确认只发生一次 SSE 链 HTTP 请求。
++
++原日独立 capture_daily 在官方已覆盖的实际当日、交易日、收盘后才启动。收盘前和周末不会打开原日采集会话。正常 build_live_trade_signal 查询自身不打开独立采集会话；服务端独立采集返回结果后，才另行查询/补录。通用 capture_session 容器也供后日 Fear/开盘价补证使用，不能笼统声称所有补证会话都只在收盘后启用。
++
++**不假定收盘后 HTTP 报文必然稳定。** 同链复用降低重复取数，但不能代替稳定性证明。修前反例发现：若独立采集确实取得同URL/参数的不同响应，包仍可能标成完整，直到读取原始 HTTP 时才拒绝。focused_before 的20项中5项失败，原始失败保留。
++
++本轮唯一生产文件修改为 ic_im_evidence_adapter_v1.py：独立采集结束、写入完整性 annotation 之前，新增 _record_http_conflicts(session)，按 URL/参数分组，检查正文SHA、状态、编码及保留的响应头是否一致。不同则记录 raw_http_conflict、resolved=False，IC存证标为 incomplete，提供可重试/恢复风险提示；不因这个一致性问题向正常查询抛错。相同报文允许复用；回放仍拒绝歧义，不回退到当前数据。
++
++body变化、time字段刷新、响应头、状态、编码变化五类均验证“存证不完整、正常IC信号仍可返回”；独立存盘异常也验证这一隔离。其他行情格式、身份、下载预算及日历校验没有放宽。不会把无效行情或缺官方日历冒充正式目标。
++
++## 4. 真实完整IC包验收标准
++
++接受专家标准：独立核心 Put、保留 historical_replay、包括被捕获尝试在内的 EvidenceUnavailable=0、回放请求地址集合为原日集合子集，且与原日落账信号逐字段相等，只有事先明示的时间戳例外。
++
++另交付 replay_acceptance.py 作为严格字段比较工具。目前只例外根字段 signal_generated_at；价格、数量、动作、原因、来源、market_date、执行日、完整性及新增/缺失字段均检查，不能静默忽略差异。工具可读完整账本JSON中的 signals.IC，或单个IC信号JSON，并将差异列出、以非零退出码拒绝不相等：
++
++```powershell
++python -X utf8 -B quant_research_runs/20261022_calendar_capture_review_v1/replay_acceptance.py --original original_record.json --replayed replayed_ic.json
++```
++
++该工具只验证保存值相等，不能单独证明原包真实、独立核心持仓、HTTP地址及零未命中。真实包尚未取得/运行，不能宣布通过；若回放新增 original_evidence 元数据、来源说明或 generation_timing 等字段不同，严格比较会如实报告，不能先放宽成“都忽略”再宣布相等。上一轮合成回放仍只证明机制。
++
++## 5. 验收与保护
++
++- 新增20项：修前15通过/5失败；修后20通过。
++- 累计 accepted_01：93文件、2766通过，0失败/错误/跳过；原第五轮19项、上一轮8项和本轮20项均包含。原22项单列字节保持，无扩大排除。
++- 978项源码、规范、夹具、配置及研究输入绑定前后一致；收集节点、XML、退出码和日志核对通过。
++- 修前5份备份和8912个既有保护对象核对；旧文件预期变化仅 adapter 与登记表。本轮开始时实际 runtime 全路径集合已单独保存，当前156文件（143JSON）路径及字节一致；没有沿用上一轮遗漏既有journal的155路径清单。
++- bot日历、旧官方原始输入、冻结规范、旧测试/回执、已交付历史账户及绩效结果未覆盖。仅本地修改，未部署、发日报或写正式账本；没有新增多智能体或监控任务。
++
++2027官方交易所日历、真实完整IC原日包和2026-11-20收盘前部署仍未闭合。使用方应在部署沟通中获知：11-20维护可能起即进入跨年日历诊断，持续时间取决于官方安排及证据完整性，不能承诺几天自动恢复。部署只能保住后续原日证据；补齐官方日历后仍须每个缺口交易日证据完整，并逐日 historical_replay，不能跳日或用当日链补造过去。
++
++来源归属机器核对见 delivery/calendar_provenance.json；生产精确增量见 delivery/source_delta.patch；最终保护和验收绑定见 delivery/final_verification.json。有效累计回执仅 accepted_01/receipt.json。
++'''
++    record = RUN / 'record.md'
++    assert not record.exists()
++    record.write_text(report, encoding='utf-8')
++    registry = ROOT / 'notes/mainline_registry.md'
++    before = (RUN / 'backup/notes/mainline_registry.md').read_bytes()
++    assert registry.read_bytes() == before
++    entry = '''
++## 日历归属、ETF到期与采集冲突隔离（2026-10-22，本地）
++
++- 明确累计版本的2022—2025日历扩展属于此前 historical_calendar_repair_v1 生产修复（2738项验收）；上一轮8项补测及当前bot均为同一0075c16a…源码，不应将“补测轮无新增生产改动”解释为累计版本没有日历变更。
++- 上交所2022年73号调整公告与2023年5号到期提醒独立确认510500/2301到期日2023-01-30，另存期权oracle；原48期货oracle不冒称ETF验证。
++- 本轮唯一生产变更为ic_im_evidence_adapter_v1.py：独立采集结束前将同URL/参数不同原始响应标为不完整，可重试；正常查询独立，回放严格拒绝不变。不假定收盘后报文稳定；同会话既有链/核心叠加/卖方身份核验复用一次链HTTP已测试。
++- 新增20项（修前5失败保留），累计93文件2766通过，原第五轮19项/上一轮8项包含，22项单列不变；978份绑定前后一致。8912既有保护对象及5备份核对，实际runtime156文件全路径/字节不变。未部署、发日报、续账或重写历史收益。
++- 规范docs/ic_im_calendar_provenance_capture_20261022_v1_spec.md；证据、精确增量和未结项见quant_research_runs/20261022_calendar_capture_review_v1/record.md及delivery/final_verification.json。真实IC原日包、2027官方日历和11-20前部署继续待办，严格字段比较工具不能代替真实包验收。
++
++'''.encode('utf-8')
++    first, rest = before.split(b'\n', 1)
++    registry.write_bytes(first + b'\n' + entry + rest)
++    assert registry.read_bytes().replace(entry, b'', 1) == before
++    changes = {n: {'before': h, 'after': sha(ROOT / n)} for n, h in baseline['protected'].items() if sha(ROOT / n) != h}
++    assert set(changes) == {'ic_im_evidence_adapter_v1.py', 'notes/mainline_registry.md'}
++
++    patch = []
++    def add(before_lines, after_lines, name, new=False):
++        for line in difflib.unified_diff(before_lines, after_lines, fromfile='/dev/null' if new else 'a/'+name, tofile='b/'+name):
++            patch.append(line if line.endswith('\n') else line + '\n\\ No newline at end of file\n')
++    for name in sorted(changes):
++        add((RUN/'backup'/name).read_bytes().decode('utf-8-sig').splitlines(keepends=True),
++            (ROOT/name).read_bytes().decode('utf-8-sig').splitlines(keepends=True), name)
++    new_paths = [record, spec, spec.with_suffix('.md.sha256'), fixture, ROOT/'test_icim_calendar_capture_review_20261022.py', Path(__file__).resolve()]
++    new_paths += [p for p in RUN.glob('*') if p.is_file() and p.suffix in {'.py', '.ini', '.json'} and p.name != 'baseline.json']
++    for p in sorted(set(new_paths)):
++        add([], p.read_bytes().decode('utf-8-sig').splitlines(keepends=True), p.relative_to(ROOT).as_posix(), new=True)
++    delta = HERE/'source_delta.patch'
++    delta.write_text(''.join(patch), encoding='utf-8', newline='\n')
++    result = subprocess.run(['git','-c','safe.directory='+ROOT.as_posix(),'apply','--check','--reverse','--whitespace=nowarn',str(delta)],
++                            cwd=ROOT, capture_output=True, text=True, encoding='utf-8')
++    save(HERE/'patch_check.json', {'exit_code': result.returncode, 'stdout': result.stdout, 'stderr': result.stderr, 'sha256': sha(delta)})
++    assert result.returncode == 0, result.stderr
++    assert all(sha(ROOT/n) == h for n,h in sources.items())
++    checks = {'accepted_2766_tests': True, 'old_19_and_8_tests_included': True, 'twenty_new_tests_included': True,
++              'old_22_exclusions_unchanged': True, 'tested_sources_current': True, 'artifacts_verified': True,
++              'calendar_change_provenance_proven': True, 'separate_official_etf_oracle': True,
++              'only_adapter_and_registry_changed': True, 'all_backups_verified': True,
++              'runtime_full_paths_and_hashes_unchanged': True, 'frozen_outputs_unchanged': True,
++              'spec_and_sha_unchanged': True, 'source_patch_reverse_check_passed': True}
++    artifacts = {p.relative_to(RUN).as_posix(): sha(p) for p in RUN.rglob('*') if p.is_file() and '__pycache__' not in p.parts and '.pytest_cache' not in p.parts}
++    save(HERE/'final_verification.json', {'status':'PASS', 'completed_at':datetime.now(timezone.utc).isoformat(),
++        'checks':checks, 'counts':accepted['counts'], 'bound_sources':len(sources), 'protected_objects':len(baseline['protected']),
++        'expected_changes':changes, 'runtime_files':len(runtime), 'runtime_json':sum(n.endswith('.json') for n in runtime),
++        'production_change':'independent capture completeness only; calendar predates this round',
++        'real_original_ic_bundle_acceptance':'NOT_PROVEN', 'deployed':False, 'artifacts':artifacts})
++    print(json.dumps({'status':'PASS', 'tests':accepted['counts']['tests'], 'protected':len(baseline['protected']),
++                      'runtime':len(runtime), 'source_patch_exit':result.returncode},ensure_ascii=False))
++
++
++if __name__ == '__main__':
++    main()
+--- /dev/null
++++ b/quant_research_runs/20261022_calendar_capture_review_v1/evidence_gate.py
+@@ -0,0 +1,131 @@
++"""Strict test-evidence acceptance for this audit; historical receipts remain immutable."""
++from pathlib import Path
++import hashlib
++import json
++import re
++import xml.etree.ElementTree as ET
++
++def _reject(reason):
++    raise RuntimeError('audit evidence rejected: ' + reason)
++
++def _source_map(value):
++    if (not isinstance(value, dict) or not value
++            or any(not isinstance(k, str) or not k or not isinstance(v, str)
++                   or not re.fullmatch(r'[0-9a-f]{64}', v) for k, v in value.items())):
++        _reject('empty or invalid source binding')
++
++def _count(suite, name):
++    value = suite.get(name)
++    if not isinstance(value, str) or not re.fullmatch(r'[0-9]+', value):
++        _reject('missing or invalid XML count: ' + name)
++    return int(value)
++
++def validate_run(xml_path, *, process_exit_code, source_before, source_after):
++    if type(process_exit_code) is not int or process_exit_code != 0:
++        _reject('test process did not exit zero')
++    _source_map(source_before)
++    _source_map(source_after)
++    if source_before != source_after:
++        _reject('source changed during test execution')
++    try:
++        root = ET.parse(xml_path).getroot()
++    except (ET.ParseError, OSError, TypeError) as exc:
++        _reject('missing or malformed XML: ' + type(exc).__name__)
++    if root.tag == 'testsuite':
++        suites = [root]
++    elif root.tag == 'testsuites':
++        suites = list(root)
++    else:
++        _reject('invalid XML root')
++    if not suites or any(s.tag != 'testsuite' or s.find('testsuite') is not None for s in suites):
++        _reject('empty or unsupported XML suite structure')
++    keys = ['tests', 'failures', 'errors', 'skipped']
++    counts = dict.fromkeys(keys, 0)
++    seen = set()
++    for suite in suites:
++        declared = {key: _count(suite, key) for key in keys}
++        cases = suite.findall('testcase')
++        actual = dict(tests=len(cases), failures=0, errors=0, skipped=0)
++        for case in cases:
++            identity = (case.get('classname'), case.get('name'))
++            if not all(identity) or identity in seen:
++                _reject('missing or duplicate test identity')
++            seen.add(identity)
++            statuses = [name for name in ['failure', 'error', 'skipped'] if case.find(name) is not None]
++            if len(statuses) > 1:
++                _reject('contradictory testcase status')
++            if statuses:
++                actual[dict(failure='failures', error='errors', skipped='skipped')[statuses[0]]] += 1
++        if actual != declared:
++            _reject('testcase counts disagree with XML summary')
++        for key in keys:
++            counts[key] += actual[key]
++    if root.tag == 'testsuites':
++        for key in keys:
++            if key in root.attrib and _count(root, key) != counts[key]:
++                _reject('root XML summary mismatch')
++    for tag, key in [('testcase', 'tests'), ('failure', 'failures'), ('error', 'errors'), ('skipped', 'skipped')]:
++        if len(root.findall('.//' + tag)) != counts[key]:
++            _reject('unexpected or nested XML status elements')
++    if counts['tests'] <= 0 or any(counts[key] for key in ['failures', 'errors', 'skipped']):
++        _reject('requires positive test count and zero failures/errors/skips')
++    return counts
++
++def validate_receipt(directory):
++    directory = Path(directory)
++    try:
++        receipt = json.loads((directory / 'receipt.json').read_text(encoding='utf-8'))
++        before = json.loads((directory / 'source_before.json').read_text(encoding='utf-8'))
++        after = json.loads((directory / 'source_after.json').read_text(encoding='utf-8'))
++        test_run = json.loads((directory / 'test_run.json').read_text(encoding='utf-8'))
++    except (OSError, json.JSONDecodeError, TypeError) as exc:
++        _reject('receipt/source files unavailable: ' + type(exc).__name__)
++    if not isinstance(receipt, dict):
++        _reject('receipt schema invalid')
++    if (not isinstance(test_run, dict) or type(test_run.get('exit_code')) is not int
++            or test_run['exit_code'] != 0 or test_run['exit_code'] != receipt.get('exit_code')):
++        _reject('test runner exit status contradicts receipt')
++    counts = validate_run(directory / 'regression.xml', process_exit_code=receipt.get('exit_code'),
++                          source_before=before, source_after=after)
++    if (receipt.get('source_before_equals_after') is not True
++            or type(receipt.get('source_files')) is not int or receipt['source_files'] != len(before)
++            or receipt.get('counts') != counts):
++        _reject('receipt contradicts actual source binding or counts')
++    try:
++        collection = json.loads((directory/'collection.json').read_text(encoding='utf-8'))
++    except (OSError, ValueError) as exc:
++        _reject('collection manifest unavailable: ' + type(exc).__name__)
++    if not isinstance(collection, dict):
++        _reject('invalid collection manifest')
++    for key in ['collected', 'selected', 'deselected', 'executed']:
++        values = collection.get(key)
++        if (not isinstance(values, list) or any(not isinstance(v, str) or not v for v in values)
++                or len(values) != len(set(values))):
++            _reject('invalid or duplicate collection identities: ' + key)
++    selected, deselected, collected, executed = (set(collection[k]) for k in
++                                                ['selected','deselected','collected','executed'])
++    allowed = set()
++    args = test_run.get('files', [])
++    if not isinstance(args, list) or any(not isinstance(arg, str) for arg in args):
++        _reject('invalid requested test arguments')
++    for i, arg in enumerate(args):
++        if arg == '--deselect' and i+1 < len(args):
++            allowed.add(args[i+1])
++        elif isinstance(arg, str) and arg.startswith('--deselect='):
++            allowed.add(arg.split('=',1)[1])
++    if (selected & deselected or selected | deselected != collected or executed != selected
++            or deselected != allowed or len(selected) != counts['tests']):
++        _reject('executed selection or exclusions disagree with requested test collection')
++    if 'deselected' in receipt:
++        declared = receipt['deselected']
++        if not isinstance(declared, dict) or set(declared) != deselected:
++            _reject('declared exclusions disagree with actual collection')
++    required = {'regression.xml', 'regression.txt', 'source_before.json', 'source_after.json', 'test_run.json', 'collection.json'}
++    artifacts = receipt.get('artifacts')
++    if not isinstance(artifacts, dict) or set(artifacts) != required:
++        _reject('missing or unexpected receipt artifact binding')
++    for name, expected in artifacts.items():
++        path = directory / name
++        if not path.is_file() or hashlib.sha256(path.read_bytes()).hexdigest() != expected:
++            _reject('artifact hash mismatch: ' + name)
++    return counts
+--- /dev/null
++++ b/quant_research_runs/20261022_calendar_capture_review_v1/exclusions.json
+@@ -0,0 +1,24 @@
++{
++  "test_icim_redteam_integration_20261021.py::test_frozen_source_receipt_matches_current_bytes": "Historical source equality is checked against its pre-repair backup; old receipt is not rewritten.",
++  "test_icim_round2_audit_lifecycle_20261021.py::test_historical_adapter_retains_id_already_bound_to_requested_series": "Capability probe only: a price series by ID does not establish historical code/strike/unit; reject without dated identity.",
++  "test_icim_round2_audit_lifecycle_20261021.py::test_legal_standard_core_replay_crosses_strict_boundary": "Same missing-dated-identity capability probe; unsafe ID copying is deliberately not implemented.",
++  "test_ic_im_ordinary_put_route_fix_20261013.py::test_profit_and_momentum_execute_independently_after_restart[old_core-IC]": "New-write eligibility now rejects HOLD_FAIL_CLOSED even for an older replay; original missing-core fixtures are exercised with atomic rejection in expert_contract_replacements.",
++  "test_ic_im_ordinary_put_route_fix_20261013.py::test_profit_and_momentum_execute_independently_after_restart[old_core-IM]": "New-write eligibility now rejects HOLD_FAIL_CLOSED even for an older replay; original missing-core fixtures are exercised with atomic rejection in expert_contract_replacements.",
++  "test_ic_im_ordinary_put_route_fix_20261013.py::test_profit_and_momentum_execute_independently_after_restart[new_core-IC]": "New-write eligibility now rejects HOLD_FAIL_CLOSED even for an older replay; original missing-core fixtures are exercised with atomic rejection in expert_contract_replacements.",
++  "test_ic_im_ordinary_put_route_fix_20261013.py::test_profit_and_momentum_execute_independently_after_restart[new_core-IM]": "New-write eligibility now rejects HOLD_FAIL_CLOSED even for an older replay; original missing-core fixtures are exercised with atomic rejection in expert_contract_replacements.",
++  "test_ic_im_external_review_20261021.py::test_failed_query_never_reaches_new_close_target[IC]": "Public RETRY now returns a nonpersistent waiting diagnostic instead of crashing; same original fixture and unchanged-anchor assertions are covered in expert_contract_replacements.",
++  "test_ic_im_external_review_20261021.py::test_failed_query_never_reaches_new_close_target[IM]": "Public RETRY now returns a nonpersistent waiting diagnostic instead of crashing; same original fixture and unchanged-anchor assertions are covered in expert_contract_replacements.",
++  "test_icim_redteam_execution_20261021.py::test_public_query_restores_original_anchor_when_coexisting_openings_fail[ordinary-IC]": "Public RETRY now returns a nonpersistent waiting diagnostic instead of crashing; same original fixture and unchanged-anchor assertions are covered in expert_contract_replacements.",
++  "test_icim_redteam_execution_20261021.py::test_public_query_restores_original_anchor_when_coexisting_openings_fail[ordinary-IM]": "Public RETRY now returns a nonpersistent waiting diagnostic instead of crashing; same original fixture and unchanged-anchor assertions are covered in expert_contract_replacements.",
++  "test_icim_redteam_execution_20261021.py::test_public_query_restores_original_anchor_when_coexisting_openings_fail[short_put-IC]": "Public RETRY now returns a nonpersistent waiting diagnostic instead of crashing; same original fixture and unchanged-anchor assertions are covered in expert_contract_replacements.",
++  "test_icim_redteam_execution_20261021.py::test_public_query_restores_original_anchor_when_coexisting_openings_fail[short_put-IM]": "Public RETRY now returns a nonpersistent waiting diagnostic instead of crashing; same original fixture and unchanged-anchor assertions are covered in expert_contract_replacements.",
++  "test_icim_round2_audit_lifecycle_20261021.py::test_full_builder_december_expiry_stays_closed_without_2027_calendar": "Public builder returns a nonpersistent diagnostic instead of crashing on unknown-year dates; actual corresponding states are covered in expert_calendar and expert_contract_replacements.",
++  "test_icim_batch3_calendar_redteam_20261021.py::test_public_im_builder_checks_unknown_held_core_expiry": "Public builder returns a nonpersistent diagnostic instead of crashing on unknown-year dates; actual corresponding states are covered in expert_calendar and expert_contract_replacements.",
++  "test_icim_batch3_calendar_redteam_20261021.py::test_public_im_positive_momentum_held_expiry_is_checked[2703-True]": "Public builder returns a nonpersistent diagnostic instead of crashing on unknown-year dates; actual corresponding states are covered in expert_calendar and expert_contract_replacements.",
++  "test_icim_b3adv_market_20261021.py::test_mixed_malformed_and_lag_sources_are_not_called_pure_wait[IC]": "Mixed failure now has a structured RuntimeError subclass with source/waiting evidence; the same three-adapter fixture is exercised in expert_contract_replacements.",
++  "test_icim_b3adv_market_20261021.py::test_mixed_malformed_and_lag_sources_are_not_called_pure_wait[IM]": "Mixed failure now has a structured RuntimeError subclass with source/waiting evidence; the same three-adapter fixture is exercised in expert_contract_replacements.",
++  "test_icim_batch3_calendar_20261021.py::test_selected_monthly_maintenance_date_requires_covered_year": "Superseded pure-comparison contract: a covered next session strictly precedes the unknown-year nominal expiry lower bound. round3_calendar_comparison verifies False without provisional, while actual next-session/target calendar gates remain strict.",
++  "test_icim_expert_calendar_20261021.py::test_public_unknown_positive_momentum_held_expiry_is_diagnostic_not_target": "The result remains diagnostic, but the calendar failure is now the consumed target guard rather than a mathematically invariant held-maintenance comparison. round3_calendar_comparison tests preserve the actual target rejection and remove only the obsolete purpose assertion.",
++  "test_ic_im_fear_source_delivery_20261016.py::test_both_missing_preserve_other_modules_and_never_publish_zero_hold": "Default new-signal validation now requires confirmed grid for ledger eligibility. Original partial-display behavior is exercised with require_complete=False in round3_grid_contract_replacements; direct/default persistence remains rejected.",
++  "test_icim_b3adv_state_20261021.py::test_im_short_expiry_model_branches_are_not_a_new_short_open": "Original fixture lacks a confirmed grid and is no longer a complete new ledger signal. Replacement supplies valid Fear evidence to verify the exact same expiry action, and separately verifies missing-Fear rejection and readonly partial display."
++}
+\ No newline at end of file
+--- /dev/null
++++ b/quant_research_runs/20261022_calendar_capture_review_v1/final_args.json
+@@ -0,0 +1,139 @@
++[
++  "test_icim_round3_source_validation_20261021.py",
++  "test_delivery_transport_retry.py",
++  "test_ohlcv_provider_validation.py",
++  "test_ic_im_v1_4_policy.py",
++  "test_poe_ic_im_v1_4_state.py",
++  "test_migrate_ic_im_v1_3_r7_to_v1_4_r1_state.py",
++  "test_ic_im_v1_4_integration_guards.py",
++  "test_run_ic_im_v1_4_github_digest.py",
++  "test_adversarial_icim_delivery.py",
++  "test_im_put_policy.py",
++  "test_adversarial_im_put_execution_20260908.py",
++  "test_adversarial_im_ledger_20260908.py",
++  "test_adversarial_im_report_iv_20260908.py",
++  "test_im_put_price_basis.py",
++  "test_live_mo_put_midpoint_20260908.py",
++  "test_grid_half_release_20260913.py",
++  "test_im_grid160_half_release_20260914.py",
++  "test_ic_im_v1_4_ic_csi500_forward.py",
++  "test_adversarial_market_20261007.py",
++  "test_adversarial_state_20261007.py",
++  "test_adversarial_delivery_20261007.py",
++  "test_adversarial_policy_20261007.py",
++  "test_adversarial_cffex_transport_20261009.py",
++  "test_adversarial_cffex_close_runner_20261009.py",
++  "test_tencent_ohlcv_pagination_20261012.py",
++  "test_ic_im_v1_4_repeat_roll_20260925.py",
++  "test_ic_im_v1_4_market_maker_quotes_20260925.py",
++  "test_ic_im_fear_grid_v1.py",
++  "test_ic_im_daily_valuation.py",
++  "test_ic_im_chinabond.py",
++  "test_ic_im_quarter_roll_v1_3.py",
++  "test_ic_im_ordinary_put_route_fix_20261013.py",
++  "test_ic_im_quote_snapshot_guard_20261013.py",
++  "test_ic_im_split_put_summary_20261013.py",
++  "test_ic_im_put_execution_repairs_20261016.py",
++  "test_ic_im_option_maintenance_notice_20261016.py",
++  "test_ic_im_put_delivery_completion_20261016.py",
++  "test_ic_im_fear_source_delivery_20261016.py",
++  "test_ic_im_fear_delivery_adversarial_20261016.py",
++  "test_ic_im_month_spreads_20261018.py",
++  "test_ic_im_external_review_20261021.py",
++  "test_ic_im_external_review_display_cache_20261021.py",
++  "test_ic_im_external_review_round2_20261021.py",
++  "test_ic_im_adjusted_put_migration_20261021.py",
++  "test_ic_im_historical_put_identity_20261021.py",
++  "test_ic_im_review_ohlcv_wait_20261021.py",
++  "test_icim_redteam_display_20261021.py",
++  "test_icim_redteam_execution_20261021.py",
++  "test_icim_redteam_integration_20261021.py",
++  "test_icim_redteam_market_20261021.py",
++  "test_icim_round2_audit_evidence_20261021.py",
++  "test_icim_round2_audit_lifecycle_20261021.py",
++  "test_icim_round2_audit_market_20261021.py",
++  "test_icim_round2_audit_master_20261021.py",
++  "test_icim_a3_cash_20261021.py",
++  "test_icim_a3_history_20261021.py",
++  "test_icim_a3_integration_20261021.py",
++  "test_icim_a3_ohlcv_20261021.py",
++  "test_icim_batch3_calendar_20261021.py",
++  "test_icim_batch3_calendar_redteam_20261021.py",
++  "test_icim_batch3_concurrency_20261021.py",
++  "test_icim_batch3_old_call_20261021.py",
++  "test_icim_batch3_research_boundary_20261021.py",
++  "test_icim_batch3_valuation_20261021.py",
++  "test_icim_b3adv_calendar_20261021.py",
++  "test_icim_b3adv_concurrency_20261021.py",
++  "test_icim_b3adv_market_20261021.py",
++  "test_icim_b3adv_scope_20261021.py",
++  "test_icim_b3adv_state_20261021.py",
++  "test_icim_expert_calendar_20261021.py",
++  "test_icim_expert_market_20261021.py",
++  "test_icim_expert_state_20261021.py",
++  "test_icim_expert_ohlcv_20261021.py",
++  "test_icim_expert_display_retry_20261021.py",
++  "test_icim_expert_contract_replacements_20261021.py",
++  "test_icim_expert_audit_calendar_20261021.py",
++  "test_icim_expert_audit_integration_20261021.py",
++  "--deselect",
++  "test_icim_redteam_integration_20261021.py::test_frozen_source_receipt_matches_current_bytes",
++  "--deselect",
++  "test_icim_round2_audit_lifecycle_20261021.py::test_historical_adapter_retains_id_already_bound_to_requested_series",
++  "--deselect",
++  "test_icim_round2_audit_lifecycle_20261021.py::test_legal_standard_core_replay_crosses_strict_boundary",
++  "--deselect",
++  "test_ic_im_ordinary_put_route_fix_20261013.py::test_profit_and_momentum_execute_independently_after_restart[old_core-IC]",
++  "--deselect",
++  "test_ic_im_ordinary_put_route_fix_20261013.py::test_profit_and_momentum_execute_independently_after_restart[old_core-IM]",
++  "--deselect",
++  "test_ic_im_ordinary_put_route_fix_20261013.py::test_profit_and_momentum_execute_independently_after_restart[new_core-IC]",
++  "--deselect",
++  "test_ic_im_ordinary_put_route_fix_20261013.py::test_profit_and_momentum_execute_independently_after_restart[new_core-IM]",
++  "--deselect",
++  "test_ic_im_external_review_20261021.py::test_failed_query_never_reaches_new_close_target[IC]",
++  "--deselect",
++  "test_ic_im_external_review_20261021.py::test_failed_query_never_reaches_new_close_target[IM]",
++  "--deselect",
++  "test_icim_redteam_execution_20261021.py::test_public_query_restores_original_anchor_when_coexisting_openings_fail[ordinary-IC]",
++  "--deselect",
++  "test_icim_redteam_execution_20261021.py::test_public_query_restores_original_anchor_when_coexisting_openings_fail[ordinary-IM]",
++  "--deselect",
++  "test_icim_redteam_execution_20261021.py::test_public_query_restores_original_anchor_when_coexisting_openings_fail[short_put-IC]",
++  "--deselect",
++  "test_icim_redteam_execution_20261021.py::test_public_query_restores_original_anchor_when_coexisting_openings_fail[short_put-IM]",
++  "--deselect",
++  "test_icim_round2_audit_lifecycle_20261021.py::test_full_builder_december_expiry_stays_closed_without_2027_calendar",
++  "--deselect",
++  "test_icim_batch3_calendar_redteam_20261021.py::test_public_im_builder_checks_unknown_held_core_expiry",
++  "--deselect",
++  "test_icim_batch3_calendar_redteam_20261021.py::test_public_im_positive_momentum_held_expiry_is_checked[2703-True]",
++  "--deselect",
++  "test_icim_b3adv_market_20261021.py::test_mixed_malformed_and_lag_sources_are_not_called_pure_wait[IC]",
++  "--deselect",
++  "test_icim_b3adv_market_20261021.py::test_mixed_malformed_and_lag_sources_are_not_called_pure_wait[IM]",
++  "test_icim_round3_adversarial_p1_20261021.py",
++  "test_icim_round3_calendar_comparison_20261021.py",
++  "test_icim_round3_display_repairs_20261021.py",
++  "test_icim_round3_evidence_integration_20261021.py",
++  "test_icim_round3_evidence_store_20261021.py",
++  "test_icim_round3_grid_contract_replacements_20261021.py",
++  "test_icim_round3_grid_persistence_20261021.py",
++  "test_icim_round3_policy_repairs_20261021.py",
++  "test_icim_round3_recovery_audit_20261021.py",
++  "--deselect",
++  "test_icim_batch3_calendar_20261021.py::test_selected_monthly_maintenance_date_requires_covered_year",
++  "--deselect",
++  "test_icim_expert_calendar_20261021.py::test_public_unknown_positive_momentum_held_expiry_is_diagnostic_not_target",
++  "--deselect",
++  "test_ic_im_fear_source_delivery_20261016.py::test_both_missing_preserve_other_modules_and_never_publish_zero_hold",
++  "--deselect",
++  "test_icim_b3adv_state_20261021.py::test_im_short_expiry_model_branches_are_not_a_new_short_open",
++  "test_icim_round4_evidence_boundaries_20261021.py",
++  "test_icim_round4_recovery_20261021.py",
++  "test_icim_round5_recording_semantics_20261021.py",
++  "test_icim_historical_calendar_20261022.py",
++  "test_icim_historical_replay_adapter_20261022.py",
++  "test_icim_expert_followup_replay_20261022.py",
++  "test_icim_calendar_capture_review_20261022.py"
++]
+\ No newline at end of file
+--- /dev/null
++++ b/quant_research_runs/20261022_calendar_capture_review_v1/focused_args.json
+@@ -0,0 +1 @@
++["test_icim_calendar_capture_review_20261022.py"]
+\ No newline at end of file
+--- /dev/null
++++ b/quant_research_runs/20261022_calendar_capture_review_v1/pytest.ini
+@@ -0,0 +1,4 @@
++[pytest]
++python_files = test_*.py
++python_classes = Test*
++python_functions = test_*
+--- /dev/null
++++ b/quant_research_runs/20261022_calendar_capture_review_v1/record.md
+@@ -0,0 +1,56 @@
++# 日历变更归属、ETF 到期 oracle 与存证隔离复核
++
++2026-10-22（Asia/Shanghai），本地完成。本轮明确区分“打包版本累计改动”和“单轮新增改动”：历史日历扩展是生产行为变更，发生于此前单独验收的历史日历修复；本轮新增的生产改动则仅是独立采集的一致性/完整性分类。
++
++## 1. 日历扩展的准确归属
++
++2022—2025 年日历由 quant_research_runs/20261022_historical_calendar_repair_v1 单独预注册、备份、修复并以 accepted_02 的 2738 项测试验收。其 docs/ic_im_historical_calendar_repair_20261022_v1_spec.md、delivery/source_delta.patch、receipt 和完整账户重算均保留。
++
++该轮修后的 bot SHA-256 为 0075c16aec68cb56b49569d03c1b89bb2707873fbd309971461082b623d0d19f。上一轮8项续审补测的验收记录与本轮当前 bot 都是同一哈希。因此，上一轮“未改生产逻辑”只表示相对历史日历修复后的起点无新增生产修改，不能概括整个累计交付版本。部署清单必须单列此前日历变更。本轮没有再次修改年份/休市集合。
++
++历史影响已在那一轮单独重建：2402 到期顺延到 2024-02-19，修正 IC 漏维护，19 个目标日受影响；统一口径 IC 全期理论年化从35.3924%改为34.8145%，IM逐日收益不变、年化29.9331%。本轮未重新调参或重写这些结果。2026 全年交易会话和 DATA_CUTOFF 后 OHLCV 校验不因本轮改变，2027仍未加入覆盖。
++
++## 2. 510500/2301 的独立官方 oracle
++
++已有测试虽然断言 2023-01-30，但此前48个“已观测期货到期日”不能充当 ETF 期权 oracle。本轮另存 tests/fixtures/icim_sse_2301_expiry_20261022.json，期望日期直接来自以下已打开核对的上交所官网公告，不由日期函数产生：
++
++- [上证公告(衍生品)〔2022〕73号，2022-12-09](https://www.sse.com.cn/assortment/options/disclo/update/c/c_20221209_5713793.shtml)：所有标的2301期权的最后交易日、行权日、到期日从1月25日调整为1月30日，交收日为1月31日。
++- [上证公告（衍生品）〔2023〕5号，2023-01-18](https://www.sse.com.cn/assortment/options/disclo/update/c/c_20230117_5715310.shtml)：明确包括500ETF期权，最后交易日、行权日、到期日为1月30日。
++
++新用例将510500/2301对应的 _fourth_wednesday(2023,1) 与该独立公告期望值比对。fixture 是带来源的规范化事实，不冒称原始HTTP正文；期货48个 oracle 与期权公告 oracle 分开标注。
++
++## 3. 重复报文的真实调用链与本轮生产修复
++
++专家所述“raw_response遇到不同重复报文就抛错”与当前代码不符：raw_response负责保存；歧义拒绝位于 EvidenceReader.http_response 的回放读取阶段。CaptureSession.call 对同一 role/key 复用已存结果，ic.chain 的键含完整年月和交易日。新增测试在同一会话中依次运行既有链、独立核心 Put 叠加、卖 Put 身份核验三个真实函数，确认只发生一次 SSE 链 HTTP 请求。
++
++原日独立 capture_daily 在官方已覆盖的实际当日、交易日、收盘后才启动。收盘前和周末不会打开原日采集会话。正常 build_live_trade_signal 查询自身不打开独立采集会话；服务端独立采集返回结果后，才另行查询/补录。通用 capture_session 容器也供后日 Fear/开盘价补证使用，不能笼统声称所有补证会话都只在收盘后启用。
++
++**不假定收盘后 HTTP 报文必然稳定。** 同链复用降低重复取数，但不能代替稳定性证明。修前反例发现：若独立采集确实取得同URL/参数的不同响应，包仍可能标成完整，直到读取原始 HTTP 时才拒绝。focused_before 的20项中5项失败，原始失败保留。
++
++本轮唯一生产文件修改为 ic_im_evidence_adapter_v1.py：独立采集结束、写入完整性 annotation 之前，新增 _record_http_conflicts(session)，按 URL/参数分组，检查正文SHA、状态、编码及保留的响应头是否一致。不同则记录 raw_http_conflict、resolved=False，IC存证标为 incomplete，提供可重试/恢复风险提示；不因这个一致性问题向正常查询抛错。相同报文允许复用；回放仍拒绝歧义，不回退到当前数据。
++
++body变化、time字段刷新、响应头、状态、编码变化五类均验证“存证不完整、正常IC信号仍可返回”；独立存盘异常也验证这一隔离。其他行情格式、身份、下载预算及日历校验没有放宽。不会把无效行情或缺官方日历冒充正式目标。
++
++## 4. 真实完整IC包验收标准
++
++接受专家标准：独立核心 Put、保留 historical_replay、包括被捕获尝试在内的 EvidenceUnavailable=0、回放请求地址集合为原日集合子集，且与原日落账信号逐字段相等，只有事先明示的时间戳例外。
++
++另交付 replay_acceptance.py 作为严格字段比较工具。目前只例外根字段 signal_generated_at；价格、数量、动作、原因、来源、market_date、执行日、完整性及新增/缺失字段均检查，不能静默忽略差异。工具可读完整账本JSON中的 signals.IC，或单个IC信号JSON，并将差异列出、以非零退出码拒绝不相等：
++
++```powershell
++python -X utf8 -B quant_research_runs/20261022_calendar_capture_review_v1/replay_acceptance.py --original original_record.json --replayed replayed_ic.json
++```
++
++该工具只验证保存值相等，不能单独证明原包真实、独立核心持仓、HTTP地址及零未命中。真实包尚未取得/运行，不能宣布通过；若回放新增 original_evidence 元数据、来源说明或 generation_timing 等字段不同，严格比较会如实报告，不能先放宽成“都忽略”再宣布相等。上一轮合成回放仍只证明机制。
++
++## 5. 验收与保护
++
++- 新增20项：修前15通过/5失败；修后20通过。
++- 累计 accepted_01：93文件、2766通过，0失败/错误/跳过；原第五轮19项、上一轮8项和本轮20项均包含。原22项单列字节保持，无扩大排除。
++- 978项源码、规范、夹具、配置及研究输入绑定前后一致；收集节点、XML、退出码和日志核对通过。
++- 修前5份备份和8912个既有保护对象核对；旧文件预期变化仅 adapter 与登记表。本轮开始时实际 runtime 全路径集合已单独保存，当前156文件（143JSON）路径及字节一致；没有沿用上一轮遗漏既有journal的155路径清单。
++- bot日历、旧官方原始输入、冻结规范、旧测试/回执、已交付历史账户及绩效结果未覆盖。仅本地修改，未部署、发日报或写正式账本；没有新增多智能体或监控任务。
++
++2027官方交易所日历、真实完整IC原日包和2026-11-20收盘前部署仍未闭合。使用方应在部署沟通中获知：11-20维护可能起即进入跨年日历诊断，持续时间取决于官方安排及证据完整性，不能承诺几天自动恢复。部署只能保住后续原日证据；补齐官方日历后仍须每个缺口交易日证据完整，并逐日 historical_replay，不能跳日或用当日链补造过去。
++
++来源归属机器核对见 delivery/calendar_provenance.json；生产精确增量见 delivery/source_delta.patch；最终保护和验收绑定见 delivery/final_verification.json。有效累计回执仅 accepted_01/receipt.json。
+--- /dev/null
++++ b/quant_research_runs/20261022_calendar_capture_review_v1/replay_acceptance.py
+@@ -0,0 +1,61 @@
++"""Strict saved-signal comparison; it does not certify a real evidence bundle.
++
++Only the root signal_generated_at timestamp is excepted. Provenance, reasons,
++action/quantity/price, data dates and any additional fields remain compared.
++"""
++import argparse
++import json
++from pathlib import Path
++
++
++def compare_signal_values(original, replayed):
++    differences = []
++    def visit(a, b, path):
++        if path == '$.signal_generated_at':
++            return
++        if type(a) is not type(b):
++            differences.append({'path': path, 'original': a, 'replayed': b, 'reason': 'type_or_missing'})
++        elif isinstance(a, dict):
++            for key in sorted(a.keys() | b.keys()):
++                if key not in a or key not in b:
++                    differences.append({'path': path + '.' + key, 'reason': 'field_missing',
++                                        'original_present': key in a, 'replayed_present': key in b})
++                else:
++                    visit(a[key], b[key], path + '.' + key)
++        elif isinstance(a, list):
++            if len(a) != len(b):
++                differences.append({'path': path, 'reason': 'list_length', 'original': len(a), 'replayed': len(b)})
++            else:
++                for i, (x, y) in enumerate(zip(a, b)):
++                    visit(x, y, f'{path}[{i}]')
++        elif a != b:
++            differences.append({'path': path, 'original': a, 'replayed': b, 'reason': 'value'})
++    visit(original, replayed, '$')
++    return differences
++
++
++def main():
++    parser = argparse.ArgumentParser(description=__doc__)
++    parser.add_argument('--original', type=Path, required=True)
++    parser.add_argument('--replayed', type=Path, required=True)
++    args = parser.parse_args()
++    def load(path):
++        def reject(value):
++            raise ValueError('nonstandard JSON number: ' + value)
++        def unique(pairs):
++            result = {}
++            for key, value in pairs:
++                if key in result:
++                    raise ValueError('duplicate JSON key: ' + key)
++                result[key] = value
++            return result
++        value = json.loads(path.read_text(encoding='utf-8-sig'), parse_constant=reject, object_pairs_hook=unique)
++        return value['signals']['IC'] if isinstance(value, dict) and 'signals' in value else value
++    diffs = compare_signal_values(load(args.original), load(args.replayed))
++    print(json.dumps({'equal_except_generated_at': not diffs, 'differences': diffs,
++                      'real_bundle_and_http_requirements': 'Must be independently verified; not certified by this value comparator.'}, ensure_ascii=False, indent=2))
++    raise SystemExit(bool(diffs))
++
++
++if __name__ == '__main__':
++    main()
+--- /dev/null
++++ b/quant_research_runs/20261022_calendar_capture_review_v1/run_bound.py
+@@ -0,0 +1,70 @@
++"""Bind a fresh isolated test invocation to code and actual test selection."""
++from pathlib import Path
++import hashlib
++import json
++import os
++import subprocess
++import sys
++import xml.etree.ElementTree as ET
++
++HERE = Path(__file__).resolve().parent
++ROOT = HERE.parents[1]
++sys.path.insert(0, str(HERE))
++import evidence_gate
++
++
++def sha(path):
++    return hashlib.sha256(path.read_bytes()).hexdigest()
++
++
++def bindings():
++    paths = set(ROOT.glob("*.py"))
++    for directory in (ROOT / "cloud", ROOT / "tests"):
++        if directory.exists():
++            paths.update(p for p in directory.rglob("*") if p.is_file() and "__pycache__" not in p.parts)
++    paths.update(p for p in (ROOT / "docs").glob("*") if p.is_file() and
++                 (p.name.endswith("_spec.md") or p.name.endswith(".sha256")))
++    paths.update(p for p in HERE.glob("*") if p.is_file() and p.suffix in {".py", ".json", ".ini"})
++    paths.update(p for p in ((ROOT / "quant_research_runs/20261022_historical_calendar_repair_v1/history")).rglob("*.py") if "__pycache__" not in p.parts)
++    paths.update(p for p in ((ROOT / "quant_research_runs/20261022_historical_calendar_repair_v1/rebuilt_02") / "inputs").glob("*") if p.is_file())
++    if ((ROOT / "quant_research_runs/20261022_historical_calendar_repair_v1/rebuilt_02") / "receipt.json").is_file():
++        paths.add((ROOT / "quant_research_runs/20261022_historical_calendar_repair_v1/rebuilt_02") / "receipt.json")
++    paths.update(p for p in ROOT.glob("*") if p.name in {"pytest.ini", "pyproject.toml", "conftest.py"})
++    return {p.relative_to(ROOT).as_posix(): sha(p) for p in sorted(paths)}
++
++
++def main():
++    stage, argfile = sys.argv[1:]
++    target = HERE / stage
++    target.mkdir(exist_ok=False)
++    args = json.loads(Path(argfile).read_text(encoding="utf-8"))
++    before = bindings()
++    (target / "source_before.json").write_text(json.dumps(before, indent=2), encoding="utf-8")
++    env = dict(os.environ, ICIM_AUDIT_STAGE=stage, PYTHONIOENCODING='utf-8')
++    result = subprocess.run([sys.executable, str(HERE / "run_checks.py"), *args], cwd=ROOT, env=env,
++                            stdout=subprocess.PIPE, stderr=subprocess.STDOUT, encoding="utf-8")
++    after = bindings()
++    (target / "source_after.json").write_text(json.dumps(after, indent=2), encoding="utf-8")
++    receipt = {"exit_code": result.returncode, "source_before_equals_after": before == after,
++               "source_files": len(before), "stage": stage}
++    try:
++        receipt["counts"] = evidence_gate.validate_run(target / "regression.xml", process_exit_code=result.returncode,
++                                                     source_before=before, source_after=after)
++    except Exception as exc:
++        receipt["acceptance_error"] = str(exc)
++        xml = ET.parse(target / "regression.xml").getroot() if (target / "regression.xml").exists() else None
++        if xml is not None:
++            receipt["diagnostic_counts"] = {key: sum(int(s.get(key, 0)) for s in
++                ([xml] if xml.tag == "testsuite" else list(xml))) for key in ("tests", "failures", "errors", "skipped")}
++    artifacts = ["regression.xml", "regression.txt", "source_before.json", "source_after.json", "test_run.json", "collection.json"]
++    receipt["artifacts"] = {name: sha(target / name) for name in artifacts if (target / name).exists()}
++    (target / "receipt.json").write_text(json.dumps(receipt, indent=2), encoding="utf-8")
++    if "acceptance_error" not in receipt:
++        evidence_gate.validate_receipt(target)
++    print(result.stdout[-18000:])
++    print(json.dumps({k: v for k, v in receipt.items() if k != "artifacts"}, indent=2))
++    raise SystemExit(result.returncode or (1 if "acceptance_error" in receipt else 0))
++
++
++if __name__ == "__main__":
++    main()
+--- /dev/null
++++ b/quant_research_runs/20261022_calendar_capture_review_v1/run_checks.py
+@@ -0,0 +1,109 @@
++"""Isolated Windows test runner with sanitized output and no production state."""
++from pathlib import Path
++import contextlib
++import io
++import json
++import os
++import re
++import sys
++import uuid
++
++ROOT = Path(__file__).resolve().parents[2]
++HERE = Path(__file__).resolve().parent / os.environ.get("ICIM_AUDIT_STAGE", "cumulative")
++HERE.mkdir(parents=True, exist_ok=True)
++if any('/cloud/tests/' in arg.replace('\\', '/') for arg in sys.argv[1:]):
++    HERE = HERE / 'cloud'
++sys.path.insert(0, str(ROOT))
++# CPython 3.14 mkdir(0700) on this restricted Windows token produces a directory
++# the test process cannot reopen. Only the disposable test tree is affected.
++TASK_TEMP = Path(os.environ['TEMP']) / ('icim_put_' + uuid.uuid4().hex[:8])
++TASK_TEMP.mkdir(parents=True, exist_ok=False)
++original_mkdir = os.mkdir
++def test_mkdir(path, mode=0o777, *, dir_fd=None):
++    if mode == 0o700:
++        mode = 0o777
++    return original_mkdir(path, mode, **({} if dir_fd is None else {'dir_fd': dir_fd}))
++os.mkdir = test_mkdir
++original_chmod = os.chmod
++def test_chmod(path, mode, **kwargs):
++    return original_chmod(path, 0o777 if mode == 0o700 else mode, **kwargs)
++os.chmod = test_chmod
++os.environ.update(TEMP=str(TASK_TEMP), TMP=str(TASK_TEMP), ICIM_STATE_DIR=str(TASK_TEMP/'state'),
++                  ICIM_REQUIRE_MIGRATION='0', PYTHONDONTWRITEBYTECODE='1',
++                  ICIM_DISABLE_EVIDENCE_CAPTURE='1')
++import tempfile
++tempfile.tempdir = str(TASK_TEMP)
++import pytest
++
++class EvidenceIsolation:
++    def __init__(self):
++        self.collected = []
++        self.deselected = []
++        self.selected = []
++        self.executed = []
++
++    @pytest.hookimpl(tryfirst=True)
++    def pytest_collection_modifyitems(self, items):
++        self.collected = [item.nodeid for item in items]
++        # The old auditor hardcodes its evidence directory. Preserve its tests
++        # and assertions, but isolate newly generated receipts in this run.
++        for item in items:
++            module = item.module
++            if module.__name__ == 'test_icim_round2_audit_master_20261021':
++                module.AUDIT = HERE / 'master_bindings'
++            elif module.__name__ in {
++                'test_icim_a3_ohlcv_20261021',
++                'test_icim_batch3_calendar_redteam_20261021',
++                'test_icim_batch3_old_call_20261021',
++            }:
++                module.AUDIT = HERE / 'legacy_bindings' / module.__name__
++            elif module.__name__ == 'test_icim_b3adv_concurrency_20261021':
++                module.AUDIT = HERE / 'legacy_bindings' / module.__name__
++            elif module.__name__ == 'test_icim_b3adv_scope_20261021':
++                def observation(name, value, module_name=module.__name__):
++                    target = HERE / 'legacy_bindings' / module_name / name
++                    target.parent.mkdir(parents=True, exist_ok=True)
++                    with target.open('x', encoding='utf-8') as handle:
++                        json.dump(value, handle, ensure_ascii=False, indent=2)
++                module.observation = observation
++            elif module.__name__ == 'test_icim_batch3_research_boundary_20261021':
++                module.HERE = HERE / 'legacy_bindings' / module.__name__
++
++    def pytest_deselected(self, items):
++        self.deselected.extend(item.nodeid for item in items)
++
++    def pytest_collection_finish(self, session):
++        self.selected = [item.nodeid for item in session.items]
++
++    def pytest_runtest_logreport(self, report):
++        if report.when == 'call':
++            self.executed.append(report.nodeid)
++
++def sanitize(s):
++    for key, value in os.environ.items():
++        if re.search(r'key|token|secret|password', key, re.I) and len(value) >= 8:
++            s = s.replace(value, '[REDACTED]')
++    return re.sub(r'sk-[A-Za-z0-9_-]{10,}', '[REDACTED]', s)
++
++manifest = json.loads((ROOT/'docs/ic_im_v1_4_script_delivery_sync_20261013_source_manifest.json').read_text(encoding='utf-8'))
++tests = sys.argv[1:] or manifest['required_local_tests']+['test_ic_im_put_execution_repairs_20261016.py', 'test_ic_im_option_maintenance_notice_20261016.py', 'test_ic_im_put_delivery_completion_20261016.py']
++capture=io.StringIO()
++hidden_addopts_present = bool(os.environ.pop('PYTEST_ADDOPTS', ''))
++evidence_plugin = EvidenceIsolation()
++with contextlib.redirect_stdout(capture), contextlib.redirect_stderr(capture):
++    status=pytest.main(['-q','-p','no:cacheprovider','-c',str(Path(__file__).resolve().parent/'pytest.ini'),
++                        '--rootdir',str(ROOT),'-o','addopts=','--basetemp',str(TASK_TEMP/'pytest'),
++                        '--junitxml',str(HERE/'regression.xml')]+tests,
++                       plugins=[evidence_plugin])
++safe=sanitize(capture.getvalue())
++(HERE/'regression.txt').write_text(safe,encoding='utf-8')
++xml=HERE/'regression.xml'
++if xml.exists():xml.write_text(sanitize(xml.read_text(encoding='utf-8')),encoding='utf-8')
++(HERE/'test_run.json').write_text(json.dumps(dict(exit_code=int(status),files=tests,
++     state_dir=str(TASK_TEMP/'state'),test_only_windows_mkdir_mode_adjustment=True,
++     implicit_pytest_addopts_removed=hidden_addopts_present),indent=2),encoding='utf-8')
++(HERE/'collection.json').write_bytes((json.dumps(dict(collected=evidence_plugin.collected,
++     selected=evidence_plugin.selected,deselected=evidence_plugin.deselected,
++     executed=evidence_plugin.executed),indent=2)+'\n').encode('utf-8'))
++print(safe[-17000:])
++sys.exit(int(status))
+--- /dev/null
++++ b/test_icim_calendar_capture_review_20261022.py
+@@ -0,0 +1,176 @@
++"""Official ETF expiry oracle plus synthetic independent-capture adversaries."""
++from copy import deepcopy
++from datetime import date
++import hashlib
++import importlib.util
++import json
++from pathlib import Path
++
++import pytest
++import requests
++
++import ic_im_evidence_adapter_v1 as adapter
++import ic_im_signal_evidence_v1 as evidence
++import poe_ic_im_mainline_v1_4_bot as bot
++import test_icim_round3_recovery_audit_20261021 as seed
++import test_icim_round4_recovery_20261021 as r4
++from test_icim_expert_followup_replay_20261022 import raw_chain_provider
++
++
++ROOT = Path(__file__).resolve().parent
++RUN = ROOT / 'quant_research_runs/20261022_calendar_capture_review_v1'
++DAY = date(2026, 10, 21)
++
++
++@pytest.fixture(autouse=True)
++def isolated(monkeypatch, tmp_path):
++    monkeypatch.setattr(bot, 'LIVE_CONTINUATION_ANCHOR', deepcopy(bot.LIVE_CONTINUATION_ANCHOR))
++    monkeypatch.setenv('ICIM_STATE_DIR', str(tmp_path / 'isolated'))
++    monkeypatch.delenv('ICIM_EVIDENCE_DIR', raising=False)
++    monkeypatch.setattr(bot.requests, 'get', lambda *a, **k: pytest.fail('real network forbidden'))
++    monkeypatch.setattr(bot, 'build_iv_warning', lambda *a, **k: {'status': 'synthetic_monitor_omitted'})
++
++
++def test_510500_2301_expiry_comes_from_official_option_announcements():
++    oracle = json.loads((ROOT / 'tests/fixtures/icim_sse_2301_expiry_20261022.json').read_text(encoding='utf-8'))
++    assert oracle['underlying'] == '510500' and oracle['contract_month'] == '2301'
++    assert len(oracle['sources']) == 2
++    assert {s['announced_expiry_day'] for s in oracle['sources']} == {'2023-01-30'}
++    assert all(s['url'].startswith('https://www.sse.com.cn/assortment/options/disclo/update/') for s in oracle['sources'])
++    assert str(bot._fourth_wednesday(2023, 1)) == oracle['expiry_day'] == '2023-01-30'
++    assert oracle['exercise_settlement_day'] == '2023-01-31'
++
++
++def test_calendar_extension_precedes_last_followup_and_this_round():
++    name = 'poe_ic_im_mainline_v1_4_bot.py'
++    def bound(folder, stage):
++        p = ROOT / 'quant_research_runs' / folder / stage / 'source_after.json'
++        return json.loads(p.read_text())[name]
++    digest = hashlib.sha256((ROOT / name).read_bytes()).hexdigest()
++    assert digest == bound('20261022_historical_calendar_repair_v1', 'accepted_02')
++    assert digest == bound('20261022_expert_followup_replay_audit_v1', 'accepted_01')
++    assert digest == '0075c16aec68cb56b49569d03c1b89bb2707873fbd309971461082b623d0d19f'
++
++
++@pytest.mark.parametrize('day,hour,minute', [(DAY, 9, 15), (DAY, 14, 59), (date(2026, 10, 24), 18, 0)])
++def test_collector_never_opens_original_close_session_before_close_or_on_weekend(monkeypatch, tmp_path, day, hour, minute):
++    now = r4.wall(monkeypatch, day).replace(hour=hour, minute=minute)
++    monkeypatch.setattr(evidence, 'capture_session', lambda *a, **k: pytest.fail('opened an original close capture'))
++    result = adapter.capture_daily(bot, tmp_path / 'absent', now)
++    assert result['status'] == 'waiting_for_close' and result['products'] == {}
++    assert not (tmp_path / 'absent').exists()
++
++
++def test_existing_core_and_short_identity_use_one_chain_record_without_assuming_stable_http(monkeypatch, tmp_path):
++    clock = r4.wall(monkeypatch, DAY)
++    _, record = seed.temporary_store(tmp_path / 'state', date(2026, 10, 20))
++    import poe_ic_im_v1_4_state as state
++    bot.install_runtime_anchors(state.anchors_from_record(record))
++    real_chain = bot._fetch_510500_chain_for_day
++    samples = r4.providers(monkeypatch, DAY)
++    calls = raw_chain_provider(monkeypatch, DAY, samples, real_chain)
++    anchor = deepcopy(bot.LIVE_CONTINUATION_ANCHOR['IC'])
++    anchor.update(v14_short_put_contract=anchor['v14_core_put_contract'],
++                  v14_short_put_security_id=anchor['v14_core_put_security_id'])
++    signal = {'market_date': DAY, 'core_put_target_delta': .25, 'etf_price': 7.8, 'future_last': 7800.,
++              'put_target_momentum_qty': 0, 'option_monthly_reset_due': False}
++    with bot.runtime_clock(clock), evidence.capture_session(tmp_path / 'evidence', DAY, clock, {}) as session:
++        bot._fetch_510500_chain_for_day('2612', DAY)
++        bot._v14_ic_core_overlay(signal, anchor)
++        bot._v14_require_held_ic_short_identity(signal, anchor)
++    assert len(calls) == 1 and len(session.raw) == 1
++    assert session.context['complete'] is True
++    assert signal['v14_core_put_contract'] == anchor['v14_core_put_contract']
++
++
++def changing_raw_providers(monkeypatch, tmp_path, difference):
++    clock = r4.wall(monkeypatch, DAY)
++    _, record = seed.temporary_store(tmp_path / 'state', date(2026, 10, 20))
++    import poe_ic_im_v1_4_state as state
++    bot.install_runtime_anchors(state.anchors_from_record(record))
++    samples = r4.providers(monkeypatch, DAY)
++    counts = {}
++    def get(url, params=None, **kwargs):
++        ym = str(url).rsplit('_', 1)[-1]
++        counts[ym] = counts.get(ym, 0) + 1
++        second = ym == '12' and counts[ym] % 2 == 0
++        payload = {'month': ym, 'time': 150000, 'price': .4}
++        if second and difference == 'body':
++            payload['price'] = .41
++        if second and difference == 'time':
++            payload['time'] = 150001
++        response = requests.Response()
++        response.status_code = 201 if second and difference == 'status' else 200
++        response.encoding = 'gbk' if second and difference == 'encoding' else 'utf-8'
++        response.headers['ETag'] = 'second' if second and difference == 'headers' else 'first'
++        response._content = json.dumps(payload).encode('utf-8')
++        return response
++    monkeypatch.setattr(bot.requests, 'get', get)
++    def chain(month, day):
++        url = 'https://yunhq.sse.com.cn:32042/v1/sho/list/tstyle/510500_' + month[-2:]
++        for _ in range(2 if month == '2612' else 1):
++            bot._evidence_http_get(url, params={'select': 'synthetic_recording_probe'})
++        return deepcopy(samples['IC'][4][month])
++    monkeypatch.setattr(bot, '_fetch_510500_chain_for_day', chain)
++    adapter._keyed(bot, bot, '_fetch_510500_chain_for_day', 'ic.chain', lambda month, day: {'month': month, 'day': day})
++    return clock
++
++
++@pytest.mark.parametrize('difference', ['identical', 'body', 'time', 'headers', 'status', 'encoding'])
++def test_ambiguous_capture_is_incomplete_and_does_not_break_normal_query(monkeypatch, tmp_path, difference):
++    clock = changing_raw_providers(monkeypatch, tmp_path, difference)
++    root = tmp_path / 'evidence'
++    result = adapter.capture_daily(bot, root, clock)
++    if difference == 'identical':
++        assert result['status'] == 'captured'
++        reader, _ = adapter.load_original(bot, root, 'IC', DAY)
++        assert evidence.decode(reader.context['annotations']['replay_completeness'])['input_capture_complete'] is True
++    else:
++        assert result['products']['IC']['status'] == 'incomplete'
++        assert result['products']['IM']['status'] == 'captured'
++        assert 'raw_http_conflict' in result['products']['IC']['reason']
++        with pytest.raises(evidence.EvidenceUnavailable, match='incomplete|unresolved'):
++            adapter.load_original(bot, root, 'IC', DAY)
++    assert evidence.current_session.get() is None
++    live = bot.build_live_trade_signal('IC', clock, 'close')
++    assert live.get('signal_complete') and live.get('persistence_eligible'), live.get('diagnostic_reason')
++
++
++def test_archive_io_failure_stays_in_independent_collector_and_signal_still_returns(monkeypatch, tmp_path):
++    clock = changing_raw_providers(monkeypatch, tmp_path, 'identical')
++    def fail(*args, **kwargs):
++        raise OSError('synthetic full evidence disk')
++    monkeypatch.setattr(evidence.CaptureSession, 'raw_response', fail)
++    result = adapter.capture_daily(bot, tmp_path / 'evidence', clock)
++    assert result['products']['IC']['status'] == 'incomplete'
++    assert evidence.current_session.get() is None
++    live = bot.build_live_trade_signal('IC', clock, 'close')
++    assert live.get('signal_complete') and live.get('persistence_eligible'), live.get('diagnostic_reason')
++
++
++def comparator():
++    spec = importlib.util.spec_from_file_location('review_strict_comparator', RUN / 'replay_acceptance.py')
++    module = importlib.util.module_from_spec(spec)
++    spec.loader.exec_module(module)
++    return module.compare_signal_values
++
++
++@pytest.mark.parametrize('field,new_value', [('qty', 2), ('price', .5), ('reason', 'different'),
++                                            ('source', 'different'), ('signal_complete', False)])
++def test_real_package_comparator_does_not_silently_ignore_strategy_or_source_changes(field, new_value):
++    original = {'qty': 1, 'price': .4, 'reason': 'original', 'source': 'SSE', 'signal_complete': True}
++    replayed = {**original, field: new_value}
++    differences = comparator()(original, replayed)
++    assert [r['path'] for r in differences] == ['$.' + field]
++
++
++def test_real_package_comparator_allows_only_explicit_generation_timestamp():
++    a = {'signal_generated_at': '2026-10-21T18:00:00+08:00', 'market_date': '2026-10-21'}
++    b = {**a, 'signal_generated_at': '2026-10-22T18:00:00+08:00'}
++    assert comparator()(a, b) == []
++    b['market_date'] = '2026-10-22'
++    assert comparator()(a, b)[0]['path'] == '$.market_date'
++
++
++def test_real_package_comparator_rejects_extra_replay_fields():
++    assert comparator()({'qty': 1}, {'qty': 1, 'replay_only': True})[0]['reason'] == 'field_missing'
+--- /dev/null
++++ b/tests/fixtures/icim_sse_2301_expiry_20261022.json
+@@ -0,0 +1,27 @@
++{
++  "representation": "Normalized factual expiry oracle from two independently opened official SSE notices; not raw HTTP bytes or a calendar-function result.",
++  "exchange": "SSE",
++  "underlying": "510500",
++  "contract_month": "2301",
++  "last_trading_day": "2023-01-30",
++  "exercise_day": "2023-01-30",
++  "expiry_day": "2023-01-30",
++  "exercise_settlement_day": "2023-01-31",
++  "sources": [
++    {
++      "url": "https://www.sse.com.cn/assortment/options/disclo/update/c/c_20221209_5713793.shtml",
++      "document_number": "上证公告(衍生品)〔2022〕73号",
++      "published": "2022-12-09",
++      "scope": "All SSE underlying instruments with January 2023 expiry",
++      "original_expiry_day": "2023-01-25",
++      "announced_expiry_day": "2023-01-30"
++    },
++    {
++      "url": "https://www.sse.com.cn/assortment/options/disclo/update/c/c_20230117_5715310.shtml",
++      "document_number": "上证公告（衍生品）〔2023〕5号",
++      "published": "2023-01-18",
++      "scope": "Explicitly includes 500ETF options with January 2023 expiry",
++      "announced_expiry_day": "2023-01-30"
++    }
++  ]
++}

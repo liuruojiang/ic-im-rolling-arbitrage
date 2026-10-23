@@ -1,0 +1,45 @@
+{
+  "verified_at": "2026-10-21T05:46:04.868301+00:00",
+  "test_files": 41,
+  "passed": 989,
+  "failures_errors_skips": 0,
+  "changed": [
+    "ic_im_fear_grid_v1.py",
+    "ic_im_put_execution_v1.py",
+    "ic_im_v1_4_policy.py",
+    "poe_ic_im_mainline_v1_4_bot.py",
+    "poe_ic_im_v1_4_state.py",
+    "test_ic_im_v1_4_integration_guards.py",
+    "notes/mainline_registry.md"
+  ],
+  "protected_baseline_unchanged": 1106,
+  "immutable_unchanged": 266,
+  "runtime_json_unchanged": true,
+  "preexisting_quarter_roll_and_digest_source_unchanged": true,
+  "compiled": [
+    "ic_im_fear_grid_v1.py",
+    "ic_im_put_execution_v1.py",
+    "ic_im_v1_4_policy.py",
+    "poe_ic_im_mainline_v1_4_bot.py",
+    "poe_ic_im_v1_4_state.py",
+    "test_ic_im_external_review_20261021.py",
+    "test_ic_im_external_review_display_cache_20261021.py",
+    "test_ic_im_v1_4_integration_guards.py"
+  ],
+  "diff_check": "PASS",
+  "new_specs_sha256": "PASS",
+  "source_sha256": {
+    "ic_im_fear_grid_v1.py": "a21578621eb7695af5dcc669670cdcfa2bef2f0d9fceb4ad40a3ddae707fcc67",
+    "ic_im_put_execution_v1.py": "2e30546c65fe1991d1b96edc44afb7e2d7de103b8f236353ddd100997829e74d",
+    "ic_im_v1_4_policy.py": "7fd6feff59b625ea07f8b53b50962df76a016207bb523863bd60276059a64e86",
+    "poe_ic_im_mainline_v1_4_bot.py": "010b56719875d8f55590d184e134c61c30afe16a67ea020ca874808ae8f48c73",
+    "poe_ic_im_v1_4_state.py": "78fc7211f1c709df23aed35b41db558a293be8a24c088b8e3bdf7575a0fc2bf2",
+    "test_ic_im_external_review_20261021.py": "8f1594da65837c33bff92475427600530f4736cfb0c5aed42632d35aabb101a5",
+    "test_ic_im_external_review_display_cache_20261021.py": "45d7ff25542e57fe4c0e6c26250d54adedba03d40a5ebc25232a0509c3509805",
+    "test_ic_im_v1_4_integration_guards.py": "1aec0ed793b650e3c522227aec7bc19a61c4f06f04f177d5b739c823f0362fcb"
+  },
+  "formal_runtime_updated": false,
+  "production_ledger_updated": false,
+  "email_sent": false,
+  "performance_recomputed": false
+}

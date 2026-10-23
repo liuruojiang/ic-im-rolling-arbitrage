@@ -1,0 +1,23 @@
+{
+  "checked_at": "2026-10-21T10:30:29.245Z",
+  "config_path": "D:/Codex/home/config.toml",
+  "config_sha256": "a657c549c59bf07009219d9075d86c1d37ee8458b992ab82c09e82dbb9d6b4c1",
+  "observed_backend": "unelevated",
+  "required_backend_by_error": "elevated",
+  "proposed_change": "windows.sandbox: unelevated -> elevated",
+  "static_checks": {
+    "single_windows_section": true,
+    "single_setting": true,
+    "only_backend_value_changes": true
+  },
+  "execution_status": "rejected_by_approval_policy_before_start",
+  "policy": {
+    "sandbox_mode": "workspace-write",
+    "sandbox_approval": false
+  },
+  "docs": "https://developers.openai.com/codex/windows",
+  "rejection_reason": "Granular approval policy has sandbox_approval=false and request_permissions=false; escalated command request rejected",
+  "config_modified": false,
+  "runtime_tests_executed": false,
+  "next_step": "Local operator runs the prepared script in PowerShell, restarts the application, completes official sandbox setup if required, then verifies command startup."
+}

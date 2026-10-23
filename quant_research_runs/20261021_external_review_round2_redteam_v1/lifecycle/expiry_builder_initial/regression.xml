@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="2.088" timestamp="2026-10-21T14:39:51.548155+08:00" hostname="DESKTOP-95I7VVU"><testcase classname="test_icim_round2_audit_lifecycle_20261021" name="test_full_builder_expiry_identity_failure_cannot_publish_branch" time="0.048"><failure message="RuntimeError: Poe账本文件名与内容日期不一致: 000000-2026-10-20.json">tmp_path = WindowsPath('D:/workspace/icim_round2_lifecycle_temp/icim_put_a05faf25/pytest/test_full_builder_expiry_ident0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000001DA228CDE00&gt;
+
+    def test_full_builder_expiry_identity_failure_cannot_publish_branch(tmp_path,monkeypatch):
+        expiry=date(2026,12,23)
+        monkeypatch.setitem(globals(),'DAY',expiry)
+        monkeypatch.setitem(globals(),'PREVIOUS',date(2026,12,22))
+        monkeypatch.setitem(globals(),'CLOCK',datetime(2026,12,23,15,40,tzinfo=bot.BEIJING))
+&gt;       store,record=recent_store(tmp_path/'ledger')
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_icim_round2_audit_lifecycle_20261021.py:438: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+test_icim_round2_audit_lifecycle_20261021.py:81: in recent_store
+    return store, store.load_latest()
+                  ^^^^^^^^^^^^^^^^^^^
+poe_ic_im_v1_4_state.py:1408: in load_latest
+    item = self._load_sequence_record(sequence)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = &lt;poe_ic_im_v1_4_state.StateStore object at 0x000001DA229741A0&gt;
+sequence = 0
+
+    def _load_sequence_record(self, sequence: int) -&gt; dict[str, Any]:
+        matches = sorted(self.journal_dir.glob(f"{sequence:06d}-*.json"))
+        if len(matches) != 1:
+            raise RuntimeError(f"Poe账本序号 {sequence} 不存在或重复")
+        record = json.loads(matches[0].read_text(encoding="utf-8"))
+        _validate_record(record)
+        if int(record["sequence"]) != sequence:
+            raise RuntimeError(f"Poe账本文件序号与内容不一致: {sequence}")
+        expected_name = f"{sequence:06d}-{record['verified_day']}.json"
+        if matches[0].name != expected_name:
+&gt;           raise RuntimeError(f"Poe账本文件名与内容日期不一致: {matches[0].name}")
+E           RuntimeError: Poe账本文件名与内容日期不一致: 000000-2026-10-20.json
+
+poe_ic_im_v1_4_state.py:1430: RuntimeError</failure></testcase></testsuite></testsuites>

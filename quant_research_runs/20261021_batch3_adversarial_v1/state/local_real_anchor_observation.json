@@ -1,0 +1,37 @@
+{
+  "source": "new audit immutable baseline backup of real local research ledger; not broker account",
+  "path": "quant_research_runs/20261021_batch3_adversarial_v1/backup/runtime/ic_im_v1_4_r1/latest.json",
+  "sha256": "b0f0fa76beca9a0d2c2a715ef67c1f578fc9c4d5c73c91ae4ebd5a89c8139df6",
+  "sequence": 18,
+  "verified_day": "2026-10-20",
+  "products": {
+    "IC": {
+      "post_core_contract": "IC2612",
+      "post_put_contract": "510500P2612M06500",
+      "post_core_put_contract": null,
+      "post_momentum_put_contract": null,
+      "verified_core_put_qty": 15,
+      "verified_core_put_qty_normalized": null,
+      "v14_core_put_contract": "510500P2612M06500",
+      "v14_core_put_qty": 15,
+      "verified_momentum_put_qty_normalized": null,
+      "v14_profit_pending": false,
+      "v14_short_put_open_pending": null,
+      "v14_ordinary_put_pending": null
+    },
+    "IM": {
+      "post_core_contract": "IM2612",
+      "post_put_contract": "MO2612-P-6700",
+      "post_core_put_contract": "MO2612-P-6700",
+      "post_momentum_put_contract": null,
+      "verified_core_put_qty": null,
+      "verified_core_put_qty_normalized": 1.5,
+      "v14_core_put_contract": null,
+      "v14_core_put_qty": 0.0,
+      "verified_momentum_put_qty_normalized": 0.0,
+      "v14_profit_pending": false,
+      "v14_short_put_open_pending": null,
+      "v14_ordinary_put_pending": null
+    }
+  }
+}

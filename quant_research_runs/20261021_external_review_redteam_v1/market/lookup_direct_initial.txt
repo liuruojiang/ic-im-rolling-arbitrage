@@ -1,0 +1,130 @@
+.FFFF                                                                    [100%]
+================================== FAILURES ===================================
+_ test_sse_fallback_security_lookup_uses_same_strict_parser[unrequested_security] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000020382937360>
+mutation = 'unrequested_security'
+
+    @pytest.mark.parametrize('mutation',['control','unrequested_security','wrong_underlying','wrong_expiry_day','fractional_strike'])
+    def test_sse_fallback_security_lookup_uses_same_strict_parser(monkeypatch,mutation):
+        rows = [(security,payload.split(',')) for security,payload in PACKETS]
+        if mutation == 'unrequested_security':
+            rows[0] = ('99999999',rows[0][1])
+        elif mutation == 'wrong_underlying':
+            rows[0][1][36] = '510300'
+        elif mutation == 'wrong_expiry_day':
+            rows[0][1][46] = '2026-11-01'
+        elif mutation == 'fractional_strike':
+            rows[0][1][7] = '6.7504'
+        listing = 'var hq_str_OP_DOWN_5105002611="' + ','.join('CON_OP_'+x[0] for x in PACKETS) + '";'
+        details = ''.join(packet(*row) for row in rows)
+        responses = [SimpleNamespace(content=body.encode('gbk'),headers={},raise_for_status=lambda:None)
+                     for body in (listing,details)]
+        monkeypatch.setattr(bot.requests,'get',Mock(side_effect=responses))
+        if mutation == 'control':
+            assert bot.fetch_sina_510500_security_id('510500P2611M06750') == '10012482'
+        else:
+>           with pytest.raises(RuntimeError):
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           Failed: DID NOT RAISE <class 'RuntimeError'>
+
+test_icim_redteam_market_20261021.py:350: Failed
+_ test_sse_fallback_security_lookup_uses_same_strict_parser[wrong_underlying] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000020382996C30>
+mutation = 'wrong_underlying'
+
+    @pytest.mark.parametrize('mutation',['control','unrequested_security','wrong_underlying','wrong_expiry_day','fractional_strike'])
+    def test_sse_fallback_security_lookup_uses_same_strict_parser(monkeypatch,mutation):
+        rows = [(security,payload.split(',')) for security,payload in PACKETS]
+        if mutation == 'unrequested_security':
+            rows[0] = ('99999999',rows[0][1])
+        elif mutation == 'wrong_underlying':
+            rows[0][1][36] = '510300'
+        elif mutation == 'wrong_expiry_day':
+            rows[0][1][46] = '2026-11-01'
+        elif mutation == 'fractional_strike':
+            rows[0][1][7] = '6.7504'
+        listing = 'var hq_str_OP_DOWN_5105002611="' + ','.join('CON_OP_'+x[0] for x in PACKETS) + '";'
+        details = ''.join(packet(*row) for row in rows)
+        responses = [SimpleNamespace(content=body.encode('gbk'),headers={},raise_for_status=lambda:None)
+                     for body in (listing,details)]
+        monkeypatch.setattr(bot.requests,'get',Mock(side_effect=responses))
+        if mutation == 'control':
+            assert bot.fetch_sina_510500_security_id('510500P2611M06750') == '10012482'
+        else:
+>           with pytest.raises(RuntimeError):
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           Failed: DID NOT RAISE <class 'RuntimeError'>
+
+test_icim_redteam_market_20261021.py:350: Failed
+_ test_sse_fallback_security_lookup_uses_same_strict_parser[wrong_expiry_day] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000020382A2B9B0>
+mutation = 'wrong_expiry_day'
+
+    @pytest.mark.parametrize('mutation',['control','unrequested_security','wrong_underlying','wrong_expiry_day','fractional_strike'])
+    def test_sse_fallback_security_lookup_uses_same_strict_parser(monkeypatch,mutation):
+        rows = [(security,payload.split(',')) for security,payload in PACKETS]
+        if mutation == 'unrequested_security':
+            rows[0] = ('99999999',rows[0][1])
+        elif mutation == 'wrong_underlying':
+            rows[0][1][36] = '510300'
+        elif mutation == 'wrong_expiry_day':
+            rows[0][1][46] = '2026-11-01'
+        elif mutation == 'fractional_strike':
+            rows[0][1][7] = '6.7504'
+        listing = 'var hq_str_OP_DOWN_5105002611="' + ','.join('CON_OP_'+x[0] for x in PACKETS) + '";'
+        details = ''.join(packet(*row) for row in rows)
+        responses = [SimpleNamespace(content=body.encode('gbk'),headers={},raise_for_status=lambda:None)
+                     for body in (listing,details)]
+        monkeypatch.setattr(bot.requests,'get',Mock(side_effect=responses))
+        if mutation == 'control':
+            assert bot.fetch_sina_510500_security_id('510500P2611M06750') == '10012482'
+        else:
+>           with pytest.raises(RuntimeError):
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           Failed: DID NOT RAISE <class 'RuntimeError'>
+
+test_icim_redteam_market_20261021.py:350: Failed
+_ test_sse_fallback_security_lookup_uses_same_strict_parser[fractional_strike] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000020382A2BAC0>
+mutation = 'fractional_strike'
+
+    @pytest.mark.parametrize('mutation',['control','unrequested_security','wrong_underlying','wrong_expiry_day','fractional_strike'])
+    def test_sse_fallback_security_lookup_uses_same_strict_parser(monkeypatch,mutation):
+        rows = [(security,payload.split(',')) for security,payload in PACKETS]
+        if mutation == 'unrequested_security':
+            rows[0] = ('99999999',rows[0][1])
+        elif mutation == 'wrong_underlying':
+            rows[0][1][36] = '510300'
+        elif mutation == 'wrong_expiry_day':
+            rows[0][1][46] = '2026-11-01'
+        elif mutation == 'fractional_strike':
+            rows[0][1][7] = '6.7504'
+        listing = 'var hq_str_OP_DOWN_5105002611="' + ','.join('CON_OP_'+x[0] for x in PACKETS) + '";'
+        details = ''.join(packet(*row) for row in rows)
+        responses = [SimpleNamespace(content=body.encode('gbk'),headers={},raise_for_status=lambda:None)
+                     for body in (listing,details)]
+        monkeypatch.setattr(bot.requests,'get',Mock(side_effect=responses))
+        if mutation == 'control':
+            assert bot.fetch_sina_510500_security_id('510500P2611M06750') == '10012482'
+        else:
+>           with pytest.raises(RuntimeError):
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           Failed: DID NOT RAISE <class 'RuntimeError'>
+
+test_icim_redteam_market_20261021.py:350: Failed
+============================== warnings summary ===============================
+C:\Python314\Lib\site-packages\fastapi_poe\types.py:171
+  C:\Python314\Lib\site-packages\fastapi_poe\types.py:171: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    class RequestContext(BaseModel):
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED test_icim_redteam_market_20261021.py::test_sse_fallback_security_lookup_uses_same_strict_parser[unrequested_security]
+FAILED test_icim_redteam_market_20261021.py::test_sse_fallback_security_lookup_uses_same_strict_parser[wrong_underlying]
+FAILED test_icim_redteam_market_20261021.py::test_sse_fallback_security_lookup_uses_same_strict_parser[wrong_expiry_day]
+FAILED test_icim_redteam_market_20261021.py::test_sse_fallback_security_lookup_uses_same_strict_parser[fractional_strike]
+4 failed, 1 passed, 56 deselected, 1 warning in 2.41s

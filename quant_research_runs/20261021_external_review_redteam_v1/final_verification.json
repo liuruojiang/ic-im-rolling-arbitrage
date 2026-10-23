@@ -1,0 +1,46 @@
+{
+  "verified_at": "2026-10-21T06:06:31.078528+00:00",
+  "changed_baseline_files": [
+    "poe_ic_im_mainline_v1_4_bot.py",
+    "test_ic_im_external_review_20261021.py",
+    "test_ic_im_v1_4_integration_guards.py",
+    "notes/mainline_registry.md"
+  ],
+  "unexpected_changes": [],
+  "backup_count": 1120,
+  "backup_mismatches": [],
+  "protected_prior_evidence_count": 47,
+  "protected_prior_evidence_mismatches": [],
+  "original_selected_immutable_count": 266,
+  "original_selected_immutable_mismatches": [],
+  "historical_source_receipt_matches_pre_audit_backup": true,
+  "historical_source_receipt_backup_mismatches": [],
+  "prospective_outputs_count": 6783,
+  "prospective_outputs_bytes": 916698104,
+  "prospective_outputs_mismatches": [],
+  "prospective_output_path_delta": [],
+  "prospective_scope": "prospective only; cannot reconstruct original unrecorded history",
+  "cumulative_bound_source_mismatches": [],
+  "cumulative_receipt_artifact_mismatches": [],
+  "cumulative": {
+    "tests": 1150,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "audit_spec_sha_matches": true,
+  "compiled_files": [
+    "poe_ic_im_mainline_v1_4_bot.py",
+    "test_ic_im_external_review_20261021.py",
+    "test_ic_im_v1_4_integration_guards.py",
+    "test_icim_redteam_display_20261021.py",
+    "test_icim_redteam_execution_20261021.py",
+    "test_icim_redteam_integration_20261021.py",
+    "test_icim_redteam_market_20261021.py"
+  ],
+  "git_diff_check_exit": 0,
+  "git_diff_check_output": "",
+  "source_delta_sha256": "637b2daaa65c90de47cb611fc678ea7ca814b8165c54f9d228b3577b2311cd23",
+  "reviewed_bot_sha256": "6e56f723bfdd32649911c6d7980b41e46611b9620b5776233109d177b51ffdd3",
+  "passed": true
+}

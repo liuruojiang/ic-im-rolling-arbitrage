@@ -1,0 +1,30 @@
+{
+  "collected": [
+    "test_icim_free_sources_parallel_capture_20261022.py::test_real_threads_inherit_session_clock_deadline_and_capture_every_observed_month[False]",
+    "test_icim_free_sources_parallel_capture_20261022.py::test_real_threads_inherit_session_clock_deadline_and_capture_every_observed_month[True]",
+    "test_icim_free_sources_parallel_capture_20261022.py::test_nested_and_explicit_provider_jobs_fetch_each_shared_role_only_once",
+    "test_icim_free_sources_parallel_capture_20261022.py::test_shared_absolute_deadline_prevents_queued_jobs_from_starting_or_extending_budget",
+    "test_icim_free_sources_parallel_capture_20261022.py::test_provider_failure_keeps_other_roles_and_finishes_after_every_writer",
+    "test_icim_free_sources_parallel_capture_20261022.py::test_frozen_expired_anchor_does_not_require_a_delisted_month",
+    "test_icim_free_sources_parallel_capture_20261022.py::test_failed_observed_listing_cannot_fall_back_to_unobserved_anchor_months"
+  ],
+  "selected": [
+    "test_icim_free_sources_parallel_capture_20261022.py::test_real_threads_inherit_session_clock_deadline_and_capture_every_observed_month[False]",
+    "test_icim_free_sources_parallel_capture_20261022.py::test_real_threads_inherit_session_clock_deadline_and_capture_every_observed_month[True]",
+    "test_icim_free_sources_parallel_capture_20261022.py::test_nested_and_explicit_provider_jobs_fetch_each_shared_role_only_once",
+    "test_icim_free_sources_parallel_capture_20261022.py::test_shared_absolute_deadline_prevents_queued_jobs_from_starting_or_extending_budget",
+    "test_icim_free_sources_parallel_capture_20261022.py::test_provider_failure_keeps_other_roles_and_finishes_after_every_writer",
+    "test_icim_free_sources_parallel_capture_20261022.py::test_frozen_expired_anchor_does_not_require_a_delisted_month",
+    "test_icim_free_sources_parallel_capture_20261022.py::test_failed_observed_listing_cannot_fall_back_to_unobserved_anchor_months"
+  ],
+  "deselected": [],
+  "executed": [
+    "test_icim_free_sources_parallel_capture_20261022.py::test_real_threads_inherit_session_clock_deadline_and_capture_every_observed_month[False]",
+    "test_icim_free_sources_parallel_capture_20261022.py::test_real_threads_inherit_session_clock_deadline_and_capture_every_observed_month[True]",
+    "test_icim_free_sources_parallel_capture_20261022.py::test_nested_and_explicit_provider_jobs_fetch_each_shared_role_only_once",
+    "test_icim_free_sources_parallel_capture_20261022.py::test_shared_absolute_deadline_prevents_queued_jobs_from_starting_or_extending_budget",
+    "test_icim_free_sources_parallel_capture_20261022.py::test_provider_failure_keeps_other_roles_and_finishes_after_every_writer",
+    "test_icim_free_sources_parallel_capture_20261022.py::test_frozen_expired_anchor_does_not_require_a_delisted_month",
+    "test_icim_free_sources_parallel_capture_20261022.py::test_failed_observed_listing_cannot_fall_back_to_unobserved_anchor_months"
+  ]
+}

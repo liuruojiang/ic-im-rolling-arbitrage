@@ -1,0 +1,32 @@
+{
+  "status": "INSUFFICIENT_RESPONSES",
+  "observations": [],
+  "errors": [
+    {
+      "attempt": 1,
+      "type": "AttributeError",
+      "error": "module 'poe_ic_im_mainline_v1_4_bot' has no attribute 'HEADERS'"
+    },
+    {
+      "attempt": 2,
+      "type": "AttributeError",
+      "error": "module 'poe_ic_im_mainline_v1_4_bot' has no attribute 'HEADERS'"
+    },
+    {
+      "attempt": 3,
+      "type": "AttributeError",
+      "error": "module 'poe_ic_im_mainline_v1_4_bot' has no attribute 'HEADERS'"
+    },
+    {
+      "attempt": 4,
+      "type": "AttributeError",
+      "error": "module 'poe_ic_im_mainline_v1_4_bot' has no attribute 'HEADERS'"
+    }
+  ],
+  "manifest": "D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261022_evidence_conflict_review_v1\\delivery\\time_probe\\evidence\\sessions\\2026-10-22\\124459682590-d040e607534d480aa0658585bd4f5ef0.json",
+  "manifest_body_sha256": "7e2af17fbd99478d397de37b02de8e152f668e4d78d78e6ff96913b1f9b26f6e",
+  "complete": true,
+  "conflicts": [],
+  "formal_signal_generated": false,
+  "limitation": "one post-close sample, not a multi-day stability oracle"
+}

@@ -1,0 +1,38 @@
+...F.F                                                                   [100%]
+================================== FAILURES ===================================
+____ test_old_display_test_changed_only_to_supply_the_holding_security_id _____
+
+    def test_old_display_test_changed_only_to_supply_the_holding_security_id():
+        name = 'test_ic_im_external_review_display_cache_20261021.py'
+        old = ast.parse((OLD / 'backup' / name).read_text(encoding='utf-8'))
+        new = ast.parse((ROOT / name).read_text(encoding='utf-8'))
+        removed = []
+        for node in ast.walk(new):
+            if isinstance(node, ast.Call):
+                for kw in list(node.keywords):
+                    if kw.arg == 'security_id':
+                        removed.append(ast.unparse(kw.value))
+                        node.keywords.remove(kw)
+>       assert removed == ["anchor['v14_core_put_security_id']"]
+E       assert ["'10012099'"...ecurity_id']"] == ["anchor['v14...ecurity_id']"]
+E         
+E         At index 0 diff: "'10012099'" != "anchor['v14_core_put_security_id']"
+E         Left contains one more item: "anchor['v14_core_put_security_id']"
+E         Use -v to get more diff
+
+test_icim_round2_audit_evidence_20261021.py:79: AssertionError
+_ test_formal_runtime_and_older_evidence_unchanged_from_second_round_baseline _
+
+    def test_formal_runtime_and_older_evidence_unchanged_from_second_round_baseline():
+        baseline = read(OLD / 'baseline.json')
+        protected = {p: h for p, h in baseline['backed_up'].items() if p.startswith('runtime/')}
+        assert protected
+>       assert all(sha(ROOT / p) == h for p, h in protected.items())
+E       assert False
+E        +  where False = all(<generator object test_formal_runtime_and_older_evidence_unchanged_from_second_round_baseline.<locals>.<genexpr> at 0x000002864DC594E0>)
+
+test_icim_round2_audit_evidence_20261021.py:95: AssertionError
+=========================== short test summary info ===========================
+FAILED test_icim_round2_audit_evidence_20261021.py::test_old_display_test_changed_only_to_supply_the_holding_security_id
+FAILED test_icim_round2_audit_evidence_20261021.py::test_formal_runtime_and_older_evidence_unchanged_from_second_round_baseline
+2 failed, 4 passed in 0.65s

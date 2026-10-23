@@ -1,0 +1,54 @@
+............................FF                                           [100%]
+================================== FAILURES ===================================
+________ test_numeric_zero_is_not_a_boolean_false_pagination_marker[0] ________
+
+value = 0
+
+    @pytest.mark.parametrize('value', [0, 0.0])
+    def test_numeric_zero_is_not_a_boolean_false_pagination_marker(value):
+        body = event_body()
+        body['isPagination'] = value
+        try:
+            result = identity.parse_adjustment_events(body, effective_date=EFFECTIVE)
+            actual = dict(returned_count=len(result))
+        except RuntimeError as error:
+            actual = dict(rejected=True, error=str(error))
+        save_new('pagination_schema_'+type(value).__name__+'.json', dict(value=value,
+                 python_type=type(value).__name__, actual=actual,
+                 severity='P3 diagnostic schema ambiguity; no trading execution',
+                 reproduction='replace real envelope isPagination string false with numeric zero'))
+>       assert actual.get('rejected'), 'numeric zero must not satisfy an explicit boolean/string pagination schema'
+E       AssertionError: numeric zero must not satisfy an explicit boolean/string pagination schema
+E       assert None
+E        +  where None = <built-in method get of dict object at 0x000002031598E380>('rejected')
+E        +    where <built-in method get of dict object at 0x000002031598E380> = {'returned_count': 114}.get
+
+test_icim_round2_audit_master_20261021.py:195: AssertionError
+_______ test_numeric_zero_is_not_a_boolean_false_pagination_marker[0.0] _______
+
+value = 0.0
+
+    @pytest.mark.parametrize('value', [0, 0.0])
+    def test_numeric_zero_is_not_a_boolean_false_pagination_marker(value):
+        body = event_body()
+        body['isPagination'] = value
+        try:
+            result = identity.parse_adjustment_events(body, effective_date=EFFECTIVE)
+            actual = dict(returned_count=len(result))
+        except RuntimeError as error:
+            actual = dict(rejected=True, error=str(error))
+        save_new('pagination_schema_'+type(value).__name__+'.json', dict(value=value,
+                 python_type=type(value).__name__, actual=actual,
+                 severity='P3 diagnostic schema ambiguity; no trading execution',
+                 reproduction='replace real envelope isPagination string false with numeric zero'))
+>       assert actual.get('rejected'), 'numeric zero must not satisfy an explicit boolean/string pagination schema'
+E       AssertionError: numeric zero must not satisfy an explicit boolean/string pagination schema
+E       assert None
+E        +  where None = <built-in method get of dict object at 0x0000020315922EC0>('rejected')
+E        +    where <built-in method get of dict object at 0x0000020315922EC0> = {'returned_count': 114}.get
+
+test_icim_round2_audit_master_20261021.py:195: AssertionError
+=========================== short test summary info ===========================
+FAILED test_icim_round2_audit_master_20261021.py::test_numeric_zero_is_not_a_boolean_false_pagination_marker[0]
+FAILED test_icim_round2_audit_master_20261021.py::test_numeric_zero_is_not_a_boolean_false_pagination_marker[0.0]
+2 failed, 28 passed in 0.72s

@@ -1,0 +1,18 @@
+[
+  {
+    "file": "test_expired_adopted_long_put_0.json",
+    "sha256": "c863f063f599b57034feab2e241df787462b130614eb9f871d44aa9cd17a7118",
+    "sequence": 1,
+    "verified_day": "2026-10-21",
+    "new_contract": "MO2601-P-7200",
+    "execution_day": "2026-10-22"
+  },
+  {
+    "file": "test_expired_adopted_long_put_1.json",
+    "sha256": "8d22f83e23981f65ee81553946024c5fd507e775252c811956a24fcd09913f74",
+    "sequence": 1,
+    "verified_day": "2026-10-21",
+    "new_contract": "MO2609-P-7200",
+    "execution_day": "2026-10-22"
+  }
+]

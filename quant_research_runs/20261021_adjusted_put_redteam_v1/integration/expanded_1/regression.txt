@@ -1,0 +1,86 @@
+............................FFF....                                      [100%]
+================================== FAILURES ===================================
+______ test_unsupported_a_candidate_cannot_become_a_policy_opening_plan _______
+
+    def test_unsupported_a_candidate_cannot_become_a_policy_opening_plan():
+        anchor = {**policy.default_extension('IC'),'post_core_contract':'IC2612'}
+        signal = policy_seed._signal('IC',market_date=DAY,next_trade_date=date(2026,10,22))
+        candidate = policy_seed._candidate('IC',contract=A,security_id='10011470',
+                                           expiry=date(2026,12,23))
+        candidate['migration_preview'] = dict(engine_supported=False,ledger_write_authorized=False)
+>       with pytest.raises(RuntimeError,match='adjusted|supported|identity'):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+test_icim_a3_integration_20261021.py:164: Failed
+___ test_other_consumed_a_candidates_cannot_become_unsupported_plans[roll] ____
+
+route = 'roll'
+
+    @pytest.mark.parametrize('route',['roll','profit3x'])
+    def test_other_consumed_a_candidates_cannot_become_unsupported_plans(route):
+        anchor = {**policy.default_extension('IC'),'post_core_contract':'IC2612'}
+        signal = policy_seed._signal('IC',market_date=DAY,next_trade_date=date(2026,10,22))
+        candidate = policy_seed._candidate('IC',contract=A,security_id='10011470',
+                                           expiry=date(2026,12,23))
+        if route == 'roll':
+            anchor.update(v14_route_state='short_put',v14_short_put_contract='510500P2611M07500',
+                          v14_short_put_security_id='10012098',v14_short_put_qty_normalized=10.,
+                          v14_short_put_entry_premium=.4,v14_short_put_entry_price_day='2026-10-20',
+                          v14_short_put_cost_basis='confirmed_dated_open',
+                          v14_short_put_expiry=date(2026,11,25))
+            signal['v14_short_put_mark'] = .1
+        else:
+            anchor.update(v14_core_put_contract='510500P2612M07500',v14_core_put_security_id='10012099',
+                          v14_core_put_qty=5,v14_core_put_entry_premium=.4,v14_core_put_profit3x_eligible=True)
+            signal.update(v14_core_put_contract='510500P2612M07500',v14_core_put_security_id='10012099',
+                          v14_core_put_qty=5,put_target_core_qty=5,v14_core_put_mark=1.3,
+                          v14_profit_plan_contract=A,v14_profit_plan_security_id='10011470',
+                          v14_profit_plan_qty=5)
+            candidate = {'tradable':False}
+>       with pytest.raises(RuntimeError,match='adjusted|supported|identity'):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+test_icim_a3_integration_20261021.py:189: Failed
+_ test_other_consumed_a_candidates_cannot_become_unsupported_plans[profit3x] __
+
+route = 'profit3x'
+
+    @pytest.mark.parametrize('route',['roll','profit3x'])
+    def test_other_consumed_a_candidates_cannot_become_unsupported_plans(route):
+        anchor = {**policy.default_extension('IC'),'post_core_contract':'IC2612'}
+        signal = policy_seed._signal('IC',market_date=DAY,next_trade_date=date(2026,10,22))
+        candidate = policy_seed._candidate('IC',contract=A,security_id='10011470',
+                                           expiry=date(2026,12,23))
+        if route == 'roll':
+            anchor.update(v14_route_state='short_put',v14_short_put_contract='510500P2611M07500',
+                          v14_short_put_security_id='10012098',v14_short_put_qty_normalized=10.,
+                          v14_short_put_entry_premium=.4,v14_short_put_entry_price_day='2026-10-20',
+                          v14_short_put_cost_basis='confirmed_dated_open',
+                          v14_short_put_expiry=date(2026,11,25))
+            signal['v14_short_put_mark'] = .1
+        else:
+            anchor.update(v14_core_put_contract='510500P2612M07500',v14_core_put_security_id='10012099',
+                          v14_core_put_qty=5,v14_core_put_entry_premium=.4,v14_core_put_profit3x_eligible=True)
+            signal.update(v14_core_put_contract='510500P2612M07500',v14_core_put_security_id='10012099',
+                          v14_core_put_qty=5,put_target_core_qty=5,v14_core_put_mark=1.3,
+                          v14_profit_plan_contract=A,v14_profit_plan_security_id='10011470',
+                          v14_profit_plan_qty=5)
+            candidate = {'tradable':False}
+>       with pytest.raises(RuntimeError,match='adjusted|supported|identity'):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+test_icim_a3_integration_20261021.py:189: Failed
+============================== warnings summary ===============================
+C:\Python314\Lib\site-packages\fastapi_poe\types.py:171
+  C:\Python314\Lib\site-packages\fastapi_poe\types.py:171: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    class RequestContext(BaseModel):
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED test_icim_a3_integration_20261021.py::test_unsupported_a_candidate_cannot_become_a_policy_opening_plan
+FAILED test_icim_a3_integration_20261021.py::test_other_consumed_a_candidates_cannot_become_unsupported_plans[roll]
+FAILED test_icim_a3_integration_20261021.py::test_other_consumed_a_candidates_cannot_become_unsupported_plans[profit3x]
+3 failed, 32 passed, 1 warning in 5.56s

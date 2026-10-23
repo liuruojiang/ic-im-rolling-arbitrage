@@ -1,0 +1,403 @@
+v1.4 第四轮复查：原日存证与日历边界
+结论
+上轮的 P1-4、P1-5、P1-7 和多数 P2 已经闭合。新增的原日存证回放方向正确，但还不能解决上轮 P0：录制时一旦遇到日历诊断就提前返回，后续取数根本没有执行，所以需要存证的那几天恰好存不全。另外，上轮 P1-2 只修了一部分：select_active_future 仍会让 12-21 之后每天整体转为诊断。
+
+我建议这两项闭合之前不要部署。原因是部署后才开始录制，而 11-20 是第一个关键日，现在录下来的存证到时会不完整。
+
+依赖模块 evidence_adapter、signal_evidence、v14_policy、quarter_roll、fear_grid、option_maintenance_notice 不在附件里，涉及它们的结论都标了"需核对"。
+
+一、已闭合（不再跟踪）
+上轮编号	本轮实现
+P1-3 诊断期货信息	unconfirmed_references 标注"参考计算值（未确认）"；开头部分也提前写入了 partial context
+P1-4 网格未确认仍可落账	persistence_eligible 已加 grid_ok 条件
+P1-5 快照读取	加锁后先 deepcopy 再渲染
+P1-6（部分）	_report_build_id 已降级；诊断后会补渲染最后已核验快照
+P1-7 传输异常被吞	策略阶段和三倍兑现预选都会重新抛出传输异常
+P2	safe() 已覆盖 numpy 布尔和整数；卖 Put 注释改为"每 0.5 倍核心袖 0.5，约合每 1 倍 IC 0.25"；RETRY 分支加了说明
+P1-2（部分）	IM 持仓 Put 的纯比较、_is_pre_expiry_close 已改用下界论证 _expiry_definitely_after_reference。论证本身成立：休市只会让到期日往后顺延
+二、P0：录制会提前返回，原日存证不完整
+需要补录的日子，正是录制最先中断的日子：
+
+中断位置	后果
+_build_live_trade_signal 在 require_signal_calendar 之前判断：if calendar_context["expiries"]: return make_diagnostic_signal(...)	11-20 当天，IC 和 IM 都会因维护选约记录到 2027 年的到期日，于是在这里直接返回。之后 _apply_v14_live_policy 里要取的数据（核心 Put 链、卖 Put 候选 M+1 链、卖 Put 收盘价、开盘价）都没有取，也就没有录下来
+_v14_ic_short_put_candidate 在取链之前调用严格的 _require_official_exchange_calendar(expiry)	12 月需要准入判断的日子，M+1 链不会被录下
+12-31 的 next_trade_date 严格顺延到 2027 年，在构造信号字典时抛错	IC 期权链、ETF、MO 等全部没有取到
+补齐 2027 年日历后再回放，这些路径会请求存证里没有的 URL。按照代码注释，存证存在但不完整时不会回退到当前数据，结果仍然是 original_evidence_unavailable。存证的目的是"补齐日历后可以自动补录"，按现在的实现，这一点在 11-20 就会失效。
+
+建议（不改变策略口径，只改变取数顺序）：
+
+录制模式下先取齐数据，再下结论。当 signal_evidence.current_session 存在且日历上下文里已有待核验项时，先调用 _prefetch_policy_evidence(product, signal, anchor)，按确定规则取齐回放可能用到的超集：
+
+持仓核心 Put 所在月份的链；
+按名义下一工作日推出的 M+1 链，以及展期用的 M+1 链；
+持仓卖 Put 的收盘价序列；
+已到执行日的待开盘计划的开盘价。
+这一步只取数、只记录，不参与决策；诊断结论仍按现有逻辑在最后给出。
+
+_v14_ic_short_put_candidate 改成先取链、后做日历判断。选约在日历判断之后，判断失败照样拦截，不放宽口径。
+
+录制结束时，在 manifest 里标出"补齐日历后回放所需的数据是否齐全"。不齐全就当场告警，提示"该日需人工锚定"，不要等到补录时才发现。
+
+验收测试：只载入 2026 年日历，模拟 11-20（IC、IM）和 12-31 的收盘录制；然后注入 2027 年日历，执行 historical_replay。断言：
+
+回放期间没有任何未录制的请求；
+IM 得到正式信号；
+IC 月换日能读取存证完成补录。
+三、P1
+P1-A　select_active_future 仍会让 12-21 之后每天转为诊断
+12-18 之后，最近月是 2701。select_active_future 无条件调用 _require_model_expiry_calendar(selected["expiry"])，calendar_context["expiries"] 因此非空，信号在策略执行前就整体转为诊断。
+
+这个选择只在不同月份之间排序：休市顺延最多一周左右，不会改变相差数周的月份之间的顺序。选出的 monthly_expiry 后续只用于两处：和 2026 年的日期做相等比较，以及 _is_pre_expiry_close，后者已经改用下界论证。所以这里应当和持仓 IM Put 的处理一致：
+
+python
+selected = eligible.iloc[0]
+if not _expiry_definitely_after_reference(selected["expiry"], today):
+    _require_model_expiry_calendar(selected["expiry"], "selected future expiry")
+
+运行
+
+需核对 quarter_roll.roll_state：12-17 IM、约 12-15 IC 换到 2703 之后，如果每天都要通过 covered_session 推算 2703 的 T-1 或 T-3，那就需要 2027 年日历，同样会每天失败。持有动作 HOLD 可以用相同的下界论证证明，建议在模块内按同样方式处理。
+
+P1-B　候选门控之后，持有卖 Put 时会传入 roll_candidate=None
+旧代码只在没有卖 Put 持仓时传 None。新代码在持有卖 Put、但不需要展期时也传 None。如果 apply_policy 里有 roll_candidate["tradable"] 这类访问，会抛 TypeError，被 except Exception 吞掉后变成 HOLD_FAIL_CLOSED，结果是持有卖 Put 的每一天都被静默转为诊断。
+
+建议补两个 oracle 测试：
+
+持有卖 Put、权利金未衰减：动作不能是 HOLD_FAIL_CLOSED。
+门控必须覆盖所有可能入场或展期的情形：随机生成信号和锚点状态，凡是 short_put_candidate_requirements 判定为不需要的情形，传入一个完全可交易的假候选时，apply_policy 也不能入场或展期。
+P1-C　网格不落账以后，恐慌数据中断会让账本冻结
+persistence_eligible 加上 grid_ok 后，只要某天恐慌数据未核验，当天就不落账。第二天桥接条件不成立，账本就停在这里。这个行为是我上轮建议引入的，需要你确认两件事：
+
+fear_grid 能否在事后取回当日历史值，供服务端补录使用（需核对）；
+如果不能，这一天的处理方式要单独拍板，不要默默停摆。
+P1-D　页头的维护日判断仍未隔离
+_handle_signal 页头调用 option_maintenance_notice._valid_maintenance_day(..., _option_maintenance_session) 时没有保护。2027-01-04 发起盘中查询时，这里会抛 CalendarCoverageError，整个回复变成"查询失败"。
+
+循环里的 reminder(...) 也在品种级 try 之外。12 月下旬，如果它对 2027 年的日期调用 is_session，同样会让整个回复失败（需核对模块内部）。两处都应包成降级处理：跳过提醒，并写明原因。
+
+P1-E　回放路径的判断条件不统一
+ETF 报价已经按 current_reader 切回原日接口，但下面几条路径在 _HISTORICAL_REPLAY_DAY 下仍然走历史数据提供方，原日实时会话并没有请求过这些 URL：
+
+fetch_cffex_quotes 走归档包；
+IC 既有 Put 走 fetch_sse_existing_put_historical_quote；
+_v14_ic_core_overlay 和 _v14_require_held_ic_short_identity 的回放分支；
+_v14_prepare_lifecycle_evidence 中 IC 的 blocked_historical_new_contract_chain_unavailable。
+另外，daily_valuation.resolve 和 fear_grid.fetch_jiu_reference 没有经过存证包装。前者是估值输入，回放时可能读到不同的数据。
+
+如果 evidence_adapter.install 已经统一替换了这些函数，主文件里单独为 ETF 加的判断就是多余的；如果没有替换，这些路径在回放时都会缺数据。建议统一用一个判断函数 _original_evidence_replay() 管理，并把"回放期间不得出现未录制请求"作为全局断言。
+
+P1-F　SSE 分页字段校验缺少 ETF 真实报文
+_sse_projection_rows 要求 end == len(rows)。按我的记忆，yunhq 的 end 是开区间，和这个写法一致；但你目前只用真实报文回放过挂牌月份接口。如果 list/self/510500 的 end 实际是闭区间，IC 每次查询都会失败。
+
+在新报文采集恢复之前，这一项应作为部署前的阻断条件：至少补一份 ETF 报价和一份 tstyle 链的真实报文作为 fixture。
+
+四、P2 / 需核对
+位置	问题
+_evidence_http_get 处理 stream=True 的响应	如果 raw_response 读取了 response.content，中金所 8MB 上限和逐块预算检查会被绕过；如果不读取，后续 iter_content 读到的正文又不会被录下。需要确认实现采用哪一种
+存证存在性只按日期目录判断	日期目录存在但缺某个品种时，会进入 load_original 失败，不会回退到 IM 本来可用的归档补录路径
+录制范围	每次查询（包括盘中）都会录下腾讯全量历史分页和中金所月度包。需要明确只在收盘时录制，以及保留期限
+锁粒度	盘前快照会等待正在联网的构建，每个品种最多约 45 秒
+文案	"IC 1.3明确禁止Call"等版本表述继续暂缓
+五、处理顺序
+现在离 10-19 的 IM 重选、11-20 的双品种维护都很近，建议按这个顺序处理：
+
+P0：录制模式先取齐数据、IC 候选先取链，以及第二节的验收测试。这些闭合后才能部署。
+P1-A：同时核对 quarter_roll，这一项决定 12 月下旬能否保持正式信号。
+P1-F：补真实报文 fixture，属于部署前阻断项。
+P1-B、P1-D 的测试与修复。
+P1-C 请你拍板；P1-E 按 adapter 的核对结果收敛。
+2027 年官方日历一公布就载入，之后用存证执行补录。
+
+21:15
+
+
+你直接修复这些bug吧
+
+21:24
+
+Claude-Opus-5.5
+
+
+
+
+
+思考中
+v1.4 第五轮修复补丁：原日存证、2027 日历边界、分页与提醒隔离
+先说明三点：
+
+测试没有跑过。 我这里没有你的依赖模块和测试框架，下面的补丁和测试都需要在你本地跑完全量 2596 项和原 22 项单列后才能确认。
+策略口径没有改。 本轮只改取数顺序、录制和回放的路径、异常隔离。所有正式目标仍然要等官方日历核验，选约和定量的规则没有放宽。
+有三项我没有直接改： quarter_roll 的源码不在附件里；P1-C 需要你拍板；存证模块内部（annotate、stream=True 的录制方式）需要你核对。见文末第三部分。
+一、主文件补丁
+补丁 1（P0）录制模式下，遇到日历缺口也继续取数
+在 _require_model_expiry_calendar 之后新增：
+
+python
+
+查看全部
+def _recording_calendar_gap() -> bool:
+    """True only while an original-session evidence recording is active."""
+    return (_SIGNAL_CALENDAR_DIAGNOSTICS.get() is not None
+            and signal_evidence.current_session.get() is not None)
+
+
+def _next_session_or_record(day: date) -> date:
+    """Strict next session. While recording, a recorded calendar gap continues
+    on the nominal weekday date only to keep acquiring evidence.
+
+    _require_official_exchange_calendar has already appended the failure to the
+    diagnostic context, so build_live_trade_signal converts the final result to
+    diagnostic-only; the nominal date can never become a formal target.
+    """
+    try:
+        return _roll_forward_exchange_day(day, require_official=True)
+    except CalendarCoverageError:
+        if not _recording_calendar_gap():
+            raise
+        return _roll_forward_exchange_day(day)
+
+运行
+
+_is_pre_expiry_close 中替换一行：
+
+python
+    # 原：next_trading_day = _roll_forward_exchange_day(today + timedelta(days=1), require_official=True)
+    next_trading_day = _next_session_or_record(today + timedelta(days=1))
+
+运行
+
+_build_live_trade_signal 的季度日历判断函数替换为：
+
+python
+
+查看全部
+        def covered_session(day):
+            try:
+                _require_official_exchange_calendar(day, "季度换仓日历")
+            except CalendarCoverageError:
+                # Failure is recorded; only an active recording may continue
+                # acquiring evidence. The final result is diagnostic-only.
+                if not _recording_calendar_gap():
+                    raise
+            return _is_exchange_trading_day(day)
+
+运行
+
+同一函数里构造信号字典时，next_trade_date 替换为：
+
+python
+        "next_trade_date": _next_session_or_record(market_date + timedelta(days=1)),
+
+运行
+
+改完后，非录制查询的行为和原来完全一样（缺日历时仍然直接抛错）。录制查询会把失败记入上下文，继续取数，最后统一转为诊断。
+
+补丁 2（P0）先取齐数据，再提前返回诊断
+在 _v14_ic_core_overlay 之前新增：
+
+python
+
+查看全部
+        if signal.get("next_trade_date"):
+            year, month = _v14_target_month(put_execution.as_day(signal["next_trade_date"]))
+            months.add(f"{year % 100:02d}{month:02d}")          # entry M+1
+        if anchor.get("v14_short_put_expiry"):
+            held = put_execution.as_day(anchor["v14_short_put_expiry"])
+            year, month = _month_after(held.year, held.month)
+            months.add(f"{year % 100:02d}{month:02d}")          # roll M+1
+        if float(signal.get("core_put_target_delta") or 0.0) > 0.0:
+            listed = attempt("510500挂牌月份", fetch_sse_510500_expiries) or []
+            target = (pd.Timestamp(day) + pd.DateOffset(months=3)).date()
+            future = [(value, _fourth_wednesday(int(value[:4]), int(value[4:])))
+                      for value in listed]
+            future = [item for item in future if item[1] > day]
+            if future:                                          # same key as select_ic_put_for_reset
+                best = min(future, key=lambda item: (abs((item[1] - target).days), item[1]))
+                months.add(best[0][2:])
+        for expiry_ym in sorted(months):
+            attempt(f"510500期权链{expiry_ym}", _fetch_510500_chain_for_day, expiry_ym, day)
+        short_id = anchor.get("v14_short_put_security_id")
+        if anchor.get("v14_short_put_contract") and short_id:
+            attempt("IC卖Put收盘序列", fetch_option_closes, str(short_id))
+    elif mo_quotes is None:
+        attempt("MO期权链", fetch_cffex_quotes, "MO", _now_beijing())
+    return gaps
+
+运行
+
+_build_live_trade_signal 中替换原来"if calendar_context is not None and calendar_context["expiries"]:"那一段：
+
+python
+
+查看全部
+    if calendar_context is not None and (calendar_context["expiries"] or calendar_context["failures"]):
+        gaps = _prefetch_policy_evidence(
+            product, signal, LIVE_CONTINUATION_ANCHOR[product],
+            mo_quotes if product == "IM" else None,
+        )
+        diagnostic = make_diagnostic_signal(
+            product, clock, "Put或期货到期日未经官方日历核验；模型估值仅作诊断，正式目标未确认。",
+            source_signal=signal,
+        )
+        session = signal_evidence.current_session.get()
+        if session is not None:
+            completeness = {
+                "prefetch_superset_attempted": True,
+                "prefetch_gaps": gaps,
+                "calendar_pending": diagnostic["calendar_diagnostics"],
+            }
+            diagnostic["evidence_replay_completeness"] = completeness
+            annotate = getattr(session, "annotate", None)   # 需核对 signal_evidence 是否提供
+            if callable(annotate):
+                annotate("replay_completeness", completeness)
+            if gaps:
+                diagnostic["data_notes"].append(
+                    "⚠️ 原日存证预取不完整，补齐日历后该日可能需人工锚定：" + "；".join(gaps))
+        return diagnostic
+
+运行
+
+补丁 3（P0）IC 卖 Put 候选改为先取链、后做日历判断
+_v14_ic_short_put_candidate 中，删除取链之前的 _require_official_exchange_calendar(expiry, "new IC short Put expiry")，并在 _validate_chain_stamp_matches(...) 之后加回这一行：
+
+python
+    _validate_chain_stamp_matches("v1.4 IC卖Put候选", stamp, signal["market_date"], _now_beijing())
+    # Fetch first so a recording keeps the M+1 chain; the official-calendar
+    # gate still precedes every selection, sizing and admission step.
+    _require_official_exchange_calendar(expiry, "new IC short Put expiry")
+
+运行
+
+补丁 4（P1-A）最近月期货选约不再记入待核验到期日
+select_active_future 末尾替换为：
+
+python
+    selected = eligible.iloc[0]
+    # Ranking across months is unaffected by holiday postponement; only an
+    # expiry that cannot be proved later than today needs calendar evidence.
+    if not _expiry_definitely_after_reference(selected["expiry"], today):
+        _require_model_expiry_calendar(selected["expiry"], "selected future expiry")
+    return selected
+
+运行
+
+补丁 5（P1-B）持有卖 Put 时不再传入 roll_candidate=None
+_apply_v14_live_policy 中替换：
+
+python
+        candidate = {"tradable": False, "reason": required["reason"]}
+        roll_candidate = {"tradable": False, "reason": required["reason"]}
+
+运行
+
+这里用的结构和本函数异常兜底分支传给 apply_policy 的 {"tradable": False} 一样，apply_policy 本来就能处理，所以策略语义不变。
+
+补丁 6（P1-E）原日存证回放不再走历史数据路径
+build_live_trade_signal 里有存证时的那次递归调用，替换为：
+
+python
+                with signal_evidence.replay_session(reader), historical_replay(None):
+                    # Replay exactly the live code path recorded at the original
+                    # acquisition clock; historical providers (CFFEX archive, SSE
+                    # dated master, Sina ID closes) were never requested that day.
+                    result = build_live_trade_signal(product, replay_clock, mode)
+
+运行
+
+这样就不需要在每条路径上分别打补丁了：期货/MO 报价、IC 既有 Put、核心 Put 叠加、卖 Put 身份、生命周期，回放时都按原日的实时请求取数。
+
+另外几点：
+
+signal_generation_timing 会依据真实日期标记为 retrospective_replay。
+递归调用时回放日为 None，所以不会再进入存证分支。
+原来 ETF 分支里对 current_reader 的判断变成了不会触发的代码，保留它也不影响行为。
+补丁 7（P1-F）SSE 分页的完整性只看 total 和 begin
+_sse_projection_rows 中替换分页循环：
+
+python
+
+查看全部
+    if any(name in payload for name in ("total", "begin", "end")):
+        total, begin, end = (payload.get(name) for name in ("total", "begin", "end"))
+        if any(type(value) is not int for value in (total, begin, end)):
+            raise RuntimeError(f"{label}行情分页不完整或未经核验")
+        # total/begin prove a full page; accept either end convention so an
+        # inclusive end index cannot reject every IC query.
+        if total != len(rows) or begin != 0 or end not in {len(rows), len(rows) - 1}:
+            raise RuntimeError(f"{label}行情分页不完整或未经核验")
+
+运行
+
+完整性的证明仍然是 total == len(rows) 和 begin == 0，校验强度没有降低。
+
+补丁 8（P1-D）维护日判断和提醒出错时只降级，不让整个回复失败
+_handle_signal 中，在 msg.write("版本口径...") 之前新增：
+
+python
+            header_maintenance = False
+            if mode == "intraday":
+                try:
+                    header_maintenance = bool(option_maintenance_notice._valid_maintenance_day(
+                        _now_beijing().date(), _option_maintenance_session))
+                except Exception as notice_exc:  # noqa: BLE001 - header only.
+                    msg.write(f"⚠️ 月度维护日无法核验，页头按普通口径显示：{type(notice_exc).__name__}: {notice_exc}\n\n")
+
+运行
+
+页头条件改为 if header_maintenance else ...。品种循环里的提醒替换为：
+
+python
+                try:
+                    monthly_notice = option_maintenance_notice.reminder(
+                        product, live, is_session=_option_maintenance_session)
+                except Exception as notice_exc:  # noqa: BLE001 - keep this product's table.
+                    monthly_notice = None
+                    msg.write(f"⚠️ 月度Put维护提醒无法核验，已跳过：{type(notice_exc).__name__}: {notice_exc}\n\n")
+
+运行
+
+二、新增测试 test_round5_evidence_calendar.py
+python
+
+查看全部
+        bot._v14_ic_short_put_candidate(signal)
+    assert calls == ["2701"]
+
+
+@pytest.mark.parametrize("end", [3, 2])
+def test_sse_pagination_accepts_both_end_conventions(end):
+    rows = [[1], [2], [3]]
+    assert bot._sse_projection_rows({"list": rows, "total": 3, "begin": 0, "end": end}, "x") == rows
+
+
+def test_sse_pagination_rejects_truncated_total():
+    with pytest.raises(RuntimeError):
+        bot._sse_projection_rows({"list": [[1]], "total": 2, "begin": 0, "end": 1}, "x")
+
+
+def test_roll_candidate_is_never_none(monkeypatch):
+    seen = {}
+    monkeypatch.setattr(bot.v14_policy, "short_put_candidate_requirements",
+                        lambda *a: {"entry": False, "roll": False, "reason": "not_needed"})
+    monkeypatch.setattr(bot.v14_policy, "apply_policy",
+                        lambda p, s, a, candidate, roll_candidate: seen.update(rc=roll_candidate) or dict(s))
+    # 用现有 harness 构造一个持有卖 Put 的 IM 信号/锚点后调用：
+    # bot._apply_v14_live_policy("IM", signal, mo_quotes=quotes)
+    # assert isinstance(seen["rc"], dict) and seen["rc"]["tradable"] is False
+
+运行
+
+另外还要在你现有的端到端测试框架里补一个验收用例。我看不到框架的辅助函数，所以只写要求：
+
+只载入 2026 年日历，用录制模式跑三次收盘：11-20 的 IC、11-20 的 IM、12-31 的 IC 和 IM。断言 evidence_replay_completeness.prefetch_gaps == []。
+注入 2027 年日历后执行 historical_replay。断言回放期间没有任何未录制的请求（用存证读取模块的未命中计数）；IM 得到正式信号；IC 在月换日能通过存证完成补录。
+再加一个持有卖 Put 的 oracle 测试：权利金未衰减时，动作不能是 HOLD_FAIL_CLOSED。还要用随机状态验证门控：凡是 short_put_candidate_requirements 判定为不需要候选的情形，传入一个完全可交易的假候选，apply_policy 也不能入场或展期。
+三、没有直接改的部分
+项	原因 / 需要你提供什么
+quarter_roll.roll_state（P1-A 的后半部分）	源码不在附件里。12 月中旬换到 2703 之后，如果它在 HOLD 时也去推算 2027 年的 T-1 或 T-3，每天都会失败。补丁 1 只能保证录制不中断，正式信号仍然会转为诊断。请把这个模块发给我，我按同样的下界论证来修
+P1-C 恐慌未核验那天会让账本停住	这一项要你选：(A) 维持现状，停住，等 fear_grid 能取回当日历史值后由服务端补录；(B) 当天核心、动量、Put 照常落账，网格沿用前值并单独标记"网格未核验"，第二天桥接时只阻断网格。B 会改变落账规则，没有你确认我不会改
+session.annotate 与 stream=True 的录制方式	补丁 2 用 getattr 做了保护，不存在这个方法也不会报错，只会写到诊断 JSON 里。需要你确认存证模块是否提供该方法，以及流式响应是否读取了 .content：如果读取了，会绕过中金所 8MB 上限
+存证目录按品种缺失、只在收盘时录制、保留期限	都在 evidence_adapter 内部实现，需核对
+daily_valuation、fear_grid、chinabond 的请求是否也被录制	补丁 6 只统一了主文件内的路径。如果这三个模块不经过 _evidence_http_get，回放时估值或恐慌数据可能取到别的值。验收用例第 2 条的未命中计数会把这个问题暴露出来
+SSE 真实报文 fixture	补丁 7 已经消除了 end 开区间/闭区间的风险。但 ETF 报价和 tstyle 链的真实报文仍要等代理恢复后采集，部署前要用它们回放一次
+部署前提：全量测试通过，第二部分的验收用例通过。时间上，10-19 的 IM 重选和 11-20 的双品种维护都很近，部署至少要赶在 11-20 之前。

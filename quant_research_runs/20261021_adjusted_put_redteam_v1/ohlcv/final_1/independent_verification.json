@@ -1,0 +1,20 @@
+{
+  "counts": {
+    "tests": 30,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "process_exit_code": 0,
+  "source_before_equals_after": true,
+  "current_source_mismatches": [],
+  "passed": true,
+  "artifacts": {
+    "regression.txt": "1ec9c4fb11322061b20db4c3c1e7b85e38c6b4952c55c41bba811c05f2a81c3b",
+    "regression.xml": "67677cb38b3bc6e089e0be510655fe90a67f8e1989abc22dc46f45c8a8d9e7c3",
+    "source_after.json": "f381d83a2fd039760768e47bda1f14964d84bf7e50b1ec2b9a4715908371f9ab",
+    "source_before.json": "f381d83a2fd039760768e47bda1f14964d84bf7e50b1ec2b9a4715908371f9ab",
+    "test_run.json": "b14a132fd9e17fbf45ce60bc4b6c97a4ee1a25cab34cc29f167c206037b2f774",
+    "test_source.py": "ed9726ee43584e9da0efbaada7eb6cf26892ed53ba1f2bd38c987a93f666ccc4"
+  }
+}
