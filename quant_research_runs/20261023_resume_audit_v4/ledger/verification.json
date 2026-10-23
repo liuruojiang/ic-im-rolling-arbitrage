@@ -1,0 +1,194 @@
+{
+  "checked_at": "2026-10-23T15:52:28.024143+08:00",
+  "scope": "Independent ledger/provenance and real archived recovery audit; no production writes or message delivery",
+  "formal_ledger": {
+    "sequence": 20,
+    "verified_day": "2026-10-22",
+    "digest": "49fb159fbadf894b6c64e8ca886faef49d62c5e8e31f0415690209f834317cc0"
+  },
+  "provenance_status": "CONFIRMED_LEGAL_REMOTE_LEDGER_ADOPTION_BY_LOCAL_DAILY_AUTOMATION",
+  "real_recovery_status": "PASS",
+  "comparison_to_prior_v3_recovery": {
+    "IC": {
+      "fields": 212,
+      "changed_fields": [
+        "signal_calculation_started_at",
+        "signal_generated_at"
+      ],
+      "only_calculation_clock_changed": true,
+      "state_equal": true
+    },
+    "IM": {
+      "fields": 227,
+      "changed_fields": [
+        "signal_calculation_started_at",
+        "signal_generated_at"
+      ],
+      "only_calculation_clock_changed": true,
+      "state_equal": true
+    }
+  },
+  "frozen_files_checked": 7506,
+  "frozen_file_changes": [],
+  "latest_capture_receipt": {
+    "path": "data\\icim_v14_original_inputs\\capture_receipts\\2026-10-23\\154907451432-bfd5ac84e06f4c599441ef1151aa4ac8.json",
+    "sha256": "9a287e73f031174a34cb82a93eaf569d6b7bb7d8123351e439870dffb6e958ee",
+    "status": "incomplete",
+    "finished_at": "2026-10-23T15:49:07.451207+08:00",
+    "statistics": {
+      "IC": {
+        "attempts": 10,
+        "complete_attempts": 0,
+        "incomplete_attempts": 10,
+        "conflict_attempts": 0,
+        "conflict_requests": 0,
+        "conflict_frequency": 0.0
+      },
+      "IM": {
+        "attempts": 10,
+        "complete_attempts": 0,
+        "incomplete_attempts": 10,
+        "conflict_attempts": 0,
+        "conflict_requests": 0,
+        "conflict_frequency": 0.0
+      }
+    }
+  },
+  "today_sessions": [
+    {
+      "path": "data\\icim_v14_original_inputs\\sessions\\2026-10-23\\070254388129-3b2f7c509ccf4cae85f064fd6506f64f.json",
+      "sha256": "e3a5b6f24cd27233b959db7e8340985c76afba3aba8bd3a0823652ace2bf1a5f",
+      "complete": false,
+      "day": "2026-10-23"
+    },
+    {
+      "path": "data\\icim_v14_original_inputs\\sessions\\2026-10-23\\070255750679-179f41c6efbc4a82b74ca169f9200a04.json",
+      "sha256": "b014ee87154052b043cf273a7116a54ad576cb0144e0b9b8c76b19ba26ac5805",
+      "complete": false,
+      "day": "2026-10-23"
+    },
+    {
+      "path": "data\\icim_v14_original_inputs\\sessions\\2026-10-23\\070802068327-fa741cbb225f415b8ed762bebf0797f2.json",
+      "sha256": "1cf43b9915b05bbee587e9364c2c9848e7c6835531b3738605d5a08c72b163df",
+      "complete": false,
+      "day": "2026-10-23"
+    },
+    {
+      "path": "data\\icim_v14_original_inputs\\sessions\\2026-10-23\\070804151391-54585127103f44d18a857accf4e5d776.json",
+      "sha256": "44714075ca72ecfb8185342bdb1c25b7ee1de6e4fc3329ffb95486d51aec105a",
+      "complete": false,
+      "day": "2026-10-23"
+    },
+    {
+      "path": "data\\icim_v14_original_inputs\\sessions\\2026-10-23\\071309769843-843547479685492f857f57ecf7e171a6.json",
+      "sha256": "aad3c9c5a794697b4a42411098e45c713d062797a07b3bb9ed83531d9fb95464",
+      "complete": false,
+      "day": "2026-10-23"
+    },
+    {
+      "path": "data\\icim_v14_original_inputs\\sessions\\2026-10-23\\071311104815-06759948e0d64711bd000540f600af24.json",
+      "sha256": "e08d42d38d14756ec14db4a94007db153f2cba45248169c6bc78526e2615d260",
+      "complete": false,
+      "day": "2026-10-23"
+    },
+    {
+      "path": "data\\icim_v14_original_inputs\\sessions\\2026-10-23\\071816846137-822ba2a1877345c286858aec63d62c3a.json",
+      "sha256": "24f8679b8eb6a5cb4429493700fa1546cf5e2762064261b783abdd1321300597",
+      "complete": false,
+      "day": "2026-10-23"
+    },
+    {
+      "path": "data\\icim_v14_original_inputs\\sessions\\2026-10-23\\071818313007-116e4b579053442ca4549dff678f86c0.json",
+      "sha256": "8ca170b9205cac9ab152e54328a66070d65a0db4e64416cb28378033fe0cddae",
+      "complete": false,
+      "day": "2026-10-23"
+    },
+    {
+      "path": "data\\icim_v14_original_inputs\\sessions\\2026-10-23\\072323880822-df45f6d442a747e8ae028161f2c302ac.json",
+      "sha256": "461ec885b29a0b878dfcd818fe58ac0f9b5904ac8b934e4467ae3a4fee73f8c6",
+      "complete": false,
+      "day": "2026-10-23"
+    },
+    {
+      "path": "data\\icim_v14_original_inputs\\sessions\\2026-10-23\\072325396742-27754796188e4ec08a2f4f0c98cc2b74.json",
+      "sha256": "e2a740052d7174f7117c8cc0728fdced5d8548fedca289a67c3b29656bc733f5",
+      "complete": false,
+      "day": "2026-10-23"
+    },
+    {
+      "path": "data\\icim_v14_original_inputs\\sessions\\2026-10-23\\072831210387-facc34172f1d492083300bf17d1bd19b.json",
+      "sha256": "4ed592f217f3fe556253bab13ef04954e2f3d42be815ab6840bae27267ecbab6",
+      "complete": false,
+      "day": "2026-10-23"
+    },
+    {
+      "path": "data\\icim_v14_original_inputs\\sessions\\2026-10-23\\072833063876-66d8f3664eab47278769b03a54d656e8.json",
+      "sha256": "ac7bc182acc690afeae0f919948d021e04ee1979ac797f288b939d3322701e08",
+      "complete": false,
+      "day": "2026-10-23"
+    },
+    {
+      "path": "data\\icim_v14_original_inputs\\sessions\\2026-10-23\\073341362911-b35bbe3ea400449ab80da2d68f5c3bd3.json",
+      "sha256": "e6a5282cb95904dd25bbb2e7f90d7cadd5aedecc8f1514196c3bd47e070be4e9",
+      "complete": false,
+      "day": "2026-10-23"
+    },
+    {
+      "path": "data\\icim_v14_original_inputs\\sessions\\2026-10-23\\073344767690-e368357816984f4e8d4eb3367184d24d.json",
+      "sha256": "821c1da4464e3d0b678ba45b62e17bce90ecd122bab9536424b9ef8cc544a64a",
+      "complete": false,
+      "day": "2026-10-23"
+    },
+    {
+      "path": "data\\icim_v14_original_inputs\\sessions\\2026-10-23\\073851493929-160cbe20ebba44aa929c90aa4a7cfc5b.json",
+      "sha256": "a591a34d420ab75a0462c8d2d653361f70c897cff08c968c59a0d3a1e66aa9c1",
+      "complete": false,
+      "day": "2026-10-23"
+    },
+    {
+      "path": "data\\icim_v14_original_inputs\\sessions\\2026-10-23\\073852965501-f4039423c701404facdae0390af651ef.json",
+      "sha256": "c42e638c6ec7d278a06eb40f998f44d0d140d79014f17002b40e740387c420f8",
+      "complete": false,
+      "day": "2026-10-23"
+    },
+    {
+      "path": "data\\icim_v14_original_inputs\\sessions\\2026-10-23\\074357946184-959c93d064e343a38c92e44a8976d1a1.json",
+      "sha256": "a8b86f648e04941fc5795113bf4d9267b72aa6d8387827818f725c9b6eeac0c7",
+      "complete": false,
+      "day": "2026-10-23"
+    },
+    {
+      "path": "data\\icim_v14_original_inputs\\sessions\\2026-10-23\\074359078397-451f9efdb81f44e2bdc22c7897c95bcb.json",
+      "sha256": "072b02316011c1497d100bb47aae26766bed09d432ae3643336eac89882fa44a",
+      "complete": false,
+      "day": "2026-10-23"
+    },
+    {
+      "path": "data\\icim_v14_original_inputs\\sessions\\2026-10-23\\074904248351-dea36fd9d8d24551ad9fe03394423e42.json",
+      "sha256": "56369c4b1e2a7987c3a6cea843347675f595681986310e3e9a1a67fca1c29b6b",
+      "complete": false,
+      "day": "2026-10-23"
+    },
+    {
+      "path": "data\\icim_v14_original_inputs\\sessions\\2026-10-23\\074905649772-5bf8a5ca089c4113b707474362922447.json",
+      "sha256": "2e7b5754e1f4396b9db82aedb2257e9bcd9e626fe17753ed9a55f47ed8b07ebf",
+      "complete": false,
+      "day": "2026-10-23"
+    }
+  ],
+  "today_loader_rejections": {
+    "IC": {
+      "rejected": true,
+      "error_type": "EvidenceUnavailable",
+      "error": "2026-10-23 original evidence unavailable: 070254388129-3b2f7c509ccf4cae85f064fd6506f64f.json: evidence capture incomplete; 070255750679-179f41c6efbc4a82b74ca169f9200a04.json: evidence capture incomplete; 070802068327-fa741cbb225f415b8ed762bebf0797f2.json: evidence capture incomplete; 070804151391-54585127103f44d18a857accf4e5d776.json: evidence capture incomplete"
+    },
+    "IM": {
+      "rejected": true,
+      "error_type": "EvidenceUnavailable",
+      "error": "2026-10-23 original evidence unavailable: 070254388129-3b2f7c509ccf4cae85f064fd6506f64f.json: evidence capture incomplete; 070255750679-179f41c6efbc4a82b74ca169f9200a04.json: evidence capture incomplete; 070802068327-fa741cbb225f415b8ed762bebf0797f2.json: evidence capture incomplete; 070804151391-54585127103f44d18a857accf4e5d776.json: evidence capture incomplete"
+    }
+  },
+  "today_loader_network_attempts": [],
+  "acceptance_limit": "Historical seq20 provenance and current-source archived recovery pass; no complete 2026-10-23 input package, no current-day ledger advancement or email receipt established.",
+  "status": "PASS_WITH_CURRENT_DAY_DATA_UNAVAILABLE"
+}

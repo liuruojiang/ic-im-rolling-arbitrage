@@ -1,0 +1,216 @@
+FFFFFFFFF..F.                                                            [100%]
+================================== FAILURES ===================================
+__________ test_direct_opening_quote_rejects_nonexact_identifier[x] ___________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000017C57229BA0>
+prefix = b'x'
+
+    @pytest.mark.parametrize('prefix', BAD_PREFIXES)
+    def test_direct_opening_quote_rejects_nonexact_identifier(monkeypatch, prefix):
+        body = packet().replace(b'hq_str_', prefix + b'hq_str_')
+        monkeypatch.setattr(bot.requests, 'get', lambda *a, **k: response(body))
+>       with bot.runtime_clock(CLOCK), pytest.raises(RuntimeError):
+                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+test_icim_redteam_evidence_repairs_20261023.py:69: Failed
+_________ test_direct_opening_quote_rejects_nonexact_identifier[not_] _________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000017C5722A2C0>
+prefix = b'not_'
+
+    @pytest.mark.parametrize('prefix', BAD_PREFIXES)
+    def test_direct_opening_quote_rejects_nonexact_identifier(monkeypatch, prefix):
+        body = packet().replace(b'hq_str_', prefix + b'hq_str_')
+        monkeypatch.setattr(bot.requests, 'get', lambda *a, **k: response(body))
+>       with bot.runtime_clock(CLOCK), pytest.raises(RuntimeError):
+                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+test_icim_redteam_evidence_repairs_20261023.py:69: Failed
+__________ test_direct_opening_quote_rejects_nonexact_identifier[$] ___________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000017C57246E70>
+prefix = b'$'
+
+    @pytest.mark.parametrize('prefix', BAD_PREFIXES)
+    def test_direct_opening_quote_rejects_nonexact_identifier(monkeypatch, prefix):
+        body = packet().replace(b'hq_str_', prefix + b'hq_str_')
+        monkeypatch.setattr(bot.requests, 'get', lambda *a, **k: response(body))
+>       with bot.runtime_clock(CLOCK), pytest.raises(RuntimeError):
+                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+test_icim_redteam_evidence_repairs_20261023.py:69: Failed
+__________ test_direct_opening_quote_rejects_nonexact_identifier[0] ___________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000017C573DC7C0>
+prefix = b'0'
+
+    @pytest.mark.parametrize('prefix', BAD_PREFIXES)
+    def test_direct_opening_quote_rejects_nonexact_identifier(monkeypatch, prefix):
+        body = packet().replace(b'hq_str_', prefix + b'hq_str_')
+        monkeypatch.setattr(bot.requests, 'get', lambda *a, **k: response(body))
+>       with bot.runtime_clock(CLOCK), pytest.raises(RuntimeError):
+                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+test_icim_redteam_evidence_repairs_20261023.py:69: Failed
+_______ test_direct_opening_quote_rejects_nonexact_identifier[object.] ________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000017C573DD150>
+prefix = b'object.'
+
+    @pytest.mark.parametrize('prefix', BAD_PREFIXES)
+    def test_direct_opening_quote_rejects_nonexact_identifier(monkeypatch, prefix):
+        body = packet().replace(b'hq_str_', prefix + b'hq_str_')
+        monkeypatch.setattr(bot.requests, 'get', lambda *a, **k: response(body))
+>       with bot.runtime_clock(CLOCK), pytest.raises(RuntimeError):
+                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+test_icim_redteam_evidence_repairs_20261023.py:69: Failed
+_______ test_direct_opening_quote_rejects_nonexact_identifier[\xd6\xd0] _______
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000017C5732B250>
+prefix = b'\xd6\xd0'
+
+    @pytest.mark.parametrize('prefix', BAD_PREFIXES)
+    def test_direct_opening_quote_rejects_nonexact_identifier(monkeypatch, prefix):
+        body = packet().replace(b'hq_str_', prefix + b'hq_str_')
+        monkeypatch.setattr(bot.requests, 'get', lambda *a, **k: response(body))
+>       with bot.runtime_clock(CLOCK), pytest.raises(RuntimeError):
+                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+test_icim_redteam_evidence_repairs_20261023.py:69: Failed
+_ test_direct_opening_quote_rejects_duplicate_or_extra_assignment[duplicate] __
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000017C5732B950>
+extra = 'duplicate'
+
+    @pytest.mark.parametrize('extra', ['duplicate', 'conflicting', 'other_contract'])
+    def test_direct_opening_quote_rejects_duplicate_or_extra_assignment(monkeypatch, extra):
+        second = packet(TWO) if extra == 'other_contract' else packet()
+        if extra == 'conflicting':
+            second = second.replace(b'="', b'="different,', 1)
+        monkeypatch.setattr(bot.requests, 'get', lambda *a, **k: response(packet() + second))
+>       with bot.runtime_clock(CLOCK), pytest.raises(RuntimeError):
+                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+test_icim_redteam_evidence_repairs_20261023.py:79: Failed
+_ test_direct_opening_quote_rejects_duplicate_or_extra_assignment[conflicting] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000017C573E8050>
+extra = 'conflicting'
+
+    @pytest.mark.parametrize('extra', ['duplicate', 'conflicting', 'other_contract'])
+    def test_direct_opening_quote_rejects_duplicate_or_extra_assignment(monkeypatch, extra):
+        second = packet(TWO) if extra == 'other_contract' else packet()
+        if extra == 'conflicting':
+            second = second.replace(b'="', b'="different,', 1)
+        monkeypatch.setattr(bot.requests, 'get', lambda *a, **k: response(packet() + second))
+>       with bot.runtime_clock(CLOCK), pytest.raises(RuntimeError):
+                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+test_icim_redteam_evidence_repairs_20261023.py:79: Failed
+_ test_direct_opening_quote_rejects_duplicate_or_extra_assignment[other_contract] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000017C573E8F50>
+extra = 'other_contract'
+
+    @pytest.mark.parametrize('extra', ['duplicate', 'conflicting', 'other_contract'])
+    def test_direct_opening_quote_rejects_duplicate_or_extra_assignment(monkeypatch, extra):
+        second = packet(TWO) if extra == 'other_contract' else packet()
+        if extra == 'conflicting':
+            second = second.replace(b'="', b'="different,', 1)
+        monkeypatch.setattr(bot.requests, 'get', lambda *a, **k: response(packet() + second))
+>       with bot.runtime_clock(CLOCK), pytest.raises(RuntimeError):
+                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+test_icim_redteam_evidence_repairs_20261023.py:79: Failed
+______ test_legal_batch_keeps_exact_original_span_and_real_price[spaces] ______
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000017C573E64E0>
+tmp_path = WindowsPath('D:/动量策略/IC和IM滚动套利/quant_research_runs/20261023_redteam_repairs_v3/evidence/open_before/temp/icim_put_ae0cd4e3/pytest/test_legal_batch_keeps_exact_o2')
+style = 'spaces'
+
+    @pytest.mark.parametrize('style', ['original', 'no_var', 'spaces', 'final_semicolon_optional'])
+    def test_legal_batch_keeps_exact_original_span_and_real_price(monkeypatch, tmp_path, style):
+        first, second = packet(), packet(TWO)
+        if style == 'no_var':
+            first, second = first.removeprefix(b'var '), second.removeprefix(b'var ')
+        elif style == 'spaces':
+            first, second = first.replace(b'=', b' = '), second.replace(b'=', b' = ')
+        elif style == 'final_semicolon_optional':
+            second = second.removesuffix(b';')
+        body = b'\r\n\t' + first + b'\n' + second + b'\r\n'
+        monkeypatch.setattr(bot.requests, 'get', lambda *a, **k: response(body))
+        frame = pd.DataFrame({'instrument': ['MO2611-P-6000', 'MO2611-P-6100']})
+        with bot.runtime_clock(CLOCK), evidence.capture_session(tmp_path, DAY, CLOCK, {}) as session:
+            bot._prefetch_mo_replay_verification(frame, CLOCK)
+        assert session.context['complete']
+        reader = evidence.load_session(tmp_path, DAY)
+        assert reader.http_response(URL, {'list': ONE})['body'] == first
+        monkeypatch.setattr(bot.requests, 'get', lambda *a, **k: pytest.fail('replay escaped to HTTP'))
+        with bot.runtime_clock(CLOCK), evidence.replay_session(reader):
+            assert bot.verify_sina_option_quote('MO2611-P-6000', DAY, price(), CLOCK)['lastprice'] == price()
+>           assert bot.verify_sina_option_open('MO2611-P-6000', DAY, opening_price(), CLOCK)['openprice'] == opening_price()
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_icim_redteam_evidence_repairs_20261023.py:164: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+contract = 'MO2611-P-6000', expected_date = datetime.date(2026, 10, 22)
+expected_open = 37.6
+clock = datetime.datetime(2026, 10, 22, 18, 0, tzinfo=zoneinfo.ZoneInfo(key='Asia/Shanghai'))
+
+    def verify_sina_option_open(
+        contract: str, expected_date: date, expected_open: float, clock: datetime
+    ) -> dict[str, Any]:
+        """Independently check an Eastmoney MO opening mark before paper execution."""
+        match = re.fullmatch(r"MO(\d{4})-([CP])-(\d+)", contract.upper())
+        if not match:
+            raise ValueError(f"新浪MO开盘复核无法识别合约: {contract}")
+        symbol = f"mo{match.group(1)}{match.group(2)}{match.group(3)}"
+        response = _evidence_http_get(
+            "https://hq.sinajs.cn/etag.php",
+            params={"list": f"P_OP_{symbol}"},
+            timeout=_bounded_timeout(6),
+            headers={
+                "User-Agent": "Mozilla/5.0 POE-IC-IM-Research/1.0",
+                "Referer": "https://stock.finance.sina.com.cn/",
+                "Cache-Control": "no-cache",
+            },
+        )
+        response.raise_for_status()
+        payload = _response_with_size_limit(response, f"新浪MO开盘价 {contract}").decode(
+            "gbk", errors="replace"
+        )
+        quoted = re.search(rf'hq_str_P_OP_{re.escape(symbol)}="([^"]*)"', payload)
+        if not quoted or not quoted.group(1):
+>           raise RuntimeError(f"新浪MO开盘复核 {contract} 为空")
+E           RuntimeError: 新浪MO开盘复核 MO2611-P-6000 为空
+
+poe_ic_im_mainline_v1_4_bot.py:4028: RuntimeError
+============================== warnings summary ===============================
+C:\Python314\Lib\site-packages\fastapi_poe\types.py:171
+  C:\Python314\Lib\site-packages\fastapi_poe\types.py:171: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    class RequestContext(BaseModel):
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED test_icim_redteam_evidence_repairs_20261023.py::test_direct_opening_quote_rejects_nonexact_identifier[x]
+FAILED test_icim_redteam_evidence_repairs_20261023.py::test_direct_opening_quote_rejects_nonexact_identifier[not_]
+FAILED test_icim_redteam_evidence_repairs_20261023.py::test_direct_opening_quote_rejects_nonexact_identifier[$]
+FAILED test_icim_redteam_evidence_repairs_20261023.py::test_direct_opening_quote_rejects_nonexact_identifier[0]
+FAILED test_icim_redteam_evidence_repairs_20261023.py::test_direct_opening_quote_rejects_nonexact_identifier[object.]
+FAILED test_icim_redteam_evidence_repairs_20261023.py::test_direct_opening_quote_rejects_nonexact_identifier[\xd6\xd0]
+FAILED test_icim_redteam_evidence_repairs_20261023.py::test_direct_opening_quote_rejects_duplicate_or_extra_assignment[duplicate]
+FAILED test_icim_redteam_evidence_repairs_20261023.py::test_direct_opening_quote_rejects_duplicate_or_extra_assignment[conflicting]
+FAILED test_icim_redteam_evidence_repairs_20261023.py::test_direct_opening_quote_rejects_duplicate_or_extra_assignment[other_contract]
+FAILED test_icim_redteam_evidence_repairs_20261023.py::test_legal_batch_keeps_exact_original_span_and_real_price[spaces]
+10 failed, 3 passed, 29 deselected, 1 warning in 5.57s

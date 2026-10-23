@@ -1,0 +1,42 @@
+{
+  "result": {
+    "day": "2026-10-21",
+    "status": "captured",
+    "products": {
+      "IC": {
+        "status": "captured",
+        "manifest": "D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261023_redteam_repairs_v3\\cumulative_01\\isolated_temp\\icim_put_a9a68783\\pytest\\test_real_daily_capture_seals_1\\evidence\\sessions\\2026-10-21\\154002000000-680007b10139400389cb573917cee603.json",
+        "sha256": "771bcc61cfcf06aafc6011417c200644eaf92043ffa5a8f310cad956d7b6ed72"
+      },
+      "IM": {
+        "status": "captured",
+        "manifest": "D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261023_redteam_repairs_v3\\cumulative_01\\isolated_temp\\icim_put_a9a68783\\pytest\\test_real_daily_capture_seals_1\\evidence\\sessions\\2026-10-21\\154006000000-cb795d3f65f0423490a26fb01e9e05bb.json",
+        "sha256": "c1bf2d85225fd54dc7e1fa0f637b986e88650fab5afbc7908e97436c7d6283b9"
+      }
+    }
+  },
+  "sealed": {
+    "IC": {
+      "complete": true,
+      "metadata": {
+        "product": "IC",
+        "input_revision": "ic_im_original_inputs_20261021_v1",
+        "original_close": true,
+        "capture_kind": "independent_daily_inputs",
+        "build": "v1.4-20261008-r1-ic-csi500-abs40-fix11",
+        "anchor_day_at_capture": "2026-10-20"
+      }
+    },
+    "IM": {
+      "complete": true,
+      "metadata": {
+        "product": "IM",
+        "input_revision": "ic_im_original_inputs_20261021_v1",
+        "original_close": true,
+        "capture_kind": "independent_daily_inputs",
+        "build": "v1.4-20261008-r1-ic-csi500-abs40-fix11",
+        "anchor_day_at_capture": "2026-10-20"
+      }
+    }
+  }
+}

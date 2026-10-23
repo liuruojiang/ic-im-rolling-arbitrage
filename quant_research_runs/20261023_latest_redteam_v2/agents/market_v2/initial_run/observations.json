@@ -1,0 +1,107 @@
+[
+  {
+    "case": "correct_qt",
+    "observed": {
+      "price": 7435.164,
+      "source": "腾讯财经",
+      "source_date": "2026-10-22",
+      "source_time": "14:30:00"
+    }
+  },
+  {
+    "case": "variable",
+    "observed": {
+      "price": 3000.0,
+      "source": "腾讯财经",
+      "source_date": "2026-10-22",
+      "source_time": "14:30:00"
+    }
+  },
+  {
+    "case": "body_code",
+    "observed": {
+      "price": 3000.0,
+      "source": "腾讯财经",
+      "source_date": "2026-10-22",
+      "source_time": "14:30:00"
+    }
+  },
+  {
+    "case": "duplicate",
+    "observed": {
+      "price": 3000.0,
+      "source": "腾讯财经",
+      "source_date": "2026-10-22",
+      "source_time": "14:30:00"
+    }
+  },
+  {
+    "case": "eastmoney_code",
+    "observed": {
+      "price": 7435.164000000001,
+      "source": "东方财富",
+      "source_date": "2026-10-22",
+      "source_time": "14:30:00"
+    }
+  },
+  {
+    "case": "future_qt",
+    "observed": {
+      "price": 7435.164,
+      "live_price_source_time": "15:00:00",
+      "history_date": "2026-10-22",
+      "momentum_120": -0.10367951034856637,
+      "momentum_score": -44.3603248390313,
+      "momentum_next_weight": 0.0,
+      "v13_core_put_delta": 0.25
+    }
+  },
+  {
+    "case": "future_em",
+    "observed": {
+      "price": 7435.164000000001,
+      "live_price_source_time": "15:30:00",
+      "history_date": "2026-10-22",
+      "momentum_120": -0.10367951034856626,
+      "momentum_score": -44.36032483903128,
+      "momentum_next_weight": 0.0,
+      "v13_core_put_delta": 0.25
+    }
+  },
+  {
+    "case": "midnight_quote",
+    "observed": {
+      "price": 7435.164,
+      "live_price_source_time": "00:00:00",
+      "history_date": "2026-10-22",
+      "momentum_120": -0.10367951034856637,
+      "momentum_score": -44.3603248390313,
+      "momentum_next_weight": 0.0,
+      "v13_core_put_delta": 0.25
+    }
+  },
+  {
+    "case": "live_proxy_control",
+    "observed": {
+      "price": 7435.164,
+      "live_price_source_time": "14:30:00",
+      "history_date": "2026-10-22",
+      "momentum_120": -0.10367951034856637,
+      "momentum_score": -44.3603248390313,
+      "momentum_next_weight": 0.0,
+      "v13_core_put_delta": 0.25
+    }
+  },
+  {
+    "case": "live_proxy_wrong_index",
+    "observed": {
+      "price": 3000.0,
+      "live_price_source_time": "14:30:00",
+      "history_date": "2026-10-22",
+      "momentum_120": -0.6383453722131347,
+      "momentum_score": -113.43876105503018,
+      "momentum_next_weight": 0.0,
+      "v13_core_put_delta": 0.25
+    }
+  }
+]

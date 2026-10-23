@@ -273,6 +273,13 @@ def test_none_and_untradable_roll_candidate_leave_unneeded_gate_actions_identica
                       valuation_puts_per_full_core=rng.randrange(4), momentum_next_weight=rng.choice([0., .5]))
         contract = "510500P2612M07500" if product == "IC" else "MO2612-P-7200"
         anchor = short_anchor(product, v14_short_put_contract=contract) if rng.choice([True, False]) else policy.default_extension(product)
+        if policy.short_put_mark_required(product, signal, anchor) and signal["v14_short_put_mark"] is None:
+            # STRAT-01: an unknown held-leg decay decision is not an unused candidate.
+            with pytest.raises(RuntimeError, match="held short Put"):
+                policy.short_put_candidate_requirements(product, signal, anchor)
+            with pytest.raises(RuntimeError, match="held short Put"):
+                policy.apply_policy(product, signal, anchor, candidate=None)
+            continue
         required = policy.short_put_candidate_requirements(product, signal, anchor)
         if required["entry"] or required["roll"]:
             continue

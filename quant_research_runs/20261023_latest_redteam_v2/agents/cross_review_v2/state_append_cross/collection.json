@@ -1,0 +1,12 @@
+{
+  "collected": [
+    "quant_research_runs/20261023_latest_redteam_v2/agents/cross_review_v2/test_strategy_state_cross.py::test_full_ic_missing_short_mark_passes_state_boundary"
+  ],
+  "selected": [
+    "quant_research_runs/20261023_latest_redteam_v2/agents/cross_review_v2/test_strategy_state_cross.py::test_full_ic_missing_short_mark_passes_state_boundary"
+  ],
+  "deselected": [],
+  "executed": [
+    "quant_research_runs/20261023_latest_redteam_v2/agents/cross_review_v2/test_strategy_state_cross.py::test_full_ic_missing_short_mark_passes_state_boundary"
+  ]
+}

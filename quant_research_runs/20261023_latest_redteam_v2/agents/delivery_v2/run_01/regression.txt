@@ -1,0 +1,72 @@
+.FF                                                                      [100%]
+================================== FAILURES ===================================
+_ test_realtime_completion_must_stay_before_close[2026-10-14T15:00:00+08:00] __
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x00000280800B1BA0>
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_2a8d6f4c/pytest/test_realtime_completion_must_1')
+finished = '2026-10-14T15:00:00+08:00'
+
+    @pytest.mark.parametrize("finished", ["2026-10-14T14:59:59+08:00", "2026-10-14T15:00:00+08:00", "2026-10-14T15:00:01+08:00"])
+    def test_realtime_completion_must_stay_before_close(monkeypatch, tmp_path, finished):
+        original=_real_unpublished_result()
+        observed=deepcopy(original["signals"])
+        _apply_previous_session_evidence(observed)
+        for signal in observed.values():
+            signal["signal_generated_at"]=finished
+            signal["signal_generation_timing"]="intraday_hypothetical_if_now_close"
+        latest={k:original[k] for k in ["sequence","digest","verified_day"]}
+        install_observed(monkeypatch, latest, observed)
+        finished_clock=datetime.fromisoformat(finished)
+        class CompletionClock(datetime):
+            @classmethod
+            def now(cls,tz=None):return finished_clock.astimezone(tz) if tz else finished_clock.replace(tzinfo=None)
+        monkeypatch.setattr(digest,"datetime",CompletionClock)
+        # This independent evidence-check clock follows the end of the real query.
+        monkeypatch.setattr(digest.strategy.fear_grid,"_validation_clock",lambda: finished_clock)
+        kwargs=dict(state_dir=tmp_path/"state",out_dir=tmp_path/"out",clock=datetime.fromisoformat("2026-10-14T14:59:50+08:00"),max_sessions=1,mode="realtime",expected_market_date="2026-10-14")
+        if finished_clock.hour>=15:
+>           with pytest.raises(RuntimeError, match="盘中|窗口|交易|完成"):
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           Failed: DID NOT RAISE <class 'RuntimeError'>
+
+quant_research_runs\20261023_latest_redteam_v2\agents\delivery_v2\test_delivery_redteam.py:45: Failed
+_ test_realtime_completion_must_stay_before_close[2026-10-14T15:00:01+08:00] __
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000002809E2032F0>
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_2a8d6f4c/pytest/test_realtime_completion_must_2')
+finished = '2026-10-14T15:00:01+08:00'
+
+    @pytest.mark.parametrize("finished", ["2026-10-14T14:59:59+08:00", "2026-10-14T15:00:00+08:00", "2026-10-14T15:00:01+08:00"])
+    def test_realtime_completion_must_stay_before_close(monkeypatch, tmp_path, finished):
+        original=_real_unpublished_result()
+        observed=deepcopy(original["signals"])
+        _apply_previous_session_evidence(observed)
+        for signal in observed.values():
+            signal["signal_generated_at"]=finished
+            signal["signal_generation_timing"]="intraday_hypothetical_if_now_close"
+        latest={k:original[k] for k in ["sequence","digest","verified_day"]}
+        install_observed(monkeypatch, latest, observed)
+        finished_clock=datetime.fromisoformat(finished)
+        class CompletionClock(datetime):
+            @classmethod
+            def now(cls,tz=None):return finished_clock.astimezone(tz) if tz else finished_clock.replace(tzinfo=None)
+        monkeypatch.setattr(digest,"datetime",CompletionClock)
+        # This independent evidence-check clock follows the end of the real query.
+        monkeypatch.setattr(digest.strategy.fear_grid,"_validation_clock",lambda: finished_clock)
+        kwargs=dict(state_dir=tmp_path/"state",out_dir=tmp_path/"out",clock=datetime.fromisoformat("2026-10-14T14:59:50+08:00"),max_sessions=1,mode="realtime",expected_market_date="2026-10-14")
+        if finished_clock.hour>=15:
+>           with pytest.raises(RuntimeError, match="盘中|窗口|交易|完成"):
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           Failed: DID NOT RAISE <class 'RuntimeError'>
+
+quant_research_runs\20261023_latest_redteam_v2\agents\delivery_v2\test_delivery_redteam.py:45: Failed
+============================== warnings summary ===============================
+C:\Python314\Lib\site-packages\fastapi_poe\types.py:171
+  C:\Python314\Lib\site-packages\fastapi_poe\types.py:171: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    class RequestContext(BaseModel):
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED quant_research_runs/20261023_latest_redteam_v2/agents/delivery_v2/test_delivery_redteam.py::test_realtime_completion_must_stay_before_close[2026-10-14T15:00:00+08:00]
+FAILED quant_research_runs/20261023_latest_redteam_v2/agents/delivery_v2/test_delivery_redteam.py::test_realtime_completion_must_stay_before_close[2026-10-14T15:00:01+08:00]
+2 failed, 1 passed, 1 warning in 4.07s

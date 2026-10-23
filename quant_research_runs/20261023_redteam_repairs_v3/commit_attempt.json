@@ -1,0 +1,8 @@
+{
+  "command": "git add -- capture_ic_im_v1_4_inputs.py",
+  "exit_code": 1,
+  "result": "fatal: Unable to create .git/index.lock: Permission denied",
+  "commit_created": false,
+  "index_changed": false,
+  "needs_local_terminal": true
+}

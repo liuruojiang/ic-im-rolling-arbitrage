@@ -1,0 +1,44 @@
+{
+  "source": "quant_research_runs\\20261023_daily_release_v3\\automation_full_01.xml",
+  "counts": {
+    "tests": 1347,
+    "errors": 211,
+    "failures": 0,
+    "skipped": 0
+  },
+  "error_message_counts": {
+    "failed on setup with \"PermissionError: [WinError 5] \u62d2\u7edd\u8bbf\u95ee\u3002: 'C:\\\\Users\\\\Administrator.DESKTOP-95I7VVU\\\\AppData\\\\Local\\\\Temp\\\\pytest-of-Administrator'\"": 211
+  },
+  "examples": [
+    {
+      "test": "test_ledger_missing_migration_fails_before_destination_write",
+      "kind": "error",
+      "message": "failed on setup with \"PermissionError: [WinError 5] \u62d2\u7edd\u8bbf\u95ee\u3002: 'C:\\\\Users\\\\Administrator.DESKTOP-95I7VVU\\\\AppData\\\\Local\\\\Temp\\\\pytest-of-Administrator'\"",
+      "text_tail": "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Python314\\Lib\\site-packages\\_pytest\\pathlib.py:188: in extract_suffixes\n    for entry in iter:\n                 ^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\n\nroot = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/pytest-of-Administrator')\nprefix = 'pytest-'\n\n    def find_prefixed(root: Path, prefix: str) -> Iterator[os.DirEntry[str]]:\n        \"\"\"Find all elements in root that begin with the prefix, case-insensitive.\"\"\"\n        l_prefix = prefix.lower()\n>       for x in os.scandir(root):\n                 ^^^^^^^^^^^^^^^^\nE       PermissionError: [WinError 5] \u62d2\u7edd\u8bbf\u95ee\u3002: 'C:\\\\Users\\\\Administrator.DESKTOP-95I7VVU\\\\AppData\\\\Local\\\\Temp\\\\pytest-of-Administrator'\n\nC:\\Python314\\Lib\\site-packages\\_pytest\\pathlib.py:176: PermissionError"
+    },
+    {
+      "test": "test_marker_cli_requires_full_delivery_contract_before_writing[normal]",
+      "kind": "error",
+      "message": "failed on setup with \"PermissionError: [WinError 5] \u62d2\u7edd\u8bbf\u95ee\u3002: 'C:\\\\Users\\\\Administrator.DESKTOP-95I7VVU\\\\AppData\\\\Local\\\\Temp\\\\pytest-of-Administrator'\"",
+      "text_tail": "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Python314\\Lib\\site-packages\\_pytest\\pathlib.py:188: in extract_suffixes\n    for entry in iter:\n                 ^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\n\nroot = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/pytest-of-Administrator')\nprefix = 'pytest-'\n\n    def find_prefixed(root: Path, prefix: str) -> Iterator[os.DirEntry[str]]:\n        \"\"\"Find all elements in root that begin with the prefix, case-insensitive.\"\"\"\n        l_prefix = prefix.lower()\n>       for x in os.scandir(root):\n                 ^^^^^^^^^^^^^^^^\nE       PermissionError: [WinError 5] \u62d2\u7edd\u8bbf\u95ee\u3002: 'C:\\\\Users\\\\Administrator.DESKTOP-95I7VVU\\\\AppData\\\\Local\\\\Temp\\\\pytest-of-Administrator'\n\nC:\\Python314\\Lib\\site-packages\\_pytest\\pathlib.py:176: PermissionError"
+    },
+    {
+      "test": "test_marker_cli_requires_full_delivery_contract_before_writing[holiday]",
+      "kind": "error",
+      "message": "failed on setup with \"PermissionError: [WinError 5] \u62d2\u7edd\u8bbf\u95ee\u3002: 'C:\\\\Users\\\\Administrator.DESKTOP-95I7VVU\\\\AppData\\\\Local\\\\Temp\\\\pytest-of-Administrator'\"",
+      "text_tail": "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Python314\\Lib\\site-packages\\_pytest\\pathlib.py:188: in extract_suffixes\n    for entry in iter:\n                 ^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\n\nroot = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/pytest-of-Administrator')\nprefix = 'pytest-'\n\n    def find_prefixed(root: Path, prefix: str) -> Iterator[os.DirEntry[str]]:\n        \"\"\"Find all elements in root that begin with the prefix, case-insensitive.\"\"\"\n        l_prefix = prefix.lower()\n>       for x in os.scandir(root):\n                 ^^^^^^^^^^^^^^^^\nE       PermissionError: [WinError 5] \u62d2\u7edd\u8bbf\u95ee\u3002: 'C:\\\\Users\\\\Administrator.DESKTOP-95I7VVU\\\\AppData\\\\Local\\\\Temp\\\\pytest-of-Administrator'\n\nC:\\Python314\\Lib\\site-packages\\_pytest\\pathlib.py:176: PermissionError"
+    },
+    {
+      "test": "test_marker_cli_requires_full_delivery_contract_before_writing[quantity]",
+      "kind": "error",
+      "message": "failed on setup with \"PermissionError: [WinError 5] \u62d2\u7edd\u8bbf\u95ee\u3002: 'C:\\\\Users\\\\Administrator.DESKTOP-95I7VVU\\\\AppData\\\\Local\\\\Temp\\\\pytest-of-Administrator'\"",
+      "text_tail": "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Python314\\Lib\\site-packages\\_pytest\\pathlib.py:188: in extract_suffixes\n    for entry in iter:\n                 ^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\n\nroot = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/pytest-of-Administrator')\nprefix = 'pytest-'\n\n    def find_prefixed(root: Path, prefix: str) -> Iterator[os.DirEntry[str]]:\n        \"\"\"Find all elements in root that begin with the prefix, case-insensitive.\"\"\"\n        l_prefix = prefix.lower()\n>       for x in os.scandir(root):\n                 ^^^^^^^^^^^^^^^^\nE       PermissionError: [WinError 5] \u62d2\u7edd\u8bbf\u95ee\u3002: 'C:\\\\Users\\\\Administrator.DESKTOP-95I7VVU\\\\AppData\\\\Local\\\\Temp\\\\pytest-of-Administrator'\n\nC:\\Python314\\Lib\\site-packages\\_pytest\\pathlib.py:176: PermissionError"
+    },
+    {
+      "test": "test_marker_cli_requires_full_delivery_contract_before_writing[missing_field]",
+      "kind": "error",
+      "message": "failed on setup with \"PermissionError: [WinError 5] \u62d2\u7edd\u8bbf\u95ee\u3002: 'C:\\\\Users\\\\Administrator.DESKTOP-95I7VVU\\\\AppData\\\\Local\\\\Temp\\\\pytest-of-Administrator'\"",
+      "text_tail": "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nC:\\Python314\\Lib\\site-packages\\_pytest\\pathlib.py:188: in extract_suffixes\n    for entry in iter:\n                 ^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\n\nroot = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/pytest-of-Administrator')\nprefix = 'pytest-'\n\n    def find_prefixed(root: Path, prefix: str) -> Iterator[os.DirEntry[str]]:\n        \"\"\"Find all elements in root that begin with the prefix, case-insensitive.\"\"\"\n        l_prefix = prefix.lower()\n>       for x in os.scandir(root):\n                 ^^^^^^^^^^^^^^^^\nE       PermissionError: [WinError 5] \u62d2\u7edd\u8bbf\u95ee\u3002: 'C:\\\\Users\\\\Administrator.DESKTOP-95I7VVU\\\\AppData\\\\Local\\\\Temp\\\\pytest-of-Administrator'\n\nC:\\Python314\\Lib\\site-packages\\_pytest\\pathlib.py:176: PermissionError"
+    }
+  ]
+}

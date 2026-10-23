@@ -122,7 +122,9 @@ def test_sole_refresh_loop_collects_today_even_when_old_catchup_raises(tmp_path,
     def fail(clock):
         calls.append("catchup")
         raise RuntimeError("old gap unresolved")
-    def collect(clock):
+    def collect(clock=None):
+        # Capture now resolves its own start after executor queuing.
+        assert clock is None
         calls.append("capture_today")
     async def cancelled_sleep(seconds):
         assert seconds == 300

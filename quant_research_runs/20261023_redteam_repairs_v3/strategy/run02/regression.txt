@@ -1,0 +1,60 @@
+............................................FF.......................... [ 20%]
+........................................................................ [ 40%]
+........................................................................ [ 61%]
+........................................................................ [ 81%]
+................................................................         [100%]
+================================== FAILURES ===================================
+_________ test_pre_repeat_roll_used_does_not_need_new_decay_mark[IC] __________
+
+product = 'IC'
+
+    @pytest.mark.parametrize("product", ["IC", "IM"])
+    def test_pre_repeat_roll_used_does_not_need_new_decay_mark(product):
+        a=short_anchor(product, v14_early_roll_used=True,
+                       v14_short_put_entry_price_day=date(2026,9,21))
+>       s=signal(product, market_date=date(2026,9,25))
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_icim_redteam_strategy_repairs_20261023.py:187: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+product = 'IC', overrides = {'market_date': datetime.date(2026, 9, 25)}
+
+    def signal(product, **overrides):
+>       return _signal(product, market_date=date(2026, 12, 1), next_trade_date=date(2026, 12, 2),
+                       core_eod_contract=product + "2612", **overrides)
+E       TypeError: test_ic_im_v1_4_policy._signal() got multiple values for keyword argument 'market_date'
+
+test_icim_round3_policy_repairs_20261021.py:20: TypeError
+_________ test_pre_repeat_roll_used_does_not_need_new_decay_mark[IM] __________
+
+product = 'IM'
+
+    @pytest.mark.parametrize("product", ["IC", "IM"])
+    def test_pre_repeat_roll_used_does_not_need_new_decay_mark(product):
+        a=short_anchor(product, v14_early_roll_used=True,
+                       v14_short_put_entry_price_day=date(2026,9,21))
+>       s=signal(product, market_date=date(2026,9,25))
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_icim_redteam_strategy_repairs_20261023.py:187: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+product = 'IM', overrides = {'market_date': datetime.date(2026, 9, 25)}
+
+    def signal(product, **overrides):
+>       return _signal(product, market_date=date(2026, 12, 1), next_trade_date=date(2026, 12, 2),
+                       core_eod_contract=product + "2612", **overrides)
+E       TypeError: test_ic_im_v1_4_policy._signal() got multiple values for keyword argument 'market_date'
+
+test_icim_round3_policy_repairs_20261021.py:20: TypeError
+============================== warnings summary ===============================
+C:\Python314\Lib\site-packages\fastapi_poe\types.py:171
+  C:\Python314\Lib\site-packages\fastapi_poe\types.py:171: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    class RequestContext(BaseModel):
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED test_icim_redteam_strategy_repairs_20261023.py::test_pre_repeat_roll_used_does_not_need_new_decay_mark[IC]
+FAILED test_icim_redteam_strategy_repairs_20261023.py::test_pre_repeat_roll_used_does_not_need_new_decay_mark[IM]
+2 failed, 350 passed, 1 warning in 4.29s

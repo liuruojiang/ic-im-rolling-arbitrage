@@ -1,0 +1,13 @@
+{
+  "exit_code": 0,
+  "source_before_equals_after": true,
+  "bound_files": 9,
+  "artifacts": {
+    "source_before.json": "5dd4b6300bd4f1d09d2f8c0f635e5bc1384aa3072825c73c4a8d9d3a16e37101",
+    "source_after.json": "5dd4b6300bd4f1d09d2f8c0f635e5bc1384aa3072825c73c4a8d9d3a16e37101",
+    "regression.xml": "d63340482c562c4ee75b61c9e4a591fe0c5b522a1255f5649a4e7d7b3d544fec",
+    "regression.txt": "4864013f0f3b158f014b10db2d9cab93ac3c5fdfd0483ac3de1b35fdbce04855",
+    "collection.json": "6a08730e056d6682c310a2a6b69eb53027a6dc16df04665da559a0ad6e5d11b7",
+    "test_run.json": "5efebf950d906eadf10c3d8bea04b9f2c001f34b6548d696220cfbeb72d92c6c"
+  }
+}

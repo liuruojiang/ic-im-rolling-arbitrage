@@ -9,7 +9,7 @@ import subprocess
 import sys
 
 ROOT = Path(__file__).resolve().parent
-MANIFEST = ROOT / 'docs/ic_im_daily_release_20261023_manifest.json'
+MANIFEST = ROOT / 'docs/ic_im_daily_release_20261023_repairs_v3_r3_manifest.json'
 
 
 def sha(path):
@@ -19,7 +19,7 @@ def sha(path):
 def bindings(manifest):
     names = set(manifest['files']) | set(manifest.get('fixture_sha256', {})) | set(manifest['required_local_tests']) | set(manifest['required_test_helpers'])
     names |= {'run_ic_im_v1_4_delivery_tests.py', '_icim_delivery_test_worker.py',
-              'icim_delivery_test_evidence.py', 'docs/ic_im_daily_release_20261023_manifest.json',
+              'icim_delivery_test_evidence.py', MANIFEST.relative_to(ROOT).as_posix(),
               'docs/icim_delivery_legacy_fixtures_20261023.json', 'docs/icim_delivery_pytest.ini',
               'docs/icim_historical_deselections_20261023.json'}
     return {name: sha(ROOT / name) for name in sorted(names)}
@@ -45,7 +45,7 @@ def main():
     assert sha(ROOT / 'docs/icim_historical_deselections_20261023.json') == manifest['historical_exclusion_registry_sha256']
     assert registered == json.loads((ROOT / 'docs/icim_historical_deselections_20261023.json').read_text(encoding='utf-8'))
     tests = manifest['required_local_tests']
-    assert len(tests) == len(set(tests)) == 43
+    assert len(tests) == len(set(tests)) == 47
     allowed = [node for node in registered if node.split('::', 1)[0] in tests]
     assert manifest['daily_gate_deselections'] == allowed
     selected = list(tests)

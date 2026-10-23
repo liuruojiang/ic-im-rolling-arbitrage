@@ -1,0 +1,10 @@
+{
+  "commit": "58986fda2c17df93eb3925bf09a1cebd55a7869e",
+  "exit_code": 1,
+  "oracle_sha256": "8ee4b6f3a1fd92392430213f7d81f6642deada308c84c50dfef58a91aeb2112c",
+  "source_sha256": {
+    "poe_ic_im_mainline_v1_4_bot.py": "b390575a41fe11da6da68caee551b7827f9cee28fb8ceba19432ec661e775222",
+    "ic_im_signal_evidence_v1.py": "adb241e56e9c012487a4c3837865450256c53aa1f0d1d2c0c1dc141cd1172a0f",
+    "ic_im_evidence_adapter_v1.py": "f22a342dcf671f7625d6861f4041cff045d698ba2ba63c8519fdfa0fd204a662"
+  }
+}

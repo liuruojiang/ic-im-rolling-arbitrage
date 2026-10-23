@@ -310,6 +310,13 @@ def test_none_roll_candidate_and_random_gate_contract_are_real_policy_compatible
                       valuation_puts_per_full_core=rng.randrange(4), momentum_next_weight=rng.choice([0., .5]))
         candidate = _candidate(product, contract=contract, expiry=date(2026, 12, 23 if product == "IC" else 18))
         active = anchor if rng.choice([True, False]) else policy.default_extension(product)
+        if policy.short_put_mark_required(product, signal, active) and signal["v14_short_put_mark"] is None:
+            # Missing required marks reject; keep these random inputs as negatives.
+            with pytest.raises(RuntimeError, match="held short Put"):
+                policy.short_put_candidate_requirements(product, signal, active)
+            with pytest.raises(RuntimeError, match="held short Put"):
+                policy.apply_policy(product, signal, active, candidate=candidate)
+            continue
         requirements = policy.short_put_candidate_requirements(product, signal, active)
         if not requirements["entry"] and not requirements["roll"]:
             out = policy.apply_policy(product, signal, active, candidate=candidate, roll_candidate=candidate)

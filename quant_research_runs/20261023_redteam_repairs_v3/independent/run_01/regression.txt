@@ -1,0 +1,45 @@
+.....................................................F.................. [ 97%]
+..                                                                       [100%]
+================================== FAILURES ===================================
+__ test_close_market_capture_and_replay_never_consume_realtime_index_packet ___
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000002AF9BC67BD0>
+tmp_path = WindowsPath('D:/动量策略/IC和IM滚动套利/quant_research_runs/20261023_redteam_repairs_v3/independent/run_01/isolated_temp/icim_put_203bb9ed/pytest/test_close_market_capture_and_0')
+
+    def test_close_market_capture_and_replay_never_consume_realtime_index_packet(monkeypatch,tmp_path):
+        import ic_im_signal_evidence_v1 as evidence
+        close_clock=CLOCK.replace(hour=18,minute=0)
+        vendor(monkeypatch,qt(symbol='sh000852',code='000852',price=3000.))
+        history=json.loads(REAL_RAW.read_bytes().decode('gbk'))
+        seen=[]
+        def daily_only(url,**kw):
+            seen.append(url)
+            if 'CN_MarketData' in url:return response(payload=history)
+            raise AssertionError('close calculation unexpectedly requested realtime quote: '+url)
+        monkeypatch.setattr(bot,'_evidence_http_get',daily_only)
+        monkeypatch.setattr(evidence,'_now',lambda:close_clock)
+        with bot.runtime_clock(close_clock),evidence.capture_session(tmp_path,CLOCK.date(),close_clock,{'kind':'isolated_close_market_control'}) as session:
+            value=bot.live_proxy('IC',close_clock)
+        assert value['live_price_source']=='指数公开日线历史收盘'
+        assert len(seen)==1 and 'CN_MarketData' in seen[0]
+        reader=evidence.load_session(tmp_path,CLOCK.date())
+        with bot.runtime_clock(close_clock),evidence.replay_session(reader):
+            replayed=bot.live_proxy('IC',close_clock)
+>       assert replayed==value
+E       AssertionError: assert {'core_put_dr...ts': 0.0, ...} == {'core_put_dr...ts': 0.0, ...}
+E         
+E         Omitting 53 identical items, use -vv to show
+E         Differing items:
+E         {'momentum_volume_ratio': nan} != {'momentum_volume_ratio': nan}
+E         Use -v to get more diff
+
+quant_research_runs\20261023_redteam_repairs_v3\independent\test_ind_market.py:125: AssertionError
+============================== warnings summary ===============================
+C:\Python314\Lib\site-packages\fastapi_poe\types.py:171
+  C:\Python314\Lib\site-packages\fastapi_poe\types.py:171: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    class RequestContext(BaseModel):
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED quant_research_runs/20261023_redteam_repairs_v3/independent/test_ind_market.py::test_close_market_capture_and_replay_never_consume_realtime_index_packet
+1 failed, 73 passed, 1 warning in 17.44s

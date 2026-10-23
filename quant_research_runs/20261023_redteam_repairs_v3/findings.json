@@ -1,0 +1,93 @@
+{
+  "baseline_commit": "58986fda2c17df93eb3925bf09a1cebd55a7869e",
+  "release_manifest": "docs/ic_im_daily_release_20261023_repairs_v3_r3_manifest.json",
+  "audited_object": "local_working_tree_patch_bound_by_sha256",
+  "findings": [
+    {
+      "id": "STRAT-01",
+      "severity": "P1",
+      "title": "已有卖 Put 缺少当日持仓报价仍确认 HOLD 并允许续账",
+      "status": "fixed_and_independently_verified",
+      "evidence": "strategy/run06; audit_strategy_state/final01; independent/run_03_r3"
+    },
+    {
+      "id": "MKT-01",
+      "severity": "P1",
+      "title": "实时指数主备源缺少返回标的身份与唯一性校验",
+      "status": "fixed_and_independently_verified",
+      "evidence": "market/run03; audit_market_evidence/run01; independent/run_03_r3"
+    },
+    {
+      "id": "MKT-02",
+      "severity": "P1",
+      "title": "实时指数时间只核同日，未来及盘前无效时刻进入盘中策略",
+      "status": "fixed_and_independently_verified",
+      "evidence": "market/run03; audit_market_evidence/run01; independent/run_03_r3"
+    },
+    {
+      "id": "EV2-01",
+      "severity": "P2",
+      "title": "Sina MO batch replay strips an invalid identifier prefix and bypasses exact variable identity validation",
+      "status": "fixed_and_independently_verified",
+      "evidence": "evidence/run02; audit_market_evidence/run01; independent/run_03_r3"
+    },
+    {
+      "id": "S-V2-1",
+      "severity": "P2",
+      "title": "服务端独立采集没有进入推进中的采集时钟上下文，合法延迟快照被误判未来",
+      "status": "fixed_and_independently_verified",
+      "evidence": "server/run03_lock_queue; audit_server/run02; independent/audit_clock_wait/run_03_r3"
+    },
+    {
+      "id": "S-V2-2",
+      "severity": "P2",
+      "title": "服务端独立采集沿用上次查询全局锚点而非自身最新持久账本",
+      "status": "fixed_and_independently_verified",
+      "evidence": "server/run03_lock_queue; audit_server/run02; independent/run_03_r3"
+    },
+    {
+      "id": "DELIVERY-V2-01",
+      "severity": "P2",
+      "title": "非交易时段快照及收盘失败兜底错误显示倒数第二个已核验账本",
+      "status": "fixed_and_independently_verified",
+      "evidence": "server/run03_lock_queue; audit_server/run02; independent/run_03_r3"
+    }
+  ],
+  "additional_findings": [
+    {
+      "id": "EV2-OPEN",
+      "status": "fixed_and_independently_verified",
+      "description": "同源的直接开盘价身份验证也改用完整严格解析",
+      "proof": "evidence/open_before -> evidence/run02; independent/run_03_r3"
+    },
+    {
+      "id": "S-V3-QUEUE",
+      "status": "fixed_and_independently_verified",
+      "description": "服务端共享锁及执行器排队耗时计入观察时钟",
+      "proof": "independent/audit_clock_wait/run_01 -> run_03_r3; audit_server/run02"
+    },
+    {
+      "id": "CAPTURE-V3-PREFLIGHT",
+      "status": "fixed_and_independently_verified",
+      "description": "独立采集器只读预检耗时计入观察时钟",
+      "proof": "audit_server/collector_timing/run01 -> run02"
+    }
+  ],
+  "unresolved_confirmed_findings": 0,
+  "final_daily": {
+    "passed": 1193,
+    "failed": 0,
+    "skipped": 0,
+    "existing_deselected": 5
+  },
+  "final_cumulative": {
+    "passed": 3333,
+    "failed": 0,
+    "skipped": 0,
+    "existing_deselected": 22
+  },
+  "independent_passed": 148,
+  "real_recovery_scenarios_passed": 5,
+  "commit_status": "not_committed_git_index_permission_denied",
+  "remote_deployed": false
+}

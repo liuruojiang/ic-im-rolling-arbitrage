@@ -1,0 +1,7 @@
+{"nodeid": "quant_research_runs/20261023_redteam_repairs_v3/audit_server/test_independent_server.py::test_capture_observation_includes_real_shared_lock_queue_wait", "started_at": "2026-10-23T14:35:50.211332+08:00"}
+{"nodeid": "quant_research_runs/20261023_redteam_repairs_v3/audit_server/test_independent_server.py::test_capture_head_read_failure_restores_every_anchor_and_skips_collection", "started_at": "2026-10-23T14:35:50.361142+08:00"}
+{"nodeid": "quant_research_runs/20261023_redteam_repairs_v3/audit_server/test_independent_server.py::test_partial_anchor_install_failure_restores_original", "started_at": "2026-10-23T14:35:50.449616+08:00"}
+{"nodeid": "quant_research_runs/20261023_redteam_repairs_v3/audit_server/test_independent_server.py::test_concurrent_distinct_query_heads_and_cancelled_display_context_isolated", "started_at": "2026-10-23T14:35:50.513855+08:00"}
+{"nodeid": "quant_research_runs/20261023_redteam_repairs_v3/audit_server/test_independent_server.py::test_nested_display_context_restored_after_inner_cancel", "started_at": "2026-10-23T14:35:50.612398+08:00"}
+{"nodeid": "quant_research_runs/20261023_redteam_repairs_v3/audit_server/test_independent_server.py::test_refresh_after_crossday_catchup_does_not_seal_unfinished_new_session", "started_at": "2026-10-23T14:35:50.689653+08:00"}
+{"nodeid": "quant_research_runs/20261023_redteam_repairs_v3/audit_server/test_independent_server.py::test_refresh_catchup_cancel_does_not_start_capture", "started_at": "2026-10-23T14:35:50.780099+08:00"}

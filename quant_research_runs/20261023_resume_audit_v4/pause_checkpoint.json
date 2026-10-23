@@ -1,0 +1,311 @@
+{
+  "reason": "User quota 3%; pause expanded work",
+  "code_publication": "completed",
+  "independent_audits": "passed",
+  "postmerge_ci": 39920874130,
+  "postmerge_ci_status": "success",
+  "latest_readiness_run": 39921352353,
+  "latest_readiness_job": 120307406895,
+  "latest_readiness_status": "in_progress",
+  "latest_step": "Run the official close producer on the isolated ledger",
+  "latest_request_commit": "8505167a66fdc685d580d280ff31905b1a749108",
+  "remaining": [
+    "Read terminal readiness result and archive evidence",
+    "Separately verify scheduled real delivery and recipient evidence",
+    "Local direct network remains unavailable; do not claim it fixed"
+  ],
+  "scheduled_tasks_unchanged": true,
+  "ad_hoc_email_sent": false,
+  "jobs": {
+    "jobs": [
+      {
+        "id": 120307075823,
+        "name": "regression / strategy-tests (icim)",
+        "status": "completed",
+        "conclusion": "success",
+        "run_id": 39921352353,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Run actions/checkout@v6",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Run actions/setup-python@v6",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Resolve exact published strategy pin",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "Run actions/checkout@v6",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "Install Microcap regression dependencies",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 6
+          },
+          {
+            "name": "Install ICIM regression dependencies",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7
+          },
+          {
+            "name": "Test Microcap state and cloud transport invariants",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 8
+          },
+          {
+            "name": "Test ICIM source failover and persistent ledger invariants",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 9
+          },
+          {
+            "name": "Preserve tests and actual tested strategy SHA",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 10
+          },
+          {
+            "name": "Run actions/upload-artifact@v7",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 11
+          },
+          {
+            "name": "Post Run actions/checkout@v6",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 20
+          },
+          {
+            "name": "Post Run actions/setup-python@v6",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 21
+          },
+          {
+            "name": "Post Run actions/checkout@v6",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 22
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 23
+          }
+        ]
+      },
+      {
+        "id": 120307076303,
+        "name": "regression / automation-tests",
+        "status": "completed",
+        "conclusion": "success",
+        "run_id": 39921352353,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Run actions/checkout@v6",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Run actions/setup-python@v6",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Run python -m pip install 'pytest>=8,<9' 'PyYAML>=6,<7' 'hypothesis>=6,<7'",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "Check delivery contracts and all automation regressions",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "Run actions/upload-artifact@v7",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6
+          },
+          {
+            "name": "Post Run actions/setup-python@v6",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 11
+          },
+          {
+            "name": "Post Run actions/checkout@v6",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 12
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 13
+          }
+        ]
+      },
+      {
+        "id": 120307406895,
+        "name": "readiness",
+        "status": "in_progress",
+        "conclusion": null,
+        "run_id": 39921352353,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Run actions/checkout@v6",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Run actions/setup-python@v6",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Resolve the bounded no-send validation request",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "Resolve the exact production strategy pin",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "Run actions/checkout@v6",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6
+          },
+          {
+            "name": "Install the production dependencies",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7
+          },
+          {
+            "name": "Restore a verified production ledger to an isolated volume",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 8
+          },
+          {
+            "name": "Verify producer identity, migration and completed-session coverage",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 9
+          },
+          {
+            "name": "Verify audited execution source inventory",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 10
+          },
+          {
+            "name": "Run the official close producer on the isolated ledger",
+            "status": "in_progress",
+            "conclusion": null,
+            "number": 11
+          },
+          {
+            "name": "Validate the normal digest and dated marker without publishing",
+            "status": "pending",
+            "conclusion": null,
+            "number": 12
+          },
+          {
+            "name": "Authenticate SMTP and validate envelopes without DATA",
+            "status": "pending",
+            "conclusion": null,
+            "number": 13
+          },
+          {
+            "name": "Export verified research handoff when explicitly requested",
+            "status": "pending",
+            "conclusion": null,
+            "number": 14
+          },
+          {
+            "name": "Observe public Fear feeds without sending",
+            "status": "pending",
+            "conclusion": null,
+            "number": 15
+          },
+          {
+            "name": "Run actions/upload-artifact@v7",
+            "status": "pending",
+            "conclusion": null,
+            "number": 16
+          },
+          {
+            "name": "Post Run actions/checkout@v6",
+            "status": "pending",
+            "conclusion": null,
+            "number": 30
+          },
+          {
+            "name": "Post Run actions/setup-python@v6",
+            "status": "pending",
+            "conclusion": null,
+            "number": 31
+          },
+          {
+            "name": "Post Run actions/checkout@v6",
+            "status": "pending",
+            "conclusion": null,
+            "number": 32
+          }
+        ]
+      }
+    ]
+  }
+}

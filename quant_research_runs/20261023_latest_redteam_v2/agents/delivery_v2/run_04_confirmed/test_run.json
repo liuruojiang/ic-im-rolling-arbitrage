@@ -1,0 +1,9 @@
+{
+  "exit_code": 1,
+  "files": [
+    "quant_research_runs/20261023_latest_redteam_v2/agents/delivery_v2/test_delivery_confirmed.py"
+  ],
+  "state_dir": "C:\\Users\\ADMINI~1.DES\\AppData\\Local\\Temp\\icim_put_418d1294\\state",
+  "test_only_windows_mkdir_mode_adjustment": true,
+  "implicit_pytest_addopts_removed": false
+}

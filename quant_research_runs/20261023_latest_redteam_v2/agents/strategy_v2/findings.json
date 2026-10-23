@@ -1,0 +1,47 @@
+{
+  "findings": [
+    {
+      "id": "STRAT-01",
+      "severity": "P1",
+      "title": "已有卖 Put 缺少当日持仓报价仍确认 HOLD 并允许续账",
+      "commit": "58986fda2c17df93eb3925bf09a1cebd55a7869e",
+      "locations": [
+        {
+          "path": "poe_ic_im_mainline_v1_4_bot.py",
+          "lines": "6658-6672"
+        },
+        {
+          "path": "ic_im_v1_4_policy.py",
+          "lines": "415-423"
+        },
+        {
+          "path": "poe_ic_im_mainline_v1_4_bot.py",
+          "lines": "1501-1523"
+        }
+      ],
+      "preconditions": [
+        "route=short_put；未到期；入场成本已确认为 confirmed_dated_open；尚无 roll_pending",
+        "IC历史收盘序列合法但尚未包含当日；或IM传入候选链无既有短Put行"
+      ],
+      "observed": "mark=None 被 _short_roll_due 视为未触发衰减，候选判为 not_required，close_confirmed=True/HOLD。IC public builder+StateStore实测可完整续账。",
+      "expected": "当日持仓报价未知时不得宣称已完成衰减判断；保留锚点并返回缺证据/重试诊断，禁止按完整成功信号推进账本。",
+      "impact": "会将未知的衰减条件记录为不触发，可能漏掉应有提前展期或待展期触发，并用正常收盘日报掩盖缺行情；未观察生产账本已发生该事件。",
+      "proof": {
+        "discovery": "run01/regression.txt",
+        "full_builder_and_state": "run03/regression.txt",
+        "facts": "state_reachability.json",
+        "controls": "controls01/regression.txt"
+      },
+      "scope_limit": "IC完整路径/持久化已实测；IM仅真实adapter级缺旧行反例，未宣称IM真实供应商链或完整落账已验证。行情/持仓为合成或明确数据缺失注入，SSE身份检查使用保存的真实fixture。",
+      "fix": [
+        "在adapter按实际消费条件校验旧short mark的日期和有限正值：未到期、confirmed成本且需新判断衰减时缺值应错误/诊断，而不是None→false。",
+        "IC fetch_option_closes增加required_day契约：主源合法但落后时尝试备用源；可考虑使用已验证身份与时间的同日链报价，但须独立明确价格口径，不静默换口径。",
+        "纯policy及StateStore增加防御校验，既有roll_pending、到期条件分支和历史兼容按原规则分别保留；新增断言覆盖无当前行、None/NaN/错误日期与正常当日值。"
+      ],
+      "test_expectations": [
+        "当前3个严格行为断言失败；修后应通过；2个正常HOLD和2个低mark触发等待的对照保持通过。",
+        "完整builder缺当日mark应返回diagnostic；StateStore应拒绝不完整信号且seq/digest不变。"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,55 @@
+{
+  "search": "all workspace JSONs with size equal to current record or conventional latest/recovered/seq20 filename",
+  "scanned_candidates": 4378,
+  "target_digest": "49fb159fbadf894b6c64e8ca886faef49d62c5e8e31f0415690209f834317cc0",
+  "matches": [
+    {
+      "path": "quant_research_runs/20261016_put_delivery_completion_v1/formal_runtime/runtime/ic_im_v1_4_r1/latest.json",
+      "exact_bytes": true,
+      "sha256": "2773323661e43f4cc92e72c743069d9cd93ba23b1051bbe8a714bfc89c0e2fd0",
+      "bytes": 37106,
+      "mtime": "2026-10-23T14:54:51.676738",
+      "ctime": "2026-10-23T14:54:51.676738"
+    },
+    {
+      "path": "quant_research_runs/20261016_put_delivery_completion_v1/formal_runtime/runtime/ic_im_v1_4_r1/journal/000020-2026-10-22.json",
+      "exact_bytes": true,
+      "sha256": "2773323661e43f4cc92e72c743069d9cd93ba23b1051bbe8a714bfc89c0e2fd0",
+      "bytes": 37106,
+      "mtime": "2026-10-23T14:54:51.658786",
+      "ctime": "2026-10-23T14:54:51.658786"
+    },
+    {
+      "path": "quant_research_runs/20261023_daily_release_sync_v1/local_handoff_preview/ledger/latest.json",
+      "exact_bytes": true,
+      "sha256": "2773323661e43f4cc92e72c743069d9cd93ba23b1051bbe8a714bfc89c0e2fd0",
+      "bytes": 37106,
+      "mtime": "2026-10-23T11:03:28.646995",
+      "ctime": "2026-10-23T11:03:28.645999"
+    },
+    {
+      "path": "quant_research_runs/20261023_daily_release_sync_v1/local_handoff_preview/ledger/journal/000020-2026-10-22.json",
+      "exact_bytes": true,
+      "sha256": "2773323661e43f4cc92e72c743069d9cd93ba23b1051bbe8a714bfc89c0e2fd0",
+      "bytes": 37106,
+      "mtime": "2026-10-23T11:03:28.675917",
+      "ctime": "2026-10-23T11:03:28.675917"
+    },
+    {
+      "path": "runtime/ic_im_v1_4_r1/latest.json",
+      "exact_bytes": true,
+      "sha256": "2773323661e43f4cc92e72c743069d9cd93ba23b1051bbe8a714bfc89c0e2fd0",
+      "bytes": 37106,
+      "mtime": "2026-10-23T14:54:51.676738",
+      "ctime": "2026-10-23T14:54:51.676738"
+    },
+    {
+      "path": "runtime/ic_im_v1_4_r1/journal/000020-2026-10-22.json",
+      "exact_bytes": true,
+      "sha256": "2773323661e43f4cc92e72c743069d9cd93ba23b1051bbe8a714bfc89c0e2fd0",
+      "bytes": 37106,
+      "mtime": "2026-10-23T14:54:51.658786",
+      "ctime": "2026-10-23T14:54:51.658786"
+    }
+  ]
+}

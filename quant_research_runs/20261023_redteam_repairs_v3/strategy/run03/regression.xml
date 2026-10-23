@@ -1,0 +1,1428 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="3" skipped="0" tests="425" time="62.789" timestamp="2026-10-23T14:29:48.730526+08:00" hostname="DESKTOP-95I7VVU"><testcase classname="test_icim_redteam_strategy_repairs_20261023" name="test_missing_active_short_mark_must_not_publish_normal_hold[IC]" time="0.004" /><testcase classname="test_icim_redteam_strategy_repairs_20261023" name="test_missing_active_short_mark_must_not_publish_normal_hold[IM]" time="0.006" /><testcase classname="test_icim_redteam_strategy_repairs_20261023" name="test_valid_active_short_mark_may_hold[IC]" time="0.004" /><testcase classname="test_icim_redteam_strategy_repairs_20261023" name="test_valid_active_short_mark_may_hold[IM]" time="0.005" /><testcase classname="test_icim_redteam_strategy_repairs_20261023" name="test_full_ic_builder_missing_history_day_must_be_diagnostic" time="0.241" /><testcase classname="test_icim_redteam_strategy_repairs_20261023" name="test_full_ic_missing_mark_cannot_advance_state" time="0.376" /><testcase classname="test_icim_redteam_strategy_repairs_20261023" name="test_pure_policy_rejects_unknown_or_invalid_held_mark[None-IC]" time="0.002" /><testcase classname="test_icim_redteam_strategy_repairs_20261023" name="test_pure_policy_rejects_unknown_or_invalid_held_mark[None-IM]" time="0.001" /><testcase classname="test_icim_redteam_strategy_repairs_20261023" name="test_pure_policy_rejects_unknown_or_invalid_held_mark[nan-IC]" time="0.001" /><testcase classname="test_icim_redteam_strategy_repairs_20261023" name="test_pure_policy_rejects_unknown_or_invalid_held_mark[nan-IM]" time="0.001" /><testcase classname="test_icim_redteam_strategy_repairs_20261023" name="test_pure_policy_rejects_unknown_or_invalid_held_mark[inf-IC]" time="0.004" /><testcase classname="test_icim_redteam_strategy_repairs_20261023" name="test_pure_policy_rejects_unknown_or_invalid_held_mark[inf-IM]" time="0.003" /><testcase classname="test_icim_redteam_strategy_repairs_20261023" name="test_pure_policy_rejects_unknown_or_invalid_held_mark[-1-IC]" time="0.001" /><testcase classname="test_icim_redteam_strategy_repairs_20261023" name="test_pure_policy_rejects_unknown_or_invalid_held_mark[-1-IM]" time="0.001" /><testcase classname="test_icim_redteam_strategy_repairs_20261023" name="test_pure_policy_rejects_unknown_or_invalid_held_mark[0-IC]" time="0.003" /><testcase classname="test_icim_redteam_strategy_repairs_20261023" name="test_pure_policy_rejects_unknown_or_invalid_held_mark[0-IM]" time="0.003" /><testcase classname="test_icim_redteam_strategy_repairs_20261023" name="test_pure_policy_rejects_unknown_or_invalid_held_mark[True-IC]" time="0.002" /><testcase classname="test_icim_redteam_strategy_repairs_20261023" name="test_pure_policy_rejects_unknown_or_invalid_held_mark[True-IM]" time="0.002" /><testcase classname="test_icim_redteam_strategy_repairs_20261023" name="test_pure_policy_rejects_unknown_or_invalid_held_mark[bad-IC]" time="0.004" /><testcase classname="test_icim_redteam_strategy_repairs_20261023" name="test_pure_policy_rejects_unknown_or_invalid_held_mark[bad-IM]" time="0.001" /><testcase classname="test_icim_redteam_strategy_repairs_20261023" name="test_pure_policy_rejects_wrong_explicit_binding[v14_short_put_mark_day-value0-IC]" time="0.001" /><testcase classname="test_icim_redteam_strategy_repairs_20261023" name="test_pure_policy_rejects_wrong_explicit_binding[v14_short_put_mark_day-value0-IM]" time="0.001" /><testcase classname="test_icim_redteam_strategy_repairs_20261023" name="test_pure_policy_rejects_wrong_explicit_binding[v14_short_put_mark_contract-WRONG-IC]" time="0.002" /><testcase classname="test_icim_redteam_strategy_repairs_20261023" name="test_pure_policy_rejects_wrong_explicit_binding[v14_short_put_mark_contract-WRONG-IM]" time="0.005" /><testcase classname="test_icim_redteam_strategy_repairs_20261023" name="test_required_mark_does_not_change_existing_non_decay_paths[pending-IC]" time="0.001" /><testcase classname="test_icim_redteam_strategy_repairs_20261023" name="test_required_mark_does_not_change_existing_non_decay_paths[pending-IM]" time="0.001" /><testcase classname="test_icim_redteam_strategy_repairs_20261023" name="test_required_mark_does_not_change_existing_non_decay_paths[expiry-IC]" time="0.001" /><testcase classname="test_icim_redteam_strategy_repairs_20261023" name="test_required_mark_does_not_change_existing_non_decay_paths[expiry-IM]" time="0.001" /><testcase classname="test_icim_redteam_strategy_repairs_20261023" name="test_required_mark_does_not_change_existing_non_decay_paths[legacy_cost-IC]" time="0.007" /><testcase classname="test_icim_redteam_strategy_repairs_20261023" name="test_required_mark_does_not_change_existing_non_decay_paths[legacy_cost-IM]" time="0.002" /><testcase classname="test_icim_redteam_strategy_repairs_20261023" name="test_required_mark_does_not_change_existing_non_decay_paths[unconfirmed-IC]" time="0.002" /><testcase classname="test_icim_redteam_strategy_repairs_20261023" name="test_required_mark_does_not_change_existing_non_decay_paths[unconfirmed-IM]" time="0.004" /><testcase classname="test_icim_redteam_strategy_repairs_20261023" name="test_required_day_falls_back_from_lagging_primary" time="0.003" /><testcase classname="test_icim_redteam_strategy_repairs_20261023" name="test_required_day_missing_from_both_sources_rejects" time="0.002" /><testcase classname="test_icim_redteam_strategy_repairs_20261023" name="test_new_write_guard_recomputes_mark_eligibility[v14_short_put_mark-None-IC]" time="0.002" /><testcase classname="test_icim_redteam_strategy_repairs_20261023" name="test_new_write_guard_recomputes_mark_eligibility[v14_short_put_mark-None-IM]" time="0.003" /><testcase classname="test_icim_redteam_strategy_repairs_20261023" name="test_new_write_guard_recomputes_mark_eligibility[v14_short_put_mark_day-None-IC]" time="0.005" /><testcase classname="test_icim_redteam_strategy_repairs_20261023" name="test_new_write_guard_recomputes_mark_eligibility[v14_short_put_mark_day-None-IM]" time="0.002" /><testcase classname="test_icim_redteam_strategy_repairs_20261023" name="test_new_write_guard_recomputes_mark_eligibility[v14_short_put_mark_day-value2-IC]" time="0.001" /><testcase classname="test_icim_redteam_strategy_repairs_20261023" name="test_new_write_guard_recomputes_mark_eligibility[v14_short_put_mark_day-value2-IM]" time="0.003" /><testcase classname="test_icim_redteam_strategy_repairs_20261023" name="test_new_write_guard_recomputes_mark_eligibility[v14_short_put_mark_contract-WRONG-IC]" time="0.002" /><testcase classname="test_icim_redteam_strategy_repairs_20261023" name="test_new_write_guard_recomputes_mark_eligibility[v14_short_put_mark_contract-WRONG-IM]" time="0.001" /><testcase classname="test_icim_redteam_strategy_repairs_20261023" name="test_valid_adapter_binds_mark_and_low_mark_preserves_wait[IC]" time="0.003" /><testcase classname="test_icim_redteam_strategy_repairs_20261023" name="test_valid_adapter_binds_mark_and_low_mark_preserves_wait[IM]" time="0.005" /><testcase classname="test_icim_redteam_strategy_repairs_20261023" name="test_pre_repeat_roll_used_does_not_need_new_decay_mark[IC]" time="0.003" /><testcase classname="test_icim_redteam_strategy_repairs_20261023" name="test_pre_repeat_roll_used_does_not_need_new_decay_mark[IM]" time="0.001" /><testcase classname="test_icim_redteam_strategy_repairs_20261023" name="test_reentry_blocked_still_needs_observed_decay[IC]" time="0.001" /><testcase classname="test_icim_redteam_strategy_repairs_20261023" name="test_reentry_blocked_still_needs_observed_decay[IM]" time="0.001" /><testcase classname="test_icim_redteam_strategy_repairs_20261023" name="test_required_day_uses_unchanged_real_original_chain_keys" time="2.731" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[False--0.001-0-day0-IC]" time="0.004" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[False--0.001-0-day0-IM]" time="0.003" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[False--0.001-0-day1-IC]" time="0.004" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[False--0.001-0-day1-IM]" time="0.003" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[False--0.001-0-day2-IC]" time="0.002" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[False--0.001-0-day2-IM]" time="0.004" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[False--0.001-1-day0-IC]" time="0.002" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[False--0.001-1-day0-IM]" time="0.002" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[False--0.001-1-day1-IC]" time="0.001" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[False--0.001-1-day1-IM]" time="0.003" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[False--0.001-1-day2-IC]" time="0.003" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[False--0.001-1-day2-IM]" time="0.002" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[False--0.001-2-day0-IC]" time="0.002" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[False--0.001-2-day0-IM]" time="0.001" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[False--0.001-2-day1-IC]" time="0.002" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[False--0.001-2-day1-IM]" time="0.004" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[False--0.001-2-day2-IC]" time="0.003" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[False--0.001-2-day2-IM]" time="0.002" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[False--0.001-None-day0-IC]" time="0.003" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[False--0.001-None-day0-IM]" time="0.003" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[False--0.001-None-day1-IC]" time="0.001" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[False--0.001-None-day1-IM]" time="0.001" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[False--0.001-None-day2-IC]" time="0.002" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[False--0.001-None-day2-IM]" time="0.005" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[False-0.0-0-day0-IC]" time="0.003" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[False-0.0-0-day0-IM]" time="0.002" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[False-0.0-0-day1-IC]" time="0.003" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[False-0.0-0-day1-IM]" time="0.002" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[False-0.0-0-day2-IC]" time="0.002" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[False-0.0-0-day2-IM]" time="0.007" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[False-0.0-1-day0-IC]" time="0.002" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[False-0.0-1-day0-IM]" time="0.001" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[False-0.0-1-day1-IC]" time="0.003" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[False-0.0-1-day1-IM]" time="0.003" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[False-0.0-1-day2-IC]" time="0.005" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[False-0.0-1-day2-IM]" time="0.004" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[False-0.0-2-day0-IC]" time="0.003" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[False-0.0-2-day0-IM]" time="0.003" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[False-0.0-2-day1-IC]" time="0.007" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[False-0.0-2-day1-IM]" time="0.003" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[False-0.0-2-day2-IC]" time="0.004" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[False-0.0-2-day2-IM]" time="0.004" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[False-0.0-None-day0-IC]" time="0.002" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[False-0.0-None-day0-IM]" time="0.002" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[False-0.0-None-day1-IC]" time="0.003" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[False-0.0-None-day1-IM]" time="0.002" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[False-0.0-None-day2-IC]" time="0.002" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[False-0.0-None-day2-IM]" time="0.001" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[False-0.01-0-day0-IC]" time="0.003" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[False-0.01-0-day0-IM]" time="0.003" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[False-0.01-0-day1-IC]" time="0.004" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[False-0.01-0-day1-IM]" time="0.003" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[False-0.01-0-day2-IC]" time="0.004" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[False-0.01-0-day2-IM]" time="0.002" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[False-0.01-1-day0-IC]" time="0.002" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[False-0.01-1-day0-IM]" time="0.002" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[False-0.01-1-day1-IC]" time="0.003" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[False-0.01-1-day1-IM]" time="0.001" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[False-0.01-1-day2-IC]" time="0.002" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[False-0.01-1-day2-IM]" time="0.002" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[False-0.01-2-day0-IC]" time="0.002" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[False-0.01-2-day0-IM]" time="0.003" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[False-0.01-2-day1-IC]" time="0.001" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[False-0.01-2-day1-IM]" time="0.002" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[False-0.01-2-day2-IC]" time="0.002" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[False-0.01-2-day2-IM]" time="0.004" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[False-0.01-None-day0-IC]" time="0.002" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[False-0.01-None-day0-IM]" time="0.002" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[False-0.01-None-day1-IC]" time="0.002" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[False-0.01-None-day1-IM]" time="0.002" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[False-0.01-None-day2-IC]" time="0.004" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[False-0.01-None-day2-IM]" time="0.003" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[False-None-0-day0-IC]" time="0.002" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[False-None-0-day0-IM]" time="0.002" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[False-None-0-day1-IC]" time="0.003" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[False-None-0-day1-IM]" time="0.002" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[False-None-0-day2-IC]" time="0.002" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[False-None-0-day2-IM]" time="0.006" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[False-None-1-day0-IC]" time="0.003" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[False-None-1-day0-IM]" time="0.001" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[False-None-1-day1-IC]" time="0.002" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[False-None-1-day1-IM]" time="0.004" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[False-None-1-day2-IC]" time="0.002" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[False-None-1-day2-IM]" time="0.001" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[False-None-2-day0-IC]" time="0.002" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[False-None-2-day0-IM]" time="0.004" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[False-None-2-day1-IC]" time="0.003" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[False-None-2-day1-IM]" time="0.004" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[False-None-2-day2-IC]" time="0.003" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[False-None-2-day2-IM]" time="0.002" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[False-None-None-day0-IC]" time="0.005" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[False-None-None-day0-IM]" time="0.003" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[False-None-None-day1-IC]" time="0.003" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[False-None-None-day1-IM]" time="0.004" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[False-None-None-day2-IC]" time="0.003" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[False-None-None-day2-IM]" time="0.002" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[True--0.001-0-day0-IC]" time="0.007" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[True--0.001-0-day0-IM]" time="0.003" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[True--0.001-0-day1-IC]" time="0.002" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[True--0.001-0-day1-IM]" time="0.003" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[True--0.001-0-day2-IC]" time="0.004" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[True--0.001-0-day2-IM]" time="0.003" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[True--0.001-1-day0-IC]" time="0.004" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[True--0.001-1-day0-IM]" time="0.002" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[True--0.001-1-day1-IC]" time="0.002" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[True--0.001-1-day1-IM]" time="0.001" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[True--0.001-1-day2-IC]" time="0.001" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[True--0.001-1-day2-IM]" time="0.003" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[True--0.001-2-day0-IC]" time="0.003" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[True--0.001-2-day0-IM]" time="0.003" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[True--0.001-2-day1-IC]" time="0.004" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[True--0.001-2-day1-IM]" time="0.003" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[True--0.001-2-day2-IC]" time="0.003" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[True--0.001-2-day2-IM]" time="0.004" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[True--0.001-None-day0-IC]" time="0.003" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[True--0.001-None-day0-IM]" time="0.004" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[True--0.001-None-day1-IC]" time="0.004" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[True--0.001-None-day1-IM]" time="0.005" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[True--0.001-None-day2-IC]" time="0.005" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[True--0.001-None-day2-IM]" time="0.004" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[True-0.0-0-day0-IC]" time="0.003" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[True-0.0-0-day0-IM]" time="0.004" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[True-0.0-0-day1-IC]" time="0.003" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[True-0.0-0-day1-IM]" time="0.002" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[True-0.0-0-day2-IC]" time="0.003" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[True-0.0-0-day2-IM]" time="0.003" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[True-0.0-1-day0-IC]" time="0.001" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[True-0.0-1-day0-IM]" time="0.001" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[True-0.0-1-day1-IC]" time="0.003" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[True-0.0-1-day1-IM]" time="0.004" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[True-0.0-1-day2-IC]" time="0.001" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[True-0.0-1-day2-IM]" time="0.001" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[True-0.0-2-day0-IC]" time="0.001" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[True-0.0-2-day0-IM]" time="0.003" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[True-0.0-2-day1-IC]" time="0.002" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[True-0.0-2-day1-IM]" time="0.003" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[True-0.0-2-day2-IC]" time="0.004" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[True-0.0-2-day2-IM]" time="0.003" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[True-0.0-None-day0-IC]" time="0.002" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[True-0.0-None-day0-IM]" time="0.001" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[True-0.0-None-day1-IC]" time="0.002" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[True-0.0-None-day1-IM]" time="0.005" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[True-0.0-None-day2-IC]" time="0.002" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[True-0.0-None-day2-IM]" time="0.003" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[True-0.01-0-day0-IC]" time="0.004" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[True-0.01-0-day0-IM]" time="0.002" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[True-0.01-0-day1-IC]" time="0.002" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[True-0.01-0-day1-IM]" time="0.005" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[True-0.01-0-day2-IC]" time="0.002" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[True-0.01-0-day2-IM]" time="0.001" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[True-0.01-1-day0-IC]" time="0.001" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[True-0.01-1-day0-IM]" time="0.003" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[True-0.01-1-day1-IC]" time="0.004" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[True-0.01-1-day1-IM]" time="0.002" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[True-0.01-1-day2-IC]" time="0.002" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[True-0.01-1-day2-IM]" time="0.005" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[True-0.01-2-day0-IC]" time="0.003" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[True-0.01-2-day0-IM]" time="0.002" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[True-0.01-2-day1-IC]" time="0.005" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[True-0.01-2-day1-IM]" time="0.003" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[True-0.01-2-day2-IC]" time="0.001" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[True-0.01-2-day2-IM]" time="0.002" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[True-0.01-None-day0-IC]" time="0.003" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[True-0.01-None-day0-IM]" time="0.002" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[True-0.01-None-day1-IC]" time="0.001" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[True-0.01-None-day1-IM]" time="0.001" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[True-0.01-None-day2-IC]" time="0.002" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[True-0.01-None-day2-IM]" time="0.007" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[True-None-0-day0-IC]" time="0.002" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[True-None-0-day0-IM]" time="0.002" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[True-None-0-day1-IC]" time="0.004" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[True-None-0-day1-IM]" time="0.002" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[True-None-0-day2-IC]" time="0.001" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[True-None-0-day2-IM]" time="0.002" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[True-None-1-day0-IC]" time="0.004" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[True-None-1-day0-IM]" time="0.003" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[True-None-1-day1-IC]" time="0.001" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[True-None-1-day1-IM]" time="0.001" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[True-None-1-day2-IC]" time="0.002" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[True-None-1-day2-IM]" time="0.004" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[True-None-2-day0-IC]" time="0.002" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[True-None-2-day0-IM]" time="0.002" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[True-None-2-day1-IC]" time="0.002" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[True-None-2-day1-IM]" time="0.008" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[True-None-2-day2-IC]" time="0.001" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[True-None-2-day2-IM]" time="0.001" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[True-None-None-day0-IC]" time="0.005" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[True-None-None-day0-IM]" time="0.002" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[True-None-None-day1-IC]" time="0.002" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[True-None-None-day1-IM]" time="0.003" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[True-None-None-day2-IC]" time="0.005" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_prerequisites_share_exact_permission_checks[True-None-None-day2-IM]" time="0.001" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_recovery_routes_never_probe_entry_or_roll[assigned_etf-IC]" time="0.001" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_recovery_routes_never_probe_entry_or_roll[assigned_etf-IM]" time="0.003" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_recovery_routes_never_probe_entry_or_roll[cash_wait-IC]" time="0.006" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_recovery_routes_never_probe_entry_or_roll[cash_wait-IM]" time="0.002" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_recovery_routes_never_probe_entry_or_roll[recovery_future-IC]" time="0.001" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_recovery_routes_never_probe_entry_or_roll[recovery_future-IM]" time="0.002" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_roll_candidate_only_after_shared_decay_trigger[1.0-False-confirmed_dated_open-False-day0-False-IC]" time="0.003" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_roll_candidate_only_after_shared_decay_trigger[1.0-False-confirmed_dated_open-False-day0-False-IM]" time="0.003" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_roll_candidate_only_after_shared_decay_trigger[0.2-False-confirmed_dated_open-False-day1-True-IC]" time="0.002" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_roll_candidate_only_after_shared_decay_trigger[0.2-False-confirmed_dated_open-False-day1-True-IM]" time="0.002" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_roll_candidate_only_after_shared_decay_trigger[1.0-True-confirmed_dated_open-False-day2-True-IC]" time="0.003" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_roll_candidate_only_after_shared_decay_trigger[1.0-True-confirmed_dated_open-False-day2-True-IM]" time="0.002" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_roll_candidate_only_after_shared_decay_trigger[0.2-False-None-False-day3-False-IC]" time="0.001" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_roll_candidate_only_after_shared_decay_trigger[0.2-False-None-False-day3-False-IM]" time="0.001" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_roll_candidate_only_after_shared_decay_trigger[0.2-False-confirmed_dated_open-True-day4-False-IC]" time="0.001" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_roll_candidate_only_after_shared_decay_trigger[0.2-False-confirmed_dated_open-True-day4-False-IM]" time="0.003" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_roll_candidate_only_after_shared_decay_trigger[0.2-False-confirmed_dated_open-True-day5-True-IC]" time="0.003" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_roll_candidate_only_after_shared_decay_trigger[0.2-False-confirmed_dated_open-True-day5-True-IM]" time="0.003" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_expiry_event_takes_priority_over_candidate[IC]" time="0.001" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_expiry_event_takes_priority_over_candidate[IM]" time="0.001" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_committed_profit_open_precedes_new_entry_candidate[IC]" time="0.001" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_committed_profit_open_precedes_new_entry_candidate[IM]" time="0.001" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_pending_short_open_precedes_any_candidate[IC]" time="0.001" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_pending_short_open_precedes_any_candidate[IM]" time="0.007" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_unused_candidate_does_not_taint_other_sleeves_or_calendar[2-0.1-True-IC]" time="0.003" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_unused_candidate_does_not_taint_other_sleeves_or_calendar[2-0.1-True-IM]" time="0.003" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_unused_candidate_does_not_taint_other_sleeves_or_calendar[0--0.1-True-IC]" time="0.004" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_unused_candidate_does_not_taint_other_sleeves_or_calendar[0--0.1-True-IM]" time="0.002" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_unused_candidate_does_not_taint_other_sleeves_or_calendar[0-0.1-False-IC]" time="0.004" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_unused_candidate_does_not_taint_other_sleeves_or_calendar[0-0.1-False-IM]" time="0.004" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_unchanged_short_does_not_probe_entry_or_roll[IC]" time="0.010" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_unchanged_short_does_not_probe_entry_or_roll[IM]" time="0.006" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_triggered_roll_consumes_only_replacement_candidate[IC]" time="0.008" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_triggered_roll_consumes_only_replacement_candidate[IM]" time="0.006" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_pending_roll_with_failed_prerequisite_waits_without_lookup[IC]" time="0.007" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_pending_roll_with_failed_prerequisite_waits_without_lookup[IM]" time="0.004" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_required_unknown_calendar_remains_unresolved[IC]" time="0.007" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_required_unknown_calendar_remains_unresolved[IM]" time="0.004" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_required_candidate_data_unknown_is_not_unlisted[IC]" time="0.004" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_required_candidate_data_unknown_is_not_unlisted[IM]" time="0.004" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_required_core_transport_reaches_outer_retry[error0]" time="0.003" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_required_core_transport_reaches_outer_retry[error1]" time="0.003" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_required_core_transport_reaches_outer_retry[error2]" time="0.003" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_required_held_mark_transport_reaches_outer_retry_even_if_candidate_unused" time="0.004" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_unused_candidate_does_not_bypass_held_identity" time="0.007" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_bounded_transport_retry_retries_adapter_then_preserves_result" time="0.004" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_admission_priority_skips_unconsumed_profit_preselection[IC]" time="0.006" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_admission_priority_skips_unconsumed_profit_preselection[IM]" time="0.007" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_consumed_new_profit_trigger_preselects_once_after_route_decision[IC]" time="0.025" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_consumed_new_profit_trigger_preselects_once_after_route_decision[IM]" time="0.015" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_committed_profit_does_not_repeat_preselection[IC]" time="0.005" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_committed_profit_does_not_repeat_preselection[IM]" time="0.003" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_consumed_profit_preselection_transport_reaches_retry[SignalTransportError]" time="0.003" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_consumed_profit_preselection_transport_reaches_retry[ConnectionError]" time="0.003" /><testcase classname="test_icim_round3_policy_repairs_20261021" name="test_consumed_profit_preselection_transport_reaches_retry[Timeout]" time="0.005" /><testcase classname="test_ic_im_v1_4_policy" name="test_producer_identity_is_date_aware_for_append_only_history" time="0.002" /><testcase classname="test_ic_im_v1_4_policy" name="test_replay_before_fix3_keeps_original_producer_identity" time="0.001" /><testcase classname="test_ic_im_v1_4_policy" name="test_no_call_boundary_preserves_old_signal_and_blocks_new_open[day0-OPEN_CALL]" time="0.004" /><testcase classname="test_ic_im_v1_4_policy" name="test_no_call_boundary_preserves_old_signal_and_blocks_new_open[day1-HOLD]" time="0.003" /><testcase classname="test_ic_im_v1_4_policy" name="test_no_call_closes_existing_position_without_reopening" time="0.002" /><testcase classname="test_ic_im_v1_4_policy" name="test_ic_seller_keeps_v13_execution_permission_before_fix9" time="0.002" /><testcase classname="test_ic_im_v1_4_policy" name="test_ic_seller_fix9_uses_price_mom120_not_momentum_leg_or_buyer_debounce" time="0.002" /><testcase classname="test_ic_im_v1_4_policy" name="test_ic_seller_fix9_rechecks_mom120_on_pending_repeat_roll" time="0.004" /><testcase classname="test_ic_im_v1_4_policy" name="test_im_seller_requires_nonnegative_mom120_and_q3_enters_atomically" time="0.002" /><testcase classname="test_ic_im_v1_4_policy" name="test_roll_wait_is_persistent_and_only_success_clears_it" time="0.002" /><testcase classname="test_ic_im_v1_4_policy" name="test_migrated_put_cannot_trigger_3x_until_fresh_monthly_reset" time="0.005" /><testcase classname="test_ic_im_v1_4_policy" name="test_active_ic_short_put_requires_security_id" time="0.002" /><testcase classname="test_ic_im_v1_4_policy" name="test_zero_core_target_clears_stale_profit_basis_before_trigger" time="0.002" /><testcase classname="test_ic_im_v1_4_policy" name="test_expiry_publishes_model_branches_without_account_confirmation" time="0.004" /><testcase classname="test_ic_im_v1_4_policy" name="test_assignment_conversion_keeps_recovery_future_exposure_until_breakeven" time="0.008" /><testcase classname="test_ic_im_v1_4_policy" name="test_profit_trigger_is_idempotent_until_reentry_price_is_confirmed" time="0.005" /><testcase classname="test_ic_im_v1_4_policy" name="test_recovery_hold_does_not_invent_additional_futures[IC]" time="0.003" /><testcase classname="test_ic_im_v1_4_policy" name="test_recovery_hold_does_not_invent_additional_futures[IM]" time="0.002" /><testcase classname="test_ic_im_v1_4_policy" name="test_monthly_maintenance_preempts_pending_profit_and_uses_monthly_cost" time="0.004" /><testcase classname="test_ic_im_v1_4_policy" name="test_intraday_profit_hit_does_not_create_event" time="0.128" /><testcase classname="test_ic_im_v1_4_policy" name="test_profit_execution_requires_scheduled_common_session_close[day0-True]" time="0.002" /><testcase classname="test_ic_im_v1_4_policy" name="test_profit_execution_requires_scheduled_common_session_close[day1-False]" time="0.003" /><testcase classname="test_ic_im_v1_4_policy" name="test_profit_execution_requires_scheduled_common_session_close[day2-True]" time="0.004" /><testcase classname="test_ic_im_v1_4_policy" name="test_fix7_profit_plan_selects_at_t_and_confirms_only_t1_open[IC]" time="0.006" /><testcase classname="test_ic_im_v1_4_policy" name="test_fix7_profit_plan_selects_at_t_and_confirms_only_t1_open[IM]" time="0.005" /><testcase classname="test_ic_im_v1_4_policy" name="test_fix7_no_t_close_preselection_does_not_create_a_fake_open_order" time="0.004" /><testcase classname="test_ic_im_v1_4_policy" name="test_fix7_monthly_reset_cancels_pending_open_execution" time="0.002" /><testcase classname="test_ic_im_v1_4_policy" name="test_fix6_pending_crossing_fix7_boundary_keeps_old_close_semantics" time="0.002" /><testcase classname="test_ic_im_v1_4_policy" name="test_nonfinite_momentum_cannot_admit_seller[None-IC-momentum_next_weight]" time="0.002" /><testcase classname="test_ic_im_v1_4_policy" name="test_nonfinite_momentum_cannot_admit_seller[None-IM-momentum_120]" time="0.003" /><testcase classname="test_ic_im_v1_4_policy" name="test_nonfinite_momentum_cannot_admit_seller[nan-IC-momentum_next_weight]" time="0.001" /><testcase classname="test_ic_im_v1_4_policy" name="test_nonfinite_momentum_cannot_admit_seller[nan-IM-momentum_120]" time="0.001" /><testcase classname="test_ic_im_v1_4_policy" name="test_nonfinite_momentum_cannot_admit_seller[inf-IC-momentum_next_weight]" time="0.001" /><testcase classname="test_ic_im_v1_4_policy" name="test_nonfinite_momentum_cannot_admit_seller[inf-IM-momentum_120]" time="0.001" /><testcase classname="test_ic_im_v1_4_policy" name="test_nonfinite_momentum_cannot_admit_seller[-inf-IC-momentum_next_weight]" time="0.001" /><testcase classname="test_ic_im_v1_4_policy" name="test_nonfinite_momentum_cannot_admit_seller[-inf-IM-momentum_120]" time="0.005" /><testcase classname="test_ic_im_v1_4_policy" name="test_active_short_premium_must_be_finite_positive[nan]" time="0.001" /><testcase classname="test_ic_im_v1_4_policy" name="test_active_short_premium_must_be_finite_positive[inf]" time="0.001" /><testcase classname="test_ic_im_v1_4_policy" name="test_active_short_premium_must_be_finite_positive[-1.0]" time="0.001" /><testcase classname="test_ic_im_v1_4_policy" name="test_active_short_premium_must_be_finite_positive[0.0]" time="0.003" /><testcase classname="test_ic_im_v1_4_policy" name="test_im_route_closes_core_put_without_changing_momentum_leg" time="0.002" /><testcase classname="test_ic_im_v1_4_policy" name="test_ic_route_preserves_momentum_put_monthly_maintenance[False-HOLD]" time="0.002" /><testcase classname="test_ic_im_v1_4_policy" name="test_ic_route_preserves_momentum_put_monthly_maintenance[True-RESIZE_OR_ROLL]" time="0.001" /><testcase classname="test_ic_im_v1_4_policy" name="test_intraday_settlement_confirmation_does_not_advance_route[IC]" time="0.001" /><testcase classname="test_ic_im_v1_4_policy" name="test_intraday_settlement_confirmation_does_not_advance_route[IM]" time="0.001" /><testcase classname="test_ic_im_v1_4_policy" name="test_seller_requires_exact_valid_valuation_tier[IC-valuation_tier--1.0]" time="0.005" /><testcase classname="test_ic_im_v1_4_policy" name="test_seller_requires_exact_valid_valuation_tier[IC-valuation_tier-0.5]" time="0.001" /><testcase classname="test_ic_im_v1_4_policy" name="test_seller_requires_exact_valid_valuation_tier[IC-valuation_tier-nan]" time="0.001" /><testcase classname="test_ic_im_v1_4_policy" name="test_seller_requires_exact_valid_valuation_tier[IC-valuation_tier-inf]" time="0.001" /><testcase classname="test_ic_im_v1_4_policy" name="test_seller_requires_exact_valid_valuation_tier[IM-valuation_puts_per_full_core--1.0]" time="0.001" /><testcase classname="test_ic_im_v1_4_policy" name="test_seller_requires_exact_valid_valuation_tier[IM-valuation_puts_per_full_core-0.5]" time="0.004" /><testcase classname="test_ic_im_v1_4_policy" name="test_seller_requires_exact_valid_valuation_tier[IM-valuation_puts_per_full_core-nan]" time="0.002" /><testcase classname="test_ic_im_v1_4_policy" name="test_seller_requires_exact_valid_valuation_tier[IM-valuation_puts_per_full_core-inf]" time="0.001" /><testcase classname="test_ic_im_v1_4_policy" name="test_independent_core_contract_fields_survive_producer_and_clear_on_route" time="0.001" /><testcase classname="test_ic_im_v1_4_policy" name="test_independent_core_quantity_requires_finite_nonnegative[nan]" time="0.001" /><testcase classname="test_ic_im_v1_4_policy" name="test_independent_core_quantity_requires_finite_nonnegative[inf]" time="0.003" /><testcase classname="test_ic_im_v1_4_policy" name="test_independent_core_quantity_requires_finite_nonnegative[-1.0]" time="0.002" /><testcase classname="test_icim_round4_recovery_20261021" name="test_real_independent_collector_survives_calendar_diagnostic_then_server_recovers[False-day0-previous0-later0]" time="4.587" /><testcase classname="test_icim_round4_recovery_20261021" name="test_real_independent_collector_survives_calendar_diagnostic_then_server_recovers[False-day1-previous1-later1]" time="4.713" /><testcase classname="test_icim_round4_recovery_20261021" name="test_real_independent_collector_survives_calendar_diagnostic_then_server_recovers[True-day0-previous0-later0]" time="5.934" /><testcase classname="test_icim_round4_recovery_20261021" name="test_real_independent_collector_survives_calendar_diagnostic_then_server_recovers[True-day1-previous1-later1]" time="4.546" /><testcase classname="test_icim_round4_recovery_20261021" name="test_unavailable_original_fear_recovers_with_separate_real_time_history_supplement" time="1.116" /><testcase classname="test_icim_round4_recovery_20261021" name="test_missing_fear_history_remains_unresolved_and_creates_no_complete_supplement" time="0.162" /><testcase classname="test_icim_round4_recovery_20261021" name="test_two_actual_independent_captures_while_stale_then_sequential_server_recovery" time="8.358" /><testcase classname="test_icim_round4_recovery_20261021" name="test_legacy_ic_profit_rebuild_uses_original_chain_only_if_present[True]" time="0.673" /><testcase classname="test_icim_round4_recovery_20261021" name="test_legacy_ic_profit_rebuild_uses_original_chain_only_if_present[False]" time="0.556" /><testcase classname="test_icim_round4_recovery_20261021" name="test_batched_mo_original_crosschecks_replay_quote_and_open_without_http" time="0.237" /><testcase classname="test_icim_round4_recovery_20261021" name="test_incomplete_mo_verification_batch_cannot_claim_complete_archive[missing]" time="0.125" /><testcase classname="test_icim_round4_recovery_20261021" name="test_incomplete_mo_verification_batch_cannot_claim_complete_archive[duplicate]" time="0.054" /><testcase classname="test_icim_round4_recovery_20261021" name="test_incomplete_mo_verification_batch_cannot_claim_complete_archive[wrong_identity]" time="0.034" /><testcase classname="test_icim_round4_recovery_20261021" name="test_none_roll_candidate_and_random_gate_contract_are_real_policy_compatible[IC]" time="0.046" /><testcase classname="test_icim_round4_recovery_20261021" name="test_none_roll_candidate_and_random_gate_contract_are_real_policy_compatible[IM]" time="0.035" /><testcase classname="test_icim_round5_recording_semantics_20261021" name="test_conflicting_same_url_parameters_are_rejected_instead_of_taking_last[body]" time="0.135" /><testcase classname="test_icim_round5_recording_semantics_20261021" name="test_conflicting_same_url_parameters_are_rejected_instead_of_taking_last[headers]" time="0.172" /><testcase classname="test_icim_round5_recording_semantics_20261021" name="test_conflicting_same_url_parameters_are_rejected_instead_of_taking_last[status]" time="0.134" /><testcase classname="test_icim_round5_recording_semantics_20261021" name="test_conflicting_same_url_parameters_are_rejected_instead_of_taking_last[encoding]" time="0.119" /><testcase classname="test_icim_round5_recording_semantics_20261021" name="test_identical_repeat_http_is_reusable_without_consuming_invented_request_order" time="0.355" /><testcase classname="test_icim_round5_recording_semantics_20261021" name="test_overlapping_sina_batches_must_agree_on_the_exact_projected_variable[True]" time="0.294" /><testcase classname="test_icim_round5_recording_semantics_20261021" name="test_overlapping_sina_batches_must_agree_on_the_exact_projected_variable[False]" time="0.214" /><testcase classname="test_icim_round5_recording_semantics_20261021" name="test_annotation_is_encoded_once_and_capture_context_is_active" time="0.070" /><testcase classname="test_icim_round5_recording_semantics_20261021" name="test_real_chain_adapter_coalesces_month_day_and_never_aliases_years" time="0.229" /><testcase classname="test_icim_round5_recording_semantics_20261021" name="test_wrong_year_return_from_same_month_url_cannot_form_a_complete_chain_archive" time="0.062" /><testcase classname="test_icim_round5_recording_semantics_20261021" name="test_existing_unknown_year_ic_put_collects_without_new_expiry_then_real_server_recovers[day0-previous0-2703]" time="4.452" /><testcase classname="test_icim_round5_recording_semantics_20261021" name="test_existing_unknown_year_ic_put_collects_without_new_expiry_then_real_server_recovers[day1-previous1-2701]" time="3.898" /><testcase classname="test_icim_round5_recording_semantics_20261021" name="test_nov23_ic_2701_not_in_rule_shaped_listing_never_becomes_a_formal_target" time="2.382" /><testcase classname="test_icim_round5_recording_semantics_20261021" name="test_replay_freezes_real_collection_end_despite_outer_elapsed_query_clock" time="0.464" /><testcase classname="test_icim_round5_recording_semantics_20261021" name="test_close_quote_freshness_is_consistent_at_original_elapsed_and_replay_end[15-0-True]" time="0.003" /><testcase classname="test_icim_round5_recording_semantics_20261021" name="test_close_quote_freshness_is_consistent_at_original_elapsed_and_replay_end[14-54-False]" time="0.002" /><testcase classname="test_icim_round5_recording_semantics_20261021" name="test_close_quote_freshness_is_consistent_at_original_elapsed_and_replay_end[18-1-False]" time="0.003" /><testcase classname="test_icim_round5_recording_semantics_20261021" name="test_none_and_untradable_roll_candidate_leave_unneeded_gate_actions_identical[IC]" time="0.089" /><testcase classname="test_icim_round5_recording_semantics_20261021" name="test_none_and_untradable_roll_candidate_leave_unneeded_gate_actions_identical[IM]" time="0.113" /><testcase classname="test_icim_round2_audit_lifecycle_20261021" name="test_historical_adapter_retains_id_already_bound_to_requested_series" time="0.293"><failure message="poe_ic_im_mainline_v1_4_bot.SignalTransportError: IC历史Put官方逐日身份来源不可用，禁止猜测历史条款">self = &lt;urllib3.connection.HTTPSConnection object at 0x0000017B5EDA1400&gt;
+
+    def _new_conn(self):
+        """Establish a socket connection and set nodelay settings on it.
+    
+        :return: New socket connection.
+        """
+        extra_kw = {}
+        if self.source_address:
+            extra_kw["source_address"] = self.source_address
+    
+        if self.socket_options:
+            extra_kw["socket_options"] = self.socket_options
+    
+        try:
+&gt;           conn = connection.create_connection(
+                (self._dns_host, self.port), self.timeout, **extra_kw
+            )
+
+C:\Python314\Lib\site-packages\urllib3\connection.py:174: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+C:\Python314\Lib\site-packages\urllib3\util\connection.py:95: in create_connection
+    raise err
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+address = ('query.sse.com.cn', 443), timeout = 8, source_address = None
+socket_options = [(6, 1, 1)]
+
+    def create_connection(
+        address,
+        timeout=socket._GLOBAL_DEFAULT_TIMEOUT,
+        source_address=None,
+        socket_options=None,
+    ):
+        """Connect to *address* and return the socket object.
+    
+        Convenience function.  Connect to *address* (a 2-tuple ``(host,
+        port)``) and return the socket object.  Passing the optional
+        *timeout* parameter will set the timeout on the socket instance
+        before attempting to connect.  If no *timeout* is supplied, the
+        global default timeout setting returned by :func:`socket.getdefaulttimeout`
+        is used.  If *source_address* is set it must be a tuple of (host, port)
+        for the socket to bind as a source address before making the connection.
+        An host of '' or port 0 tells the OS to use the default.
+        """
+    
+        host, port = address
+        if host.startswith("["):
+            host = host.strip("[]")
+        err = None
+    
+        # Using the value from allowed_gai_family() in the context of getaddrinfo lets
+        # us select whether to work with IPv4 DNS records, IPv6 records, or both.
+        # The original create_connection function always returns all records.
+        family = allowed_gai_family()
+    
+        try:
+            host.encode("idna")
+        except UnicodeError:
+            return six.raise_from(
+                LocationParseError(u"'%s', label empty or too long" % host), None
+            )
+    
+        for res in socket.getaddrinfo(host, port, family, socket.SOCK_STREAM):
+            af, socktype, proto, canonname, sa = res
+            sock = None
+            try:
+                sock = socket.socket(af, socktype, proto)
+    
+                # If provided, set socket level options before connecting.
+                _set_socket_options(sock, socket_options)
+    
+                if timeout is not socket._GLOBAL_DEFAULT_TIMEOUT:
+                    sock.settimeout(timeout)
+                if source_address:
+                    sock.bind(source_address)
+&gt;               sock.connect(sa)
+E               PermissionError: [WinError 10013] 以一种访问权限不允许的方式做了一个访问套接字的尝试。
+
+C:\Python314\Lib\site-packages\urllib3\util\connection.py:85: PermissionError
+
+During handling of the above exception, another exception occurred:
+
+self = &lt;urllib3.connectionpool.HTTPSConnectionPool object at 0x0000017B5EDA1010&gt;
+method = 'GET'
+url = '/commonQuery.do?isPagination=false&amp;sqlId=SSE_ZQPZ_YSP_GGQQZSXT_XXPL_DRHY_SEARCH_L&amp;securityId=510500&amp;queryDate=20261021&amp;pageHelp.pageSize=1000&amp;pageHelp.pageNo=1'
+body = None
+headers = {'User-Agent': 'Mozilla/5.0 POE-IC-IM-Research/1.0', 'Accept-Encoding': 'gzip, deflate, br', 'Accept': '*/*', 'Connect...'Referer': 'https://www.sse.com.cn/assortment/options/disclo/info/', 'Cache-Control': 'no-cache', 'Pragma': 'no-cache'}
+retries = Retry(total=0, connect=None, read=False, redirect=None, status=None)
+redirect = False, assert_same_host = False
+timeout = Timeout(connect=8, read=8, total=None), pool_timeout = None
+release_conn = False, chunked = False, body_pos = None
+response_kw = {'decode_content': False, 'preload_content': False}
+parsed_url = Url(scheme=None, auth=None, host=None, port=None, path='/commonQuery.do', query='isPagination=false&amp;sqlId=SSE_ZQPZ_YSP...QZSXT_XXPL_DRHY_SEARCH_L&amp;securityId=510500&amp;queryDate=20261021&amp;pageHelp.pageSize=1000&amp;pageHelp.pageNo=1', fragment=None)
+destination_scheme = None, conn = None, release_this_conn = True
+http_tunnel_required = False, err = None, clean_exit = False
+
+    def urlopen(
+        self,
+        method,
+        url,
+        body=None,
+        headers=None,
+        retries=None,
+        redirect=True,
+        assert_same_host=True,
+        timeout=_Default,
+        pool_timeout=None,
+        release_conn=None,
+        chunked=False,
+        body_pos=None,
+        **response_kw
+    ):
+        """
+        Get a connection from the pool and perform an HTTP request. This is the
+        lowest level call for making a request, so you'll need to specify all
+        the raw details.
+    
+        .. note::
+    
+           More commonly, it's appropriate to use a convenience method provided
+           by :class:`.RequestMethods`, such as :meth:`request`.
+    
+        .. note::
+    
+           `release_conn` will only behave as expected if
+           `preload_content=False` because we want to make
+           `preload_content=False` the default behaviour someday soon without
+           breaking backwards compatibility.
+    
+        :param method:
+            HTTP request method (such as GET, POST, PUT, etc.)
+    
+        :param url:
+            The URL to perform the request on.
+    
+        :param body:
+            Data to send in the request body, either :class:`str`, :class:`bytes`,
+            an iterable of :class:`str`/:class:`bytes`, or a file-like object.
+    
+        :param headers:
+            Dictionary of custom headers to send, such as User-Agent,
+            If-None-Match, etc. If None, pool headers are used. If provided,
+            these headers completely replace any pool-specific headers.
+    
+        :param retries:
+            Configure the number of retries to allow before raising a
+            :class:`~urllib3.exceptions.MaxRetryError` exception.
+    
+            Pass ``None`` to retry until you receive a response. Pass a
+            :class:`~urllib3.util.retry.Retry` object for fine-grained control
+            over different types of retries.
+            Pass an integer number to retry connection errors that many times,
+            but no other types of errors. Pass zero to never retry.
+    
+            If ``False``, then retries are disabled and any exception is raised
+            immediately. Also, instead of raising a MaxRetryError on redirects,
+            the redirect response will be returned.
+    
+        :type retries: :class:`~urllib3.util.retry.Retry`, False, or an int.
+    
+        :param redirect:
+            If True, automatically handle redirects (status codes 301, 302,
+            303, 307, 308). Each redirect counts as a retry. Disabling retries
+            will disable redirect, too.
+    
+        :param assert_same_host:
+            If ``True``, will make sure that the host of the pool requests is
+            consistent else will raise HostChangedError. When ``False``, you can
+            use the pool on an HTTP proxy and request foreign hosts.
+    
+        :param timeout:
+            If specified, overrides the default timeout for this one
+            request. It may be a float (in seconds) or an instance of
+            :class:`urllib3.util.Timeout`.
+    
+        :param pool_timeout:
+            If set and the pool is set to block=True, then this method will
+            block for ``pool_timeout`` seconds and raise EmptyPoolError if no
+            connection is available within the time period.
+    
+        :param release_conn:
+            If False, then the urlopen call will not release the connection
+            back into the pool once a response is received (but will release if
+            you read the entire contents of the response such as when
+            `preload_content=True`). This is useful if you're not preloading
+            the response's content immediately. You will need to call
+            ``r.release_conn()`` on the response ``r`` to return the connection
+            back into the pool. If None, it takes the value of
+            ``response_kw.get('preload_content', True)``.
+    
+        :param chunked:
+            If True, urllib3 will send the body using chunked transfer
+            encoding. Otherwise, urllib3 will send the body using the standard
+            content-length form. Defaults to False.
+    
+        :param int body_pos:
+            Position to seek to in file-like body in the event of a retry or
+            redirect. Typically this won't need to be set because urllib3 will
+            auto-populate the value when needed.
+    
+        :param \\**response_kw:
+            Additional parameters are passed to
+            :meth:`urllib3.response.HTTPResponse.from_httplib`
+        """
+    
+        parsed_url = parse_url(url)
+        destination_scheme = parsed_url.scheme
+    
+        if headers is None:
+            headers = self.headers
+    
+        if not isinstance(retries, Retry):
+            retries = Retry.from_int(retries, redirect=redirect, default=self.retries)
+    
+        if release_conn is None:
+            release_conn = response_kw.get("preload_content", True)
+    
+        # Check host
+        if assert_same_host and not self.is_same_host(url):
+            raise HostChangedError(self, url, retries)
+    
+        # Ensure that the URL we're connecting to is properly encoded
+        if url.startswith("/"):
+            url = six.ensure_str(_encode_target(url))
+        else:
+            url = six.ensure_str(parsed_url.url)
+    
+        conn = None
+    
+        # Track whether `conn` needs to be released before
+        # returning/raising/recursing. Update this variable if necessary, and
+        # leave `release_conn` constant throughout the function. That way, if
+        # the function recurses, the original value of `release_conn` will be
+        # passed down into the recursive call, and its value will be respected.
+        #
+        # See issue #651 [1] for details.
+        #
+        # [1] &lt;https://github.com/urllib3/urllib3/issues/651&gt;
+        release_this_conn = release_conn
+    
+        http_tunnel_required = connection_requires_http_tunnel(
+            self.proxy, self.proxy_config, destination_scheme
+        )
+    
+        # Merge the proxy headers. Only done when not using HTTP CONNECT. We
+        # have to copy the headers dict so we can safely change it without those
+        # changes being reflected in anyone else's copy.
+        if not http_tunnel_required:
+            headers = headers.copy()
+            headers.update(self.proxy_headers)
+    
+        # Must keep the exception bound to a separate variable or else Python 3
+        # complains about UnboundLocalError.
+        err = None
+    
+        # Keep track of whether we cleanly exited the except block. This
+        # ensures we do proper cleanup in finally.
+        clean_exit = False
+    
+        # Rewind body position, if needed. Record current position
+        # for future rewinds in the event of a redirect/retry.
+        body_pos = set_file_position(body, body_pos)
+    
+        try:
+            # Request a connection from the queue.
+            timeout_obj = self._get_timeout(timeout)
+            conn = self._get_conn(timeout=pool_timeout)
+    
+            conn.timeout = timeout_obj.connect_timeout
+    
+            is_new_proxy_conn = self.proxy is not None and not getattr(
+                conn, "sock", None
+            )
+            if is_new_proxy_conn and http_tunnel_required:
+                self._prepare_proxy(conn)
+    
+            # Make the request on the httplib connection object.
+&gt;           httplib_response = self._make_request(
+                conn,
+                method,
+                url,
+                timeout=timeout_obj,
+                body=body,
+                headers=headers,
+                chunked=chunked,
+            )
+
+C:\Python314\Lib\site-packages\urllib3\connectionpool.py:716: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+C:\Python314\Lib\site-packages\urllib3\connectionpool.py:404: in _make_request
+    self._validate_conn(conn)
+C:\Python314\Lib\site-packages\urllib3\connectionpool.py:1061: in _validate_conn
+    conn.connect()
+C:\Python314\Lib\site-packages\urllib3\connection.py:363: in connect
+    self.sock = conn = self._new_conn()
+                       ^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = &lt;urllib3.connection.HTTPSConnection object at 0x0000017B5EDA1400&gt;
+
+    def _new_conn(self):
+        """Establish a socket connection and set nodelay settings on it.
+    
+        :return: New socket connection.
+        """
+        extra_kw = {}
+        if self.source_address:
+            extra_kw["source_address"] = self.source_address
+    
+        if self.socket_options:
+            extra_kw["socket_options"] = self.socket_options
+    
+        try:
+            conn = connection.create_connection(
+                (self._dns_host, self.port), self.timeout, **extra_kw
+            )
+    
+        except SocketTimeout:
+            raise ConnectTimeoutError(
+                self,
+                "Connection to %s timed out. (connect timeout=%s)"
+                % (self.host, self.timeout),
+            )
+    
+        except SocketError as e:
+&gt;           raise NewConnectionError(
+                self, "Failed to establish a new connection: %s" % e
+            )
+E           urllib3.exceptions.NewConnectionError: &lt;urllib3.connection.HTTPSConnection object at 0x0000017B5EDA1400&gt;: Failed to establish a new connection: [WinError 10013] 以一种访问权限不允许的方式做了一个访问套接字的尝试。
+
+C:\Python314\Lib\site-packages\urllib3\connection.py:186: NewConnectionError
+
+During handling of the above exception, another exception occurred:
+
+self = &lt;requests.adapters.HTTPAdapter object at 0x0000017B5EDA02F0&gt;
+request = &lt;PreparedRequest [GET]&gt;, stream = True
+timeout = Timeout(connect=8, read=8, total=None), verify = True, cert = None
+proxies = OrderedDict()
+
+    def send(
+        self, request, stream=False, timeout=None, verify=True, cert=None, proxies=None
+    ):
+        """Sends PreparedRequest object. Returns Response object.
+    
+        :param request: The :class:`PreparedRequest &lt;PreparedRequest&gt;` being sent.
+        :param stream: (optional) Whether to stream the request content.
+        :param timeout: (optional) How long to wait for the server to send
+            data before giving up, as a float, or a :ref:`(connect timeout,
+            read timeout) &lt;timeouts&gt;` tuple.
+        :type timeout: float or tuple or urllib3 Timeout object
+        :param verify: (optional) Either a boolean, in which case it controls whether
+            we verify the server's TLS certificate, or a string, in which case it
+            must be a path to a CA bundle to use
+        :param cert: (optional) Any user-provided SSL certificate to be trusted.
+        :param proxies: (optional) The proxies dictionary to apply to the request.
+        :rtype: requests.Response
+        """
+    
+        try:
+            conn = self.get_connection_with_tls_context(
+                request, verify, proxies=proxies, cert=cert
+            )
+        except LocationValueError as e:
+            raise InvalidURL(e, request=request)
+    
+        self.cert_verify(conn, request.url, verify, cert)
+        url = self.request_url(request, proxies)
+        self.add_headers(
+            request,
+            stream=stream,
+            timeout=timeout,
+            verify=verify,
+            cert=cert,
+            proxies=proxies,
+        )
+    
+        chunked = not (request.body is None or "Content-Length" in request.headers)
+    
+        if isinstance(timeout, tuple):
+            try:
+                connect, read = timeout
+                timeout = TimeoutSauce(connect=connect, read=read)
+            except ValueError:
+                raise ValueError(
+                    f"Invalid timeout {timeout}. Pass a (connect, read) timeout tuple, "
+                    f"or a single float to set both timeouts to the same value."
+                )
+        elif isinstance(timeout, TimeoutSauce):
+            pass
+        else:
+            timeout = TimeoutSauce(connect=timeout, read=timeout)
+    
+        try:
+&gt;           resp = conn.urlopen(
+                method=request.method,
+                url=url,
+                body=request.body,
+                headers=request.headers,
+                redirect=False,
+                assert_same_host=False,
+                preload_content=False,
+                decode_content=False,
+                retries=self.max_retries,
+                timeout=timeout,
+                chunked=chunked,
+            )
+
+C:\Python314\Lib\site-packages\requests\adapters.py:644: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+C:\Python314\Lib\site-packages\urllib3\connectionpool.py:802: in urlopen
+    retries = retries.increment(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = Retry(total=0, connect=None, read=False, redirect=None, status=None)
+method = 'GET'
+url = '/commonQuery.do?isPagination=false&amp;sqlId=SSE_ZQPZ_YSP_GGQQZSXT_XXPL_DRHY_SEARCH_L&amp;securityId=510500&amp;queryDate=20261021&amp;pageHelp.pageSize=1000&amp;pageHelp.pageNo=1'
+response = None
+error = NewConnectionError('&lt;urllib3.connection.HTTPSConnection object at 0x0000017B5EDA1400&gt;: Failed to establish a new connection: [WinError 10013] 以一种访问权限不允许的方式做了一个访问套接字的尝试。')
+_pool = &lt;urllib3.connectionpool.HTTPSConnectionPool object at 0x0000017B5EDA1010&gt;
+_stacktrace = &lt;traceback object at 0x0000017B5EC49FC0&gt;
+
+    def increment(
+        self,
+        method=None,
+        url=None,
+        response=None,
+        error=None,
+        _pool=None,
+        _stacktrace=None,
+    ):
+        """Return a new Retry object with incremented retry counters.
+    
+        :param response: A response object, or None, if the server did not
+            return a response.
+        :type response: :class:`~urllib3.response.HTTPResponse`
+        :param Exception error: An error encountered during the request, or
+            None if the response was received successfully.
+    
+        :return: A new ``Retry`` object.
+        """
+        if self.total is False and error:
+            # Disabled, indicate to re-raise the error.
+            raise six.reraise(type(error), error, _stacktrace)
+    
+        total = self.total
+        if total is not None:
+            total -= 1
+    
+        connect = self.connect
+        read = self.read
+        redirect = self.redirect
+        status_count = self.status
+        other = self.other
+        cause = "unknown"
+        status = None
+        redirect_location = None
+    
+        if error and self._is_connection_error(error):
+            # Connect retry?
+            if connect is False:
+                raise six.reraise(type(error), error, _stacktrace)
+            elif connect is not None:
+                connect -= 1
+    
+        elif error and self._is_read_error(error):
+            # Read retry?
+            if read is False or not self._is_method_retryable(method):
+                raise six.reraise(type(error), error, _stacktrace)
+            elif read is not None:
+                read -= 1
+    
+        elif error:
+            # Other retry?
+            if other is not None:
+                other -= 1
+    
+        elif response and response.get_redirect_location():
+            # Redirect retry?
+            if redirect is not None:
+                redirect -= 1
+            cause = "too many redirects"
+            redirect_location = response.get_redirect_location()
+            status = response.status
+    
+        else:
+            # Incrementing because of a server error like a 500 in
+            # status_forcelist and the given method is in the allowed_methods
+            cause = ResponseError.GENERIC_ERROR
+            if response and response.status:
+                if status_count is not None:
+                    status_count -= 1
+                cause = ResponseError.SPECIFIC_ERROR.format(status_code=response.status)
+                status = response.status
+    
+        history = self.history + (
+            RequestHistory(method, url, error, status, redirect_location),
+        )
+    
+        new_retry = self.new(
+            total=total,
+            connect=connect,
+            read=read,
+            redirect=redirect,
+            status=status_count,
+            other=other,
+            history=history,
+        )
+    
+        if new_retry.is_exhausted():
+&gt;           raise MaxRetryError(_pool, url, error or ResponseError(cause))
+E           urllib3.exceptions.MaxRetryError: HTTPSConnectionPool(host='query.sse.com.cn', port=443): Max retries exceeded with url: /commonQuery.do?isPagination=false&amp;sqlId=SSE_ZQPZ_YSP_GGQQZSXT_XXPL_DRHY_SEARCH_L&amp;securityId=510500&amp;queryDate=20261021&amp;pageHelp.pageSize=1000&amp;pageHelp.pageNo=1 (Caused by NewConnectionError('&lt;urllib3.connection.HTTPSConnection object at 0x0000017B5EDA1400&gt;: Failed to establish a new connection: [WinError 10013] 以一种访问权限不允许的方式做了一个访问套接字的尝试。'))
+
+C:\Python314\Lib\site-packages\urllib3\util\retry.py:594: MaxRetryError
+
+During handling of the above exception, another exception occurred:
+
+day = datetime.date(2026, 10, 21)
+
+    def fetch_sse_510500_dated_master(day: date) -&gt; dict[str, adjusted_put_migration.Terms]:
+        """A requested historical date is not evidence of the returned master date."""
+        reference = adjusted_put_migration.day(day)
+        try:
+&gt;           response = _evidence_http_get(
+                "https://query.sse.com.cn/commonQuery.do",
+                stream=True,
+                params={"isPagination": "false", "sqlId": adjusted_put_migration.MASTER_SQL,
+                        "securityId": "510500", "queryDate": reference.strftime("%Y%m%d"),
+                        "pageHelp.pageSize": "1000", "pageHelp.pageNo": "1"},
+                timeout=_bounded_timeout(8),
+                headers={"User-Agent": "Mozilla/5.0 POE-IC-IM-Research/1.0",
+                         "Referer": "https://www.sse.com.cn/assortment/options/disclo/info/",
+                         "Cache-Control": "no-cache", "Pragma": "no-cache"},
+            )
+
+poe_ic_im_mainline_v1_4_bot.py:4539: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_mainline_v1_4_bot.py:83: in _evidence_http_get
+    response = requests.get(*args, **wire_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Python314\Lib\site-packages\requests\api.py:73: in get
+    return request("get", url, params=params, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Python314\Lib\site-packages\requests\api.py:59: in request
+    return session.request(method=method, url=url, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Python314\Lib\site-packages\requests\sessions.py:589: in request
+    resp = self.send(prep, **send_kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Python314\Lib\site-packages\requests\sessions.py:703: in send
+    r = adapter.send(request, **kwargs)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = &lt;requests.adapters.HTTPAdapter object at 0x0000017B5EDA02F0&gt;
+request = &lt;PreparedRequest [GET]&gt;, stream = True
+timeout = Timeout(connect=8, read=8, total=None), verify = True, cert = None
+proxies = OrderedDict()
+
+    def send(
+        self, request, stream=False, timeout=None, verify=True, cert=None, proxies=None
+    ):
+        """Sends PreparedRequest object. Returns Response object.
+    
+        :param request: The :class:`PreparedRequest &lt;PreparedRequest&gt;` being sent.
+        :param stream: (optional) Whether to stream the request content.
+        :param timeout: (optional) How long to wait for the server to send
+            data before giving up, as a float, or a :ref:`(connect timeout,
+            read timeout) &lt;timeouts&gt;` tuple.
+        :type timeout: float or tuple or urllib3 Timeout object
+        :param verify: (optional) Either a boolean, in which case it controls whether
+            we verify the server's TLS certificate, or a string, in which case it
+            must be a path to a CA bundle to use
+        :param cert: (optional) Any user-provided SSL certificate to be trusted.
+        :param proxies: (optional) The proxies dictionary to apply to the request.
+        :rtype: requests.Response
+        """
+    
+        try:
+            conn = self.get_connection_with_tls_context(
+                request, verify, proxies=proxies, cert=cert
+            )
+        except LocationValueError as e:
+            raise InvalidURL(e, request=request)
+    
+        self.cert_verify(conn, request.url, verify, cert)
+        url = self.request_url(request, proxies)
+        self.add_headers(
+            request,
+            stream=stream,
+            timeout=timeout,
+            verify=verify,
+            cert=cert,
+            proxies=proxies,
+        )
+    
+        chunked = not (request.body is None or "Content-Length" in request.headers)
+    
+        if isinstance(timeout, tuple):
+            try:
+                connect, read = timeout
+                timeout = TimeoutSauce(connect=connect, read=read)
+            except ValueError:
+                raise ValueError(
+                    f"Invalid timeout {timeout}. Pass a (connect, read) timeout tuple, "
+                    f"or a single float to set both timeouts to the same value."
+                )
+        elif isinstance(timeout, TimeoutSauce):
+            pass
+        else:
+            timeout = TimeoutSauce(connect=timeout, read=timeout)
+    
+        try:
+            resp = conn.urlopen(
+                method=request.method,
+                url=url,
+                body=request.body,
+                headers=request.headers,
+                redirect=False,
+                assert_same_host=False,
+                preload_content=False,
+                decode_content=False,
+                retries=self.max_retries,
+                timeout=timeout,
+                chunked=chunked,
+            )
+    
+        except (ProtocolError, OSError) as err:
+            raise ConnectionError(err, request=request)
+    
+        except MaxRetryError as e:
+            if isinstance(e.reason, ConnectTimeoutError):
+                # TODO: Remove this in 3.0.0: see #2811
+                if not isinstance(e.reason, NewConnectionError):
+                    raise ConnectTimeout(e, request=request)
+    
+            if isinstance(e.reason, ResponseError):
+                raise RetryError(e, request=request)
+    
+            if isinstance(e.reason, _ProxyError):
+                raise ProxyError(e, request=request)
+    
+            if isinstance(e.reason, _SSLError):
+                # This branch is for urllib3 v1.22 and later.
+                raise SSLError(e, request=request)
+    
+&gt;           raise ConnectionError(e, request=request)
+E           requests.exceptions.ConnectionError: HTTPSConnectionPool(host='query.sse.com.cn', port=443): Max retries exceeded with url: /commonQuery.do?isPagination=false&amp;sqlId=SSE_ZQPZ_YSP_GGQQZSXT_XXPL_DRHY_SEARCH_L&amp;securityId=510500&amp;queryDate=20261021&amp;pageHelp.pageSize=1000&amp;pageHelp.pageNo=1 (Caused by NewConnectionError('&lt;urllib3.connection.HTTPSConnection object at 0x0000017B5EDA1400&gt;: Failed to establish a new connection: [WinError 10013] 以一种访问权限不允许的方式做了一个访问套接字的尝试。'))
+
+C:\Python314\Lib\site-packages\requests\adapters.py:677: ConnectionError
+
+The above exception was the direct cause of the following exception:
+
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x0000017B5EA3F700&gt;
+
+    def test_historical_adapter_retains_id_already_bound_to_requested_series(monkeypatch):
+        calls = historical_source(monkeypatch)
+&gt;       frame, stamp = bot.fetch_sse_existing_put_historical_quote(real.M, '10012099', DAY)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+test_icim_round2_audit_lifecycle_20261021.py:42: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+ic_im_evidence_adapter_v1.py:356: in held_quote
+    return historical(contract, security_id, day)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+poe_ic_im_mainline_v1_4_bot.py:4579: in fetch_sse_existing_put_historical_quote
+    terms = fetch_sse_510500_dated_master(day).get(security_id)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+day = datetime.date(2026, 10, 21)
+
+    def fetch_sse_510500_dated_master(day: date) -&gt; dict[str, adjusted_put_migration.Terms]:
+        """A requested historical date is not evidence of the returned master date."""
+        reference = adjusted_put_migration.day(day)
+        try:
+            response = _evidence_http_get(
+                "https://query.sse.com.cn/commonQuery.do",
+                stream=True,
+                params={"isPagination": "false", "sqlId": adjusted_put_migration.MASTER_SQL,
+                        "securityId": "510500", "queryDate": reference.strftime("%Y%m%d"),
+                        "pageHelp.pageSize": "1000", "pageHelp.pageNo": "1"},
+                timeout=_bounded_timeout(8),
+                headers={"User-Agent": "Mozilla/5.0 POE-IC-IM-Research/1.0",
+                         "Referer": "https://www.sse.com.cn/assortment/options/disclo/info/",
+                         "Cache-Control": "no-cache", "Pragma": "no-cache"},
+            )
+        except (requests.ConnectionError, requests.Timeout, requests.exceptions.ChunkedEncodingError) as exc:
+&gt;           raise SignalTransportError("IC历史Put官方逐日身份来源不可用，禁止猜测历史条款") from exc
+E           poe_ic_im_mainline_v1_4_bot.SignalTransportError: IC历史Put官方逐日身份来源不可用，禁止猜测历史条款
+
+poe_ic_im_mainline_v1_4_bot.py:4551: SignalTransportError</failure></testcase><testcase classname="test_icim_round2_audit_lifecycle_20261021" name="test_legal_standard_core_replay_crosses_strict_boundary" time="0.022"><failure message="poe_ic_im_mainline_v1_4_bot.SignalTransportError: IC历史Put官方逐日身份来源不可用，禁止猜测历史条款">self = &lt;urllib3.connection.HTTPSConnection object at 0x0000017B5EC411D0&gt;
+
+    def _new_conn(self):
+        """Establish a socket connection and set nodelay settings on it.
+    
+        :return: New socket connection.
+        """
+        extra_kw = {}
+        if self.source_address:
+            extra_kw["source_address"] = self.source_address
+    
+        if self.socket_options:
+            extra_kw["socket_options"] = self.socket_options
+    
+        try:
+&gt;           conn = connection.create_connection(
+                (self._dns_host, self.port), self.timeout, **extra_kw
+            )
+
+C:\Python314\Lib\site-packages\urllib3\connection.py:174: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+C:\Python314\Lib\site-packages\urllib3\util\connection.py:95: in create_connection
+    raise err
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+address = ('query.sse.com.cn', 443), timeout = 8, source_address = None
+socket_options = [(6, 1, 1)]
+
+    def create_connection(
+        address,
+        timeout=socket._GLOBAL_DEFAULT_TIMEOUT,
+        source_address=None,
+        socket_options=None,
+    ):
+        """Connect to *address* and return the socket object.
+    
+        Convenience function.  Connect to *address* (a 2-tuple ``(host,
+        port)``) and return the socket object.  Passing the optional
+        *timeout* parameter will set the timeout on the socket instance
+        before attempting to connect.  If no *timeout* is supplied, the
+        global default timeout setting returned by :func:`socket.getdefaulttimeout`
+        is used.  If *source_address* is set it must be a tuple of (host, port)
+        for the socket to bind as a source address before making the connection.
+        An host of '' or port 0 tells the OS to use the default.
+        """
+    
+        host, port = address
+        if host.startswith("["):
+            host = host.strip("[]")
+        err = None
+    
+        # Using the value from allowed_gai_family() in the context of getaddrinfo lets
+        # us select whether to work with IPv4 DNS records, IPv6 records, or both.
+        # The original create_connection function always returns all records.
+        family = allowed_gai_family()
+    
+        try:
+            host.encode("idna")
+        except UnicodeError:
+            return six.raise_from(
+                LocationParseError(u"'%s', label empty or too long" % host), None
+            )
+    
+        for res in socket.getaddrinfo(host, port, family, socket.SOCK_STREAM):
+            af, socktype, proto, canonname, sa = res
+            sock = None
+            try:
+                sock = socket.socket(af, socktype, proto)
+    
+                # If provided, set socket level options before connecting.
+                _set_socket_options(sock, socket_options)
+    
+                if timeout is not socket._GLOBAL_DEFAULT_TIMEOUT:
+                    sock.settimeout(timeout)
+                if source_address:
+                    sock.bind(source_address)
+&gt;               sock.connect(sa)
+E               PermissionError: [WinError 10013] 以一种访问权限不允许的方式做了一个访问套接字的尝试。
+
+C:\Python314\Lib\site-packages\urllib3\util\connection.py:85: PermissionError
+
+During handling of the above exception, another exception occurred:
+
+self = &lt;urllib3.connectionpool.HTTPSConnectionPool object at 0x0000017B5EC43390&gt;
+method = 'GET'
+url = '/commonQuery.do?isPagination=false&amp;sqlId=SSE_ZQPZ_YSP_GGQQZSXT_XXPL_DRHY_SEARCH_L&amp;securityId=510500&amp;queryDate=20261021&amp;pageHelp.pageSize=1000&amp;pageHelp.pageNo=1'
+body = None
+headers = {'User-Agent': 'Mozilla/5.0 POE-IC-IM-Research/1.0', 'Accept-Encoding': 'gzip, deflate, br', 'Accept': '*/*', 'Connect...'Referer': 'https://www.sse.com.cn/assortment/options/disclo/info/', 'Cache-Control': 'no-cache', 'Pragma': 'no-cache'}
+retries = Retry(total=0, connect=None, read=False, redirect=None, status=None)
+redirect = False, assert_same_host = False
+timeout = Timeout(connect=8, read=8, total=None), pool_timeout = None
+release_conn = False, chunked = False, body_pos = None
+response_kw = {'decode_content': False, 'preload_content': False}
+parsed_url = Url(scheme=None, auth=None, host=None, port=None, path='/commonQuery.do', query='isPagination=false&amp;sqlId=SSE_ZQPZ_YSP...QZSXT_XXPL_DRHY_SEARCH_L&amp;securityId=510500&amp;queryDate=20261021&amp;pageHelp.pageSize=1000&amp;pageHelp.pageNo=1', fragment=None)
+destination_scheme = None, conn = None, release_this_conn = True
+http_tunnel_required = False, err = None, clean_exit = False
+
+    def urlopen(
+        self,
+        method,
+        url,
+        body=None,
+        headers=None,
+        retries=None,
+        redirect=True,
+        assert_same_host=True,
+        timeout=_Default,
+        pool_timeout=None,
+        release_conn=None,
+        chunked=False,
+        body_pos=None,
+        **response_kw
+    ):
+        """
+        Get a connection from the pool and perform an HTTP request. This is the
+        lowest level call for making a request, so you'll need to specify all
+        the raw details.
+    
+        .. note::
+    
+           More commonly, it's appropriate to use a convenience method provided
+           by :class:`.RequestMethods`, such as :meth:`request`.
+    
+        .. note::
+    
+           `release_conn` will only behave as expected if
+           `preload_content=False` because we want to make
+           `preload_content=False` the default behaviour someday soon without
+           breaking backwards compatibility.
+    
+        :param method:
+            HTTP request method (such as GET, POST, PUT, etc.)
+    
+        :param url:
+            The URL to perform the request on.
+    
+        :param body:
+            Data to send in the request body, either :class:`str`, :class:`bytes`,
+            an iterable of :class:`str`/:class:`bytes`, or a file-like object.
+    
+        :param headers:
+            Dictionary of custom headers to send, such as User-Agent,
+            If-None-Match, etc. If None, pool headers are used. If provided,
+            these headers completely replace any pool-specific headers.
+    
+        :param retries:
+            Configure the number of retries to allow before raising a
+            :class:`~urllib3.exceptions.MaxRetryError` exception.
+    
+            Pass ``None`` to retry until you receive a response. Pass a
+            :class:`~urllib3.util.retry.Retry` object for fine-grained control
+            over different types of retries.
+            Pass an integer number to retry connection errors that many times,
+            but no other types of errors. Pass zero to never retry.
+    
+            If ``False``, then retries are disabled and any exception is raised
+            immediately. Also, instead of raising a MaxRetryError on redirects,
+            the redirect response will be returned.
+    
+        :type retries: :class:`~urllib3.util.retry.Retry`, False, or an int.
+    
+        :param redirect:
+            If True, automatically handle redirects (status codes 301, 302,
+            303, 307, 308). Each redirect counts as a retry. Disabling retries
+            will disable redirect, too.
+    
+        :param assert_same_host:
+            If ``True``, will make sure that the host of the pool requests is
+            consistent else will raise HostChangedError. When ``False``, you can
+            use the pool on an HTTP proxy and request foreign hosts.
+    
+        :param timeout:
+            If specified, overrides the default timeout for this one
+            request. It may be a float (in seconds) or an instance of
+            :class:`urllib3.util.Timeout`.
+    
+        :param pool_timeout:
+            If set and the pool is set to block=True, then this method will
+            block for ``pool_timeout`` seconds and raise EmptyPoolError if no
+            connection is available within the time period.
+    
+        :param release_conn:
+            If False, then the urlopen call will not release the connection
+            back into the pool once a response is received (but will release if
+            you read the entire contents of the response such as when
+            `preload_content=True`). This is useful if you're not preloading
+            the response's content immediately. You will need to call
+            ``r.release_conn()`` on the response ``r`` to return the connection
+            back into the pool. If None, it takes the value of
+            ``response_kw.get('preload_content', True)``.
+    
+        :param chunked:
+            If True, urllib3 will send the body using chunked transfer
+            encoding. Otherwise, urllib3 will send the body using the standard
+            content-length form. Defaults to False.
+    
+        :param int body_pos:
+            Position to seek to in file-like body in the event of a retry or
+            redirect. Typically this won't need to be set because urllib3 will
+            auto-populate the value when needed.
+    
+        :param \\**response_kw:
+            Additional parameters are passed to
+            :meth:`urllib3.response.HTTPResponse.from_httplib`
+        """
+    
+        parsed_url = parse_url(url)
+        destination_scheme = parsed_url.scheme
+    
+        if headers is None:
+            headers = self.headers
+    
+        if not isinstance(retries, Retry):
+            retries = Retry.from_int(retries, redirect=redirect, default=self.retries)
+    
+        if release_conn is None:
+            release_conn = response_kw.get("preload_content", True)
+    
+        # Check host
+        if assert_same_host and not self.is_same_host(url):
+            raise HostChangedError(self, url, retries)
+    
+        # Ensure that the URL we're connecting to is properly encoded
+        if url.startswith("/"):
+            url = six.ensure_str(_encode_target(url))
+        else:
+            url = six.ensure_str(parsed_url.url)
+    
+        conn = None
+    
+        # Track whether `conn` needs to be released before
+        # returning/raising/recursing. Update this variable if necessary, and
+        # leave `release_conn` constant throughout the function. That way, if
+        # the function recurses, the original value of `release_conn` will be
+        # passed down into the recursive call, and its value will be respected.
+        #
+        # See issue #651 [1] for details.
+        #
+        # [1] &lt;https://github.com/urllib3/urllib3/issues/651&gt;
+        release_this_conn = release_conn
+    
+        http_tunnel_required = connection_requires_http_tunnel(
+            self.proxy, self.proxy_config, destination_scheme
+        )
+    
+        # Merge the proxy headers. Only done when not using HTTP CONNECT. We
+        # have to copy the headers dict so we can safely change it without those
+        # changes being reflected in anyone else's copy.
+        if not http_tunnel_required:
+            headers = headers.copy()
+            headers.update(self.proxy_headers)
+    
+        # Must keep the exception bound to a separate variable or else Python 3
+        # complains about UnboundLocalError.
+        err = None
+    
+        # Keep track of whether we cleanly exited the except block. This
+        # ensures we do proper cleanup in finally.
+        clean_exit = False
+    
+        # Rewind body position, if needed. Record current position
+        # for future rewinds in the event of a redirect/retry.
+        body_pos = set_file_position(body, body_pos)
+    
+        try:
+            # Request a connection from the queue.
+            timeout_obj = self._get_timeout(timeout)
+            conn = self._get_conn(timeout=pool_timeout)
+    
+            conn.timeout = timeout_obj.connect_timeout
+    
+            is_new_proxy_conn = self.proxy is not None and not getattr(
+                conn, "sock", None
+            )
+            if is_new_proxy_conn and http_tunnel_required:
+                self._prepare_proxy(conn)
+    
+            # Make the request on the httplib connection object.
+&gt;           httplib_response = self._make_request(
+                conn,
+                method,
+                url,
+                timeout=timeout_obj,
+                body=body,
+                headers=headers,
+                chunked=chunked,
+            )
+
+C:\Python314\Lib\site-packages\urllib3\connectionpool.py:716: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+C:\Python314\Lib\site-packages\urllib3\connectionpool.py:404: in _make_request
+    self._validate_conn(conn)
+C:\Python314\Lib\site-packages\urllib3\connectionpool.py:1061: in _validate_conn
+    conn.connect()
+C:\Python314\Lib\site-packages\urllib3\connection.py:363: in connect
+    self.sock = conn = self._new_conn()
+                       ^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = &lt;urllib3.connection.HTTPSConnection object at 0x0000017B5EC411D0&gt;
+
+    def _new_conn(self):
+        """Establish a socket connection and set nodelay settings on it.
+    
+        :return: New socket connection.
+        """
+        extra_kw = {}
+        if self.source_address:
+            extra_kw["source_address"] = self.source_address
+    
+        if self.socket_options:
+            extra_kw["socket_options"] = self.socket_options
+    
+        try:
+            conn = connection.create_connection(
+                (self._dns_host, self.port), self.timeout, **extra_kw
+            )
+    
+        except SocketTimeout:
+            raise ConnectTimeoutError(
+                self,
+                "Connection to %s timed out. (connect timeout=%s)"
+                % (self.host, self.timeout),
+            )
+    
+        except SocketError as e:
+&gt;           raise NewConnectionError(
+                self, "Failed to establish a new connection: %s" % e
+            )
+E           urllib3.exceptions.NewConnectionError: &lt;urllib3.connection.HTTPSConnection object at 0x0000017B5EC411D0&gt;: Failed to establish a new connection: [WinError 10013] 以一种访问权限不允许的方式做了一个访问套接字的尝试。
+
+C:\Python314\Lib\site-packages\urllib3\connection.py:186: NewConnectionError
+
+During handling of the above exception, another exception occurred:
+
+self = &lt;requests.adapters.HTTPAdapter object at 0x0000017B5E719090&gt;
+request = &lt;PreparedRequest [GET]&gt;, stream = True
+timeout = Timeout(connect=8, read=8, total=None), verify = True, cert = None
+proxies = OrderedDict()
+
+    def send(
+        self, request, stream=False, timeout=None, verify=True, cert=None, proxies=None
+    ):
+        """Sends PreparedRequest object. Returns Response object.
+    
+        :param request: The :class:`PreparedRequest &lt;PreparedRequest&gt;` being sent.
+        :param stream: (optional) Whether to stream the request content.
+        :param timeout: (optional) How long to wait for the server to send
+            data before giving up, as a float, or a :ref:`(connect timeout,
+            read timeout) &lt;timeouts&gt;` tuple.
+        :type timeout: float or tuple or urllib3 Timeout object
+        :param verify: (optional) Either a boolean, in which case it controls whether
+            we verify the server's TLS certificate, or a string, in which case it
+            must be a path to a CA bundle to use
+        :param cert: (optional) Any user-provided SSL certificate to be trusted.
+        :param proxies: (optional) The proxies dictionary to apply to the request.
+        :rtype: requests.Response
+        """
+    
+        try:
+            conn = self.get_connection_with_tls_context(
+                request, verify, proxies=proxies, cert=cert
+            )
+        except LocationValueError as e:
+            raise InvalidURL(e, request=request)
+    
+        self.cert_verify(conn, request.url, verify, cert)
+        url = self.request_url(request, proxies)
+        self.add_headers(
+            request,
+            stream=stream,
+            timeout=timeout,
+            verify=verify,
+            cert=cert,
+            proxies=proxies,
+        )
+    
+        chunked = not (request.body is None or "Content-Length" in request.headers)
+    
+        if isinstance(timeout, tuple):
+            try:
+                connect, read = timeout
+                timeout = TimeoutSauce(connect=connect, read=read)
+            except ValueError:
+                raise ValueError(
+                    f"Invalid timeout {timeout}. Pass a (connect, read) timeout tuple, "
+                    f"or a single float to set both timeouts to the same value."
+                )
+        elif isinstance(timeout, TimeoutSauce):
+            pass
+        else:
+            timeout = TimeoutSauce(connect=timeout, read=timeout)
+    
+        try:
+&gt;           resp = conn.urlopen(
+                method=request.method,
+                url=url,
+                body=request.body,
+                headers=request.headers,
+                redirect=False,
+                assert_same_host=False,
+                preload_content=False,
+                decode_content=False,
+                retries=self.max_retries,
+                timeout=timeout,
+                chunked=chunked,
+            )
+
+C:\Python314\Lib\site-packages\requests\adapters.py:644: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+C:\Python314\Lib\site-packages\urllib3\connectionpool.py:802: in urlopen
+    retries = retries.increment(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = Retry(total=0, connect=None, read=False, redirect=None, status=None)
+method = 'GET'
+url = '/commonQuery.do?isPagination=false&amp;sqlId=SSE_ZQPZ_YSP_GGQQZSXT_XXPL_DRHY_SEARCH_L&amp;securityId=510500&amp;queryDate=20261021&amp;pageHelp.pageSize=1000&amp;pageHelp.pageNo=1'
+response = None
+error = NewConnectionError('&lt;urllib3.connection.HTTPSConnection object at 0x0000017B5EC411D0&gt;: Failed to establish a new connection: [WinError 10013] 以一种访问权限不允许的方式做了一个访问套接字的尝试。')
+_pool = &lt;urllib3.connectionpool.HTTPSConnectionPool object at 0x0000017B5EC43390&gt;
+_stacktrace = &lt;traceback object at 0x0000017B5F452040&gt;
+
+    def increment(
+        self,
+        method=None,
+        url=None,
+        response=None,
+        error=None,
+        _pool=None,
+        _stacktrace=None,
+    ):
+        """Return a new Retry object with incremented retry counters.
+    
+        :param response: A response object, or None, if the server did not
+            return a response.
+        :type response: :class:`~urllib3.response.HTTPResponse`
+        :param Exception error: An error encountered during the request, or
+            None if the response was received successfully.
+    
+        :return: A new ``Retry`` object.
+        """
+        if self.total is False and error:
+            # Disabled, indicate to re-raise the error.
+            raise six.reraise(type(error), error, _stacktrace)
+    
+        total = self.total
+        if total is not None:
+            total -= 1
+    
+        connect = self.connect
+        read = self.read
+        redirect = self.redirect
+        status_count = self.status
+        other = self.other
+        cause = "unknown"
+        status = None
+        redirect_location = None
+    
+        if error and self._is_connection_error(error):
+            # Connect retry?
+            if connect is False:
+                raise six.reraise(type(error), error, _stacktrace)
+            elif connect is not None:
+                connect -= 1
+    
+        elif error and self._is_read_error(error):
+            # Read retry?
+            if read is False or not self._is_method_retryable(method):
+                raise six.reraise(type(error), error, _stacktrace)
+            elif read is not None:
+                read -= 1
+    
+        elif error:
+            # Other retry?
+            if other is not None:
+                other -= 1
+    
+        elif response and response.get_redirect_location():
+            # Redirect retry?
+            if redirect is not None:
+                redirect -= 1
+            cause = "too many redirects"
+            redirect_location = response.get_redirect_location()
+            status = response.status
+    
+        else:
+            # Incrementing because of a server error like a 500 in
+            # status_forcelist and the given method is in the allowed_methods
+            cause = ResponseError.GENERIC_ERROR
+            if response and response.status:
+                if status_count is not None:
+                    status_count -= 1
+                cause = ResponseError.SPECIFIC_ERROR.format(status_code=response.status)
+                status = response.status
+    
+        history = self.history + (
+            RequestHistory(method, url, error, status, redirect_location),
+        )
+    
+        new_retry = self.new(
+            total=total,
+            connect=connect,
+            read=read,
+            redirect=redirect,
+            status=status_count,
+            other=other,
+            history=history,
+        )
+    
+        if new_retry.is_exhausted():
+&gt;           raise MaxRetryError(_pool, url, error or ResponseError(cause))
+E           urllib3.exceptions.MaxRetryError: HTTPSConnectionPool(host='query.sse.com.cn', port=443): Max retries exceeded with url: /commonQuery.do?isPagination=false&amp;sqlId=SSE_ZQPZ_YSP_GGQQZSXT_XXPL_DRHY_SEARCH_L&amp;securityId=510500&amp;queryDate=20261021&amp;pageHelp.pageSize=1000&amp;pageHelp.pageNo=1 (Caused by NewConnectionError('&lt;urllib3.connection.HTTPSConnection object at 0x0000017B5EC411D0&gt;: Failed to establish a new connection: [WinError 10013] 以一种访问权限不允许的方式做了一个访问套接字的尝试。'))
+
+C:\Python314\Lib\site-packages\urllib3\util\retry.py:594: MaxRetryError
+
+During handling of the above exception, another exception occurred:
+
+day = datetime.date(2026, 10, 21)
+
+    def fetch_sse_510500_dated_master(day: date) -&gt; dict[str, adjusted_put_migration.Terms]:
+        """A requested historical date is not evidence of the returned master date."""
+        reference = adjusted_put_migration.day(day)
+        try:
+&gt;           response = _evidence_http_get(
+                "https://query.sse.com.cn/commonQuery.do",
+                stream=True,
+                params={"isPagination": "false", "sqlId": adjusted_put_migration.MASTER_SQL,
+                        "securityId": "510500", "queryDate": reference.strftime("%Y%m%d"),
+                        "pageHelp.pageSize": "1000", "pageHelp.pageNo": "1"},
+                timeout=_bounded_timeout(8),
+                headers={"User-Agent": "Mozilla/5.0 POE-IC-IM-Research/1.0",
+                         "Referer": "https://www.sse.com.cn/assortment/options/disclo/info/",
+                         "Cache-Control": "no-cache", "Pragma": "no-cache"},
+            )
+
+poe_ic_im_mainline_v1_4_bot.py:4539: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_mainline_v1_4_bot.py:83: in _evidence_http_get
+    response = requests.get(*args, **wire_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Python314\Lib\site-packages\requests\api.py:73: in get
+    return request("get", url, params=params, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Python314\Lib\site-packages\requests\api.py:59: in request
+    return session.request(method=method, url=url, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Python314\Lib\site-packages\requests\sessions.py:589: in request
+    resp = self.send(prep, **send_kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Python314\Lib\site-packages\requests\sessions.py:703: in send
+    r = adapter.send(request, **kwargs)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = &lt;requests.adapters.HTTPAdapter object at 0x0000017B5E719090&gt;
+request = &lt;PreparedRequest [GET]&gt;, stream = True
+timeout = Timeout(connect=8, read=8, total=None), verify = True, cert = None
+proxies = OrderedDict()
+
+    def send(
+        self, request, stream=False, timeout=None, verify=True, cert=None, proxies=None
+    ):
+        """Sends PreparedRequest object. Returns Response object.
+    
+        :param request: The :class:`PreparedRequest &lt;PreparedRequest&gt;` being sent.
+        :param stream: (optional) Whether to stream the request content.
+        :param timeout: (optional) How long to wait for the server to send
+            data before giving up, as a float, or a :ref:`(connect timeout,
+            read timeout) &lt;timeouts&gt;` tuple.
+        :type timeout: float or tuple or urllib3 Timeout object
+        :param verify: (optional) Either a boolean, in which case it controls whether
+            we verify the server's TLS certificate, or a string, in which case it
+            must be a path to a CA bundle to use
+        :param cert: (optional) Any user-provided SSL certificate to be trusted.
+        :param proxies: (optional) The proxies dictionary to apply to the request.
+        :rtype: requests.Response
+        """
+    
+        try:
+            conn = self.get_connection_with_tls_context(
+                request, verify, proxies=proxies, cert=cert
+            )
+        except LocationValueError as e:
+            raise InvalidURL(e, request=request)
+    
+        self.cert_verify(conn, request.url, verify, cert)
+        url = self.request_url(request, proxies)
+        self.add_headers(
+            request,
+            stream=stream,
+            timeout=timeout,
+            verify=verify,
+            cert=cert,
+            proxies=proxies,
+        )
+    
+        chunked = not (request.body is None or "Content-Length" in request.headers)
+    
+        if isinstance(timeout, tuple):
+            try:
+                connect, read = timeout
+                timeout = TimeoutSauce(connect=connect, read=read)
+            except ValueError:
+                raise ValueError(
+                    f"Invalid timeout {timeout}. Pass a (connect, read) timeout tuple, "
+                    f"or a single float to set both timeouts to the same value."
+                )
+        elif isinstance(timeout, TimeoutSauce):
+            pass
+        else:
+            timeout = TimeoutSauce(connect=timeout, read=timeout)
+    
+        try:
+            resp = conn.urlopen(
+                method=request.method,
+                url=url,
+                body=request.body,
+                headers=request.headers,
+                redirect=False,
+                assert_same_host=False,
+                preload_content=False,
+                decode_content=False,
+                retries=self.max_retries,
+                timeout=timeout,
+                chunked=chunked,
+            )
+    
+        except (ProtocolError, OSError) as err:
+            raise ConnectionError(err, request=request)
+    
+        except MaxRetryError as e:
+            if isinstance(e.reason, ConnectTimeoutError):
+                # TODO: Remove this in 3.0.0: see #2811
+                if not isinstance(e.reason, NewConnectionError):
+                    raise ConnectTimeout(e, request=request)
+    
+            if isinstance(e.reason, ResponseError):
+                raise RetryError(e, request=request)
+    
+            if isinstance(e.reason, _ProxyError):
+                raise ProxyError(e, request=request)
+    
+            if isinstance(e.reason, _SSLError):
+                # This branch is for urllib3 v1.22 and later.
+                raise SSLError(e, request=request)
+    
+&gt;           raise ConnectionError(e, request=request)
+E           requests.exceptions.ConnectionError: HTTPSConnectionPool(host='query.sse.com.cn', port=443): Max retries exceeded with url: /commonQuery.do?isPagination=false&amp;sqlId=SSE_ZQPZ_YSP_GGQQZSXT_XXPL_DRHY_SEARCH_L&amp;securityId=510500&amp;queryDate=20261021&amp;pageHelp.pageSize=1000&amp;pageHelp.pageNo=1 (Caused by NewConnectionError('&lt;urllib3.connection.HTTPSConnection object at 0x0000017B5EC411D0&gt;: Failed to establish a new connection: [WinError 10013] 以一种访问权限不允许的方式做了一个访问套接字的尝试。'))
+
+C:\Python314\Lib\site-packages\requests\adapters.py:677: ConnectionError
+
+The above exception was the direct cause of the following exception:
+
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x0000017B5EE0E900&gt;
+
+    def test_legal_standard_core_replay_crosses_strict_boundary(monkeypatch):
+        calls = historical_source(monkeypatch)
+        a = ledger._record()['products']['IC']
+        signal = dict(market_date=DAY, core_put_target_delta=.25,
+                      option_monthly_reset_due=False, put_target_momentum_qty=0,
+                      etf_price=7.8, future_last=7800.)
+        monkeypatch.setattr(bot, '_now_beijing', lambda: CLOCK)
+        token = bot._HISTORICAL_REPLAY_DAY.set(DAY)
+        try:
+&gt;           bot._v14_ic_core_overlay(signal, a)
+
+test_icim_round2_audit_lifecycle_20261021.py:57: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_mainline_v1_4_bot.py:6227: in _v14_ic_core_overlay
+    chain, stamp = fetch_sse_existing_put_historical_quote(str(contract), str(anchor["v14_core_put_security_id"]), replay)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ic_im_evidence_adapter_v1.py:356: in held_quote
+    return historical(contract, security_id, day)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+poe_ic_im_mainline_v1_4_bot.py:4579: in fetch_sse_existing_put_historical_quote
+    terms = fetch_sse_510500_dated_master(day).get(security_id)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+day = datetime.date(2026, 10, 21)
+
+    def fetch_sse_510500_dated_master(day: date) -&gt; dict[str, adjusted_put_migration.Terms]:
+        """A requested historical date is not evidence of the returned master date."""
+        reference = adjusted_put_migration.day(day)
+        try:
+            response = _evidence_http_get(
+                "https://query.sse.com.cn/commonQuery.do",
+                stream=True,
+                params={"isPagination": "false", "sqlId": adjusted_put_migration.MASTER_SQL,
+                        "securityId": "510500", "queryDate": reference.strftime("%Y%m%d"),
+                        "pageHelp.pageSize": "1000", "pageHelp.pageNo": "1"},
+                timeout=_bounded_timeout(8),
+                headers={"User-Agent": "Mozilla/5.0 POE-IC-IM-Research/1.0",
+                         "Referer": "https://www.sse.com.cn/assortment/options/disclo/info/",
+                         "Cache-Control": "no-cache", "Pragma": "no-cache"},
+            )
+        except (requests.ConnectionError, requests.Timeout, requests.exceptions.ChunkedEncodingError) as exc:
+&gt;           raise SignalTransportError("IC历史Put官方逐日身份来源不可用，禁止猜测历史条款") from exc
+E           poe_ic_im_mainline_v1_4_bot.SignalTransportError: IC历史Put官方逐日身份来源不可用，禁止猜测历史条款
+
+poe_ic_im_mainline_v1_4_bot.py:4551: SignalTransportError</failure></testcase><testcase classname="test_icim_round2_audit_lifecycle_20261021" name="test_actual_public_entry_resets_projection_after_later_failure[ordinary-IC]" time="0.090" /><testcase classname="test_icim_round2_audit_lifecycle_20261021" name="test_actual_public_entry_resets_projection_after_later_failure[ordinary-IM]" time="0.108" /><testcase classname="test_icim_round2_audit_lifecycle_20261021" name="test_actual_public_entry_resets_projection_after_later_failure[profit3x-IC]" time="0.067" /><testcase classname="test_icim_round2_audit_lifecycle_20261021" name="test_actual_public_entry_resets_projection_after_later_failure[profit3x-IM]" time="0.072" /><testcase classname="test_icim_round2_audit_lifecycle_20261021" name="test_actual_public_entry_resets_projection_after_later_failure[short_put-IC]" time="0.077" /><testcase classname="test_icim_round2_audit_lifecycle_20261021" name="test_actual_public_entry_resets_projection_after_later_failure[short_put-IM]" time="0.052" /><testcase classname="test_icim_round2_audit_lifecycle_20261021" name="test_real_chain_split_sleeve_identity_reaches_fail_closed_policy[core-None]" time="0.010" /><testcase classname="test_icim_round2_audit_lifecycle_20261021" name="test_real_chain_split_sleeve_identity_reaches_fail_closed_policy[core-10011470]" time="0.007" /><testcase classname="test_icim_round2_audit_lifecycle_20261021" name="test_real_chain_split_sleeve_identity_reaches_fail_closed_policy[core-10012099]" time="0.006" /><testcase classname="test_icim_round2_audit_lifecycle_20261021" name="test_real_chain_split_sleeve_identity_reaches_fail_closed_policy[momentum-None]" time="0.014" /><testcase classname="test_icim_round2_audit_lifecycle_20261021" name="test_real_chain_split_sleeve_identity_reaches_fail_closed_policy[momentum-10011470]" time="0.008" /><testcase classname="test_icim_round2_audit_lifecycle_20261021" name="test_real_chain_split_sleeve_identity_reaches_fail_closed_policy[momentum-10012099]" time="0.006" /><testcase classname="test_icim_round2_audit_lifecycle_20261021" name="test_old_m_replay_must_not_synthesize_standard_identity_from_directed_id" time="0.015" /><testcase classname="test_icim_round2_audit_lifecycle_20261021" name="test_full_public_builder_real_sse_current_holding_identity[10012099]" time="0.044" /><testcase classname="test_icim_round2_audit_lifecycle_20261021" name="test_full_public_builder_real_sse_current_holding_identity[10011470]" time="0.040" /><testcase classname="test_icim_round2_audit_lifecycle_20261021" name="test_full_public_builder_real_sse_current_holding_identity[None]" time="0.046" /><testcase classname="test_icim_round2_audit_lifecycle_20261021" name="test_actual_builder_independent_sleeves_never_cross_identity[None]" time="0.059" /><testcase classname="test_icim_round2_audit_lifecycle_20261021" name="test_actual_builder_independent_sleeves_never_cross_identity[core]" time="0.055" /><testcase classname="test_icim_round2_audit_lifecycle_20261021" name="test_actual_builder_independent_sleeves_never_cross_identity[momentum]" time="0.050" /><testcase classname="test_icim_round2_audit_lifecycle_20261021" name="test_legal_zero_put_holding_does_not_require_unheld_legacy_identity" time="0.088" /><testcase classname="test_icim_round2_audit_lifecycle_20261021" name="test_current_boundary_ordinary_open_real_hash_ledger_roundtrip[IC]" time="0.413" /><testcase classname="test_icim_round2_audit_lifecycle_20261021" name="test_current_boundary_ordinary_open_real_hash_ledger_roundtrip[IM]" time="0.134" /><testcase classname="test_icim_round2_audit_lifecycle_20261021" name="test_actual_short_mark_must_not_trust_stale_m_label_for_adjusted_security" time="0.066" /><testcase classname="test_icim_round2_audit_lifecycle_20261021" name="test_short_identity_failure_cannot_publish_or_complete_expiry_branch[False-None]" time="0.011" /><testcase classname="test_icim_round2_audit_lifecycle_20261021" name="test_short_identity_failure_cannot_publish_or_complete_expiry_branch[False-assigned]" time="0.009" /><testcase classname="test_icim_round2_audit_lifecycle_20261021" name="test_short_identity_failure_cannot_publish_or_complete_expiry_branch[False-expired_worthless]" time="0.009" /><testcase classname="test_icim_round2_audit_lifecycle_20261021" name="test_short_identity_failure_cannot_publish_or_complete_expiry_branch[True-None]" time="0.012" /><testcase classname="test_icim_round2_audit_lifecycle_20261021" name="test_short_identity_failure_cannot_publish_or_complete_expiry_branch[True-assigned]" time="0.014" /><testcase classname="test_icim_round2_audit_lifecycle_20261021" name="test_short_identity_failure_cannot_publish_or_complete_expiry_branch[True-expired_worthless]" time="0.012" /><testcase classname="test_icim_round2_audit_lifecycle_20261021" name="test_valid_short_identity_expiry_survives_independent_candidate_outage[False]" time="0.007" /><testcase classname="test_icim_round2_audit_lifecycle_20261021" name="test_valid_short_identity_expiry_survives_independent_candidate_outage[True]" time="0.010" /><testcase classname="test_icim_round2_audit_lifecycle_20261021" name="test_full_builder_december_expiry_stays_closed_without_2027_calendar" time="0.042"><failure message="Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;">tmp_path = WindowsPath('D:/动量策略/IC和IM滚动套利/quant_research_runs/20261023_redteam_repairs_v3/strategy/run03/icim_put_7c69eae5/pytest/test_full_builder_december_exp0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x0000017B5F2975B0&gt;
+
+    def test_full_builder_december_expiry_stays_closed_without_2027_calendar(tmp_path,monkeypatch):
+        expiry=date(2026,12,23)
+        monkeypatch.setitem(globals(),'DAY',expiry)
+        monkeypatch.setitem(globals(),'PREVIOUS',date(2026,12,22))
+        monkeypatch.setitem(globals(),'CLOCK',datetime(2026,12,23,15,40,tzinfo=bot.BEIJING))
+        store,record=recent_store(tmp_path/'ledger')
+        anchors=state.anchors_from_record(record)
+        a=anchors['IC']
+        ledger._empty_core(a,'IC')
+        a.update(post_core_contract='IC2703',v14_route_state='short_put',
+            v14_cycle_id='synthetic-expiry-builder',v14_short_put_contract=real.M,
+            v14_short_put_security_id='10011470',v14_short_put_qty_normalized=5.,
+            v14_short_put_entry_premium=.4,v14_short_put_expiry=expiry,
+            v14_short_put_cost_basis='confirmed_dated_open',v14_short_put_entry_price_day=PREVIOUS,
+            verified_momentum_put_delta=0.,verified_momentum_put_qty=0)
+        record['products']['IC']=state._jsonable(a)
+        record['digest']=state._digest(record)
+        state._validate_record(record)
+        body=real.payload()
+        body['date']=20261223
+        chain,stamp=real.wire(monkeypatch,body)
+        monkeypatch.setattr(bot,'LIVE_CONTINUATION_ANCHOR',anchors)
+        builder_inputs(monkeypatch,a,chain,stamp)
+        monkeypatch.setattr(bot,'fetch_sse_510500_quote',lambda:dict(date='20261223',time='150000',last=7.8))
+        monkeypatch.setattr(bot,'fetch_option_closes',lambda security:
+            pd.Series([.01],index=pd.to_datetime([expiry])))
+        before,disk=deepcopy(a),snapshot(store.root)
+        # Do not bypass this independent gate to manufacture full-builder
+        # reachability for the adapter expiry probes above.
+&gt;       with pytest.raises(RuntimeError,match='2027'):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;
+
+test_icim_round2_audit_lifecycle_20261021.py:505: Failed</failure></testcase><testcase classname="test_icim_round2_audit_lifecycle_20261021" name="test_unverified_identity_marker_rejected_before_projection_or_write[execution]" time="0.050" /><testcase classname="test_icim_round2_audit_lifecycle_20261021" name="test_unverified_identity_marker_rejected_before_projection_or_write[policy]" time="0.050" /><testcase classname="test_icim_round2_audit_lifecycle_20261021" name="test_unverified_identity_marker_rejected_before_projection_or_write[new_signal]" time="0.039" /><testcase classname="test_icim_round2_audit_lifecycle_20261021" name="test_unverified_identity_marker_rejected_before_projection_or_write[store]" time="0.064" /></testsuite></testsuites>

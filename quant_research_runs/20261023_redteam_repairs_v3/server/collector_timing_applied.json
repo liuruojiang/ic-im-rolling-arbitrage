@@ -1,0 +1,20 @@
+{
+  "finding": "CAPTURE-V3-PREFLIGHT",
+  "status": "fixed",
+  "production_file": "capture_ic_im_v1_4_inputs.py",
+  "source_sha256": "c0b90df51fd4257aa54ec9dfef200656c662572b0e77d2c74508093e089653b7",
+  "change": "cycle enters collection_clock immediately after clock selection; private _cycle_at_clock retains readonly execution, source checks, publication guard and network budget",
+  "tests": {
+    "run": "server/run04_collector",
+    "passed": 56,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "root_server_tests": 29,
+    "existing_collector_tests": 25,
+    "independent_original_reproductions": 2,
+    "seconds": 66.22
+  },
+  "pin_graph": "collector_graph_verification.json",
+  "no_later_source_edits": true
+}

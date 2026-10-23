@@ -1,0 +1,15 @@
+{
+  "collected": [
+    "quant_research_runs/20261023_latest_redteam_v2/agents/strategy_v2/test_controls.py::test_available_low_mark_sets_waiting_roll_trigger[IC]",
+    "quant_research_runs/20261023_latest_redteam_v2/agents/strategy_v2/test_controls.py::test_available_low_mark_sets_waiting_roll_trigger[IM]"
+  ],
+  "selected": [
+    "quant_research_runs/20261023_latest_redteam_v2/agents/strategy_v2/test_controls.py::test_available_low_mark_sets_waiting_roll_trigger[IC]",
+    "quant_research_runs/20261023_latest_redteam_v2/agents/strategy_v2/test_controls.py::test_available_low_mark_sets_waiting_roll_trigger[IM]"
+  ],
+  "deselected": [],
+  "executed": [
+    "quant_research_runs/20261023_latest_redteam_v2/agents/strategy_v2/test_controls.py::test_available_low_mark_sets_waiting_roll_trigger[IC]",
+    "quant_research_runs/20261023_latest_redteam_v2/agents/strategy_v2/test_controls.py::test_available_low_mark_sets_waiting_roll_trigger[IM]"
+  ]
+}

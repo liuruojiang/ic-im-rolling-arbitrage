@@ -1,0 +1,44 @@
+{
+  "status": "PASS",
+  "supersedes_final_binding_claim": "findings.json final_runs/run_02_final",
+  "base_commit": "58986fda2c17df93eb3925bf09a1cebd55a7869e",
+  "audited_source_sha256": {
+    "poe_ic_im_mainline_v1_4_bot.py": "48a0fd691904a72b83ac0b9ca3506a2e5a4754d82edb72e1aed0937f23e1239c",
+    "ic_im_v1_4_policy.py": "d632d411a130658b5b993fbffcb7ac98be3affc8ceb634842c45e8e8da9a7cd2",
+    "poe_ic_im_v1_4_state.py": "dd326abd1fc6d687c901d4960f30456207606569ba80456f719d6a267ce335d3",
+    "poe_ic_im_v1_4_server.py": "98383b69ecfd33dc22e0d9699129d9458b632f4979d75e7f838c50176d6cbd2c",
+    "ic_im_signal_evidence_v1.py": "8cf484fdc536596d426a0dccced2a3a4a9e76d9952c8474b97051bcd5673d087",
+    "ic_im_evidence_adapter_v1.py": "775f39c2ba60f64d41a580d344969d91c56e25c029fe31a5588e352b4916e867",
+    "capture_ic_im_v1_4_inputs.py": "c0b90df51fd4257aa54ec9dfef200656c662572b0e77d2c74508093e089653b7"
+  },
+  "source_binding_revision": "r3",
+  "original_seven_findings": "all_repaired_behaviors_independently_verified",
+  "lock_wait_followup": "fixed_and_verified",
+  "final_runs": {
+    "main": {
+      "path": "run_03_r3",
+      "counts": {
+        "tests": 74,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "bound_files": 1177,
+      "source_stable": true
+    },
+    "lock_wait": {
+      "path": "audit_clock_wait/run_03_r3",
+      "counts": {
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "bound_files": 1119,
+      "source_stable": true
+    }
+  },
+  "same_test_identity_as_prior_final": true,
+  "additional_collector_followup": "Direct collector preflight timing proof and regression belong to ../audit_server/collector_timing; final collector source hash bound here; no double-counting of that suite.",
+  "unresolved_confirmed_findings": []
+}

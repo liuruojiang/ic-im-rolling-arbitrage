@@ -1,0 +1,24 @@
+{
+  "observed_at": "2026-10-23T15:08:53.6647642+08:00",
+  "process_exists": true,
+  "process_id": 36668,
+  "process_name": "python",
+  "start_time": "2026-10-23T14:57:41.8190328+08:00",
+  "receipt_path": "D:\\动量策略\\IC和IM滚动套利\\data\\icim_v14_original_inputs\\capture_receipts\\2026-10-23\\150806296230-0d54ec61862140d593216b44c98e0ec8.json",
+  "receipt_sha256": "23125abb8bc2318bfecb6447f548d4cfc3d6bac86166a12a6e33ac9a03df22a6",
+  "receipt_started_at": "2026-10-23T15:07:57.480273+08:00",
+  "receipt_status": "incomplete",
+  "ledger": {
+    "verified_day": "2026-10-22",
+    "sequence": 20,
+    "digest": "49fb159fbadf894b6c64e8ca886faef49d62c5e8e31f0415690209f834317cc0"
+  },
+  "ledger_paths_and_bytes_unchanged": true,
+  "source_pin_sha256": "e06474b555d8fbbf3dd5d3209b5ad7ae3d3d4f3c729eac12b86c54913495e1a8",
+  "products": {
+    "IC": "incomplete",
+    "IM": "incomplete"
+  },
+  "socket_access_denied": true,
+  "inspection_limitation": "CIM command-line query access denied; identity supported by Get-Process start time and matching PID/source-pin receipts"
+}

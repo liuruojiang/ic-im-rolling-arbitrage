@@ -1,0 +1,46 @@
+{
+  "result": {
+    "day": "2026-10-21",
+    "status": "incomplete",
+    "products": {
+      "IC": {
+        "status": "incomplete",
+        "manifest": "D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261023_latest_redteam_v2\\agents\\state_v2\\temp\\pytest\\test_real_daily_capture_seals_0\\evidence\\sessions\\2026-10-21\\154002000000-c957346720074177addc1dc1292a2843.json",
+        "sha256": "b48a2630ab3d0943087111f979024011d36fb2fd407d21631fa91c311f64e9da",
+        "reason": "cffex.quotes: synthetic current CFFEX frame行情更新时间晚于采集时刻，禁止确认信号; collector: missing roles: cffex.quotes",
+        "recovery_warning": "2026-10-21原日输入不完整；补齐日历后仍可能需人工锚定，不能承诺自动恢复"
+      },
+      "IM": {
+        "status": "incomplete",
+        "manifest": "D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261023_latest_redteam_v2\\agents\\state_v2\\temp\\pytest\\test_real_daily_capture_seals_0\\evidence\\sessions\\2026-10-21\\154006000000-58747857668140ae8c7e30a2565ec6d0.json",
+        "sha256": "2878ec79022bd6e0fdeb96e6bdddfd2deb336df5aab6c511f34f75685b787d26",
+        "reason": "cffex.quotes: synthetic current CFFEX frame行情更新时间晚于采集时刻，禁止确认信号; cffex.quotes: synthetic current CFFEX frame行情更新时间晚于采集时刻，禁止确认信号; collector: missing roles: cffex.quotes",
+        "recovery_warning": "2026-10-21原日输入不完整；补齐日历后仍可能需人工锚定，不能承诺自动恢复"
+      }
+    }
+  },
+  "sealed": {
+    "IC": {
+      "complete": false,
+      "metadata": {
+        "product": "IC",
+        "input_revision": "ic_im_original_inputs_20261021_v1",
+        "original_close": true,
+        "capture_kind": "independent_daily_inputs",
+        "build": "v1.4-20261008-r1-ic-csi500-abs40-fix11",
+        "anchor_day_at_capture": "2026-10-20"
+      }
+    },
+    "IM": {
+      "complete": false,
+      "metadata": {
+        "product": "IM",
+        "input_revision": "ic_im_original_inputs_20261021_v1",
+        "original_close": true,
+        "capture_kind": "independent_daily_inputs",
+        "build": "v1.4-20261008-r1-ic-csi500-abs40-fix11",
+        "anchor_day_at_capture": "2026-10-20"
+      }
+    }
+  }
+}

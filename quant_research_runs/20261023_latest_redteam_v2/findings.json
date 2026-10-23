@@ -1,0 +1,275 @@
+{
+  "commit": "58986fda2c17df93eb3925bf09a1cebd55a7869e",
+  "status": "audit_complete_with_unfixed_findings",
+  "production_patch_applied": false,
+  "findings": [
+    {
+      "id": "STRAT-01",
+      "severity": "P1",
+      "title": "已有卖 Put 缺少当日持仓报价仍确认 HOLD 并允许续账",
+      "commit": "58986fda2c17df93eb3925bf09a1cebd55a7869e",
+      "locations": [
+        {
+          "path": "poe_ic_im_mainline_v1_4_bot.py",
+          "lines": "6658-6672"
+        },
+        {
+          "path": "ic_im_v1_4_policy.py",
+          "lines": "415-423"
+        },
+        {
+          "path": "poe_ic_im_mainline_v1_4_bot.py",
+          "lines": "1501-1523"
+        }
+      ],
+      "preconditions": [
+        "route=short_put；未到期；入场成本已确认为 confirmed_dated_open；尚无 roll_pending",
+        "IC历史收盘序列合法但尚未包含当日；或IM传入候选链无既有短Put行"
+      ],
+      "observed": "mark=None 被 _short_roll_due 视为未触发衰减，候选判为 not_required，close_confirmed=True/HOLD。IC public builder+StateStore实测可完整续账。",
+      "expected": "当日持仓报价未知时不得宣称已完成衰减判断；保留锚点并返回缺证据/重试诊断，禁止按完整成功信号推进账本。",
+      "impact": "会将未知的衰减条件记录为不触发，可能漏掉应有提前展期或待展期触发，并用正常收盘日报掩盖缺行情；未观察生产账本已发生该事件。",
+      "proof": {
+        "discovery": "run01/regression.txt",
+        "full_builder_and_state": "run03/regression.txt",
+        "facts": "state_reachability.json",
+        "controls": "controls01/regression.txt"
+      },
+      "scope_limit": "IC完整路径/持久化已实测；IM仅真实adapter级缺旧行反例，未宣称IM真实供应商链或完整落账已验证。行情/持仓为合成或明确数据缺失注入，SSE身份检查使用保存的真实fixture。",
+      "fix": [
+        "在adapter按实际消费条件校验旧short mark的日期和有限正值：未到期、confirmed成本且需新判断衰减时缺值应错误/诊断，而不是None→false。",
+        "IC fetch_option_closes增加required_day契约：主源合法但落后时尝试备用源；可考虑使用已验证身份与时间的同日链报价，但须独立明确价格口径，不静默换口径。",
+        "纯policy及StateStore增加防御校验，既有roll_pending、到期条件分支和历史兼容按原规则分别保留；新增断言覆盖无当前行、None/NaN/错误日期与正常当日值。"
+      ],
+      "test_expectations": [
+        "当前3个严格行为断言失败；修后应通过；2个正常HOLD和2个低mark触发等待的对照保持通过。",
+        "完整builder缺当日mark应返回diagnostic；StateStore应拒绝不完整信号且seq/digest不变。"
+      ],
+      "audit_group": "strategy_v2"
+    },
+    {
+      "id": "MKT-01",
+      "severity": "P1",
+      "title": "实时指数主备源缺少返回标的身份与唯一性校验",
+      "source": [
+        {
+          "file": "poe_ic_im_mainline_v1_4_bot.py",
+          "lines": "2286-2304"
+        },
+        {
+          "file": "poe_ic_im_mainline_v1_4_bot.py",
+          "lines": "2310-2318"
+        }
+      ],
+      "trigger": "盘中查询IC，腾讯返回sh000852变量/000852代码或重复冲突变量；腾讯不可用时东财返回f57=000852。",
+      "expected": "拒绝错标的或歧义响应，尝试合格备用源，否则失败关闭。",
+      "observed": "四个异常均被接纳。实际live_proxy接受错误3000点并把MOM120由-0.10367951034856637改为-0.6383453722131347，momentum_score由-44.3603248390313改为-113.43876105503018。",
+      "call_path": "build_live_trade_signal -> _build_live_trade_signal:6930 -> live_proxy:2900 -> fetch_live_price_quote",
+      "scope_limit": "此次两种输入momentum_next_weight均为0，未声称这次反例已改变仓位；收盘/历史回放走日线，不据此声称正式账本或历史NAV被污染。",
+      "fix": "腾讯要求唯一精确变量v_<requested symbol>、字段2等于请求代码、完整字段长度；东财请求并验证f57/f58等身份，至少f57与secid后缀严格相等；错误身份作为来源失败触发备用源；不按响应顺序静默取第一项。",
+      "regression": "正常IC/IM；错变量/错内嵌代码；重复一致与冲突变量契约；东财错/缺代码；全源失败；实际live_proxy消费检查。",
+      "audit_group": "market_v2"
+    },
+    {
+      "id": "MKT-02",
+      "severity": "P1",
+      "title": "实时指数时间只核同日，未来及盘前无效时刻进入盘中策略",
+      "source": [
+        {
+          "file": "poe_ic_im_mainline_v1_4_bot.py",
+          "lines": "2294-2304"
+        },
+        {
+          "file": "poe_ic_im_mainline_v1_4_bot.py",
+          "lines": "2319-2334"
+        },
+        {
+          "file": "poe_ic_im_mainline_v1_4_bot.py",
+          "lines": "2900-2931"
+        }
+      ],
+      "trigger": "10-22北京时间14:30查询，主源或备用源返回同日15:00报价；另例同日00:00。",
+      "expected": "在报价参与历史拼接与指标计算前核对完整供应商时间、合理交易时段及实际观察时钟，未来报价和无效盘前报价应拒绝。",
+      "observed": "腾讯和东财15:00均被live_proxy接纳并完成动量运算；同日00:00也可进入当前交易日行情。三个拒绝断言失败。",
+      "call_path": "_build_live_trade_signal:6930 -> live_proxy:2900 -> source_date-only check:2914/2930 -> history append/overwrite -> momentum calculation:2967+",
+      "scope_limit": "反例模拟时钟及报价，非声称真实数据源已发生未来行情；30分钟超前非采集时间微小推进。未运行外部盘中日报投递，正式收盘仍取OHLCV。",
+      "fix": "统一指数实时报价时间验证，provider返回前按完整date/time对运行/推进观察时钟校验（容差沿已有约定）；拒绝非法盘前/未来时刻并允许备用源；若新增陈旧分钟阈值，须按交易时段/午休定义单独预注册，不可随意照抄期权阈值。",
+      "regression": "Tencent/EastMoney未来1秒与允许容差边界；跨午休/同日00:00；前日/次日；实际live_proxy两种历史拼接分支；采集时钟推进与历史回放隔离。",
+      "audit_group": "market_v2"
+    },
+    {
+      "id": "EV2-01",
+      "priority": "P2",
+      "title": "Sina MO batch replay strips an invalid identifier prefix and bypasses exact variable identity validation",
+      "commit": "58986fda2c17df93eb3925bf09a1cebd55a7869e",
+      "locations": [
+        {
+          "file": "poe_ic_im_mainline_v1_4_bot.py",
+          "lines": [
+            183,
+            186
+          ]
+        },
+        {
+          "file": "ic_im_signal_evidence_v1.py",
+          "lines": [
+            713,
+            719
+          ]
+        }
+      ],
+      "entry_path": "ic_im_evidence_adapter_v1.capture_daily (MO source Eastmoney) -> _prefetch_mo_replay_verification -> CaptureSession -> EvidenceReader.http_response (batch projection) -> verify_sina_option_quote",
+      "trigger": "Recorded Sina batch variables use xhq_str_P_OP_mo... or not_hq_str_P_OP_mo... instead of exact hq_str_P_OP_mo...; request contains at least two symbols so single-symbol recovery takes the projection branch.",
+      "expected": "Malformed identity rejected before seal and/or by replay; direct and recovered quote validation must agree.",
+      "actual": "Both prefixes pass prefetch. Generic capture is marked complete, validates hashes and loads. Projection removes the invalid prefix and verify_sina_option_quote accepts the price. The same malformed single packet is rejected by the direct consumer.",
+      "reproduced_price": 74.0,
+      "tests": {
+        "passed": 3,
+        "failed_expected_rejection": 4,
+        "errors": 0,
+        "skipped": 0
+      },
+      "fixture": {
+        "original_file": "quant_research_runs/20261022_free_source_integration_v1/wire_probe_01/response.bin",
+        "original_sha256": "8ee4b6f3a1fd92392430213f7d81f6642deada308c84c50dfef58a91aeb2112c",
+        "first_packet_sha256": "02c1eda77f4400ba7f75eb6be13614aaebec2e8b2e5598de5470fbd2ce00bc94",
+        "real_first_contract": "MO2611-P-6000",
+        "real_quote_timestamp": "2026-10-22 15:00:00",
+        "mutations": [
+          "add x or not_ before hq_str_",
+          "duplicate first quote with symbol changed to MO2611-P-6100 only, to exercise batch projection; no claim second contract market values are real"
+        ]
+      },
+      "scope_limit": "No live provider corruption was observed; no full builder/StateStore/ledger acceptance asserted. This proves identity loss in the real capture/seal/load/projection/consumer chain under explicitly mutated raw input.",
+      "patch": "Use one shared exact-identifier parser for direct consumption, prefetch and replay projection; require a negative lookbehind/lexical boundary before hq_str_, validate unique exact expected IDs, and project only the validated full variable span. Do not reconstruct a legitimate identifier from an arbitrary substring. Reject old malformed archives on read.",
+      "acceptance": [
+        "Existing 3 positive/direct rejection controls stay passing",
+        "4 rejection regression cases pass after correction",
+        "Add duplicate/overlapping batch and prefix cases covering both capture and read paths",
+        "Re-run the 43-file daily gate and full cumulative bound suite, then real original-day IC/IM replay parity"
+      ],
+      "audit_group": "evidence_v2"
+    },
+    {
+      "id": "S-V2-1",
+      "priority": "P2",
+      "title": "服务端独立采集没有进入推进中的采集时钟上下文，合法延迟快照被误判未来",
+      "file": "poe_ic_im_v1_4_server.py",
+      "lines": [
+        201,
+        214
+      ],
+      "related": [
+        "poe_ic_im_v1_4_server.py:364-374",
+        "poe_ic_im_mainline_v1_4_bot.py:294-316",
+        "ic_im_evidence_adapter_v1.py:435-446",
+        "ic_im_quote_snapshot_guard.py:25-34"
+      ],
+      "trigger": "后台刷新或直接调用 capture_current_inputs；请求期间来源更新时间晚于传入clock，但早于实际收到报文的时刻。",
+      "actual": "实际capture_daily将IC/IM两包封为incomplete；实际CFFEX snapshot guard报行情更新时间晚于采集时刻。",
+      "expected": "保留策略信号日时钟，报价校验时钟应按collection_clock单调推进；同样输入外包collection_clock后captured。",
+      "reproduction_tests": [
+        "test_server_capture_advances_observation_clock",
+        "test_real_daily_capture_seals_current_arriving_frame[False]"
+      ],
+      "controls": [
+        "test_outer_collection_context_accepts_same_arriving_snapshot",
+        "test_real_daily_capture_seals_current_arriving_frame[True]"
+      ],
+      "impact": "可用性及原日留存缺口；失败关闭，未证明错误仓位或正式账本污染。独立CaptureRunner已有该上下文，不受本入口缺口影响。",
+      "fix": "在持有共享锁的服务端capture入口建立strategy.collection_clock，并在后台catch_up完成后刷新独立采集的真实当前clock，避免继续使用catch_up开始前的旧时间。不要放宽future时间门禁。",
+      "validation": "延迟报文落在开始/完成之间应通过；真正晚于完成时刻仍拒绝；catch_up耗时后采集应使用新的观察起点；跨日/两产品封存继续失败关闭。",
+      "audit_group": "state_v2"
+    },
+    {
+      "id": "S-V2-2",
+      "priority": "P2",
+      "title": "服务端独立采集沿用上次查询全局锚点而非自身最新持久账本",
+      "file": "poe_ic_im_v1_4_server.py",
+      "lines": [
+        209,
+        214
+      ],
+      "related": [
+        "poe_ic_im_v1_4_server.py:145-146",
+        "ic_im_evidence_adapter_v1.py:447-449",
+        "ic_im_evidence_adapter_v1.py:486-498"
+      ],
+      "trigger": "execute_query从旧锚点生成并成功append后，capture_current_inputs立即运行（后台循环正常顺序）；或进程初次采集尚无查询/另一协调器最后更新全局锚点。",
+      "actual": "隔离公共查询已将head从2026-10-20推进2026-10-21，采集入口仍读到last_verified_day=2026-10-20。",
+      "expected": "原日包anchor_day_at_capture应等于当前自身持久head，并按自身已核验持有期权月份排序。",
+      "reproduction_tests": [
+        "test_capture_after_successful_public_append_uses_committed_head"
+      ],
+      "impact": "证据元数据归属不准确和持有月份优先次序错误；collector会采集所有实际月份，尚无证据证明金融目标或完整成功包内容因此错误，不升为P1。",
+      "fix": "在同一策略共享锁中重新load_latest并install_runtime_anchors(anchors_from_record(latest))，将先前全局锚点deepcopy，在finally恢复；按独立CaptureRunner已有实现统一入口。",
+      "validation": "查询成功续账后立即采集、冷启动、多协调器交替、采集异常均验证自身head与月份优先级；恢复全局锚点且正式账本不变。",
+      "audit_group": "state_v2"
+    },
+    {
+      "id": "DELIVERY-V2-01",
+      "severity": "P2",
+      "status": "confirmed",
+      "title": "非交易时段快照及收盘失败兜底错误显示倒数第二个已核验账本",
+      "baseline": "58986fda2c17df93eb3925bf09a1cebd55a7869e",
+      "root_cause": {
+        "path": "poe_ic_im_v1_4_server.py",
+        "lines": [
+          112,
+          145
+        ],
+        "detail": "_record_for_display 在非 live_session 且 latest=completed 时返回 sequence-1；execute_query 对纯快照和失败兜底也统一安装该计算锚。"
+      },
+      "reachable_paths": [
+        "execute_query(当前持仓) -> _handle_snapshot -> _write_last_verified_snapshot",
+        "execute_query(信号) -> _handle_signal -> builder异常 -> _write_last_verified_snapshot"
+      ],
+      "evidence": {
+        "fixture": "fixture_ledger",
+        "fixture_source": "runtime/ic_im_v1_4_r1 (read-only copy)",
+        "verified_day": "2026-10-21",
+        "sequence": 19,
+        "latest_digest": "c068710414dd9070d178faa4625d56835e67b9f2004c935a268900b9a1080342",
+        "tests": "test_delivery_confirmed.py",
+        "xml": "run_04_confirmed/regression.xml",
+        "test_run": "run_04_confirmed/test_run.json",
+        "result": {
+          "failed": 3,
+          "passed": 2,
+          "skipped": 0,
+          "seconds": 5.77
+        },
+        "failed_cases": [
+          "2026-10-22 08:00 当前持仓",
+          "2026-10-22 09:10 当前持仓",
+          "2026-10-21 18:00 信号 with source failure"
+        ],
+        "positive_controls": [
+          "2026-10-22 09:30 当前持仓",
+          "2026-10-22 14:30 当前持仓"
+        ],
+        "expected": "IC/IM 均显示最后逐腿核验快照2026-10-21",
+        "actual": "失败3例均显示2026-10-20；通过2例显示2026-10-21",
+        "mutations": "no observed signals, no attachments, latest ledger digest unchanged"
+      },
+      "impact": "隐藏最新已核验研究状态，并把旧状态称为最后；未证实账本污染、当日新信号误标或实际交易损失。",
+      "minimal_fix": "在同一coordinator锁内分离计算anchor和展示anchor：同日收盘重算继续使用sequence-1；纯快照与计算失败的最后已核验快照显式使用latest。不要整体删除回退。",
+      "followup_tests": [
+        "开盘前、集合竞价、盘中、午间、收盘后失败、非交易日、sequence0",
+        "同日重算正确且不重复状态迁移",
+        "失败路径不落账本、显示真实最后核验日期"
+      ],
+      "limits": [
+        "仅本地已提交代码及固定真实账本副本；未联网、未发邮件、未访问或部署远端",
+        "故障case仅注入builder异常；其余store/coordinator/renderer均真实",
+        "不宣称覆盖完整日报gate或远端运行"
+      ],
+      "audit_group": "delivery_v2"
+    }
+  ],
+  "summary": {
+    "P1": 3,
+    "P2": 4,
+    "total": 7
+  }
+}

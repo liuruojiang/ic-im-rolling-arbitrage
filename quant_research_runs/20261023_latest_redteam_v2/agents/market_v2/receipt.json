@@ -1,0 +1,23 @@
+{
+  "exit_code": 1,
+  "commit": "58986fda2c17df93eb3925bf09a1cebd55a7869e",
+  "test_sha256": "002a1005acc25065a8905259eac68d5959f5a642e74755cb4a16603fb846e85c",
+  "counts": {
+    "tests": 10,
+    "failures": 7,
+    "errors": 0,
+    "skipped": 0
+  },
+  "passed": 3,
+  "production_clean": true,
+  "source_sha256": "b390575a41fe11da6da68caee551b7827f9cee28fb8ceba19432ec661e775222",
+  "input_sha256": "7155726823743f87af08fae1ce90ef44b6565ef8589cb71199194f8540e42453",
+  "network": "blocked",
+  "artifact_sha256": {
+    "test_market_v2.py": "002a1005acc25065a8905259eac68d5959f5a642e74755cb4a16603fb846e85c",
+    "regression.xml": "73c27d66f0f2f38ef004207f4e03b839599ef745472b6f4f7f0269b45ac30419",
+    "test_output.txt": "6f0454d6a69f8675e3d7ec11ebbd3b4e2f76e7a2726450f7fe629c4532e2a098",
+    "observations.json": "ae1570c2bc3fd0fb264c91e1f80f3ba9beec46a362d0729da196ba3c2428f497",
+    "findings.json": "b206c7dc8f192fc3bc88463e409ca2d76e97f2ed30901553019420c0ae4203d1"
+  }
+}

@@ -47,6 +47,43 @@ class EvidenceUnavailable(RuntimeError):
     """A required original-day input is missing, invalid, or incomplete."""
 
 
+def sina_mo_quote_variables(raw: bytes, expected_symbols: list[str]) -> dict[str, tuple[bytes, bytes]]:
+    """Parse only complete original Sina MO assignments, never identifier suffixes.
+
+    Each value contains the payload and the exact assignment bytes. The same
+    parser is used at capture, direct consumption and batch replay projection;
+    integrity-valid older archives do not gain an identity by being projected.
+    Whitespace between assignments is allowed, but other text is not ignored.
+    """
+    symbol_pattern = r"P_OP_mo[0-9]{4}[CP][0-9]+"
+    if (not expected_symbols or len(expected_symbols) != len(set(expected_symbols))
+            or any(not isinstance(symbol, str) or re.fullmatch(symbol_pattern, symbol) is None
+                   for symbol in expected_symbols)):
+        raise EvidenceUnavailable("Sina verification batch request identities invalid")
+    pattern = re.compile(rb'(?:var[ \t]+)?hq_str_(P_OP_mo[0-9]{4}[CP][0-9]+)[ \t]*=[ \t]*"([^"\r\n]*)"[ \t]*;?')
+    values: dict[str, tuple[bytes, bytes]] = {}
+    position = 0
+    while position < len(raw):
+        while position < len(raw) and raw[position] in b" \t\r\n":
+            position += 1
+        if position == len(raw):
+            break
+        match = pattern.match(raw, position)
+        if match is None:
+            raise EvidenceUnavailable("Sina verification batch contains an invalid exact variable identity")
+        symbol = match[1].decode("ascii")
+        if symbol in values or not match[2]:
+            raise EvidenceUnavailable("Sina verification batch identities duplicate or payload empty")
+        values[symbol] = (match[2], match[0])
+        position = match.end()
+        if (not match[0].rstrip().endswith(b";") and position < len(raw)
+                and raw[position] not in b"\r\n"):
+            raise EvidenceUnavailable("Sina verification batch assignments lack a separator")
+    if set(values) != set(expected_symbols):
+        raise EvidenceUnavailable("Sina verification batch identities incomplete")
+    return values
+
+
 @contextmanager
 def publication_guard(callback: Callable[[], Any]) -> Iterator[None]:
     """Validate the capture source before its manifest can become readable.
@@ -710,11 +747,8 @@ class EvidenceReader:
                     continue
                 _validate_http_metadata(row)
                 body = _verified_blob(self.root, row)
-                values = list(re.finditer(rb'(?:var\s+)?hq_str_(P_OP_mo[0-9]{4}[CP][0-9]+)="([^"\r\n]*)";?', body))
-                returned = [m[1].decode("ascii") for m in values]
-                if len(returned) != len(set(returned)) or set(returned) != set(symbols):
-                    raise EvidenceUnavailable("recorded Sina verification batch identities incomplete")
-                selected = next(m[0] for m in values if m[1].decode("ascii") == params["list"])
+                values = sina_mo_quote_variables(body, symbols)
+                selected = values[params["list"]][1]
                 candidates.append({**row, "body": selected, "projection": "exact_recorded_Sina_variable",
                                    "parent_raw_sha256": row["sha256"]})
         if not candidates:

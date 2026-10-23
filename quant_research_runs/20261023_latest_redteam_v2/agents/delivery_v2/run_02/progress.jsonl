@@ -1,0 +1,4 @@
+{"nodeid": "quant_research_runs/20261023_latest_redteam_v2/agents/delivery_v2/test_delivery_redteam.py::test_readonly_snapshot_uses_latest_verified_record[2026-10-22T08:00:00+08:00]", "started_at": "2026-10-23T14:07:21.616552+08:00"}
+{"nodeid": "quant_research_runs/20261023_latest_redteam_v2/agents/delivery_v2/test_delivery_redteam.py::test_readonly_snapshot_uses_latest_verified_record[2026-10-22T09:10:00+08:00]", "started_at": "2026-10-23T14:07:22.325065+08:00"}
+{"nodeid": "quant_research_runs/20261023_latest_redteam_v2/agents/delivery_v2/test_delivery_redteam.py::test_readonly_snapshot_uses_latest_verified_record[2026-10-22T09:30:00+08:00]", "started_at": "2026-10-23T14:07:22.702057+08:00"}
+{"nodeid": "quant_research_runs/20261023_latest_redteam_v2/agents/delivery_v2/test_delivery_redteam.py::test_readonly_snapshot_uses_latest_verified_record[2026-10-22T14:30:00+08:00]", "started_at": "2026-10-23T14:07:22.962209+08:00"}

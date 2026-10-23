@@ -1,0 +1,5 @@
+# 撤销的候选
+
+初查把15:00后报告完成当作缺陷，run_01保留2失败/1通过。随后核对 docs/ic_im_fear_delivery_adversarial_20261015.md，明确允许IC/IM合格快照的报告稍后完成，且 test_ic_im_fear_grid_v1.py::test_adversarial_before_1500_observation_can_finish_report_later已有正向契约。该候选预期不符合现行规格，撤销，不列确认bug，也不改生产来满足该错误预期。
+
+本地runner第474行参考字典覆盖仍可做白名单防御增强；当前生产fetch_jiu_reference只构造jiu字段，无原始payload字典展开路径，未证明外部响应能携带策略字段穿透，因此不列确认bug。云端PR162已修，不能撤销该结论。

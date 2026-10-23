@@ -1,0 +1,19 @@
+{
+  "pid": 36668,
+  "started_at": "2026-10-23T14:57:41.8190328+08:00",
+  "executable": "C:\\Python314\\python.exe",
+  "arguments": [
+    "-B",
+    "-X",
+    "utf8",
+    "D:\\动量策略\\IC和IM滚动套利\\capture_ic_im_v1_4_inputs.py",
+    "--loop",
+    "--state-dir",
+    "D:\\动量策略\\IC和IM滚动套利\\runtime\\ic_im_v1_4_r1",
+    "--evidence-dir",
+    "D:\\动量策略\\IC和IM滚动套利\\data\\icim_v14_original_inputs",
+    "--source-pin",
+    "D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261023_redteam_repairs_v3\\delivery\\capture_source_pin.json"
+  ],
+  "hidden": true
+}

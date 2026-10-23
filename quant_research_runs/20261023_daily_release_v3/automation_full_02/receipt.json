@@ -1,0 +1,24 @@
+{
+  "exit_code": 0,
+  "counts": {
+    "tests": 1347,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "scope": "all automation tests",
+  "elapsed_seconds": 46.92691420000119,
+  "source_files": 220,
+  "source_before_equals_after": false,
+  "changed_files": [
+    ".hypothesis/constants/8d79367d8c277598"
+  ],
+  "collected_nodes": 1170,
+  "windows_test_temp_mode_adaptations": {
+    "mkdir": 276,
+    "chmod": 0
+  },
+  "adaptation_scope": "D:\\\u52a8\u91cf\u7b56\u7565\\IC\u548cIM\u6eda\u52a8\u5957\u5229\\quant_research_runs\\20261023_daily_release_v3\\automation_full_02\\isolated_temp",
+  "runner_sha256": "c87c3456e2f8eb08646e874c0b82d2a8c1a40036f346bc1db34004d6acb52f18",
+  "config_sha256": "d01637a0417e7fd4c8704ba8ed3b7717601c8b6396dd7fe3ab4303007ee70ffd"
+}

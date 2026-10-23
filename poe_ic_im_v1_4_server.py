@@ -110,6 +110,8 @@ class LedgerCoordinator:
                 raise RuntimeError("迁移证明与当前v1.4账本revision/digest不一致")
 
     def _record_for_display(self, now: datetime) -> dict[str, Any]:
+        # Compatibility name: this is the calculation anchor. Recalculating an
+        # already committed close needs its predecessor; display uses the head.
         latest = self.store.load_latest()
         phase = strategy._market_phase(now)
         try:
@@ -141,6 +143,7 @@ class LedgerCoordinator:
     ) -> tuple[str, list[dict[str, Any]], dict[str, dict[str, Any]]]:
         clock = strategy._beijing_clock(now or strategy._now_beijing())
         with strategy.collection_clock(clock), self.lock:
+            display_anchors = anchors_from_record(self.store.load_latest())
             record = self._record_for_display(clock)
             strategy.install_runtime_anchors(anchors_from_record(record))
             capture = _CaptureOutput(query)
@@ -151,7 +154,7 @@ class LedgerCoordinator:
                 lambda product, signal: observed.__setitem__(product, signal)
             )
             try:
-                with strategy.evidence_adapter.evidence_location(self.evidence_root), strategy.runtime_clock(clock), strategy.historical_replay(
+                with strategy.verified_display_anchors(display_anchors), strategy.evidence_adapter.evidence_location(self.evidence_root), strategy.runtime_clock(clock), strategy.historical_replay(
                     replay_day
                 ):
                     strategy.ICIMMainlinesBot().run()
@@ -206,14 +209,22 @@ class LedgerCoordinator:
         # Capture one early close and one after the official-rate publication
         # window. Failed/incomplete attempts can be retried by the same loop.
         bucket = (clock.date(), clock.time() >= strategy.time(17, 30))
-        with self.lock:
+        # Start the observation clock before waiting for the shared strategy
+        # lock, so a quote received after that wait is compared to receipt time.
+        with strategy.collection_clock(clock), self.lock:
             if self._evidence_capture_bucket == bucket:
                 return self.last_evidence_capture or {}
+            previous_anchors = deepcopy(strategy.LIVE_CONTINUATION_ANCHOR)
             try:
+                latest = self.store.load_latest()
+                strategy.install_runtime_anchors(anchors_from_record(latest))
                 result = strategy.evidence_adapter.capture_daily(strategy, self.evidence_root, clock)
             except Exception as exc:
                 result = {"day": str(clock.date()), "status": "incomplete",
                           "reason": f"{type(exc).__name__}: {exc}"}
+            finally:
+                strategy.LIVE_CONTINUATION_ANCHOR.clear()
+                strategy.LIVE_CONTINUATION_ANCHOR.update(previous_anchors)
             self.last_evidence_capture = result
             if result.get("status") == "captured":
                 self._evidence_capture_bucket = bucket
@@ -372,7 +383,9 @@ async def _refresh_loop() -> None:
                     coordinator.last_refresh_error = f"{type(exc).__name__}: {exc}"
                 # This runs even when catch-up failed. Cancellation escapes
                 # before starting further I/O, and the sole scheduler stays.
-                await asyncio.to_thread(coordinator.capture_current_inputs, now)
+                # Resolve the start clock in the worker, after any executor
+                # queue delay as well as after the catch-up operation.
+                await asyncio.to_thread(coordinator.capture_current_inputs)
         except Exception as exc:
             # Calendar/head checks can fail before catch_up_once's replay try.
             # Keep the sole scheduler alive for later retries, without making

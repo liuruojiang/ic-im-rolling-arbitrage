@@ -274,6 +274,8 @@ def short_signal():
                   v14_short_put_contract='510500P2610M07500', v14_short_put_security_id='10019999',
                   v14_short_put_qty_normalized=9.8, v14_short_put_entry_premium=.12,
                   v14_short_put_expiry=date(2026, 10, 28), core_put_target_delta=0., put_target_core_qty=0)
+    signal.update(v14_short_put_mark=.12, v14_short_put_mark_day=signal['market_date'],
+                  v14_short_put_mark_contract=signal['v14_short_put_contract'])
     return signal
 
 

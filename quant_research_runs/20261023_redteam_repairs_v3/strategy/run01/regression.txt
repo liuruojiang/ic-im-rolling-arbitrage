@@ -1,0 +1,47 @@
+................................FF...................................... [ 24%]
+........................................................................ [ 49%]
+........................................................................ [ 74%]
+........................................................................ [ 98%]
+...                                                                      [100%]
+================================== FAILURES ===================================
+______________ test_required_day_falls_back_from_lagging_primary ______________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000020D5A5F8280>
+
+    def test_required_day_falls_back_from_lagging_primary(monkeypatch):
+        calls=[]
+        def primary(sid):
+            calls.append(("primary",sid))
+            return pd.Series([.9],index=[pd.Timestamp("2026-11-30")])
+        def backup(sid):
+            calls.append(("backup",sid))
+            return pd.Series([.8],index=[pd.Timestamp("2026-12-01")])
+        monkeypatch.setattr(bot,"fetch_sina_option_closes",primary)
+        monkeypatch.setattr(bot,"fetch_eastmoney_option_closes",backup)
+>       out=bot.fetch_option_closes("10012099",date(2026,12,1))
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: fetch_option_closes() takes 1 positional argument but 2 were given
+
+test_icim_redteam_strategy_repairs_20261023.py:144: TypeError
+_____________ test_required_day_missing_from_both_sources_rejects _____________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000020D5A815B70>
+
+    def test_required_day_missing_from_both_sources_rejects(monkeypatch):
+        monkeypatch.setattr(bot,"fetch_sina_option_closes",lambda sid:pd.Series([.9],index=[pd.Timestamp("2026-11-30")]))
+        monkeypatch.setattr(bot,"fetch_eastmoney_option_closes",lambda sid:pd.Series([.8],index=[pd.Timestamp("2026-11-30")]))
+        with pytest.raises(RuntimeError,match="2026-12-01"):
+>           bot.fetch_option_closes("10012099",date(2026,12,1))
+E           TypeError: fetch_option_closes() takes 1 positional argument but 2 were given
+
+test_icim_redteam_strategy_repairs_20261023.py:154: TypeError
+============================== warnings summary ===============================
+C:\Python314\Lib\site-packages\fastapi_poe\types.py:171
+  C:\Python314\Lib\site-packages\fastapi_poe\types.py:171: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    class RequestContext(BaseModel):
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED test_icim_redteam_strategy_repairs_20261023.py::test_required_day_falls_back_from_lagging_primary
+FAILED test_icim_redteam_strategy_repairs_20261023.py::test_required_day_missing_from_both_sources_rejects
+2 failed, 289 passed, 1 warning in 5.44s

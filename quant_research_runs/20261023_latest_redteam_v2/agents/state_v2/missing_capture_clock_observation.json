@@ -1,0 +1,5 @@
+{
+  "day": "2026-10-21",
+  "status": "incomplete",
+  "reason": "RuntimeError: synthetic current CFFEX frame行情更新时间晚于采集时刻，禁止确认信号"
+}

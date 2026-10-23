@@ -1,0 +1,44 @@
+{
+  "finding": "STRAT-01",
+  "status": "fixed_targeted_verified_pending_independent_audit",
+  "new_tests": 58,
+  "run06": {
+    "passed": 227,
+    "failed": 0,
+    "deselected": 4
+  },
+  "run05": {
+    "passed": 407,
+    "failed": 0
+  },
+  "files_sha256": {
+    "ic_im_v1_4_policy.py": "d632d411a130658b5b993fbffcb7ac98be3affc8ceb634842c45e8e8da9a7cd2",
+    "poe_ic_im_mainline_v1_4_bot.py": "48a0fd691904a72b83ac0b9ca3506a2e5a4754d82edb72e1aed0937f23e1239c",
+    "poe_ic_im_v1_4_state.py": "dd326abd1fc6d687c901d4960f30456207606569ba80456f719d6a267ce335d3",
+    "ic_im_evidence_adapter_v1.py": "775f39c2ba60f64d41a580d344969d91c56e25c029fe31a5588e352b4916e867",
+    "test_icim_redteam_strategy_repairs_20261023.py": "0b4ec2b81f41afaf1b79a54e2ae7ba3e359c080b86b9be3225fc0da3800efa5f",
+    "test_ic_im_v1_4_state_guards.py": "1b45b46206d55c8d9eb2bef796146349dfe9524acd7d023b74afbaf64e0683e2",
+    "test_ic_im_ordinary_put_route_fix_20261013.py": "3d60837dcd76d00b234695dbe86960aaf7eac3105f46a5cf3203cccdb7f2f50b",
+    "test_icim_round4_recovery_20261021.py": "5f067fa3af4b682a3425ee3cee1ce65fcf8a58f4fab8d58bc62eb120b9cc2151",
+    "test_icim_round5_recording_semantics_20261021.py": "699074b297621d4513f25c6b98aa103cc491b08166bf5d33a1b01f28e256bf70"
+  },
+  "changes": [
+    "Required active held-short decay mark fails closed in producer/pure policy/new-write boundary.",
+    "IC required_day source fallback and evidence wrapper forwards contract without changing archive lookup keys.",
+    "Mark day and contract bindings required at adapter and ledger append; independent projected pre-close anchor defeats forged pending or target action.",
+    "Entry/roll target-only delivery checks do not misinterpret a new leg as a prior held leg.",
+    "Expired, pending, unverified-cost, pre-repeat-roll-used and intraday branches preserve previous policy semantics."
+  ],
+  "tests_notes": [
+    "Saved real 2026-10-22 IC chain10012149 mark0.2614 and unchanged reader role/keys tested.",
+    "Synthetic held-short full publicbuilder/state tests reject missing mark, stale day,wrongcontract,forgedpending,forgedenter,forgedroll withseq/digestunchanged.",
+    "run01 exposed production adapter wrapper signature integration bug; fixed. run02 only duplicate-keyword newtest fixture errors; fixed.",
+    "run03 included3 existing historical deselections inadvertently; blockednetwork attempts andexisting2027 expectationfailure preserved. run04 historical exclusions corrected but oldintegration fixture ran afterround5globalanchor sideeffects;1 orderdependent fixturefailure. Normal-order run05 passed407.",
+    "Dailygate01 exposed signal-target versusoldheldleg bug andoldsynthetic marks missing; production guard corrected plus2sharedfixtures updated; run06 passed all relevant files."
+  ],
+  "limits": [
+    "No live provider calls for new tests; all new tests block Session.request.",
+    "No formalledger writes,remote deploy,email,orhistorical NAV recomputation.",
+    "Parent fullgate and independent audit still required."
+  ]
+}

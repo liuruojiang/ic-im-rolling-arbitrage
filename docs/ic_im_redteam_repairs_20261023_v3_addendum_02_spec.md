@@ -1,0 +1,3 @@
+# v3 repair scope addendum 02
+
+Independent post-fix audit confirmed S-V2-1 persists during shared-lock waits: the source clock advances before a collection context established after lock acquisition. Fix by establishing the advancing collection context before waiting for the strategy lock. Background executor dispatch must sample the default current clock inside the worker rather than before executor queueing. Preserve signal-day semantics, no relaxation of future guards. Add deterministic delayed-lock and scheduled-dispatch regressions. Daily gate run01 failed and remains evidence; sources will be rebound under a new r2 manifest after corrections.

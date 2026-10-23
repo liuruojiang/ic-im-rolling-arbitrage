@@ -1,0 +1,62 @@
+{
+  "status": "PASS_WITH_FOLLOWUP_FIXED",
+  "baseline_commit": "58986fda2c17df93eb3925bf09a1cebd55a7869e",
+  "audited_source_sha256": {
+    "poe_ic_im_mainline_v1_4_bot.py": "48a0fd691904a72b83ac0b9ca3506a2e5a4754d82edb72e1aed0937f23e1239c",
+    "ic_im_v1_4_policy.py": "d632d411a130658b5b993fbffcb7ac98be3affc8ceb634842c45e8e8da9a7cd2",
+    "poe_ic_im_v1_4_state.py": "dd326abd1fc6d687c901d4960f30456207606569ba80456f719d6a267ce335d3",
+    "poe_ic_im_v1_4_server.py": "98383b69ecfd33dc22e0d9699129d9458b632f4979d75e7f838c50176d6cbd2c",
+    "ic_im_signal_evidence_v1.py": "8cf484fdc536596d426a0dccced2a3a4a9e76d9952c8474b97051bcd5673d087",
+    "ic_im_evidence_adapter_v1.py": "775f39c2ba60f64d41a580d344969d91c56e25c029fe31a5588e352b4916e867"
+  },
+  "original_findings": {
+    "STRAT-01": "repaired_behavior_independently_verified",
+    "MKT-01": "repaired_behavior_independently_verified",
+    "MKT-02": "repaired_behavior_independently_verified",
+    "EV2-01": "repaired_behavior_independently_verified",
+    "S-V2-1": "repaired_behavior_independently_verified",
+    "S-V2-2": "repaired_behavior_independently_verified",
+    "DELIVERY-V2-01": "repaired_behavior_independently_verified"
+  },
+  "confirmed_followup": [
+    {
+      "id": "S-V2-1-lock-wait",
+      "severity": "P2",
+      "status": "fixed_and_verified",
+      "file": "poe_ic_im_v1_4_server.py",
+      "trigger": "Shared strategy lock acquisition consumes 2 seconds before collection clock context starts; received timestamp is request clock +1 second.",
+      "before": "validator observation clock remains request clock, reports incomplete/future despite receive time +2 seconds.",
+      "after": "collection_clock starts before acquiring self.lock; observation time +2 seconds correctly accepts source +1 second.",
+      "failure": "audit_clock_wait/run_01/regression.xml",
+      "acceptance": "audit_clock_wait/run_02_final/receipt.json",
+      "ledger_bytes_unchanged": true
+    }
+  ],
+  "unresolved_confirmed_findings": [],
+  "final_runs": {
+    "independent_main": {
+      "path": "run_02_final",
+      "counts": {
+        "tests": 74,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "source_files": 1174,
+      "stable": true
+    },
+    "lock_wait": {
+      "path": "audit_clock_wait/run_02_final",
+      "counts": {
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "source_files": 1116,
+      "stable": true
+    }
+  },
+  "retained_diagnostic_run": "run_01: 73 passed, 1 NaN equality harness error; sources changed during authorized concurrent repair. Not final acceptance.",
+  "market_named_cache_review": "No production intraday-to-original-close producer found. capture_daily only runs after close and live_proxy then uses daily OHLCV. Verified named close market capture+replay does not consume realtime quote packet. Trusted archive fabrication not claimed as live feed reachability."
+}

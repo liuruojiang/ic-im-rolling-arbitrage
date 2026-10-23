@@ -1,0 +1,28 @@
+{
+  "findings": [
+    "MKT-01",
+    "MKT-02"
+  ],
+  "status": "patched_targeted_verified",
+  "new_test_count": 83,
+  "final_targeted_run": {
+    "directory": "run03",
+    "passed": 84,
+    "failed": 0,
+    "skipped": 0,
+    "seconds": 17.7
+  },
+  "fixture": {
+    "path": "quant_research_runs/20261023_multiround_adversarial_v1/selected_original_bundle/blobs/7155726823743f87af08fae1ce90ef44b6565ef8589cb71199194f8540e42453.bin",
+    "sha256": "7155726823743f87af08fae1ce90ef44b6565ef8589cb71199194f8540e42453"
+  },
+  "prior_runs": {
+    "run01": "62 new passed; legacy timestamp fixture missing identity/clock failed; exact fixture updated, assertions preserved",
+    "run02": "180 passed / 3 failed; 2 are pre-existing registered deselections; expiry-candidate status mismatch sent to strategy agent and parent"
+  },
+  "limits": [
+    "synthetic quote packets/clocks, saved real OHLCV",
+    "no network, production state, remote deployment or email",
+    "final cumulative/source-bound verification belongs to parent"
+  ]
+}

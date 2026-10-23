@@ -1,0 +1,12 @@
+{
+  "collected": [
+    "quant_research_runs/20261023_redteam_repairs_v3/independent/audit_clock_wait/test_capture_lock_wait.py::test_valid_snapshot_after_shared_lock_wait_is_not_future"
+  ],
+  "selected": [
+    "quant_research_runs/20261023_redteam_repairs_v3/independent/audit_clock_wait/test_capture_lock_wait.py::test_valid_snapshot_after_shared_lock_wait_is_not_future"
+  ],
+  "deselected": [],
+  "executed": [
+    "quant_research_runs/20261023_redteam_repairs_v3/independent/audit_clock_wait/test_capture_lock_wait.py::test_valid_snapshot_after_shared_lock_wait_is_not_future"
+  ]
+}

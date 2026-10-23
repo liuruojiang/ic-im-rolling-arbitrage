@@ -1,0 +1,147 @@
+{
+  "status": "CONFIRMED_LEGAL_REMOTE_LEDGER_ADOPTION_BY_LOCAL_DAILY_AUTOMATION",
+  "checked_at": "2026-10-23T07:50:10.530724+00:00",
+  "network_used": false,
+  "formal_ledger_writes": false,
+  "source_run": 39892433587,
+  "source_job": 120215258822,
+  "source_strategy_sha": "8038980de86251b2c5133da04e788dc2c49c84ff",
+  "source_automation_sha": "f2b77dd4b710101adb897b0d9e40b193faaa10c5",
+  "archive_sha256": "04baf5d42d657095a1770a38f57037926de2ffed8211662739407b1633af942a",
+  "archive_matches_logged_handoff_sha": true,
+  "archive_unchanged_from_pre_repair_git_commit": true,
+  "run_summary_unchanged_from_pre_repair_git_commit": true,
+  "remote_summary": {
+    "run": 39892433587,
+    "job": 120215258822,
+    "automation_sha": "f2b77dd4b710101adb897b0d9e40b193faaa10c5",
+    "strategy_sha": "8038980de86251b2c5133da04e788dc2c49c84ff",
+    "conclusion": "success",
+    "evidence": [
+      "2026-10-23T02:59:16.2658891Z {\"status\": \"verified\", \"release\": \"20261023-audited-inputs-v1\", \"strategy_sha\": \"8038980de86251b2c5133da04e788dc2c49c84ff\", \"files\": 29}",
+      "2026-10-23T02:59:23.1120526Z ic_im_digest_ok: mode=close_confirmed verified_day=2026-10-22 sequence=20 build=v1.4-20261008-r1-ic-csi500-abs40-fix11",
+      "2026-10-23T02:59:24.0628617Z {\"status\": \"ok\", \"tls_verified\": ***, \"authenticated\": ***, \"sender_envelope_accepted\": ***, \"recipients_accepted\": 1, \"envelope_reset\": ***, \"message_sent\": false}",
+      "2026-10-23T02:59:25.6856193Z ICIM_HANDOFF_SHA256=04baf5d42d657095a1770a38f57037926de2ffed8211662739407b1633af942a"
+    ],
+    "real_email_sent": false
+  },
+  "handoff_manifest": {
+    "signal_completeness": "complete",
+    "status": "ok",
+    "strategy_sha": "8038980de86251b2c5133da04e788dc2c49c84ff",
+    "source_artifact_id": 12423604023,
+    "verified_day": "2026-10-22",
+    "sequence": 20,
+    "digest": "49fb159fbadf894b6c64e8ca886faef49d62c5e8e31f0415690209f834317cc0",
+    "publication_mode": "close_confirmed",
+    "market_date": "2026-10-22"
+  },
+  "handoff_file_count": 26,
+  "archive_members_exact": true,
+  "handoff_hash_mismatches": [],
+  "local_vs_handoff_byte_differences": [],
+  "ledger_files_compared": 23,
+  "seq0_through_19_match_pre_repair_baseline": true,
+  "canonical_hash_chain_valid": true,
+  "seq20_record": {
+    "sequence": 20,
+    "verified_day": "2026-10-22",
+    "updated_at": "2026-10-22T20:02:41.285847+08:00",
+    "source": "automatic_close_replay",
+    "previous_digest": "c068710414dd9070d178faa4625d56835e67b9f2004c935a268900b9a1080342",
+    "digest": "49fb159fbadf894b6c64e8ca886faef49d62c5e8e31f0415690209f834317cc0"
+  },
+  "seq20_file_sha256": "2773323661e43f4cc92e72c743069d9cd93ba23b1051bbe8a714bfc89c0e2fd0",
+  "preflight": {
+    "publication_mode": "close",
+    "expected_market_day": "2026-10-22",
+    "strategy_sha": "8038980de86251b2c5133da04e788dc2c49c84ff",
+    "program_build": "v1.4-20261008-r1-ic-csi500-abs40-fix11",
+    "generated_at": "2026-10-23T10:59:16.053491+08:00",
+    "completed_day": "2026-10-22",
+    "restored_verified_day": "2026-10-22",
+    "restored_digest": "49fb159fbadf894b6c64e8ca886faef49d62c5e8e31f0415690209f834317cc0",
+    "today_is_trade_day": true,
+    "signal_build_expected": "v1.4-20261008-r1-ic-csi500-abs40-fix11",
+    "prospective_fix11_signal_observed": false
+  },
+  "local_preview_matches_handoff": true,
+  "formal_ledger_unchanged_during_this_check": true,
+  "local_adoption": {
+    "automation_run_directory": "D:\\Codex\\home\\automations\\ic-im\\runs\\20261023\\daily_intraday_1428\\icim",
+    "command": {
+      "command": [
+        "python",
+        "-B",
+        "-X",
+        "utf8",
+        "D:/Codex/home/automations/ic-im/runs/20261023/daily_intraday_1428/icim/adopt_official_pinned.py",
+        "--strategy-root",
+        "D:/动量策略/IC和IM滚动套利",
+        "--candidate",
+        "D:/Codex/home/automations/ic-im/runs/20261023/daily_intraday_1428/icim/official_ledger_candidate",
+        "--archive",
+        "D:/Codex/home/automations/ic-im/runs/20261023/daily_intraday_1428/icim/official_ledger.zip",
+        "--artifact-metadata",
+        "D:/Codex/home/automations/ic-im/runs/20261023/daily_intraday_1428/icim/official_artifact_api.json",
+        "--run-metadata",
+        "D:/Codex/home/automations/ic-im/runs/20261023/daily_intraday_1428/icim/official_run_api.json",
+        "--audit-dir",
+        "D:/Codex/home/automations/ic-im/runs/20261023/daily_intraday_1428/icim/ledger_adoption",
+        "--apply"
+      ],
+      "start": "2026-10-23T06:54:41.945129+00:00",
+      "end": "2026-10-23T06:54:53.885911+00:00",
+      "seconds": 11.940806200000225,
+      "exit_code": 0,
+      "log": "D:\\Codex\\home\\automations\\ic-im\\runs\\20261023\\daily_intraday_1428\\icim\\adoption_apply.log"
+    },
+    "result": {
+      "started_at": "2026-10-23T14:54:42.119688+08:00",
+      "apply_requested": true,
+      "before": {
+        "sequence": 19,
+        "verified_day": "2026-10-21",
+        "digest": "c068710414dd9070d178faa4625d56835e67b9f2004c935a268900b9a1080342"
+      },
+      "candidate": {
+        "sequence": 20,
+        "verified_day": "2026-10-22",
+        "digest": "49fb159fbadf894b6c64e8ca886faef49d62c5e8e31f0415690209f834317cc0"
+      },
+      "expected_completed_day": "2026-10-22",
+      "applied": true,
+      "status": "ADOPTED",
+      "backup": "D:\\Codex\\home\\automations\\ic-im\\runs\\20261023\\daily_intraday_1428\\icim\\ledger_adoption\\official_ledger_backup_br_8hect",
+      "after": {
+        "sequence": 20,
+        "verified_day": "2026-10-22",
+        "digest": "49fb159fbadf894b6c64e8ca886faef49d62c5e8e31f0415690209f834317cc0"
+      },
+      "historical_records_rewritten": false,
+      "source_bytes_preserved": true,
+      "artifact_id": 12423604023,
+      "run_id": 39774840955,
+      "archive_sha256": "16726b01e4a587e2a31ea6f92c471269cfd2804050a554f29d5630a42939322f",
+      "ended_at": "2026-10-23T14:54:53.013055+08:00",
+      "elapsed_seconds": 10.911,
+      "exit_code": 0
+    },
+    "saved_receipt_hashes": {
+      "adoption_apply_command.json": "4f431bfc0de54afb41761b341262bf72a5abe4684432fb9fd1877ae43edccf6b",
+      "ledger_adoption/adoption_result.json": "b9cfcb2d6b5010f1a35da973c17c1fe809edec2f6b500aa20e9ae8e58177ecac",
+      "production_chain_verification.json": "bb8c42c607d9a3ce27be1e8011744a18e66bffda14def7c3a16042c3c6dc1abc",
+      "official_artifact_api.json": "fe9996e39a48c292ff769cbf6a9a20947b121a09aaa641a97c90af39b59c5962",
+      "official_run_api.json": "7b1e4a3c702c31dbe76ea95c372b0268a77eb1c57805cc869e63e0678cb81689"
+    },
+    "official_run_id": 39774840955,
+    "official_run_url": "https://github.com/liuruojiang/codex-daily-automation-probe/actions/runs/39774840955",
+    "official_artifact_id": 12423604023,
+    "official_artifact_name": "ic-im-v1-4-r1-ledger",
+    "official_archive_sha256": "16726b01e4a587e2a31ea6f92c471269cfd2804050a554f29d5630a42939322f",
+    "official_archive_bytes": 137231,
+    "official_archive_matches_handoff_and_current_ledger": true,
+    "production_receipt_all_23_json_match": true
+  },
+  "attribution_limit": "The local daily automation executed adopt_official_pinned.py --apply at 14:54:41..53 +08:00 and recorded successful adoption of the official successful run 39774840955 artifact 12423604023. This identifies the recorded writer workflow and exact byte source. It does not transform historical seq20 into a v3-generated record or undo the earlier incorrect claim that formal runtime was unchanged. No network or production write was performed during this verification."
+}

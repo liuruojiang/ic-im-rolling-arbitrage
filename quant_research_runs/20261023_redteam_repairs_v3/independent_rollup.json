@@ -1,0 +1,47 @@
+{
+  "independent_cases": 148,
+  "runs": [
+    {
+      "run": "independent/run_03_r3",
+      "tests": 74,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "run": "independent/audit_clock_wait/run_03_r3",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "run": "audit_market_evidence/run01",
+      "tests": 29,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "run": "audit_strategy_state/final01",
+      "tests": 35,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "run": "audit_server/run02",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "run": "audit_server/collector_timing/run02",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  ]
+}

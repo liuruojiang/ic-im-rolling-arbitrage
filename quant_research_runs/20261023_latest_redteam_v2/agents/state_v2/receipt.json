@@ -1,0 +1,24 @@
+{
+  "commit": "58986fda2c17df93eb3925bf09a1cebd55a7869e",
+  "tests": 10,
+  "passed": 7,
+  "failed": 3,
+  "confirmed_findings": 2,
+  "source_matches_precommit_byte_baseline": true,
+  "source_sha256": {
+    "poe_ic_im_v1_4_state.py": "dc11b280baf7da884c82fe52cf1866c0ac42a0b73fa9d9e6990d27c5b0ba1d4a",
+    "poe_ic_im_v1_4_server.py": "bec2a5b20571a406af7075f9252d72181362a97e502b294d2e5c39c18ac9d5d8",
+    "poe_ic_im_mainline_v1_4_bot.py": "b390575a41fe11da6da68caee551b7827f9cee28fb8ceba19432ec661e775222",
+    "ic_im_evidence_adapter_v1.py": "f22a342dcf671f7625d6861f4041cff045d698ba2ba63c8519fdfa0fd204a662",
+    "ic_im_signal_evidence_v1.py": "adb241e56e9c012487a4c3837865450256c53aa1f0d1d2c0c1dc141cd1172a0f",
+    "ic_im_quote_snapshot_guard.py": "ae22b541a1a2a6bc20d5bd23bb1fc3d275a2f3fcfce96b5345c2458cde74b9d5"
+  },
+  "artifacts": {
+    "test_state_v2.py": "de028b96c28fd6eee2b56138db7cefe0d78fe492564330626a011a99ca085914",
+    "run.py": "0a48366bea1477c57fc9eabe2f28d6b8d8bcedb9b5a134a0a63c36bc5bf7fe10",
+    "results.xml": "907731fdaaaeafe600df4458259ccf9500a43d01aa09985c8cd76b8a846dde9d",
+    "results.txt": "01952c415b84f681878eee0ca6e7d22f151e7009a0c84a1ea6e7008147cd7fbb",
+    "findings.json": "1d8ee4ac8457434a610a275606e8f5e0a79f99a9fa5c4ad9fea2afe7a34e4fa8",
+    "report.md": "d12bb04ff638984e884397c46bb4f708ac40fd231edc6bf7c1fa9a3be491cd95"
+  }
+}

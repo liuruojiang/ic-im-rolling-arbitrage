@@ -1,0 +1,102 @@
+{
+  "status": "targeted_tests_passed",
+  "fixed": [
+    "S-V2-1",
+    "S-V2-2",
+    "DELIVERY-V2-01"
+  ],
+  "production_files": [
+    "poe_ic_im_v1_4_server.py",
+    "poe_ic_im_mainline_v1_4_bot.py"
+  ],
+  "new_test_file": "test_icim_redteam_server_repairs_20261023.py",
+  "new_tests": 29,
+  "targeted_total": 110,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "server_sha256": "98383b69ecfd33dc22e0d9699129d9458b632f4979d75e7f838c50176d6cbd2c",
+  "test_sha256": "e328a38c0a3d7a4778eced6e053123e626532e51e2be043d1b1c3831e129ef53",
+  "scope": [
+    "capture loads own persisted latest under shared strategy lock",
+    "capture anchors deepcopied and restored in finally including cancellation",
+    "capture collection clock advances without weakening future guard",
+    "scheduler samples observation start after catch-up",
+    "display context uses committed head; calculation predecessor logic retained"
+  ],
+  "limits": [
+    "No network, emails, remote deployment, or formal ledger mutations.",
+    "Real ledger fixture is read-only copied; capture clock and quote frames are explicitly synthetic.",
+    "Full cumulative suite and real original-day replay handled by parent.",
+    "Shared bot file being edited concurrently by disjoint owners; final hash binding belongs to parent after integration."
+  ],
+  "fixture_provenance": {
+    "source": "quant_research_runs/20261023_latest_redteam_v2/agents/delivery_v2/fixture_ledger",
+    "destination": "tests/fixtures/icim_verified_ledger_20261021",
+    "source_origin": "Read-only copy of actual runtime/ic_im_v1_4_r1 captured in prior delivery_v2 audit",
+    "verified_day": "2026-10-21",
+    "sequence": 19,
+    "latest_digest": "c068710414dd9070d178faa4625d56835e67b9f2004c935a268900b9a1080342",
+    "copy_exact_bytes": true,
+    "files": {
+      "tests/fixtures/icim_verified_ledger_20261021/latest.json": "af2d4b65fc20101e87517eceebaad989c17a5f5e0d37db026b9ce39448ecd254",
+      "tests/fixtures/icim_verified_ledger_20261021/migration_record.json": "bae64e783e57e87227b54b463d8046638df5e27adbdd2c61b1d5ff0af90cf53d",
+      "tests/fixtures/icim_verified_ledger_20261021/journal/000000-2026-09-16.json": "57827b22c2f31cb1319fa7504f2fdbdcf08acafa24d26202c272ec9bef813384",
+      "tests/fixtures/icim_verified_ledger_20261021/journal/000001-2026-09-17.json": "800143c188e86de97585edddc949d0fbd0d2cdc958ced8e79397dbf9bce210d2",
+      "tests/fixtures/icim_verified_ledger_20261021/journal/000002-2026-09-18.json": "877c633301a7429a7cf1f7f6e96e17f6723500dad4fbcc870f600b3600ed43b8",
+      "tests/fixtures/icim_verified_ledger_20261021/journal/000003-2026-09-21.json": "e17f5919c1b4eb44374ebcd3a170f10ee1daeaa719d817c9c40a5ca0ab204c8b",
+      "tests/fixtures/icim_verified_ledger_20261021/journal/000004-2026-09-22.json": "0d4d1dfa206f65f5e774a185b03e8b7de0aba4b73a0953b22276287dfdfa2665",
+      "tests/fixtures/icim_verified_ledger_20261021/journal/000005-2026-09-23.json": "7906d585439c83700a6182763d90d28e2ec5b1a8768fb935c7aa2ce31028de27",
+      "tests/fixtures/icim_verified_ledger_20261021/journal/000006-2026-09-24.json": "ad1d6e7f475e65650e5c04a5291045264088ec69139bea6e63c91c12824bf808",
+      "tests/fixtures/icim_verified_ledger_20261021/journal/000007-2026-09-28.json": "962e610468dc895decbe6881f9b786572910444c26f24c33c7591f18833e2ccc",
+      "tests/fixtures/icim_verified_ledger_20261021/journal/000008-2026-09-29.json": "cd2a85ba963589450511d43fb6915011680c099a416ecb8803dda846eb643386",
+      "tests/fixtures/icim_verified_ledger_20261021/journal/000009-2026-09-30.json": "cbec96a645d691822a85c640330a45502629529fdc6c46af69d26f02c53d710d",
+      "tests/fixtures/icim_verified_ledger_20261021/journal/000010-2026-10-08.json": "5210a2e8c04c23577a1baa444effa41f072f34d48d19bc28e751ae62064e614d",
+      "tests/fixtures/icim_verified_ledger_20261021/journal/000011-2026-10-09.json": "e7368caec1bd52580ae618afb703ed858b8ade4b280af5daac134448339aaaae",
+      "tests/fixtures/icim_verified_ledger_20261021/journal/000012-2026-10-12.json": "0541e10a66f334be3f5b6c5cac144e42a50b0755b0e05aad33793d908f9a5913",
+      "tests/fixtures/icim_verified_ledger_20261021/journal/000013-2026-10-13.json": "e1398eca76bb891fdc5c27c185ce02a162e02313e0db22f1336d540877fd8e5b",
+      "tests/fixtures/icim_verified_ledger_20261021/journal/000014-2026-10-14.json": "cc3f616ba404750c81afb6a6c35c3d2de42e90dc9a4b31f589fc53cdced4f37d",
+      "tests/fixtures/icim_verified_ledger_20261021/journal/000015-2026-10-15.json": "6f5cdf16e3f412f36c59e476411994a0b8eb3e487cc42d2142841214ff779e06",
+      "tests/fixtures/icim_verified_ledger_20261021/journal/000016-2026-10-16.json": "edad4fea50c266959cbb2c515bc5a26bae832f9627c430f0aa80dfeade68d707",
+      "tests/fixtures/icim_verified_ledger_20261021/journal/000017-2026-10-19.json": "cb72267c5ab6a82c5f9c4ae78b2824536656319e3c03b4397a67ae4345d3bfce",
+      "tests/fixtures/icim_verified_ledger_20261021/journal/000018-2026-10-20.json": "b0f0fa76beca9a0d2c2a715ef67c1f578fc9c4d5c73c91ae4ebd5a89c8139df6",
+      "tests/fixtures/icim_verified_ledger_20261021/journal/000019-2026-10-21.json": "af2d4b65fc20101e87517eceebaad989c17a5f5e0d37db026b9ce39448ecd254"
+    }
+  },
+  "fixture_retest": {
+    "run": "server/run02_fixture",
+    "tests": 25,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "lock_queue_followup": {
+    "issue": "Independent reviewer reproduced valid quote rejection after shared-lock wait; scheduler queue could also age explicit clock",
+    "fix": "collection_clock encloses shared-lock wait; scheduler calls no-argument capture to sample inside worker",
+    "run": "server/run03_lock_queue",
+    "passed": 41,
+    "failures": 0,
+    "skipped": 0,
+    "historical_test_fixture_update": "test_icim_round3_evidence_integration_20261021.py collect(clock=None) asserts no stale clock is passed; original retry assertions retained"
+  },
+  "collector_followup": {
+    "finding": "CAPTURE-V3-PREFLIGHT",
+    "status": "fixed",
+    "production_file": "capture_ic_im_v1_4_inputs.py",
+    "source_sha256": "c0b90df51fd4257aa54ec9dfef200656c662572b0e77d2c74508093e089653b7",
+    "change": "cycle enters collection_clock immediately after clock selection; private _cycle_at_clock retains readonly execution, source checks, publication guard and network budget",
+    "tests": {
+      "run": "server/run04_collector",
+      "passed": 56,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "root_server_tests": 29,
+      "existing_collector_tests": 25,
+      "independent_original_reproductions": 2,
+      "seconds": 66.22
+    },
+    "pin_graph": "collector_graph_verification.json",
+    "no_later_source_edits": true
+  }
+}

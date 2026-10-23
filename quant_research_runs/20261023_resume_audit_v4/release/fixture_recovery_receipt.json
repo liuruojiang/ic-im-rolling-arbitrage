@@ -1,0 +1,167 @@
+{
+  "strategy_sha": "e3f26824a8ff0a89b6125d4385f75e0a6cfa2a7e",
+  "execution_matches": 29,
+  "gate_bindings_match": 175,
+  "restored_base_files": [
+    {
+      "path": "quant_research_runs/20261002_ic_csi500_abs40_debounce/sina_sh000905_ohlcv.csv",
+      "base_git_blob": "e362c20998204a6745ad92d4fb9ca8fd5403042d",
+      "sha256": "40ede7733d0be851016a7749a7d864fdc3b1d4003241c0fb18d46f76af943d32"
+    },
+    {
+      "path": "tests/fixtures/baifenwei_real_sample_20260924.csv",
+      "base_git_blob": "3df061c43d65c4b14a8f319e6818cee17ee2db50",
+      "sha256": "e3766810eaf632c5910e3a568a52d5f19c92d09c65845401e784a4c68da54091"
+    },
+    {
+      "path": "tests/fixtures/icim_adversarial/README.md",
+      "base_git_blob": "0ad221de981339336e5d00c46c9bdd6372f237d9",
+      "sha256": "020a259d6dd2238aa401d29ec612d40ecbb2484740e759c78a3fbbe6bed99a69"
+    },
+    {
+      "path": "tests/fixtures/icim_adversarial/confirmed.json",
+      "base_git_blob": "4bd172ef7b39b3272d4b10fc067b2d0ea4713263",
+      "sha256": "85f34cdffc9d55df291752f087772bda4f2f1341d21acd4d9e8f3ee2f8ca2043"
+    },
+    {
+      "path": "tests/fixtures/icim_adversarial/legacy_close_record_20261013.json",
+      "base_git_blob": "2d90e07f0d859befaa3bf728004f876d8128664a",
+      "sha256": "b18946ed62f202eaf74efdf5b558b679291bce6cffc8f97a6b0fcea7fa4ceca1"
+    },
+    {
+      "path": "tests/fixtures/icim_adversarial/legacy_close_record_20261013.provenance.json",
+      "base_git_blob": "edab4c4680052c9d2f75d4f2ad753c013ea43252",
+      "sha256": "3057b1385a419fcbf698b4aeaa40e313539d352a73fe43d94cc54d23b83b819b"
+    },
+    {
+      "path": "tests/fixtures/icim_adversarial/previous.json",
+      "base_git_blob": "ca5eb3122224516cae97dd4f5ef063abad4c352c",
+      "sha256": "2b9efcbab9eea3faaeee0909b99f0006fa858fe5992364a468a22400c5b766cd"
+    },
+    {
+      "path": "tests/fixtures/icim_adversarial/real_zero_volume_put.csv",
+      "base_git_blob": "6c0b314285e952cacd474b37401d72eb3ca42e26",
+      "sha256": "825fd7d02a60f166e14cda1e9cb4b72800c71c4b59b65783598b3e32d77173ce"
+    },
+    {
+      "path": "tests/fixtures/icim_adversarial/real_zero_volume_put.provenance.json",
+      "base_git_blob": "f7a00ff633fd16fcb745ee2e483da928ea46a365",
+      "sha256": "f3ee5960ff246660974d6190bfc5bce50a864cf360652211cd15efed4ea3b0ef"
+    },
+    {
+      "path": "tests/fixtures/icim_adversarial/replay_close_record_20261014.json",
+      "base_git_blob": "e9cd78527728bb69f786bdbac7e75e6c006d28b7",
+      "sha256": "38f06166652dbe8a14836f041d0ca6fe2b1a918e9d7a528ffa39e99d3af96e03"
+    },
+    {
+      "path": "tests/fixtures/icim_adversarial/replay_close_record_20261014.provenance.json",
+      "base_git_blob": "8dbb198c1c4afe8f477136bc0695ea1610c8c7d7",
+      "sha256": "bb6a45cb34a09ee1feedb0a27d68b8d9a76fb1afb12b71a6eab9a7a7f26bdca4"
+    },
+    {
+      "path": "tests/fixtures/icim_fear_unpublished_20261014.json",
+      "base_git_blob": "950e4b0519b1eae7dfa1ce4dfcc0e864db59c667",
+      "sha256": "3b41288363651ff4945f2ef76435c586f9e819047099cebc707879ac12200206"
+    },
+    {
+      "path": "tests/fixtures/icim_fear_unpublished_20261014.provenance.json",
+      "base_git_blob": "df8554509a9198f7fe4973c48deca670e197e533",
+      "sha256": "64b92f2116c44ed1980b4c8851a30569ef16363a9b25ed6e3f392c296092720b"
+    }
+  ],
+  "external_cloud_fixtures": [
+    {
+      "target": "data/ic_510500_put_proxy_validation_v1/sina_000905_index.csv",
+      "sha256": "c5121b044133099e250fd5e5e803c447bf8811e5a4ae8cf8f19e2b8f5c2ddcfd",
+      "source": "automation/tests/fixtures/icim/sina_000905_index.csv"
+    },
+    {
+      "target": "runtime/ic_im_v1_4_r1/fixture_provenance.json",
+      "sha256": "63c3fc1848f7e58290a910e3445c66d34f27be6a535c2996e531cb9e8912e793",
+      "source": "automation/tests/fixtures/icim/v14_ledger_20261008/fixture_provenance.json"
+    },
+    {
+      "target": "runtime/ic_im_v1_4_r1/latest.json",
+      "sha256": "5210a2e8c04c23577a1baa444effa41f072f34d48d19bc28e751ae62064e614d",
+      "source": "automation/tests/fixtures/icim/v14_ledger_20261008/latest.json"
+    },
+    {
+      "target": "runtime/ic_im_v1_4_r1/migration_record.json",
+      "sha256": "bae64e783e57e87227b54b463d8046638df5e27adbdd2c61b1d5ff0af90cf53d",
+      "source": "automation/tests/fixtures/icim/v14_ledger_20261008/migration_record.json"
+    },
+    {
+      "target": "runtime/ic_im_v1_4_r1/README.md",
+      "sha256": "504ac2907757b13de5c2a2b0d3e031b5a0e5bf9bec9db161574a2afbdd380651",
+      "source": "automation/tests/fixtures/icim/v14_ledger_20261008/README.md"
+    },
+    {
+      "target": "runtime/ic_im_v1_4_r1/journal/000000-2026-09-16.json",
+      "sha256": "57827b22c2f31cb1319fa7504f2fdbdcf08acafa24d26202c272ec9bef813384",
+      "source": "automation/tests/fixtures/icim/v14_ledger_20261008/journal/000000-2026-09-16.json"
+    },
+    {
+      "target": "runtime/ic_im_v1_4_r1/journal/000001-2026-09-17.json",
+      "sha256": "800143c188e86de97585edddc949d0fbd0d2cdc958ced8e79397dbf9bce210d2",
+      "source": "automation/tests/fixtures/icim/v14_ledger_20261008/journal/000001-2026-09-17.json"
+    },
+    {
+      "target": "runtime/ic_im_v1_4_r1/journal/000002-2026-09-18.json",
+      "sha256": "877c633301a7429a7cf1f7f6e96e17f6723500dad4fbcc870f600b3600ed43b8",
+      "source": "automation/tests/fixtures/icim/v14_ledger_20261008/journal/000002-2026-09-18.json"
+    },
+    {
+      "target": "runtime/ic_im_v1_4_r1/journal/000003-2026-09-21.json",
+      "sha256": "e17f5919c1b4eb44374ebcd3a170f10ee1daeaa719d817c9c40a5ca0ab204c8b",
+      "source": "automation/tests/fixtures/icim/v14_ledger_20261008/journal/000003-2026-09-21.json"
+    },
+    {
+      "target": "runtime/ic_im_v1_4_r1/journal/000004-2026-09-22.json",
+      "sha256": "0d4d1dfa206f65f5e774a185b03e8b7de0aba4b73a0953b22276287dfdfa2665",
+      "source": "automation/tests/fixtures/icim/v14_ledger_20261008/journal/000004-2026-09-22.json"
+    },
+    {
+      "target": "runtime/ic_im_v1_4_r1/journal/000005-2026-09-23.json",
+      "sha256": "7906d585439c83700a6182763d90d28e2ec5b1a8768fb935c7aa2ce31028de27",
+      "source": "automation/tests/fixtures/icim/v14_ledger_20261008/journal/000005-2026-09-23.json"
+    },
+    {
+      "target": "runtime/ic_im_v1_4_r1/journal/000006-2026-09-24.json",
+      "sha256": "ad1d6e7f475e65650e5c04a5291045264088ec69139bea6e63c91c12824bf808",
+      "source": "automation/tests/fixtures/icim/v14_ledger_20261008/journal/000006-2026-09-24.json"
+    },
+    {
+      "target": "runtime/ic_im_v1_4_r1/journal/000007-2026-09-28.json",
+      "sha256": "962e610468dc895decbe6881f9b786572910444c26f24c33c7591f18833e2ccc",
+      "source": "automation/tests/fixtures/icim/v14_ledger_20261008/journal/000007-2026-09-28.json"
+    },
+    {
+      "target": "runtime/ic_im_v1_4_r1/journal/000008-2026-09-29.json",
+      "sha256": "cd2a85ba963589450511d43fb6915011680c099a416ecb8803dda846eb643386",
+      "source": "automation/tests/fixtures/icim/v14_ledger_20261008/journal/000008-2026-09-29.json"
+    },
+    {
+      "target": "runtime/ic_im_v1_4_r1/journal/000009-2026-09-30.json",
+      "sha256": "cbec96a645d691822a85c640330a45502629529fdc6c46af69d26f02c53d710d",
+      "source": "automation/tests/fixtures/icim/v14_ledger_20261008/journal/000009-2026-09-30.json"
+    },
+    {
+      "target": "runtime/ic_im_v1_4_r1/journal/000010-2026-10-08.json",
+      "sha256": "5210a2e8c04c23577a1baa444effa41f072f34d48d19bc28e751ae62064e614d",
+      "source": "automation/tests/fixtures/icim/v14_ledger_20261008/journal/000010-2026-10-08.json"
+    }
+  ],
+  "quarter_fixture_preparation": {
+    "status": "PASS",
+    "fixture_id": "icim-quarter-roll-20261013",
+    "manifest_sha256": "1515fa172bccecf7283b58b9d85b8ad30ba45d19e220eaf703f4e2a4c4b0c32b",
+    "strategy_root": "D:\\动量策略\\IC和IM滚动套利\\quant_research_runs\\20261023_resume_audit_v4\\release\\candidate_checkout",
+    "files_verified": 7,
+    "files_copied": 7,
+    "total_payload_bytes": 1834809,
+    "verify_only": false,
+    "fixture_only": true
+  },
+  "new_publication_paths_required": [],
+  "production_state_used": false
+}

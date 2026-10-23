@@ -533,13 +533,15 @@ def test_im_profit_open_on_eastmoney_needs_both_sina_open_checks():
 
 def test_eastmoney_intraday_fallback_requires_vendor_timestamp():
     stamp = datetime(2026, 9, 30, 11, 15, tzinfo=bot.BEIJING)
-    with (patch.object(bot.requests, 'get', side_effect=bot.requests.RequestException('Tencent unavailable')),
-          patch.object(bot, '_request_json', return_value={'data': {'f43': 785432, 'f86': int(stamp.timestamp())}})):
+    with (bot.runtime_clock(stamp),
+          patch.object(bot.requests, 'get', side_effect=bot.requests.RequestException('Tencent unavailable')),
+          patch.object(bot, '_request_json', return_value={'data': {'f43': 785432, 'f57': '000905', 'f86': int(stamp.timestamp())}})):
         quote = bot.fetch_live_price_quote('IC')
     assert quote['source_date'] == stamp.date()
     assert quote['source_time'] == '11:15:00'
-    with (patch.object(bot.requests, 'get', side_effect=bot.requests.RequestException('Tencent unavailable')),
-          patch.object(bot, '_request_json', return_value={'data': {'f43': 785432}})):
+    with (bot.runtime_clock(stamp),
+          patch.object(bot.requests, 'get', side_effect=bot.requests.RequestException('Tencent unavailable')),
+          patch.object(bot, '_request_json', return_value={'data': {'f43': 785432, 'f57': '000905'}})):
         with pytest.raises(RuntimeError, match='缺少有效供应商更新时间'):
             bot.fetch_live_price_quote('IC')
 

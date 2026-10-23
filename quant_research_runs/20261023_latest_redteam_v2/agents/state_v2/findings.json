@@ -1,0 +1,59 @@
+{
+  "commit": "58986fda2c17df93eb3925bf09a1cebd55a7869e",
+  "findings": [
+    {
+      "id": "S-V2-1",
+      "priority": "P2",
+      "title": "服务端独立采集没有进入推进中的采集时钟上下文，合法延迟快照被误判未来",
+      "file": "poe_ic_im_v1_4_server.py",
+      "lines": [
+        201,
+        214
+      ],
+      "related": [
+        "poe_ic_im_v1_4_server.py:364-374",
+        "poe_ic_im_mainline_v1_4_bot.py:294-316",
+        "ic_im_evidence_adapter_v1.py:435-446",
+        "ic_im_quote_snapshot_guard.py:25-34"
+      ],
+      "trigger": "后台刷新或直接调用 capture_current_inputs；请求期间来源更新时间晚于传入clock，但早于实际收到报文的时刻。",
+      "actual": "实际capture_daily将IC/IM两包封为incomplete；实际CFFEX snapshot guard报行情更新时间晚于采集时刻。",
+      "expected": "保留策略信号日时钟，报价校验时钟应按collection_clock单调推进；同样输入外包collection_clock后captured。",
+      "reproduction_tests": [
+        "test_server_capture_advances_observation_clock",
+        "test_real_daily_capture_seals_current_arriving_frame[False]"
+      ],
+      "controls": [
+        "test_outer_collection_context_accepts_same_arriving_snapshot",
+        "test_real_daily_capture_seals_current_arriving_frame[True]"
+      ],
+      "impact": "可用性及原日留存缺口；失败关闭，未证明错误仓位或正式账本污染。独立CaptureRunner已有该上下文，不受本入口缺口影响。",
+      "fix": "在持有共享锁的服务端capture入口建立strategy.collection_clock，并在后台catch_up完成后刷新独立采集的真实当前clock，避免继续使用catch_up开始前的旧时间。不要放宽future时间门禁。",
+      "validation": "延迟报文落在开始/完成之间应通过；真正晚于完成时刻仍拒绝；catch_up耗时后采集应使用新的观察起点；跨日/两产品封存继续失败关闭。"
+    },
+    {
+      "id": "S-V2-2",
+      "priority": "P2",
+      "title": "服务端独立采集沿用上次查询全局锚点而非自身最新持久账本",
+      "file": "poe_ic_im_v1_4_server.py",
+      "lines": [
+        209,
+        214
+      ],
+      "related": [
+        "poe_ic_im_v1_4_server.py:145-146",
+        "ic_im_evidence_adapter_v1.py:447-449",
+        "ic_im_evidence_adapter_v1.py:486-498"
+      ],
+      "trigger": "execute_query从旧锚点生成并成功append后，capture_current_inputs立即运行（后台循环正常顺序）；或进程初次采集尚无查询/另一协调器最后更新全局锚点。",
+      "actual": "隔离公共查询已将head从2026-10-20推进2026-10-21，采集入口仍读到last_verified_day=2026-10-20。",
+      "expected": "原日包anchor_day_at_capture应等于当前自身持久head，并按自身已核验持有期权月份排序。",
+      "reproduction_tests": [
+        "test_capture_after_successful_public_append_uses_committed_head"
+      ],
+      "impact": "证据元数据归属不准确和持有月份优先次序错误；collector会采集所有实际月份，尚无证据证明金融目标或完整成功包内容因此错误，不升为P1。",
+      "fix": "在同一策略共享锁中重新load_latest并install_runtime_anchors(anchors_from_record(latest))，将先前全局锚点deepcopy，在finally恢复；按独立CaptureRunner已有实现统一入口。",
+      "validation": "查询成功续账后立即采集、冷启动、多协调器交替、采集异常均验证自身head与月份优先级；恢复全局锚点且正式账本不变。"
+    }
+  ]
+}

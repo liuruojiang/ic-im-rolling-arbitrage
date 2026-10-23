@@ -1,0 +1,24 @@
+{
+  "exit_code": 2,
+  "counts": {
+    "tests": 1,
+    "failures": 0,
+    "errors": 1,
+    "skipped": 0
+  },
+  "source_files": 509,
+  "source_before_equals_after": true,
+  "tests": [
+    "test_icim_redteam_strategy_repairs_20261023.py",
+    "test_icim_redteam_server_repairs_20261023.py",
+    "quant_research_runs/20261023_redteam_repairs_v3/audit_strategy_state/test_independent_strategy_state.py",
+    "quant_research_runs/20261023_redteam_takeover_v1/code_audit/test_im_durable_mark.py"
+  ],
+  "artifacts": {
+    "final.xml": "2309d775b510401f37d0be80f784668ed9280cf0dfe2973666bf44432ba9e26a",
+    "final.stdout.txt": "5a4f70e3b429daccde5a3d166b9185d33b275831e00cabf4fcf4f4407047642b",
+    "final.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source_before.json": "c8ccf69edfccceee1fd590113b19c642e9bb824a3adad8a8dd6c34d3a9da59f9",
+    "source_after.json": "c8ccf69edfccceee1fd590113b19c642e9bb824a3adad8a8dd6c34d3a9da59f9"
+  }
+}

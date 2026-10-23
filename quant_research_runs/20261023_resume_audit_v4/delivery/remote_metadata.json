@@ -1,0 +1,52 @@
+{
+  "repository": "liuruojiang/codex-daily-automation-probe",
+  "merge_commit": "8bcb2acb8c8965469e6613738c409a23357aa29f",
+  "request_commit": "2b8a3f7d94dfd21b429be5557633a46688c0ea86",
+  "files": [
+    {
+      "path": "docs/ic_im_daily_release_20261023_repairs_v3_r3_manifest.json",
+      "sha": "70dd299b58ac3521a8a009912c49a7d5696d9ac1",
+      "url": "https://github.com/liuruojiang/codex-daily-automation-probe/blob/8bcb2acb8c8965469e6613738c409a23357aa29f/docs/ic_im_daily_release_20261023_repairs_v3_r3_manifest.json"
+    },
+    {
+      "path": "scripts/build_ic_im_v1_4_digest.py",
+      "sha": "265bac9bb5b7264621f4658479fadb47b153a919",
+      "url": "https://github.com/liuruojiang/codex-daily-automation-probe/blob/8bcb2acb8c8965469e6613738c409a23357aa29f/scripts/build_ic_im_v1_4_digest.py"
+    },
+    {
+      "path": "scripts/ic_im_v1_4_delivery_contract.py",
+      "sha": "32c06975fd874a7b4fe4f961bd132b784da0b1f5",
+      "url": "https://github.com/liuruojiang/codex-daily-automation-probe/blob/8bcb2acb8c8965469e6613738c409a23357aa29f/scripts/ic_im_v1_4_delivery_contract.py"
+    },
+    {
+      "path": "scripts/verify_icim_source_release.py",
+      "sha": "6462434a98e75b3a12c4bddc29379d5c1b912921",
+      "url": "https://github.com/liuruojiang/codex-daily-automation-probe/blob/8bcb2acb8c8965469e6613738c409a23357aa29f/scripts/verify_icim_source_release.py"
+    },
+    {
+      "path": "tests/test_delivery_regression_contract.py",
+      "sha": "ff92265eeadec0396a9ad5e42484d43f6ecbf1bb",
+      "url": "https://github.com/liuruojiang/codex-daily-automation-probe/blob/8bcb2acb8c8965469e6613738c409a23357aa29f/tests/test_delivery_regression_contract.py"
+    },
+    {
+      "path": "tests/test_ic_im_v1_4_source_manifest_v3.py",
+      "sha": "eead432b12ff01b32fc0ee3e3fd6c164d1054a2d",
+      "url": "https://github.com/liuruojiang/codex-daily-automation-probe/blob/8bcb2acb8c8965469e6613738c409a23357aa29f/tests/test_ic_im_v1_4_source_manifest_v3.py"
+    },
+    {
+      "path": "tests/test_ic_im_v1_4_workflow.py",
+      "sha": "9eadf9f23ff725686fc087880e9ed1737e6eceb5",
+      "url": "https://github.com/liuruojiang/codex-daily-automation-probe/blob/8bcb2acb8c8965469e6613738c409a23357aa29f/tests/test_ic_im_v1_4_workflow.py"
+    },
+    {
+      "path": ".github/workflows/ic-im-v1-4-daily-digest.yml",
+      "sha": "d8c6824df1423557b7156bf7168acda1d9425760",
+      "url": "https://github.com/liuruojiang/codex-daily-automation-probe/blob/8bcb2acb8c8965469e6613738c409a23357aa29f/.github/workflows/ic-im-v1-4-daily-digest.yml"
+    }
+  ],
+  "default_branch_workflow_sha": "d8c6824df1423557b7156bf7168acda1d9425760",
+  "readiness_workflow_sha": "9b09b5c41dffe1ca15be3f0eed90e1fb139e030f",
+  "read_method": "GitHub connector fetch_file at immutable merge/request commits, base64 payload and blob sha",
+  "smtp_executed": false,
+  "remote_mutations": false
+}

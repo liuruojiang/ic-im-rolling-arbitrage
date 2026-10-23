@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="8" skipped="0" tests="10" time="6.323" timestamp="2026-10-23T14:04:58.647968+08:00" hostname="DESKTOP-95I7VVU"><testcase classname="quant_research_runs.20261023_latest_redteam_v2.agents.market_v2.test_market_v2" name="test_correct_index_packet_is_accepted[qt]" time="0.020" /><testcase classname="quant_research_runs.20261023_latest_redteam_v2.agents.market_v2.test_market_v2" name="test_correct_index_packet_is_accepted[em]" time="0.025"><failure message="assert 7435.164000000001 == 7435.164">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000001CFAFD7D940&gt;
+provider = 'em'
+
+    @pytest.mark.parametrize('provider',['qt','em'])
+    def test_correct_index_packet_is_accepted(monkeypatch,provider):
+        vendor(monkeypatch,qt() if provider=='qt' else None,em_quote() if provider=='em' else None)
+&gt;       out=bot.fetch_live_price_quote('IC');assert out['price']==7435.164;summarize('correct_'+provider,out)
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       assert 7435.164000000001 == 7435.164
+
+quant_research_runs\20261023_latest_redteam_v2\agents\market_v2\test_market_v2.py:59: AssertionError</failure></testcase><testcase classname="quant_research_runs.20261023_latest_redteam_v2.agents.market_v2.test_market_v2" name="test_wrong_index_identity_must_be_rejected[variable]" time="0.023"><failure message="Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000001CFCDE60050&gt;
+mutation = 'variable'
+
+    @pytest.mark.parametrize('mutation',['variable','body_code','duplicate','eastmoney_code'])
+    def test_wrong_index_identity_must_be_rejected(monkeypatch,mutation):
+        packet=qt();em=None
+        if mutation=='variable':packet=qt(symbol='sh000852',price=3000.)
+        if mutation=='body_code':packet=qt(code='000852',price=3000.)
+        if mutation=='duplicate':packet=qt(price=3000.)+qt(price=7435.164)
+        if mutation=='eastmoney_code':packet=None;em=em_quote('000852')
+        vendor(monkeypatch,packet,em)
+&gt;       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;
+
+quant_research_runs\20261023_latest_redteam_v2\agents\market_v2\test_market_v2.py:69: Failed</failure></testcase><testcase classname="quant_research_runs.20261023_latest_redteam_v2.agents.market_v2.test_market_v2" name="test_wrong_index_identity_must_be_rejected[body_code]" time="0.012"><failure message="Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000001CFCDD21040&gt;
+mutation = 'body_code'
+
+    @pytest.mark.parametrize('mutation',['variable','body_code','duplicate','eastmoney_code'])
+    def test_wrong_index_identity_must_be_rejected(monkeypatch,mutation):
+        packet=qt();em=None
+        if mutation=='variable':packet=qt(symbol='sh000852',price=3000.)
+        if mutation=='body_code':packet=qt(code='000852',price=3000.)
+        if mutation=='duplicate':packet=qt(price=3000.)+qt(price=7435.164)
+        if mutation=='eastmoney_code':packet=None;em=em_quote('000852')
+        vendor(monkeypatch,packet,em)
+&gt;       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;
+
+quant_research_runs\20261023_latest_redteam_v2\agents\market_v2\test_market_v2.py:69: Failed</failure></testcase><testcase classname="quant_research_runs.20261023_latest_redteam_v2.agents.market_v2.test_market_v2" name="test_wrong_index_identity_must_be_rejected[duplicate]" time="0.019"><failure message="Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000001CFCDD21150&gt;
+mutation = 'duplicate'
+
+    @pytest.mark.parametrize('mutation',['variable','body_code','duplicate','eastmoney_code'])
+    def test_wrong_index_identity_must_be_rejected(monkeypatch,mutation):
+        packet=qt();em=None
+        if mutation=='variable':packet=qt(symbol='sh000852',price=3000.)
+        if mutation=='body_code':packet=qt(code='000852',price=3000.)
+        if mutation=='duplicate':packet=qt(price=3000.)+qt(price=7435.164)
+        if mutation=='eastmoney_code':packet=None;em=em_quote('000852')
+        vendor(monkeypatch,packet,em)
+&gt;       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;
+
+quant_research_runs\20261023_latest_redteam_v2\agents\market_v2\test_market_v2.py:69: Failed</failure></testcase><testcase classname="quant_research_runs.20261023_latest_redteam_v2.agents.market_v2.test_market_v2" name="test_wrong_index_identity_must_be_rejected[eastmoney_code]" time="0.017"><failure message="Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000001CFCE145050&gt;
+mutation = 'eastmoney_code'
+
+    @pytest.mark.parametrize('mutation',['variable','body_code','duplicate','eastmoney_code'])
+    def test_wrong_index_identity_must_be_rejected(monkeypatch,mutation):
+        packet=qt();em=None
+        if mutation=='variable':packet=qt(symbol='sh000852',price=3000.)
+        if mutation=='body_code':packet=qt(code='000852',price=3000.)
+        if mutation=='duplicate':packet=qt(price=3000.)+qt(price=7435.164)
+        if mutation=='eastmoney_code':packet=None;em=em_quote('000852')
+        vendor(monkeypatch,packet,em)
+&gt;       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;
+
+quant_research_runs\20261023_latest_redteam_v2\agents\market_v2\test_market_v2.py:69: Failed</failure></testcase><testcase classname="quant_research_runs.20261023_latest_redteam_v2.agents.market_v2.test_market_v2" name="test_future_intraday_quote_must_be_rejected_before_strategy[qt]" time="0.521"><failure message="Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000001CFCE145A50&gt;
+provider = 'qt'
+
+    @pytest.mark.parametrize('provider',['qt','em'])
+    def test_future_intraday_quote_must_be_rejected_before_strategy(monkeypatch,provider):
+        future=CLOCK.replace(hour=15)
+        vendor(monkeypatch,qt(stamp='20261022150000') if provider=='qt' else None,em_quote(stamp=future) if provider=='em' else None)
+&gt;       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;
+
+quant_research_runs\20261023_latest_redteam_v2\agents\market_v2\test_market_v2.py:76: Failed</failure></testcase><testcase classname="quant_research_runs.20261023_latest_redteam_v2.agents.market_v2.test_market_v2" name="test_future_intraday_quote_must_be_rejected_before_strategy[em]" time="0.636"><failure message="Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000001CFCE2586E0&gt;
+provider = 'em'
+
+    @pytest.mark.parametrize('provider',['qt','em'])
+    def test_future_intraday_quote_must_be_rejected_before_strategy(monkeypatch,provider):
+        future=CLOCK.replace(hour=15)
+        vendor(monkeypatch,qt(stamp='20261022150000') if provider=='qt' else None,em_quote(stamp=future) if provider=='em' else None)
+&gt;       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;
+
+quant_research_runs\20261023_latest_redteam_v2\agents\market_v2\test_market_v2.py:76: Failed</failure></testcase><testcase classname="quant_research_runs.20261023_latest_redteam_v2.agents.market_v2.test_market_v2" name="test_midnight_same_day_tick_must_not_drive_intraday_strategy" time="0.804"><failure message="Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000001CFCDE675C0&gt;
+
+    def test_midnight_same_day_tick_must_not_drive_intraday_strategy(monkeypatch):
+        vendor(monkeypatch,qt(stamp='20261022000000'))
+&gt;       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'RuntimeError'&gt;
+
+quant_research_runs\20261023_latest_redteam_v2\agents\market_v2\test_market_v2.py:82: Failed</failure></testcase><testcase classname="quant_research_runs.20261023_latest_redteam_v2.agents.market_v2.test_market_v2" name="test_wrong_index_identity_changes_actual_momentum_path" time="1.153" /></testsuite></testsuites>

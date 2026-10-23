@@ -140,3 +140,35 @@ Thumbs.db
 /quant_research_runs/20261016_fear_delivery_adversarial_v2/local_delivery/isolated_state/journal/
 /quant_research_runs/20261016_fear_delivery_adversarial_v2/local_delivery/test_state/
 /quant_research_runs/20261016_fear_delivery_adversarial_v2/local_delivery/test_state/journal/
+
+# Reviewed 2026-10-23 local-only inputs, source copies and disposable test state.
+# Keep the audit summaries, XML receipts, source hashes and reusable tests in Git.
+/quant_research_runs/20261023_actual_valuation_chat_refresh/
+/quant_research_runs/20261023*/**/isolated_temp/
+/quant_research_runs/20261023*/**/temp/
+/quant_research_runs/20261023*/**/pytest/
+/quant_research_runs/20261023*/**/icim_put_*/
+/quant_research_runs/20261023*/**/test_tmp*/
+/quant_research_runs/20261023*/**/probe*_temp/
+/quant_research_runs/20261023*/**/legacy_bindings/
+/quant_research_runs/20261023*/**/local_automation_receipts/
+/quant_research_runs/20261023*/**/*.zip
+/quant_research_runs/20261023*/**/*.toml
+/quant_research_runs/20261023*/**/real_recovery*/automatic_recovery/
+/quant_research_runs/20261023*/**/real_recovery*/corrupt_ic_blob/
+/quant_research_runs/20261023*/**/real_recovery*/import_ledger/
+/quant_research_runs/20261023*/**/real_recovery*/missing_ic_package/
+/quant_research_runs/20261023*/**/real_recovery*/public_explicit_replay/
+/quant_research_runs/20261023*/**/real_recovery*/wrong_evidence_directory/
+/quant_research_runs/20261023_daily_release_v3/automation_checkout/
+/quant_research_runs/20261023_daily_release_v3/strategy_checkout/
+/quant_research_runs/20261023_daily_release_v3/remote_base/
+/quant_research_runs/20261023_daily_release_v3/pin_backup/
+/quant_research_runs/20261023_redteam_repairs_v3/backup/
+/quant_research_runs/20261023_redteam_takeover_v1/code_audit/final02/
+/quant_research_runs/20261023_redteam_takeover_v1/code_audit/final03/
+/quant_research_runs/20261023_resume_audit_v4/release/candidate_checkout/
+/quant_research_runs/20261023_latest_redteam_v2/preaudit_commit_hashes.json
+/quant_research_runs/20261023_latest_redteam_v2/preaudit_commit_paths.json
+/quant_research_runs/20261023_latest_redteam_v2/preaudit_paths.nul
+/quant_research_runs/20261023_multiround_adversarial_v1/agents/concurrency/pin_dynamic_deps/ic_im_ma23_unpinned_*.py

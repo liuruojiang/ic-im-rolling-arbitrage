@@ -1,0 +1,152 @@
+{
+  "count": 29,
+  "mismatches": [],
+  "manifest_match": true,
+  "files": [
+    {
+      "file": "capture_ic_im_v1_4_inputs.py",
+      "expected": "c0b90df51fd4257aa54ec9dfef200656c662572b0e77d2c74508093e089653b7",
+      "actual": "c0b90df51fd4257aa54ec9dfef200656c662572b0e77d2c74508093e089653b7"
+    },
+    {
+      "file": "ic_im_adjusted_put_migration_v1.py",
+      "expected": "f4bbdaa49225e51b83ccfe441b9c6f4dc36b7f3206acf509098f4d8628215c29",
+      "actual": "f4bbdaa49225e51b83ccfe441b9c6f4dc36b7f3206acf509098f4d8628215c29"
+    },
+    {
+      "file": "ic_im_chinabond.py",
+      "expected": "4e1098b2f4c253d9950c084eafcc655ea8e5e820478a01a29393d638e6d40ab9",
+      "actual": "4e1098b2f4c253d9950c084eafcc655ea8e5e820478a01a29393d638e6d40ab9"
+    },
+    {
+      "file": "ic_im_daily_valuation.py",
+      "expected": "b389a81475836fb3e4e96dbc92216a54afeb199029d524f51efbb8d029e4257c",
+      "actual": "b389a81475836fb3e4e96dbc92216a54afeb199029d524f51efbb8d029e4257c"
+    },
+    {
+      "file": "ic_im_evidence_adapter_v1.py",
+      "expected": "775f39c2ba60f64d41a580d344969d91c56e25c029fe31a5588e352b4916e867",
+      "actual": "775f39c2ba60f64d41a580d344969d91c56e25c029fe31a5588e352b4916e867"
+    },
+    {
+      "file": "ic_im_fear_grid_v1.py",
+      "expected": "a21578621eb7695af5dcc669670cdcfa2bef2f0d9fceb4ad40a3ddae707fcc67",
+      "actual": "a21578621eb7695af5dcc669670cdcfa2bef2f0d9fceb4ad40a3ddae707fcc67"
+    },
+    {
+      "file": "ic_im_mainline_v1_2.py",
+      "expected": "ae2ccba29779841ea100dfb719cb92552795053567f6faeae9fff00ec4b47dd2",
+      "actual": "ae2ccba29779841ea100dfb719cb92552795053567f6faeae9fff00ec4b47dd2"
+    },
+    {
+      "file": "ic_im_mainline_v1_3.py",
+      "expected": "f420f7d8eb357611d085a8e31ce75a47ddc18c67f51a59a160bac8268c6bc0e5",
+      "actual": "f420f7d8eb357611d085a8e31ce75a47ddc18c67f51a59a160bac8268c6bc0e5"
+    },
+    {
+      "file": "ic_im_option_maintenance_notice.py",
+      "expected": "a2ad67732d85bad5d96444d7a74a350d3ecdf0fdb6b82b9b593ccfaf95c63746",
+      "actual": "a2ad67732d85bad5d96444d7a74a350d3ecdf0fdb6b82b9b593ccfaf95c63746"
+    },
+    {
+      "file": "ic_im_put_execution_v1.py",
+      "expected": "8cdda4e3761bda7889c16b0102ee0106d2efaaa61088b7cb6fc83a08d67b2368",
+      "actual": "8cdda4e3761bda7889c16b0102ee0106d2efaaa61088b7cb6fc83a08d67b2368"
+    },
+    {
+      "file": "ic_im_put_expiry_side_scan_v2.py",
+      "expected": "7cffe49766268d83de8db276e37b30169ec3f383f13b3cada23ae06972c48b45",
+      "actual": "7cffe49766268d83de8db276e37b30169ec3f383f13b3cada23ae06972c48b45"
+    },
+    {
+      "file": "ic_im_put_max_protection_scan_v1.py",
+      "expected": "151b201bc9258a864cb725aec666133d3e4fcf2f0876ee98062103ce62cd1c1d",
+      "actual": "151b201bc9258a864cb725aec666133d3e4fcf2f0876ee98062103ce62cd1c1d"
+    },
+    {
+      "file": "ic_im_quarter_roll_v1_3.py",
+      "expected": "cec4535aa0dca4200ac4e50ec91f7aa82aee12c5157f0cb350ab73c82d53457d",
+      "actual": "cec4535aa0dca4200ac4e50ec91f7aa82aee12c5157f0cb350ab73c82d53457d"
+    },
+    {
+      "file": "ic_im_quote_snapshot_guard.py",
+      "expected": "ae22b541a1a2a6bc20d5bd23bb1fc3d275a2f3fcfce96b5345c2458cde74b9d5",
+      "actual": "ae22b541a1a2a6bc20d5bd23bb1fc3d275a2f3fcfce96b5345c2458cde74b9d5"
+    },
+    {
+      "file": "ic_im_signal_evidence_v1.py",
+      "expected": "8cf484fdc536596d426a0dccced2a3a4a9e76d9952c8474b97051bcd5673d087",
+      "actual": "8cf484fdc536596d426a0dccced2a3a4a9e76d9952c8474b97051bcd5673d087"
+    },
+    {
+      "file": "ic_im_sse_contract_identity_v1.py",
+      "expected": "47a2d81f665d2b199eaa2c2043c90271cdd242aa9776620002c833f3cdafacc8",
+      "actual": "47a2d81f665d2b199eaa2c2043c90271cdd242aa9776620002c833f3cdafacc8"
+    },
+    {
+      "file": "ic_im_v1_4_policy.py",
+      "expected": "d632d411a130658b5b993fbffcb7ac98be3affc8ceb634842c45e8e8da9a7cd2",
+      "actual": "d632d411a130658b5b993fbffcb7ac98be3affc8ceb634842c45e8e8da9a7cd2"
+    },
+    {
+      "file": "poe_ic_im_mainline_v1_2_bot.py",
+      "expected": "0fd48ccb2d1f9f9ed061ef4b92f769151d99283efda8d97be7cc29db740ebcd9",
+      "actual": "0fd48ccb2d1f9f9ed061ef4b92f769151d99283efda8d97be7cc29db740ebcd9"
+    },
+    {
+      "file": "poe_ic_im_mainline_v1_3_bot.py",
+      "expected": "fd3c7df2b68255fda618ca9267a00f38ab3f8c2ce66ff99b53e1fb0be2a284fa",
+      "actual": "fd3c7df2b68255fda618ca9267a00f38ab3f8c2ce66ff99b53e1fb0be2a284fa"
+    },
+    {
+      "file": "poe_ic_im_mainline_v1_4_bot.py",
+      "expected": "48a0fd691904a72b83ac0b9ca3506a2e5a4754d82edb72e1aed0937f23e1239c",
+      "actual": "48a0fd691904a72b83ac0b9ca3506a2e5a4754d82edb72e1aed0937f23e1239c"
+    },
+    {
+      "file": "poe_ic_im_mainlines_v2_bot.py",
+      "expected": "d69e5fee6f662e7cf1703ed151b3ac598fe46703ecdeae11c578e38f584667d2",
+      "actual": "d69e5fee6f662e7cf1703ed151b3ac598fe46703ecdeae11c578e38f584667d2"
+    },
+    {
+      "file": "poe_ic_im_v1_2_server.py",
+      "expected": "098ad40164b01fd5ac4f094a0be0cccc46c4dd863bb5af69de9f1d1770832463",
+      "actual": "098ad40164b01fd5ac4f094a0be0cccc46c4dd863bb5af69de9f1d1770832463"
+    },
+    {
+      "file": "poe_ic_im_v1_2_state.py",
+      "expected": "68a047d974244b44f48c9beea07eb09da11d752d2d1c18e7543ab588898ade9f",
+      "actual": "68a047d974244b44f48c9beea07eb09da11d752d2d1c18e7543ab588898ade9f"
+    },
+    {
+      "file": "poe_ic_im_v1_3_server.py",
+      "expected": "bb4a482557e406e161ded843567903532eb0f38649b3dd61bce934584e464260",
+      "actual": "bb4a482557e406e161ded843567903532eb0f38649b3dd61bce934584e464260"
+    },
+    {
+      "file": "poe_ic_im_v1_3_state.py",
+      "expected": "3ab7a9feb038e4139d63655d416459d6afa2f5d416903965e8e13ed657ec938c",
+      "actual": "3ab7a9feb038e4139d63655d416459d6afa2f5d416903965e8e13ed657ec938c"
+    },
+    {
+      "file": "poe_ic_im_v1_4_server.py",
+      "expected": "98383b69ecfd33dc22e0d9699129d9458b632f4979d75e7f838c50176d6cbd2c",
+      "actual": "98383b69ecfd33dc22e0d9699129d9458b632f4979d75e7f838c50176d6cbd2c"
+    },
+    {
+      "file": "poe_ic_im_v1_4_state.py",
+      "expected": "dd326abd1fc6d687c901d4960f30456207606569ba80456f719d6a267ce335d3",
+      "actual": "dd326abd1fc6d687c901d4960f30456207606569ba80456f719d6a267ce335d3"
+    },
+    {
+      "file": "im_put_policy.py",
+      "expected": "ff9c9b1d52e4b1aa25fcb3c85e61665a4acf0a4de68272d8ddc9caaf2d4a9a9c",
+      "actual": "ff9c9b1d52e4b1aa25fcb3c85e61665a4acf0a4de68272d8ddc9caaf2d4a9a9c"
+    },
+    {
+      "file": "run_ic_im_v1_4_github_digest.py",
+      "expected": "a016c273dbd24acc797ec3d2205abae600af4b1b14ca24969c09a8212bcdea7f",
+      "actual": "a016c273dbd24acc797ec3d2205abae600af4b1b14ca24969c09a8212bcdea7f"
+    }
+  ]
+}

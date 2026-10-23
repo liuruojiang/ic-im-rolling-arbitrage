@@ -1,0 +1,13 @@
+{
+  "close_confirmed": true,
+  "ledger_eligible": null,
+  "diagnostic_only": null,
+  "calendar_provisional": false,
+  "v14_action": "HOLD",
+  "v14_short_put_mark": null,
+  "v14_candidate_data_status": "not_required: route_does_not_consume_candidate",
+  "require_persistence_eligible": "passed",
+  "append_accepted": true,
+  "sequence": 1,
+  "digest_matches": true
+}

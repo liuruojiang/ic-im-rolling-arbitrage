@@ -1,0 +1,482 @@
+{
+  "status": "BLOCKED_PROTECTED_DATA_CHANGED_AND_DELIVERY_INCOMPLETE",
+  "checked_at": "2026-10-23T07:10:53.106073+00:00",
+  "writes": "this new evidence_audit directory only",
+  "runs": {
+    "cumulative_02": {
+      "counts": {
+        "tests": 3333,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "receipt_sha256": "dba614da2f99705d9b551be6f1d5e0278cce683bf25b626fc84bf8de229bc23d",
+      "bound_files": 1178,
+      "current_mismatches": [],
+      "deselected": 22,
+      "deselections_match": true
+    },
+    "daily_gate_03": {
+      "counts": {
+        "tests": 1193,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "receipt_sha256": "008d2a23e379c093d36f0c95a6e0b1f63ecc89a42a20afdfe4337dfa5b7c4f11",
+      "bound_files": 175,
+      "current_mismatches": [],
+      "deselected": 5,
+      "deselections_match": true
+    }
+  },
+  "production_manifest": {
+    "files": 29,
+    "mismatches": []
+  },
+  "independent": {
+    "actual_total": 148,
+    "runs": [
+      {
+        "run": "independent/run_03_r3",
+        "counts": {
+          "tests": 74,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "counts_match_rollup": true,
+        "exit_code": 0,
+        "xml_identity_matches": true,
+        "executed_matches_selected": true,
+        "artifact_hash_mismatches": [],
+        "bound_files": 1177,
+        "before_equals_after": true,
+        "current_mismatches": []
+      },
+      {
+        "run": "independent/audit_clock_wait/run_03_r3",
+        "counts": {
+          "tests": 1,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "counts_match_rollup": true,
+        "exit_code": 0,
+        "xml_identity_matches": true,
+        "executed_matches_selected": true,
+        "artifact_hash_mismatches": [],
+        "bound_files": 1119,
+        "before_equals_after": true,
+        "current_mismatches": []
+      },
+      {
+        "run": "audit_market_evidence/run01",
+        "counts": {
+          "tests": 29,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "counts_match_rollup": true,
+        "exit_code": 0,
+        "xml_identity_matches": true,
+        "executed_matches_selected": true
+      },
+      {
+        "run": "audit_strategy_state/final01",
+        "counts": {
+          "tests": 35,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "counts_match_rollup": true,
+        "exit_code": 0,
+        "xml_identity_matches": true,
+        "executed_matches_selected": true,
+        "artifact_hash_mismatches": [],
+        "bound_files": 9,
+        "before_equals_after": true,
+        "current_mismatches": []
+      },
+      {
+        "run": "audit_server/run02",
+        "counts": {
+          "tests": 7,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "counts_match_rollup": true,
+        "exit_code": 0,
+        "xml_identity_matches": true,
+        "executed_matches_selected": true
+      },
+      {
+        "run": "audit_server/collector_timing/run02",
+        "counts": {
+          "tests": 2,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "counts_match_rollup": true,
+        "exit_code": 0,
+        "xml_identity_matches": true,
+        "executed_matches_selected": true,
+        "artifact_hash_mismatches": [],
+        "bound_files": 9,
+        "before_equals_after": true,
+        "current_mismatches": []
+      }
+    ]
+  },
+  "independent_reports": {
+    "audit_market_evidence/report.json": {
+      "bound_files": 3,
+      "mismatches": []
+    },
+    "audit_server/result.json": {
+      "bound_files": 1,
+      "mismatches": []
+    }
+  },
+  "real_recovery": {
+    "status": "PASS",
+    "market_day": "2026-10-22",
+    "synthetic_market_inputs": false,
+    "source_mismatches": [],
+    "driver_matches": true,
+    "packages": {
+      "IC": {
+        "manifest_body_hash_matches": true,
+        "all_blob_validation_passed": true,
+        "manifest_file_sha256": "c77202eddc7df10734952c4bbd87138cb72a273b468c930b82b20dcf2715ffdd"
+      },
+      "IM": {
+        "manifest_body_hash_matches": true,
+        "all_blob_validation_passed": true,
+        "manifest_file_sha256": "da3e30fec38ef90c1abea5b85dcd2cc17f1846ca356cb8d65f907054efc1797a"
+      }
+    },
+    "cases": [
+      {
+        "name": "public_explicit_replay",
+        "status": "PASS",
+        "before": {
+          "verified_day": "2026-10-21",
+          "sequence": 19,
+          "digest": "c068710414dd9070d178faa4625d56835e67b9f2004c935a268900b9a1080342"
+        },
+        "after": {
+          "verified_day": "2026-10-22",
+          "sequence": 20,
+          "digest": "5897e7bd6ab30fdeff4a827968bc4939528bd53f672f07331bfb21365ae253d2"
+        },
+        "zero_external_http": true,
+        "atomic_rejection": null
+      },
+      {
+        "name": "automatic_recovery",
+        "status": "PASS",
+        "before": {
+          "verified_day": "2026-10-21",
+          "sequence": 19,
+          "digest": "c068710414dd9070d178faa4625d56835e67b9f2004c935a268900b9a1080342"
+        },
+        "after": {
+          "verified_day": "2026-10-22",
+          "sequence": 20,
+          "digest": "01f3411447ed9cb20d82109f69bf00cce830a9533820e9a497294234da8203b8"
+        },
+        "zero_external_http": true,
+        "atomic_rejection": null
+      },
+      {
+        "name": "missing_ic_package",
+        "status": "PASS",
+        "before": {
+          "verified_day": "2026-10-21",
+          "sequence": 19,
+          "digest": "c068710414dd9070d178faa4625d56835e67b9f2004c935a268900b9a1080342"
+        },
+        "after": {
+          "verified_day": "2026-10-21",
+          "sequence": 19,
+          "digest": "c068710414dd9070d178faa4625d56835e67b9f2004c935a268900b9a1080342"
+        },
+        "zero_external_http": null,
+        "atomic_rejection": true
+      },
+      {
+        "name": "corrupt_ic_blob",
+        "status": "PASS",
+        "before": {
+          "verified_day": "2026-10-21",
+          "sequence": 19,
+          "digest": "c068710414dd9070d178faa4625d56835e67b9f2004c935a268900b9a1080342"
+        },
+        "after": {
+          "verified_day": "2026-10-21",
+          "sequence": 19,
+          "digest": "c068710414dd9070d178faa4625d56835e67b9f2004c935a268900b9a1080342"
+        },
+        "zero_external_http": null,
+        "atomic_rejection": true
+      },
+      {
+        "name": "wrong_evidence_directory",
+        "status": "PASS",
+        "before": {
+          "verified_day": "2026-10-21",
+          "sequence": 19,
+          "digest": "c068710414dd9070d178faa4625d56835e67b9f2004c935a268900b9a1080342"
+        },
+        "after": {
+          "verified_day": "2026-10-21",
+          "sequence": 19,
+          "digest": "c068710414dd9070d178faa4625d56835e67b9f2004c935a268900b9a1080342"
+        },
+        "zero_external_http": null,
+        "atomic_rejection": true
+      }
+    ],
+    "comparison": {
+      "final_recovery_run": "real_recovery_02",
+      "within_run_differences": [],
+      "previous_accepted_result_differences": [],
+      "compared_signal_fields": {
+        "IC": 209,
+        "IM": 224
+      },
+      "complete_product_states_compared": true,
+      "excluded_only_calculation_clocks": [
+        "fetch_time",
+        "signal_calculation_started_at",
+        "signal_generated_at"
+      ],
+      "strict_json_types": true,
+      "status": "PASS"
+    }
+  },
+  "baseline": {
+    "files": 16916,
+    "changed": [
+      "capture_ic_im_v1_4_inputs.py",
+      "ic_im_evidence_adapter_v1.py",
+      "ic_im_signal_evidence_v1.py",
+      "ic_im_v1_4_policy.py",
+      "notes/mainline_registry.md",
+      "poe_ic_im_mainline_v1_4_bot.py",
+      "poe_ic_im_v1_4_server.py",
+      "poe_ic_im_v1_4_state.py",
+      "run_ic_im_v1_4_delivery_tests.py",
+      "runtime/ic_im_v1_4_r1/latest.json",
+      "test_ic_im_ordinary_put_route_fix_20261013.py",
+      "test_ic_im_v1_4_integration_guards.py",
+      "test_ic_im_v1_4_state_guards.py",
+      "test_icim_round3_evidence_integration_20261021.py",
+      "test_icim_round4_recovery_20261021.py",
+      "test_icim_round5_recording_semantics_20261021.py"
+    ],
+    "protected_changes": [
+      "runtime/ic_im_v1_4_r1/latest.json"
+    ],
+    "additions": {
+      "runtime": [
+        "runtime/ic_im_v1_4_r1/journal/000020-2026-10-22.json"
+      ],
+      "outputs": [
+        "outputs/re_certification/icim_v14_fix4_recert_20260924/l5_repeat_short_put_20260925/ic/__pycache__/run_legacy_composite_contrast.cpython-314.pyc",
+        "outputs/re_certification/icim_v14_fix4_recert_20260924/l5_native_signal_reconstruction_20260925/__pycache__/native_fix4_account_v1.cpython-314.pyc",
+        "outputs/re_certification/icim_v14_fix4_recert_20260924/l5_native_signal_reconstruction_20260925/__pycache__/native_fix4_account_v2.cpython-314.pyc",
+        "outputs/re_certification/icim_v14_fix4_recert_20260924/l5_native_signal_reconstruction_20260925/__pycache__/native_fix4_historical_sources_v1.cpython-314.pyc",
+        "outputs/re_certification/icim_v14_fix4_recert_20260924/l5_native_signal_reconstruction_20260925/__pycache__/native_fix4_historical_sources_v2.cpython-314.pyc",
+        "outputs/re_certification/icim_v14_fix4_recert_20260924/l5_native_signal_reconstruction_20260925/__pycache__/native_fix4_ic_noseller_targets_v1.cpython-314.pyc",
+        "outputs/re_certification/icim_v14_fix4_recert_20260924/l5_native_signal_reconstruction_20260925/__pycache__/native_fix4_im_noseller_targets_v1.cpython-314.pyc",
+        "outputs/re_certification/icim_v14_fix4_recert_20260924/l5_native_signal_reconstruction_20260925/__pycache__/native_fix4_risk_signals_v1.cpython-314.pyc",
+        "outputs/re_certification/icim_v14_fix4_recert_20260924/l5_native_signal_reconstruction_20260925/__pycache__/native_fix4_seller_candidates_v1.cpython-314.pyc",
+        "outputs/re_certification/icim_v14_fix4_recert_20260924/l5_native_signal_reconstruction_20260925/__pycache__/native_fix4_seller_lifecycle_v1.cpython-314.pyc",
+        "outputs/re_certification/icim_v14_fix4_recert_20260924/l2_account_ledger_repair_20260925/__pycache__/trade_account.cpython-314.pyc",
+        "outputs/fix9_nav_1y_20260928/__pycache__/refresh_510500_option_history.cpython-314.pyc"
+      ]
+    }
+  },
+  "latest_pointer": {
+    "baseline_sha256": "af2d4b65fc20101e87517eceebaad989c17a5f5e0d37db026b9ce39448ecd254",
+    "current_sha256": "2773323661e43f4cc92e72c743069d9cd93ba23b1051bbe8a714bfc89c0e2fd0",
+    "current_metadata": {
+      "sequence": 20,
+      "verified_day": "2026-10-22",
+      "digest": "49fb159fbadf894b6c64e8ca886faef49d62c5e8e31f0415690209f834317cc0",
+      "source": "automatic_close_replay",
+      "updated_at": "2026-10-22T20:02:41.285847+08:00"
+    },
+    "mtime_utc": "2026-10-23T06:54:51.676738+00:00",
+    "journal20_in_baseline": false,
+    "journal20_baseline_sha256": null,
+    "journal20_current_sha256": "2773323661e43f4cc92e72c743069d9cd93ba23b1051bbe8a714bfc89c0e2fd0",
+    "current_latest_equals_journal20": true,
+    "baseline_latest_equals_journal19": true,
+    "full_chain_load_latest_passed": true
+  },
+  "current_vs_isolated_recovery": {
+    "product_differences": [],
+    "signal_differences_excluding_three_calculation_clocks": {
+      "IC": [
+        "/calendar_coverage_warning",
+        "/calendar_provisional",
+        "/data_notes",
+        "/fear_fetch_started_at",
+        "/fear_page_sha256",
+        "/fear_retrieved_at",
+        "/future_quote_source",
+        "/historical_evidence_supplements",
+        "/iv_monitor_evidence",
+        "/iv_warning/comparison",
+        "/iv_warning/contract",
+        "/iv_warning/iv",
+        "/iv_warning/level",
+        "/iv_warning/market_date",
+        "/iv_warning/position_effect",
+        "/iv_warning/snapshot_time",
+        "/iv_warning/source",
+        "/iv_warning/status",
+        "/iv_warning/text",
+        "/iv_warning/thresholds",
+        "/iv_warning/validation_clock",
+        "/jiu_data_date",
+        "/jiu_fear_greed_index",
+        "/jiu_retrieved_at",
+        "/jiu_sha256",
+        "/jiu_warning",
+        "/month_next_spread/source",
+        "/month_quarter_spread/source",
+        "/original_evidence",
+        "/persistence_eligible",
+        "/put_current",
+        "/put_target",
+        "/quarter_spread/source",
+        "/score",
+        "/signal_complete",
+        "/signal_generation_timing",
+        "/v14_action_reason",
+        "/v14_candidate_data_status",
+        "/v14_seller_permission_reason",
+        "/v14_short_put_candidate/contract",
+        "/v14_short_put_candidate/decision_known_entry_abs_delta",
+        "/v14_short_put_candidate/expiry",
+        "/v14_short_put_candidate/iv",
+        "/v14_short_put_candidate/premium",
+        "/v14_short_put_candidate/qty_normalized",
+        "/v14_short_put_candidate/quantity_rule",
+        "/v14_short_put_candidate/quote_date",
+        "/v14_short_put_candidate/quote_source",
+        "/v14_short_put_candidate/quote_time",
+        "/v14_short_put_candidate/reason",
+        "/v14_short_put_candidate/security_id",
+        "/v14_short_put_candidate/strike",
+        "/v14_short_put_candidate/tradable",
+        "/valuation_provenance/fetched_at",
+        "/valuation_provenance/gov10y/fetched_at",
+        "/valuation_provenance/gov10y/mode",
+        "/valuation_provenance/gov10y/observed_date",
+        "/valuation_provenance/gov10y/page_sha256",
+        "/valuation_provenance/gov10y/reason",
+        "/valuation_provenance/gov10y/used_date",
+        "/valuation_provenance/gov10y/yield_decimal",
+        "/valuation_provenance/mode",
+        "/valuation_provenance/real_data_date",
+        "/valuation_provenance/reason",
+        "/valuation_provenance/snapshot_sha256"
+      ],
+      "IM": [
+        "/calendar_coverage_warning",
+        "/calendar_provisional",
+        "/data_notes/0",
+        "/data_notes/1",
+        "/data_notes/7",
+        "/data_notes/9",
+        "/data_notes/10",
+        "/data_notes/12",
+        "/fear_fetch_started_at",
+        "/fear_page_sha256",
+        "/fear_retrieved_at",
+        "/historical_evidence_supplements",
+        "/iv_warning/comparison",
+        "/iv_warning/contract",
+        "/iv_warning/iv",
+        "/iv_warning/level",
+        "/iv_warning/market_date",
+        "/iv_warning/position_effect",
+        "/iv_warning/snapshot_time",
+        "/iv_warning/source",
+        "/iv_warning/status",
+        "/iv_warning/text",
+        "/iv_warning/thresholds",
+        "/iv_warning/validation_clock",
+        "/jiu_data_date",
+        "/jiu_fear_greed_index",
+        "/jiu_retrieved_at",
+        "/jiu_sha256",
+        "/jiu_warning",
+        "/original_evidence",
+        "/persistence_eligible",
+        "/score",
+        "/signal_complete",
+        "/signal_generation_timing",
+        "/v14_action_reason",
+        "/v14_candidate_data_status",
+        "/v14_seller_permission_reason",
+        "/v14_short_put_candidate/contract",
+        "/v14_short_put_candidate/expiry",
+        "/v14_short_put_candidate/iv",
+        "/v14_short_put_candidate/premium",
+        "/v14_short_put_candidate/pricing_basis",
+        "/v14_short_put_candidate/qty_normalized",
+        "/v14_short_put_candidate/quantity_rule",
+        "/v14_short_put_candidate/reason",
+        "/v14_short_put_candidate/strike",
+        "/v14_short_put_candidate/tradable",
+        "/valuation_provenance/fetched_at",
+        "/valuation_provenance/gov10y/fetched_at",
+        "/valuation_provenance/gov10y/mode",
+        "/valuation_provenance/gov10y/observed_date",
+        "/valuation_provenance/gov10y/page_sha256",
+        "/valuation_provenance/gov10y/reason",
+        "/valuation_provenance/gov10y/used_date",
+        "/valuation_provenance/gov10y/yield_decimal",
+        "/valuation_provenance/mode",
+        "/valuation_provenance/real_data_date",
+        "/valuation_provenance/reason",
+        "/valuation_provenance/snapshot_sha256"
+      ]
+    },
+    "excluded_signal_fields": [
+      "fetch_time",
+      "signal_calculation_started_at",
+      "signal_generated_at"
+    ]
+  },
+  "writer_attribution": {
+    "status": "UNKNOWN",
+    "latest_and_journal_creation_time_local": "2026-10-23T14:54:51+08:00",
+    "collector_launch_local": "2026-10-23T14:57:41.8190328+08:00",
+    "collector_first_receipt_already_seq20": {
+      "verified_day": "2026-10-22",
+      "sequence": 20,
+      "digest": "49fb159fbadf894b6c64e8ca886faef49d62c5e8e31f0415690209f834317cc0"
+    },
+    "inference": "The observed ledger change predates this collector launch. Internal updated_at is a 2026-10-22 timestamp; this alone does not identify who copied or wrote the record."
+  },
+  "missing_delivery_files": [
+    "final_verification.json",
+    "commit_repairs.ps1",
+    "verify_staged.py",
+    "commit_hashes.json",
+    "commit_paths.nul",
+    "commit_preparation.json"
+  ]
+}

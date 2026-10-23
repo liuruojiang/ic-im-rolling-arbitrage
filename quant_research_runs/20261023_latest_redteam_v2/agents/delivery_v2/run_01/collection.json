@@ -1,0 +1,18 @@
+{
+  "collected": [
+    "quant_research_runs/20261023_latest_redteam_v2/agents/delivery_v2/test_delivery_redteam.py::test_realtime_completion_must_stay_before_close[2026-10-14T14:59:59+08:00]",
+    "quant_research_runs/20261023_latest_redteam_v2/agents/delivery_v2/test_delivery_redteam.py::test_realtime_completion_must_stay_before_close[2026-10-14T15:00:00+08:00]",
+    "quant_research_runs/20261023_latest_redteam_v2/agents/delivery_v2/test_delivery_redteam.py::test_realtime_completion_must_stay_before_close[2026-10-14T15:00:01+08:00]"
+  ],
+  "selected": [
+    "quant_research_runs/20261023_latest_redteam_v2/agents/delivery_v2/test_delivery_redteam.py::test_realtime_completion_must_stay_before_close[2026-10-14T14:59:59+08:00]",
+    "quant_research_runs/20261023_latest_redteam_v2/agents/delivery_v2/test_delivery_redteam.py::test_realtime_completion_must_stay_before_close[2026-10-14T15:00:00+08:00]",
+    "quant_research_runs/20261023_latest_redteam_v2/agents/delivery_v2/test_delivery_redteam.py::test_realtime_completion_must_stay_before_close[2026-10-14T15:00:01+08:00]"
+  ],
+  "deselected": [],
+  "executed": [
+    "quant_research_runs/20261023_latest_redteam_v2/agents/delivery_v2/test_delivery_redteam.py::test_realtime_completion_must_stay_before_close[2026-10-14T14:59:59+08:00]",
+    "quant_research_runs/20261023_latest_redteam_v2/agents/delivery_v2/test_delivery_redteam.py::test_realtime_completion_must_stay_before_close[2026-10-14T15:00:00+08:00]",
+    "quant_research_runs/20261023_latest_redteam_v2/agents/delivery_v2/test_delivery_redteam.py::test_realtime_completion_must_stay_before_close[2026-10-14T15:00:01+08:00]"
+  ]
+}

@@ -1,0 +1,3 @@
+{"nodeid": "quant_research_runs/20261023_latest_redteam_v2/agents/delivery_v2/test_delivery_redteam.py::test_realtime_completion_must_stay_before_close[2026-10-14T14:59:59+08:00]", "started_at": "2026-10-23T14:05:36.633043+08:00"}
+{"nodeid": "quant_research_runs/20261023_latest_redteam_v2/agents/delivery_v2/test_delivery_redteam.py::test_realtime_completion_must_stay_before_close[2026-10-14T15:00:00+08:00]", "started_at": "2026-10-23T14:05:36.676006+08:00"}
+{"nodeid": "quant_research_runs/20261023_latest_redteam_v2/agents/delivery_v2/test_delivery_redteam.py::test_realtime_completion_must_stay_before_close[2026-10-14T15:00:01+08:00]", "started_at": "2026-10-23T14:05:37.121314+08:00"}

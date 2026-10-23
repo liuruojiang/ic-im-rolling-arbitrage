@@ -1,0 +1,59 @@
+F                                                                        [100%]
+================================== FAILURES ===================================
+__________ test_valid_snapshot_after_shared_lock_wait_is_not_future ___________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001CF65963360>
+tmp_path = WindowsPath('D:/动量策略/IC和IM滚动套利/quant_research_runs/20261023_redteam_repairs_v3/independent/audit_clock_wait/run_01/temp/icim_put_3d354b5f/pytest/test_valid_snapshot_after_shar0')
+
+    def test_valid_snapshot_after_shared_lock_wait_is_not_future(monkeypatch,tmp_path):
+        module,owner,old,signals,clock=_coordinator(tmp_path,monkeypatch)
+        monkeypatch.delenv('ICIM_DISABLE_EVIDENCE_CAPTURE',raising=False)
+        monkeypatch.setattr(bot.requests.sessions.Session,'request',lambda *a,**k:pytest.fail('external network forbidden'))
+        ticks=[100.]
+        monkeypatch.setattr(bot.time_module,'monotonic',lambda:ticks[0])
+        actual_lock=owner.lock
+        class ContendedLock:
+            def __enter__(self):
+                ticks[0]+=2.
+                return actual_lock.__enter__()
+            def __exit__(self,*args):return actual_lock.__exit__(*args)
+        owner.lock=ContendedLock()
+        facts={};before=snapshot(owner.store.root)
+        def capture(strategy,root,now):
+            observed=strategy._iv_observation_clock(now)
+            stamp=clock+timedelta(seconds=1)
+            facts.update(request_clock=clock.isoformat(),elapsed_before_snapshot=ticks[0]-100.,
+                         actual_receive_clock=(clock+timedelta(seconds=ticks[0]-100.)).isoformat(),
+                         validator_observation_clock=observed.isoformat(),source_stamp=stamp.isoformat())
+            strategy.quote_snapshot_guard.official_snapshot_evidence(stamp,observed,now.date(),'valid frame after shared-lock contention')
+            return {'status':'captured','day':str(now.date()),'products':{}}
+        monkeypatch.setattr(adapter,'capture_daily',capture)
+        result=owner.capture_current_inputs(clock)
+        facts.update(result=result,ledger_bytes_unchanged=snapshot(owner.store.root)==before)
+        (Path(os.environ['ICIM_TEST_OUTPUT_DIR'])/'observation.json').write_text(json.dumps(facts,ensure_ascii=False,indent=2),encoding='utf-8')
+>       assert result['status']=='captured',facts
+E       AssertionError: {'actual_receive_clock': '2026-10-21T15:40:02+08:00', 'elapsed_before_snapshot': 2.0, 'ledger_bytes_unchanged': True, 'request_clock': '2026-10-21T15:40:00+08:00', ...}
+E       assert 'incomplete' == 'captured'
+E         
+E         - captured
+E         + incomplete
+
+quant_research_runs\20261023_redteam_repairs_v3\independent\audit_clock_wait\test_capture_lock_wait.py:37: AssertionError
+------------------------------ Captured log call ------------------------------
+WARNING  uvicorn.default:base.py:1139 
+************* Warning *************
+WARNING  uvicorn.default:base.py:1140 Bot name or access key is not set for PoeBot.
+Bot settings will NOT be synced automatically on server start/update.Please remember to sync bot settings manually.
+
+For more information, see: https://creator.poe.com/docs/server-bots/updating-bot-settings
+WARNING  uvicorn.default:base.py:1146 
+************* Warning *************
+============================== warnings summary ===============================
+C:\Python314\Lib\site-packages\fastapi_poe\types.py:171
+  C:\Python314\Lib\site-packages\fastapi_poe\types.py:171: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    class RequestContext(BaseModel):
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED quant_research_runs/20261023_redteam_repairs_v3/independent/audit_clock_wait/test_capture_lock_wait.py::test_valid_snapshot_after_shared_lock_wait_is_not_future
+1 failed, 1 warning in 4.00s

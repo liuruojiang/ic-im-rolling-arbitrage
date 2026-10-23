@@ -1,5 +1,30 @@
 # IC/IM 1.4 GitHub/Gmail 与本地 Codex 日报运维手册
 
+## 2026-10-23 最终运行验收
+
+v3-r3无发送预检39921352353及正常20:00日报39950081613均整体成功；正式云端链已续到10-23/seq21，Gmail在北京时间20:02:53收到新版本日报，发送intent/正式账本/delivered证据完整。本地29执行文件匹配发布manifest；本地正式链保持原合法记录，后续依官方工件恢复流程接续，不复制无发送预检隔离链。
+
+首次预检39920955368因可选handoff要求恢复链digest不变而被正确拒绝：close运行发生隔离续账时，应选择export_handoff=false做纯预检；仅恢复的正式链已覆盖目标日且运行后不改变digest时才可导出原链handoff，不能放宽保护。完整最终回执见`quant_research_runs/20261023_resume_audit_v4/final_verification.json`。本轮未修复本地网络权限，实际邮件披露的代理估值不等于当日真实PE/PB采集完成。
+
+## 2026-10-23 接续发布完成
+
+下节“待发布”现已由策略PR #60和自动化PR #163完成。正式执行pin为`e3f26824a8ff0a89b6125d4385f75e0a6cfa2a7e`，策略main合并提交`cb98c6af72afb53e7d44e7d89bdadba2fea6a318`同树；自动化发布合并提交`8bcb2acb8c8965469e6613738c409a23357aa29f`。以后仍动态读取当次正式workflow，不把本次SHA当作永久最新。
+
+本地与远端均按下节47文件门禁和冻结v3-r3 manifest执行；三组独立审计及合并后CI已通过。完整测试快照还必须物化Git原有历史fixture及delivery-regression.yml规定的fixture准备步骤，不可只复制175个绑定文件而声称完整checkout。无发送预检与正式投递分开验收；最新状态及证据见`quant_research_runs/20261023_resume_audit_v4/record.md`。本地配置无需改动，原ACTIVE、工作日14:30、180秒本地预算和独立微盘流程保持。
+
+## 2026-10-23 v3-r3 发布与 47 文件门禁覆盖（发布进度另以当次回执为准）
+
+本节覆盖下方历史 38/43 文件清单及旧策略 pin。当前待发布修补固定使用 `docs/ic_im_daily_release_20261023_repairs_v3_r3_manifest.json`：**29 个执行文件、47 个测试文件、13 个测试辅助文件，门禁共绑定 175 个文件**。必须按清单保留必要 fixture 和证据 worker；不得以采集器 pin 代替日报执行清单。策略 BUILD_ID/RULE_REVISION 仍是 fix11，补丁身份由执行字节 SHA 与最终工作流固定的策略提交确定；不能把未完成的远端推送称作已发布。
+
+冻结 manifest 的 `build_identity_unchanged=false` 是与实际 BUILD/RULE 常量不符的描述性元数据，根 Python 运行和门禁代码均不读取该字段；保留原字节，以 `quant_research_runs/20261023_daily_release_v3/strategy_prepare/identity_verification.json` 的源码对照说明为准，不据此更改策略身份。
+
+本地 `automation.toml` 已在 2026-10-23 14:51（北京时间）得到授权：本地两族专项子进程各 **180 秒**；IC/IM 可在完整隔离副本适配超时，并保存差异和最终执行回执，不能改写这里冻结的源 manifest 或正式 runner。正式根门禁与云端 CI 当前仍为 **60 秒**，本次不擅自扩大云端限制。ACTIVE、原工作日 14:30、模型/项目/cwd 与微盘逻辑保持各自已授权配置。
+
+标准门禁入口仍为 `python -B -X utf8 run_ic_im_v1_4_delivery_tests.py --out-dir <本次全新隔离目录>`；只允许原 22 项登记表与本 47 文件的 5 项交集单列，必须核对 XML、实际执行身份、进程状态、源码/fixture 前后 SHA。历史 3333/1193/148 或接手定向 131/192 均是对应审计证据，不能冒充每天执行计数，各组有重叠不得求和。最新 47 文件门禁以本次运行结果为准。
+
+发布规范：`docs/ic_im_daily_release_v3_r3_20261023_spec.md`。发布 inventory 只含门禁必需内容及紧凑规范/摘要，不携带正式 runtime、历史 outputs 或整棵临时研究目录。既有 formal seq20 的来源差异与采集失败记录继续保留，由本次发布总记录另行验收；代码同步本身不能将其改写为通过。远端 20:00、正常恢复/去重流程、本地不另起 SMTP 和研究用途边界不变。
+
+
 ## 2026-10-23 多轮修复发布覆盖
 
 接续已合并自动化 PR #161/#162。本次策略 pin 为 `8038980de86251b2c5133da04e788dc2c49c84ff`，未来仍读取当次正式 workflow。#162 独立补修参考字段隔离：仅九个明确定义的参考字段可进入纯文本/HTML，不能覆盖已核验策略字段。本地登记表明确覆盖提示词旧38文件清单；任务配置本身未改。接续、审计与投递边界见 `quant_research_runs/20261023_daily_release_sync_v1/record.md`。

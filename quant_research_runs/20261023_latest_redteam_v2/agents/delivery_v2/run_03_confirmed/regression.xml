@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="3" skipped="0" tests="5" time="5.002" timestamp="2026-10-23T14:08:17.945418+08:00" hostname="DESKTOP-95I7VVU"><testcase classname="quant_research_runs.20261023_latest_redteam_v2.agents.delivery_v2.test_delivery_confirmed" name="test_readonly_snapshot_uses_latest_verified_record[2026-10-22T08:00:00+08:00-\u5f53\u524d\u6301\u4ed3]" time="0.404"><failure message="AssertionError: assert 0 == 2&#10; +  where 0 = &lt;built-in method count of str object at 0x0000026681C7DFB0&gt;('最后逐腿核验快照（2026-10-21')&#10; +    where &lt;built-in method count of str object at 0x0000026681C7DFB0&gt; = '## 最近已核验研究账本快照\n\n今日完整收盘数据尚未核验。\n\n**最后逐腿核验快照（2026-10-20，仅研究审计）**\n\n- 0.5倍核心期货：`IC2612`（路线 `future`）\n- 动量袖：权重 0，期货名....5倍；期货合计：1倍\n- Put：核心 1.5张 `MO2612-P-6700`；动量 0张；合计 1.5张；Call：规范化 0张\n- 这只是最后已核验状态，不是当前账户持仓；联网或账本续接恢复前，不生成下一交易日目标。\n\n'.count">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x00000266E56609D0&gt;
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_a56cc7bd/pytest/test_readonly_snapshot_uses_la0')
+clock = '2026-10-22T08:00:00+08:00', query = '当前持仓'
+
+    @pytest.mark.parametrize("clock,query", [("2026-10-22T08:00:00+08:00","当前持仓"),("2026-10-22T09:10:00+08:00","当前持仓"),("2026-10-22T09:30:00+08:00","当前持仓"),("2026-10-22T14:30:00+08:00","当前持仓"),("2026-10-21T18:00:00+08:00","信号")])
+    def test_readonly_snapshot_uses_latest_verified_record(monkeypatch,tmp_path,clock,query):
+        import shutil
+        import poe_ic_im_v1_4_server as server
+        import poe_ic_im_v1_4_state as state
+        root=Path(__file__).resolve().parents[4]
+        source=root/"runtime/ic_im_v1_4_r1"
+        copied=tmp_path/"ledger_copy"
+        shutil.copytree(source,copied,ignore=shutil.ignore_patterns(".ledger.lock"))
+        monkeypatch.setenv("ICIM_EVIDENCE_DIR",str(tmp_path/"empty_evidence"))
+        monkeypatch.setattr(digest.strategy,"LIVE_CONTINUATION_ANCHOR",deepcopy(digest.strategy.LIVE_CONTINUATION_ANCHOR))
+        coordinator=server.LedgerCoordinator(state.StateStore(copied))
+        latest=coordinator.store.load_latest()
+        before=latest["digest"]
+        assert latest["verified_day"]=="2026-10-21"
+        if query=="信号":
+            def unavailable(*_a,**_k): raise RuntimeError("controlled source unavailable")
+            monkeypatch.setattr(digest.strategy,"build_live_signal_with_transport_retry",unavailable)
+        report,attachments,observed=coordinator.execute_query(query,datetime.fromisoformat(clock),persist_confirmed=False)
+        artifact=Path(__file__).parent/("snapshot_"+clock.replace(":","").replace("+", "_")+".md")
+        artifact.write_text(report,encoding="utf-8")
+        assert observed=={} and not attachments
+        assert coordinator.store.load_latest()["digest"]==before
+&gt;       assert report.count("最后逐腿核验快照（2026-10-21") == 2
+E       AssertionError: assert 0 == 2
+E        +  where 0 = &lt;built-in method count of str object at 0x0000026681C7DFB0&gt;('最后逐腿核验快照（2026-10-21')
+E        +    where &lt;built-in method count of str object at 0x0000026681C7DFB0&gt; = '## 最近已核验研究账本快照\n\n今日完整收盘数据尚未核验。\n\n**最后逐腿核验快照（2026-10-20，仅研究审计）**\n\n- 0.5倍核心期货：`IC2612`（路线 `future`）\n- 动量袖：权重 0，期货名....5倍；期货合计：1倍\n- Put：核心 1.5张 `MO2612-P-6700`；动量 0张；合计 1.5张；Call：规范化 0张\n- 这只是最后已核验状态，不是当前账户持仓；联网或账本续接恢复前，不生成下一交易日目标。\n\n'.count
+
+quant_research_runs\20261023_latest_redteam_v2\agents\delivery_v2\test_delivery_confirmed.py:37: AssertionError</failure></testcase><testcase classname="quant_research_runs.20261023_latest_redteam_v2.agents.delivery_v2.test_delivery_confirmed" name="test_readonly_snapshot_uses_latest_verified_record[2026-10-22T09:10:00+08:00-\u5f53\u524d\u6301\u4ed3]" time="0.395"><failure message="AssertionError: assert 0 == 2&#10; +  where 0 = &lt;built-in method count of str object at 0x0000026681C77120&gt;('最后逐腿核验快照（2026-10-21')&#10; +    where &lt;built-in method count of str object at 0x0000026681C77120&gt; = '## 最近已核验研究账本快照\n\n今日完整收盘数据尚未核验。\n\n**最后逐腿核验快照（2026-10-20，仅研究审计）**\n\n- 0.5倍核心期货：`IC2612`（路线 `future`）\n- 动量袖：权重 0，期货名....5倍；期货合计：1倍\n- Put：核心 1.5张 `MO2612-P-6700`；动量 0张；合计 1.5张；Call：规范化 0张\n- 这只是最后已核验状态，不是当前账户持仓；联网或账本续接恢复前，不生成下一交易日目标。\n\n'.count">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x00000266837D0B00&gt;
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_a56cc7bd/pytest/test_readonly_snapshot_uses_la1')
+clock = '2026-10-22T09:10:00+08:00', query = '当前持仓'
+
+    @pytest.mark.parametrize("clock,query", [("2026-10-22T08:00:00+08:00","当前持仓"),("2026-10-22T09:10:00+08:00","当前持仓"),("2026-10-22T09:30:00+08:00","当前持仓"),("2026-10-22T14:30:00+08:00","当前持仓"),("2026-10-21T18:00:00+08:00","信号")])
+    def test_readonly_snapshot_uses_latest_verified_record(monkeypatch,tmp_path,clock,query):
+        import shutil
+        import poe_ic_im_v1_4_server as server
+        import poe_ic_im_v1_4_state as state
+        root=Path(__file__).resolve().parents[4]
+        source=root/"runtime/ic_im_v1_4_r1"
+        copied=tmp_path/"ledger_copy"
+        shutil.copytree(source,copied,ignore=shutil.ignore_patterns(".ledger.lock"))
+        monkeypatch.setenv("ICIM_EVIDENCE_DIR",str(tmp_path/"empty_evidence"))
+        monkeypatch.setattr(digest.strategy,"LIVE_CONTINUATION_ANCHOR",deepcopy(digest.strategy.LIVE_CONTINUATION_ANCHOR))
+        coordinator=server.LedgerCoordinator(state.StateStore(copied))
+        latest=coordinator.store.load_latest()
+        before=latest["digest"]
+        assert latest["verified_day"]=="2026-10-21"
+        if query=="信号":
+            def unavailable(*_a,**_k): raise RuntimeError("controlled source unavailable")
+            monkeypatch.setattr(digest.strategy,"build_live_signal_with_transport_retry",unavailable)
+        report,attachments,observed=coordinator.execute_query(query,datetime.fromisoformat(clock),persist_confirmed=False)
+        artifact=Path(__file__).parent/("snapshot_"+clock.replace(":","").replace("+", "_")+".md")
+        artifact.write_text(report,encoding="utf-8")
+        assert observed=={} and not attachments
+        assert coordinator.store.load_latest()["digest"]==before
+&gt;       assert report.count("最后逐腿核验快照（2026-10-21") == 2
+E       AssertionError: assert 0 == 2
+E        +  where 0 = &lt;built-in method count of str object at 0x0000026681C77120&gt;('最后逐腿核验快照（2026-10-21')
+E        +    where &lt;built-in method count of str object at 0x0000026681C77120&gt; = '## 最近已核验研究账本快照\n\n今日完整收盘数据尚未核验。\n\n**最后逐腿核验快照（2026-10-20，仅研究审计）**\n\n- 0.5倍核心期货：`IC2612`（路线 `future`）\n- 动量袖：权重 0，期货名....5倍；期货合计：1倍\n- Put：核心 1.5张 `MO2612-P-6700`；动量 0张；合计 1.5张；Call：规范化 0张\n- 这只是最后已核验状态，不是当前账户持仓；联网或账本续接恢复前，不生成下一交易日目标。\n\n'.count
+
+quant_research_runs\20261023_latest_redteam_v2\agents\delivery_v2\test_delivery_confirmed.py:37: AssertionError</failure></testcase><testcase classname="quant_research_runs.20261023_latest_redteam_v2.agents.delivery_v2.test_delivery_confirmed" name="test_readonly_snapshot_uses_latest_verified_record[2026-10-22T09:30:00+08:00-\u5f53\u524d\u6301\u4ed3]" time="0.257" /><testcase classname="quant_research_runs.20261023_latest_redteam_v2.agents.delivery_v2.test_delivery_confirmed" name="test_readonly_snapshot_uses_latest_verified_record[2026-10-22T14:30:00+08:00-\u5f53\u524d\u6301\u4ed3]" time="0.274" /><testcase classname="quant_research_runs.20261023_latest_redteam_v2.agents.delivery_v2.test_delivery_confirmed" name="test_readonly_snapshot_uses_latest_verified_record[2026-10-21T18:00:00+08:00-\u4fe1\u53f7]" time="0.338"><failure message="AssertionError: assert 0 == 2&#10; +  where 0 = &lt;built-in method count of str object at 0x0000026681753650&gt;('最后逐腿核验快照（2026-10-21')&#10; +    where &lt;built-in method count of str object at 0x0000026681753650&gt; = '## IC / IM 1.4 信号（收盘确认）｜构建 v1.4-20261008-r1-ic-csi500-abs40-fix11（2026-10-21 18:00:00 北京时间）\n\n版本口径：部署服务名V1-2；本页信号规则v....5倍；期货合计：1倍\n- Put：核心 1.5张 `MO2612-P-6700`；动量 0张；合计 1.5张；Call：规范化 0张\n- 这只是最后已核验状态，不是当前账户持仓；联网或账本续接恢复前，不生成下一交易日目标。\n\n'.count">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x0000026683955040&gt;
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_put_a56cc7bd/pytest/test_readonly_snapshot_uses_la4')
+clock = '2026-10-21T18:00:00+08:00', query = '信号'
+
+    @pytest.mark.parametrize("clock,query", [("2026-10-22T08:00:00+08:00","当前持仓"),("2026-10-22T09:10:00+08:00","当前持仓"),("2026-10-22T09:30:00+08:00","当前持仓"),("2026-10-22T14:30:00+08:00","当前持仓"),("2026-10-21T18:00:00+08:00","信号")])
+    def test_readonly_snapshot_uses_latest_verified_record(monkeypatch,tmp_path,clock,query):
+        import shutil
+        import poe_ic_im_v1_4_server as server
+        import poe_ic_im_v1_4_state as state
+        root=Path(__file__).resolve().parents[4]
+        source=root/"runtime/ic_im_v1_4_r1"
+        copied=tmp_path/"ledger_copy"
+        shutil.copytree(source,copied,ignore=shutil.ignore_patterns(".ledger.lock"))
+        monkeypatch.setenv("ICIM_EVIDENCE_DIR",str(tmp_path/"empty_evidence"))
+        monkeypatch.setattr(digest.strategy,"LIVE_CONTINUATION_ANCHOR",deepcopy(digest.strategy.LIVE_CONTINUATION_ANCHOR))
+        coordinator=server.LedgerCoordinator(state.StateStore(copied))
+        latest=coordinator.store.load_latest()
+        before=latest["digest"]
+        assert latest["verified_day"]=="2026-10-21"
+        if query=="信号":
+            def unavailable(*_a,**_k): raise RuntimeError("controlled source unavailable")
+            monkeypatch.setattr(digest.strategy,"build_live_signal_with_transport_retry",unavailable)
+        report,attachments,observed=coordinator.execute_query(query,datetime.fromisoformat(clock),persist_confirmed=False)
+        artifact=Path(__file__).parent/("snapshot_"+clock.replace(":","").replace("+", "_")+".md")
+        artifact.write_text(report,encoding="utf-8")
+        assert observed=={} and not attachments
+        assert coordinator.store.load_latest()["digest"]==before
+&gt;       assert report.count("最后逐腿核验快照（2026-10-21") == 2
+E       AssertionError: assert 0 == 2
+E        +  where 0 = &lt;built-in method count of str object at 0x0000026681753650&gt;('最后逐腿核验快照（2026-10-21')
+E        +    where &lt;built-in method count of str object at 0x0000026681753650&gt; = '## IC / IM 1.4 信号（收盘确认）｜构建 v1.4-20261008-r1-ic-csi500-abs40-fix11（2026-10-21 18:00:00 北京时间）\n\n版本口径：部署服务名V1-2；本页信号规则v....5倍；期货合计：1倍\n- Put：核心 1.5张 `MO2612-P-6700`；动量 0张；合计 1.5张；Call：规范化 0张\n- 这只是最后已核验状态，不是当前账户持仓；联网或账本续接恢复前，不生成下一交易日目标。\n\n'.count
+
+quant_research_runs\20261023_latest_redteam_v2\agents\delivery_v2\test_delivery_confirmed.py:37: AssertionError</failure></testcase></testsuite></testsuites>

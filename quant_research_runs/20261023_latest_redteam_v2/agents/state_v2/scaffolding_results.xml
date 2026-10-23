@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="4" skipped="0" tests="10" time="3.338" timestamp="2026-10-23T14:07:27.593788+08:00" hostname="DESKTOP-95I7VVU"><testcase classname="quant_research_runs.20261023_latest_redteam_v2.agents.state_v2.test_state_v2" name="test_capture_after_successful_public_append_uses_committed_head" time="0.114"><failure message="AssertionError: assert '2026-10-20' == '2026-10-21'&#10;  &#10;  - 2026-10-21&#10;  ?          ^&#10;  + 2026-10-20&#10;  ?          ^">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x0000018986E2C8A0&gt;
+tmp_path = WindowsPath('D:/动量策略/IC和IM滚动套利/quant_research_runs/20261023_latest_redteam_v2/agents/state_v2/temp/pytest/test_capture_after_successful_0')
+
+    def test_capture_after_successful_public_append_uses_committed_head(monkeypatch,tmp_path):
+        module, owner, old, signals, clock=_coordinator(tmp_path,monkeypatch)
+        text,_,observed=owner.execute_query('信号',clock)
+        latest=owner.store.load_latest()
+        assert latest['sequence']==old['sequence']+1
+        before=snapshot(owner.store.root)
+        seen={}
+        def capture(strategy,root,now):
+            seen.update(anchors=state._jsonable(strategy.LIVE_CONTINUATION_ANCHOR),
+                        observation_clock=str(strategy._iv_observation_clock(now)))
+            return {'status':'captured','day':str(now.date()),'products':{}}
+        monkeypatch.setattr(adapter,'capture_daily',capture)
+        owner.capture_current_inputs(clock)
+        observation={'expected_day':latest['verified_day'],
+                     'actual_day':seen['anchors']['IC']['last_verified_day'],
+                     'old_day':old['verified_day'],'formal_store_unchanged':snapshot(owner.store.root)==before}
+        (OUT/'stale_capture_anchor_observation.json').write_text(json.dumps(observation,indent=2),encoding='utf-8')
+        assert snapshot(owner.store.root)==before
+&gt;       assert seen['anchors']['IC']['last_verified_day']==latest['verified_day']
+E       AssertionError: assert '2026-10-20' == '2026-10-21'
+E         
+E         - 2026-10-21
+E         ?          ^
+E         + 2026-10-20
+E         ?          ^
+
+quant_research_runs\20261023_latest_redteam_v2\agents\state_v2\test_state_v2.py:40: AssertionError</failure></testcase><testcase classname="quant_research_runs.20261023_latest_redteam_v2.agents.state_v2.test_state_v2" name="test_server_capture_advances_observation_clock" time="0.031"><failure message="AssertionError: {'day': '2026-10-21', 'reason': 'RuntimeError: synthetic current CFFEX frame行情更新时间晚于采集时刻，禁止确认信号', 'status': 'incomplete'}&#10;assert 'incomplete' == 'captured'&#10;  &#10;  - captured&#10;  + incomplete">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x00000189A4E2A2C0&gt;
+tmp_path = WindowsPath('D:/动量策略/IC和IM滚动套利/quant_research_runs/20261023_latest_redteam_v2/agents/state_v2/temp/pytest/test_server_capture_advances_o0')
+
+    def test_server_capture_advances_observation_clock(monkeypatch,tmp_path):
+        module,owner,old,signals,clock=_coordinator(tmp_path,monkeypatch)
+        ticks=[100.]
+        monkeypatch.setattr(bot.time_module,'monotonic',lambda:ticks[0])
+        def capture(strategy,root,now):
+            ticks[0]+=2.
+            stamp=now+timedelta(seconds=1)
+            strategy.quote_snapshot_guard.official_snapshot_evidence(
+                stamp,strategy._iv_observation_clock(now),now.date(),'synthetic current CFFEX frame')
+            return {'status':'captured','day':str(now.date()),'products':{}}
+        monkeypatch.setattr(adapter,'capture_daily',capture)
+        result=owner.capture_current_inputs(clock)
+        (OUT/'missing_capture_clock_observation.json').write_text(json.dumps(result,ensure_ascii=False,indent=2),encoding='utf-8')
+&gt;       assert result['status']=='captured',result
+E       AssertionError: {'day': '2026-10-21', 'reason': 'RuntimeError: synthetic current CFFEX frame行情更新时间晚于采集时刻，禁止确认信号', 'status': 'incomplete'}
+E       assert 'incomplete' == 'captured'
+E         
+E         - captured
+E         + incomplete
+
+quant_research_runs\20261023_latest_redteam_v2\agents\state_v2\test_state_v2.py:56: AssertionError</failure></testcase><testcase classname="quant_research_runs.20261023_latest_redteam_v2.agents.state_v2.test_state_v2" name="test_outer_collection_context_accepts_same_arriving_snapshot" time="0.017" /><testcase classname="quant_research_runs.20261023_latest_redteam_v2.agents.state_v2.test_state_v2" name="test_bad_product_rejected_without_any_persistent_write[IC]" time="0.023" /><testcase classname="quant_research_runs.20261023_latest_redteam_v2.agents.state_v2.test_state_v2" name="test_bad_product_rejected_without_any_persistent_write[IM]" time="0.024" /><testcase classname="quant_research_runs.20261023_latest_redteam_v2.agents.state_v2.test_state_v2" name="test_mutated_current_without_rehash_rejected[sequence-999]" time="0.021" /><testcase classname="quant_research_runs.20261023_latest_redteam_v2.agents.state_v2.test_state_v2" name="test_mutated_current_without_rehash_rejected[verified_day-2026-10-01]" time="0.023" /><testcase classname="quant_research_runs.20261023_latest_redteam_v2.agents.state_v2.test_state_v2" name="test_partial_journal_write_is_recoverable_after_restart" time="0.055" /><testcase classname="quant_research_runs.20261023_latest_redteam_v2.agents.state_v2.test_state_v2" name="test_real_daily_capture_seals_current_arriving_frame[False]" time="0.129"><failure message="AssertionError: assert {'input_evide...ca0cc6e', ...} == {'journal/000...babfd30768b0'}&#10;  &#10;  Omitting 2 identical items, use -vv to show&#10;  Left contains 8 more items:&#10;  {'input_evidence/blobs/05622d5070d3c55cd603f3922c17c106fd9098290b59da45b0f0546e6f7caf67.json': '05622d5070d3c55cd603f3922c17c106fd9098290b59da45b0f0546e6f7caf67',&#10;   'input_evidence/blobs/37bbe21275582667874841f68787800a61e8e0f8ea34a449b2953149c8292827.json': '37bbe21275582667874841f68787800a61e8e0f8ea34a449b2953149c8292827',&#10;   'input_evidence/blobs/3f8e274b67c54796ff7cd72e50f21561bd5a9cb19efeea5c023c1f95fe364a6a.json': '3f8e274b67c54796ff7cd72e50f21561bd5a9cb19efeea5c023c1f95fe364a6a',&#10;   'input_evidence/blo...&#10;  &#10;  ...Full output truncated (6 lines hidden), use '-vv' to show">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x00000189A50599A0&gt;
+tmp_path = WindowsPath('D:/动量策略/IC和IM滚动套利/quant_research_runs/20261023_latest_redteam_v2/agents/state_v2/temp/pytest/test_real_daily_capture_seals_0')
+with_context = False
+
+    @pytest.mark.parametrize('with_context',[False,True])
+    def test_real_daily_capture_seals_current_arriving_frame(monkeypatch,tmp_path,with_context):
+        import pandas as pd
+        import ic_im_signal_evidence_v1 as evidence
+        from contextlib import nullcontext
+        module,owner,old,signals,clock=_coordinator(tmp_path,monkeypatch)
+        ticks=[100.]
+        monkeypatch.setattr(bot.time_module,'monotonic',lambda:ticks[0])
+        class Wall(datetime):
+            @classmethod
+            def now(cls,tz=None):
+                t=clock+timedelta(seconds=ticks[0]-100.)
+                return t.astimezone(tz) if tz else t.replace(tzinfo=None)
+        monkeypatch.setattr(adapter,'datetime',Wall)
+        monkeypatch.setattr(evidence,'_now',lambda:clock+timedelta(seconds=ticks[0]-100.))
+        monkeypatch.setattr(bot,'LIVE_CONTINUATION_ANCHOR',state.anchors_from_record(old))
+        def role(name,key,fn):return evidence.current_session.get().call(name,key,fn)
+        def quotes(product,now):
+            def load():
+                ticks[0]+=2.
+                bot.quote_snapshot_guard.official_snapshot_evidence(
+                    clock+timedelta(seconds=1),bot._iv_observation_clock(now),now.date(),'synthetic current CFFEX frame')
+                frame=pd.DataFrame([{'instrument':product+'2612','last':6500.}])
+                frame.attrs['source']='中金所'
+                return frame
+            return role('cffex.quotes',{'product':product},load)
+        monkeypatch.setattr(bot,'fetch_cffex_quotes',quotes)
+        monkeypatch.setattr(bot,'fetch_510500_expiries_with_failover',lambda:role('ic.months',{},lambda:['202612']))
+        monkeypatch.setattr(bot,'fetch_510500_quote_with_failover',lambda:role('ic.etf',{},lambda:{'last':6.8}))
+        monkeypatch.setattr(bot,'_fetch_510500_chain_for_day',lambda month,day:role('ic.chain',{'month':month,'day':day},lambda:pd.DataFrame([{'contract':'510500P2612M06500'}])))
+        monkeypatch.setattr(bot,'live_proxy',lambda product,now:role('market.live',{'product':product},lambda:{}))
+        monkeypatch.setattr(bot,'_fear_score_evidence',lambda day,mode:role('fear.score',{'day':day,'mode':mode},lambda:{'fear_greed_index':30.}))
+        monkeypatch.setattr(bot,'_fear_reference_evidence',lambda day:role('fear.reference',{'day':day},lambda:{}))
+        monkeypatch.setattr(bot,'_gov10y_for_day',lambda product,day:role('rate.resolve',{'product':product},lambda:.02))
+        before=snapshot(owner.store.root)
+        with bot.collection_clock(clock) if with_context else nullcontext():
+            result=owner.capture_current_inputs(clock)
+&gt;       assert snapshot(owner.store.root)==before
+E       AssertionError: assert {'input_evide...ca0cc6e', ...} == {'journal/000...babfd30768b0'}
+E         
+E         Omitting 2 identical items, use -vv to show
+E         Left contains 8 more items:
+E         {'input_evidence/blobs/05622d5070d3c55cd603f3922c17c106fd9098290b59da45b0f0546e6f7caf67.json': '05622d5070d3c55cd603f3922c17c106fd9098290b59da45b0f0546e6f7caf67',
+E          'input_evidence/blobs/37bbe21275582667874841f68787800a61e8e0f8ea34a449b2953149c8292827.json': '37bbe21275582667874841f68787800a61e8e0f8ea34a449b2953149c8292827',
+E          'input_evidence/blobs/3f8e274b67c54796ff7cd72e50f21561bd5a9cb19efeea5c023c1f95fe364a6a.json': '3f8e274b67c54796ff7cd72e50f21561bd5a9cb19efeea5c023c1f95fe364a6a',
+E          'input_evidence/blo...
+E         
+E         ...Full output truncated (6 lines hidden), use '-vv' to show
+
+quant_research_runs\20261023_latest_redteam_v2\agents\state_v2\test_state_v2.py:146: AssertionError</failure></testcase><testcase classname="quant_research_runs.20261023_latest_redteam_v2.agents.state_v2.test_state_v2" name="test_real_daily_capture_seals_current_arriving_frame[True]" time="0.178"><failure message="AssertionError: assert {'input_evide...e364a6a', ...} == {'journal/000...babfd30768b0'}&#10;  &#10;  Omitting 2 identical items, use -vv to show&#10;  Left contains 11 more items:&#10;  {'input_evidence/blobs/05622d5070d3c55cd603f3922c17c106fd9098290b59da45b0f0546e6f7caf67.json': '05622d5070d3c55cd603f3922c17c106fd9098290b59da45b0f0546e6f7caf67',&#10;   'input_evidence/blobs/104690873edb38b6148a60524589c9280da2bf6360c332176006b6de5643bc28.json': '104690873edb38b6148a60524589c9280da2bf6360c332176006b6de5643bc28',&#10;   'input_evidence/blobs/37bbe21275582667874841f68787800a61e8e0f8ea34a449b2953149c8292827.json': '37bbe21275582667874841f68787800a61e8e0f8ea34a449b2953149c8292827',&#10;   'input_evidence/bl...&#10;  &#10;  ...Full output truncated (9 lines hidden), use '-vv' to show">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x00000189A503DE10&gt;
+tmp_path = WindowsPath('D:/动量策略/IC和IM滚动套利/quant_research_runs/20261023_latest_redteam_v2/agents/state_v2/temp/pytest/test_real_daily_capture_seals_1')
+with_context = True
+
+    @pytest.mark.parametrize('with_context',[False,True])
+    def test_real_daily_capture_seals_current_arriving_frame(monkeypatch,tmp_path,with_context):
+        import pandas as pd
+        import ic_im_signal_evidence_v1 as evidence
+        from contextlib import nullcontext
+        module,owner,old,signals,clock=_coordinator(tmp_path,monkeypatch)
+        ticks=[100.]
+        monkeypatch.setattr(bot.time_module,'monotonic',lambda:ticks[0])
+        class Wall(datetime):
+            @classmethod
+            def now(cls,tz=None):
+                t=clock+timedelta(seconds=ticks[0]-100.)
+                return t.astimezone(tz) if tz else t.replace(tzinfo=None)
+        monkeypatch.setattr(adapter,'datetime',Wall)
+        monkeypatch.setattr(evidence,'_now',lambda:clock+timedelta(seconds=ticks[0]-100.))
+        monkeypatch.setattr(bot,'LIVE_CONTINUATION_ANCHOR',state.anchors_from_record(old))
+        def role(name,key,fn):return evidence.current_session.get().call(name,key,fn)
+        def quotes(product,now):
+            def load():
+                ticks[0]+=2.
+                bot.quote_snapshot_guard.official_snapshot_evidence(
+                    clock+timedelta(seconds=1),bot._iv_observation_clock(now),now.date(),'synthetic current CFFEX frame')
+                frame=pd.DataFrame([{'instrument':product+'2612','last':6500.}])
+                frame.attrs['source']='中金所'
+                return frame
+            return role('cffex.quotes',{'product':product},load)
+        monkeypatch.setattr(bot,'fetch_cffex_quotes',quotes)
+        monkeypatch.setattr(bot,'fetch_510500_expiries_with_failover',lambda:role('ic.months',{},lambda:['202612']))
+        monkeypatch.setattr(bot,'fetch_510500_quote_with_failover',lambda:role('ic.etf',{},lambda:{'last':6.8}))
+        monkeypatch.setattr(bot,'_fetch_510500_chain_for_day',lambda month,day:role('ic.chain',{'month':month,'day':day},lambda:pd.DataFrame([{'contract':'510500P2612M06500'}])))
+        monkeypatch.setattr(bot,'live_proxy',lambda product,now:role('market.live',{'product':product},lambda:{}))
+        monkeypatch.setattr(bot,'_fear_score_evidence',lambda day,mode:role('fear.score',{'day':day,'mode':mode},lambda:{'fear_greed_index':30.}))
+        monkeypatch.setattr(bot,'_fear_reference_evidence',lambda day:role('fear.reference',{'day':day},lambda:{}))
+        monkeypatch.setattr(bot,'_gov10y_for_day',lambda product,day:role('rate.resolve',{'product':product},lambda:.02))
+        before=snapshot(owner.store.root)
+        with bot.collection_clock(clock) if with_context else nullcontext():
+            result=owner.capture_current_inputs(clock)
+&gt;       assert snapshot(owner.store.root)==before
+E       AssertionError: assert {'input_evide...e364a6a', ...} == {'journal/000...babfd30768b0'}
+E         
+E         Omitting 2 identical items, use -vv to show
+E         Left contains 11 more items:
+E         {'input_evidence/blobs/05622d5070d3c55cd603f3922c17c106fd9098290b59da45b0f0546e6f7caf67.json': '05622d5070d3c55cd603f3922c17c106fd9098290b59da45b0f0546e6f7caf67',
+E          'input_evidence/blobs/104690873edb38b6148a60524589c9280da2bf6360c332176006b6de5643bc28.json': '104690873edb38b6148a60524589c9280da2bf6360c332176006b6de5643bc28',
+E          'input_evidence/blobs/37bbe21275582667874841f68787800a61e8e0f8ea34a449b2953149c8292827.json': '37bbe21275582667874841f68787800a61e8e0f8ea34a449b2953149c8292827',
+E          'input_evidence/bl...
+E         
+E         ...Full output truncated (9 lines hidden), use '-vv' to show
+
+quant_research_runs\20261023_latest_redteam_v2\agents\state_v2\test_state_v2.py:146: AssertionError</failure></testcase></testsuite></testsuites>
