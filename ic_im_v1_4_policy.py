@@ -412,7 +412,52 @@ def _profit_open_due(signal: dict[str, Any], state: dict[str, Any], day: date) -
     )
 
 
+def short_put_mark_required(product: str, signal: dict[str, Any], state: dict[str, Any]) -> bool:
+    """Whether today's fresh decay decision consumes the held short's mark."""
+    day = date.fromisoformat(str(signal["market_date"])[:10])
+    expiry = state.get("v14_short_put_expiry")
+    return bool(
+        day >= EFFECTIVE_SIGNAL_DATE and signal.get("close_confirmed")
+        and state.get("v14_route_state") == "short_put"
+        and state.get("v14_short_put_contract")
+        and (expiry is None or day < date.fromisoformat(str(expiry)[:10]))
+        and (not put_execution.active(day)
+             or (state.get("v14_short_put_cost_basis") == "confirmed_dated_open"
+                 and not state.get("v14_short_put_open_pending")))
+        and not state.get("v14_roll_pending")
+        and (day >= REPEAT_ROLL_EFFECTIVE_SIGNAL_DATE or not state.get("v14_early_roll_used"))
+    )
+
+
+def require_short_put_mark(product: str, signal: dict[str, Any], state: dict[str, Any],
+                           *, require_binding: bool = False) -> None:
+    """Unknown decay evidence cannot mean an observed, unchanged short route.
+
+    Pure policy callers supply a mark for the signal day by contract. Adapters
+    and new ledger writes additionally bind that observation to day and leg.
+    Historical records are not revalidated under this new-write requirement.
+    """
+    if not short_put_mark_required(product, signal, state):
+        return
+    mark = signal.get("v14_short_put_mark")
+    try:
+        valid = not isinstance(mark, bool) and mark is not None and math.isfinite(float(mark)) and float(mark) > 0
+    except (TypeError, ValueError, OverflowError):
+        valid = False
+    if not valid:
+        raise RuntimeError(f"{product} held short Put lacks a finite positive current-day mark")
+    mark_day = signal.get("v14_short_put_mark_day")
+    mark_contract = signal.get("v14_short_put_mark_contract")
+    if ((require_binding or mark_day is not None)
+            and str(mark_day) != str(signal["market_date"])):
+        raise RuntimeError(f"{product} held short Put mark is not bound to the signal day")
+    if ((require_binding or mark_contract is not None)
+            and mark_contract != state.get("v14_short_put_contract")):
+        raise RuntimeError(f"{product} held short Put mark is not bound to the held contract")
+
+
 def _short_roll_due(product: str, signal: dict[str, Any], state: dict[str, Any], day: date) -> bool:
+    require_short_put_mark(product, signal, state)
     cost_verified = not put_execution.active(day) or state.get("v14_short_put_cost_basis") == "confirmed_dated_open"
     mark = signal.get("v14_short_put_mark")
     entry = state.get("v14_short_put_entry_premium")
@@ -440,6 +485,7 @@ def short_put_candidate_requirements(
     result = {"entry": False, "roll": False, "reason": "route_does_not_consume_candidate"}
     if day < EFFECTIVE_SIGNAL_DATE:
         return {**result, "reason": "before_effective_signal_date"}
+    require_short_put_mark(product, signal, state)
     ready, reason = seller_prerequisites(product, signal)
     if not ready:
         return {**result, "reason": reason}

@@ -227,6 +227,12 @@ class CaptureRunner:
         import ic_im_evidence_adapter_v1 as adapter
         import ic_im_signal_evidence_v1 as evidence
         clock = strategy._beijing_clock(clock or datetime.now(strategy.BEIJING))
+        # Preserve elapsed readonly preflight and lock-wait time in quote
+        # validation without advancing the selected strategy day/clock.
+        with strategy.collection_clock(clock):
+            return self._cycle_at_clock(clock, strategy, state, adapter, evidence)
+
+    def _cycle_at_clock(self, clock, strategy, state, adapter, evidence):
         result = {"schema": "icim_capture_runner_receipt_v1", "started_at": clock.isoformat(),
                   "pid": os.getpid(), "ledger_write_requested": False, "message_send_requested": False,
                   "state_dir": str(self.state_dir), "evidence_dir": str(self.evidence_dir)}
@@ -250,7 +256,7 @@ class CaptureRunner:
                         original = deepcopy(strategy.LIVE_CONTINUATION_ANCHOR)
                         try:
                             strategy.install_runtime_anchors(anchors)
-                            with strategy.collection_clock(clock), strategy._network_budget(
+                            with strategy._network_budget(
                                     2 * strategy.SIGNAL_PRODUCT_NETWORK_BUDGET_SECONDS + 1), \
                                     evidence.publication_guard(self._verify_sources):
                                 capture = adapter.capture_daily(strategy, self.evidence_dir, clock)

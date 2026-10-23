@@ -255,6 +255,12 @@ def require_persistence_eligible(
             raise RuntimeError(f"{product} {field}未确认，禁止持久化")
     if signal.get("v14_action") == "HOLD_FAIL_CLOSED":
         raise RuntimeError(f"{product} HOLD_FAIL_CLOSED目标未确认，禁止持久化")
+    # Entry/roll fields describe the new target leg, not the old held leg whose
+    # decay was observed. Their mark binding is checked against the independent
+    # pre-close anchor in derive_next_anchors, never against the target here.
+    if (signal.get("market_date") is not None
+            and signal.get("v14_action") not in {"ENTER_SHORT_PUT", "ROLL_SHORT_PUT"}):
+        v14_policy.require_short_put_mark(product, signal, signal, require_binding=True)
     if check_grid:
         require_confirmed_grid_target(signal, product)
 
@@ -1108,6 +1114,9 @@ def derive_next_anchors(
         if _as_day(signal.get("next_trade_date"), f"{product} next_trade_date") != expected_next_day:
             raise RuntimeError(f"{product}下一交易日不正确")
         anchor = result[product]
+        # Validate against the independently projected held leg, before a new
+        # close plan can replace it or mark a previously unknown trigger pending.
+        v14_policy.require_short_put_mark(product, signal, anchor, require_binding=True)
         prior_option_anchor = deepcopy(anchor)
         short_open = signal.get("v14_short_put_open_pending")
         if short_open is not None:

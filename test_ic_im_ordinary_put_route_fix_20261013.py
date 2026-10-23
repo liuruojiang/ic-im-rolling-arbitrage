@@ -145,6 +145,12 @@ def _signal(product, anchor, day=DAY, *, momentum=False, candidate=None, opening
                       im_execution_fix_revision=bot.IM_EXECUTION_FIX_REVISION,
                       im_put_target_moneyness=1.02, core_put_action="HOLD",
                       momentum_put_action="RESIZE_OR_ROLL" if target_mom != mom else "HOLD")
+    if current.get("v14_route_state") == "short_put" and current.get("v14_short_put_entry_premium") is not None:
+        # Synthetic unchanged-price observation, distinct from opening evidence;
+        # explicit fault/decay inputs below still override this fixture default.
+        signal.update(v14_short_put_mark=current["v14_short_put_entry_premium"],
+                      v14_short_put_mark_day=day,
+                      v14_short_put_mark_contract=current["v14_short_put_contract"])
     signal.update(extra or {})
     if live_quotes is None:
         signal = policy.apply_policy(product, signal, current, candidate=candidate or {"tradable": False})

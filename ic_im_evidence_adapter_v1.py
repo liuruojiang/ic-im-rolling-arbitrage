@@ -337,14 +337,16 @@ def install(strategy):
     closes = strategy.fetch_option_closes
 
     @wraps(closes)
-    def option_closes(security_id):
+    def option_closes(security_id, required_day=None):
         reader = evidence.current_reader.get()
         if reader is not None:
+            if required_day is not None and pd.Timestamp(required_day).date() != reader.day:
+                raise evidence.EvidenceUnavailable("required option close day differs from original evidence day")
             row, stamp = _chain_close(strategy, security_id, reader.day)
             result = pd.Series([float(row["last"])], index=pd.DatetimeIndex([reader.day]), dtype=float)
             result.attrs.update(source="原日期权链存证：" + str(stamp.get("source", "")), source_failures=[])
             return result
-        return closes(security_id)
+        return closes(security_id, required_day) if required_day is not None else closes(security_id)
     strategy.fetch_option_closes = option_closes
     historical = strategy.fetch_sse_existing_put_historical_quote
 
