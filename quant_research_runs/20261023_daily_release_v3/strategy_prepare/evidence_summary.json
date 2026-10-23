@@ -1,0 +1,42 @@
+{
+  "release": "20261023-redteam-repairs-v3-r3",
+  "status": "PREPARED_NOT_YET_PUBLISHED",
+  "baseline_commit": "58986fda2c17df93eb3925bf09a1cebd55a7869e",
+  "gate_binding_count": 175,
+  "execution_files": 29,
+  "test_files": 47,
+  "helper_files": 13,
+  "historical_deselections": 22,
+  "gate_deselections": 5,
+  "prior_evidence": {
+    "repair_cumulative_passed": 3333,
+    "repair_independent_passed": 148,
+    "takeover_daily_passed": 1193,
+    "takeover_scoped_groups_passed": [
+      131,
+      192
+    ],
+    "counts_overlap": true,
+    "not_new_release_acceptance": true
+  },
+  "prior_takeover_status": "BLOCKED_PROTECTED_DATA_CHANGED_AND_DELIVERY_INCOMPLETE",
+  "open_items": "Formal seq20 provenance differs from saved replay, collector transport incomplete and no remote release existed at takeover; parent release owns resolution and current receipts.",
+  "local_test_timeout_seconds_authorized": 180,
+  "cloud_test_timeout_seconds_unchanged": 60,
+  "runbook_backup_sha256": "d713c768c16d29d70949aca4ebdfe87add12b8599024bef97b38eb05d77fa994",
+  "identity": {
+    "baseline_commit": "58986fda2c17df93eb3925bf09a1cebd55a7869e",
+    "baseline_identity": {
+      "BUILD_ID": "v1.4-20261008-r1-ic-csi500-abs40-fix11",
+      "RULE_REVISION": "ic_im_v1_4_ic_csi500_ma105_w16_abs40_static_20261008_v1"
+    },
+    "current_identity": {
+      "BUILD_ID": "v1.4-20261008-r1-ic-csi500-abs40-fix11",
+      "RULE_REVISION": "ic_im_v1_4_ic_csi500_ma105_w16_abs40_static_20261008_v1"
+    },
+    "actual_build_and_rule_identity_unchanged": true,
+    "frozen_manifest_descriptive_flag": false,
+    "root_python_consumers_of_flag": [],
+    "interpretation": "The frozen descriptive flag is inaccurate for BUILD/RULE identity. Preserve it; source constants and immutable byte pins are authoritative. Changed implementation bytes do not imply changed strategy identity."
+  }
+}

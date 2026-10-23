@@ -1,0 +1,7 @@
+# IC/IM v1.4 red-team repairs v3 — 2026-10-23
+
+Baseline: 58986fda2c17df93eb3925bf09a1cebd55a7869e. Scope: repair STRAT-01, MKT-01, MKT-02, EV2-01, S-V2-1, S-V2-2, DELIVERY-V2-01 from latest_redteam_v2/findings.json.
+
+No strategy parameter changes: IC no Call, current v1.4 IM rules unchanged, 30% performance denominator unchanged. No live trading authorization, no remote publication or email. Formal ledger, frozen specifications, SHA files and prior audit evidence remain read-only. Missing necessary held-short marks fail closed; valid roll-pending/expiry and legacy branches retain existing semantics. Index quote identity must be unique and exact; full quote timestamps must be within valid market observation time; no new arbitrary stale-minute cutoff. Sina batch projection must preserve exact original identifier. Server capture uses progressing observation time and own committed head with scoped anchor restoration. Display uses latest verified head while same-day recalculation retains prior computation anchor.
+
+Validate original adversarial reproductions plus independent new edge cases; preserve every failed run, no additional exclusions. Run unchanged historical exclusion set, daily gate with a new versioned source manifest, cumulative regression, and saved real 2026-10-22 original-input replay in disposable state. Compare expected real results and protected-file hashes. Independent multi-agent audit after patches, followed by remediation/retest of confirmed new issues. Backups precede edits; source bytes are bound in final receipts.

@@ -1,6 +1,21 @@
 # IC/IM 1.4 GitHub/Gmail 与本地 Codex 日报运维手册
 
+## 2026-10-23 v3-r3 发布与 47 文件门禁覆盖（发布进度另以当次回执为准）
+
+本节覆盖下方历史 38/43 文件清单及旧策略 pin。当前待发布修补固定使用 `docs/ic_im_daily_release_20261023_repairs_v3_r3_manifest.json`：**29 个执行文件、47 个测试文件、13 个测试辅助文件，门禁共绑定 175 个文件**。必须按清单保留必要 fixture 和证据 worker；不得以采集器 pin 代替日报执行清单。策略 BUILD_ID/RULE_REVISION 仍是 fix11，补丁身份由执行字节 SHA 与最终工作流固定的策略提交确定；不能把未完成的远端推送称作已发布。
+
+冻结 manifest 的 `build_identity_unchanged=false` 是与实际 BUILD/RULE 常量不符的描述性元数据，根 Python 运行和门禁代码均不读取该字段；保留原字节，以 `quant_research_runs/20261023_daily_release_v3/strategy_prepare/identity_verification.json` 的源码对照说明为准，不据此更改策略身份。
+
+本地 `automation.toml` 已在 2026-10-23 14:51（北京时间）得到授权：本地两族专项子进程各 **180 秒**；IC/IM 可在完整隔离副本适配超时，并保存差异和最终执行回执，不能改写这里冻结的源 manifest 或正式 runner。正式根门禁与云端 CI 当前仍为 **60 秒**，本次不擅自扩大云端限制。ACTIVE、原工作日 14:30、模型/项目/cwd 与微盘逻辑保持各自已授权配置。
+
+标准门禁入口仍为 `python -B -X utf8 run_ic_im_v1_4_delivery_tests.py --out-dir <本次全新隔离目录>`；只允许原 22 项登记表与本 47 文件的 5 项交集单列，必须核对 XML、实际执行身份、进程状态、源码/fixture 前后 SHA。历史 3333/1193/148 或接手定向 131/192 均是对应审计证据，不能冒充每天执行计数，各组有重叠不得求和。最新 47 文件门禁以本次运行结果为准。
+
+发布规范：`docs/ic_im_daily_release_v3_r3_20261023_spec.md`。发布 inventory 只含门禁必需内容及紧凑规范/摘要，不携带正式 runtime、历史 outputs 或整棵临时研究目录。既有 formal seq20 的来源差异与采集失败记录继续保留，由本次发布总记录另行验收；代码同步本身不能将其改写为通过。远端 20:00、正常恢复/去重流程、本地不另起 SMTP 和研究用途边界不变。
+
+
 ## 2026-10-23 多轮修复发布覆盖
+
+接续已合并自动化 PR #161/#162。本次策略 pin 为 `8038980de86251b2c5133da04e788dc2c49c84ff`，未来仍读取当次正式 workflow。#162 独立补修参考字段隔离：仅九个明确定义的参考字段可进入纯文本/HTML，不能覆盖已核验策略字段。本地登记表明确覆盖提示词旧38文件清单；任务配置本身未改。接续、审计与投递边界见 `quant_research_runs/20261023_daily_release_sync_v1/record.md`。
 
 本节覆盖下方历史执行 pin 与旧专项清单；策略 BUILD/RULE/DELIVERY 的历史身份、参数、Call 边界与历史已发日报不改。实际运行固定采用当次远端 main 的生产工作流策略 SHA，并核对 `docs/ic_im_daily_release_20261023_manifest.json` 的 **29 个执行文件**。只读采集器的 28 文件 pin 不包含日报 runner，不能代替日报完整执行清单。旧 SHA 只作对应发布的历史记录，不能因 BUILD_ID 仍为 fix11 而认作最新补丁。
 
