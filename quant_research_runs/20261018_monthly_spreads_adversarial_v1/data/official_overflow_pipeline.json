@@ -1,0 +1,119 @@
+{
+  "prices": [
+    {
+      "instrument": "IM2610",
+      "lastprice": 1.0
+    },
+    {
+      "instrument": "IM2611",
+      "lastprice": 1e+308
+    },
+    {
+      "instrument": "IM2612",
+      "lastprice": 6000.0
+    },
+    {
+      "instrument": "IM2703",
+      "lastprice": 5900.0
+    }
+  ],
+  "attrs": {
+    "source": "中金所官方",
+    "source_date": "2026-10-15",
+    "source_failures": [
+      "新浪财经: ConnectionError: offline probe",
+      "东方财富: ConnectionError: offline probe"
+    ],
+    "source_audit": [],
+    "listed_instruments": [
+      "IM2610",
+      "IM2611",
+      "IM2612",
+      "IM2703"
+    ],
+    "listed_mo_months": [],
+    "source_snapshot_at": "2026-10-15T15:15:00+08:00",
+    "source_snapshot_kind": "http_last_modified_whole_frame"
+  },
+  "values": {
+    "month_next_spread": {
+      "status": "ok",
+      "convention": "near_minus_far",
+      "label": "当月－次月",
+      "source": "中金所官方",
+      "source_date": "2026-10-15",
+      "price_type": "same_snapshot_lastprice",
+      "near_contract": "IM2610",
+      "far_contract": "IM2611",
+      "near_price": 1.0,
+      "far_price": 1e+308,
+      "points": -1e+308,
+      "ratio": -1e+308,
+      "annualized": -Infinity,
+      "same_contract": false,
+      "expiry_gap_days": 35,
+      "near_expiry": "2026-10-16",
+      "far_expiry": "2026-11-20"
+    },
+    "month_quarter_spread": {
+      "status": "ok",
+      "convention": "near_minus_far",
+      "label": "当月－当季",
+      "source": "中金所官方",
+      "source_date": "2026-10-15",
+      "price_type": "same_snapshot_lastprice",
+      "near_contract": "IM2610",
+      "far_contract": "IM2612",
+      "near_price": 1.0,
+      "far_price": 6000.0,
+      "points": -5999.0,
+      "ratio": -5999.0,
+      "annualized": -34756.11111111111,
+      "same_contract": false,
+      "expiry_gap_days": 63,
+      "near_expiry": "2026-10-16",
+      "far_expiry": "2026-12-18"
+    }
+  },
+  "saved": {
+    "month_next_spread": {
+      "status": "ok",
+      "convention": "near_minus_far",
+      "label": "当月－次月",
+      "source": "中金所官方",
+      "source_date": "2026-10-15",
+      "price_type": "same_snapshot_lastprice",
+      "near_contract": "IM2610",
+      "far_contract": "IM2611",
+      "near_price": 1.0,
+      "far_price": 1e+308,
+      "points": -1e+308,
+      "ratio": -1e+308,
+      "annualized": null,
+      "same_contract": false,
+      "expiry_gap_days": 35,
+      "near_expiry": "2026-10-16",
+      "far_expiry": "2026-11-20"
+    },
+    "month_quarter_spread": {
+      "status": "ok",
+      "convention": "near_minus_far",
+      "label": "当月－当季",
+      "source": "中金所官方",
+      "source_date": "2026-10-15",
+      "price_type": "same_snapshot_lastprice",
+      "near_contract": "IM2610",
+      "far_contract": "IM2612",
+      "near_price": 1.0,
+      "far_price": 6000.0,
+      "points": -5999.0,
+      "ratio": -5999.0,
+      "annualized": -34756.11111111111,
+      "same_contract": false,
+      "expiry_gap_days": 63,
+      "near_expiry": "2026-10-16",
+      "far_expiry": "2026-12-18"
+    }
+  },
+  "renderer_exception": "TypeError: unsupported format string passed to NoneType.__format__"
+}
