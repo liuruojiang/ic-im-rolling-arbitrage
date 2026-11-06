@@ -303,3 +303,81 @@ def test_digest_budget_override_is_scoped_and_preserves_request_deadline():
         with strategy._network_budget(1.0):
             assert 0 < strategy._bounded_timeout(8.0) <= 1.0
     assert strategy._signal_product_network_budget(2) == 45.0
+
+
+@pytest.mark.parametrize("status,reason", [
+    ("calendar_unverified", "到期或执行日期2027-01-15未经官方日历核验"),
+    ("put_fail_closed", "Put腿未完成核验"),
+])
+def test_realtime_diagnostic_preserves_observed_and_reports_root_cause(
+        monkeypatch, tmp_path, status, reason):
+    original = _real_unpublished_result()
+    clock = datetime.fromisoformat(original["generated_at"])
+    observed = copy.deepcopy(original["signals"])
+    observed["IM"] = strategy.make_diagnostic_signal(
+        "IM", clock, reason, source_signal=observed["IM"], status=status)
+    before_observed = copy.deepcopy(observed)
+    latest = {key: original[key] for key in ("sequence", "digest", "verified_day")}
+
+    class Store:
+        def __init__(self, *_args): pass
+        def load_latest(self): return latest
+
+    class Coordinator:
+        def __init__(self, *_args): pass
+        def catch_up_until_current(self, *_args, **_kwargs): return 0
+        def health(self, *_args):
+            return {"status": "ok", "verified_day": latest["verified_day"]}
+        def execute_query(self, *_args, **_kwargs):
+            return "this attempt's diagnostic only", [], observed
+
+    monkeypatch.setattr(digest, "StateStore", Store)
+    monkeypatch.setattr(digest, "LedgerCoordinator", Coordinator)
+    monkeypatch.setattr(strategy.fear_grid, "fetch_score", lambda *_a, **_k: {})
+    monkeypatch.setattr(strategy.fear_grid, "fetch_jiu_reference", lambda *_a, **_k: {})
+    out = tmp_path / "out"
+    with pytest.raises(digest._ArtifactBuildError, match=reason) as caught:
+        digest.build_artifacts(state_dir=tmp_path / "isolated", out_dir=out,
+                               clock=clock, max_sessions=1, mode="realtime",
+                               expected_market_date=original["market_date"])
+    assert "strategy_version" not in str(caught.value)
+    def fail_again(**_kwargs):
+        raise caught.value
+    monkeypatch.setattr(digest, "build_artifacts", fail_again)
+    monkeypatch.setattr("sys.argv", ["digest", "--state-dir", str(tmp_path / "isolated"),
+                                   "--out-dir", str(out), "--mode", "realtime",
+                                   "--now", clock.isoformat(), "--expected-market-date",
+                                   original["market_date"]])
+    assert digest.main() == 1
+    saved = json.loads((out / "observed_diagnostic.json").read_text(encoding="utf-8"))
+    assert saved["status"] == "diagnostic_observation"
+    assert saved["diagnostic_only"] is True
+    assert saved["publication_eligible"] is False
+    assert saved["persistence_eligible"] is False
+    assert saved["production_authorized"] is False
+    assert saved["actual_publication"] is False
+    assert saved["query_clock"] == clock.isoformat()
+    assert datetime.fromisoformat(saved["recorded_at"]).tzinfo is not None
+    assert saved["observed"] == digest._jsonable(before_observed)
+    assert observed == before_observed
+    assert latest == {key: original[key] for key in ("sequence", "digest", "verified_day")}
+    failure = json.loads((out / "result.json").read_text(encoding="utf-8"))
+    assert failure["status"] == "failed" and "signals" not in failure
+    assert failure["observed_diagnostic"] == {
+        "file": "observed_diagnostic.json",
+        "sha256": digest.hashlib.sha256((out / "observed_diagnostic.json").read_bytes()).hexdigest(),
+    }
+    assert not (out / "ic_im_v1_4_realtime_signal.md").exists()
+
+
+def test_early_failure_does_not_bind_previous_observed_diagnostic(monkeypatch, tmp_path):
+    old = b'{"status":"diagnostic_observation","query_clock":"2026-11-05T14:30:00+08:00"}\n'
+    (tmp_path / "observed_diagnostic.json").write_bytes(old)
+    clock = datetime(2026, 11, 6, 14, 30, tzinfo=strategy.BEIJING)
+    monkeypatch.setattr(strategy.fear_grid, "fetch_score", lambda *_a, **_k: {})
+    monkeypatch.setattr(strategy.fear_grid, "fetch_jiu_reference", lambda *_a, **_k: {})
+    digest.write_failure(tmp_path, clock, digest._ArtifactBuildError("before query"),
+                         mode="realtime", expected_market_date="2026-11-06")
+    failure = json.loads((tmp_path / "result.json").read_text(encoding="utf-8"))
+    assert failure["status"] == "failed" and failure["observed_diagnostic"] is None
+    assert (tmp_path / "observed_diagnostic.json").read_bytes() == old

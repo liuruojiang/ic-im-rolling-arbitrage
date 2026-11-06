@@ -6930,6 +6930,50 @@ def _original_evidence_replay() -> bool:
     return signal_evidence.current_reader.get() is not None
 
 
+NEW_PUT_CALENDAR_PARTIAL_REVISION = "ic_im_new_put_calendar_partial_20261106_v1"
+
+
+def _only_new_im_momentum_expiry_unverified(product: str, context: Any) -> bool:
+    if product != "IM" or not isinstance(context, dict) or context.get("failures"):
+        return False
+    rows = context.get("expiries", [])
+    return bool(rows) and all(
+        row.get("purpose") == "independent IM Put expiry"
+        and str(row.get("date", "")).startswith("2027-")
+        and row.get("officially_verified") is False for row in rows
+    ) and len({row.get("date") for row in rows}) == 1
+
+
+def _allow_new_im_momentum_calendar_partial(product: str, signal: dict[str, Any], context: Any) -> bool:
+    if not _only_new_im_momentum_expiry_unverified(product, context):
+        return False
+    if date.fromisoformat(str(signal.get("market_date"))[:10]) < date(2026, 11, 6):
+        return False
+    anchor = LIVE_CONTINUATION_ANCHOR[product]
+    if (anchor.get("v14_route_state", "future") != "future"
+            or signal.get("option_monthly_reset_due") or signal.get("put_monthly_reset_preview")
+            or float(signal.get("momentum_put_current_qty_normalized", -1)) != 0
+            or signal.get("momentum_put_current_contract")
+            or float(signal.get("momentum_put_target_qty_normalized", 0)) <= 0
+            or float(signal.get("core_put_current_qty_normalized", 0)) <= 0
+            or signal.get("core_put_current_contract") != signal.get("core_put_target_contract")
+            or signal.get("core_put_current_contract") != anchor.get("post_core_put_contract")
+            or any(anchor.get(key) for key in ("v14_ordinary_put_pending", "v14_short_put_open_pending", "v14_profit_pending"))):
+        return False
+    for contract in (signal.get("core_current"), signal.get("core_target"), signal.get("core_put_current_contract")):
+        if not contract:
+            return False
+        _require_official_exchange_calendar(_third_friday(*_contract_month(str(contract))), "calendar partial held/future identity")
+    return True
+
+
+def _is_new_im_momentum_calendar_partial(product: str, signal: dict[str, Any], context: Any) -> bool:
+    return (signal.get("calendar_partial_revision") == NEW_PUT_CALENDAR_PARTIAL_REVISION
+            and signal.get("futures_target_confirmed") is True
+            and signal.get("unconfirmed_put_legs") == ["momentum"]
+            and _only_new_im_momentum_expiry_unverified(product, context))
+
+
 def build_live_trade_signal(
     product: str, now: datetime | None = None, mode: str = "intraday",
 ) -> dict[str, Any]:
@@ -6990,7 +7034,7 @@ def build_live_trade_signal(
                 result = _build_live_trade_signal(product, clock, mode)
             except CalendarCoverageError as exc:
                 result = make_diagnostic_signal(product, clock, str(exc))
-            if not result.get("diagnostic_only") and (
+            if not result.get("diagnostic_only") and not _is_new_im_momentum_calendar_partial(product, result, context) and (
                 context["expiries"] or context["failures"]
                 or result.get("v14_action") == "HOLD_FAIL_CLOSED"
             ):
@@ -8139,7 +8183,35 @@ def _build_live_trade_signal(
             "total_units_change": target_total_units - current_total_units,
         }
     )
-    if calendar_context is not None and calendar_context["expiries"]:
+    calendar_put_partial = (opening is None and not opening_events
+                            and _allow_new_im_momentum_calendar_partial(product, signal, calendar_context))
+    if calendar_put_partial:
+        # Quantity remains an internal protection demand during core-policy
+        # validation. No unverified option identity is supplied to that policy.
+        signal["momentum_put_required_qty_normalized"] = float(signal["momentum_put_target_qty_normalized"])
+        signal["momentum_put_target_contract"] = None
+        signal.get("put_pricing_evidence", {}).pop("momentum_put_target_contract", None)
+        future_row = _require_listed_future_quote(product, future_quotes, signal["core_current"])
+        collected = _now_beijing()
+        snapshot = {key: future_quotes.attrs.get(key) for key in ("source_snapshot_at", "source_snapshot_kind")}
+        if snapshot["source_snapshot_at"] is None:
+            try:
+                snapshot = quote_snapshot_guard.vendor_snapshot_evidence(
+                    [{"source_date": future_row.get("source_date", future_quote_date),
+                      "source_time": future_row.get("source_time")}],
+                    collected, _latest_completed_exchange_day(collected), "IM当前期货")
+            except RuntimeError:
+                # Missing evidence remains missing; observation publication
+                # can still display it without qualifying the futures target.
+                pass
+        signal["future_quote_evidence"] = {
+            "contract": signal["core_current"], "source": future_quote_source,
+            "source_date": future_quote_date,
+            "row_source_date": future_row.get("source_date", future_quote_date),
+            "lastprice": float(future_row["lastprice"]),
+            "collected_at": collected.isoformat(), **snapshot,
+        }
+    if calendar_context is not None and calendar_context["expiries"] and not calendar_put_partial:
         return make_diagnostic_signal(
             product, clock, "Put或期货到期日未经官方日历核验；模型估值仅作诊断，正式目标未确认。",
             source_signal=signal,
@@ -8153,9 +8225,14 @@ def _build_live_trade_signal(
         mo_quotes=mo_quotes if product == "IM" else None,
     )
     put_execution.require_resolved_held_identity(product, signal)
+    if calendar_put_partial and (signal.get("v14_route_state") != "future"
+            or signal.get("v14_action") != "HOLD"
+            or any(signal.get(key) for key in ("v14_profit_pending", "v14_short_put_open_pending", "v14_ordinary_put_pending"))
+            or not _only_new_im_momentum_expiry_unverified(product, calendar_context)):
+        calendar_put_partial = False
     if signal.get("v14_action") == "HOLD_FAIL_CLOSED" or (
         calendar_context is not None and (calendar_context["expiries"] or calendar_context["failures"])
-    ):
+    ) and not calendar_put_partial:
         calendar_failure = bool(calendar_context and (calendar_context["expiries"] or calendar_context["failures"]))
         return make_diagnostic_signal(
             product, clock,
@@ -8167,7 +8244,29 @@ def _build_live_trade_signal(
     if put_execution.active(market_date):
         signal["v14_execution_revision"] = put_execution.REVISION
         signal["v14_opening_events"] = opening_events
-    _v14_schedule_ordinary_put(product, signal, LIVE_CONTINUATION_ANCHOR[product], opening)
+    if not calendar_put_partial:
+        _v14_schedule_ordinary_put(product, signal, LIVE_CONTINUATION_ANCHOR[product], opening)
+    else:
+        signal.update(
+            calendar_partial_revision=NEW_PUT_CALENDAR_PARTIAL_REVISION,
+            calendar_diagnostics=deepcopy(calendar_context["expiries"]),
+            futures_target_confirmed=True, unconfirmed_put_legs=["momentum"],
+            momentum_put_target_qty_normalized=None, momentum_put_target_contract=None,
+            total_put_target_qty_normalized=None, momentum_put_action="UNCONFIRMED", put_action="UNCONFIRMED",
+            momentum_put_market="N/A（新选Put到期日缺2027正式日历覆盖）",
+            momentum_put_selection_note="保护数量需求已计算；新选Put合约未核验，不表示保护已就位",
+            v14_ordinary_put_pending=None,
+        )
+        for field in ("momentum_put_target_expiry", "momentum_put_target_strike", "momentum_put_target_price",
+                      "momentum_put_target_bid", "momentum_put_target_ask"):
+            signal[field] = None
+        for field in list(signal):
+            if field.startswith("momentum_put_") and (field.startswith("momentum_put_target_")
+                    or re.search(r"(?:^|_)(?:expiry|strike|price|premium|bid|ask|delta|quote|pricing)(?:_|$)", field)):
+                signal[field] = None
+        signal["put_target"] = (f"核心Put {signal['core_put_target_qty_normalized']:g}张 {signal['core_put_target_contract']}；"
+                                f"动量Put需求 {signal['momentum_put_required_qty_normalized']:g}张，具体合约N/A；保护未确认")
+        signal["put_market"] = f"核心：{core_put_market}；动量：{signal['momentum_put_market']}"
     if product == "IC":
         _refresh_ic_put_text(signal, LIVE_CONTINUATION_ANCHOR[product])
     # A monitor-only candidate must not contaminate an otherwise verified
@@ -8190,10 +8289,10 @@ def _build_live_trade_signal(
                       _HISTORICAL_REPLAY_DAY.get() is not None or finished.date() > market_date else
                       "intraday_hypothetical_if_now_close" if not close_confirmed else "close_confirmed")
     require_signal_calendar(product, signal)
-    signal["calendar_provisional"] = False
+    signal["calendar_provisional"] = calendar_put_partial
     grid_ok = fear_grid.publication_view(signal).get("grid_target_confirmed", True) is True
-    signal["signal_complete"] = grid_ok
-    signal["persistence_eligible"] = bool(signal.get("close_confirmed")) and grid_ok
+    signal["signal_complete"] = grid_ok and not calendar_put_partial
+    signal["persistence_eligible"] = bool(signal.get("close_confirmed")) and grid_ok and not calendar_put_partial
     signal["calendar_coverage_warning"] = "；".join(
         note for note in (_calendar_coverage_warning(market_date), calendar_note) if note
     ) or None

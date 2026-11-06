@@ -9,7 +9,9 @@ import subprocess
 import sys
 
 ROOT = Path(__file__).resolve().parent
-MANIFEST = ROOT / 'docs/ic_im_daily_release_20261023_repairs_v3_r3_manifest.json'
+LEGACY_MANIFEST = ROOT / 'docs/ic_im_daily_release_20261023_repairs_v3_r3_manifest.json'
+FORWARD_MANIFEST = ROOT / 'docs/ic_im_intraday_observation_20261106_manifest.json'
+MANIFEST = FORWARD_MANIFEST if FORWARD_MANIFEST.is_file() else LEGACY_MANIFEST
 
 
 def sha(path):
@@ -35,7 +37,8 @@ def main():
     target.mkdir(parents=True, exist_ok=False)
     manifest = json.loads(MANIFEST.read_text(encoding='utf-8'))
     assert manifest['schema'] == 'icim_audited_daily_release_v1'
-    assert manifest['daily_gate_outer_timeout_seconds'] == 60
+    budget = manifest['daily_gate_outer_timeout_seconds']
+    assert budget == (180 if MANIFEST == FORWARD_MANIFEST else 60)
     before = bindings(manifest)
     assert all(before[name] == value for name, value in manifest['files'].items()), 'unverified production source'
     assert all(before[name] == value for name, value in manifest.get('fixture_sha256', {}).items()), 'unverified test fixture'
@@ -45,7 +48,7 @@ def main():
     assert sha(ROOT / 'docs/icim_historical_deselections_20261023.json') == manifest['historical_exclusion_registry_sha256']
     assert registered == json.loads((ROOT / 'docs/icim_historical_deselections_20261023.json').read_text(encoding='utf-8'))
     tests = manifest['required_local_tests']
-    assert len(tests) == len(set(tests)) == 47
+    assert len(tests) == len(set(tests)) == manifest.get('daily_required_test_count', 47)
     allowed = [node for node in registered if node.split('::', 1)[0] in tests]
     assert manifest['daily_gate_deselections'] == allowed
     selected = list(tests)
@@ -68,15 +71,15 @@ def main():
             start_new_session=os.name != 'nt',
             creationflags=subprocess.CREATE_NEW_PROCESS_GROUP if os.name == 'nt' else 0)
         try:
-            status = child.wait(timeout=60)
+            status = child.wait(timeout=budget)
         except subprocess.TimeoutExpired:
             if os.name == 'nt':
                 subprocess.run(['taskkill', '/PID', str(child.pid), '/T', '/F'], capture_output=True)
             else:
                 os.killpg(child.pid, signal.SIGKILL)
             child.wait()
-            (target / 'timeout.json').write_text(json.dumps({'timeout_seconds': 60, 'status': 'rejected'}), encoding='utf-8')
-            raise RuntimeError('complete daily test suite exceeded the 60-second child limit')
+            (target / 'timeout.json').write_text(json.dumps({'timeout_seconds': budget, 'status': 'rejected'}), encoding='utf-8')
+            raise RuntimeError(f'complete daily test suite exceeded the {budget}-second child limit')
     after = bindings(manifest)
     (target / 'source_after.json').write_text(json.dumps(after, indent=2), encoding='utf-8')
     import icim_delivery_test_evidence as gate

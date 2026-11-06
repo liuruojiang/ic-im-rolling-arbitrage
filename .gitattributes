@@ -4,3 +4,5 @@
 docs/ic_im_fear_single_source_delivery_20261016_v1_spec.md.sha256 text eol=crlf
 docs/ic_im_put_delivery_completion_20261016_v1_spec.md.sha256 text eol=crlf
 docs/ic_im_put_execution_repairs_20261016_v1_spec.md.sha256 text eol=crlf
+tests/fixtures/icim_intraday_observation_20261106/* -text
+docs/ic_im_intraday_observation_20261106_manifest.json -text

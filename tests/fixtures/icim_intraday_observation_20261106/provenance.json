@@ -1,0 +1,10 @@
+{
+  "commit": "0ac6c7090c2aff46f5956c726cb52c59ba2d8e48",
+  "gzip_mtime": 0,
+  "gzip_sha256": "3beee1e8c9fdf3635c0411988a261804312e6bc4085e3d38f88c8b8d7f1720f0",
+  "kind": "frozen_original_strategy_source",
+  "path": "poe_ic_im_mainline_v1_4_bot.py",
+  "purpose": "Portable unchanged-normal-input parity oracle; no Git history or work-machine source dependency",
+  "schema": 1,
+  "uncompressed_sha256": "48a0fd691904a72b83ac0b9ca3506a2e5a4754d82edb72e1aed0937f23e1239c"
+}

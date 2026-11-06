@@ -10,12 +10,13 @@ mutate that ledger.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
 import re
 import sys
 import tempfile
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from pathlib import Path
 from typing import Any
 
@@ -34,14 +35,86 @@ FIX9_DELIVERY_REVISION = "20260929-v14-ordinary-put-open-ic-seller-mom120-fix9"
 FIX10_DELIVERY_REVISION = "20261008-v14-fear-grid25-50-fix10"
 DELIVERY_REVISION = "20261008-v14-ic-csi500-abs40-fix11"
 MODES = ("close", "realtime")
+OBSERVATION_REVISION = "ic_im_intraday_observations_20261106_v1"
+OBSERVATION_EFFECTIVE_DAY = date(2026, 11, 6)
+
+
+def _observation_artifact(*, out_dir, clock, completed_day, before, after,
+                          observed, report, reason):
+    """Publish available information, independently qualifying each product.
+
+    This publication never authorizes ledger recovery, execution or persistence.
+    The original query remains available even when none of its targets qualify.
+    """
+    rows = {}
+    unchanged = all(before.get(k) == after.get(k) for k in ("digest", "sequence", "verified_day"))
+    next_warning = None
+    try:
+        next_day = strategy._roll_forward_exchange_day(clock.date() + timedelta(days=1), require_official=True)
+    except strategy.CalendarCoverageError as exc:
+        next_day, next_warning = None, str(exc)
+    for product in PRODUCTS:
+        signal = observed.get(product)
+        item = {"status": "unavailable", "validation_error": "未取得本次结果", "signal": None}
+        if isinstance(signal, dict):
+            item.update(status="unverified", signal=_jsonable(signal))
+            try:
+                public_signal = strategy.fear_grid.publication_view(signal)
+                item["signal"] = _jsonable(public_signal)
+                if not unchanged:
+                    raise RuntimeError("查询期间账本变化；目标未独立确认")
+                if (_signal_day(signal) != clock.date() or signal.get("product") != product
+                        or signal.get("close_confirmed") is not False
+                        or signal.get("market_phase") != "盘中"
+                        or str(signal.get("state_anchor_day"))[:10] != completed_day.isoformat()
+                        or str(before.get("verified_day"))[:10] != completed_day.isoformat()):
+                    raise RuntimeError("信号日期、模式或账本锚点未核验")
+                if next_day is None or str(signal.get("next_trade_date"))[:10] != next_day.isoformat():
+                    raise RuntimeError("下一实际交易日未核验或与品种目标不一致")
+                if str(signal.get("future_quote_date"))[:10] != clock.date().isoformat():
+                    raise RuntimeError("期货报价日期与信号日不一致")
+                state_module.validate_delivery_values(signal, product, require_complete=False)
+                if public_signal.get("grid_target_confirmed", True) is not True:
+                    raise RuntimeError("网格及合计目标未确认；已取得的其他资料仍展示")
+                item.update(status="partial" if signal.get("calendar_partial_revision") else "verified",
+                            validation_error=None)
+            except (RuntimeError, ValueError, TypeError, KeyError) as exc:
+                item["validation_error"] = str(exc)
+        rows[product] = item
+    payload = {
+        "status": "partial", "publication_contract_revision": OBSERVATION_REVISION,
+        "publication_mode": "realtime", "market_date": clock.date().isoformat(),
+        "completed_day": completed_day.isoformat(), "verified_day": str(before.get("verified_day"))[:10],
+        "next_trade_day": next_day.isoformat() if next_day else None, "calendar_warning": next_warning,
+        "generated_at": clock.isoformat(),
+        "report_generated_at": datetime.now(strategy.BEIJING).isoformat(),
+        "build": strategy.BUILD_ID, "delivery_revision": delivery_revision_for_signal_day(clock.date()),
+        "strategy_revision": state_module.STRATEGY_REVISION,
+        "sequence": before.get("sequence"), "digest": before.get("digest"),
+        "ledger_unchanged": unchanged, "ledger_recovery_eligible": False,
+        "persistence_eligible": False, "production_authorized": False,
+        "complete_portfolio_target": False, "actual_publication": False,
+        "partial_reason": str(reason), "product_observations": rows,
+        "source_report": report, "attachments": [],
+        "report_file": "ic_im_v1_4_observations.md",
+    }
+    text = ("# IC/IM 盘中信息报告\n\n已取得的信息逐项展示；缺项不代表零仓位。"
+            "研究目标待收盘确认；Put未确认不代表保护已落实。\n\n"
+            + str(reason) + "\n\n" + report)
+    _atomic_write_text(out_dir / payload["report_file"], text)
+    _atomic_write_text(out_dir / "result.json", json.dumps(payload, ensure_ascii=False, indent=2) + "\n")
+    (out_dir / "failure.txt").unlink(missing_ok=True)
+    return payload
 
 
 class _ArtifactBuildError(RuntimeError):
     """Carry only this attempt's query text into the failure artifact."""
 
-    def __init__(self, message: str, diagnostic_report: str | None = None) -> None:
+    def __init__(self, message: str, diagnostic_report: str | None = None,
+                 observed_diagnostic: dict[str, Any] | None = None) -> None:
         super().__init__(message)
         self.diagnostic_report = diagnostic_report
+        self.observed_diagnostic = observed_diagnostic
 
 
 def delivery_revision_for_signal_day(signal_day: date) -> str:
@@ -135,6 +208,14 @@ def validate_realtime_artifact(
         )
     for product in PRODUCTS:
         signal = observed[product]
+        if signal.get("diagnostic_only") is True:
+            raise RuntimeError(
+                f"{product}仅取得诊断观察，禁止正式交付："
+                f"{signal.get('diagnostic_status') or 'unverified'}；"
+                f"{signal.get('diagnostic_reason') or '组合目标未确认'}；"
+                "日历诊断=" + json.dumps(_jsonable(signal.get("calendar_diagnostics", [])),
+                                        ensure_ascii=False)
+            )
         state_module.validate_delivery_values(signal, product, require_complete=False)
         if bool(signal.get("close_confirmed")):
             raise RuntimeError(f"{product}盘中信号被错误标记为收盘确认")
@@ -420,12 +501,13 @@ def build_artifacts(
     coordinator = LedgerCoordinator(store)
     advanced = coordinator.catch_up_until_current(clock, max_sessions=max_sessions)
     health = coordinator.health(clock)
-    if health.get("status") != "ok":
+    observation_mode = mode == "realtime" and clock.date() >= OBSERVATION_EFFECTIVE_DAY
+    if health.get("status") != "ok" and not observation_mode:
         raise _ArtifactBuildError(
             str(health.get("refresh_error") or "账本补写状态异常"),
             getattr(coordinator, "last_refresh_diagnostic", None),
         )
-    if str(health.get("verified_day"))[:10] != completed_day.isoformat():
+    if str(health.get("verified_day"))[:10] != completed_day.isoformat() and not observation_mode:
         raise RuntimeError(
             "账本未追平最近完成交易日："
             f"verified={health.get('verified_day')} completed={completed_day}"
@@ -439,15 +521,43 @@ def build_artifacts(
             "实时信号", clock, persist_confirmed=False
         )
         _atomic_write_text(out_dir / "diagnostic_report.md", report)
+        # Preserve this attempt before validation can fail. This envelope is
+        # never a successful signal artifact or a publication authorization.
+        observed_path = out_dir / "observed_diagnostic.json"
+        _atomic_write_text(observed_path, json.dumps({
+            "schema": 1,
+            "status": "diagnostic_observation",
+            "diagnostic_only": True,
+            "publication_eligible": False,
+            "persistence_eligible": False,
+            "production_authorized": False,
+            "actual_publication": False,
+            "query_clock": clock.isoformat(),
+            "recorded_at": datetime.now(strategy.BEIJING).isoformat(),
+            "observed": _jsonable(observed),
+        }, ensure_ascii=False, indent=2) + "\n")
+        observed_diagnostic = {
+            "file": observed_path.name,
+            "sha256": hashlib.sha256(observed_path.read_bytes()).hexdigest(),
+        }
         after = store.load_latest()
+        if observation_mode and (health.get("status") != "ok" or
+                any(s.get("calendar_partial_revision") for s in observed.values() if isinstance(s, dict))):
+            return _observation_artifact(out_dir=out_dir, clock=clock, completed_day=completed_day,
+                before=latest, after=after, observed=observed, report=report,
+                reason=health.get("refresh_error") or "新Put具体合约未确认；其余资料独立展示")
         if set(observed) != set(PRODUCTS):
+            if observation_mode:
+                return _observation_artifact(out_dir=out_dir, clock=clock, completed_day=completed_day,
+                    before=latest, after=after, observed=observed, report=report,
+                    reason="部分品种未取得完整结果；已取得资料继续展示")
             failures = re.findall(r"(?:完整信号失败|当日信号警告)：([^\n]+)", report)
             raise _ArtifactBuildError(
                 "盘中产物必须同时包含IC和IM完整信号；已取得="
                 + ",".join(sorted(observed))
                 + "；逐品种失败=" + "；".join(failures)
                 + "；完整诊断见 diagnostic_report.md",
-                report,
+                report, observed_diagnostic,
             )
         try:
             validate_realtime_artifact(
@@ -458,7 +568,10 @@ def build_artifacts(
                 observed=observed,
             )
         except RuntimeError as exc:
-            raise _ArtifactBuildError(str(exc), report) from exc
+            if observation_mode:
+                return _observation_artifact(out_dir=out_dir, clock=clock, completed_day=completed_day,
+                    before=latest, after=after, observed=observed, report=report, reason=str(exc))
+            raise _ArtifactBuildError(str(exc), report, observed_diagnostic) from exc
         report_name = "ic_im_v1_4_realtime_signal.md"
         publication_mode = "realtime"
         signal_day = clock.date()
@@ -583,6 +696,14 @@ def write_failure(
             fear_observation["fear_warning"] = (
                 f"当日恐慌指数未核验：{type(fear_exc).__name__}: {fear_exc}"
             )
+    # Only an exception from this attempt's completed query can bind a snapshot.
+    # A previous file in a reused out_dir is retained, never attributed by name.
+    observed_diagnostic = getattr(exc, "observed_diagnostic", None)
+    if observed_diagnostic:
+        path = out_dir / "observed_diagnostic.json"
+        if (observed_diagnostic.get("file") != path.name or not path.is_file()
+                or hashlib.sha256(path.read_bytes()).hexdigest() != observed_diagnostic.get("sha256")):
+            observed_diagnostic = None
     payload = {
         "status": "failed",
         "delivery_revision": delivery_revision_for_signal_day(signal_day),
@@ -596,6 +717,7 @@ def write_failure(
         "publication_mode": "realtime" if mode == "realtime" else "close_confirmed",
         "error_type": type(exc).__name__,
         "error": str(exc),
+        "observed_diagnostic": observed_diagnostic,
         **fear_observation,
     }
     _atomic_write_text(

@@ -265,6 +265,145 @@ def require_persistence_eligible(
         require_confirmed_grid_target(signal, product)
 
 
+CALENDAR_PARTIAL_REVISION = "ic_im_new_put_calendar_partial_20261106_v1"
+
+
+def validate_calendar_partial_publication(signal: dict[str, Any], product: str) -> None:
+    """Validate only the authorized IM new-momentum-Put calendar publication.
+
+    This grants neither a complete protected portfolio nor ledger eligibility.
+    The validation projection below never escapes this function or changes the
+    source: its known held core contract is a validation-only identity stand-in,
+    not an inferred or publishable contract for the unknown momentum target.
+    """
+    if product != "IM" or signal.get("product") != "IM":
+        raise RuntimeError("calendar partial只允许IM新动量Put")
+    if signal.get("calendar_partial_revision") != CALENDAR_PARTIAL_REVISION:
+        raise RuntimeError("calendar partial修订不匹配")
+    for field, expected in (("calendar_provisional", True), ("signal_complete", False),
+                            ("persistence_eligible", False), ("futures_target_confirmed", True)):
+        if type(signal.get(field)) is not bool or signal[field] is not expected:
+            raise RuntimeError(f"calendar partial {field}标识非法")
+    if signal.get("diagnostic_only") is True or signal.get("unconfirmed_put_legs") != ["momentum"]:
+        raise RuntimeError("calendar partial必须只缺新动量Put")
+    day = _as_day(signal.get("market_date"), "partial信号日")
+    if day < date(2026, 11, 6):
+        raise RuntimeError("calendar partial不得追改旧信号身份")
+    next_day = strategy._roll_forward_exchange_day(day + timedelta(days=1), require_official=True)
+    if _as_day(signal.get("next_trade_date"), "partial下一交易日") != next_day:
+        raise RuntimeError("calendar partial下一交易日不符")
+    if (signal.get("v14_route_state") != "future" or signal.get("option_monthly_reset_due") is not False
+            or signal.get("roll_confirmed") is not False or signal.get("v14_action") != "HOLD"):
+        raise RuntimeError("calendar partial仅允许非月度未换仓future核心")
+    for field in ("v14_ordinary_put_pending", "v14_ordinary_put_open_plan", "v14_short_put_open_pending"):
+        if signal.get(field) is not None:
+            raise RuntimeError("calendar partial不得携带待执行Put计划")
+    if signal.get("v14_profit_pending") or signal.get("v14_profit_open_executed"):
+        raise RuntimeError("calendar partial不得携带三倍兑现执行")
+    if signal.get("v14_opening_events") not in (None, []):
+        raise RuntimeError("calendar partial不得夹带开盘执行事件")
+    if signal.get("momentum_put_action") != "UNCONFIRMED" or signal.get("put_action") != "UNCONFIRMED":
+        raise RuntimeError("calendar partial必须明确Put未确认动作")
+    for field in ("momentum_put_target_qty_normalized", "momentum_put_target_contract",
+                  "total_put_target_qty_normalized"):
+        if field not in signal or signal[field] is not None:
+            raise RuntimeError(f"calendar partial {field}必须明确未确认")
+    for field, value in signal.items():
+        if field.startswith("momentum_put_") and (field.startswith("momentum_put_target_")
+                or re.search(r"(?:^|_)(?:expiry|strike|price|premium|bid|ask|delta|quote|pricing)(?:_|$)", field)):
+            if value is not None:
+                raise RuntimeError(f"calendar partial不得夹带未核验新Put字段: {field}")
+    if _as_day(signal.get("future_quote_date"), "期货行情日") != day:
+        raise RuntimeError("calendar partial期货行情必须同日")
+    evidence = signal.get("future_quote_evidence")
+    if (not isinstance(evidence, dict) or evidence.get("contract") != signal.get("core_current")
+            or not isinstance(signal.get("future_quote_source"), str) or not signal["future_quote_source"].strip()
+            or evidence.get("source") != signal["future_quote_source"]
+            or _as_day(evidence.get("source_date"), "期货原来源日") != day
+            or _as_day(evidence.get("row_source_date"), "当前期货原行情日") != day
+            or evidence.get("source_snapshot_kind") not in {"http_last_modified_whole_frame", "latest_available_contract_update"}
+            or _option_number(evidence.get("lastprice"), "当前期货原报价") <= 0
+            or _option_number(evidence["lastprice"], "当前期货原报价") != _option_number(signal.get("future_last"), "期货报价")):
+        raise RuntimeError("calendar partial当前期货来源身份未绑定")
+    collected = datetime.fromisoformat(str(evidence.get("collected_at")))
+    snapshot = datetime.fromisoformat(str(evidence.get("source_snapshot_at")))
+    if (collected.tzinfo is None or collected.astimezone(strategy.BEIJING).date() != day
+            or collected > strategy.fear_grid._validation_clock()
+            or (signal.get("close_confirmed") is False and collected.astimezone(strategy.BEIJING).time() >= time(15))):
+        raise RuntimeError("calendar partial期货实际采集时刻不合格")
+    strategy.quote_snapshot_guard.validate_snapshot_time(
+        snapshot, collected, day if signal.get("close_confirmed") is True else day - timedelta(days=1), "calendar partial当前期货")
+    if (snapshot.astimezone(strategy.BEIJING).date() != day
+            or (signal.get("close_confirmed") is False and snapshot.astimezone(strategy.BEIJING).time() >= time(15))):
+        raise RuntimeError("calendar partial期货快照错日或盘中越过截止")
+    if (_option_number(signal.get("momentum_put_current_qty_normalized"), "当前动量Put") != 0
+            or signal.get("momentum_put_current_contract") not in (None, "")):
+        raise RuntimeError("calendar partial仅允许动量Put从零新选约")
+    held = signal.get("core_put_current_contract")
+    core = _option_number(signal.get("core_put_current_qty_normalized"), "当前核心Put")
+    if (core <= 0 or signal.get("core_put_target_contract") != held
+            or _option_number(signal.get("core_put_target_qty_normalized"), "目标核心Put") != core
+            or signal.get("core_target") != signal.get("core_current")):
+        raise RuntimeError("calendar partial不得改变已持核心身份或数量")
+    rows = signal.get("calendar_diagnostics")
+    if not isinstance(rows, list) or not rows:
+        raise RuntimeError("calendar partial缺少精确未知日历证据")
+    for row in rows:
+        if (not isinstance(row, dict) or row.get("officially_verified") is not False
+                or row.get("purpose") not in {"independent IM Put expiry", "selected IM Put expiry"}
+                or _as_day(row.get("date"), "未知Put到期日").year in strategy._OFFICIAL_EXCHANGE_CALENDAR_YEARS):
+            raise RuntimeError("calendar partial日历证据超出新动量Put范围")
+    weight = _option_number(signal.get("momentum_next_weight"), "下一动量权重")
+    required = _option_number(signal.get("momentum_put_required_qty_normalized"), "动量Put需求")
+    expected = strategy.im_put_policy.momentum_quantity(day, signal.get("momentum_120"), weight, core)
+    if required <= 0 or not math.isclose(required, expected, rel_tol=0, abs_tol=1e-12):
+        raise RuntimeError("calendar partial动量Put需求公式不符")
+    if weight not in {0.5, 1.0}:
+        raise RuntimeError("calendar partial动量权重超出合法域")
+    for field in ("momentum_abs_on", "momentum_volume_pass", "momentum_volume_placeholder", "momentum_score_hot"):
+        if type(signal.get(field)) is not bool:
+            raise RuntimeError(f"calendar partial {field}必须是布尔值")
+    abs20 = _option_number(signal.get("momentum_abs20"), "Abs20")
+    if (signal.get("momentum_abs_days") != 20 or signal.get("momentum_abs_debounce_active") is not True
+            or (signal["momentum_abs_on"] and abs20 <= 0)):
+        raise RuntimeError("calendar partial Abs20恢复防抖证据不符")
+    score = _option_number(signal.get("momentum_score"), "动量Score")
+    ratio = _option_number(signal.get("momentum_volume_ratio"), "成交量比例")
+    rule = strategy.MOMENTUM_RULES["IM"]
+    volume_pass = ratio >= float(rule["volume_ratio_threshold"])
+    base = (0.5 + 0.5 * signal["momentum_abs_on"]) if score > 0 else 0.0
+    hot = score >= float(rule["hot_score_threshold"]) and volume_pass and base > 0
+    recomputed = (base if volume_pass else 0.0) * (float(rule["hot_scale"]) if hot else 1.0)
+    if (signal["momentum_volume_pass"] != volume_pass
+            or signal["momentum_score_hot"] != hot or weight != recomputed):
+        raise RuntimeError("calendar partial动量因子与目标权重不符")
+    for when in ("current", "target"):
+        w = _option_number(signal.get("momentum_current_weight" if when == "current" else "momentum_next_weight"), "动量权重")
+        units = _option_number(signal.get(f"momentum_units_{when}"), "动量期货单位")
+        fixed = _option_number(signal.get(f"core_units_{when}"), "核心期货单位")
+        grid = _option_number(signal.get("grid_current" if when == "current" else "grid_target"), "网格单位")
+        total = _option_number(signal.get(f"total_units_{when}"), "期货合计")
+        if w not in {0.0, 0.5, 1.0} or fixed != 0.5 or not math.isclose(units, 0.5 * w, abs_tol=1e-12) or not math.isclose(total, fixed + units + grid, abs_tol=1e-12):
+            raise RuntimeError("calendar partial期货各腿数量公式不符")
+    generated = datetime.fromisoformat(str(signal.get("signal_generated_at")))
+    if generated.tzinfo is None or generated > strategy.fear_grid._validation_clock() or generated < collected:
+        raise RuntimeError("calendar partial生成时钟无效")
+    phase = "收盘后" if signal.get("close_confirmed") is True else "盘中"
+    if signal.get("market_phase") != phase:
+        raise RuntimeError("calendar partial行情阶段与确认身份不符")
+    if (generated.astimezone(strategy.BEIJING).date() != day
+            and signal.get("signal_generation_timing") != "retrospective_replay"):
+        raise RuntimeError("calendar partial跨日必须保留回放身份")
+    # Validation projection only. The unknown target remains null in signal.
+    projection = deepcopy(signal)
+    projection.pop("calendar_partial_revision")
+    projection.update(calendar_provisional=False, signal_complete=False,
+                      persistence_eligible=False, momentum_put_target_contract=held,
+                      momentum_put_target_qty_normalized=required,
+                      total_put_target_qty_normalized=core + required)
+    validate_delivery_values(projection, product, require_complete=False)
+
+
 def validate_delivery_values(
     signal: dict[str, Any], product: str, *, historical_record: bool = False,
     require_complete: bool = True,
@@ -279,6 +418,10 @@ def validate_delivery_values(
     require_complete=False.  All append paths use the default strict complete
     boundary; this flag is not a persistence authorization.
     """
+    if (not historical_record and not require_complete
+            and signal.get("calendar_partial_revision") == CALENDAR_PARTIAL_REVISION):
+        validate_calendar_partial_publication(signal, product)
+        return
     if not historical_record:
         validate_v14_new_signal(signal, product, check_grid=False)
     if type(signal.get("close_confirmed")) is not bool:

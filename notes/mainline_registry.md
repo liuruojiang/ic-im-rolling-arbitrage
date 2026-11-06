@@ -477,3 +477,8 @@
 - 保存的真实 2026-10-22 原日证据：5 恢复场景通过；IC 209 / IM 224 信号字段（仅排除 3 个计算时钟）及完整产品状态与既有验收相同。正式 runtime/outputs 和旧审计证据保持只读。
 - 本地原有只读采集器已恢复，新的不可变 pin 为 quant_research_runs/20261023_redteam_repairs_v3/delivery/capture_source_pin.json；启动状态 waiting_for_close，未发消息、未请求续账。精确 PID/回执见 delivery/collector_restart.json。
 - 源码与证据详见 quant_research_runs/20261023_redteam_repairs_v3/record.md、final_verification.json。Git 索引写权限受限，当前仍是已审计的工作区补丁；commit_repairs.ps1 按哈希核对后提交。未更新远端 Poe/GitHub 自动化，不代表实盘授权。
+
+
+## 2026-11-06 盘中逐项信息发布修订（审计分支，未生产激活）
+
+用户授权盘中有多少资料报多少；缺字段逐项提示，期货研究目标与Put需求/具体选约分开。实现与前向清单见 docs/ic_im_intraday_observations_20261106_release.md、docs/ic_im_intraday_observation_20261106_manifest.json。fix11/schema4/r1、经济参数、完整账本及交易权限不变；旧冻结规范/清单不改写。本分支提交不等于已部署或真实日信号通过。
