@@ -798,6 +798,11 @@ def _fetch_score_uncached(signal_day: date, mode: str) -> dict[str, Any]:
     for name, url, limit in (("csv", CSV_URL, 1024 * 1024), ("page", PAGE_URL, 512 * 1024)):
         try:
             raw = _bounded_get(url, limit)
+            received = datetime.now(BEIJING)
+            # A request that crosses the source-method cutover must identify
+            # each response by when it actually arrived, not its start date.
+            requires_split_identity = max(started.date(), received.date()) >= date(2026, 11, 7)
+            split_observed = split_observed or requires_split_identity
             if name == "csv":
                 axes = _csv_axes(raw)
                 values, composites, split = axes["values"], axes["composites"], axes["split"]
@@ -805,7 +810,7 @@ def _fetch_score_uncached(signal_day: date, mode: str) -> dict[str, Any]:
                 latest_date = axes["latest_date"]
                 for axis, error in axes["errors"].items(): errors[name + "." + axis] = error
                 if "legacy" in axes["errors"]: errors[name] = axes["errors"]["legacy"]
-                if started.date() >= date(2026, 11, 7) and not split:
+                if requires_split_identity and not split:
                     values = {}
                     errors[name] = "源站改版后两列CSV指标身份不明确，不采用为旧六项输入"
             else:
@@ -816,7 +821,7 @@ def _fetch_score_uncached(signal_day: date, mode: str) -> dict[str, Any]:
                 if updated.date() < page_day:
                     raise ValueError("网页日期或读数非法")
                 values = {page_day: page_value} if page_value is not None else {}
-                if started.date() >= date(2026, 11, 7) and not split:
+                if requires_split_identity and not split:
                     values = {}
                     errors[name] = "源站改版后旧网页标签指标身份不明确，不采用为旧六项输入"
                 latest_date = page_day

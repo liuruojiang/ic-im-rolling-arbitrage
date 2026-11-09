@@ -10,6 +10,7 @@ mutate that ledger.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
 import re
@@ -528,6 +529,7 @@ def build_artifacts(
         "sequence": int(latest["sequence"]),
         "digest": str(latest["digest"]),
         "report_file": report_path.name,
+        "report_sha256": hashlib.sha256(report_path.read_bytes()).hexdigest(),
         "attachments": [str(item.get("name", "")) for item in attachments],
         "signals": _jsonable(published),
         "jiu_reference": reference if mode != "realtime" else {},
