@@ -4,6 +4,7 @@ from contextlib import contextmanager
 from datetime import date, datetime
 import json
 import copy
+import hashlib
 from pathlib import Path
 
 import pytest
@@ -62,7 +63,7 @@ def test_real_realtime_artifact_distinguishes_partial_from_complete(monkeypatch,
             return {"status": "ok", "verified_day": latest["verified_day"]}
 
         def execute_query(self, *_args, **_kwargs):
-            return "frozen formal-query fixture", [], observed
+            return "frozen formal-query fixture\n中文原生报告\n", [], observed
 
     monkeypatch.setattr(digest, "StateStore", Store)
     monkeypatch.setattr(digest, "LedgerCoordinator", Coordinator)
@@ -72,6 +73,9 @@ def test_real_realtime_artifact_distinguishes_partial_from_complete(monkeypatch,
         mode="realtime", expected_market_date=original["market_date"],
     )
     assert observed == before_signals
+    native_report = (tmp_path / "out" / result["report_file"]).read_bytes()
+    assert "中文原生报告" in native_report.decode("utf-8")
+    assert result["report_sha256"] == hashlib.sha256(native_report).hexdigest()
     if published_fear:
         assert result["status"] == "ok" and result["signals"] == observed
     else:

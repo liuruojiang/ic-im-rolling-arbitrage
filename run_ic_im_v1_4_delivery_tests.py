@@ -9,9 +9,10 @@ import subprocess
 import sys
 
 ROOT = Path(__file__).resolve().parent
+ROUND2_MANIFEST = ROOT / 'docs/ic_im_fear_source_round2_20261109_manifest.json'
 AUDIT_MANIFEST = ROOT / 'docs/ic_im_fear_source_adversarial_20261109_manifest.json'
 SPLIT_MANIFEST = ROOT / 'docs/ic_im_fear_source_split_20261109_manifest.json'
-MANIFEST = AUDIT_MANIFEST if AUDIT_MANIFEST.exists() else SPLIT_MANIFEST if SPLIT_MANIFEST.exists() else ROOT / 'docs/ic_im_daily_release_20261023_repairs_v3_r3_manifest.json'
+MANIFEST = ROUND2_MANIFEST if ROUND2_MANIFEST.exists() else AUDIT_MANIFEST if AUDIT_MANIFEST.exists() else SPLIT_MANIFEST if SPLIT_MANIFEST.exists() else ROOT / 'docs/ic_im_daily_release_20261023_repairs_v3_r3_manifest.json'
 
 
 def sha(path):
@@ -47,7 +48,7 @@ def main():
     assert sha(ROOT / 'docs/icim_historical_deselections_20261023.json') == manifest['historical_exclusion_registry_sha256']
     assert registered == json.loads((ROOT / 'docs/icim_historical_deselections_20261023.json').read_text(encoding='utf-8'))
     tests = manifest['required_local_tests']
-    expected_count = {'20261109-fear-source-adversarial-v2':49, '20261109-fear-source-split-v1':48, '20261023-redteam-repairs-v3-r3':47}[manifest['release']]
+    expected_count = {'20261109-fear-source-round2-v3':49, '20261109-fear-source-adversarial-v2':49, '20261109-fear-source-split-v1':48, '20261023-redteam-repairs-v3-r3':47}[manifest['release']]
     assert len(tests) == len(set(tests)) == expected_count
     allowed = [node for node in registered if node.split('::', 1)[0] in tests]
     assert manifest['daily_gate_deselections'] == allowed
