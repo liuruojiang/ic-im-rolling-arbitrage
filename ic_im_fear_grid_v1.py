@@ -351,34 +351,38 @@ def _parse_page(page: bytes) -> tuple[date, float, datetime]:
     return day, value, updated
 
 
-def _parse_page_metrics(page: bytes) -> tuple[date, float, datetime, float | None]:
+def _page_axes(page: bytes) -> dict[str, Any]:
     html = unescape(page.decode("utf-8"))
-    day_match = re.search(
-        r'<p class="fg-stat-label">最新日期</p>\s*<p class="fg-stat-value"[^>]*>(\d{4}-\d{2}-\d{2})</p>',
-        html,
-    )
-    def metric(label):
-        matches = re.findall(
-            r'<p class="fg-stat-label">' + label +
-            r'</p>\s*<p class="fg-stat-value[^\"]*"[^>]*>([0-9]+(?:\.[0-9]+)?)</p>', html)
-        if len(matches) > 1:
-            raise RuntimeError("恐贪指标页重复指标标签")
-        return float(matches[0]) if matches else None
-    composite = metric("恐惧贪婪指数")
-    score = metric("短期市场情绪") if composite is not None else metric("最新指数值")
-    update_match = re.search(
-        r'<p class="fg-update">数据日 (\d{4}-\d{2}-\d{2}) · 更新 (\d{4}-\d{2}-\d{2} \d{2}:\d{2})</p>',
-        html,
-    )
-    if not day_match or score is None or not update_match:
-        raise RuntimeError("恐贪指标页缺少可核验的数据日、分数或更新时间")
-    day = date.fromisoformat(day_match.group(1))
-    if update_match.group(1) != day.isoformat():
-        raise RuntimeError("恐贪指标页数据日互相冲突")
-    if not 0 <= score <= 100 or (composite is not None and not 0 <= composite <= 100):
-        raise RuntimeError("恐贪指标页读数越界")
-    updated = datetime.strptime(update_match.group(2), "%Y-%m-%d %H:%M").replace(tzinfo=BEIJING)
-    return day, score, updated, composite
+    days = re.findall(r'<p class="fg-stat-label">最新日期</p>\s*<p class="fg-stat-value"[^>]*>(\d{4}-\d{2}-\d{2})</p>', html)
+    updates = re.findall(r'<p class="fg-update">数据日 (\d{4}-\d{2}-\d{2}) · 更新 (\d{4}-\d{2}-\d{2} \d{2}:\d{2})</p>', html)
+    if len(days) != 1 or len(updates) != 1 or days[0] != updates[0][0]:
+        raise RuntimeError("恐贪指标页缺少唯一一致的数据日和更新时间")
+    def cards(label):
+        return re.findall(r'<p class="fg-stat-label">' + label + r'</p>\s*<p class="fg-stat-value[^\"]*"[^>]*>([^<]*)</p>', html)
+    short, main, old = cards("短期市场情绪"), cards("恐惧贪婪指数"), cards("最新指数值")
+    split = bool(short or main)
+    if split and old: raise RuntimeError("恐贪网页混合指标身份不明确")
+    def number(values, label):
+        try:
+            if len(values) != 1: raise ValueError("缺少唯一指标卡")
+            value = float(values[0])
+            if not math.isfinite(value) or not 0 <= value <= 100: raise ValueError("读数非法")
+            return value, None
+        except (ValueError, TypeError) as exc:
+            return None, label + ": " + str(exc)
+    legacy, legacy_error = number(short if split else old, "旧六项")
+    composite, composite_error = number(main, "新增综合") if split else (None, None)
+    return dict(day=date.fromisoformat(days[0]), updated=datetime.strptime(updates[0][1], "%Y-%m-%d %H:%M").replace(tzinfo=BEIJING),
+                legacy=legacy, composite=composite, legacy_error=legacy_error,
+                composite_error=composite_error, split=split)
+
+
+def _parse_page_metrics(page: bytes) -> tuple[date, float, datetime, float | None]:
+    axes = _page_axes(page)
+    if axes["legacy"] is None: raise RuntimeError(axes["legacy_error"])
+    return axes["day"], axes["legacy"], axes["updated"], axes["composite"]
+
+
 
 
 def _fetch_score_legacy(signal_day: date, mode: str, fetch_started: datetime | None = None) -> dict[str, Any]:
@@ -547,33 +551,39 @@ def _parse_csv(raw: bytes) -> dict[date, float]:
     return _parse_csv_metrics(raw)[0]
 
 
-def _parse_csv_metrics(raw: bytes) -> tuple[dict[date, float], dict[date, float]]:
+def _csv_axes(raw: bytes) -> dict[str, Any]:
     reader = csv.DictReader(io.StringIO(raw.decode("utf-8-sig")))
     fields = reader.fieldnames or []
     rows = list(reader)
     old = {"date", "fear_greed_index"}
-    split = old | {"short_term_sentiment"}
-    if not rows or len(fields) != len(set(fields)) or set(fields) not in (old, split):
+    split = set(fields) == old | {"short_term_sentiment"}
+    if not rows or len(fields) != len(set(fields)) or set(fields) not in (old, old | {"short_term_sentiment"}):
         raise ValueError("恐贪CSV字段不符")
-    is_split = set(fields) == split
-    column = "short_term_sentiment" if is_split else "fear_greed_index"
-    values: dict[date, float] = {}
-    composites: dict[date, float] = {}
+    values, composites, errors = {}, {}, {}
     previous = None
     for row in rows:
-        if set(row) != set(fields) or any(v is None for v in row.values()):
-            raise ValueError("恐贪CSV行字段不符")
-        day, value = date.fromisoformat(row["date"]), float(row[column])
-        if (previous is not None and day <= previous) or not math.isfinite(value) or not 0 <= value <= 100:
-            raise ValueError("恐贪CSV日期顺序或读数非法")
-        values[day] = value
+        if set(row) != set(fields) or any(v is None for v in row.values()): raise ValueError("恐贪CSV行字段不符")
+        day = date.fromisoformat(row["date"])
+        if previous is not None and day <= previous: raise ValueError("恐贪CSV日期顺序非法")
         previous = day
-        if is_split and row["fear_greed_index"]:
-            composite = float(row["fear_greed_index"])
-            if not math.isfinite(composite) or not 0 <= composite <= 100:
-                raise ValueError("新版综合恐贪读数非法")
-            composites[day] = composite
-    return values, composites
+        axes = [("legacy", "short_term_sentiment" if split else "fear_greed_index", values)]
+        if split: axes.append(("composite", "fear_greed_index", composites))
+        for axis, column, target in axes:
+            if axis == "composite" and not row[column] and day < date(2016, 1, 1): continue
+            try:
+                value = float(row[column])
+                if not math.isfinite(value) or not 0 <= value <= 100: raise ValueError("读数非法")
+                target[day] = value
+            except (ValueError, TypeError) as exc:
+                errors.setdefault(axis, f"{column} {day}: {exc}")
+    return dict(values={} if "legacy" in errors else values, composites={} if "composite" in errors else composites,
+                errors=errors, latest_date=previous, split=split)
+
+
+def _parse_csv_metrics(raw: bytes) -> tuple[dict[date, float], dict[date, float]]:
+    axes = _csv_axes(raw)
+    if not axes["values"]: raise ValueError(axes["errors"].get("legacy", "旧六项缺失"))
+    return axes["values"], axes["composites"]
 
 
 def source_disclosure(signal: dict[str, Any]) -> str:
@@ -783,25 +793,44 @@ def _fetch_score_uncached(signal_day: date, mode: str) -> dict[str, Any]:
         return _fetch_score_legacy(signal_day, mode, started)
     if mode not in {"intraday", "close"}:
         raise ValueError("unsupported Fear fetch mode")
-    sources, errors = {}, {}
+    sources, errors, reference_sources = {}, {}, {}
+    split_observed = started.date() >= date(2026, 11, 7)
     for name, url, limit in (("csv", CSV_URL, 1024 * 1024), ("page", PAGE_URL, 512 * 1024)):
         try:
             raw = _bounded_get(url, limit)
             if name == "csv":
-                values, composites = _parse_csv_metrics(raw)
+                axes = _csv_axes(raw)
+                values, composites, split = axes["values"], axes["composites"], axes["split"]
                 updated = None
+                latest_date = axes["latest_date"]
+                for axis, error in axes["errors"].items(): errors[name + "." + axis] = error
+                if "legacy" in axes["errors"]: errors[name] = axes["errors"]["legacy"]
+                if started.date() >= date(2026, 11, 7) and not split:
+                    values = {}
+                    errors[name] = "源站改版后两列CSV指标身份不明确，不采用为旧六项输入"
             else:
-                page_day, page_value, updated, composite = _parse_page_metrics(raw)
+                axes = _page_axes(raw)
+                page_day, page_value, updated = axes["day"], axes["legacy"], axes["updated"]
+                composite, split = axes["composite"], axes["split"]
                 composites = {page_day: composite} if composite is not None else {}
-                if not math.isfinite(page_value) or not 0 <= page_value <= 100 or updated.date() < page_day:
+                if updated.date() < page_day:
                     raise ValueError("网页日期或读数非法")
-                values = {page_day: page_value}
+                values = {page_day: page_value} if page_value is not None else {}
+                if started.date() >= date(2026, 11, 7) and not split:
+                    values = {}
+                    errors[name] = "源站改版后旧网页标签指标身份不明确，不采用为旧六项输入"
+                latest_date = page_day
+                for axis in ("legacy", "composite"):
+                    if axes[axis + "_error"]: errors[name + "." + axis] = axes[axis + "_error"]
+                if axes["legacy_error"]: errors[name] = axes["legacy_error"]
             now = datetime.now(BEIJING)
-            if max(values) > now.date() or (updated is not None and updated > now):
+            if latest_date > now.date() or (updated is not None and updated > now):
                 raise ValueError("来源日期/发布时间在未来")
-            sources[name] = {"values": values, "latest": max(values), "updated": updated,
-                             "composites": composites,
-                             "sha256": hashlib.sha256(raw).hexdigest()}
+            split_observed = split_observed or split
+            observed = dict(values=values, updated=updated, composites=composites,
+                            sha256=hashlib.sha256(raw).hexdigest())
+            if values: sources[name] = {**observed, "latest": max(values)}
+            if composites: reference_sources[name] = observed
         except Exception as exc:  # independent bounded requests; one failure cannot veto the other.
             errors[name] = f"{type(exc).__name__}: {exc}"
     fetched = datetime.now(BEIJING)
@@ -859,16 +888,17 @@ def _fetch_score_uncached(signal_day: date, mode: str) -> dict[str, Any]:
     if csv_source:
         observed_days.add(previous_exchange_session(signal_day))
     split_metadata = {}
-    if any(s["composites"] for s in sources.values()):
+    if split_observed:
         # The renamed six-component series alone feeds the existing strategy.
         # The new 50/50 composite is an independently dated display observation.
-        candidates = [(d, name, v) for name, s in sources.items()
+        candidates = [(d, name, v) for name, s in reference_sources.items()
                       for d, v in s["composites"].items() if d <= signal_day]
         latest_day = max((d for d, _, _ in candidates), default=None)
         chosen = next(((name, v) for d, name, v in candidates if d == latest_day), (None, None))
         composite_source, composite_value = chosen
-        updated = page["updated"] if page and page["latest"] == latest_day else None
-        comparison = {name: s["composites"][latest_day] for name, s in sources.items()
+        reference_page = reference_sources.get("page")
+        updated = reference_page["updated"] if reference_page and latest_day in reference_page["composites"] else None
+        comparison = {name: s["composites"][latest_day] for name, s in reference_sources.items()
                       if latest_day in s["composites"]}
         composite_quality = ("single_source" if len(comparison) == 1 else
                              "matched" if comparison and max(comparison.values()) - min(comparison.values()) <= .005 else "unavailable" if not comparison else "mismatch")
@@ -881,6 +911,7 @@ def _fetch_score_uncached(signal_day: date, mode: str) -> dict[str, Any]:
                 "selected_source": composite_source, "cross_validation": composite_quality,
                 "source_values": comparison, "role": "reference_only",
                 "formula": "50% short-term sentiment + 50% five-index price pressure",
+                "errors": {key: value for key, value in errors.items() if "composite" in key},
             },
         }
         legacy_text = f"{value:g}（数据日{data_day}）" if value is not None else "N/A（缺少合格读数）"
@@ -889,6 +920,8 @@ def _fetch_score_uncached(signal_day: date, mode: str) -> dict[str, Any]:
                         f"新增综合恐贪：{composite_text}，仅观察，不参与网格；新版双侧状态{composite_quality}；"
                         f"页面更新时间{updated.isoformat(timespec='minutes') if updated else 'N/A'}；"
                         "源站可能修订旧口径历史值，原账本原值不回写。")
+        if composite_value is None:
+            warnings.append("新增综合缺项原因：" + str(split_metadata["fear_composite_reference"]["errors"] or "来源未取得合格新增读数"))
     return {
         "fear_source_policy_revision": SOURCE_POLICY_REVISION,
         "fear_greed_index": value, "fear_data_date": data_day.isoformat() if data_day else None,
