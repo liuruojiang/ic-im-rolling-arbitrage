@@ -1,0 +1,14 @@
+{
+  "source.csv": {
+    "sha256": "a86e8512be807179ef4fe54095deb853ccbb56b5b2615af0bf2b93005f79ac29",
+    "origin": "D:\\Codex\\home\\automations\\ic-im\\runs\\20261109\\intraday\\fear_source_inspection\\source.csv",
+    "recorded_date": "2026-11-09",
+    "data_date": "2026-11-06"
+  },
+  "page.html": {
+    "sha256": "92bea8a3a2cb62c27c25f8e5d036ed956b01c3bb48d4d5598fbc69900c5147d4",
+    "origin": "D:\\Codex\\home\\automations\\ic-im\\runs\\20261109\\fear_repair\\page.html",
+    "recorded_date": "2026-11-09",
+    "data_date": "2026-11-06"
+  }
+}
