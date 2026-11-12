@@ -1,0 +1,31 @@
+{
+  "release": "20261112-expert-review-v5-r3",
+  "strategy_parent_commit": "41aa5accfe9413d7ad0134589e95819d7a1401a2",
+  "new_manifest_sha256": "0329762ca1c7de33079de702ea6374384ebc02374f5d44326c21bf86c79bf124",
+  "changed_runtime_modules": [
+    "poe_ic_im_mainline_v1_4_bot.py"
+  ],
+  "core_sha256": "0c8b10efcbc1326d885a4dc08df231e801249441f39503656aac8dbf0bc4e37d",
+  "requirements_sha256": "f309f370cb290b3e5b9ed12a812815817e4b70f215ca50ab6302f34f7e58658b",
+  "original_cloud_failure_run": 43241651015,
+  "original_cloud_failure_count": 2,
+  "targeted_original_failure_controls": {
+    "exit_code": 0,
+    "source_before_equals_after": true,
+    "source_files": 213,
+    "purpose": "local candidate verification; no production authority",
+    "counts": {
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  "whole_core_AST_equal_except_exception_initializer": true,
+  "codec_and_adapter_bytes_unchanged": true,
+  "source_closure_summary_sha256": "cb2b1afc49365eb131f43f1b4460618502b2268fab3eaa651d9317124ce86199",
+  "local_formal_r2_status": "rejected_by_original_60_second_watchdog; no formal receipt",
+  "cloud_python311_complete_gate_status": "pending; not a publication acceptance claim",
+  "historical_replay": "reuse old successful 2026-10-22 result only within unchanged successful-path AST and codec; not fresh market data",
+  "formal_ledger_or_SMTP_operations": false
+}

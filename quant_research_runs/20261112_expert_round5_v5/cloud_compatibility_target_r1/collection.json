@@ -1,0 +1,15 @@
+{
+  "collected": [
+    "test_icim_external_review_20261111.py::test_transport_error_keeps_the_requests_exception_contract",
+    "test_icim_expiry_completion_20261112.py::test_sse_producer_captures_raw_proof_and_replay_requires_no_HTTP"
+  ],
+  "selected": [
+    "test_icim_external_review_20261111.py::test_transport_error_keeps_the_requests_exception_contract",
+    "test_icim_expiry_completion_20261112.py::test_sse_producer_captures_raw_proof_and_replay_requires_no_HTTP"
+  ],
+  "deselected": [],
+  "executed": [
+    "test_icim_external_review_20261111.py::test_transport_error_keeps_the_requests_exception_contract",
+    "test_icim_expiry_completion_20261112.py::test_sse_producer_captures_raw_proof_and_replay_requires_no_HTTP"
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "exit_code": 0,
+  "source_before_equals_after": true,
+  "source_files": 213,
+  "purpose": "local candidate verification; no production authority",
+  "counts": {
+    "tests": 2,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  }
+}
