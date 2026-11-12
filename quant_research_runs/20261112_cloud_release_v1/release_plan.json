@@ -1,0 +1,18 @@
+{
+  "authorized_scope": "Commit and push reviewed revisions; update cloud daily digest; verify release; preserve all evidence and seek a clean workspace.",
+  "baseline": "48a0412c126ebc8326899a1d5ba305404fba017f",
+  "audited_main_sha256": "5db134c87075e9241ac380fa59d07bfb83d275e040ddbba387b7fdc1dc05deef",
+  "audited_adapter_sha256": "c98327b6bd0cf773a17a649dc517dbec43b8eaa751f3fc41381b9563eedbeaaf",
+  "known_blocker": "Local .git index is read-only; git add --dry-run failed creating index.lock. Remote GitHub connector is available.",
+  "cloud_baseline": "20c7cceb398fc6bd50e8c25fe1c75e94c90a51c3",
+  "last_daily_failure_run": 43214057274,
+  "mutations_planned": [
+    "new immutable release inventory",
+    "declare 56-file formal test entry",
+    "cloud source verification and report provenance",
+    "approved derived calendar consumer scope",
+    "immutable daily pin and no-send readiness"
+  ],
+  "production_ledger_rewrite": false,
+  "manual_SMTP": false
+}

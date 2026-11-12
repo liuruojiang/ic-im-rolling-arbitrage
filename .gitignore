@@ -172,3 +172,16 @@ Thumbs.db
 /quant_research_runs/20261023_latest_redteam_v2/preaudit_commit_paths.json
 /quant_research_runs/20261023_latest_redteam_v2/preaudit_paths.nul
 /quant_research_runs/20261023_multiround_adversarial_v1/agents/concurrency/pin_dynamic_deps/ic_im_ma23_unpinned_*.py
+
+# Reviewed 2026-11-12 audit workspaces. Selected reports, pins, fixtures and
+# reusable tests are committed explicitly; retain local raw runs and backups.
+/quant_research_runs/20261111_expert_review_v1/
+/quant_research_runs/20261112_expert_followup_v2/
+/quant_research_runs/20261112_expert_round4_v4/
+/quant_research_runs/20261112_expert_round5_v5/
+/quant_research_runs/20261112_expiry_completion_v3/
+/quant_research_runs/20261112_state_council_calendar_v1/
+/quant_research_runs/20261112_cloud_release_v1/
+/quant_research_runs/icim_expiry_v3_tmp/
+/quant_research_runs/icim_review_v4_tmp/
+/quant_research_runs/icim_review_v5_tmp/

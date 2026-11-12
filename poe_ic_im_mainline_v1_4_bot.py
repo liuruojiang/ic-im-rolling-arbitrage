@@ -7,6 +7,7 @@
 #   "numpy>=1.26",
 #   "pandas>=2.1",
 #   "requests>=2.31",
+#   "tzdata>=2024.1; sys_platform == 'win32'",
 # ]
 # ///
 """Poe-native research query bot for the IC/IM v1.4 research signal.
@@ -45,11 +46,15 @@ import matplotlib
 
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+from matplotlib.backends.backend_agg import FigureCanvasAgg
+from matplotlib.figure import Figure
 import numpy as np
 import pandas as pd
 import requests
 import ic_im_daily_valuation as daily_valuation
 import ic_im_chinabond as chinabond
+import ic_im_state_council_calendar_v1 as state_council_calendar
+import ic_im_expiry_evidence_v1 as expiry_evidence
 import ic_im_fear_grid_v1 as fear_grid
 import ic_im_quote_snapshot_guard as quote_snapshot_guard
 import ic_im_option_maintenance_notice as option_maintenance_notice
@@ -193,7 +198,15 @@ def _prefetch_mo_replay_verification(quotes: pd.DataFrame, clock: datetime) -> d
 
 
 def _resolve_gov10y_evidence(market_day: date, clock: datetime, frozen_rate: float, anchor_day: date):
-    return chinabond.resolve(market_day, clock, frozen_rate, anchor_day)
+    cache = _GOV10Y_QUERY_CACHE.get()
+    key = (market_day, frozen_rate, anchor_day, id(signal_evidence.current_reader.get()),
+           id(signal_evidence.current_session.get()))
+    if cache is not None and key in cache:
+        return deepcopy(cache[key])
+    result = chinabond.resolve(market_day, clock, frozen_rate, anchor_day)
+    if cache is not None:
+        cache[key] = deepcopy(result)
+    return result
 
 try:
     from fastapi_poe.types import SettingsResponse
@@ -287,6 +300,12 @@ _HISTORICAL_REPLAY_DAY: contextvars.ContextVar[date | None] = (
 _OPTION_CHAIN_REFERENCE_DAY = contextvars.ContextVar("ic_im_option_chain_reference_day", default=None)
 _SINA_OPTION_QUOTE_BATCH_SIZE = 6
 _IC_QUOTE_QUERY_CACHE = contextvars.ContextVar("ic_im_ic_quote_query_cache", default=None)
+_GOV10Y_QUERY_CACHE = contextvars.ContextVar("ic_im_gov10y_query_cache", default=None)
+_CALENDAR_POLICY_DAY = contextvars.ContextVar("ic_im_calendar_policy_day", default=None)
+_CFFEX_EXPIRY_QUERY_CACHE = contextvars.ContextVar("ic_im_cffex_expiry_query_cache", default=None)
+_IC_LISTING_QUERY_CACHE = contextvars.ContextVar("ic_im_listing_query_cache", default=None)
+_IC_CANDIDATE_LISTING_EFFECTIVE_SIGNAL_DATE = evidence_adapter.LISTING_EFFECTIVE_SIGNAL_DATE
+_PERFORMANCE_PLOT_LOCK = threading.RLock()
 _COLLECTION_CLOCK_ANCHOR = contextvars.ContextVar("ic_im_quote_collection_clock", default=None)
 _VERIFIED_DISPLAY_ANCHORS = contextvars.ContextVar("ic_im_verified_display_anchors", default=None)
 
@@ -441,6 +460,7 @@ QUOTE_OFFICIAL_SOURCE_BUDGET_SECONDS = 4.0
 QUOTE_VENDOR_SOURCE_BUDGET_SECONDS = 8.0
 QUOTE_FALLBACK_RESERVE_SECONDS = 10.0
 PERFORMANCE_NETWORK_BUDGET_SECONDS = 45.0
+MIN_PERFORMANCE_OBSERVATIONS = 20
 MAX_CFFEX_DOWNLOAD_BYTES = 8 * 1024 * 1024
 MAX_CFFEX_ZIP_MEMBERS = 128
 MAX_CFFEX_ZIP_MEMBER_BYTES = 8 * 1024 * 1024
@@ -474,13 +494,12 @@ TENCENT_OHLCV_VOLUME_TO_SHARES = 100.0
 
 # CFFEX/SSE official weekday closures for covered years. Weekends are always closed even
 # when the State Council designates them as make-up working days. Keep the
-# covered years explicit so later years never masquerade as a formal calendar.
-# TODO(calendar): add the official 2027 CFFEX/SSE closure schedule immediately
-# after the exchanges publish it; 2027 contracts are already listed in 2026.
+# covered years explicit. From 2026-11-12, the separately hash-bound State
+# Council 2027 derivation is accepted under the user's calendar policy.
 # Historical years are backed by annual SSE/CFFEX notices, all four full
 # official futures session sets and 48 observed futures expiry dates. See
 # tests/fixtures/icim_historical_calendar_20261022 for source provenance/oracles.
-# Unknown years (including 2027) retain the existing strict execution gates.
+# Other unknown years retain the existing strict execution gates.
 _OFFICIAL_EXCHANGE_CALENDAR_YEARS = frozenset({2022, 2023, 2024, 2025, 2026})
 _EXCHANGE_CLOSURES = frozenset(
     {
@@ -804,6 +823,10 @@ def _install_runtime_anchors(anchors: dict[str, dict[str, Any]]) -> None:
                     "verified_call_contracts_normalized"):
             if key not in anchor:
                 raise ValueError(f"{product}运行时账本缺少{key}")
+        if product == "IC":
+            for key in ("verified_core_put_driver", "verified_momentum_put_driver"):
+                if key not in anchor or not isinstance(anchor[key], str):
+                    raise ValueError(f"{product}运行时账本缺少合法{key}")
         numeric_keys = ["verified_momentum_weight", "verified_next_momentum_weight",
                         "verified_grid_units", "verified_next_grid_units",
                         "verified_put_qty_normalized", "verified_call_contracts_normalized"]
@@ -812,7 +835,8 @@ def _install_runtime_anchors(anchors: dict[str, dict[str, Any]]) -> None:
                                  "verified_total_put_delta"))
         else:
             numeric_keys.extend(("verified_core_put_qty_normalized",
-                                 "verified_momentum_put_qty_normalized", "verified_total_put_qty_normalized"))
+                                 "verified_momentum_put_qty_normalized", "verified_total_put_qty_normalized",
+                                 "verified_parent_puts"))
         for key in numeric_keys:
             if key not in anchor:
                 raise ValueError(f"{product}运行时账本缺少{key}")
@@ -824,6 +848,8 @@ def _install_runtime_anchors(anchors: dict[str, dict[str, Any]]) -> None:
                 raise ValueError(f"{product}运行时账本{key}不能为负数")
             if key in {"verified_core_put_delta", "verified_momentum_put_delta", "verified_total_put_delta"} and float(value) > 1:
                 raise ValueError(f"{product}运行时账本{key}不能超过1")
+            if key == "verified_parent_puts" and (not float(value).is_integer() or float(value) > 4):
+                raise ValueError(f"{product}运行时账本{key}必须为0至4的整数")
         for key in ("verified_core_put_qty", "verified_momentum_put_qty"):
             if key in anchor and (isinstance(anchor[key], bool)
                     or not isinstance(anchor[key], (int, float, np.integer, np.floating))
@@ -958,18 +984,126 @@ def _shift_months(day: date, months: int) -> date:
     return date(year, month, target_day)
 
 
+def _query_instrument_spans(query: str) -> list[tuple[int, int, tuple[str, ...]]]:
+    """Identify instrument labels without consuming an adjacent explicit date."""
+    spans = []
+    for match in re.finditer(
+        r"中证\s*(500|1000)(?!\d)(?:\s*(?:/|、|,|，|和|及|与|以及|或)\s*"
+        r"(?:中证\s*)?(500|1000)(?!\d))?", query,
+    ):
+        products = tuple(dict.fromkeys("IC" if value == "500" else "IM"
+                                      for value in match.groups() if value))
+        spans.append((match.start(), match.end(), products))
+    for match in re.finditer(
+        r"(?<![A-Z0-9])(?:510500[PC]\d{2}(?:0[1-9]|1[0-2])[MA]\d{5}"
+        r"|MO\d{2}(?:0[1-9]|1[0-2])-[PC]-\d+"
+        r"|(?:IC|IM)\d{2}(?:0[1-9]|1[0-2])|510500)(?![A-Z0-9])", query, re.I,
+    ):
+        symbol = match.group().upper()
+        if ((re.fullmatch(r"(?:IC|IM)\d{4}", symbol) or symbol == "510500")
+                and re.match(r"\s*(?:年(?!化)|[-/.]\s*\d|(?:到|至|~|—|–|-)\s*\d)", query[match.end():])):
+            continue  # IC2012年3月 / IC2012-03-01 describe a year, not IC2012.
+        products = ("IM",) if symbol.startswith(("IM", "MO")) else ("IC",)
+        spans.append((match.start(), match.end(), products))
+    for match in re.finditer(r"(?<!\d)500\s*ETF(?![A-Z0-9])", query, re.I):
+        spans.append((match.start(), match.end(), ("IC",)))
+    return spans
+
+
+def _date_query_without_instruments(query: str) -> str:
+    characters = list(query)
+    for start, end, _ in _query_instrument_spans(query):
+        characters[start:end] = [" "] * (end-start)
+    return "".join(characters)
+
+
 def parse_date_range(
     text: str, now: date | None = None
 ) -> tuple[date | None, date | None]:
-    query = normalize_query(text)
+    query = _date_query_without_instruments(normalize_query(text))
     today = now or beijing_today()
 
+    # Validate complete numeric tokens before any shorter fallback can accept
+    # a prefix (311 -> 31, 123 -> 12, or 12026 -> 2026). A following YYYY-MM
+    # after '-' is another range endpoint, not a four-digit day number.
+    def require_year(value: str) -> None:
+        if re.fullmatch(r"20\d{2}", value) is None:
+            raise ValueError("日期年份必须使用完整四位年份（2000至2099）")
+
+    for year_range_token in re.finditer(
+        r"(?<![\d/.-])(\d+)\s*(年?)\s*(到|至|~|—|–|-)\s*(\d+)\s*(年?)(?!\d)", query,
+    ):
+        first, first_marker, connector, last, last_marker = year_range_token.groups()
+        if connector == "-" and not (first_marker or last_marker or len(last) >= 3):
+            continue  # This can be YYYY-MM, including the start of YYYY-MM-DD.
+        if max(len(first), len(last)) < 3 and not (first_marker or last_marker):
+            continue  # A small-number range alone does not advertise years.
+        require_year(first)
+        require_year(last)
+    for year_token in re.finditer(r"(?<!\d)(\d{3,})\s*年(?!化)", query):
+        if re.search(r"(?:最近|过去|近)\s*$", query[:year_token.start()]):
+            continue
+        require_year(year_token.group(1))
+    for month_range_token in re.finditer(
+        r"(?<![\dvV])(\d+)[年/.-](\d+)月?\s*(?:到|至|~|—|–|-)\s*"
+        r"(\d+)[年/.-](\d+)月?(?![\d/.年月日-])", query,
+    ):
+        first_year, first_month, last_year, last_month = month_range_token.groups()
+        if re.search(r"\d[-/.]$", query[:month_range_token.start()]):
+            continue  # Never interpret a full date's interior as a year-month.
+        if (max(len(first_year), len(last_year)) < 3
+                and re.fullmatch(r"\d+\.\d+\s*(?:到|至|~|—|–|-)\s*\d+\.\d+", month_range_token.group())):
+            continue  # Ordinary small decimal ranges do not advertise years.
+        for year_text, month_text in ((first_year, first_month), (last_year, last_month)):
+            require_year(year_text)
+            if len(month_text) > 2 or not 1 <= int(month_text) <= 12:
+                raise ValueError("年月区间无效")
+    numeric_dates = re.finditer(
+        r"(?<!\d)(\d+)([-/.年])(\d+)"
+        r"(?:[-/.月](?!\d{3,}[-/.年])(\d+)日?)?", query,
+    )
+    for token in numeric_dates:
+        year_text, separator, month_text, day_text = token.groups()
+        if separator == "." and day_text is None:
+            continue  # A lone decimal is not an advertised year-month form.
+        if len(year_text) < 3 and day_text is None and separator != "年":
+            continue  # Preserve unrelated fractions such as 1/2.
+        if (len(year_text) == 4 and separator == "-" and day_text is None
+                and re.fullmatch(r"20\d{2}", month_text)):
+            continue  # Preserve the existing YYYY-YYYY year-range form.
+        require_year(year_text)
+        if len(month_text) > 2 or (day_text and len(day_text) > 2):
+            raise ValueError("日期数字位数无效，禁止截取日期的一部分")
+        try:
+            date(int(year_text), int(month_text), int(day_text or "1"))
+        except ValueError as exc:
+            raise ValueError("日期或月份无效") from exc
+
+    def require_complete_match(match: re.Match, *, allow_until_now: bool = False) -> None:
+        prefix = query[:match.start()]
+        suffix = query[match.end():]
+        # Check each side independently: deleting the matched date must not
+        # join a version suffix such as r1 to a following '至今'.
+        other_date = any(re.search(r"(?<!\d)(?:\d+\s*年(?!化)|\d{3,}[-/.]\d|\d{1,2}\s*[月日])", part)
+                         for part in (prefix, suffix))
+        other_period = any(re.search(
+            r"(?:最近|过去|近)\s*[零一二两三四五六七八九十百\d半]+\s*个?\s*(?:年半|年|月)|今年|去年|前年", part,
+        ) for part in (prefix, suffix))
+        dangling_range = any(re.search(r"(?<![A-Za-z\d.])\d+\s*(?:到|至|~|—|–|-)", part)
+                             for part in (prefix, suffix))
+        unparsed_suffix = re.sub(r"^\s*至今", "", suffix, count=1) if allow_until_now else suffix
+        unfinished_range = re.match(r"\s*(?:到|至|~|—|–|-|[/.]\s*\d)", unparsed_suffix)
+        unconsumed_until_now = not allow_until_now and any("至今" in part for part in (prefix, suffix))
+        if other_date or other_period or dangling_range or unfinished_range or unconsumed_until_now:
+            raise ValueError("查询包含未解析的日期，请使用一个完整且明确的日期区间")
+
     explicit = re.search(
-        r"(20\d{2})[-/.年](\d{1,2})[-/.月](\d{1,2})日?\s*(?:到|至|~|—|-)\s*"
-        r"(20\d{2})[-/.年](\d{1,2})[-/.月](\d{1,2})日?",
+        r"(?<!\d)(20\d{2})[-/.年](\d{1,2})[-/.月](\d{1,2})日?\s*(?:到|至|~|—|–|-)\s*"
+        r"(20\d{2})[-/.年](\d{1,2})[-/.月](\d{1,2})日?(?![\d日])",
         query,
     )
     if explicit:
+        require_complete_match(explicit)
         values = [int(x) for x in explicit.groups()]
         try:
             start, end = date(*values[:3]), date(*values[3:])
@@ -977,19 +1111,36 @@ def parse_date_range(
             raise ValueError("日期区间无效，请使用真实存在的 YYYY-MM-DD 日期") from exc
         return (start, end) if start <= end else (end, start)
 
-    single_day = re.search(r"(?<!\d)(20\d{2})[-/.年](\d{1,2})[-/.月](\d{1,2})日?(?!\d)", query)
+    month_range = re.search(
+        r"(?<!\d)(20\d{2})[年/.-](\d{1,2})月?\s*(?:到|至|~|—|–|-)\s*"
+        r"(20\d{2})[年/.-](\d{1,2})月?(?![\d月/.-])", query,
+    )
+    if month_range:
+        require_complete_match(month_range)
+        y1, m1, y2, m2 = map(int, month_range.groups())
+        try:
+            first, last = sorted((date(y1, m1, 1), date(y2, m2, 1)))
+        except ValueError as exc:
+            raise ValueError("年月范围无效") from exc
+        return first, date(last.year, last.month, month_calendar.monthrange(last.year, last.month)[1])
+
+    single_day = re.search(r"(?<!\d)(20\d{2})[-/.年](\d{1,2})[-/.月](\d{1,2})日?(?![\d日])", query)
     if single_day:
+        require_complete_match(single_day, allow_until_now=True)
         try:
             day = date(*(int(value) for value in single_day.groups()))
         except ValueError as exc:
             raise ValueError("日期无效，请使用真实存在的 YYYY-MM-DD 日期") from exc
+        if "至今" in query:
+            return (day, today) if day <= today else (today, day)
         return day, day
 
     year_to_month = re.search(
-        r"(20\d{2})\s*年\s*(?:到|至|~|—|-)\s*(20\d{2})\s*年\s*(\d{1,2})\s*月",
+        r"(?<!\d)(20\d{2})\s*年\s*(?:到|至|~|—|–|-)\s*(20\d{2})\s*年\s*(\d{1,2})\s*月(?!\d)",
         query,
     )
     if year_to_month:
+        require_complete_match(year_to_month)
         first_year, last_year, last_month = map(int, year_to_month.groups())
         first = date(first_year, 1, 1)
         try:
@@ -1001,10 +1152,11 @@ def parse_date_range(
         return first, last
 
     year_range = re.search(
-        r"(?:从\s*)?(20\d{2})\s*年?\s*(?:到|至|~|—|-)\s*(20\d{2})\s*年?",
+        r"(?<!\d)(?:从\s*)?(20\d{2})\s*年?\s*(?:到|至|~|—|–|-)\s*(20\d{2})\s*年?(?!\d)",
         query,
     )
     if year_range:
+        require_complete_match(year_range)
         first_year, last_year = map(int, year_range.groups())
         if first_year > last_year:
             first_year, last_year = last_year, first_year
@@ -1015,6 +1167,7 @@ def parse_date_range(
         query,
     )
     if recent:
+        require_complete_match(recent, allow_until_now=True)
         try:
             count = _number(recent.group(1))
         except ValueError as exc:
@@ -1029,14 +1182,18 @@ def parse_date_range(
         return _shift_months(today, -months), today
 
     if "今年" in query:
+        require_complete_match(re.search("今年", query), allow_until_now=True)
         return date(today.year, 1, 1), today
     if "去年" in query:
+        require_complete_match(re.search("去年", query))
         return date(today.year - 1, 1, 1), date(today.year - 1, 12, 31)
     if "前年" in query:
+        require_complete_match(re.search("前年", query))
         return date(today.year - 2, 1, 1), date(today.year - 2, 12, 31)
 
-    year_month = re.search(r"(20\d{2})[年/-](\d{1,2})月?", query)
+    year_month = re.search(r"(?<!\d)(20\d{2})[年/-](\d{1,2})月?(?![\d月])", query)
     if year_month:
+        require_complete_match(year_month, allow_until_now=True)
         year, month = map(int, year_month.groups())
         try:
             first = date(year, month, 1)
@@ -1047,22 +1204,33 @@ def parse_date_range(
             return (first, today) if first <= today else (today, first)
         return first, last
 
-    year = re.search(r"(20\d{2})\s*年", query)
+    year = re.search(r"(?<!\d)(20\d{2})\s*年", query)
     if year:
+        require_complete_match(year, allow_until_now=True)
         value = int(year.group(1))
         first = date(value, 1, 1)
         if "至今" in query:
             return (first, today) if first <= today else (today, first)
         return first, date(value, 12, 31)
+    if (re.search(r"\d+\s*(?:年(?!化)|月|日)", query)
+            or re.search(r"\d+[-/]\d+\s*(?:到|至|~|—|–|-)\s*\d+[-/]\d+", query)
+            or re.search(r"(?<!\d)20\d{2}\.\d{1,2}\s*(?:到|至|~|—|–|-)", query)):
+        raise ValueError("查询含有未能完整解析的日期，请使用完整四位年份")
     return None, None
 
 
 def _products_from_query(query: str) -> tuple[str, ...]:
     upper = query.upper()
+    instrument_products = {product for _, _, products in _query_instrument_spans(query)
+                           for product in products}
     wants_ic = (
-        bool(re.search(r"(?<![A-Z])(IC|SC)(?![A-Z])", upper)) or "中证500" in query
+        bool(re.search(r"(?<![A-Z])(IC|SC)(?![A-Z])", upper)) or "IC" in instrument_products
     )
-    wants_im = bool(re.search(r"(?<![A-Z])IM(?![A-Z])", upper)) or "中证1000" in query
+    wants_im = (
+        bool(re.search(r"(?<![A-Z])IM(?![A-Z])", upper))
+        or bool(re.search(r"(?<![A-Z0-9])MO(?![A-Z0-9])", upper))
+        or "IM" in instrument_products
+    )
     if wants_ic and not wants_im:
         return ("IC",)
     if wants_im and not wants_ic:
@@ -1079,8 +1247,8 @@ def classify_query(text: str, now: date | None = None) -> QueryIntent:
     intraday_signal = bool(re.search(r"(?:实时|盘中)\s*信号", query))
     close_signal = "信号" in query and not intraday_signal
     params = "参数" in query or "规则" in query or "阈值" in query
-    parsed_start, parsed_end = parse_date_range(query, now)
     if performance:
+        parsed_start, parsed_end = parse_date_range(query, now)
         if parsed_start is None:
             today = now or beijing_today()
             parsed_start, parsed_end = _shift_months(today, -12), today
@@ -1093,6 +1261,21 @@ def classify_query(text: str, now: date | None = None) -> QueryIntent:
         return QueryIntent("intraday_signal", products)
     if close_signal:
         return QueryIntent("close_signal", products)
+    # An explicit contract month is an instrument reference in the snapshot
+    # fallback. All remaining true dates retain the strict parser contract.
+    date_prefix_view = _date_query_without_instruments(query)
+
+    def omit_contract_month(match):
+        # Exclude recognized instrument numbers, while preserving true decimal
+        # or malformed date prefixes, including separators followed by spaces.
+        prefix = date_prefix_view[:match.start()]
+        if re.search(r"[\d./年-]$", prefix) or re.search(r"[./年-]\s+$", prefix):
+            return match.group(0)
+        return " "
+
+    fallback_dates = re.sub(r"(?:20\d{2}\s*年\s*)?(?:0?[1-9]|1[0-2])\s*月\s*(?:份\s*)?(?:的\s*)?合约",
+                            omit_contract_month, query)
+    parsed_start, parsed_end = parse_date_range(fallback_dates, now)
     if parsed_start is not None:
         return QueryIntent("performance", products, parsed_start, parsed_end)
     return QueryIntent("snapshot", products)
@@ -1716,12 +1899,14 @@ def performance_frame(
     if selected.empty:
         raise ValueError(f"{product} 在所选区间没有可核验收益数据")
     nav = (1.0 + selected).cumprod()
-    drawdown = nav / nav.cummax() - 1.0
+    drawdown = nav / nav.cummax().clip(lower=1.0) - 1.0
     benchmark_price = benchmark_prices.reindex(selected.index)
     if benchmark_price.isna().any():
         raise RuntimeError(f"{product} 指数价格与策略收益交易日未完全对齐")
-    benchmark_nav = benchmark_price / float(benchmark_price.iloc[0])
-    chart_nav = nav / float(nav.iloc[0])
+    previous_prices = benchmark_prices.loc[benchmark_prices.index < selected.index[0]]
+    benchmark_nav = (benchmark_price / float(previous_prices.iloc[-1]) if not previous_prices.empty
+                     else pd.Series(np.nan, index=selected.index, dtype=float))
+    chart_nav = nav.copy()
     return pd.DataFrame(
         {
             "ret": selected,
@@ -1738,78 +1923,90 @@ def performance_frame(
     )
 
 
-def performance_metrics(frame: pd.DataFrame) -> dict[str, float]:
+def performance_metrics(frame: pd.DataFrame) -> dict[str, float | None]:
     observations = len(frame)
+    if not observations:
+        raise ValueError("绩效区间收益观测为空")
     final_nav = float(frame["nav"].iloc[-1])
     std = float(frame["ret"].std(ddof=1)) if observations > 1 else 0.0
+    annualizable = observations >= MIN_PERFORMANCE_OBSERVATIONS
     return {
         "final_nav": final_nav,
         "return": final_nav - 1.0,
-        "cagr": final_nav ** (252.0 / observations) - 1.0,
-        "volatility": std * np.sqrt(252.0),
-        "sharpe": float(frame["ret"].mean()) / std * np.sqrt(252.0) if std > 0 else 0.0,
+        "cagr": final_nav ** (252.0 / observations) - 1.0 if annualizable else None,
+        "volatility": std * np.sqrt(252.0) if annualizable else None,
+        "sharpe": (float(frame["ret"].mean()) / std * np.sqrt(252.0) if std > 0 else 0.0)
+                  if annualizable else None,
         "max_drawdown": float(frame["drawdown"].min()),
         "observations": float(observations),
     }
 
 
 def render_nav_drawdown_chart(product: str, frame: pd.DataFrame, start: date) -> bytes:
-    color = "#1f77b4" if product == "IC" else "#d95f02"
-    fig, (nav_ax, dd_ax) = plt.subplots(
-        2, 1, figsize=(11.5, 7.5), sharex=True, gridspec_kw={"height_ratios": [3, 1]}
-    )
-    benchmark_name = "CSI 500 Price Index" if product == "IC" else "CSI 1000 Price Index"
-    nav_ax.plot(
-        frame.index,
-        frame["chart_nav"],
-        color=color,
-        linewidth=1.9,
-        label=f"{product} v1.3 NAV",
-    )
-    if frame["is_live"].any():
-        first_live = int(np.flatnonzero(frame["is_live"].to_numpy())[0])
-        live_part = frame.iloc[max(0, first_live - 1) :]
-        nav_ax.plot(
-            live_part.index,
-            live_part["chart_nav"],
-            color="#7b3294",
-            linewidth=2.2,
-            label="Actual-market continuation",
-        )
-        if frame.index.min().date() <= DATA_CUTOFF:
-            nav_ax.axvline(
-                pd.Timestamp(DATA_CUTOFF),
-                color="#7b3294",
-                linewidth=0.9,
-                linestyle=":",
+    with _PERFORMANCE_PLOT_LOCK:
+        fig = Figure(figsize=(11.5, 7.5))
+        FigureCanvasAgg(fig)
+        try:
+            color = "#1f77b4" if product == "IC" else "#d95f02"
+            nav_ax, dd_ax = fig.subplots(
+                2, 1, sharex=True, gridspec_kw={"height_ratios": [3, 1]}
             )
-    nav_ax.plot(
-        frame.index,
-        frame["benchmark_nav"],
-        color="#4d4d4d",
-        linewidth=1.4,
-        linestyle="--",
-        label=f"{benchmark_name} (normalized)",
-    )
-    nav_ax.axhline(1.0, color="#777777", linewidth=0.8, linestyle="--")
-    nav_ax.set_title(
-        f"{product} v1.3 Frozen r6 History (continuation disabled) vs {benchmark_name} | "
-        f"{start} to {frame.index[-1].date()}"
-    )
-    nav_ax.set_ylabel("NAV (start = 1.0)")
-    nav_ax.legend(loc="best", frameon=False)
-    nav_ax.grid(alpha=0.25)
-    dd_ax.fill_between(frame.index, frame["drawdown"], 0, color="#c44e52", alpha=0.4)
-    dd_ax.plot(frame.index, frame["drawdown"], color="#a23b3b", linewidth=1.0)
-    dd_ax.set_ylabel("Drawdown")
-    dd_ax.set_xlabel("Date")
-    dd_ax.grid(alpha=0.25)
-    dd_ax.yaxis.set_major_formatter(lambda value, _pos: f"{value:.0%}")
-    fig.tight_layout()
-    buffer = io.BytesIO()
-    fig.savefig(buffer, format="png", dpi=150, bbox_inches="tight")
-    plt.close(fig)
-    return buffer.getvalue()
+            benchmark_name = "CSI 500 Price Index" if product == "IC" else "CSI 1000 Price Index"
+            nav_ax.plot(
+                frame.index,
+                frame["chart_nav"],
+                color=color,
+                linewidth=1.9,
+                label=f"{product} v1.3 NAV",
+            )
+            if frame["is_live"].any():
+                first_live = int(np.flatnonzero(frame["is_live"].to_numpy())[0])
+                live_part = frame.iloc[max(0, first_live - 1) :]
+                nav_ax.plot(
+                    live_part.index,
+                    live_part["chart_nav"],
+                    color="#7b3294",
+                    linewidth=2.2,
+                    label="Actual-market continuation",
+                )
+                if frame.index.min().date() <= DATA_CUTOFF:
+                    nav_ax.axvline(
+                        pd.Timestamp(DATA_CUTOFF),
+                        color="#7b3294",
+                        linewidth=0.9,
+                        linestyle=":",
+                    )
+            if frame["benchmark_nav"].notna().all():
+                nav_ax.plot(
+                    frame.index,
+                    frame["benchmark_nav"],
+                    color="#4d4d4d",
+                    linewidth=1.4,
+                    linestyle="--",
+                    label=f"{benchmark_name} (normalized)",
+                )
+            nav_ax.axhline(1.0, color="#777777", linewidth=0.8, linestyle="--")
+            nav_ax.set_title(
+                f"{product} v1.3 Frozen r6 History (continuation disabled) "
+                + (f"vs {benchmark_name} | " if frame['benchmark_nav'].notna().all() else "| benchmark N/A | ")
+                +
+                f"{start} to {frame.index[-1].date()}"
+            )
+            nav_ax.set_ylabel("NAV (previous close = 1.0)")
+            nav_ax.legend(loc="best", frameon=False)
+            nav_ax.grid(alpha=0.25)
+            dd_ax.fill_between(frame.index, frame["drawdown"], 0, color="#c44e52", alpha=0.4)
+            dd_ax.plot(frame.index, frame["drawdown"], color="#a23b3b", linewidth=1.0)
+            dd_ax.set_ylabel("Drawdown")
+            dd_ax.set_xlabel("Date")
+            dd_ax.grid(alpha=0.25)
+            dd_ax.yaxis.set_major_formatter(lambda value, _pos: f"{value:.0%}")
+            fig.tight_layout()
+            buffer = io.BytesIO()
+            fig.savefig(buffer, format="png", dpi=150, bbox_inches="tight")
+            return buffer.getvalue()
+        finally:
+            fig.clear()
 
 
 def valuation_score(pb: float, erp: float, dividend: float) -> float:
@@ -3200,9 +3397,17 @@ def live_proxy(product: str, clock: datetime | None = None) -> dict[str, Any]:
     }
 
 
+def _reject_boolean_quote_values(frame: pd.DataFrame) -> None:
+    """Check raw mandatory quote numbers before pandas can turn True into 1.0."""
+    for column in ("lastprice", "volume", "position", "bprice", "sprice"):
+        if column in frame and frame[column].map(lambda value: isinstance(value, (bool, np.bool_))).any():
+            raise RuntimeError(f"行情数值列{column}不允许布尔值")
+
+
 def _numeric_frame(
     frame: pd.DataFrame, skip: tuple[str, ...] = ("instrument",)
 ) -> pd.DataFrame:
+    _reject_boolean_quote_values(frame)
     result = frame.copy()
     for column in result.columns:
         if column not in skip:
@@ -3279,6 +3484,7 @@ def _validate_quote_frame(
     missing = sorted(required.difference(frame.columns))
     if missing:
         raise RuntimeError(f"{source} {product}行情缺少标准列: {','.join(missing)}")
+    _reject_boolean_quote_values(frame)
     result = frame.copy()
     result["instrument"] = result["instrument"].astype(str).str.strip().str.upper()
     pattern = rf"{product}\d{{4}}" if product in {"IC", "IM"} else r"MO\d{4}-[CP]-\d+"
@@ -3509,6 +3715,7 @@ def _validate_complete_mo_chain(
 
 def _live_mo_put_quote_basis(frame: pd.DataFrame) -> pd.DataFrame:
     """Zero-trade live Puts use explicit two-sided estimates, never old last/settle."""
+    _reject_boolean_quote_values(frame)
     result = frame.copy()
     result["raw_lastprice"] = result["lastprice"]
     result["lastprice"] = pd.to_numeric(result["lastprice"], errors="coerce").astype(float)
@@ -3615,11 +3822,11 @@ def _fetch_sina_future_quotes(product: str, clock: datetime) -> pd.DataFrame:
         )
     frame = pd.DataFrame(rows)
     if not frame.empty:
-        parsed_days = pd.to_datetime(frame["source_date"], errors="coerce").dt.date
-        valid_days = [day for day in parsed_days if isinstance(day, date)]
-        if valid_days:
-            latest_day = max(valid_days)
-            frame = frame.loc[parsed_days.eq(latest_day)].copy()
+        parsed_days = pd.to_datetime(frame["source_date"], errors="coerce")
+        if parsed_days.isna().any():
+            raise RuntimeError(f"新浪财经 {product}行情包含无效日期，禁止静默丢弃合约")
+        if parsed_days.dt.date.nunique() != 1:
+            raise RuntimeError(f"新浪财经 {product}行情包含混合日期，禁止静默丢弃旧日期合约")
     return _validate_quote_frame(frame, product, clock, "新浪财经")
 
 
@@ -3852,6 +4059,8 @@ def fetch_cffex_quotes(
         try:
             with _network_budget(source_budget):
                 successes.append(fetcher(product, now))
+        except expiry_evidence.ExpiryEvidenceConflict:
+            raise
         except Exception as exc:  # noqa: BLE001 - aggregate every source result.
             failures.append(_source_failure(source, exc))
             causes.append(exc)
@@ -3982,6 +4191,8 @@ def verify_sina_option_quote(
         raise RuntimeError(
             f"新浪MO详报价 {contract} 已过期：最新 {source_date}，应覆盖 {expected_date}"
         )
+    if source_date > expected_date:
+        raise RuntimeError(f"新浪MO详报价 {contract} 日期 {source_date} 与被复核日期 {expected_date} 不一致")
     if source_date > clock.date():
         raise RuntimeError(f"新浪MO详报价 {contract} 日期 {source_date} 晚于北京时间")
     price = float(expected_price)
@@ -4269,6 +4480,34 @@ def _sina_put_detail_batches(ids: list[str]) -> list[tuple[str, str]]:
     return packets
 
 
+def fetch_sse_510500_expiry_master(expiry_ym: str, reference_day: date) -> dict:
+    """Fetch the current master, not a historical snapshot selected by request.
+
+    reference_day is the consumer's expected date: verify_sse_chain requires
+    the returned TIMESAVE to match it. No queryDate is sent as date evidence.
+    """
+    month = "20" + evidence_adapter.canonical_ic_month(expiry_ym)
+    response = _evidence_http_get(
+        "https://query.sse.com.cn/commonQuery.do", stream=True,
+        params={"isPagination": "false", "sqlId": adjusted_put_migration.MASTER_SQL,
+                "securityId": "510500", "expireDate": month,
+                "pageHelp.pageSize": "1000", "pageHelp.pageNo": "1"},
+        timeout=_bounded_timeout(8),
+        headers={"User-Agent": "Mozilla/5.0 POE-IC-IM-Research/1.0",
+                 "Referer": "https://www.sse.com.cn/assortment/options/disclo/info/",
+                 "Cache-Control": "no-cache", "Pragma": "no-cache"},
+    )
+    try:
+        response.raise_for_status()
+        try:
+            return json.loads(_bounded_response_bytes(response, "SSE完整到期主表"),
+                              object_pairs_hook=expiry_evidence.unique_object)
+        except (ValueError, UnicodeDecodeError) as exc:
+            raise expiry_evidence.ExpiryMasterUnavailable("SSE主表无法解码为JSON，未取得可核验证据") from exc
+    finally:
+        response.close()
+
+
 def fetch_sse_510500_chain(expiry_ym: str) -> tuple[pd.DataFrame, dict[str, str]]:
     match = re.fullmatch(r"(20)?(\d{2})(\d{2})", str(expiry_ym))
     if not match:
@@ -4284,6 +4523,17 @@ def fetch_sse_510500_chain(expiry_ym: str) -> tuple[pd.DataFrame, dict[str, str]
     rows = sse_identity.validate_chain_rows(payload, f"{yy}{month}")
     columns = ["contract", "last", "chg_rate", "pre_settle", "strike", "security_id"]
     frame = _numeric_frame(pd.DataFrame(rows, columns=columns), skip=("contract", "security_id"))
+    reference_day = _OPTION_CHAIN_REFERENCE_DAY.get() or adjusted_put_migration.day(payload.get("date"))
+    if reference_day >= expiry_evidence.EFFECTIVE_SIGNAL_DATE:
+        master = fetch_sse_510500_expiry_master(yy + month, reference_day)
+        frame = expiry_evidence.verify_sse_chain(
+            frame, master, as_of=reference_day, month="20" + yy + month,
+            model_expiry=_fourth_wednesday(2000 + int(yy), int(month)),
+            observation_clock=_iv_observation_clock(_now_beijing()))
+        evidence_adapter.record_expiry_proof(yy + month, reference_day, {
+            "revision": expiry_evidence.REVISION, "provider": "SSE",
+            "day": reference_day.isoformat(), "month": "20" + yy + month,
+            "payload": master})
     return frame, {
         "date": str(payload.get("date", "")),
         "time": _sse_session_time(payload.get("time"), "上交所510500期权链"),
@@ -4376,6 +4626,12 @@ def fetch_sina_510500_chain(expiry_ym: str) -> tuple[pd.DataFrame, dict[str, str
     source_day, source_time = latest.strftime("%Y%m%d"), latest.strftime("%H%M%S")
     frame = pd.DataFrame(rows)
     frame.attrs["unresolved_adjusted_contracts"] = unresolved_adjusted
+    reference_day = _OPTION_CHAIN_REFERENCE_DAY.get() or latest.date()
+    if reference_day >= expiry_evidence.EFFECTIVE_SIGNAL_DATE:
+        evidence_adapter.record_expiry_proof(yy + month, reference_day, {
+            "revision": expiry_evidence.REVISION, "provider": "Sina",
+            "day": reference_day.isoformat(), "month": "20" + yy + month,
+            "listed_ids": ids, "packets": packets})
     return frame, {
         "date": source_day,
         "time": source_time,
@@ -4402,6 +4658,8 @@ def fetch_510500_chain_with_failover(expiry_ym: str) -> tuple[pd.DataFrame, dict
             if reference_day is not None and reference_day >= sse_identity.EFFECTIVE_SIGNAL_DATE:
                 _validate_chain_stamp_matches(source, normalized_stamp, reference_day, _now_beijing())
             return chain, normalized_stamp
+        except expiry_evidence.ExpiryEvidenceConflict:
+            raise  # Positive contradictory evidence cannot be hidden by fallback.
         except Exception as exc:
             failures.append(f"{source}: {type(exc).__name__}: {exc}")
             source_errors.append(exc)
@@ -4496,15 +4754,57 @@ def fetch_sina_510500_expiries() -> list[str]:
 
 
 def fetch_510500_expiries_with_failover() -> list[str]:
-    errors, failures = [], []
-    for source, fetcher in (("上交所挂牌", fetch_sse_510500_expiries),
-                            ("新浪挂牌", fetch_sina_510500_expiries)):
+    cache = _IC_LISTING_QUERY_CACHE.get()
+    reader, capture = signal_evidence.current_reader.get(), signal_evidence.current_session.get()
+    policy_day = (reader.day if reader is not None else capture.day if capture is not None
+                  else _calendar_decision_day())
+    if policy_day < evidence_adapter.LISTING_EFFECTIVE_SIGNAL_DATE:
+        # Keep the original provider contract for old policy days and archives.
+        # Real providers retain their full-list validation; old consumer tests
+        # and stored lists do not acquire the new envelope/shape requirement.
+        if cache is not None and "legacy_listing" in cache:
+            return deepcopy(cache["legacy_listing"])
+        errors, descriptions = [], []
+        for source, fetcher in (("上交所挂牌", fetch_sse_510500_expiries),
+                                ("新浪挂牌", fetch_sina_510500_expiries)):
+            try:
+                months = fetcher()
+                if cache is not None:
+                    cache["legacy_listing"] = deepcopy(months)
+                return months
+            except Exception as exc:
+                errors.append(exc)
+                descriptions.append(f"{source}: {type(exc).__name__}: {exc}")
+        raise _source_failure_error("510500挂牌月份所有来源均不可用；" + "；".join(descriptions), errors) from errors[-1]
+    if cache is not None and "listing" in cache:
+        return evidence_adapter.listing_value(cache["listing"])
+    failures = []
+    for source, fetcher in (("SSE", fetch_sse_510500_expiries),
+                            ("Sina", fetch_sina_510500_expiries)):
         try:
-            return fetcher()
+            months = fetcher()
+            try:
+                outcome = evidence_adapter.validate_listing_outcome({
+                    "revision": evidence_adapter.LISTING_OUTCOME_REVISION,
+                    "status": "available", "months": months, "failures": failures})
+            except signal_evidence.EvidenceUnavailable as exc:
+                raise RuntimeError("挂牌来源返回值未经完整核验") from exc
+            if cache is not None:
+                cache["listing"] = deepcopy(outcome)
+            return evidence_adapter.listing_value(outcome)
+        except (expiry_evidence.ExpiryEvidenceConflict, signal_evidence.EvidenceUnavailable,
+                CalendarCoverageError):
+            raise
         except Exception as exc:
-            errors.append(exc)
-            failures.append(f"{source}: {type(exc).__name__}: {exc}")
-    raise _source_failure_error("510500挂牌月份所有来源均不可用；" + "；".join(failures), errors) from errors[-1]
+            failures.append(evidence_adapter.listing_failure(source, exc))
+    status = ("transport_unavailable" if all(row["kind"] == "transport" for row in failures)
+              else "unverified")
+    outcome = evidence_adapter.validate_listing_outcome({
+        "revision": evidence_adapter.LISTING_OUTCOME_REVISION,
+        "status": status, "months": [], "failures": failures})
+    if cache is not None:
+        cache["listing"] = deepcopy(outcome)
+    return evidence_adapter.listing_value(outcome)
 
 
 def fetch_sse_510500_historical_quote(day: date) -> dict[str, Any]:
@@ -4625,6 +4925,9 @@ def _is_exchange_trading_day(day: date) -> bool:
     if day.weekday() >= 5:
         return False
     if day.year not in _OFFICIAL_EXCHANGE_CALENDAR_YEARS:
+        derived = _derived_exchange_calendar(day)
+        if derived is not None:
+            return derived.trading_day(day)
         return True
     return day not in _EXCHANGE_CLOSURES
 
@@ -4633,11 +4936,46 @@ class CalendarCoverageError(RuntimeError):
     """A scheduling or delivery date lacks official calendar evidence."""
 
 
+class TargetPutQuoteUnavailable(RuntimeError):
+    """A fixed IC target identity has no usable price; it must not jump strikes."""
+    def __init__(self, contract: str, expiry: date, strike: float):
+        self.details = {"product": "IC", "contract": contract, "expiry": expiry,
+                        "strike": strike, "reason": "selected_contract_quote_unavailable"}
+        super().__init__(f"IC目标Put {contract} 缺少有限正报价，禁止跳行权价")
+
+
 _SIGNAL_CALENDAR_DIAGNOSTICS = contextvars.ContextVar("signal_calendar_diagnostics", default=None)
 
 
-def _require_official_exchange_calendar(day: date, label: str) -> None:
+def _calendar_decision_day() -> date:
+    return _CALENDAR_POLICY_DAY.get() or _HISTORICAL_REPLAY_DAY.get() or _now_beijing().date()
+
+
+def _derived_exchange_calendar(day: date):
+    try:
+        return state_council_calendar.for_day(day, _calendar_decision_day())
+    except state_council_calendar.CalendarEvidenceError as exc:
+        raise CalendarCoverageError(str(exc)) from exc
+
+
+def _accepted_calendar_covers(day: date) -> bool:
+    if day.year in _OFFICIAL_EXCHANGE_CALENDAR_YEARS:
+        return True
+    try:
+        return _derived_exchange_calendar(day) is not None
+    except CalendarCoverageError:
+        # A coverage warning is not an adoption gate. Actual consumers below
+        # still reject the precise invalid source instead of inventing a date.
+        return False
+
+
+def _require_official_exchange_calendar(day: date, label: str) -> dict[str, Any] | None:
+    # Legacy API name retained. Accepted authority can now also be the explicit
+    # user-approved State Council derivation, with its separate provenance.
     if day.year not in _OFFICIAL_EXCHANGE_CALENDAR_YEARS:
+        derived = _derived_exchange_calendar(day)
+        if derived is not None:
+            return derived.evidence()
         context = _SIGNAL_CALENDAR_DIAGNOSTICS.get()
         if context is not None:
             item = {"date": day.isoformat(), "purpose": label,
@@ -4658,7 +4996,8 @@ def _require_model_expiry_calendar(day: date, label: str) -> None:
     formal target. The public builder must return a separate diagnostic payload.
     Direct selector callers retain their original strict behavior.
     """
-    if day.year in _OFFICIAL_EXCHANGE_CALENDAR_YEARS:
+    if _accepted_calendar_covers(day):
+        _require_official_exchange_calendar(day, label)
         return
     context = _SIGNAL_CALENDAR_DIAGNOSTICS.get()
     if context is None:
@@ -4739,6 +5078,8 @@ def _calendar_coverage_warning(day: date) -> str | None:
     year_end = date(day.year, 12, 31)
     if ((year_end - day).days <= 90
             and day.year + 1 not in _OFFICIAL_EXCHANGE_CALENDAR_YEARS):
+        if _accepted_calendar_covers(date(day.year+1, 1, 1)):
+            return state_council_calendar.description()
         return (f"交易日历覆盖预警：距离{day.year}年末不足90天，"
                 f"{day.year + 1}年官方交易日历尚未载入；跨年日期仅作标注诊断，执行与落账须核验。")
     return None
@@ -4791,7 +5132,19 @@ def _third_friday(year: int, month: int) -> date:
     fridays = [
         week[month_calendar.FRIDAY] for week in weeks if week[month_calendar.FRIDAY]
     ]
-    return _roll_forward_exchange_day(date(year, month, fridays[2]))
+    result = _roll_forward_exchange_day(date(year, month, fridays[2]))
+    policy_day = _calendar_decision_day()
+    if policy_day >= expiry_evidence.EFFECTIVE_SIGNAL_DATE:
+        # Recompute the calendar roll above on every call. Cache only the
+        # independent verification, scoped to one public query and policy day.
+        cache = _CFFEX_EXPIRY_QUERY_CACHE.get()
+        key = (year, month, policy_day, result, id(_is_exchange_trading_day),
+               id(expiry_evidence.verify_cffex_rule_date))
+        if cache is None or key not in cache:
+            expiry_evidence.verify_cffex_rule_date(year, month, result, _is_exchange_trading_day)
+            if cache is not None:
+                cache[key] = True
+    return result
 
 
 def _fourth_wednesday(year: int, month: int) -> date:
@@ -5272,12 +5625,14 @@ def select_ic_put_for_reset(
     chain, stamp = _fetch_510500_chain_for_day(month[2:], today)
     puts = chain[
         chain["contract"].str.contains(rf"510500P{month[2:]}M", regex=True)
-        & chain["last"].gt(0)
     ].copy()
     if puts.empty:
         raise RuntimeError(f"{month} 没有可用标准510500ETF Put")
     puts["strike_error"] = (puts["strike"] - 0.95 * etf_price).abs()
     selected = puts.sort_values(["strike_error", "contract"]).iloc[0]
+    premium = pd.to_numeric(selected["last"], errors="coerce")
+    if premium is None or pd.isna(premium) or not math.isfinite(premium) or premium <= 0:
+        raise TargetPutQuoteUnavailable(str(selected["contract"]), expiry, float(selected["strike"]))
     _require_selected_510500_quote_time(selected, _now_beijing(), today, source=stamp.get("source"))
     years = max((expiry - today).days, 1) / 365.0
     iv = _implied_volatility(
@@ -5569,7 +5924,7 @@ def _expiry_definitely_after_reference(expiry: date, reference: date) -> bool:
     authorize its use for ranking, sizing, scheduling or formal targets.
     """
     _require_official_exchange_calendar(reference, "expiry comparison reference")
-    return (expiry.year not in _OFFICIAL_EXCHANGE_CALENDAR_YEARS
+    return (not _accepted_calendar_covers(expiry)
             and expiry.year > reference.year and expiry > reference)
 
 
@@ -5583,10 +5938,11 @@ def _is_pre_expiry_close(today: date, active_expiry: date, close_confirmed: bool
 
 
 def _calendar_coverage_note(expiries: Iterable[date]) -> str | None:
-    uncovered_years = sorted(
-        {day.year for day in expiries if day.year not in _OFFICIAL_EXCHANGE_CALENDAR_YEARS}
-    )
+    years = sorted({day.year for day in expiries})
+    uncovered_years = [year for year in years if not _accepted_calendar_covers(date(year, 1, 1))]
     if not uncovered_years:
+        if any(year not in _OFFICIAL_EXCHANGE_CALENDAR_YEARS for year in years):
+            return state_council_calendar.description()
         return None
     years = "/".join(str(year) for year in uncovered_years)
     return (
@@ -5595,12 +5951,28 @@ def _calendar_coverage_note(expiries: Iterable[date]) -> str | None:
     )
 
 
-def require_signal_calendar(product: str, signal: dict[str, Any]) -> None:
+def require_signal_calendar(product: str, signal: dict[str, Any]) -> list[dict[str, Any]]:
+    """Use the signal's policy day for both producer and consumer authorization."""
+    value = signal.get("market_date")
+    day = date.fromisoformat(str(value)[:10]) if value is not None else _calendar_decision_day()
+    token = _CALENDAR_POLICY_DAY.set(day)
+    try:
+        return _collect_signal_calendar_evidence(product, signal)
+    finally:
+        _CALENDAR_POLICY_DAY.reset(token)
+
+
+def _collect_signal_calendar_evidence(product: str, signal: dict[str, Any]) -> list[dict[str, Any]]:
     """Guard consumed signal dates without treating every listed row as a target."""
+    accepted_sources = []
     def covered(value: Any, label: str) -> None:
         if value is not None:
-            day = value if isinstance(value, date) else date.fromisoformat(str(value)[:10])
-            _require_official_exchange_calendar(day, f"{product} {label}")
+            day = date.fromisoformat(str(value)[:10])
+            source = _require_official_exchange_calendar(day, f"{product} {label}")
+            if source is not None:
+                row = {**source, "date": day.isoformat(), "purpose": label}
+                if row not in accepted_sources:
+                    accepted_sources.append(row)
 
     def contract_covered(value: Any, label: str, execution_day: Any = None) -> None:
         if not value:
@@ -5676,6 +6048,22 @@ def require_signal_calendar(product: str, signal: dict[str, Any]) -> None:
         covered(signal.get("put_monthly_reset_execution_date"), "Put monthly maintenance")
     if signal.get("roll_confirmed") or signal.get("core_target") != signal.get("core_current"):
         covered(signal.get("roll_execution_date"), "future roll execution")
+    return accepted_sources
+
+
+def validate_calendar_authority(product: str, signal: dict[str, Any]) -> None:
+    """Recheck calendar authority at publication/persistence, including source hashes."""
+    day = signal.get("market_date")
+    day = date.fromisoformat(str(day)[:10])
+    token = _CALENDAR_POLICY_DAY.set(day)
+    try:
+        sources = require_signal_calendar(product, signal)
+    finally:
+        _CALENDAR_POLICY_DAY.reset(token)
+    expected = ({"policy_revision": state_council_calendar.REVISION,
+                 "exchange_notice_verified": False, "sources": sources} if sources else None)
+    if signal.get("calendar_source_evidence") != expected:
+        raise RuntimeError(f"{product} 日历来源元数据缺失、被改写或与实际消费日期不一致")
 
 
 def _validate_market_stamp(label: str, value: str, clock: datetime) -> date:
@@ -6040,6 +6428,19 @@ def _v14_target_month(execution_day: date, offset: int = 1) -> tuple[int, int]:
     return _month_after(execution_day.year, execution_day.month, offset)
 
 
+def _v14_ic_listing_note(signal, month, status, *, roll):
+    kind = "roll" if roll else "entry"
+    detail = f"{kind}:listing_{status}:{month}"
+    previous = signal.get("v14_candidate_data_status", "")
+    signal["v14_candidate_data_status"] = "; ".join(filter(None, (previous, detail)))
+    note = (f"挂牌探测：两个来源传输不可用，已退回直接取链；{kind}候选月份{month}未经挂牌列表核验，月链仍须通过全部门禁。"
+            if status == "transport_unavailable" else
+            f"挂牌探测：列表未经核验，{kind}候选月份{month}不可交易；不据此认定未挂牌。")
+    notes = signal.setdefault("data_notes", [])
+    if note not in notes:
+        notes.append(note)
+
+
 def _v14_ic_short_put_candidate(
     signal: dict[str, Any], *, roll_from_expiry: date | None = None
 ) -> dict[str, Any]:
@@ -6054,24 +6455,45 @@ def _v14_ic_short_put_candidate(
     else:
         year, month = _month_after(roll_from_expiry.year, roll_from_expiry.month)
     expiry_month = f"{year:04d}{month:02d}"
+    # This November repair must not add a role to older archived candidates.
+    if signal["market_date"] >= _IC_CANDIDATE_LISTING_EFFECTIVE_SIGNAL_DATE:
+        try:
+            listed_months = fetch_510500_expiries_with_failover()
+        except evidence_adapter.ListingProbeTransportUnavailable:
+            listed_months = None
+            _v14_ic_listing_note(signal, expiry_month, "transport_unavailable", roll=roll_from_expiry is not None)
+        except (SignalTransportError, requests.ConnectionError, requests.Timeout,
+                requests.exceptions.ChunkedEncodingError):
+            if signal_evidence.current_reader.get() is not None:
+                raise  # Only a validated recorded outcome may restore this branch.
+            listed_months = None
+            _v14_ic_listing_note(signal, expiry_month, "transport_unavailable", roll=roll_from_expiry is not None)
+        except (expiry_evidence.ExpiryEvidenceConflict, signal_evidence.EvidenceUnavailable,
+                CalendarCoverageError):
+            raise
+        except (evidence_adapter.ListingProbeUnavailable, RuntimeError, requests.RequestException) as exc:
+            _v14_ic_listing_note(signal, expiry_month, "unverified", roll=roll_from_expiry is not None)
+            return {"tradable": False, "reason": "listing_unverified", "month": expiry_month,
+                    "listing_error": str(exc)}
+        if listed_months is not None and expiry_month not in listed_months:
+            return {"tradable": False, "reason": "target_month_not_listed",
+                    "month": expiry_month, "listed_months": list(listed_months)}
     expiry = _fourth_wednesday(year, month)
     _require_official_exchange_calendar(expiry, "new IC short Put expiry")
-    try:
-        chain, stamp = _fetch_510500_chain_for_day(expiry_month[2:], signal["market_date"])
-    except RuntimeError as exc:
-        if "证券代码列表" in str(exc) or "有效510500 Put月份" in str(exc):
-            return {"tradable": False, "reason": "target_m1_not_listed", "month": expiry_month}
-        raise
+    chain, stamp = _fetch_510500_chain_for_day(expiry_month[2:], signal["market_date"])
     _validate_chain_stamp_matches("v1.4 IC卖Put候选", stamp, signal["market_date"], _now_beijing())
     puts = chain[
         chain.contract.str.contains(rf"510500P{expiry_month[2:]}M", regex=True)
-        & chain["last"].gt(0)
     ].copy()
     if puts.empty:
         return {"tradable": False, "reason": "target_m1_no_valid_quote", "month": expiry_month}
     etf = float(signal["etf_price"])
     puts["distance"] = (puts.strike - 0.95 * etf).abs()
     selected = puts.sort_values(["distance", "contract"]).iloc[0]
+    premium = pd.to_numeric(selected["last"], errors="coerce")
+    if not math.isfinite(premium) or premium <= 0:
+        return {"tradable": False, "reason": "target_m1_selected_quote_unavailable",
+                "month": expiry_month, "contract": str(selected["contract"])}
     _require_selected_510500_quote_time(
         selected, _now_beijing(), signal["market_date"], source=stamp.get("source")
     )
@@ -6323,6 +6745,9 @@ def _v14_prepare_lifecycle_evidence(product: str, signal: dict[str, Any], anchor
     trigger_value = anchor.get("v14_profit_trigger_day")
     trigger_day = date.fromisoformat(str(trigger_value)[:10]) if trigger_value else None
     if trigger_day is not None and trigger_day >= v14_policy.PROFIT_OPEN_EFFECTIVE_SIGNAL_DATE:
+        # The public builder projects committed dated-open plans before policy
+        # evaluation. Keep this compatible entry for supported direct callers
+        # and archived plans; the older close-price branch below is historical.
         if (product == "IC" and int(signal.get("put_target_core_qty", 0)) <= 0) or (
                 product == "IM" and float(signal.get("core_put_target_qty_normalized", 0.0)) <= 0):
             return
@@ -6447,6 +6872,8 @@ def _v14_prepare_profit_open_plan(product: str, signal: dict[str, Any], anchor: 
         signal.update(v14_profit_plan_contract=contract, v14_profit_plan_qty=qty,
                       v14_profit_plan_security_id=security_id,
                       v14_profit_reentry_status="t_close_preselected_for_next_open")
+    except expiry_evidence.ExpiryEvidenceConflict:
+        raise
     except (SignalTransportError, requests.ConnectionError, requests.Timeout):
         raise
     except Exception as exc:
@@ -6510,6 +6937,8 @@ def _v14_ordinary_open_evidence(
                 prices.append({"contract": contract, "security_id": security_id,
                                "openprice": float(price), "source": source,
                                "price_day": market_date})
+    except expiry_evidence.ExpiryEvidenceConflict:
+        raise
     except (RuntimeError, ValueError, KeyError, TypeError, requests.RequestException) as exc:
         status = (put_execution.RETRY_OPEN_STATUS if market_date >= put_execution.OPEN_EVIDENCE_EFFECTIVE_DATE
                   else "closed_missing_open_price")
@@ -6796,10 +7225,17 @@ def _apply_v14_live_policy(
         if (projected.get("v14_action") == "HOLD"
                 and projected.get("v14_action_reason") == "profit3x_t_close_preselection_unavailable"):
             _v14_prepare_profit_open_plan(product, signal, anchor, mo_quotes)
-            return v14_policy.apply_policy(
+            projected = v14_policy.apply_policy(
                 product, signal, anchor, candidate=candidate, roll_candidate=roll_candidate
             )
+        unavailable_months = [f"{kind}:target_month_not_listed:{value['month']}"
+                              for kind, value in (("entry", candidate), ("roll", roll_candidate))
+                              if value and value.get("reason") == "target_month_not_listed"]
+        if unavailable_months:
+            projected["v14_candidate_data_status"] = "; ".join(unavailable_months)
         return projected
+    except expiry_evidence.ExpiryEvidenceConflict:
+        raise
     except (SignalTransportError, requests.ConnectionError, requests.Timeout):
         # Let the existing bounded transport retry repeat required evidence.
         # A failed source must not become a policy decision or a new state.
@@ -6892,6 +7328,8 @@ def _v14_project_committed_opens_locked(product: str, day: date, clock: datetime
             try:
                 event.update(status="confirmed_open_research_price",
                              prices=_v14_committed_open_prices(product, short, day, clock, quote_cache))
+            except expiry_evidence.ExpiryEvidenceConflict:
+                raise
             except (RuntimeError, ValueError, KeyError, TypeError, requests.RequestException) as exc:
                 status = (put_execution.RETRY_OPEN_STATUS if day >= put_execution.OPEN_EVIDENCE_EFFECTIVE_DATE
                           else "closed_missing_open_price")
@@ -6914,6 +7352,8 @@ def _v14_project_committed_opens_locked(product: str, day: date, clock: datetime
             event.update(status="confirmed_open_research_price",
                          prices=_v14_committed_open_prices(product, plan, day, clock, quote_cache))
             anchor = put_execution.project_profit_open(product, anchor, event, day)
+        except expiry_evidence.ExpiryEvidenceConflict:
+            raise
         except (RuntimeError, ValueError, KeyError, TypeError, requests.RequestException) as exc:
             status = (put_execution.RETRY_OPEN_STATUS if day >= put_execution.OPEN_EVIDENCE_EFFECTIVE_DATE
                       else "closed_missing_open_price")
@@ -6985,11 +7425,24 @@ def build_live_trade_signal(
         context = {"expiries": [], "failures": [], "signal": {}, "future": {}, "anchor": original_anchor}
         token = _SIGNAL_CALENDAR_DIAGNOSTICS.set(context)
         cache_token = _IC_QUOTE_QUERY_CACHE.set({})
+        rate_token = _GOV10Y_QUERY_CACHE.set({})
+        expiry_cache_token = _CFFEX_EXPIRY_QUERY_CACHE.set({})
+        listing_cache_token = _IC_LISTING_QUERY_CACHE.set({})
+        calendar_policy_token = _CALENDAR_POLICY_DAY.set(_calendar_decision_day())
         try:
             try:
                 result = _build_live_trade_signal(product, clock, mode)
             except CalendarCoverageError as exc:
                 result = make_diagnostic_signal(product, clock, str(exc))
+            except expiry_evidence.ExpiryEvidenceConflict as exc:
+                result = make_diagnostic_signal(product, clock, str(exc),
+                                                status="expiry_evidence_conflict")
+            except signal_evidence.EvidenceUnavailable as exc:
+                result = make_diagnostic_signal(product, clock, str(exc),
+                                                status="original_evidence_unavailable")
+            except TargetPutQuoteUnavailable as exc:
+                result = make_diagnostic_signal(product, clock, str(exc), status="put_fail_closed")
+                result["diagnostic_option"] = deepcopy(exc.details)
             if not result.get("diagnostic_only") and (
                 context["expiries"] or context["failures"]
                 or result.get("v14_action") == "HOLD_FAIL_CLOSED"
@@ -7012,6 +7465,10 @@ def build_live_trade_signal(
             # Opening confirmation is an in-memory projection for this query.
             # Only the state store may persist a fully validated close signal.
             LIVE_CONTINUATION_ANCHOR[product] = original_anchor
+            _CALENDAR_POLICY_DAY.reset(calendar_policy_token)
+            _CFFEX_EXPIRY_QUERY_CACHE.reset(expiry_cache_token)
+            _IC_LISTING_QUERY_CACHE.reset(listing_cache_token)
+            _GOV10Y_QUERY_CACHE.reset(rate_token)
             _IC_QUOTE_QUERY_CACHE.reset(cache_token)
             _SIGNAL_CALENDAR_DIAGNOSTICS.reset(token)
 
@@ -7033,6 +7490,9 @@ def _build_live_trade_signal(
         market_date = market_date.date()
     if not isinstance(market_date, date):
         market_date = date.fromisoformat(str(market_date))
+    # The public builder owns and restores this token on every completion path.
+    # Quote observation clocks remain unchanged; only scheduling policy uses T.
+    _CALENDAR_POLICY_DAY.set(market_date)
     partial_context = _SIGNAL_CALENDAR_DIAGNOSTICS.get()
     if partial_context is not None:
         # Retain already-computed observations even if a later calendar or
@@ -8189,19 +8649,75 @@ def _build_live_trade_signal(
                       signal_generation_timing="retrospective_replay" if
                       _HISTORICAL_REPLAY_DAY.get() is not None or finished.date() > market_date else
                       "intraday_hypothetical_if_now_close" if not close_confirmed else "close_confirmed")
-    require_signal_calendar(product, signal)
+    accepted_sources = require_signal_calendar(product, signal)
+    if accepted_sources:
+        signal["calendar_source_evidence"] = {
+            "policy_revision": state_council_calendar.REVISION,
+            "exchange_notice_verified": False, "sources": accepted_sources}
     signal["calendar_provisional"] = False
     grid_ok = fear_grid.publication_view(signal).get("grid_target_confirmed", True) is True
     signal["signal_complete"] = grid_ok
     signal["persistence_eligible"] = bool(signal.get("close_confirmed")) and grid_ok
     signal["calendar_coverage_warning"] = "；".join(
-        note for note in (_calendar_coverage_warning(market_date), calendar_note) if note
+        dict.fromkeys(note for note in (_calendar_coverage_warning(market_date), calendar_note) if note)
     ) or None
     return signal
 
 
 def _sm() -> Any:
     return poe.start_message()
+
+
+class _StagedMessage:
+    """Stage text and file operations until product rendering has completed."""
+    def __init__(self):
+        self._operations: list[tuple[str, Any]] = []
+
+    def write(self, value: str) -> int:
+        if not isinstance(value, str):
+            raise TypeError("message text must be a string")
+        self._operations.append(("write", value))
+        return len(value)
+
+    def attach_file(self, **kwargs: Any) -> None:
+        self._operations.append(("attach_file", dict(kwargs)))
+
+    def replay(self, msg: Any) -> None:
+        pending = []
+        for operation, value in self._operations:
+            if operation == "write":
+                pending.append(value)
+                continue
+            if pending:
+                msg.write("".join(pending))
+                pending.clear()
+            try:
+                msg.attach_file(**value)
+            except Exception as exc:
+                msg.write(f"\n⚠️ 附件 {value.get('name', 'unknown')} 提交失败："
+                          f"{type(exc).__name__}: {exc}。\n")
+        if pending:
+            msg.write("".join(pending))
+
+    def close(self) -> None:
+        self._operations.clear()
+
+
+@contextmanager
+def _isolated_product_report(msg: Any, product: str):
+    """Stage product text/files and isolate rendering or replay failures."""
+    staged = _StagedMessage()
+    try:
+        yield staged
+        staged.replay(msg)
+    except Exception as exc:  # noqa: BLE001 - product rendering is independently recoverable.
+        msg.write(f"### {PRODUCT_NAMES[product]}\n\n⚠️ 信号展示失败：{type(exc).__name__}: {exc}。\n\n")
+        try:
+            _write_last_verified_snapshot(msg, product)
+        except Exception as snapshot_exc:  # noqa: BLE001 - keep the other product visible.
+            msg.write(f"最后已核验快照无法安全渲染：{type(snapshot_exc).__name__}: {snapshot_exc}。\n\n")
+    finally:
+        staged.close()
 
 
 def _write_diagnostic_signal(msg: Any, product: str, signal: dict[str, Any]) -> None:
@@ -8459,398 +8975,402 @@ class ICIMMainlinesBot:
                     except Exception as observer_exc:  # noqa: BLE001 - computed result remains available.
                         msg.write(f"⚠️ {PRODUCT_NAMES[product]}信号已生成，但结构化结果采集失败；"
                                   f"持久化状态未确认：{type(observer_exc).__name__}: {observer_exc}。\n\n")
-                if live.get("diagnostic_only"):
-                    _write_diagnostic_signal(msg, product, live)
+                with _isolated_product_report(msg, product) as product_msg:
+                    if live.get("diagnostic_only"):
+                        _write_diagnostic_signal(product_msg, product, live)
+                        try:
+                            _write_last_verified_snapshot(product_msg, product)
+                        except Exception as snapshot_exc:  # Keep the other product visible.
+                            product_msg.write("最后已核验快照无法安全渲染："
+                                      f"{type(snapshot_exc).__name__}: {snapshot_exc}。\n\n")
+                        continue
+                    product_msg.write(f"### {PRODUCT_NAMES[product]}\n\n")
+                    if live.get("calendar_coverage_warning"):
+                        product_msg.write(f"**{live['calendar_coverage_warning']}**\n\n")
                     try:
-                        _write_last_verified_snapshot(msg, product)
-                    except Exception as snapshot_exc:  # Keep the other product visible.
-                        msg.write("最后已核验快照无法安全渲染："
-                                  f"{type(snapshot_exc).__name__}: {snapshot_exc}。\n\n")
-                    continue
-                msg.write(f"### {PRODUCT_NAMES[product]}\n\n")
-                if live.get("calendar_coverage_warning"):
-                    msg.write(f"**{live['calendar_coverage_warning']}**\n\n")
-                try:
-                    monthly_notice = option_maintenance_notice.reminder(
-                        product, live, is_session=_option_maintenance_session)
-                except Exception as notice_exc:
-                    monthly_notice = None
-                    msg.write(f"⚠️ 月度Put维护提醒无法核验，已跳过：{type(notice_exc).__name__}: {notice_exc}。\n\n")
-                if monthly_notice:
-                    msg.write(monthly_notice + "\n\n")
-                published = fear_grid.publication_view(live)
-                grid_confirmed = published.get("grid_target_confirmed", True)
-                msg.write(f"**{live.get('iv_warning', {}).get('text', 'IV预警：N/A（旧记录未包含监测值）')}**\n\n")
-                provisional = not live["close_confirmed"]
-                monthly_put_today = bool(
-                    provisional and monthly_notice
-                    and live.get("signal_generation_timing") != "retrospective_replay"
-                    and str(live.get("put_monthly_reset_execution_date") if product == "IM" else
-                            live.get("option_monthly_reset_execution_date"))[:10] == str(live["market_date"])[:10]
-                )
-                put_target_day = f"今日（{live['market_date']}）收盘候选" if monthly_put_today else "下一交易日"
-                target_label = "下一交易日预估目标" if provisional else "下一交易日确认目标"
-                confirm_text = (
-                    "盘中值，必须等待本交易日收盘确认"
-                    if provisional
-                    else f"{live['market_date']} 收盘已确认"
-                )
-                if grid_confirmed:
-                    msg.write(
-                        f"**当前总期货：{live['total_units_current']:g}倍；"
-                        f"{target_label}：{live['total_units_target']:g}倍；"
-                        f"净变化：{live['total_units_change']:+g}倍。**\n\n"
+                        monthly_notice = option_maintenance_notice.reminder(
+                            product, live, is_session=_option_maintenance_session)
+                    except Exception as notice_exc:
+                        monthly_notice = None
+                        product_msg.write(f"⚠️ 月度Put维护提醒无法核验，已跳过：{type(notice_exc).__name__}: {notice_exc}。\n\n")
+                    if monthly_notice:
+                        product_msg.write(monthly_notice + "\n\n")
+                    published = fear_grid.publication_view(live)
+                    grid_confirmed = published.get("grid_target_confirmed", True)
+                    product_msg.write(f"**{live.get('iv_warning', {}).get('text', 'IV预警：N/A（旧记录未包含监测值）')}**\n\n")
+                    provisional = not live["close_confirmed"]
+                    monthly_put_today = bool(
+                        provisional and monthly_notice
+                        and live.get("signal_generation_timing") != "retrospective_replay"
+                        and str(live.get("put_monthly_reset_execution_date") if product == "IM" else
+                                live.get("option_monthly_reset_execution_date"))[:10] == str(live["market_date"])[:10]
                     )
-                else:
-                    msg.write(
-                        "**部分有效：核心、动量和Put按下表单列；"
-                        "恐慌当日值及上一交易日沿用值未核验，网格及完整总期货目标N/A。**\n\n"
-                        f"当前总期货：{live['total_units_current']:g}倍；"
-                        f"{target_label}：N/A；净变化：N/A。\n\n"
+                    put_target_day = f"今日（{live['market_date']}）收盘候选" if monthly_put_today else "下一交易日"
+                    target_label = "下一交易日预估目标" if provisional else "下一交易日确认目标"
+                    confirm_text = (
+                        "盘中值，必须等待本交易日收盘确认"
+                        if provisional
+                        else f"{live['market_date']} 收盘已确认"
                     )
-                msg.write(
-                    f"信号日：**{live['market_date']}**；{'期货下一交易日' if monthly_put_today else '下一交易日'}：**{live['next_trade_date']}**；"
-                    f"状态：**{confirm_text}**。\n\n"
-                )
-                if monthly_put_today:
-                    msg.write(f"**月度Put：{put_target_day}，合约与数量均须盘尾自行复核，并在当天收盘完成换仓。**\n\n")
-                if live.get("signal_generation_timing") == "retrospective_replay":
-                    msg.write(
-                        f"**历史模型补录 retrospective_replay：实际生成 {live.get('signal_generated_at')}；"
-                        "不是原信号日已发布的前瞻目标，亦非账户成交。**\n\n"
+                    if grid_confirmed:
+                        product_msg.write(
+                            f"**当前总期货：{live['total_units_current']:g}倍；"
+                            f"{target_label}：{live['total_units_target']:g}倍；"
+                            f"净变化：{live['total_units_change']:+g}倍。**\n\n"
+                        )
+                    else:
+                        product_msg.write(
+                            "**部分有效：核心、动量和Put按下表单列；"
+                            "恐慌当日值及上一交易日沿用值未核验，网格及完整总期货目标N/A。**\n\n"
+                            f"当前总期货：{live['total_units_current']:g}倍；"
+                            f"{target_label}：N/A；净变化：N/A。\n\n"
+                        )
+                    product_msg.write(
+                        f"信号日：**{live['market_date']}**；{'期货下一交易日' if monthly_put_today else '下一交易日'}：**{live['next_trade_date']}**；"
+                        f"状态：**{confirm_text}**。\n\n"
                     )
-                msg.write(
-                    f"v1.4固定核心路由：**{live.get('v14_route_state', 'future')}**；"
-                    f"动作：**{live.get('v14_action', 'HOLD')}**；"
-                    f"原因：`{live.get('v14_action_reason', 'N/A')}`。\n\n"
-                )
-                expiry_branches = live.get("v14_expiry_conditional_signal")
-                if isinstance(expiry_branches, dict):
-                    msg.write(
-                        "**卖Put到期条件信号**：模型结算依据尚待核验；"
-                        "若价外失效，则结束卖Put周期并返回普通期货路线；"
-                        "若价内行权/现金结算，则进入模型承接与恢复路线。"
-                        "这是策略条件分支，实际账户成交、行权和交割由用户自行处理。\n\n"
+                    if monthly_put_today:
+                        product_msg.write(f"**月度Put：{put_target_day}，合约与数量均须盘尾自行复核，并在当天收盘完成换仓。**\n\n")
+                    if live.get("signal_generation_timing") == "retrospective_replay":
+                        product_msg.write(
+                            f"**历史模型补录 retrospective_replay：实际生成 {live.get('signal_generated_at')}；"
+                            "不是原信号日已发布的前瞻目标，亦非账户成交。**\n\n"
+                        )
+                    product_msg.write(
+                        f"v1.4固定核心路由：**{live.get('v14_route_state', 'future')}**；"
+                        f"动作：**{live.get('v14_action', 'HOLD')}**；"
+                        f"原因：`{live.get('v14_action_reason', 'N/A')}`。\n\n"
                     )
-                if product == "IM" and live.get("put_monthly_reset_preview"):
-                    msg.write(f"月度Put维护预告：{live['put_monthly_reset_execution_date']}执行；当天按已持有IM价格重选，当前不锁定新合约。\n\n")
-                if product == "IC" and live.get("option_monthly_reset_preview"):
-                    msg.write(f"月度Put维护预告：{live['option_monthly_reset_execution_date']}收盘执行；今日仅预告，不重复重选或记为已维护。\n\n")
-                if product == "IM" and live.get("option_monthly_reset_due"):
-                    msg.write(f"月度Put执行日：{live['put_monthly_reset_execution_date']}；参考{live['put_reference_future']}，取价日{live.get('put_reference_price_date', live['market_date'])}。盘中为待收盘确认的候选，收盘结果是当日研究执行记录，不是下一日重新选约指令。\n\n")
-                profit_status = live.get("v14_profit_reentry_status")
-                ordinary_status = live.get("v14_ordinary_put_open_status")
-                if (profit_status in {"scheduled_t_plus_1_open", "confirmed_open_research_price"}
-                        or ordinary_status == "confirmed_open_research_price"
-                        or live.get("v14_ordinary_put_plan_status") == "scheduled_t_plus_1_open"):
-                    msg.write("期权“开盘价”按供应商当日开盘字段作纸面研究价：集合竞价无成交时，可能取其后首笔成交，低流动性合约甚至可能晚于上午；不保证是09:30价格或账户可成交价。\n\n")
-                if profit_status == "scheduled_t_plus_1_open":
-                    msg.write(f"核心买Put三倍兑现开盘计划：{live['market_date']}收盘确认；{live['v14_profit_execution_day']}开盘卖旧合约{live['v14_profit_old_contract']}、买入预选合约{live['v14_profit_reentry_contract']}，规范化目标量{live['v14_profit_reentry_qty']:g}。此为模型计划，尚非成交。\n\n")
-                elif profit_status == "confirmed_open_research_price":
-                    msg.write(f"核心买Put三倍兑现纸面执行：{live['v14_profit_open_price_day']}开盘卖旧合约{live['v14_profit_open_old_contract']}，模型价{live['v14_profit_exit_open_price']}；买入{live['v14_profit_open_executed_contract']}，模型价{live['v14_profit_reentry_entry_premium']}，数量{live['v14_profit_open_executed_qty']:g}。不是账户成交回执。\n\n")
-                if ordinary_status == "confirmed_open_research_price":
-                    msg.write(f"普通核心/动量买Put：{live['market_date']}按前一收盘预选身份及当日开盘价完成纸面确认；逐腿开盘价见信号证据。不是账户成交回执。\n\n")
-                elif ordinary_status and ordinary_status.startswith("closed_"):
-                    msg.write(f"普通核心/动量买Put前次开盘计划已关闭：`{ordinary_status}`；{live.get('v14_ordinary_put_open_reason', '未形成可核验开盘执行')}。未记纸面成交。\n\n")
-                if live.get("v14_ordinary_put_plan_status") == "scheduled_t_plus_1_open":
-                    plan = live["v14_ordinary_put_pending"]
-                    msg.write(f"普通核心/动量买Put开盘计划：{plan['signal_day']}收盘定目标及合约，{plan['execution_day']}开盘待按预选身份与开盘价确认；尚非纸面或账户成交。\n\n")
-                for event in live.get("v14_opening_events", []):
-                    title = "三倍兑现" if event["kind"] == "profit3x" else "卖Put成本"
-                    msg.write(f"{title}独立开盘事件：{event['plan']['execution_day']}，"
-                              f"{event['status']}。{event.get('reason', '')}"
-                              "已核验开盘事件先于本日收盘新目标；仅研究价格，不是账户成交。\n\n")
-                short_pending = live.get("v14_short_put_open_pending")
-                if short_pending:
-                    msg.write(f"卖Put开盘计划待核验：{short_pending['execution_day']}，"
-                              f"新腿{short_pending['new_contract']}、数量{short_pending['new_qty']:g}；"
-                              "候选收盘价不作为入场成本，取得开盘证据前不启用衰减展期。\n\n")
-                put_timing = (
-                    f"{put_target_day}；盘尾复核，当天收盘维护（非T+1）" if monthly_put_today
-                    else "预定维护日收盘模型记录（非T+1）" if live.get("option_monthly_reset_due")
-                    else "T收盘预选 → T+1开盘" if profit_status == "scheduled_t_plus_1_open"
-                    else "本交易日开盘纸面确认" if profit_status == "confirmed_open_research_price"
-                    else "T收盘预选 → T+1开盘待确认" if live.get("v14_ordinary_put_plan_status") == "scheduled_t_plus_1_open"
-                    else "本交易日开盘纸面确认" if ordinary_status == "confirmed_open_research_price"
-                    else (
-                        "持仓维持；新计划按T收盘预选 → T+1指定日开盘"
-                        if live["market_date"] >= v14_policy.ORDINARY_PUT_OPEN_EFFECTIVE_SIGNAL_DATE
-                        else "T收盘评估 → T+1收盘"
+                    expiry_branches = live.get("v14_expiry_conditional_signal")
+                    if isinstance(expiry_branches, dict):
+                        product_msg.write(
+                            "**卖Put到期条件信号**：模型结算依据尚待核验；"
+                            "若价外失效，则结束卖Put周期并返回普通期货路线；"
+                            "若价内行权/现金结算，则进入模型承接与恢复路线。"
+                            "这是策略条件分支，实际账户成交、行权和交割由用户自行处理。\n\n"
+                        )
+                    if product == "IM" and live.get("put_monthly_reset_preview"):
+                        product_msg.write(f"月度Put维护预告：{live['put_monthly_reset_execution_date']}执行；当天按已持有IM价格重选，当前不锁定新合约。\n\n")
+                    if product == "IC" and live.get("option_monthly_reset_preview"):
+                        product_msg.write(f"月度Put维护预告：{live['option_monthly_reset_execution_date']}收盘执行；今日仅预告，不重复重选或记为已维护。\n\n")
+                    if product == "IM" and live.get("option_monthly_reset_due"):
+                        product_msg.write(f"月度Put执行日：{live['put_monthly_reset_execution_date']}；参考{live['put_reference_future']}，取价日{live.get('put_reference_price_date', live['market_date'])}。盘中为待收盘确认的候选，收盘结果是当日研究执行记录，不是下一日重新选约指令。\n\n")
+                    profit_status = live.get("v14_profit_reentry_status")
+                    ordinary_status = live.get("v14_ordinary_put_open_status")
+                    if (profit_status in {"scheduled_t_plus_1_open", "confirmed_open_research_price"}
+                            or ordinary_status == "confirmed_open_research_price"
+                            or live.get("v14_ordinary_put_plan_status") == "scheduled_t_plus_1_open"):
+                        product_msg.write("期权“开盘价”按供应商当日开盘字段作纸面研究价：集合竞价无成交时，可能取其后首笔成交，低流动性合约甚至可能晚于上午；不保证是09:30价格或账户可成交价。\n\n")
+                    if profit_status == "scheduled_t_plus_1_open":
+                        product_msg.write(f"核心买Put三倍兑现开盘计划：{live['market_date']}收盘确认；{live['v14_profit_execution_day']}开盘卖旧合约{live['v14_profit_old_contract']}、买入预选合约{live['v14_profit_reentry_contract']}，规范化目标量{live['v14_profit_reentry_qty']:g}。此为模型计划，尚非成交。\n\n")
+                    elif profit_status == "confirmed_open_research_price":
+                        product_msg.write(f"核心买Put三倍兑现纸面执行：{live['v14_profit_open_price_day']}开盘卖旧合约{live['v14_profit_open_old_contract']}，模型价{live['v14_profit_exit_open_price']}；买入{live['v14_profit_open_executed_contract']}，模型价{live['v14_profit_reentry_entry_premium']}，数量{live['v14_profit_open_executed_qty']:g}。不是账户成交回执。\n\n")
+                    if ordinary_status == "confirmed_open_research_price":
+                        product_msg.write(f"普通核心/动量买Put：{live['market_date']}按前一收盘预选身份及当日开盘价完成纸面确认；逐腿开盘价见信号证据。不是账户成交回执。\n\n")
+                    elif ordinary_status and ordinary_status.startswith("closed_"):
+                        product_msg.write(f"普通核心/动量买Put前次开盘计划已关闭：`{ordinary_status}`；{live.get('v14_ordinary_put_open_reason', '未形成可核验开盘执行')}。未记纸面成交。\n\n")
+                    if live.get("v14_ordinary_put_plan_status") == "scheduled_t_plus_1_open":
+                        plan = live["v14_ordinary_put_pending"]
+                        product_msg.write(f"普通核心/动量买Put开盘计划：{plan['signal_day']}收盘定目标及合约，{plan['execution_day']}开盘待按预选身份与开盘价确认；尚非纸面或账户成交。\n\n")
+                    for event in live.get("v14_opening_events", []):
+                        title = "三倍兑现" if event["kind"] == "profit3x" else "卖Put成本"
+                        product_msg.write(f"{title}独立开盘事件：{event['plan']['execution_day']}，"
+                                  f"{event['status']}。{event.get('reason', '')}"
+                                  "已核验开盘事件先于本日收盘新目标；仅研究价格，不是账户成交。\n\n")
+                    short_pending = live.get("v14_short_put_open_pending")
+                    if short_pending:
+                        product_msg.write(f"卖Put开盘计划待核验：{short_pending['execution_day']}，"
+                                  f"新腿{short_pending['new_contract']}、数量{short_pending['new_qty']:g}；"
+                                  "候选收盘价不作为入场成本，取得开盘证据前不启用衰减展期。\n\n")
+                    put_timing = (
+                        f"{put_target_day}；盘尾复核，当天收盘维护（非T+1）" if monthly_put_today
+                        else "预定维护日收盘模型记录（非T+1）" if live.get("option_monthly_reset_due")
+                        else "T收盘预选 → T+1开盘" if profit_status == "scheduled_t_plus_1_open"
+                        else "本交易日开盘纸面确认" if profit_status == "confirmed_open_research_price"
+                        else "T收盘预选 → T+1开盘待确认" if live.get("v14_ordinary_put_plan_status") == "scheduled_t_plus_1_open"
+                        else "本交易日开盘纸面确认" if ordinary_status == "confirmed_open_research_price"
+                        else (
+                            "持仓维持；新计划按T收盘预选 → T+1指定日开盘"
+                            if live["market_date"] >= v14_policy.ORDINARY_PUT_OPEN_EFFECTIVE_SIGNAL_DATE
+                            else "T收盘评估 → T+1收盘"
+                        )
                     )
-                )
-                msg.write(
-                    f"| 仓位腿 | 当前策略仓位 | {'目标仓位（时点见执行语义）' if monthly_put_today else '下一交易日目标'} | 变化 | 执行语义 |\n"
-                    "|---|---|---|---|---|\n"
-                )
-                msg.write(
-                    f"| 裸滚核心袖 | {live['core_units_current']:g}倍 `{live['core_current']}` | {live['core_units_target']:g}倍 `{live['core_target']}` | "
-                    f"{ACTION_CN.get(live['core_action'], live['core_action'])} | 季度换仓：IC T-3 / IM T-1收盘 |\n"
-                )
-                msg.write(
-                    f"| 动量指引袖 | {live['momentum_units_current']:g}倍（权重 {live['momentum_current_weight']:g}） | "
-                    f"{live['momentum_units_target']:g}倍（权重 {live['momentum_next_weight']:g}） | "
-                    f"{live['momentum_units_change']:+g}倍 | T收盘信号 → 下一交易日形成仓位 |\n"
-                )
-                grid_label = ("独立网格（估值/恐慌）" if live["market_date"] >= fear_grid.EFFECTIVE_SIGNAL_DATE
-                              else "独立估值网格")
-                if grid_confirmed:
-                    msg.write(
-                        f"| {grid_label} | {live['grid_current']}倍 | {live['grid_target']}倍 | "
-                        f"{live['grid_target'] - live['grid_current']:+g}倍 | T收盘信号 → T+1开盘 |\n"
+                    product_msg.write(
+                        f"| 仓位腿 | 当前策略仓位 | {'目标仓位（时点见执行语义）' if monthly_put_today else '下一交易日目标'} | 变化 | 执行语义 |\n"
+                        "|---|---|---|---|---|\n"
                     )
-                    msg.write(
-                        f"| **期货合计** | **{live['total_units_current']:g}倍** | "
-                        f"**{live['total_units_target']:g}倍** | **{live['total_units_change']:+g}倍** | 三条期货腿相加 |\n"
+                    product_msg.write(
+                        f"| 裸滚核心袖 | {live['core_units_current']:g}倍 `{live['core_current']}` | {live['core_units_target']:g}倍 `{live['core_target']}` | "
+                        f"{ACTION_CN.get(live['core_action'], live['core_action'])} | 季度换仓：IC T-3 / IM T-1收盘 |\n"
                     )
-                else:
-                    msg.write(
-                        f"| {grid_label} | {live['grid_current']}倍 | N/A（当日恐慌未核验） | N/A | 未确认 |\n"
-                        f"| **期货合计** | **{live['total_units_current']:g}倍** | **N/A** | **N/A** | 网格目标未确认 |\n"
+                    product_msg.write(
+                        f"| 动量指引袖 | {live['momentum_units_current']:g}倍（权重 {live['momentum_current_weight']:g}） | "
+                        f"{live['momentum_units_target']:g}倍（权重 {live['momentum_next_weight']:g}） | "
+                        f"{live['momentum_units_change']:+g}倍 | T收盘信号 → 下一交易日形成仓位 |\n"
                     )
-                msg.write(
-                    f"| Put | {live['put_current']} | {put_target_day + '：' if monthly_put_today else ''}{live['put_target']} | "
-                    f"{ACTION_CN.get(live['put_action'], live['put_action'])} | {put_timing} |\n"
-                )
-                msg.write(
-                    f"| Call | {live['call_current']} | {live['call_target']} | "
-                    f"{ACTION_CN.get(live['call_action'], live['call_action'])} | T收盘评估 → T+1收盘 |\n\n"
-                )
-                if live["market_date"] >= fear_grid.EFFECTIVE_SIGNAL_DATE:
-                    fear_basis = (
-                        f"沿用上一交易日 {live.get('fear_data_date')}（当日未发布；盘中预估）"
-                        if live.get("fear_data_status") == fear_grid.INTRADAY_FALLBACK_STATUS
-                        and grid_confirmed else
-                        f"沿用上一交易日 {live.get('fear_data_date')}（当日未发布；收盘模型）"
-                        if live.get("fear_data_status") == fear_grid.CLOSE_FALLBACK_STATUS
-                        and grid_confirmed else
-                        "当日读数" if live.get("fear_data_date") == live["market_date"].isoformat()
-                        else "以数据日及状态为准"
+                    grid_label = ("独立网格（估值/恐慌）" if live["market_date"] >= fear_grid.EFFECTIVE_SIGNAL_DATE
+                                  else "独立估值网格")
+                    if grid_confirmed:
+                        product_msg.write(
+                            f"| {grid_label} | {live['grid_current']}倍 | {live['grid_target']}倍 | "
+                            f"{live['grid_target'] - live['grid_current']:+g}倍 | T收盘信号 → T+1开盘 |\n"
+                        )
+                        product_msg.write(
+                            f"| **期货合计** | **{live['total_units_current']:g}倍** | "
+                            f"**{live['total_units_target']:g}倍** | **{live['total_units_change']:+g}倍** | 三条期货腿相加 |\n"
+                        )
+                    else:
+                        product_msg.write(
+                            f"| {grid_label} | {live['grid_current']}倍 | N/A（当日恐慌未核验） | N/A | 未确认 |\n"
+                            f"| **期货合计** | **{live['total_units_current']:g}倍** | **N/A** | **N/A** | 网格目标未确认 |\n"
+                        )
+                    product_msg.write(
+                        f"| Put | {live['put_current']} | {put_target_day + '：' if monthly_put_today else ''}{live['put_target']} | "
+                        f"{ACTION_CN.get(live['put_action'], live['put_action'])} | {put_timing} |\n"
                     )
-                    msg.write(
-                        f"- 恐贪读数：**{live.get('fear_greed_index') if live.get('fear_greed_index') is not None else 'N/A（未核验/未发布）'}**；"
-                        f"数据日 `{live.get('fear_data_date') or '未发布'}`；"
-                        f"数据状态 `{live.get('fear_data_status', 'N/A')}`；"
-                        f"使用口径：**{fear_basis}**；"
-                        f"网格来源 `{live.get('grid_entry_source_current', 'N/A')}` → "
-                        f"`{live.get('grid_entry_source_target', 'N/A') if grid_confirmed else 'N/A（未确认）'}`。\n\n"
+                    product_msg.write(
+                        f"| Call | {live['call_current']} | {live['call_target']} | "
+                        f"{ACTION_CN.get(live['call_action'], live['call_action'])} | T收盘评估 → T+1收盘 |\n\n"
                     )
-                    msg.write("- **百分位取数提示：" + fear_grid.source_disclosure(live) + "**\n\n")
-                    msg.write("- " + fear_grid.reference_disclosure(live) + "\n\n")
-                if product == "IM":
-                    msg.write(
-                        f"- **Call 独立维护**：当前 {live['call_current']}；目标 {live['call_target']}；"
-                        f"动作 **{ACTION_CN.get(live['call_action'], live['call_action'])}**；{live['call_market']}。\n\n"
+                    if live["market_date"] >= fear_grid.EFFECTIVE_SIGNAL_DATE:
+                        fear_basis = (
+                            f"沿用上一交易日 {live.get('fear_data_date')}（当日未发布；盘中预估）"
+                            if live.get("fear_data_status") == fear_grid.INTRADAY_FALLBACK_STATUS
+                            and grid_confirmed else
+                            f"沿用上一交易日 {live.get('fear_data_date')}（当日未发布；收盘模型）"
+                            if live.get("fear_data_status") == fear_grid.CLOSE_FALLBACK_STATUS
+                            and grid_confirmed else
+                            "当日读数" if live.get("fear_data_date") == live["market_date"].isoformat()
+                            else "以数据日及状态为准"
+                        )
+                        product_msg.write(
+                            f"- 恐贪读数：**{live.get('fear_greed_index') if live.get('fear_greed_index') is not None else 'N/A（未核验/未发布）'}**；"
+                            f"数据日 `{live.get('fear_data_date') or '未发布'}`；"
+                            f"数据状态 `{live.get('fear_data_status', 'N/A')}`；"
+                            f"使用口径：**{fear_basis}**；"
+                            f"网格来源 `{live.get('grid_entry_source_current', 'N/A')}` → "
+                            f"`{live.get('grid_entry_source_target', 'N/A') if grid_confirmed else 'N/A（未确认）'}`。\n\n"
+                        )
+                        product_msg.write("- **百分位取数提示：" + fear_grid.source_disclosure(live) + "**\n\n")
+                        product_msg.write("- " + fear_grid.reference_disclosure(live) + "\n\n")
+                    if product == "IM":
+                        product_msg.write(
+                            f"- **Call 独立维护**：当前 {live['call_current']}；目标 {live['call_target']}；"
+                            f"动作 **{ACTION_CN.get(live['call_action'], live['call_action'])}**；{live['call_market']}。\n\n"
+                        )
+                    else:
+                        product_msg.write("- **Call**：IC 1.4 明确禁止，当前和目标均无。\n\n")
+                    abs_days = int(live.get("momentum_abs_days", 20))
+                    abs_value = float(live.get("momentum_abs", live["momentum_abs20"]))
+                    abs_rule_text = (
+                        f"Abs{abs_days}>0即恢复满仓，不使用两日恢复防抖；Score保持即时规则。"
+                        if product == "IC" and abs_days == 40 else
+                        f"Abs{abs_days}恢复满仓须连续两日均>+1%；Score保持即时规则。"
+                        if live.get("momentum_abs_debounce_active", True) else
+                        f"Abs{abs_days}>0即恢复满仓；Score保持即时规则。"
                     )
-                else:
-                    msg.write("- **Call**：IC 1.4 明确禁止，当前和目标均无。\n\n")
-                abs_days = int(live.get("momentum_abs_days", 20))
-                abs_value = float(live.get("momentum_abs", live["momentum_abs20"]))
-                abs_rule_text = (
-                    f"Abs{abs_days}>0即恢复满仓，不使用两日恢复防抖；Score保持即时规则。"
-                    if product == "IC" and abs_days == 40 else
-                    f"Abs{abs_days}恢复满仓须连续两日均>+1%；Score保持即时规则。"
-                    if live.get("momentum_abs_debounce_active", True) else
-                    f"Abs{abs_days}>0即恢复满仓；Score保持即时规则。"
-                )
-                msg.write(
-                    "**动量袖为什么是这个仓位**\n\n"
-                    f"- 动量 Score：**{live['momentum_score']:.3f}**（要求 >0）；"
-                    f"Abs{abs_days}：**{abs_value:.2%}**。\n"
-                    f"- 规则：Score≤0 → 权重0；Score>0且Abs{abs_days}≤0 → 权重0.5；"
-                    f"{abs_rule_text}动量袖期货名义=0.5×权重。\n"
-                    f"- 当前动量仓位来自 **{live['momentum_current_source_date']}** 收盘信号；"
-                    f"本次 **{live['momentum_signal_date']}** 信号给出下一交易日权重 "
-                    f"**{live['momentum_next_weight']:g}**。\n\n"
-                )
-                if product == "IC":
-                    base_dd = live.get("momentum_base_dd")
-                    dd_text = (
-                        f"{float(base_dd):.2%}"
-                        if base_dd is not None and np.isfinite(float(base_dd))
-                        else "不可用"
+                    product_msg.write(
+                        "**动量袖为什么是这个仓位**\n\n"
+                        f"- 动量 Score：**{live['momentum_score']:.3f}**（要求 >0）；"
+                        f"Abs{abs_days}：**{abs_value:.2%}**。\n"
+                        f"- 规则：Score≤0 → 权重0；Score>0且Abs{abs_days}≤0 → 权重0.5；"
+                        f"{abs_rule_text}动量袖期货名义=0.5×权重。\n"
+                        f"- 当前动量仓位来自 **{live['momentum_current_source_date']}** 收盘信号；"
+                        f"本次 **{live['momentum_signal_date']}** 信号给出下一交易日权重 "
+                        f"**{live['momentum_next_weight']:g}**。\n\n"
                     )
-                    msg.write(
-                        f"- IC 1.3 NAV防守：基础NAV回撤 **{dd_text}**；"
-                        f"6%门槛**{'触发' if live.get('momentum_nav_defense', False) else '未触发'}**。"
-                        "触发时将当日信号目标减半，并在下一共同交易日执行；"
-                        "成交量与高分清仓过滤均关闭。\n"
-                    )
-                if product == "IM":
-                    volume_text = (
-                        "盘中成交量不可验证，沿用上一已确认交易日过滤状态"
-                        if live.get("momentum_volume_placeholder", False)
-                        else f"Volume/MA160={live.get('momentum_volume_ratio', float('nan')):.3f}，"
-                        f"{'通过' if live.get('momentum_volume_pass', True) else '未通过'}0.85门槛"
-                    )
-                    msg.write(
-                        f"- IM 1.3过滤：**{volume_text}**；"
-                        f"前一信号日Score>=150清仓：**{'触发' if live.get('momentum_score_hot', False) else '未触发'}**。"
-                        "两项都只作用于下一共同交易日。\n"
-                    )
-                msg.write("**估值档位与Put决策链**\n\n")
-                msg.write("**" + daily_valuation.disclosure(live.get("valuation_provenance")) + "**\n\n")
-                if product == "IC":
-                    msg.write(
-                        f"- 当前估值分 **{live['score']:.3f}**，处于 **{live['valuation_tier_label']}**；"
-                        f"该估值对应的Put Delta值为 **{live['valuation_put_delta']:.0%}**。\n"
-                        f"- Put用的MOM120为 **{live['momentum_120']:.2%}**；"
-                        f"对应下限是 **{live['mom120_floor_delta']:.0%} Delta**。\n"
-                        f"- **核心袖**：估值目标 {live['valuation_put_delta']:.0%} 与MOM120下限 "
-                        f"{live['mom120_floor_delta']:.0%} 取较大值；本次由 **{live['core_put_driver']}** "
-                        f"决定完整目标，乘0.5倍核心袖后贡献 **{live['core_put_target_delta']:.1%} Delta**。\n"
-                        f"- **动量袖**：先由Score+Abs{abs_days}决定权重 **{live['momentum_next_weight']:g}**；"
-                        "空仓则Put为0，有仓时只套用估值档，不继承MOM120下限。"
-                        f"本次由 **{live['momentum_put_driver']}** 决定，贡献 "
-                        f"**{live['momentum_put_target_delta']:.1%} Delta**。\n"
-                        f"- **组合Put最终目标**：核心 {live['core_put_target_delta']:.1%} + 动量 "
-                        f"{live['momentum_put_target_delta']:.1%} = "
-                        f"**{live['total_put_target_delta']:.1%} Delta**。网格不配Put；IC不卖Call。\n"
-                    )
-                else:
-                    msg.write(
-                        f"- 当前估值分 **{live['score']:.3f}**。绝对轴处于 "
-                        f"**{live['absolute_valuation_tier_label']}**；57个月相对轴（阈值冻结于2026-08-14）处于 "
-                        f"**{live['relative_valuation_tier_label']}**。两轴取较高档后，估值给出"
-                        f"每1倍核心IM **{live['valuation_puts_per_full_core']}张Put**。\n"
-                        f"- Put用的MOM120为 **{live['momentum_120']:.2%}**；"
-                        f"对应每1倍核心IM最低 **{live['mom120_floor_puts_per_full_core']}张**。\n"
-                        f"- 估值目标与MOM120下限取较大值；本次最终由 **{live['core_put_driver']}** 决定。"
-                        f"固定0.5倍核心袖的规范化目标为 "
-                        f"**{live['core_put_target_qty_normalized']:g}张**。\n"
-                        f"- **Put政策**：{live.get('im_put_policy_description', im_put_policy.description(live['market_date']))}；动量Put本次为 "
-                        f"**{live['momentum_put_target_qty_normalized']:g}张**。网格不配Put，"
-                        "动量袖与网格均不卖Call。"
-                        "第4张只能由估值第4档产生，MOM120下限本身最多给到每1倍3张。\n"
-                    )
-                if grid_confirmed:
-                    msg.write(
-                        f"- 注意：表格中的{grid_label} **{live['grid_target']}倍** 是网格仓位，"
-                        "不是估值等级；估值等级以上述档位文字为准。\n"
-                    )
-                else:
-                    msg.write("- 网格目标N/A：当日恐慌未核验，不能把参考计算值当作已确认目标。\n")
-                msg.write("\n**Put按仓位来源拆分**\n\n")
-                if product == "IC":
-                    if live.get("put_target_total_qty") is not None:
-                        msg.write(
-                            f"| 来源 | 当前张数 | {'今日收盘候选张数' if monthly_put_today else '下一交易日张数'} | 为什么 |\n"
+                    if product == "IC":
+                        base_dd = live.get("momentum_base_dd")
+                        dd_text = (
+                            f"{float(base_dd):.2%}"
+                            if base_dd is not None and np.isfinite(float(base_dd))
+                            else "不可用"
+                        )
+                        product_msg.write(
+                            f"- IC 1.3 NAV防守：基础NAV回撤 **{dd_text}**；"
+                            f"6%门槛**{'触发' if live.get('momentum_nav_defense', False) else '未触发'}**。"
+                            "触发时将当日信号目标减半，并在下一共同交易日执行；"
+                            "成交量与高分清仓过滤均关闭。\n"
+                        )
+                    if product == "IM":
+                        volume_text = (
+                            "盘中成交量不可验证，沿用上一已确认交易日过滤状态"
+                            if live.get("momentum_volume_placeholder", False)
+                            else f"Volume/MA160={live.get('momentum_volume_ratio', float('nan')):.3f}，"
+                            f"{'通过' if live.get('momentum_volume_pass', True) else '未通过'}0.85门槛"
+                        )
+                        product_msg.write(
+                            f"- IM 1.3过滤：**{volume_text}**；"
+                            f"前一信号日Score>=150清仓：**{'触发' if live.get('momentum_score_hot', False) else '未触发'}**。"
+                            "两项都只作用于下一共同交易日。\n"
+                        )
+                    product_msg.write("**估值档位与Put决策链**\n\n")
+                    product_msg.write("**" + daily_valuation.disclosure(live.get("valuation_provenance")) + "**\n\n")
+                    if product == "IC":
+                        product_msg.write(
+                            f"- 当前估值分 **{live['score']:.3f}**，处于 **{live['valuation_tier_label']}**；"
+                            f"该估值对应的Put Delta值为 **{live['valuation_put_delta']:.0%}**。\n"
+                            f"- Put用的MOM120为 **{live['momentum_120']:.2%}**；"
+                            f"对应下限是 **{live['mom120_floor_delta']:.0%} Delta**。\n"
+                            f"- **核心袖**：估值目标 {live['valuation_put_delta']:.0%} 与MOM120下限 "
+                            f"{live['mom120_floor_delta']:.0%} 取较大值；本次由 **{live['core_put_driver']}** "
+                            f"决定完整目标，乘0.5倍核心袖后贡献 **{live['core_put_target_delta']:.1%} Delta**。\n"
+                            f"- **动量袖**：先由Score+Abs{abs_days}决定权重 **{live['momentum_next_weight']:g}**；"
+                            "空仓则Put为0，有仓时只套用估值档，不继承MOM120下限。"
+                            f"本次由 **{live['momentum_put_driver']}** 决定，贡献 "
+                            f"**{live['momentum_put_target_delta']:.1%} Delta**。\n"
+                            f"- **组合Put最终目标**：核心 {live['core_put_target_delta']:.1%} + 动量 "
+                            f"{live['momentum_put_target_delta']:.1%} = "
+                            f"**{live['total_put_target_delta']:.1%} Delta**。网格不配Put；IC不卖Call。\n"
+                        )
+                    else:
+                        product_msg.write(
+                            f"- 当前估值分 **{live['score']:.3f}**。绝对轴处于 "
+                            f"**{live['absolute_valuation_tier_label']}**；57个月相对轴（阈值冻结于2026-08-14）处于 "
+                            f"**{live['relative_valuation_tier_label']}**。两轴取较高档后，估值给出"
+                            f"每1倍核心IM **{live['valuation_puts_per_full_core']}张Put**。\n"
+                            f"- Put用的MOM120为 **{live['momentum_120']:.2%}**；"
+                            f"对应每1倍核心IM最低 **{live['mom120_floor_puts_per_full_core']}张**。\n"
+                            f"- 估值目标与MOM120下限取较大值；本次最终由 **{live['core_put_driver']}** 决定。"
+                            f"固定0.5倍核心袖的规范化目标为 "
+                            f"**{live['core_put_target_qty_normalized']:g}张**。\n"
+                            f"- **Put政策**：{live.get('im_put_policy_description', im_put_policy.description(live['market_date']))}；动量Put本次为 "
+                            f"**{live['momentum_put_target_qty_normalized']:g}张**。网格不配Put，"
+                            "动量袖与网格均不卖Call。"
+                            "第4张只能由估值第4档产生，MOM120下限本身最多给到每1倍3张。\n"
+                        )
+                    if grid_confirmed:
+                        product_msg.write(
+                            f"- 注意：表格中的{grid_label} **{live['grid_target']}倍** 是网格仓位，"
+                            "不是估值等级；估值等级以上述档位文字为准。\n"
+                        )
+                    else:
+                        product_msg.write("- 网格目标N/A：当日恐慌未核验，不能把参考计算值当作已确认目标。\n")
+                    product_msg.write("\n**Put按仓位来源拆分**\n\n")
+                    if product == "IC":
+                        if live.get("put_target_total_qty") is not None:
+                            product_msg.write(
+                                f"| 来源 | 当前张数 | {'今日收盘候选张数' if monthly_put_today else '下一交易日张数'} | 为什么 |\n"
+                                "|---|---:|---:|---|\n"
+                                f"| 裸滚IC核心袖 | **{live['put_current_core_qty']}张** | "
+                                f"**{live['put_target_core_qty']}张** | 当前由"
+                                f"{live['current_core_put_driver']}决定；{put_target_day}由"
+                                f"{live['core_put_driver']}决定，只覆盖固定0.5倍核心袖 |\n"
+                                f"| IC动量指引袖 | **{live['put_current_momentum_qty']}张** | "
+                                f"**{live['put_target_momentum_qty']}张** | 当前："
+                                f"{live['current_momentum_put_driver']}；{put_target_day}："
+                                f"{live['momentum_put_driver']} |\n"
+                                f"| 独立估值网格 | **0张** | **0张** | 规则明确不配Put |\n"
+                                f"| **合计** | **{live['put_current_total_qty']}张** | "
+                                f"**{live['put_target_total_qty']}张** | 三部分严格相加 |\n\n"
+                                f"所以，{put_target_day}共 **{live['put_target_total_qty']}张**："
+                                f"裸滚核心袖 **{live['put_target_core_qty']}张**，"
+                                f"动量指引袖 **{live['put_target_momentum_qty']}张**，"
+                                "网格 **0张**。\n"
+                            )
+                            if live.get("put_sizing_expiry") is not None:
+                                product_msg.write(
+                                    f"{'合约候选（盘尾复核）' if monthly_put_today else '合约选择'}：以 {live['put_sizing_signal_date']} 后约3个月为目标，"
+                                    "在实际挂牌月份中选最近到期月，并取约95%行权价；本次为"
+                                    f" **{live['put_sizing_expiry']}** 到期、行权价"
+                                    f" **{live['put_sizing_strike']:.4f}**。\n"
+                                )
+                            elif live.get("put_selection_note"):
+                                product_msg.write(f"合约选择：{live['put_selection_note']}。\n")
+                        else:
+                            product_msg.write(
+                                "当前期权行情无法得到有效IV/Delta，因此暂时只能拆出核心袖与"
+                                "动量袖的保护Delta，不能可靠换成整数张数。\n"
+                            )
+                        product_msg.write(
+                            "以上是每1倍组合规模的标准化研究张数，不是用户账户的实际持仓；"
+                            "实际账户仍需按IC合约数量同比例映射并满足整数约束。\n"
+                        )
+                    else:
+                        product_msg.write(
+                            f"| 来源 | 当前规范化张数 | {'今日收盘候选规范化张数' if monthly_put_today else '下一交易日规范化张数'} | 为什么 |\n"
                             "|---|---:|---:|---|\n"
-                            f"| 裸滚IC核心袖 | **{live['put_current_core_qty']}张** | "
-                            f"**{live['put_target_core_qty']}张** | 当前由"
-                            f"{live['current_core_put_driver']}决定；{put_target_day}由"
-                            f"{live['core_put_driver']}决定，只覆盖固定0.5倍核心袖 |\n"
-                            f"| IC动量指引袖 | **{live['put_current_momentum_qty']}张** | "
-                            f"**{live['put_target_momentum_qty']}张** | 当前："
-                            f"{live['current_momentum_put_driver']}；{put_target_day}："
-                            f"{live['momentum_put_driver']} |\n"
-                            f"| 独立估值网格 | **0张** | **0张** | 规则明确不配Put |\n"
-                            f"| **合计** | **{live['put_current_total_qty']}张** | "
-                            f"**{live['put_target_total_qty']}张** | 三部分严格相加 |\n\n"
-                            f"所以，{put_target_day}共 **{live['put_target_total_qty']}张**："
-                            f"裸滚核心袖 **{live['put_target_core_qty']}张**，"
-                            f"动量指引袖 **{live['put_target_momentum_qty']}张**，"
-                            "网格 **0张**。\n"
+                            f"| 裸滚IM核心袖 | **{live['core_put_current_qty_normalized']:g}张** | "
+                            f"**{live['core_put_target_qty_normalized']:g}张** | "
+                            f"最终由{live['core_put_driver']}决定，只覆盖固定0.5倍核心袖 |\n"
+                            f"| IM动量指引袖 | **{live['momentum_put_current_qty_normalized']:g}张** | "
+                            f"**{live['momentum_put_target_qty_normalized']:g}张** | {im_put_policy.description(live['market_date'])} |\n"
+                            "| 独立估值网格 | **0张** | **0张** | 规则明确不配Put |\n"
+                            f"| **合计** | **{live['total_put_current_qty_normalized']:g}张** | "
+                            f"**{live['total_put_target_qty_normalized']:g}张** | 三部分严格相加 |\n\n"
+                            f"这次估值档给每1倍核心IM {live['valuation_puts_per_full_core']}张，"
+                            f"MOM120下限给{live['mom120_floor_puts_per_full_core']}张，最终由"
+                            f" **{live['core_put_driver']}** 主导；动量指引袖按权重贡献"
+                            f"{live['momentum_put_target_qty_normalized']:g}张，网格贡献0张。\n"
                         )
                         if live.get("put_sizing_expiry") is not None:
-                            msg.write(
+                            product_msg.write(
                                 f"{'合约候选（盘尾复核）' if monthly_put_today else '合约选择'}：以 {live['put_sizing_signal_date']} 后约3个月为目标，"
-                                "在实际挂牌月份中选最近到期月，并取约95%行权价；本次为"
-                                f" **{live['put_sizing_expiry']}** 到期、行权价"
-                                f" **{live['put_sizing_strike']:.4f}**。\n"
+                                f"在实际挂牌月份中选最近到期月，并取约{im_put_policy.moneyness(live['market_date']):.0%}行权价；最终选择到期日 "
+                                f"**{live['put_sizing_expiry']}**、行权价 "
+                                f"**{live['put_sizing_strike']:.0f}** 的MO Put。\n"
                             )
                         elif live.get("put_selection_note"):
-                            msg.write(f"合约选择：{live['put_selection_note']}。\n")
-                    else:
-                        msg.write(
-                            "当前期权行情无法得到有效IV/Delta，因此暂时只能拆出核心袖与"
-                            "动量袖的保护Delta，不能可靠换成整数张数。\n"
+                            product_msg.write(f"合约选择：{live['put_selection_note']}。\n")
+                        product_msg.write(
+                            f"动量Put合约选择：{live['momentum_put_selection_note']}。\n"
                         )
-                    msg.write(
-                        "以上是每1倍组合规模的标准化研究张数，不是用户账户的实际持仓；"
-                        "实际账户仍需按IC合约数量同比例映射并满足整数约束。\n"
-                    )
-                else:
-                    msg.write(
-                        f"| 来源 | 当前规范化张数 | {'今日收盘候选规范化张数' if monthly_put_today else '下一交易日规范化张数'} | 为什么 |\n"
-                        "|---|---:|---:|---|\n"
-                        f"| 裸滚IM核心袖 | **{live['core_put_current_qty_normalized']:g}张** | "
-                        f"**{live['core_put_target_qty_normalized']:g}张** | "
-                        f"最终由{live['core_put_driver']}决定，只覆盖固定0.5倍核心袖 |\n"
-                        f"| IM动量指引袖 | **{live['momentum_put_current_qty_normalized']:g}张** | "
-                        f"**{live['momentum_put_target_qty_normalized']:g}张** | {im_put_policy.description(live['market_date'])} |\n"
-                        "| 独立估值网格 | **0张** | **0张** | 规则明确不配Put |\n"
-                        f"| **合计** | **{live['total_put_current_qty_normalized']:g}张** | "
-                        f"**{live['total_put_target_qty_normalized']:g}张** | 三部分严格相加 |\n\n"
-                        f"这次估值档给每1倍核心IM {live['valuation_puts_per_full_core']}张，"
-                        f"MOM120下限给{live['mom120_floor_puts_per_full_core']}张，最终由"
-                        f" **{live['core_put_driver']}** 主导；动量指引袖按权重贡献"
-                        f"{live['momentum_put_target_qty_normalized']:g}张，网格贡献0张。\n"
-                    )
-                    if live.get("put_sizing_expiry") is not None:
-                        msg.write(
-                            f"{'合约候选（盘尾复核）' if monthly_put_today else '合约选择'}：以 {live['put_sizing_signal_date']} 后约3个月为目标，"
-                            f"在实际挂牌月份中选最近到期月，并取约{im_put_policy.moneyness(live['market_date']):.0%}行权价；最终选择到期日 "
-                            f"**{live['put_sizing_expiry']}**、行权价 "
-                            f"**{live['put_sizing_strike']:.0f}** 的MO Put。\n"
+                        product_msg.write(
+                            "规范化小数张数不是可直接成交的半张合约；实际账户必须按核心IM合约数"
+                            "映射成整数，Poe不会替代账户规模映射。\n"
                         )
-                    elif live.get("put_selection_note"):
-                        msg.write(f"合约选择：{live['put_selection_note']}。\n")
-                    msg.write(
-                        f"动量Put合约选择：{live['momentum_put_selection_note']}。\n"
+                    product_msg.write(
+                        f"- 指数 {live['index_price']:.2f}。\n"
+                        f"- 市场阶段：**{live['market_phase']}**；"
+                        f"抓取时间：**{live['fetch_time']} 北京时间**\n"
                     )
-                    msg.write(
-                        "规范化小数张数不是可直接成交的半张合约；实际账户必须按核心IM合约数"
-                        "映射成整数，Poe不会替代账户规模映射。\n"
+                    product_msg.write(
+                        f"- `{live['core_target']}` 延时行情（{live.get('future_quote_source', '未知')}，"
+                        f"as-of {live.get('future_quote_date', '未知')}）：最新 "
+                        f"{_format_quote_number(live['future_last'])}，买/卖 "
+                        f"{_format_quote_number(live['future_bid'])}/"
+                        f"{_format_quote_number(live['future_ask'])}\n"
                     )
-                msg.write(
-                    f"- 指数 {live['index_price']:.2f}。\n"
-                    f"- 市场阶段：**{live['market_phase']}**；"
-                    f"抓取时间：**{live['fetch_time']} 北京时间**\n"
-                )
-                msg.write(
-                    f"- `{live['core_target']}` 延时行情（{live.get('future_quote_source', '未知')}，"
-                    f"as-of {live.get('future_quote_date', '未知')}）：最新 "
-                    f"{_format_quote_number(live['future_last'])}，买/卖 "
-                    f"{_format_quote_number(live['future_bid'])}/"
-                    f"{_format_quote_number(live['future_ask'])}\n"
-                )
-                for spread_line in quarter_roll.format_spreads(live, product=product):
-                    msg.write("- " + spread_line + "\n")
-                if live["scheduled_roll_completed"]:
-                    msg.write("- 本日期货展期已收盘确认；期权维护日程独立。\n")
-                elif live["core_action"] == "ROLL" and live["roll_execution_date"]:
-                    msg.write(
-                        f"- 季度换仓执行日：**{live['roll_execution_date']} 收盘**；提前预告不代表已执行，期权维护独立\n"
-                    )
-                msg.write(f"- Put 行情：{live['put_market']}\n")
-                if product == "IM":
-                    if live.get("call_has_position"):
-                        if live["market_date"] >= v14_policy.NO_CALL_EFFECTIVE_SIGNAL_DATE:
-                            msg.write(f"- Call 行情：{live['call_market']}；fix6目标为平旧仓，不再救援或新开。\n")
+                    for spread_line in quarter_roll.format_spreads(live, product=product):
+                        product_msg.write("- " + spread_line + "\n")
+                    if live["scheduled_roll_completed"]:
+                        product_msg.write("- 本日期货展期已收盘确认；期权维护日程独立。\n")
+                    elif live["core_action"] == "ROLL" and live["roll_execution_date"]:
+                        product_msg.write(
+                            f"- 季度换仓执行日：**{live['roll_execution_date']} 收盘**；提前预告不代表已执行，期权维护独立\n"
+                        )
+                    product_msg.write(f"- Put 行情：{live['put_market']}\n")
+                    if product == "IM":
+                        if live.get("call_has_position"):
+                            if live["market_date"] >= v14_policy.NO_CALL_EFFECTIVE_SIGNAL_DATE:
+                                product_msg.write(f"- Call 行情：{live['call_market']}；fix6目标为平旧仓，不再救援或新开。\n")
+                            else:
+                                product_msg.write(
+                                    f"- Call 行情：{live['call_market']}；旧Call虚值度 **{live['call_otm']:.2%}**，"
+                                    f"5%救援阈值当前{'已触发' if live['call_otm'] <= 0.05 else '未触发'}\n"
+                                )
                         else:
-                            msg.write(
-                                f"- Call 行情：{live['call_market']}；旧Call虚值度 **{live['call_otm']:.2%}**，"
-                                f"5%救援阈值当前{'已触发' if live['call_otm'] <= 0.05 else '未触发'}\n"
+                            product_msg.write(
+                                f"- Call 行情：{live['call_market']}；当前无旧Call，"
+                                + ("fix6不再新开Call\n" if live["market_date"] >= v14_policy.NO_CALL_EFFECTIVE_SIGNAL_DATE
+                                   else "只评估新D10/IV26候选\n")
                             )
-                    else:
-                        msg.write(
-                            f"- Call 行情：{live['call_market']}；当前无旧Call，"
-                            + ("fix6不再新开Call\n" if live["market_date"] >= v14_policy.NO_CALL_EFFECTIVE_SIGNAL_DATE
-                               else "只评估新D10/IV26候选\n")
+                    if live["next_core"] and live["core_target"] != live["next_core"]:
+                        product_msg.write(
+                            (f"- 季度规则：{product} T-{quarter_roll.ROLL_DAYS[product]}；所持合约到期日 {live['roll_date']}；"
+                             f"计划 {live['roll_execution_date']} 收盘转入 `{live['next_core']}`，Put维持独立维护\n")
+                            if live.get("roll_policy", {}).get("tenor") == "strict_quarter"
+                            else "- 本行情日早于r7生效日，以上是原月度规则历史续接；2026-09-04起按IM季度T-1、IC季度T-3。\n"
                         )
-                if live["next_core"] and live["core_target"] != live["next_core"]:
-                    msg.write(
-                        (f"- 季度规则：{product} T-{quarter_roll.ROLL_DAYS[product]}；所持合约到期日 {live['roll_date']}；"
-                         f"计划 {live['roll_execution_date']} 收盘转入 `{live['next_core']}`，Put维持独立维护\n")
-                        if live.get("roll_policy", {}).get("tenor") == "strict_quarter"
-                        else "- 本行情日早于r7生效日，以上是原月度规则历史续接；2026-09-04起按IM季度T-1、IC季度T-3。\n"
-                    )
-                msg.write("- 数据：中金所及已验证备用行情、上交所510500ETF/期权及指数行情；PE/PB来源见上述披露，MOM120为价格指数口径。\n")
-                for note in live["data_notes"][2:]:
-                    if monthly_put_today and note.startswith("账本下一交易日桥接："):
-                        note = note.replace("行情只形成下一交易日目标", "行情形成期货下一交易日目标；月度Put为今日收盘候选，须盘尾复核")
-                    msg.write(f"- 数据审计：{note}\n")
-                msg.write("\n")
+                    product_msg.write("- 数据：中金所及已验证备用行情、上交所510500ETF/期权及指数行情；PE/PB来源见上述披露，MOM120为价格指数口径。\n")
+                    for note in live["data_notes"]:
+                        if note == live.get("calendar_coverage_warning"):
+                            continue  # The exact same calendar notice was already printed above.
+                        if monthly_put_today and note.startswith("账本下一交易日桥接："):
+                            note = note.replace("行情只形成下一交易日目标", "行情形成期货下一交易日目标；月度Put为今日收盘候选，须盘尾复核")
+                        product_msg.write(f"- 数据审计：{note}\n")
+                    product_msg.write("\n")
+
 
     def _handle_params(self, products: tuple[str, ...]) -> None:
         with _sm() as msg:
@@ -8983,12 +9503,17 @@ class ICIMMainlinesBot:
                         "逐腿核验的交易日收益，未用假设仓位外推。\n\n"
                     )
                 msg.write(
-                    f"区间收益 **{metrics['return']:.2%}**｜年化 **{metrics['cagr']:.2%}**｜"
-                    f"年化波动 **{metrics['volatility']:.2%}**｜夏普 **{metrics['sharpe']:.2f}**｜"
-                    f"最大回撤 **{metrics['max_drawdown']:.2%}**\n\n"
+                    f"区间收益 **{metrics['return']:.2%}**｜"
+                    + (f"年化 **{metrics['cagr']:.2%}**｜年化波动 **{metrics['volatility']:.2%}**｜"
+                       f"夏普 **{metrics['sharpe']:.2f}**｜" if metrics['cagr'] is not None else
+                       f"观测少于{MIN_PERFORMANCE_OBSERVATIONS}日，年化、年化波动和夏普 N/A｜")
+                    + f"最大回撤 **{metrics['max_drawdown']:.2%}**\n\n"
                 )
                 msg.write(
-                    f"净值图已叠加 **{benchmark_cn}** 收盘价格曲线；两条曲线均按查询区间首日归一为1。\n\n"
+                    f"净值与回撤以区间前收盘为1，包含首日收益。"
+                    + (f"已叠加同一起点的 **{benchmark_cn}** 价格曲线。\n\n"
+                       if frame['benchmark_nav'].notna().all() else
+                       f"冻结数据缺少区间前一交易日基准价格，**{benchmark_cn}** 曲线 N/A，未错用首日收盘重设起点。\n\n")
                 )
             msg.write(
                 f"绩效口径：以上来自截至{DATA_CUTOFF}的v1.3/r6冻结历史参考，"

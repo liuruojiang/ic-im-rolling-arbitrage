@@ -26,9 +26,91 @@ import pandas as pd
 import requests
 
 import ic_im_signal_evidence_v1 as evidence
+import ic_im_expiry_evidence_v1 as expiry_evidence
 
 INPUT_REVISION = "ic_im_original_inputs_20261021_v1"
 _LOCATION = contextvars.ContextVar("icim_original_evidence_location", default=None)
+LISTING_EFFECTIVE_SIGNAL_DATE = date(2026, 11, 13)
+LISTING_OUTCOME_REVISION = "ic_listing_outcome_20261113_v1"
+
+
+class ListingProbeUnavailable(RuntimeError):
+    """A recorded optional probe result, never missing or corrupt evidence."""
+    def __init__(self, outcome):
+        self.outcome = validate_listing_outcome(outcome)
+        super().__init__("510500挂牌探测不可用；" + "；".join(
+            f"{row['source']}: {row['error_type']}: {row['error']}"
+            for row in self.outcome["failures"]))
+
+
+class ListingProbeTransportUnavailable(ListingProbeUnavailable, requests.ConnectionError):
+    """Both listing sources failed only in transport; independent chains may work."""
+
+
+def listing_failure(source, exc):
+    if isinstance(exc, requests.exceptions.ChunkedEncodingError):
+        kind, name = "transport", "ChunkedEncodingError"
+    elif isinstance(exc, requests.Timeout):
+        kind, name = "transport", "Timeout"
+    elif isinstance(exc, requests.ConnectionError):
+        kind, name = "transport", "ConnectionError"
+    else:
+        kind, name = "unverified", type(exc).__name__
+    return {"source": source, "kind": kind, "error_type": name, "error": str(exc)[:2000]}
+
+
+def validate_listing_outcome(value, day=None):
+    required = {"revision", "status", "months", "failures"}
+    if (not isinstance(value, dict) or set(value) not in (required, required | {"signal_day"})
+            or value.get("revision") != LISTING_OUTCOME_REVISION):
+        raise evidence.EvidenceUnavailable("挂牌探测存证版本或字段无效")
+    if day is not None and value.get("signal_day") != day.isoformat():
+        raise evidence.EvidenceUnavailable("挂牌探测存证信号日不匹配")
+    if "signal_day" in value:
+        try:
+            date.fromisoformat(value["signal_day"])
+        except (TypeError, ValueError) as exc:
+            raise evidence.EvidenceUnavailable("挂牌探测存证日期无效") from exc
+    months, failures, status = value["months"], value["failures"], value["status"]
+    if not isinstance(months, list) or not isinstance(failures, list):
+        raise evidence.EvidenceUnavailable("挂牌探测存证集合无效")
+    sources = []
+    for row in failures:
+        if (not isinstance(row, dict) or set(row) != {"source", "kind", "error_type", "error"}
+                or row["source"] not in {"SSE", "Sina"}
+                or row["kind"] not in {"transport", "unverified"}
+                or not isinstance(row["error_type"], str) or not 1 <= len(row["error_type"]) <= 160
+                or row["error_type"] in {"EvidenceUnavailable", "ExpiryEvidenceConflict", "CalendarCoverageError"}
+                or not isinstance(row["error"], str) or len(row["error"]) > 2000
+                or (row["kind"] == "transport" and row["error_type"] not in
+                    {"ConnectionError", "Timeout", "ChunkedEncodingError"})):
+            raise evidence.EvidenceUnavailable("挂牌探测来源失败分类无效")
+        sources.append(row["source"])
+    if len(sources) != len(set(sources)):
+        raise evidence.EvidenceUnavailable("挂牌探测失败来源重复")
+    if status == "available":
+        if (len(months) != 4 or any(not isinstance(m, str) or
+                re.fullmatch(r"20[0-9]{2}(?:0[1-9]|1[0-2])", m) is None for m in months)
+                or months != sorted(set(months)) or len(failures) > 1):
+            raise evidence.EvidenceUnavailable("挂牌探测成功值不完整或无效")
+    elif status in {"transport_unavailable", "unverified"}:
+        if months or sources != ["SSE", "Sina"]:
+            raise evidence.EvidenceUnavailable("挂牌探测不可用结果缺少两个来源")
+        all_transport = all(row["kind"] == "transport" for row in failures)
+        if (status == "transport_unavailable") != all_transport:
+            raise evidence.EvidenceUnavailable("挂牌探测不可用状态与失败分类冲突")
+    else:
+        raise evidence.EvidenceUnavailable("挂牌探测存证状态无效")
+    return deepcopy(value)
+
+
+def listing_value(outcome):
+    outcome = validate_listing_outcome(outcome)
+    if outcome["status"] == "available":
+        return list(outcome["months"])
+    error = (ListingProbeTransportUnavailable if outcome["status"] == "transport_unavailable"
+             else ListingProbeUnavailable)
+    raise error(outcome)
 
 
 class Namespace:
@@ -72,6 +154,45 @@ def _number(value, label, *, positive=True):
     return result
 
 
+def _expiry_key(month, day):
+    return {"month": canonical_ic_month(month), "day": day}
+
+
+def _missing_expiry_source():
+    raise evidence.EvidenceUnavailable("新信号日缺少原始ic.expiry证据，禁止当前源补抓")
+
+
+def record_expiry_proof(month, day, proof):
+    """Only validated providers call this; never accept proof from frame attrs."""
+    key = _expiry_key(month, day)
+    reader, capture = evidence.current_reader.get(), evidence.current_session.get()
+    if reader is not None:
+        stored = reader.call("ic.expiry", key)
+    elif capture is not None:
+        stored = capture.call("ic.expiry", key, lambda: deepcopy(proof))
+    else:
+        return proof
+    if evidence.encode(stored) != evidence.encode(proof):
+        def reject_conflict():
+            raise expiry_evidence.ExpiryEvidenceConflict("同一月份采集到期来源报文冲突")
+        if capture is not None:
+            # The normal call records an unresolved failure, so catching this
+            # exception outside the API cannot make a bound signal eligible.
+            return capture.call("ic.expiry.conflict", key, reject_conflict)
+        return reject_conflict()
+    return stored
+
+
+def _recorded_expiry(month, day):
+    key = _expiry_key(month, day)
+    reader, capture = evidence.current_reader.get(), evidence.current_session.get()
+    if reader is not None:
+        return reader.call("ic.expiry", key)
+    if capture is not None:
+        return capture.call("ic.expiry", key, _missing_expiry_source)
+    return _missing_expiry_source()
+
+
 def validate_chain(strategy, value, month, day, clock):
     if not isinstance(value, tuple) or len(value) != 2:
         raise evidence.EvidenceUnavailable(f"{day} malformed original ic.chain/{month}")
@@ -83,6 +204,17 @@ def validate_chain(strategy, value, month, day, clock):
     strategy.sse_identity.validate_chain_rows(
         {"list": rows, "total": len(rows), "begin": 0, "end": len(rows)}, str(month)[-4:])
     strategy._validate_chain_stamp_matches("原日期权链存证", stamp, day, clock)
+    if day >= expiry_evidence.EFFECTIVE_SIGNAL_DATE:
+        try:
+            proof = _recorded_expiry(month, day)
+            canonical = canonical_ic_month(month)
+            frame = expiry_evidence.verify_recorded_chain(
+                frame, stamp, proof, as_of=day, month="20" + canonical,
+                observation_clock=clock,
+                model_expiry=strategy._fourth_wednesday(2000+int(canonical[:2]), int(canonical[2:])))
+        except (expiry_evidence.ExpiryEvidenceConflict, expiry_evidence.ExpiryMasterUnavailable,
+                KeyError, TypeError, ValueError, AttributeError) as exc:
+            raise evidence.EvidenceUnavailable(f"{day} original expiry proof rejected: {exc}") from exc
     # Keep stale per-contract rows visible; only a consumed row must meet the
     # selected-quote freshness gate, just as on the live provider path.
     return frame.copy(deep=True), deepcopy(stamp)
@@ -99,6 +231,10 @@ def _validate_value(strategy, role, key, value):
     if role == "ic.chain":
         return validate_chain(strategy, value, key["month"], day, clock)
     if role == "ic.months":
+        if isinstance(value, dict):
+            if day < LISTING_EFFECTIVE_SIGNAL_DATE:
+                raise evidence.EvidenceUnavailable("挂牌探测封套早于采用日")
+            return validate_listing_outcome(value, day)
         if (not isinstance(value, list) or not value or value != sorted(set(value))
                 or any(not isinstance(m, str) or not re.fullmatch(r"20[0-9]{4}", m)
                        or not 1 <= int(m[-2:]) <= 12 for m in value)):
@@ -167,6 +303,50 @@ def _keyed(strategy, owner, name, role, keyfn):
         if reader is None and capture is None:
             return original(*args, **kwargs)
         key = keyfn(*args, **kwargs)
+        day = reader.day if reader is not None else capture.day
+        if (role == "ic.months" and day >= LISTING_EFFECTIVE_SIGNAL_DATE
+                and hasattr(strategy, "_IC_CANDIDATE_LISTING_EFFECTIVE_SIGNAL_DATE")):
+            if reader is not None:
+                stored = reader.call(role, key)
+                if not isinstance(stored, dict):
+                    raise evidence.EvidenceUnavailable("新日缺少有版本的原日挂牌探测结果")
+            else:
+                def collect_listing_result():
+                    query_cache = getattr(strategy, "_IC_LISTING_QUERY_CACHE", None)
+                    cache_token = (query_cache.set({}) if query_cache is not None
+                                   and query_cache.get() is None else None)
+                    try:
+                        try:
+                            months = original(*args, **kwargs)
+                        except expiry_evidence.ExpiryEvidenceConflict as conflict:
+                            def record_conflict():
+                                raise conflict
+                            capture.call("ic.months.conflict", key, record_conflict)
+                            raise
+                        except ListingProbeUnavailable as exc:
+                            outcome = deepcopy(exc.outcome)
+                        else:
+                            cache = query_cache.get() if query_cache is not None else None
+                            if cache is not None and "listing" in cache:
+                                outcome = validate_listing_outcome(cache["listing"])
+                                if outcome["status"] != "available" or outcome["months"] != months:
+                                    raise evidence.EvidenceUnavailable("挂牌探测公开值与来源结果不一致")
+                            else:
+                                outcome = {"revision": LISTING_OUTCOME_REVISION, "status": "available",
+                                           "months": months, "failures": []}
+                        outcome["signal_day"] = day.isoformat()
+                        return validate_listing_outcome(outcome, day)
+                    finally:
+                        if cache_token is not None:
+                            query_cache.reset(cache_token)
+                stored = capture.call(role, key, collect_listing_result)
+                capture.annotate("ic_listing_outcome_policy", {
+                    "revision": LISTING_OUTCOME_REVISION,
+                    "effective_signal_date": LISTING_EFFECTIVE_SIGNAL_DATE.isoformat()})
+            # Expected probe unavailability is an archived value, not an
+            # unresolved arbitrary failure. Only this validated envelope may
+            # restore its dedicated exception during capture and replay alike.
+            return listing_value(_validate_value(strategy, role, key, stored))
         if reader is not None:
             if role == "fear.reference" and not any(
                     row.get("role") == role for row in reader.manifest["entries"].values()):
@@ -370,10 +550,12 @@ def has_original(root, product, day):
     return evidence.has_session(root, day, {"product": product, "original_close": True})
 
 
-def _original_required_roles(product):
+def _original_required_roles(product, day=None):
     roles = {"market.live", "cffex.quotes", "rate.resolve", "fear.score"}
     if product == "IC":
         roles |= {"ic.months", "ic.etf", "ic.chain"}
+        if day is not None and day >= expiry_evidence.EFFECTIVE_SIGNAL_DATE:
+            roles.add("ic.expiry")
     return roles
 
 
@@ -384,7 +566,7 @@ def _require_original_reader(reader, product, day, zone):
             or reader.metadata.get("original_close") is not True):
         raise evidence.EvidenceUnavailable(f"{day} original evidence metadata/revision mismatch")
     roles = {entry["role"] for entry in reader.context["entries"].values()}
-    missing = _original_required_roles(product) - roles
+    missing = _original_required_roles(product, day) - roles
     if missing:
         raise evidence.EvidenceUnavailable("missing original evidence roles=" + ",".join(sorted(missing)))
     clock = reader.decision_at.astimezone(zone)
@@ -393,6 +575,24 @@ def _require_original_reader(reader, product, day, zone):
         raise evidence.EvidenceUnavailable(f"{day} original close acquisition time is not on that session")
     if closed.time() < time(15, 0):
         raise evidence.EvidenceUnavailable(f"{day} original evidence is not a completed close")
+    if product == "IC" and day >= LISTING_EFFECTIVE_SIGNAL_DATE:
+        validate_listing_outcome(reader.call("ic.months", {}), day)
+    if product == "IC" and day >= expiry_evidence.EFFECTIVE_SIGNAL_DATE:
+        for entry in reader.context["entries"].values():
+            if entry.get("role") != "ic.chain":
+                continue
+            try:
+                key = evidence.decode(entry["key"])
+                if key.get("day") != day:
+                    raise evidence.EvidenceUnavailable("原日期权链请求日期与原包日期不一致")
+                month = canonical_ic_month(key["month"])
+                frame, stamp = reader.call("ic.chain", key)
+                proof = reader.call("ic.expiry", _expiry_key(month, day))
+                expiry_evidence.verify_recorded_chain(
+                    frame, stamp, proof, as_of=day, month="20"+month, observation_clock=closed)
+            except (expiry_evidence.ExpiryEvidenceConflict, expiry_evidence.ExpiryMasterUnavailable,
+                    KeyError, TypeError, ValueError, AttributeError) as exc:
+                raise evidence.EvidenceUnavailable(f"original expiry coverage rejected: {exc}") from exc
     return closed
 
 
@@ -542,9 +742,7 @@ def capture_daily(strategy, root, clock):
                                                          "error": f"{type(exc).__name__}: {exc}"})
                     _record_http_conflicts(session)
                     present_roles = {entry["role"] for entry in session.entries.values()}
-                    required_roles = {"market.live", "cffex.quotes", "fear.score", "rate.resolve"}
-                    if product == "IC":
-                        required_roles |= {"ic.months", "ic.etf", "ic.chain"}
+                    required_roles = _original_required_roles(product, day)
                     if required_roles - present_roles:
                         session.failures.append({"role": "collector", "resolved": False,
                             "error": "missing roles: " + ",".join(sorted(required_roles - present_roles))})

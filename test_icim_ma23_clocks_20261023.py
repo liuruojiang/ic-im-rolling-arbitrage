@@ -42,6 +42,7 @@ def short_signal():
 
 def pricing(monkeypatch):
     # These constants isolate acceptance of market evidence, not financial accuracy.
+    monkeypatch.setattr(bot, 'fetch_sse_510500_expiries', lambda: ['202610','202611','202612','202703'])
     monkeypatch.setattr(bot, '_implied_volatility', lambda *a, **k: .25)
     monkeypatch.setattr(bot, '_bs_price_delta', lambda *a, **k: (.25, -.2))
     monkeypatch.setattr(bot, '_gov10y_for_day', lambda *a, **k: .02)
@@ -61,6 +62,7 @@ def test_confirmed_sina_candidate_cannot_omit_consumed_row_timestamp_in_typed_re
     """A hash-valid old producer bundle must still meet today's semantic gate."""
     pricing(monkeypatch)
     with evidence.capture_session(tmp_path, DAY, CLOCK, {}) as session:
+        session.call('ic.months', {}, lambda: ['202610','202611','202612','202703'])
         session.call('ic.chain', {'month':'2611','day':DAY}, lambda: chain('2611', include_stamp=False))
     reader = evidence.load_session(tmp_path, DAY)
     with bot.runtime_clock(CLOCK), bot.historical_replay(DAY), evidence.replay_session(reader):

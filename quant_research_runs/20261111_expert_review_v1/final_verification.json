@@ -1,0 +1,55 @@
+{
+  "status": "local_candidate_verified",
+  "production_deployed": false,
+  "source_sha256": "2b77df0bf0ba19bbbf52ceffbae5187307e32ab8cf63bfef4cf521ab0186170e",
+  "baseline_head": "48a0412c126ebc8326899a1d5ba305404fba017f",
+  "regression": {
+    "tests": 1256,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "historical_deselections": [
+    "test_ic_im_ordinary_put_route_fix_20261013.py::test_profit_and_momentum_execute_independently_after_restart[old_core-IC]",
+    "test_ic_im_ordinary_put_route_fix_20261013.py::test_profit_and_momentum_execute_independently_after_restart[old_core-IM]",
+    "test_ic_im_ordinary_put_route_fix_20261013.py::test_profit_and_momentum_execute_independently_after_restart[new_core-IC]",
+    "test_ic_im_ordinary_put_route_fix_20261013.py::test_profit_and_momentum_execute_independently_after_restart[new_core-IM]",
+    "test_ic_im_fear_source_delivery_20261016.py::test_both_missing_preserve_other_modules_and_never_publish_zero_hold"
+  ],
+  "real_market_day": "2026-10-22",
+  "comparisons": {
+    "IC": {
+      "fields": 210,
+      "business_field_differences": [],
+      "audit_clock_differences": []
+    },
+    "IM": {
+      "fields": 225,
+      "business_field_differences": [],
+      "audit_clock_differences": [
+        "signal_calculation_started_at"
+      ],
+      "clock_values": {
+        "signal_calculation_started_at": {
+          "before": "2026-11-12T06:44:49+08:00",
+          "after": "2026-11-12T06:44:50+08:00"
+        }
+      }
+    }
+  },
+  "protected_file_count": 537,
+  "protected_files_unchanged": true,
+  "formal_ledger_write": false,
+  "external_http_requests_during_real_replay": 0,
+  "whitespace_check": {
+    "exit_code": 0,
+    "crlf_matches_original": true
+  },
+  "evidence_sha256": {
+    "backup_manifest.json": "615e715139439418c3f5e1229c060c60a9e8f05e6fe36cece13a6d83fc5aeb9c",
+    "formal_inventory_final/candidate_result.json": "594ddee09120890f2216cc32c6d60ced42a30ee8fdfd07a72f0d8e7b542975ff",
+    "formal_inventory_final/regression.xml": "2cf335fc4d54d8b95fa4c79f0879cfd0b8aace8417ea42ef0f087389e434d0d5",
+    "formal_inventory_final/collection.json": "b5776b3dd8902cc5e1641ac6659048688e4b71f4c0caf94ee19e61ac7b7c4509",
+    "real_data_final/verification.json": "7425a39688fccea965b40bc9cd8816cbd9ac45a0a9002f367dad1fab91fbfc0f"
+  }
+}

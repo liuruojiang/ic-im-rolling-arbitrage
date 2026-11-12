@@ -1,0 +1,124 @@
+{
+  "status": "passed_after_root_fix_of_confirmed_P2",
+  "created_at": "2026-11-12T21:37:31.825700+08:00",
+  "scope": "Independent takeover of fifth-round cache, dual-consumer, query-surface and captured-fallback provenance audit",
+  "source_pin": "candidate_source_pin_r2.json",
+  "source_pin_sha256": "05ae4d5a238ae619b90cef7755085a1ec55043da32bba8571ad95601944dc0b6",
+  "main_sha256": "5db134c87075e9241ac380fa59d07bfb83d275e040ddbba387b7fdc1dc05deef",
+  "adapter_sha256": "c98327b6bd0cf773a17a649dc517dbec43b8eaa751f3fc41381b9563eedbeaaf",
+  "source_files": 213,
+  "confirmed_findings": [
+    {
+      "id": "surface-capture-success-fallback-provenance",
+      "severity": "P2",
+      "status": "closed_on_r2",
+      "cause": "Available outcome reconstructed from a list with failures=[] discarded the observed SSE failure on a successful Sina fallback.",
+      "original_red": "pending_r1/regression.xml",
+      "closure": [
+        "affected_r2/regression.xml",
+        "mismatch_r2/regression.xml"
+      ],
+      "root_owned_fix": "Read and validate the source outcome from a scoped cache, retain failures, restore an ephemeral cache in finally, and reject list/outcome disagreement."
+    }
+  ],
+  "runs": {
+    "pending_r1": {
+      "tests": 10,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0,
+      "exit_code": 1,
+      "source_unchanged": true,
+      "network_guard": {
+        "worker_exit_code": 1,
+        "external_connection_attempts": [],
+        "real_nonlocal_connections": 0
+      },
+      "xml_sha256": "f61f5276ea04d0b13051045a2de1ab67baaafc6be8f32abce70dfaa968334dd2",
+      "launcher_sha256": "e98df81230bc2fd24e33eee95959fb9665231122874773d57f55360eeb7da316",
+      "nodeids": [
+        "quant_research_runs.20261112_expert_round5_v5.audits.surface.takeover_r1.test_surface_v5_r1_followup::test_explicit_performance_has_priority_over_signal_at_actual_entry",
+        "quant_research_runs.20261112_expert_round5_v5.audits.surface.takeover_r1.test_surface_v5_r1_followup::test_explicit_performance_keeps_strict_unconsumed_month_rejection[12\\u6708\\u4efd\\u5408\\u7ea6]",
+        "quant_research_runs.20261112_expert_round5_v5.audits.surface.takeover_r1.test_surface_v5_r1_followup::test_explicit_performance_keeps_strict_unconsumed_month_rejection[12\\u6708\\u7684\\u5408\\u7ea6]",
+        "quant_research_runs.20261112_expert_round5_v5.audits.surface.takeover_r1.test_surface_v5_r1_followup::test_explicit_performance_keeps_strict_unconsumed_month_rejection[12\\u6708\\u4efd\\u7684\\u5408\\u7ea6]",
+        "quant_research_runs.20261112_expert_round5_v5.audits.surface.takeover_r1.test_surface_v5_r1_followup::test_old_decimal_and_broken_year_controls_stay_strict[\\u67e5\\u8be2IC 12.5\\u6708\\u5408\\u7ea6]",
+        "quant_research_runs.20261112_expert_round5_v5.audits.surface.takeover_r1.test_surface_v5_r1_followup::test_old_decimal_and_broken_year_controls_stay_strict[\\u67e5\\u8be2IC 1. 2\\u6708\\u5408\\u7ea6]",
+        "quant_research_runs.20261112_expert_round5_v5.audits.surface.takeover_r1.test_surface_v5_r1_followup::test_old_decimal_and_broken_year_controls_stay_strict[\\u67e5\\u8be2IC 12026\\u5e7412\\u6708\\u5408\\u7ea6]",
+        "quant_research_runs.20261112_expert_round5_v5.audits.surface.takeover_r1.test_surface_v5_r1_followup::test_prior_real_snapshot_regressions_are_closed[\\u67e5\\u8be2IC 2026\\u5e7412\\u6708\\u5408\\u7ea6-products0]",
+        "quant_research_runs.20261112_expert_round5_v5.audits.surface.takeover_r1.test_surface_v5_r1_followup::test_prior_real_snapshot_regressions_are_closed[\\u67e5\\u8be2\\u4e2d\\u8bc11000 3\\u6708\\u5408\\u7ea6-products1]",
+        "quant_research_runs.20261112_expert_round5_v5.audits.surface.takeover_r1.test_capture_fallback_provenance_red::test_captured_sina_fallback_preserves_observed_primary_failure"
+      ]
+    },
+    "affected_r2": {
+      "tests": 15,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "exit_code": 0,
+      "source_unchanged": true,
+      "network_guard": {
+        "worker_exit_code": 0,
+        "external_connection_attempts": [],
+        "real_nonlocal_connections": 0
+      },
+      "xml_sha256": "26a6bf42590f96944da91f87870298ab55ae9b7d585e0b6568f4e18f00caf839",
+      "launcher_sha256": "54359c9cb8288fecd1c6357e90a562ee4acb021a00c7e8daa4b9c6ebe2f0e74f",
+      "nodeids": [
+        "quant_research_runs.20261112_expert_round5_v5.audits.surface.takeover_r1.test_available_outcome_preservation::test_available_sina_result_retains_primary_failure_through_capture_and_replay[transport-standalone]",
+        "quant_research_runs.20261112_expert_round5_v5.audits.surface.takeover_r1.test_available_outcome_preservation::test_available_sina_result_retains_primary_failure_through_capture_and_replay[transport-public_query]",
+        "quant_research_runs.20261112_expert_round5_v5.audits.surface.takeover_r1.test_available_outcome_preservation::test_available_sina_result_retains_primary_failure_through_capture_and_replay[structure-standalone]",
+        "quant_research_runs.20261112_expert_round5_v5.audits.surface.takeover_r1.test_available_outcome_preservation::test_available_sina_result_retains_primary_failure_through_capture_and_replay[structure-public_query]",
+        "quant_research_runs.20261112_expert_round5_v5.audits.surface.takeover_r1.test_available_outcome_preservation::test_available_sina_result_retains_primary_failure_through_capture_and_replay[forbidden-standalone]",
+        "quant_research_runs.20261112_expert_round5_v5.audits.surface.takeover_r1.test_available_outcome_preservation::test_available_sina_result_retains_primary_failure_through_capture_and_replay[forbidden-public_query]",
+        "quant_research_runs.20261112_expert_round5_v5.audits.surface.takeover_r1.test_available_outcome_preservation::test_standalone_capture_restores_absent_cache_on_any_error[RuntimeError]",
+        "quant_research_runs.20261112_expert_round5_v5.audits.surface.takeover_r1.test_available_outcome_preservation::test_standalone_capture_restores_absent_cache_on_any_error[CalendarCoverageError]",
+        "quant_research_runs.20261112_expert_round5_v5.audits.surface.takeover_r1.test_available_outcome_preservation::test_standalone_capture_restores_absent_cache_on_any_error[EvidenceUnavailable]",
+        "quant_research_runs.20261112_expert_round5_v5.audits.surface.takeover_r1.test_capture_fallback_provenance_red::test_captured_sina_fallback_preserves_observed_primary_failure",
+        "quant_research_runs.20261112_expert_round5_v5.audits.surface.takeover_r1.test_surface_v5_r1::test_same_capture_role_merges_two_public_queries_and_replay_dual_consumers[available]",
+        "quant_research_runs.20261112_expert_round5_v5.audits.surface.takeover_r1.test_surface_v5_r1::test_same_capture_role_merges_two_public_queries_and_replay_dual_consumers[transport]",
+        "quant_research_runs.20261112_expert_round5_v5.audits.surface.takeover_r1.test_surface_v5_r1::test_same_capture_role_merges_two_public_queries_and_replay_dual_consumers[unverified]",
+        "quant_research_runs.20261112_expert_round5_v5.audits.surface.takeover_r1.test_surface_v5_r1::test_warm_query_cannot_hide_missing_or_changed_original_listing_blob[missing]",
+        "quant_research_runs.20261112_expert_round5_v5.audits.surface.takeover_r1.test_surface_v5_r1::test_warm_query_cannot_hide_missing_or_changed_original_listing_blob[changed]"
+      ]
+    },
+    "mismatch_r2": {
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "exit_code": 0,
+      "source_unchanged": true,
+      "network_guard": {
+        "worker_exit_code": 0,
+        "external_connection_attempts": [],
+        "real_nonlocal_connections": 0
+      },
+      "xml_sha256": "bba91f74fd7cb69dcfd6e581ce02645d10a7b48dd9b84d556536c5f4564f48eb",
+      "launcher_sha256": "7aa2cb6b0c80194e80b3374de0e95cc0ce4ec511c42a9d4d9287bbfc3161ee3f",
+      "nodeids": [
+        "quant_research_runs.20261112_expert_round5_v5.audits.surface.takeover_r1.test_outcome_mismatch_rejection::test_capture_rejects_public_list_source_outcome_disagreement_and_restores_cache[months]",
+        "quant_research_runs.20261112_expert_round5_v5.audits.surface.takeover_r1.test_outcome_mismatch_rejection::test_capture_rejects_public_list_source_outcome_disagreement_and_restores_cache[status]"
+      ]
+    }
+  },
+  "current_revision_affected_verification": {
+    "tests": 17,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "watchdog_seconds_per_process": 60
+  },
+  "reused_unchanged_scope": {
+    "lexical_followup_tests": 9,
+    "evidence": "pending_r1/regression.xml",
+    "reason": "The root bot source is byte-identical between candidate r1 and r2; only adapter capture collection and durable root tests changed. Lexical entry points do not enter capture.",
+    "original_surface_run": "../r1/run/regression.xml",
+    "original_run_note": "55 passed and one erroneous expectation: explicit performance text containing unconsumed month words must raise under the strict parser. The pending followup verifies this contract at the actual public entry."
+  },
+  "limitations": [
+    "All new-policy market dates and source failures are controlled fixtures, not current 2026-11-13 market evidence.",
+    "No production report, deployment, ledger append, email or order was performed.",
+    "No second full inventory run by this audit role; root owns final full regression."
+  ],
+  "written_scope_only": "quant_research_runs\\20261112_expert_round5_v5\\audits\\surface\\takeover_r1"
+}

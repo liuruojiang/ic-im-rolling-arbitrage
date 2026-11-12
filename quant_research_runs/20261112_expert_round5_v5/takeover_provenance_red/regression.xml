@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="2" time="4.553" timestamp="2026-11-12T21:33:27.016157+08:00" hostname="DESKTOP-95I7VVU"><testcase classname="test_icim_expert_round5_20261112" name="test_successful_secondary_listing_capture_preserves_primary_failure[False]" time="0.056"><failure message="AssertionError: assert [] == [{'error': 'c...urce': 'SSE'}]&#10;  &#10;  Right contains one more item: {'error': 'controlled primary timeout', 'error_type': 'Timeout', 'kind': 'transport', 'source': 'SSE'}&#10;  Use -v to get more diff">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000002101D58D940&gt;
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_review_v5_isolated/takeover_provenance_red/icim_put_807f952c/pytest/test_successful_secondary_list0')
+through_public_query = False
+
+    @pytest.mark.parametrize("through_public_query", [False, True])
+    def test_successful_secondary_listing_capture_preserves_primary_failure(
+            monkeypatch, tmp_path, through_public_query):
+        calls = []
+    
+        def sse():
+            calls.append("SSE")
+            raise requests.Timeout("controlled primary timeout")
+    
+        def sina():
+            calls.append("Sina")
+            return list(LISTED)
+    
+        monkeypatch.setattr(bot, "fetch_sse_510500_expiries", sse)
+        monkeypatch.setattr(bot, "fetch_sina_510500_expiries", sina)
+        monkeypatch.setattr(bot, "_build_live_trade_signal", lambda *a: {
+            "months": bot.fetch_510500_expiries_with_failover()})
+    
+        def consume():
+            if through_public_query:
+                return bot.build_live_trade_signal("IC", CLOCK, "close")["months"]
+            return bot.fetch_510500_expiries_with_failover()
+    
+        outer_cache = bot._IC_LISTING_QUERY_CACHE.get()
+        with evidence.capture_session(tmp_path, DAY, CLOCK, {}) as session:
+            assert consume() == LISTED
+        assert session.context["complete"]
+        assert bot._IC_LISTING_QUERY_CACHE.get() is outer_cache
+        reader = evidence.load_session(tmp_path, DAY)
+        stored = reader.call("ic.months", {})
+        assert stored["status"] == "available" and stored["months"] == LISTED
+&gt;       assert stored["failures"] == [{"source": "SSE", "kind": "transport",
+            "error_type": "Timeout", "error": "controlled primary timeout"}]
+E       AssertionError: assert [] == [{'error': 'c...urce': 'SSE'}]
+E         
+E         Right contains one more item: {'error': 'controlled primary timeout', 'error_type': 'Timeout', 'kind': 'transport', 'source': 'SSE'}
+E         Use -v to get more diff
+
+test_icim_expert_round5_20261112.py:330: AssertionError</failure></testcase><testcase classname="test_icim_expert_round5_20261112" name="test_successful_secondary_listing_capture_preserves_primary_failure[True]" time="0.048"><failure message="AssertionError: assert [] == [{'error': 'c...urce': 'SSE'}]&#10;  &#10;  Right contains one more item: {'error': 'controlled primary timeout', 'error_type': 'Timeout', 'kind': 'transport', 'source': 'SSE'}&#10;  Use -v to get more diff">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000002101D58DF30&gt;
+tmp_path = WindowsPath('C:/Users/Administrator.DESKTOP-95I7VVU/AppData/Local/Temp/icim_review_v5_isolated/takeover_provenance_red/icim_put_807f952c/pytest/test_successful_secondary_list1')
+through_public_query = True
+
+    @pytest.mark.parametrize("through_public_query", [False, True])
+    def test_successful_secondary_listing_capture_preserves_primary_failure(
+            monkeypatch, tmp_path, through_public_query):
+        calls = []
+    
+        def sse():
+            calls.append("SSE")
+            raise requests.Timeout("controlled primary timeout")
+    
+        def sina():
+            calls.append("Sina")
+            return list(LISTED)
+    
+        monkeypatch.setattr(bot, "fetch_sse_510500_expiries", sse)
+        monkeypatch.setattr(bot, "fetch_sina_510500_expiries", sina)
+        monkeypatch.setattr(bot, "_build_live_trade_signal", lambda *a: {
+            "months": bot.fetch_510500_expiries_with_failover()})
+    
+        def consume():
+            if through_public_query:
+                return bot.build_live_trade_signal("IC", CLOCK, "close")["months"]
+            return bot.fetch_510500_expiries_with_failover()
+    
+        outer_cache = bot._IC_LISTING_QUERY_CACHE.get()
+        with evidence.capture_session(tmp_path, DAY, CLOCK, {}) as session:
+            assert consume() == LISTED
+        assert session.context["complete"]
+        assert bot._IC_LISTING_QUERY_CACHE.get() is outer_cache
+        reader = evidence.load_session(tmp_path, DAY)
+        stored = reader.call("ic.months", {})
+        assert stored["status"] == "available" and stored["months"] == LISTED
+&gt;       assert stored["failures"] == [{"source": "SSE", "kind": "transport",
+            "error_type": "Timeout", "error": "controlled primary timeout"}]
+E       AssertionError: assert [] == [{'error': 'c...urce': 'SSE'}]
+E         
+E         Right contains one more item: {'error': 'controlled primary timeout', 'error_type': 'Timeout', 'kind': 'transport', 'source': 'SSE'}
+E         Use -v to get more diff
+
+test_icim_expert_round5_20261112.py:330: AssertionError</failure></testcase></testsuite></testsuites>

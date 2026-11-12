@@ -11,9 +11,12 @@ import poe_ic_im_v1_4_state as state
 
 def test_ic_candidate_rejects_stale_chain():
     signal={'market_date':date(2026,9,18),'next_trade_date':date(2026,9,21)}
-    with bot.runtime_clock(datetime(2026,9,18,16,tzinfo=bot.BEIJING)), patch.object(bot,'fetch_510500_chain_with_failover',return_value=(pd.DataFrame(),{'date':'20260901','time':'150000'})):
+    with (bot.runtime_clock(datetime(2026,9,18,16,tzinfo=bot.BEIJING)),
+          patch.object(bot, 'fetch_sse_510500_expiries', return_value=['202609','202610','202612','202703']),
+          patch.object(bot,'fetch_510500_chain_with_failover',return_value=(pd.DataFrame(),{'date':'20260901','time':'150000'})) as chain_fetch):
         with pytest.raises(RuntimeError):
             bot._v14_ic_short_put_candidate(signal)
+        chain_fetch.assert_called_once_with('2610')
 
 
 def test_fix8_ic_monthly_preview_is_not_a_completed_reset():
@@ -342,6 +345,7 @@ def test_ic_core_target_zero_clears_identity_but_keeps_held_mark():
 
 
 def test_ic_candidate_falls_back_to_sina_when_sse_times_out(monkeypatch):
+    monkeypatch.setattr(bot, 'fetch_sse_510500_expiries', lambda: ['202609','202610','202612','202703'])
     signal={'market_date':date(2026,9,18),'next_trade_date':date(2026,9,21),
             'etf_price':7.83,'future_last':7641.0}
     chain=pd.DataFrame([{'contract':'510500P2610M07500','last':.1237,'strike':7.5,

@@ -1,0 +1,7 @@
+{
+  "old_listing_test": "test_icim_expert_followup_20261112.py::test_confirmed_unlisted_roll_month_needs_no_future_calendar_or_chain",
+  "change": "Market date advanced from 2026-11-11 to adoption 2026-11-12, next session correspondingly advanced. Every original assertion retained; new test explicitly covers old-day entry and roll without monthly listing role.",
+  "initial_root_fixture_error": "before_repairs ordinary plan omitted v14_route_state=future; TypeError is a fixture error, not the product finding. The corrected pre-repair run confirms the real exception-swallow bug.",
+  "legacy_test_upgrade": "Old placeholder chain role replaced by real encoded DataFrame and actual adapted reader path; controlled date is 2026-11-11 so both entry and roll target saved December contract shape; not a historical trade claim.",
+  "source_backups": "backup plus before_repairs_test_snapshot.py and before_corrected_test_snapshot.py"
+}

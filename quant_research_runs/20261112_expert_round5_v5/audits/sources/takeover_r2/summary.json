@@ -1,0 +1,49 @@
+{
+  "status": "passed_r2_source_impact_closure_and_r1_test_reuse",
+  "created_at": "2026-11-12T13:36:51.998341+00:00",
+  "candidate": "candidate_source_pin_r2.json",
+  "candidate_pin_sha256": "05ae4d5a238ae619b90cef7755085a1ec55043da32bba8571ad95601944dc0b6",
+  "main_sha256": "5db134c87075e9241ac380fa59d07bfb83d275e040ddbba387b7fdc1dc05deef",
+  "r2_source_count": 213,
+  "r2_entire_source_exact_before_after": true,
+  "r1_entire_213_source_still_exact": false,
+  "r1_changed_files": [
+    "ic_im_evidence_adapter_v1.py",
+    "test_icim_expert_round5_20261112.py"
+  ],
+  "adapter_r1_backup_sha256": "9c3984762ce0baaa08e4d942ac9691e7ca8026b5ad1a0adf14a49fbf3ad58566",
+  "adapter_changed_function": "_keyed.adapted.collect_listing_result",
+  "adapter_ast_identical_outside_changed_function": true,
+  "adapter_ast_with_changed_helper_removed_sha256": "05d1a9fc1cb57a605978e8fc82d458db8f960e1437d09daa58828909e24d3b27",
+  "changed_helper_ast_sha256": {
+    "r1": "8ca4eb79f9f6275b342cedc1680e938b1e0ec0498a196647374b46584dee1b36",
+    "r2": "af1284be064ddfbcd7ee76dd4d11e594c103c3a401046263152e32145b8cd2fa"
+  },
+  "main_program_and_expiry_module_byte_unchanged": true,
+  "source_test_no_listing_capture_or_root_test_imports": true,
+  "reused_independent_tests": 37,
+  "new_tests_executed": 0,
+  "original_counts": {
+    "tests": 37,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "original_artifact_sha256": {
+    "quant_research_runs\\20261112_expert_round5_v5\\audits\\sources\\r1\\run\\collection.json": "e0d22d412ca9b10e21152d4db6eb6d4802359ff5be706fe67c3ab9a8b64c6e30",
+    "quant_research_runs\\20261112_expert_round5_v5\\audits\\sources\\r1\\run\\network_guard.json": "04db7e88b8224c4bf0a0e6dd1b28e164e23574cff1a1f4cc494f362e9dd1af08",
+    "quant_research_runs\\20261112_expert_round5_v5\\audits\\sources\\r1\\run\\progress.jsonl": "3565306f30222f22945dcaac01004d95cbebe944b6a5da374260410b6e6deccd",
+    "quant_research_runs\\20261112_expert_round5_v5\\audits\\sources\\r1\\run\\regression.txt": "17ea8723d179eef44dc2ca216e14e3c5f5b2a7fd6b59b147f328059cde3e73bf",
+    "quant_research_runs\\20261112_expert_round5_v5\\audits\\sources\\r1\\run\\regression.xml": "6f0ab74547f839a9a80e8ac75f863113acee1663ba78e94af859326c8665a748",
+    "quant_research_runs\\20261112_expert_round5_v5\\audits\\sources\\r1\\run\\test_run.json": "10c3c2ee0cea1036bb2de377f31c48b4a3512a4f990d59d0cd052865e6418621"
+  },
+  "prior_source_test_sha256": "01197e25d4fe41fcfafcfd24cc1e719d8006b42d7dd555b30e92ddc23a3da8e4",
+  "no_open_findings_in_source_scope": true,
+  "reused_tests_do_not_validate_new_listing_capture_provenance_helper": true,
+  "production_or_ledger_or_network_operations": false,
+  "scope_limits": [
+    "The earlier r1 whole-source equality is historical and is not a claim about r2.",
+    "Listing-capture provenance changed and requires its own root/surface/ledger validation.",
+    "Source-role tests use controlled clocks and saved genuine reports; no current source availability claim."
+  ]
+}

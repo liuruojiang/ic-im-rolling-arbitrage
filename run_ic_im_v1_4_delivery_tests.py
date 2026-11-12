@@ -9,10 +9,11 @@ import subprocess
 import sys
 
 ROOT = Path(__file__).resolve().parent
+EXPERT_MANIFEST = ROOT / 'docs/ic_im_expert_release_20261112_manifest.json'
 ROUND2_MANIFEST = ROOT / 'docs/ic_im_fear_source_round2_20261109_manifest.json'
 AUDIT_MANIFEST = ROOT / 'docs/ic_im_fear_source_adversarial_20261109_manifest.json'
 SPLIT_MANIFEST = ROOT / 'docs/ic_im_fear_source_split_20261109_manifest.json'
-MANIFEST = ROUND2_MANIFEST if ROUND2_MANIFEST.exists() else AUDIT_MANIFEST if AUDIT_MANIFEST.exists() else SPLIT_MANIFEST if SPLIT_MANIFEST.exists() else ROOT / 'docs/ic_im_daily_release_20261023_repairs_v3_r3_manifest.json'
+MANIFEST = EXPERT_MANIFEST if EXPERT_MANIFEST.exists() else ROUND2_MANIFEST if ROUND2_MANIFEST.exists() else AUDIT_MANIFEST if AUDIT_MANIFEST.exists() else SPLIT_MANIFEST if SPLIT_MANIFEST.exists() else ROOT / 'docs/ic_im_daily_release_20261023_repairs_v3_r3_manifest.json'
 
 
 def sha(path):
@@ -20,7 +21,7 @@ def sha(path):
 
 
 def bindings(manifest):
-    names = set(manifest['files']) | set(manifest.get('fixture_sha256', {})) | set(manifest['required_local_tests']) | set(manifest['required_test_helpers'])
+    names = set(manifest['files']) | set(manifest.get('support_files', {})) | set(manifest.get('fixture_sha256', {})) | set(manifest['required_local_tests']) | set(manifest['required_test_helpers'])
     names |= {'run_ic_im_v1_4_delivery_tests.py', '_icim_delivery_test_worker.py',
               'icim_delivery_test_evidence.py', MANIFEST.relative_to(ROOT).as_posix(),
               'docs/icim_delivery_legacy_fixtures_20261023.json', 'docs/icim_delivery_pytest.ini',
@@ -41,6 +42,7 @@ def main():
     assert manifest['daily_gate_outer_timeout_seconds'] == 60
     before = bindings(manifest)
     assert all(before[name] == value for name, value in manifest['files'].items()), 'unverified production source'
+    assert all(before[name] == value for name, value in manifest.get('support_files', {}).items()), 'unverified production support'
     assert all(before[name] == value for name, value in manifest.get('fixture_sha256', {}).items()), 'unverified test fixture'
     registered = manifest['historical_exclusion_registry']
     # The exact registry bytes are shipped separately, avoiding JSON formatting
@@ -48,7 +50,7 @@ def main():
     assert sha(ROOT / 'docs/icim_historical_deselections_20261023.json') == manifest['historical_exclusion_registry_sha256']
     assert registered == json.loads((ROOT / 'docs/icim_historical_deselections_20261023.json').read_text(encoding='utf-8'))
     tests = manifest['required_local_tests']
-    expected_count = {'20261109-fear-source-round2-v3':49, '20261109-fear-source-adversarial-v2':49, '20261109-fear-source-split-v1':48, '20261023-redteam-repairs-v3-r3':47}[manifest['release']]
+    expected_count = {'20261112-expert-review-v5-r2':56, '20261109-fear-source-round2-v3':49, '20261109-fear-source-adversarial-v2':49, '20261109-fear-source-split-v1':48, '20261023-redteam-repairs-v3-r3':47}[manifest['release']]
     assert len(tests) == len(set(tests)) == expected_count
     allowed = [node for node in registered if node.split('::', 1)[0] in tests]
     assert manifest['daily_gate_deselections'] == allowed

@@ -1,0 +1,61 @@
+{
+  "schema": "icim_state_council_calendar_v1",
+  "year": 2027,
+  "revision": "cn_state_council_2027_approved_20261112_v1",
+  "acceptance_effective_date": "2026-11-12",
+  "exchange_notice_verified": false,
+  "weekend_trading": false,
+  "source": {
+    "issuer": "国务院办公厅",
+    "document_number": "国办发明电〔2026〕10号",
+    "published_date": "2026-11-05",
+    "url": "https://www.gov.cn/zhengce/content/202611/content_7085101.htm",
+    "capture_kind": "search_service_retrieved_text",
+    "text_file": "state_council_2027_notice_search_snapshot.txt",
+    "text_sha256": "05f1bece35e93bfadfa93f811a135d9cffb1950766352a1aa7e6bc2cf43c47b7"
+  },
+  "holidays": [
+    {
+      "name": "元旦",
+      "start": "2027-01-01",
+      "end": "2027-01-03"
+    },
+    {
+      "name": "春节",
+      "start": "2027-02-05",
+      "end": "2027-02-13"
+    },
+    {
+      "name": "清明",
+      "start": "2027-04-03",
+      "end": "2027-04-05"
+    },
+    {
+      "name": "劳动节",
+      "start": "2027-05-01",
+      "end": "2027-05-05"
+    },
+    {
+      "name": "端午",
+      "start": "2027-06-09",
+      "end": "2027-06-09"
+    },
+    {
+      "name": "中秋",
+      "start": "2027-09-15",
+      "end": "2027-09-15"
+    },
+    {
+      "name": "国庆",
+      "start": "2027-10-01",
+      "end": "2027-10-07"
+    }
+  ],
+  "makeup_workdays": [
+    "2027-01-31",
+    "2027-02-14",
+    "2027-05-08",
+    "2027-09-26",
+    "2027-10-09"
+  ]
+}

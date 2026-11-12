@@ -28,8 +28,14 @@ def validate_snapshot_time(
     if not isinstance(stamp, datetime) or stamp.tzinfo is None:
         raise RuntimeError(f"{label}缺少带时区的行情更新时间")
     normalized = stamp.astimezone(BEIJING)
-    if normalized > _clock(observation_clock):
-        raise RuntimeError(f"{label}行情更新时间晚于采集时刻，禁止确认信号")
+    local_clock = _clock(observation_clock)
+    if normalized > local_clock:
+        lead_seconds = (normalized-local_clock).total_seconds()
+        raise RuntimeError(
+            f"{label}行情更新时间晚于采集时刻，禁止确认信号；"
+            f"vendor={normalized.isoformat()}；local={local_clock.isoformat()}；"
+            f"vendor_minus_local_seconds={lead_seconds:.6f}"
+        )
     if normalized.date() <= completed_day and normalized.time() < SESSION_CLOSE:
         raise RuntimeError(f"{label}最新行情更新时间尚未到收盘，禁止确认收盘信号")
     return normalized

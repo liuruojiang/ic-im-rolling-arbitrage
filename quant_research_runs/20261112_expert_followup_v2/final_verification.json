@@ -1,0 +1,149 @@
+{
+  "status": "local_candidate_verified_handover_closed",
+  "created_at": "2026-11-12T12:23:23.713760+08:00",
+  "production_release_certificate": false,
+  "source_pin": "candidate_source_pin_r2.json",
+  "source_pin_sha256": "55d0e45e1c6dbcc586f2287cdd104cd6ce537c1c9945f6e16eb12515bb720b83",
+  "main_sha256": "e1c3d9e5f43db31a89e37ec7cff0f263d615be22c2a3ee0fdf678fd9a8909cb3",
+  "quote_guard_sha256": "c4cc766216fd954c45fb20a7941e974e611866f90103c67fa6a988410f83ace7",
+  "candidate_sources": {
+    "count": 196,
+    "mismatches": {}
+  },
+  "regression_sources": {
+    "count": 190,
+    "mismatches": {}
+  },
+  "regression": {
+    "counts": {
+      "tests": 1450,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "files": 53,
+    "original_historical_exclusions": 5,
+    "new_durable_cases": 39,
+    "reexecuted_during_handover": false,
+    "verification": "saved XML identities, collection, exit, network and current dependencies"
+  },
+  "independent_audits": {
+    "parser": {
+      "counts": {
+        "tests": 88,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "revision": "r2",
+      "evidence_reused_by_unchanged_runtime_AST": false,
+      "directory": "audits/parser/r2/run"
+    },
+    "rendering": {
+      "counts": {
+        "tests": 18,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "revision": "r1",
+      "evidence_reused_by_unchanged_runtime_AST": true,
+      "directory": "audits/rendering/r1/out"
+    },
+    "lifecycle": {
+      "counts": {
+        "tests": 21,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "revision": "r1",
+      "evidence_reused_by_unchanged_runtime_AST": true,
+      "directory": "audits/lifecycle/candidate_r1_run"
+    },
+    "calendar": {
+      "counts": {
+        "tests": 11,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "revision": "r1",
+      "evidence_reused_by_unchanged_runtime_AST": true,
+      "directory": "audits/calendar/r1"
+    }
+  },
+  "r1_to_r2_changed_module_AST_nodes": [
+    [
+      "FunctionDef",
+      "_products_from_query"
+    ]
+  ],
+  "real_data_replay": {
+    "market_day": "2026-10-22",
+    "comparisons": {
+      "original": {
+        "IC": {
+          "fields": 210,
+          "different_fields": []
+        },
+        "IM": {
+          "fields": 225,
+          "different_fields": []
+        }
+      },
+      "previous": {
+        "IC": {
+          "fields": 210,
+          "different_fields": []
+        },
+        "IM": {
+          "fields": 225,
+          "different_fields": [
+            "signal_calculation_started_at",
+            "signal_generated_at"
+          ]
+        }
+      }
+    },
+    "reexecuted_during_handover": false,
+    "material_differences": []
+  },
+  "protected_files": {
+    "count": 557,
+    "mismatches": {}
+  },
+  "formal_runtime": {
+    "count": 38,
+    "mismatches": {},
+    "exact_path_set_unchanged": true,
+    "latest_sequence": 34,
+    "latest_day": "2026-11-11",
+    "latest_equals_journal": true
+  },
+  "quality": {
+    "report_utf8_valid": true,
+    "missing_report_links": [],
+    "diff_check": {
+      "command": "git -c core.whitespace=cr-at-eol diff --check",
+      "exit_code": 0,
+      "default_check_note": "Unconfigured check reports existing CRLF line endings as trailing whitespace; source bytes were preserved."
+    }
+  },
+  "production_actions": {
+    "deployment": false,
+    "production_runner": false,
+    "formal_ledger_write": false,
+    "SMTP": false,
+    "orders": false
+  },
+  "remaining_items": [
+    "SSE full expiry master integration into the production input path",
+    "CFFEX independent legal expiry source",
+    "2027 exchange notices and daily comparison before exchange_notice_verified can become true"
+  ],
+  "report": "expert_followup_audit.md",
+  "report_sha256": "2a5545c36ed5991ce1cec51336a81e98a30d693fb1c354334efcf67bd7eb30c5",
+  "historical_failures_retained": true,
+  "handover": "Existing product fixes and completed tests reused; only final evidence records added."
+}

@@ -1,0 +1,17 @@
+{
+  "initial_protected_files": 2347,
+  "unchanged_protected_files": 2346,
+  "allowed_registry_append": {
+    "notes/mainline_registry.md": {
+      "before": "fe0c194dbf784ff5bca5f3bd7f857ef3b4398838ec2aed71da8673aaeba94030",
+      "after": "11a9f4465b128750cb1dda5cc1ef8096c6990f8deb9e645c60178af3247d6bc9"
+    }
+  },
+  "old_registry_exact_prefix_retained": true,
+  "formal_runtime_files_unchanged": 38,
+  "formal_runtime_path_set_unchanged": true,
+  "formal_latest": {
+    "sequence": 34,
+    "verified_day": "2026-11-11"
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "reason": "IC seller candidate now requires explicit validated listing evidence before chain consumption; old fixtures supplied only chain/pricing. Add the same-date complete listing input so original quote/timestamp assertions remain reachable.",
+  "changed_test_files": {
+    "test_icim_external_review_20261111.py": {
+      "before_sha256": "4b222c60cdf8810ed8dbf23f895e401ee6855cde24f20e713c2fd2c5f8b3d93c",
+      "after_sha256": "e6015e831fe64570abdd4dcb71bf5cf7fba3a3be70da85224b09be2229382cfb"
+    },
+    "test_ic_im_v1_4_integration_guards.py": {
+      "before_sha256": "4dc1c686d9a93066b8aeebd94f69e8676dba9a6aef8fb21cfdfa3f3f91a9092e",
+      "after_sha256": "d5da3db67f81e01cdc9add60aeeef24ae75557e22a71ab9d0a8eeda96e078a38"
+    },
+    "test_icim_ma23_clocks_20261023.py": {
+      "before_sha256": "09d38ae800f7e68ba9f6e7f61aa309555f18104bdb8268cf6d9f72dd2787f066",
+      "after_sha256": "bc45e5c4644d008bc99981d521a569c81cdd2b23639d3b34a94cf27424e00820"
+    }
+  },
+  "assertions_removed": false,
+  "deselections_added": false,
+  "assertions_strengthened": [
+    "stale chain mock is actually consumed exactly once"
+  ],
+  "synthetic_typed_replay_input_added": {
+    "role": "ic.months",
+    "key": {}
+  },
+  "before_logs": [
+    "t2",
+    "legacy_before"
+  ]
+}
