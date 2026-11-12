@@ -2647,6 +2647,9 @@ def fetch_price_history(product: str) -> pd.Series:
 class SignalTransportError(RuntimeError, requests.ConnectionError):
     """All attempted sources failed in transport, not data validation."""
 
+    def __init__(self, *args, **kwargs):
+        requests.RequestException.__init__(self, *args, **kwargs)
+
 
 def _source_failure_error(message: str, errors: list[Exception]) -> RuntimeError:
     """Keep retries for wholly transient source failures, never malformed data."""

@@ -1,0 +1,41 @@
+{
+  "status": "passed_bounded_exception_init_and_pandas_pin_source_closure",
+  "created_at": "2026-11-12T15:05:07.550823+00:00",
+  "old_manifest_sha256": "64e8219f74667daf3dc1581fbc973138c2c356497bfbc36ec3ee19d36898c818",
+  "new_manifest_sha256": "0329762ca1c7de33079de702ea6374384ebc02374f5d44326c21bf86c79bf124",
+  "old_release": "20261112-expert-review-v5-r2",
+  "new_release": "20261112-expert-review-v5-r3",
+  "source_files": 31,
+  "changed_execution_modules": [
+    "poe_ic_im_mainline_v1_4_bot.py"
+  ],
+  "whole_core_AST_equal_after_removing_only_new_initializer": true,
+  "core_AST_without_initializer_sha256": "b8c8dd5fdc45a3431494d71ab43c211dfccb9cd57ed5716acd70cf177dee415a",
+  "all_strategy_calendar_price_selection_and_failure_classification_AST_unchanged": true,
+  "exception_bases_unchanged": [
+    "RuntimeError",
+    "requests.ConnectionError"
+  ],
+  "initializer_exactly_delegates_requests_RequestException": true,
+  "additional_direct_object_controls": {
+    "response_request_inference_preserved": true,
+    "explicit_request_overrides_response_request": true,
+    "RuntimeError_ConnectionError_RequestException_catches_preserved": true,
+    "response_identity_and_args_preserved": true
+  },
+  "pandas_requirement": "pandas==2.3.3",
+  "typed_codec_and_adapter_bytes_unchanged": true,
+  "playback_assertions_weakened": false,
+  "local_runtime": "3.14.4",
+  "local_requests_version": "2.32.5",
+  "cloud_python_311_verified_by_this_audit": false,
+  "regression_rerun_by_this_audit": false,
+  "cloud_followup_required": "Actual Python3.11 cloud execution of original failure nodes and full release gates",
+  "binding_before_equals_after": true,
+  "product_network_SMTP_or_formal_ledger_operations": false,
+  "scope_limits": [
+    "Direct exception checks are local object controls, not the real cloud CI result.",
+    "Dependency pin resolves the observed version contract; no Pandas3 compatibility is claimed.",
+    "Core initializer is the only changed execution AST; separately changed verification runners are outside this core behavior claim."
+  ]
+}
