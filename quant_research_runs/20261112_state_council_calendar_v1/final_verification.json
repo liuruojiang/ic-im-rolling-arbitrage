@@ -1,0 +1,160 @@
+{
+  "status": "calendar_completed_four_adversarial_findings_closed_local_candidate",
+  "created_at": "2026-11-12T01:05:47.973597+00:00",
+  "production_release_certificate": false,
+  "source_pin": "audit_source_pin_round7.json",
+  "source_pin_sha256": "b439eaff5ae266d76c2caca7aec50c61de8f5241c9da9a0ff24d18acd6ce55c6",
+  "main_sha256": "b31dcb6f7c678ec22653f1da6347dbb9934638f4e8c6baf0c5ec29eecf211798",
+  "original_main_sha256": "48a0fd691904a72b83ac0b9ca3506a2e5a4754d82edb72e1aed0937f23e1239c",
+  "audit_bound_files": 189,
+  "audit_source_mismatches": [],
+  "regression_bound_files": 187,
+  "regression": {
+    "purpose": "candidate regression only; not a production release certificate",
+    "inventory": "docs\\ic_im_fear_source_round2_20261109_manifest.json",
+    "exit_code": 0,
+    "source_before_equals_after": true,
+    "historical_deselections": [
+      "test_ic_im_ordinary_put_route_fix_20261013.py::test_profit_and_momentum_execute_independently_after_restart[old_core-IC]",
+      "test_ic_im_ordinary_put_route_fix_20261013.py::test_profit_and_momentum_execute_independently_after_restart[old_core-IM]",
+      "test_ic_im_ordinary_put_route_fix_20261013.py::test_profit_and_momentum_execute_independently_after_restart[new_core-IC]",
+      "test_ic_im_ordinary_put_route_fix_20261013.py::test_profit_and_momentum_execute_independently_after_restart[new_core-IM]",
+      "test_ic_im_fear_source_delivery_20261016.py::test_both_missing_preserve_other_modules_and_never_publish_zero_hold"
+    ],
+    "counts": {
+      "tests": 1411,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "run": "r7final"
+  },
+  "independent_audits": {
+    "metrics": {
+      "final_source_counts": {
+        "tests": 196,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "deselected": 0,
+      "run": "audits/metrics/round7_run_01",
+      "junit_sha256": "be9920349692c1b4ca885c2e083c02e5e5919ba6b071dd1e93a44c56d5f64e5c",
+      "worker_exit_code": 0,
+      "report": "audits/metrics/round7_report.md"
+    },
+    "calendar": {
+      "final_source_counts": {
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "deselected": 0,
+      "run": "audits/calendar/r7_run",
+      "junit_sha256": "83592509a0bacf331fe07aa64823c609d244825691e0a21d4261fbffd7af186c",
+      "worker_exit_code": 0,
+      "report": "audits/calendar/AUDIT_ROUND7_FINAL_BINDING.md"
+    },
+    "sources": {
+      "final_source_counts": {
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "deselected": 0,
+      "run": "audits/sources_concurrency/round7_final_run",
+      "junit_sha256": "1cc3fc18f8aa43167c785525b6234da80343bb5ba8e9101ecab767fde3df39af",
+      "worker_exit_code": 0,
+      "report": "audits/sources_concurrency/report_round7.md"
+    },
+    "persistence": {
+      "final_source_counts": {
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "deselected": 0,
+      "run": "audits/persistence_delivery/r7",
+      "junit_sha256": "1c5f55abe21f144d0ecba1a94c4dad1e2508bae0e742a642557e0a0c7ab488ea",
+      "worker_exit_code": 0,
+      "report": "audits/persistence_delivery/r7/report.md"
+    }
+  },
+  "findings": {
+    "MET-01": {
+      "priority": "P2",
+      "status": "closed within validated scope"
+    },
+    "MET-02": {
+      "priority": "P2",
+      "status": "closed within validated scope"
+    },
+    "CAL-01": {
+      "priority": "P2",
+      "status": "closed within validated scope"
+    },
+    "SRC-01": {
+      "priority": "P2",
+      "status": "closed within validated scope"
+    }
+  },
+  "calendar": {
+    "year": 2027,
+    "trading_days": 243,
+    "all_weekends_closed": true,
+    "makeup_working_weekends_closed": true,
+    "accepted_effective_signal_date": "2026-11-12",
+    "exchange_notice_verified": false,
+    "source_capture_kind": "search_service_retrieved_text",
+    "data_sha256": "da68c14c0ab24fc720f5aab1cceaa49646441b00e8162a0d552d10612cfdacca",
+    "notice_text_sha256": "05f1bece35e93bfadfa93f811a135d9cffb1950766352a1aa7e6bc2cf43c47b7"
+  },
+  "real_data_replay": {
+    "run": "whole_revision_real_round7",
+    "market_day": "2026-10-22",
+    "comparisons": {
+      "IC": {
+        "fields": 210,
+        "different_fields": [],
+        "manifest_sha256": "fcbfda93c687bf31908b756065d7971ec25d32112e2cdf087860b27df41dbf26"
+      },
+      "IM": {
+        "fields": 225,
+        "different_fields": [],
+        "manifest_sha256": "fbd0247754eb1dcb80ad0a7f1cd3d068a9b10e8f9675af8ef656c160fd9ea417"
+      }
+    },
+    "all_fields_equal": true,
+    "network_requests": 0,
+    "synthetic_market_inputs": false,
+    "formal_ledger_write": false
+  },
+  "protected_files": {
+    "count": 537,
+    "mismatches": [],
+    "manifest": "backup_manifest.json",
+    "manifest_sha256": "8fe23d5150659903ca081f81bcb6d2bc0516c95813ead18da2979d69afb35b78"
+  },
+  "quality": {
+    "utf8_no_replacement_characters": true,
+    "local_report_links_valid": true,
+    "main_crlf_preserved": true,
+    "git_diff_check_exit_code": 0
+  },
+  "production_actions": {
+    "deployment": false,
+    "formal_daily_runner": false,
+    "formal_ledger_append": false,
+    "smtp_send": false,
+    "orders": false,
+    "production_manifest_or_active_update": false
+  },
+  "report": "calendar_and_revision_adversarial_audit.md",
+  "report_sha256": "2ca8707c9977a435b09cbad45d0bd80b3e79f74de49715d420251889242e00b9",
+  "registry_sha256": "c9006d0d80c51c775eded125151bb238832a0cb970d31673c404b6a06079bd3b",
+  "historical_failures_retained": true,
+  "test_path_failure_diagnosis": "test_path_failure_diagnosis.json"
+}

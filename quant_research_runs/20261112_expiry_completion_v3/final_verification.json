@@ -1,0 +1,134 @@
+{
+  "status": "local_revision_and_multiagent_audit_complete_external_sources_pending",
+  "created_at": "2026-11-12T13:12:15.335561+08:00",
+  "production_release_certificate": false,
+  "source_pin": "candidate_source_pin_r3.json",
+  "source_count": 201,
+  "main_sha256": "a7a436358cbc1df30c26e5d431f18d3795366015b015ef13cc04ea496601f5c7",
+  "runs": {
+    "full": {
+      "directory": "full_candidate_r3",
+      "counts": {
+        "tests": 1489,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "excluded": 5,
+      "network_attempts": 0
+    },
+    "sources": {
+      "directory": "audits/sources/r3/run",
+      "counts": {
+        "tests": 79,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "excluded": 0,
+      "network_attempts": 0
+    },
+    "ledger": {
+      "directory": "audits/ledger/r3/run",
+      "counts": {
+        "tests": 33,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "excluded": 0,
+      "network_attempts": 0
+    },
+    "surface": {
+      "directory": "audits/surface/r3/run",
+      "counts": {
+        "tests": 27,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "excluded": 0,
+      "network_attempts": 0
+    }
+  },
+  "independent_evidence_audit": "audits/evidence/r3/report.md",
+  "evidence_adversaries": {
+    "cases": 14,
+    "execution": "reused by unchanged validator and protocol hashes"
+  },
+  "findings": {
+    "SRC-01": {
+      "status": "closed",
+      "report": "audits/sources/r3/report.md"
+    },
+    "SRC-02": {
+      "status": "closed",
+      "report": "audits/sources/r3/report.md"
+    },
+    "LEDGER-EXP-01": {
+      "status": "closed",
+      "report": "audits/ledger/r3/report.md"
+    },
+    "LEDGER-EXP-02": {
+      "status": "closed",
+      "report": "audits/ledger/r3/report.md"
+    },
+    "SURFACE-01": {
+      "status": "closed",
+      "report": "audits/surface/r3/report.md"
+    }
+  },
+  "unclosed_implementation_findings": [],
+  "protected": {
+    "baseline_count": 822,
+    "unchanged": 821,
+    "declared_document_changes": {
+      "notes/mainline_registry.md": {
+        "before": "d2ac55bd0d68bf058e438f4c175ed49dc024d11c02d201e63eb4676ba99889a2",
+        "after": "62ed9ffe7835c754ee2407db55cbb0d0b71b57f9966c42adb08da27755382d54"
+      }
+    },
+    "registration": {
+      "path": "notes/mainline_registry.md",
+      "before_sha256": "d2ac55bd0d68bf058e438f4c175ed49dc024d11c02d201e63eb4676ba99889a2",
+      "after_sha256": "62ed9ffe7835c754ee2407db55cbb0d0b71b57f9966c42adb08da27755382d54",
+      "change_kind": "append_only_local_candidate_audit_registration",
+      "before_backup": "mainline_registry_before_v3.md",
+      "candidate_source_binding_contains_registry": false,
+      "original_prefix_unchanged": true,
+      "allowed_runtime_changes": false
+    }
+  },
+  "runtime": {
+    "files": 38,
+    "unchanged": true,
+    "sequence": 34,
+    "day": "2026-11-11"
+  },
+  "real_replay": {
+    "directory": "real_r2_previous",
+    "market_day": "2026-10-22",
+    "fields": {
+      "IC": 210,
+      "IM": 225
+    },
+    "different_fields": [],
+    "r3_reuse_reason": "r3_impact_closure.json"
+  },
+  "remaining_external_inputs": [
+    "Independent CFFEX monthly official expiry source not retrieved (direct notice access timed out)",
+    "2027 exchange annual notice not retrieved; exchange_notice_verified remains false"
+  ],
+  "current_source_probe": "source_probe/receipt.json",
+  "production_actions": {
+    "deployment": false,
+    "production_runner": false,
+    "ledger_append": false,
+    "SMTP": false,
+    "orders": false
+  },
+  "report": "report.md",
+  "report_sha256": "6725b11e18aa9ca98847457ecc779b7c163e025efcb3e95742bc525170e53e84",
+  "historical_failures_preserved": true,
+  "report_missing_links": []
+}

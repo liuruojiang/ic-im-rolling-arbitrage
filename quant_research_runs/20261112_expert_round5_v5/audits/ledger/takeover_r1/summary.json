@@ -1,0 +1,156 @@
+{
+  "created_at": "2026-11-12T13:34:23.813833+00:00",
+  "purpose": "resume and qualify retained ledger-role audit artifacts",
+  "new_pytest_executions": 0,
+  "new_market_computation": false,
+  "formal_ledger_write": false,
+  "network_requests": 0,
+  "candidate_pin_sha256": "2d18a2d9dc8f91ae19d202f37c7b80b0cb871bfec7be3cbd80b2e47b690053f8",
+  "source_files": 213,
+  "current_source_differences_from_r1": [
+    "ic_im_evidence_adapter_v1.py",
+    "test_icim_expert_round5_20261112.py"
+  ],
+  "current_source_difference_reason": "root-authorized P2 provenance repair; old results are qualified for r1 only",
+  "main_sha256": "5db134c87075e9241ac380fa59d07bfb83d275e040ddbba387b7fdc1dc05deef",
+  "runs": [
+    {
+      "attempt": "attempt_1",
+      "exit_code": 1,
+      "tests": 35,
+      "passed": 33,
+      "failed": [
+        "test_recorded_transport_does_not_relax_actual_chain_gates[stale_close-entry]",
+        "test_recorded_transport_does_not_relax_actual_chain_gates[stale_close-roll]"
+      ],
+      "selected_nodes": [
+        "quant_research_runs/20261112_expert_round5_v5/audits/ledger/r1/test_ledger_listing_outcome_routes.py::test_actual_wire_capture_reader_policy_equivalence[available-entry]",
+        "quant_research_runs/20261112_expert_round5_v5/audits/ledger/r1/test_ledger_listing_outcome_routes.py::test_actual_wire_capture_reader_policy_equivalence[available-roll]",
+        "quant_research_runs/20261112_expert_round5_v5/audits/ledger/r1/test_ledger_listing_outcome_routes.py::test_actual_wire_capture_reader_policy_equivalence[sina_available-entry]",
+        "quant_research_runs/20261112_expert_round5_v5/audits/ledger/r1/test_ledger_listing_outcome_routes.py::test_actual_wire_capture_reader_policy_equivalence[sina_available-roll]",
+        "quant_research_runs/20261112_expert_round5_v5/audits/ledger/r1/test_ledger_listing_outcome_routes.py::test_actual_wire_capture_reader_policy_equivalence[transport-entry]",
+        "quant_research_runs/20261112_expert_round5_v5/audits/ledger/r1/test_ledger_listing_outcome_routes.py::test_actual_wire_capture_reader_policy_equivalence[transport-roll]",
+        "quant_research_runs/20261112_expert_round5_v5/audits/ledger/r1/test_ledger_listing_outcome_routes.py::test_actual_wire_capture_reader_policy_equivalence[http403-entry]",
+        "quant_research_runs/20261112_expert_round5_v5/audits/ledger/r1/test_ledger_listing_outcome_routes.py::test_actual_wire_capture_reader_policy_equivalence[http403-roll]",
+        "quant_research_runs/20261112_expert_round5_v5/audits/ledger/r1/test_ledger_listing_outcome_routes.py::test_actual_wire_capture_reader_policy_equivalence[wrong_calendar-entry]",
+        "quant_research_runs/20261112_expert_round5_v5/audits/ledger/r1/test_ledger_listing_outcome_routes.py::test_actual_wire_capture_reader_policy_equivalence[wrong_calendar-roll]",
+        "quant_research_runs/20261112_expert_round5_v5/audits/ledger/r1/test_ledger_listing_outcome_routes.py::test_actual_wire_capture_reader_policy_equivalence[structure-entry]",
+        "quant_research_runs/20261112_expert_round5_v5/audits/ledger/r1/test_ledger_listing_outcome_routes.py::test_actual_wire_capture_reader_policy_equivalence[structure-roll]",
+        "quant_research_runs/20261112_expert_round5_v5/audits/ledger/r1/test_ledger_listing_outcome_routes.py::test_recorded_transport_does_not_relax_actual_chain_gates[expiry-entry]",
+        "quant_research_runs/20261112_expert_round5_v5/audits/ledger/r1/test_ledger_listing_outcome_routes.py::test_recorded_transport_does_not_relax_actual_chain_gates[expiry-roll]",
+        "quant_research_runs/20261112_expert_round5_v5/audits/ledger/r1/test_ledger_listing_outcome_routes.py::test_recorded_transport_does_not_relax_actual_chain_gates[identity-entry]",
+        "quant_research_runs/20261112_expert_round5_v5/audits/ledger/r1/test_ledger_listing_outcome_routes.py::test_recorded_transport_does_not_relax_actual_chain_gates[identity-roll]",
+        "quant_research_runs/20261112_expert_round5_v5/audits/ledger/r1/test_ledger_listing_outcome_routes.py::test_recorded_transport_does_not_relax_actual_chain_gates[stale_close-entry]",
+        "quant_research_runs/20261112_expert_round5_v5/audits/ledger/r1/test_ledger_listing_outcome_routes.py::test_recorded_transport_does_not_relax_actual_chain_gates[stale_close-roll]",
+        "quant_research_runs/20261112_expert_round5_v5/audits/ledger/r1/test_ledger_listing_outcome_routes.py::test_old_actual_policy_capture_and_reader_have_no_new_listing_dependency[day0-entry]",
+        "quant_research_runs/20261112_expert_round5_v5/audits/ledger/r1/test_ledger_listing_outcome_routes.py::test_old_actual_policy_capture_and_reader_have_no_new_listing_dependency[day0-roll]",
+        "quant_research_runs/20261112_expert_round5_v5/audits/ledger/r1/test_ledger_listing_outcome_routes.py::test_old_actual_policy_capture_and_reader_have_no_new_listing_dependency[day1-entry]",
+        "quant_research_runs/20261112_expert_round5_v5/audits/ledger/r1/test_ledger_listing_outcome_routes.py::test_old_actual_policy_capture_and_reader_have_no_new_listing_dependency[day1-roll]",
+        "quant_research_runs/20261112_expert_round5_v5/audits/ledger/r1/test_ledger_listing_outcome_routes.py::test_core_reset_requires_same_listing_result_and_cannot_guess_month[transport]",
+        "quant_research_runs/20261112_expert_round5_v5/audits/ledger/r1/test_ledger_listing_outcome_routes.py::test_core_reset_requires_same_listing_result_and_cannot_guess_month[http403]",
+        "quant_research_runs/20261112_expert_round5_v5/audits/ledger/r1/test_ledger_listing_outcome_routes.py::test_ready_and_consumer_reject_missing_or_corrupt_required_evidence[missing_role]",
+        "quant_research_runs/20261112_expert_round5_v5/audits/ledger/r1/test_ledger_listing_outcome_routes.py::test_ready_and_consumer_reject_missing_or_corrupt_required_evidence[missing_proof]",
+        "quant_research_runs/20261112_expert_round5_v5/audits/ledger/r1/test_ledger_listing_outcome_routes.py::test_ready_and_consumer_reject_missing_or_corrupt_required_evidence[legacy_list]",
+        "quant_research_runs/20261112_expert_round5_v5/audits/ledger/r1/test_ledger_listing_outcome_routes.py::test_ready_and_consumer_reject_missing_or_corrupt_required_evidence[wrong_day]",
+        "quant_research_runs/20261112_expert_round5_v5/audits/ledger/r1/test_ledger_listing_outcome_routes.py::test_ready_and_consumer_reject_missing_or_corrupt_required_evidence[bad_revision]",
+        "quant_research_runs/20261112_expert_round5_v5/audits/ledger/r1/test_ledger_listing_outcome_routes.py::test_ready_and_consumer_reject_missing_or_corrupt_required_evidence[transport_claim]",
+        "quant_research_runs/20261112_expert_round5_v5/audits/ledger/r1/test_ledger_listing_outcome_routes.py::test_ready_and_consumer_reject_missing_or_corrupt_required_evidence[blob_missing]",
+        "quant_research_runs/20261112_expert_round5_v5/audits/ledger/r1/test_ledger_listing_outcome_routes.py::test_ready_and_consumer_reject_missing_or_corrupt_required_evidence[blob_corrupt]",
+        "quant_research_runs/20261112_expert_round5_v5/audits/ledger/r1/test_ledger_listing_outcome_routes.py::test_ready_accepts_real_available_envelope_but_consumer_still_uses_real_chain",
+        "quant_research_runs/20261112_expert_round5_v5/audits/ledger/r1/test_ledger_listing_outcome_routes.py::test_wrong_calendar_envelope_is_shape_accepted_but_real_provider_rejects_it",
+        "quant_research_runs/20261112_expert_round5_v5/audits/ledger/r1/test_ledger_listing_outcome_routes.py::test_real_raw_conflict_cannot_be_repaired_by_cached_listing_success"
+      ],
+      "xml_sha256": "62606c41ce5ea276c5bc55bcfc5dfed19274ea6180e5dee4f96d37622701059f"
+    },
+    {
+      "attempt": "attempt_2",
+      "exit_code": 0,
+      "tests": 5,
+      "passed": 5,
+      "failed": [],
+      "selected_nodes": [
+        "quant_research_runs/20261112_expert_round5_v5/audits/ledger/r1/test_ledger_listing_outcome_routes.py::test_recorded_transport_does_not_relax_actual_chain_gates[future_clock-entry]",
+        "quant_research_runs/20261112_expert_round5_v5/audits/ledger/r1/test_ledger_listing_outcome_routes.py::test_recorded_transport_does_not_relax_actual_chain_gates[future_clock-roll]",
+        "quant_research_runs/20261112_expert_round5_v5/audits/ledger/r1/test_ledger_listing_outcome_routes.py::test_ready_accepts_real_optional_outcome_and_replays_its_candidate_semantics[transport]",
+        "quant_research_runs/20261112_expert_round5_v5/audits/ledger/r1/test_ledger_listing_outcome_routes.py::test_ready_accepts_real_optional_outcome_and_replays_its_candidate_semantics[http403]",
+        "quant_research_runs/20261112_expert_round5_v5/audits/ledger/r1/test_ledger_listing_outcome_routes.py::test_successful_sina_failover_provenance_observation"
+      ],
+      "xml_sha256": "4b5bb2c2ed8c61d6b100753993f10aa4245472275dee59105a55de709447cb9c"
+    }
+  ],
+  "artifact_sha256": {
+    "quant_research_runs\\20261112_expert_round5_v5\\audits\\ledger\\r1\\attempt_1\\collection.json": "247dc40a8c0d8fbdeec65c58dcf4276313c55b19c68bdaef92d3c7ffc0e8763b",
+    "quant_research_runs\\20261112_expert_round5_v5\\audits\\ledger\\r1\\attempt_1\\launcher_result.json": "aa313ed606189382a672f9a1b6c220481b1e24ecc8ffac4628340e40318b3aa9",
+    "quant_research_runs\\20261112_expert_round5_v5\\audits\\ledger\\r1\\attempt_1\\network_guard.json": "5a1e34dea427774f3bfb9397dd33ee8d824166c34f3964108b5b601afa966543",
+    "quant_research_runs\\20261112_expert_round5_v5\\audits\\ledger\\r1\\attempt_1\\regression.xml": "62606c41ce5ea276c5bc55bcfc5dfed19274ea6180e5dee4f96d37622701059f",
+    "quant_research_runs\\20261112_expert_round5_v5\\audits\\ledger\\r1\\attempt_1\\test_run.json": "c07c3d327782895456d7d84b539a1324b35ed60498681451526f64c49a0ba786",
+    "quant_research_runs\\20261112_expert_round5_v5\\audits\\ledger\\r1\\attempt_2\\collection.json": "edc2746e3f5026a98a40f602fad43e56f3435724025ed5c4f48788ae56e9b49f",
+    "quant_research_runs\\20261112_expert_round5_v5\\audits\\ledger\\r1\\attempt_2\\launcher_result.json": "2e28774ed8539d8203e50ea2a45d9330667574a59b262fb450033f21bc1f6ef9",
+    "quant_research_runs\\20261112_expert_round5_v5\\audits\\ledger\\r1\\attempt_2\\network_guard.json": "04db7e88b8224c4bf0a0e6dd1b28e164e23574cff1a1f4cc494f362e9dd1af08",
+    "quant_research_runs\\20261112_expert_round5_v5\\audits\\ledger\\r1\\attempt_2\\regression.xml": "4b5bb2c2ed8c61d6b100753993f10aa4245472275dee59105a55de709447cb9c",
+    "quant_research_runs\\20261112_expert_round5_v5\\audits\\ledger\\r1\\attempt_2\\test_run.json": "45da5ecf2c46d0f948e6e7d0bc45ff28e9b123d263e1f8ae3166d92287ea5fec",
+    "quant_research_runs\\20261112_expert_round5_v5\\audits\\ledger\\r1\\run_binding.json": "9110fdae2b9bc7d5a72b37c8b059264444ccb88f001d942c53c838fb98bd310e",
+    "quant_research_runs\\20261112_expert_round5_v5\\audits\\ledger\\r1\\fixture_failure_classification.json": "e2a6a3a88e2342e83ab1a96d2864471a0fd42898cb62107f1af205af51499ae7",
+    "quant_research_runs\\20261112_expert_round5_v5\\audits\\ledger\\r1\\retained_capture_index.json": "df5e961c4715db0b586c48446308bba808dbfa2573ad58c3c75aeb3660c9be47",
+    "quant_research_runs\\20261112_expert_round5_v5\\audits\\ledger\\r1\\test_attempt_1_original.py.txt": "b2de0f1485a5ec6535dc875129015f6aaa866a2d5316a41d8212af618e7c6a17",
+    "quant_research_runs\\20261112_expert_round5_v5\\audits\\ledger\\r1\\test_ledger_listing_outcome_routes.py": "9e80372767bc3e897895dc5132fe7df03a6a39a4c8bf4f02deac2fb1ffaed51a",
+    "quant_research_runs\\20261112_expert_round5_v5\\audits\\ledger\\r1\\attempt_2\\observations\\successful_sina_provenance_observation.json": "afcebd850ad3344fad53aeeb312c24a95264375f737d9f866e7f16173e502e1e"
+  },
+  "fixture_failure_disposition": {
+    "classification": "audit_fixture_assumption",
+    "failed_nodes": [
+      "test_recorded_transport_does_not_relax_actual_chain_gates[stale_close-entry]",
+      "test_recorded_transport_does_not_relax_actual_chain_gates[stale_close-roll]"
+    ],
+    "reason": "SSE aggregate 14:50 is legal under the existing same-day/nonfuture gate; per-contract 20-minute freshness applies to Sina. Fifteen-o-clock finalization remains explicitly deferred.",
+    "correction": "Use actual invalid source timestamp 19:00 while runtime clock is 18:00; retain real source/adaptor/policy gates.",
+    "rerun_scope": "Only two corrected nodes plus new additional cases; reuse the 33 passed nodes under unchanged product source.",
+    "original_test_sha256": "b2de0f1485a5ec6535dc875129015f6aaa866a2d5316a41d8212af618e7c6a17",
+    "product_changes": false
+  },
+  "qualified_prior_passes": 38,
+  "prior_passes_reused": 33,
+  "corrected_and_added_passes": 5,
+  "retained_capture_integrity": {
+    "archives": 40,
+    "manifests": 40,
+    "complete_manifest_count": 33,
+    "incomplete_manifest_count": 7,
+    "valid_blob_paths": 220,
+    "intentional_missing_blob_paths": [
+      "quant_research_runs\\20261112_expert_round5_v5\\audits\\ledger\\r1\\retained_captures\\a1\\c26\\blobs\\a3912834f07d52cbe321f7c1099d6d4954290e9c7901013acb1f4dd75a96c3ba.json"
+    ],
+    "intentional_corrupt_blob_paths": [
+      "quant_research_runs\\20261112_expert_round5_v5\\audits\\ledger\\r1\\retained_captures\\a1\\c27\\blobs\\a3912834f07d52cbe321f7c1099d6d4954290e9c7901013acb1f4dd75a96c3ba.json"
+    ],
+    "all_manifest_file_and_body_hashes_match_retained_index": true
+  },
+  "open_findings_at_r1": [
+    {
+      "id": "LEDGER-V5-PROVENANCE-1",
+      "severity": "P2",
+      "issue": "SSE listing failure followed by valid Sina success loses the earlier failure in the captured available envelope",
+      "source": "ic_im_evidence_adapter_v1.py collect_listing_result successful branch",
+      "evidence": "../r1/attempt_2/observations/successful_sina_provenance_observation.json",
+      "scope": "source provenance fidelity; admitted chain identity/expiry validation remains intact",
+      "reported_to_root": true
+    }
+  ],
+  "limits": [
+    "November market dates, prices and wire responses are synthetic controls based on saved schema fixtures.",
+    "The real candidate/policy/capture/reader/readiness functions are exercised, but the outer market builder is replaced and eligibility forced for capture binding; this is not a full market build or StateStore append qualification.",
+    "Readiness scaffolding contains explicitly unconsumed placeholder roles; it does not certify those roles as market data.",
+    "The wrong-calendar shape acceptance case constructs a local trusted archive; actual providers reject that list and no remote reachability is established.",
+    "The SSE 14:50 close-finalization concern remains outside this revision; replacing that fixture with 19:00 versus 18:00 tests the existing nonfuture gate without claiming a new 15:00 finalization policy."
+  ],
+  "protected_verification": {
+    "count": 2347,
+    "mismatches": []
+  },
+  "runtime_verification": {
+    "count": 38,
+    "mismatches": []
+  },
+  "source_before_equals_after": true,
+  "status": "prior_ledger_evidence_verified_with_one_open_provenance_finding"
+}

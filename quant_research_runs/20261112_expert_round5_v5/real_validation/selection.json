@@ -1,0 +1,24 @@
+{
+  "status": "passed",
+  "market_day": "2026-10-22",
+  "synthetic_market_inputs": false,
+  "formal_ledger_write": false,
+  "selected": {
+    "contract": "510500P2612M06250",
+    "security_id": "10012282",
+    "strike": 6.25,
+    "qty": 18,
+    "iv": 0.3288257548963115
+  },
+  "frozen_v4_selected": {
+    "contract": "510500P2612M06250",
+    "security_id": "10012282",
+    "strike": 6.25,
+    "qty": 18,
+    "iv": 0.3288257548963115
+  },
+  "reference_sha256": "57e23d12bebe67b78a46dccb1bd1f7ce8c673cbb8dcec1ed700318cdf1be4b66",
+  "manifest_sha256": "fcbfda93c687bf31908b756065d7971ec25d32112e2cdf087860b27df41dbf26",
+  "network_requests": [],
+  "unrecorded_inputs": []
+}

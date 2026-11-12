@@ -1,0 +1,22 @@
+{
+  "old_tests": [
+    {
+      "file": "test_icim_expert_followup_20261112.py",
+      "change": "Only candidate-adoption fixtures advance to 11/13 (next session11/16). Listing RuntimeError now asserts candidate untradable, while listed-chain RuntimeError remains hard. Original unlisted assertions retained."
+    },
+    {
+      "file": "test_icim_expert_round4_20261112.py",
+      "change": "Only listing-specific fixtures advance to11/13. EvidenceUnavailable remains hard; structural RuntimeError now asserts untradable candidate and no direct chain, per new authorized contract."
+    }
+  ],
+  "new_fixture_errors": [
+    "Initial control compared core/total raw base inputs against post-route policy output, including valid seller-route removal of0.5 core. Corrected to existing unchanged pure policy reference only for unverified candidate; momentum unchanged and no diagnostic explicitly asserted.",
+    "Baseline isolated worker initially lacked a mandatory copied legacy manifest; no tests executed. Original failure retained, corrected baseline executes exact backup modules."
+  ],
+  "first_full_failures": [
+    "Pre-adoption provider API unintentionally acquired new4-month envelope validation; two old one-month provider controls attempted blocked Sina fallback. Product corrected with explicit old-day provider branch, retaining real provider full-list checks.",
+    "Unavailable message preserved TIMESAVE attribution to keep old diagnostic contract.",
+    "First full result timed out at original60s with3failed/1566passed; never accepted as a successful run. Blocked external attempts retained in its guard."
+  ],
+  "pre_repair_execution": "before_corrected_fixture actual backup modules are recorded in actual_backup_modules.json; workspace source snapshots guard current working bytes and are not claimed as baseline execution source."
+}

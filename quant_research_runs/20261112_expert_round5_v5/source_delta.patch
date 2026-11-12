@@ -1,0 +1,806 @@
+--- a/ic_im_evidence_adapter_v1.py
++++ b/ic_im_evidence_adapter_v1.py
+@@ -30,6 +30,87 @@
+ 
+ INPUT_REVISION = "ic_im_original_inputs_20261021_v1"
+ _LOCATION = contextvars.ContextVar("icim_original_evidence_location", default=None)
++LISTING_EFFECTIVE_SIGNAL_DATE = date(2026, 11, 13)
++LISTING_OUTCOME_REVISION = "ic_listing_outcome_20261113_v1"
++
++
++class ListingProbeUnavailable(RuntimeError):
++    """A recorded optional probe result, never missing or corrupt evidence."""
++    def __init__(self, outcome):
++        self.outcome = validate_listing_outcome(outcome)
++        super().__init__("510500挂牌探测不可用；" + "；".join(
++            f"{row['source']}: {row['error_type']}: {row['error']}"
++            for row in self.outcome["failures"]))
++
++
++class ListingProbeTransportUnavailable(ListingProbeUnavailable, requests.ConnectionError):
++    """Both listing sources failed only in transport; independent chains may work."""
++
++
++def listing_failure(source, exc):
++    if isinstance(exc, requests.exceptions.ChunkedEncodingError):
++        kind, name = "transport", "ChunkedEncodingError"
++    elif isinstance(exc, requests.Timeout):
++        kind, name = "transport", "Timeout"
++    elif isinstance(exc, requests.ConnectionError):
++        kind, name = "transport", "ConnectionError"
++    else:
++        kind, name = "unverified", type(exc).__name__
++    return {"source": source, "kind": kind, "error_type": name, "error": str(exc)[:2000]}
++
++
++def validate_listing_outcome(value, day=None):
++    required = {"revision", "status", "months", "failures"}
++    if (not isinstance(value, dict) or set(value) not in (required, required | {"signal_day"})
++            or value.get("revision") != LISTING_OUTCOME_REVISION):
++        raise evidence.EvidenceUnavailable("挂牌探测存证版本或字段无效")
++    if day is not None and value.get("signal_day") != day.isoformat():
++        raise evidence.EvidenceUnavailable("挂牌探测存证信号日不匹配")
++    if "signal_day" in value:
++        try:
++            date.fromisoformat(value["signal_day"])
++        except (TypeError, ValueError) as exc:
++            raise evidence.EvidenceUnavailable("挂牌探测存证日期无效") from exc
++    months, failures, status = value["months"], value["failures"], value["status"]
++    if not isinstance(months, list) or not isinstance(failures, list):
++        raise evidence.EvidenceUnavailable("挂牌探测存证集合无效")
++    sources = []
++    for row in failures:
++        if (not isinstance(row, dict) or set(row) != {"source", "kind", "error_type", "error"}
++                or row["source"] not in {"SSE", "Sina"}
++                or row["kind"] not in {"transport", "unverified"}
++                or not isinstance(row["error_type"], str) or not 1 <= len(row["error_type"]) <= 160
++                or row["error_type"] in {"EvidenceUnavailable", "ExpiryEvidenceConflict", "CalendarCoverageError"}
++                or not isinstance(row["error"], str) or len(row["error"]) > 2000
++                or (row["kind"] == "transport" and row["error_type"] not in
++                    {"ConnectionError", "Timeout", "ChunkedEncodingError"})):
++            raise evidence.EvidenceUnavailable("挂牌探测来源失败分类无效")
++        sources.append(row["source"])
++    if len(sources) != len(set(sources)):
++        raise evidence.EvidenceUnavailable("挂牌探测失败来源重复")
++    if status == "available":
++        if (len(months) != 4 or any(not isinstance(m, str) or
++                re.fullmatch(r"20[0-9]{2}(?:0[1-9]|1[0-2])", m) is None for m in months)
++                or months != sorted(set(months)) or len(failures) > 1):
++            raise evidence.EvidenceUnavailable("挂牌探测成功值不完整或无效")
++    elif status in {"transport_unavailable", "unverified"}:
++        if months or sources != ["SSE", "Sina"]:
++            raise evidence.EvidenceUnavailable("挂牌探测不可用结果缺少两个来源")
++        all_transport = all(row["kind"] == "transport" for row in failures)
++        if (status == "transport_unavailable") != all_transport:
++            raise evidence.EvidenceUnavailable("挂牌探测不可用状态与失败分类冲突")
++    else:
++        raise evidence.EvidenceUnavailable("挂牌探测存证状态无效")
++    return deepcopy(value)
++
++
++def listing_value(outcome):
++    outcome = validate_listing_outcome(outcome)
++    if outcome["status"] == "available":
++        return list(outcome["months"])
++    error = (ListingProbeTransportUnavailable if outcome["status"] == "transport_unavailable"
++             else ListingProbeUnavailable)
++    raise error(outcome)
+ 
+ 
+ class Namespace:
+@@ -150,6 +231,10 @@
+     if role == "ic.chain":
+         return validate_chain(strategy, value, key["month"], day, clock)
+     if role == "ic.months":
++        if isinstance(value, dict):
++            if day < LISTING_EFFECTIVE_SIGNAL_DATE:
++                raise evidence.EvidenceUnavailable("挂牌探测封套早于采用日")
++            return validate_listing_outcome(value, day)
+         if (not isinstance(value, list) or not value or value != sorted(set(value))
+                 or any(not isinstance(m, str) or not re.fullmatch(r"20[0-9]{4}", m)
+                        or not 1 <= int(m[-2:]) <= 12 for m in value)):
+@@ -218,6 +303,50 @@
+         if reader is None and capture is None:
+             return original(*args, **kwargs)
+         key = keyfn(*args, **kwargs)
++        day = reader.day if reader is not None else capture.day
++        if (role == "ic.months" and day >= LISTING_EFFECTIVE_SIGNAL_DATE
++                and hasattr(strategy, "_IC_CANDIDATE_LISTING_EFFECTIVE_SIGNAL_DATE")):
++            if reader is not None:
++                stored = reader.call(role, key)
++                if not isinstance(stored, dict):
++                    raise evidence.EvidenceUnavailable("新日缺少有版本的原日挂牌探测结果")
++            else:
++                def collect_listing_result():
++                    query_cache = getattr(strategy, "_IC_LISTING_QUERY_CACHE", None)
++                    cache_token = (query_cache.set({}) if query_cache is not None
++                                   and query_cache.get() is None else None)
++                    try:
++                        try:
++                            months = original(*args, **kwargs)
++                        except expiry_evidence.ExpiryEvidenceConflict as conflict:
++                            def record_conflict():
++                                raise conflict
++                            capture.call("ic.months.conflict", key, record_conflict)
++                            raise
++                        except ListingProbeUnavailable as exc:
++                            outcome = deepcopy(exc.outcome)
++                        else:
++                            cache = query_cache.get() if query_cache is not None else None
++                            if cache is not None and "listing" in cache:
++                                outcome = validate_listing_outcome(cache["listing"])
++                                if outcome["status"] != "available" or outcome["months"] != months:
++                                    raise evidence.EvidenceUnavailable("挂牌探测公开值与来源结果不一致")
++                            else:
++                                outcome = {"revision": LISTING_OUTCOME_REVISION, "status": "available",
++                                           "months": months, "failures": []}
++                        outcome["signal_day"] = day.isoformat()
++                        return validate_listing_outcome(outcome, day)
++                    finally:
++                        if cache_token is not None:
++                            query_cache.reset(cache_token)
++                stored = capture.call(role, key, collect_listing_result)
++                capture.annotate("ic_listing_outcome_policy", {
++                    "revision": LISTING_OUTCOME_REVISION,
++                    "effective_signal_date": LISTING_EFFECTIVE_SIGNAL_DATE.isoformat()})
++            # Expected probe unavailability is an archived value, not an
++            # unresolved arbitrary failure. Only this validated envelope may
++            # restore its dedicated exception during capture and replay alike.
++            return listing_value(_validate_value(strategy, role, key, stored))
+         if reader is not None:
+             if role == "fear.reference" and not any(
+                     row.get("role") == role for row in reader.manifest["entries"].values()):
+@@ -446,6 +575,8 @@
+         raise evidence.EvidenceUnavailable(f"{day} original close acquisition time is not on that session")
+     if closed.time() < time(15, 0):
+         raise evidence.EvidenceUnavailable(f"{day} original evidence is not a completed close")
++    if product == "IC" and day >= LISTING_EFFECTIVE_SIGNAL_DATE:
++        validate_listing_outcome(reader.call("ic.months", {}), day)
+     if product == "IC" and day >= expiry_evidence.EFFECTIVE_SIGNAL_DATE:
+         for entry in reader.context["entries"].values():
+             if entry.get("role") != "ic.chain":
+--- a/ic_im_expiry_evidence_v1.py
++++ b/ic_im_expiry_evidence_v1.py
+@@ -3,6 +3,7 @@
+ 
+ from datetime import date, datetime, timedelta
+ import re
++from zoneinfo import ZoneInfo
+ 
+ import ic_im_adjusted_put_migration_v1 as terms_parser
+ 
+@@ -32,7 +33,7 @@
+     return result
+ 
+ 
+-def verify_sse_chain(frame, payload, *, as_of, month, model_expiry):
++def verify_sse_chain(frame, payload, *, as_of, month, model_expiry, observation_clock=None):
+     """Bind every quote identity to a same-day real SSE master row."""
+     if type(as_of) is not date or type(model_expiry) is not date:
+         raise ExpiryEvidenceConflict("SSE到期核验缺少明确市场日或模型日期")
+@@ -40,16 +41,27 @@
+         raise ExpiryEvidenceConflict("SSE到期核验月份无效")
+     if model_expiry.strftime("%Y%m") != month:
+         raise ExpiryEvidenceConflict("SSE模型到期日不属于请求月份")
++    observed_day = as_of
++    if observation_clock is not None:
++        if (not isinstance(observation_clock, datetime) or observation_clock.tzinfo is None
++                or observation_clock.utcoffset() is None):
++            raise ExpiryEvidenceConflict("SSE主表缺少明确的实际观察时刻")
++        observed_day = observation_clock.astimezone(ZoneInfo("Asia/Shanghai")).date()
++        if observed_day < as_of:
++            raise ExpiryEvidenceConflict("SSE参考市场日晚于实际观察日")
+     try:
+         if not isinstance(payload, dict) or not isinstance(payload.get("result"), list) or not payload["result"]:
+             raise ExpiryMasterUnavailable("SSE当日主表为空，不能确认实际到期日")
+         rows = payload["result"]
+         snapshot_dates = {terms_parser.day(row["TIMESAVE"]) for row in rows}
+-        if len(snapshot_dates) != 1 or next(iter(snapshot_dates)) > as_of:
+-            raise ExpiryEvidenceConflict("SSE主表实际TIMESAVE混合或晚于信号市场日")
+-        if snapshot_dates != {as_of}:
+-            raise ExpiryMasterUnavailable("SSE主表实际TIMESAVE不是信号市场日，禁止用请求日期冒充来源日期")
+-        terms = terms_parser.master_terms(payload, as_of=as_of)
++        if len(snapshot_dates) != 1:
++            raise ExpiryEvidenceConflict("SSE主表实际TIMESAVE混合")
++        snapshot_day = next(iter(snapshot_dates))
++        if snapshot_day > observed_day:
++            raise ExpiryEvidenceConflict("SSE主表实际TIMESAVE晚于实际观察日")
++        # Validate this current table's own identities and actual expiry first.
++        # A different reference date must not hide contradictory expiry fields.
++        terms = terms_parser.master_terms(payload, as_of=snapshot_day)
+     except ExpiryMasterUnavailable:
+         raise
+     except (RuntimeError, KeyError, TypeError, ValueError, AttributeError) as exc:
+@@ -59,6 +71,8 @@
+             raise ExpiryEvidenceConflict("SSE主表返回了请求月份以外的合约")
+         if term.expiry != model_expiry:
+             raise ExpiryEvidenceConflict("SSE主表真实到期日与模型日期冲突")
++    if snapshot_day != as_of:
++        raise ExpiryMasterUnavailable("SSE当前主表TIMESAVE不能证明所需历史参考时点，禁止重标来源日期")
+     needed = {"contract", "security_id", "strike"}
+     if not needed.issubset(frame.columns) or frame.empty:
+         raise ExpiryEvidenceConflict("SSE行情链缺少可核验证券身份")
+@@ -108,7 +122,8 @@
+             raise ExpiryEvidenceConflict("原日SSE实际到期字段缺失") from exc
+         expected = model_expiry or actual
+         result = verify_sse_chain(frame, proof["payload"], as_of=as_of,
+-                                  month=month, model_expiry=expected)
++                                  month=month, model_expiry=expected,
++                                  observation_clock=observation_clock)
+     elif provider == "Sina":
+         if not str(stamp.get("source", "")).startswith("新浪财经期权详报价"):
+             raise ExpiryEvidenceConflict("原日期权链与Sina到期来源不一致")
+--- a/poe_ic_im_mainline_v1_4_bot.py
++++ b/poe_ic_im_mainline_v1_4_bot.py
+@@ -303,7 +303,8 @@
+ _GOV10Y_QUERY_CACHE = contextvars.ContextVar("ic_im_gov10y_query_cache", default=None)
+ _CALENDAR_POLICY_DAY = contextvars.ContextVar("ic_im_calendar_policy_day", default=None)
+ _CFFEX_EXPIRY_QUERY_CACHE = contextvars.ContextVar("ic_im_cffex_expiry_query_cache", default=None)
+-_IC_CANDIDATE_LISTING_EFFECTIVE_SIGNAL_DATE = date(2026, 11, 12)
++_IC_LISTING_QUERY_CACHE = contextvars.ContextVar("ic_im_listing_query_cache", default=None)
++_IC_CANDIDATE_LISTING_EFFECTIVE_SIGNAL_DATE = evidence_adapter.LISTING_EFFECTIVE_SIGNAL_DATE
+ _PERFORMANCE_PLOT_LOCK = threading.RLock()
+ _COLLECTION_CLOCK_ANCHOR = contextvars.ContextVar("ic_im_quote_collection_clock", default=None)
+ _VERIFIED_DISPLAY_ANCHORS = contextvars.ContextVar("ic_im_verified_display_anchors", default=None)
+@@ -1272,7 +1273,7 @@
+             return match.group(0)
+         return " "
+ 
+-    fallback_dates = re.sub(r"(?:20\d{2}\s*年\s*)?(?:0?[1-9]|1[0-2])\s*月\s*合约",
++    fallback_dates = re.sub(r"(?:20\d{2}\s*年\s*)?(?:0?[1-9]|1[0-2])\s*月\s*(?:份\s*)?(?:的\s*)?合约",
+                             omit_contract_month, query)
+     parsed_start, parsed_end = parse_date_range(fallback_dates, now)
+     if parsed_start is not None:
+@@ -4527,7 +4528,8 @@
+         master = fetch_sse_510500_expiry_master(yy + month, reference_day)
+         frame = expiry_evidence.verify_sse_chain(
+             frame, master, as_of=reference_day, month="20" + yy + month,
+-            model_expiry=_fourth_wednesday(2000 + int(yy), int(month)))
++            model_expiry=_fourth_wednesday(2000 + int(yy), int(month)),
++            observation_clock=_iv_observation_clock(_now_beijing()))
+         evidence_adapter.record_expiry_proof(yy + month, reference_day, {
+             "revision": expiry_evidence.REVISION, "provider": "SSE",
+             "day": reference_day.isoformat(), "month": "20" + yy + month,
+@@ -4752,15 +4754,57 @@
+ 
+ 
+ def fetch_510500_expiries_with_failover() -> list[str]:
+-    errors, failures = [], []
+-    for source, fetcher in (("上交所挂牌", fetch_sse_510500_expiries),
+-                            ("新浪挂牌", fetch_sina_510500_expiries)):
++    cache = _IC_LISTING_QUERY_CACHE.get()
++    reader, capture = signal_evidence.current_reader.get(), signal_evidence.current_session.get()
++    policy_day = (reader.day if reader is not None else capture.day if capture is not None
++                  else _calendar_decision_day())
++    if policy_day < evidence_adapter.LISTING_EFFECTIVE_SIGNAL_DATE:
++        # Keep the original provider contract for old policy days and archives.
++        # Real providers retain their full-list validation; old consumer tests
++        # and stored lists do not acquire the new envelope/shape requirement.
++        if cache is not None and "legacy_listing" in cache:
++            return deepcopy(cache["legacy_listing"])
++        errors, descriptions = [], []
++        for source, fetcher in (("上交所挂牌", fetch_sse_510500_expiries),
++                                ("新浪挂牌", fetch_sina_510500_expiries)):
++            try:
++                months = fetcher()
++                if cache is not None:
++                    cache["legacy_listing"] = deepcopy(months)
++                return months
++            except Exception as exc:
++                errors.append(exc)
++                descriptions.append(f"{source}: {type(exc).__name__}: {exc}")
++        raise _source_failure_error("510500挂牌月份所有来源均不可用；" + "；".join(descriptions), errors) from errors[-1]
++    if cache is not None and "listing" in cache:
++        return evidence_adapter.listing_value(cache["listing"])
++    failures = []
++    for source, fetcher in (("SSE", fetch_sse_510500_expiries),
++                            ("Sina", fetch_sina_510500_expiries)):
+         try:
+-            return fetcher()
++            months = fetcher()
++            try:
++                outcome = evidence_adapter.validate_listing_outcome({
++                    "revision": evidence_adapter.LISTING_OUTCOME_REVISION,
++                    "status": "available", "months": months, "failures": failures})
++            except signal_evidence.EvidenceUnavailable as exc:
++                raise RuntimeError("挂牌来源返回值未经完整核验") from exc
++            if cache is not None:
++                cache["listing"] = deepcopy(outcome)
++            return evidence_adapter.listing_value(outcome)
++        except (expiry_evidence.ExpiryEvidenceConflict, signal_evidence.EvidenceUnavailable,
++                CalendarCoverageError):
++            raise
+         except Exception as exc:
+-            errors.append(exc)
+-            failures.append(f"{source}: {type(exc).__name__}: {exc}")
+-    raise _source_failure_error("510500挂牌月份所有来源均不可用；" + "；".join(failures), errors) from errors[-1]
++            failures.append(evidence_adapter.listing_failure(source, exc))
++    status = ("transport_unavailable" if all(row["kind"] == "transport" for row in failures)
++              else "unverified")
++    outcome = evidence_adapter.validate_listing_outcome({
++        "revision": evidence_adapter.LISTING_OUTCOME_REVISION,
++        "status": status, "months": [], "failures": failures})
++    if cache is not None:
++        cache["listing"] = deepcopy(outcome)
++    return evidence_adapter.listing_value(outcome)
+ 
+ 
+ def fetch_sse_510500_historical_quote(day: date) -> dict[str, Any]:
+@@ -6384,6 +6428,19 @@
+     return _month_after(execution_day.year, execution_day.month, offset)
+ 
+ 
++def _v14_ic_listing_note(signal, month, status, *, roll):
++    kind = "roll" if roll else "entry"
++    detail = f"{kind}:listing_{status}:{month}"
++    previous = signal.get("v14_candidate_data_status", "")
++    signal["v14_candidate_data_status"] = "; ".join(filter(None, (previous, detail)))
++    note = (f"挂牌探测：两个来源传输不可用，已退回直接取链；{kind}候选月份{month}未经挂牌列表核验，月链仍须通过全部门禁。"
++            if status == "transport_unavailable" else
++            f"挂牌探测：列表未经核验，{kind}候选月份{month}不可交易；不据此认定未挂牌。")
++    notes = signal.setdefault("data_notes", [])
++    if note not in notes:
++        notes.append(note)
++
++
+ def _v14_ic_short_put_candidate(
+     signal: dict[str, Any], *, roll_from_expiry: date | None = None
+ ) -> dict[str, Any]:
+@@ -6402,11 +6459,22 @@
+     if signal["market_date"] >= _IC_CANDIDATE_LISTING_EFFECTIVE_SIGNAL_DATE:
+         try:
+             listed_months = fetch_510500_expiries_with_failover()
++        except evidence_adapter.ListingProbeTransportUnavailable:
++            listed_months = None
++            _v14_ic_listing_note(signal, expiry_month, "transport_unavailable", roll=roll_from_expiry is not None)
+         except (SignalTransportError, requests.ConnectionError, requests.Timeout,
+                 requests.exceptions.ChunkedEncodingError):
+             if signal_evidence.current_reader.get() is not None:
+-                raise  # Missing original evidence is never replaced by today's chain.
+-            listed_months = None  # Direct chain retains all identity/date/expiry gates.
++                raise  # Only a validated recorded outcome may restore this branch.
++            listed_months = None
++            _v14_ic_listing_note(signal, expiry_month, "transport_unavailable", roll=roll_from_expiry is not None)
++        except (expiry_evidence.ExpiryEvidenceConflict, signal_evidence.EvidenceUnavailable,
++                CalendarCoverageError):
++            raise
++        except (evidence_adapter.ListingProbeUnavailable, RuntimeError, requests.RequestException) as exc:
++            _v14_ic_listing_note(signal, expiry_month, "unverified", roll=roll_from_expiry is not None)
++            return {"tradable": False, "reason": "listing_unverified", "month": expiry_month,
++                    "listing_error": str(exc)}
+         if listed_months is not None and expiry_month not in listed_months:
+             return {"tradable": False, "reason": "target_month_not_listed",
+                     "month": expiry_month, "listed_months": list(listed_months)}
+@@ -7359,6 +7427,7 @@
+         cache_token = _IC_QUOTE_QUERY_CACHE.set({})
+         rate_token = _GOV10Y_QUERY_CACHE.set({})
+         expiry_cache_token = _CFFEX_EXPIRY_QUERY_CACHE.set({})
++        listing_cache_token = _IC_LISTING_QUERY_CACHE.set({})
+         calendar_policy_token = _CALENDAR_POLICY_DAY.set(_calendar_decision_day())
+         try:
+             try:
+@@ -7398,6 +7467,7 @@
+             LIVE_CONTINUATION_ANCHOR[product] = original_anchor
+             _CALENDAR_POLICY_DAY.reset(calendar_policy_token)
+             _CFFEX_EXPIRY_QUERY_CACHE.reset(expiry_cache_token)
++            _IC_LISTING_QUERY_CACHE.reset(listing_cache_token)
+             _GOV10Y_QUERY_CACHE.reset(rate_token)
+             _IC_QUOTE_QUERY_CACHE.reset(cache_token)
+             _SIGNAL_CALENDAR_DIAGNOSTICS.reset(token)
+@@ -8596,10 +8666,6 @@
+ 
+ def _sm() -> Any:
+     return poe.start_message()
+-
+-
+-class _StagedAttachmentError(RuntimeError):
+-    pass
+ 
+ 
+ class _StagedMessage:
+--- a/test_icim_expert_followup_20261112.py
++++ b/test_icim_expert_followup_20261112.py
+@@ -138,7 +138,7 @@
+     monkeypatch.setattr(bot, "_fetch_510500_chain_for_day", lambda *a: pytest.fail("unlisted chain requested"))
+     monkeypatch.setattr(bot, "_require_official_exchange_calendar", lambda *a: pytest.fail("unused future calendar requested"))
+     result = bot._v14_ic_short_put_candidate(
+-        dict(market_date=date(2026, 11, 12), next_trade_date=date(2026, 11, 13)),
++        dict(market_date=date(2026, 11, 13), next_trade_date=date(2026, 11, 16)),
+         roll_from_expiry=date(2026, 12, 23))
+     assert result["tradable"] is False and result["reason"] == "target_month_not_listed"
+     assert result["month"] == "202701" and result["listed_months"] == LISTED
+@@ -151,10 +151,14 @@
+     monkeypatch.setattr(bot, "fetch_510500_expiries_with_failover",
+                         broken if failure == "listing" else lambda: LISTED + ["202701"])
+     monkeypatch.setattr(bot, "_fetch_510500_chain_for_day", broken)
+-    with bot.runtime_clock(CLOCK), pytest.raises(RuntimeError, match="source broken sentinel"):
+-        bot._v14_ic_short_put_candidate(
+-            dict(market_date=TODAY, next_trade_date=date(2026, 11, 13)),
+-            roll_from_expiry=date(2026, 12, 23))
++    with bot.runtime_clock(CLOCK.replace(day=13)):
++        signal = dict(market_date=date(2026, 11, 13), next_trade_date=date(2026, 11, 16))
++        if failure == "listing":
++            result = bot._v14_ic_short_put_candidate(signal, roll_from_expiry=date(2026, 12, 23))
++            assert result["tradable"] is False and result["reason"] == "listing_unverified"
++        else:
++            with pytest.raises(RuntimeError, match="source broken sentinel"):
++                bot._v14_ic_short_put_candidate(signal, roll_from_expiry=date(2026, 12, 23))
+ 
+ 
+ def test_ic_unpriced_fixed_target_reaches_public_diagnostic_attachment(monkeypatch):
+--- a/test_icim_expert_round4_20261112.py
++++ b/test_icim_expert_round4_20261112.py
+@@ -70,23 +70,29 @@
+ 
+ 
+ def test_new_live_listing_transport_failure_uses_validated_direct_chain(monkeypatch):
+-    signal, events = candidate_inputs(monkeypatch, DAY)
++    signal, events = candidate_inputs(monkeypatch, date(2026, 11, 13))
+     def unavailable():
+         raise bot.SignalTransportError("listing transport outage")
+     monkeypatch.setattr(bot, "fetch_510500_expiries_with_failover", unavailable)
+-    result = bot._v14_ic_short_put_candidate(signal)
+-    assert result["tradable"] is True and events == [("2612", DAY)]
++    with bot.runtime_clock(CLOCK.replace(day=13)):
++        result = bot._v14_ic_short_put_candidate(signal)
++    assert result["tradable"] is True and events == [("2612", date(2026, 11, 13))]
+ 
+ 
+ @pytest.mark.parametrize("error", [RuntimeError("listing structure conflict"),
+                                    evidence.EvidenceUnavailable("missing original months")])
+ def test_hard_listing_failure_does_not_fall_back_to_chain(monkeypatch, error):
+-    signal, events = candidate_inputs(monkeypatch, DAY)
++    signal, events = candidate_inputs(monkeypatch, date(2026, 11, 13))
+     def fail():
+         raise error
+     monkeypatch.setattr(bot, "fetch_510500_expiries_with_failover", fail)
+-    with pytest.raises(type(error)):
+-        bot._v14_ic_short_put_candidate(signal)
++    with bot.runtime_clock(CLOCK.replace(day=13)):
++        if isinstance(error, evidence.EvidenceUnavailable):
++            with pytest.raises(type(error)):
++                bot._v14_ic_short_put_candidate(signal)
++        else:
++            result = bot._v14_ic_short_put_candidate(signal)
++            assert result["tradable"] is False and result["reason"] == "listing_unverified"
+     assert events == []
+ 
+ 
+--- /dev/null
++++ b/test_icim_expert_round5_20261112.py
+@@ -0,0 +1,335 @@
++"""Fifth review: controlled market dates, actual capture/reader/policy contracts."""
++from copy import deepcopy
++from datetime import date, datetime, timedelta
++import importlib.util
++import json
++from pathlib import Path
++
++import pandas as pd
++import pytest
++import requests
++
++import poe_ic_im_mainline_v1_4_bot as bot
++import ic_im_evidence_adapter_v1 as adapter
++import ic_im_expiry_evidence_v1 as expiry
++import ic_im_signal_evidence_v1 as evidence
++
++ROOT = Path(__file__).resolve().parent
++DAY = date(2026, 11, 13)
++CLOCK = datetime(2026, 11, 13, 18, tzinfo=bot.BEIJING)
++LISTED = ["202611", "202612", "202703", "202706"]
++spec = importlib.util.spec_from_file_location("v4_listing_control_shapes", ROOT /
++    "quant_research_runs/20261112_expert_round4_v4/audits/ledger/test_listing_candidate_routes.py")
++shapes = importlib.util.module_from_spec(spec)
++spec.loader.exec_module(shapes)
++
++
++@pytest.fixture(autouse=True)
++def offline(monkeypatch):
++    monkeypatch.setattr(requests.sessions.Session, "request",
++                        lambda *a, **k: pytest.fail("review tests prohibit external HTTP"))
++    monkeypatch.setattr(bot, "_SIGNAL_OBSERVER", None)
++    monkeypatch.setattr(adapter, "configured_root", lambda: None)
++    monkeypatch.setattr(evidence, "_now", lambda: CLOCK)
++    with bot.runtime_clock(CLOCK):
++        yield
++
++
++def wire_policy(monkeypatch, mode, route="entry"):
++    anchor, signal, held, clock, observations = shapes.configure_policy(monkeypatch, DAY, route)
++    signal["next_trade_date"] = date(2026, 11, 16)
++    target = shapes.market_inputs(DAY, 12)
++    packets = {"2612": target}
++    if held is not None:
++        for row in held[3]["list"]:
++            if row[0] == anchor["v14_short_put_contract"]:
++                row[1] = .1
++        packets["2611"] = held
++    calls = []
++    def sse():
++        calls.append("listing:SSE")
++        if mode in {"transport", "unverified"}:
++            raise requests.Timeout("controlled SSE timeout")
++        return list(LISTED)
++    def sina():
++        calls.append("listing:Sina")
++        if mode == "transport":
++            raise requests.ConnectionError("controlled Sina connection failure")
++        raise RuntimeError("controlled invalid month collection")
++    def quote(path, params):
++        month = "26" + path.rsplit("_", 1)[-1]
++        calls.append("chain:" + month)
++        return deepcopy(packets[month][3])
++    monkeypatch.setattr(bot, "fetch_sse_510500_expiries", sse)
++    monkeypatch.setattr(bot, "fetch_sina_510500_expiries", sina)
++    monkeypatch.setattr(bot, "_sse_quote_json", quote)
++    monkeypatch.setattr(bot, "fetch_sse_510500_expiry_master",
++                        lambda month, day: deepcopy(packets[month][2]["payload"]))
++    original_closes = bot.fetch_option_closes
++    if held is not None:
++        monkeypatch.setattr(bot, "fetch_option_closes", lambda *a, **k:
++                            pd.Series([.1], index=pd.to_datetime([DAY])))
++    def builder(product, clock, mode):
++        result = bot._apply_v14_live_policy(product, deepcopy(signal))
++        # This is a controlled input-qualification flag, not a full-market
++        # ledger certification. Actual entries/chains/expiry/policy remain real.
++        result["persistence_eligible"] = True
++        return result
++    monkeypatch.setattr(bot, "_build_live_trade_signal", builder)
++    return anchor, signal, calls, original_closes
++
++
++@pytest.mark.parametrize("route", ["entry", "roll"])
++@pytest.mark.parametrize("mode", ["transport", "unverified", "available"])
++def test_capture_replay_listing_outcome_preserves_actual_policy_branch(monkeypatch, tmp_path, route, mode):
++    anchor, signal, calls, original_closes = wire_policy(monkeypatch, mode, route)
++    before = deepcopy(anchor)
++    archive = tmp_path / "inputs"
++    with evidence.capture_session(archive, DAY, CLOCK, {"product": "IC", "original_close": True,
++            "input_revision": adapter.INPUT_REVISION, "test_scope": "controlled policy and consumed inputs"}) as session:
++        live = bot.build_live_trade_signal("IC", CLOCK, "close")
++    assert session.context["complete"] is True, session.context["failures"]
++    assert not session.context["failures"]
++    assert live["input_evidence_status"] == "complete"
++    reader = evidence.load_session(archive, DAY)
++    recorded = reader.call("ic.months", {})
++    assert recorded["signal_day"] == DAY.isoformat() and recorded["status"] == (
++        "transport_unavailable" if mode == "transport" else mode)
++    assert len([x for x in session.entries.values() if x["role"] == "ic.months"]) == 1
++    if mode == "unverified":
++        assert live["v14_action"] == ("HOLD" if route == "entry" else "WAIT_SHORT_PUT_ROLL")
++        assert "listing_unverified" in live["v14_candidate_data_status"]
++        assert "chain:2612" not in calls
++    else:
++        assert live["v14_action"] == ("ENTER_SHORT_PUT" if route == "entry" else "ROLL_SHORT_PUT")
++        assert "chain:2612" in calls
++    if mode == "transport":
++        assert "listing_transport_unavailable" in live["v14_candidate_data_status"]
++        assert any("已退回直接取链" in x for x in live["data_notes"])
++    assert live["momentum_next_weight"] == signal["momentum_next_weight"]
++    if mode == "unverified":
++        reference = deepcopy(signal)
++        if route == "roll":
++            reference.update(v14_short_put_mark=.1, v14_short_put_mark_day=DAY,
++                             v14_short_put_mark_contract=anchor["v14_short_put_contract"])
++        expected = bot.v14_policy.apply_policy("IC", reference, before,
++            candidate={"tradable": False}, roll_candidate={"tradable": False})
++        for field in ("core_units_current", "core_units_target", "total_units_target"):
++            assert live[field] == expected[field]
++        assert not live.get("diagnostic_only")
++    if route == "roll":
++        monkeypatch.setattr(bot, "fetch_option_closes", original_closes)
++    calls_before_replay = list(calls)
++    token = bot._HISTORICAL_REPLAY_DAY.set(DAY)
++    try:
++        with evidence.replay_session(reader):
++            replay = bot.build_live_trade_signal("IC", CLOCK, "close")
++    finally:
++        bot._HISTORICAL_REPLAY_DAY.reset(token)
++    for key in live:
++        if key != "input_evidence_status":
++            assert replay[key] == live[key], key
++    assert calls == calls_before_replay and not reader.missing_inputs and anchor == before
++
++
++def outcome(status="transport_unavailable"):
++    failures = [dict(source="SSE", kind="transport", error_type="Timeout", error="timeout"),
++                dict(source="Sina", kind="transport", error_type="ConnectionError", error="connection")]
++    return {"revision": adapter.LISTING_OUTCOME_REVISION, "signal_day": DAY.isoformat(),
++            "status": status, "months": [], "failures": failures}
++
++
++@pytest.mark.parametrize("change", ["revision", "day", "months", "transport_kind", "hard_error", "legacy_list"])
++def test_bad_listing_envelope_never_becomes_transport_fallback(monkeypatch, tmp_path, change):
++    value = outcome()
++    if change == "revision": value["revision"] = "untrusted"
++    elif change == "day": value["signal_day"] = "2026-11-12"
++    elif change == "months": value["months"] = ["202612"]
++    elif change == "transport_kind": value["failures"][0]["error_type"] = "RuntimeError"
++    elif change == "hard_error": value["failures"][0].update(kind="unverified", error_type="ExpiryEvidenceConflict")
++    else: value = list(LISTED)
++    with evidence.capture_session(tmp_path, DAY, CLOCK, {}) as session:
++        session.call("ic.months", {}, lambda: value)
++    reader = evidence.load_session(tmp_path, DAY)
++    signal = dict(market_date=DAY, next_trade_date=date(2026, 11, 16))
++    monkeypatch.setattr(bot, "_fetch_510500_chain_for_day", lambda *a: pytest.fail("bad envelope used direct chain"))
++    with evidence.replay_session(reader), pytest.raises(evidence.EvidenceUnavailable):
++        bot._v14_ic_short_put_candidate(signal)
++
++
++def test_missing_listing_role_is_not_a_recorded_transport_outcome(monkeypatch, tmp_path):
++    with evidence.capture_session(tmp_path, DAY, CLOCK, {}) as session:
++        session.call("control", {}, lambda: 1)
++    reader = evidence.load_session(tmp_path, DAY)
++    monkeypatch.setattr(bot, "_fetch_510500_chain_for_day", lambda *a: pytest.fail("missing input fallback"))
++    with evidence.replay_session(reader), pytest.raises(evidence.EvidenceUnavailable):
++        bot._v14_ic_short_put_candidate(dict(market_date=DAY, next_trade_date=date(2026, 11, 16)))
++
++
++@pytest.mark.parametrize("legacy_day", [date(2026, 11, 11), date(2026, 11, 12)])
++def test_pre_adoption_candidate_does_not_request_listing(monkeypatch, legacy_day):
++    from test_icim_expert_round4_20261112 import candidate_inputs
++    signal, calls = candidate_inputs(monkeypatch, legacy_day)
++    monkeypatch.setattr(bot, "fetch_510500_expiries_with_failover", lambda: pytest.fail("old-day new probe"))
++    clock = datetime.combine(legacy_day, CLOCK.timetz())
++    with bot.runtime_clock(clock):
++        result = bot._v14_ic_short_put_candidate(signal)
++    assert result["tradable"] and len(calls) == 1
++
++
++@pytest.mark.parametrize("mode", ["available", "transport", "unverified"])
++def test_listing_query_cache_is_shared_and_restored(monkeypatch, mode):
++    wire_policy(monkeypatch, mode)
++    calls = []
++    def sse():
++        calls.append("SSE")
++        if mode == "available": return list(LISTED)
++        raise requests.Timeout("controlled")
++    def sina():
++        calls.append("Sina")
++        if mode == "transport": raise requests.ConnectionError("controlled")
++        raise RuntimeError("invalid listed collection")
++    monkeypatch.setattr(bot, "fetch_sse_510500_expiries", sse)
++    monkeypatch.setattr(bot, "fetch_sina_510500_expiries", sina)
++    observed = []
++    def builder(*args):
++        for _ in range(3):
++            try:
++                months = bot.fetch_510500_expiries_with_failover()
++                assert months == LISTED
++                months.clear()
++            except adapter.ListingProbeUnavailable as exc:
++                observed.append(exc.outcome["status"])
++        return {"diagnostic_only": True}
++    monkeypatch.setattr(bot, "_build_live_trade_signal", builder)
++    outer = {"outer": "untouched"}
++    token = bot._IC_LISTING_QUERY_CACHE.set(outer)
++    try:
++        for _ in range(2):
++            bot.build_live_trade_signal("IC", CLOCK, "close")
++            assert bot._IC_LISTING_QUERY_CACHE.get() is outer
++    finally:
++        bot._IC_LISTING_QUERY_CACHE.reset(token)
++    assert calls == (["SSE", "SSE"] if mode == "available" else ["SSE", "Sina"]*2)
++    if mode != "available": assert len(observed) == 6
++
++
++def test_listing_cache_resets_on_unexpected_query_error(monkeypatch):
++    calls = []
++    monkeypatch.setattr(bot, "fetch_sse_510500_expiries", lambda: calls.append(1) or list(LISTED))
++    def fail(*args):
++        bot.fetch_510500_expiries_with_failover()
++        raise RuntimeError("controlled query failure")
++    monkeypatch.setattr(bot, "_build_live_trade_signal", fail)
++    before = bot._IC_LISTING_QUERY_CACHE.get()
++    for _ in range(2):
++        with pytest.raises(RuntimeError, match="controlled query failure"):
++            bot.build_live_trade_signal("IC", CLOCK, "close")
++        assert bot._IC_LISTING_QUERY_CACHE.get() is before
++    assert calls == [1, 1]
++
++
++def test_hard_listing_conflict_cannot_be_resolved_by_a_later_success(monkeypatch, tmp_path):
++    def fail(): raise expiry.ExpiryEvidenceConflict("controlled positive conflict")
++    monkeypatch.setattr(bot, "fetch_sse_510500_expiries", fail)
++    monkeypatch.setattr(bot, "fetch_sina_510500_expiries", lambda: pytest.fail("conflict fallback"))
++    with evidence.capture_session(tmp_path, DAY, CLOCK, {}) as session:
++        with pytest.raises(expiry.ExpiryEvidenceConflict):
++            bot.fetch_510500_expiries_with_failover()
++        monkeypatch.setattr(bot, "fetch_sse_510500_expiries", lambda: list(LISTED))
++        assert bot.fetch_510500_expiries_with_failover() == LISTED
++    assert not session.context["complete"]
++    assert any(x["role"] == "ic.months.conflict" and not x["resolved"] for x in session.context["failures"])
++
++
++def master_case(snapshot):
++    frame, stamp, proof, raw = shapes.market_inputs(DAY, 12)
++    for row in proof["payload"]["result"]: row["TIMESAVE"] = snapshot.isoformat()
++    return frame, proof["payload"]
++
++
++@pytest.mark.parametrize("observed", [datetime(2026, 11, 14, 12, tzinfo=bot.BEIJING),
++                                     datetime(2026, 11, 16, 8, tzinfo=bot.BEIJING)])
++def test_current_master_cannot_prove_previous_close_but_does_not_contradict_it(observed):
++    frame, payload = master_case(observed.date())
++    with pytest.raises(expiry.ExpiryMasterUnavailable):
++        expiry.verify_sse_chain(frame, payload, as_of=DAY, month="202612",
++            model_expiry=date(2026, 12, 23), observation_clock=observed)
++
++
++@pytest.mark.parametrize("bad", ["mixed", "future", "expiry", "identity"])
++def test_inapplicable_master_still_rejects_real_contradictions(bad):
++    observed = datetime(2026, 11, 14, 12, tzinfo=bot.BEIJING)
++    frame, payload = master_case(observed.date())
++    if bad == "mixed": payload["result"][0]["TIMESAVE"] = DAY.isoformat()
++    elif bad == "future":
++        for row in payload["result"]: row["TIMESAVE"] = "2026-11-15"
++    elif bad == "expiry": payload["result"][0]["EXPIRE_DATE"] = "20261224"
++    else: payload["result"][0]["CONTRACT_ID"] = "wrong"
++    with pytest.raises(expiry.ExpiryEvidenceConflict):
++        expiry.verify_sse_chain(frame, payload, as_of=DAY, month="202612",
++            model_expiry=date(2026, 12, 23), observation_clock=observed)
++
++
++def test_unavailable_and_duplicate_key_types_preserve_fallback_contract():
++    assert issubclass(expiry.ExpiryMasterUnavailable, RuntimeError)
++    assert not issubclass(expiry.ExpiryMasterUnavailable, expiry.ExpiryEvidenceConflict)
++    with pytest.raises(expiry.ExpiryEvidenceConflict):
++        json.loads('{"result":[],"result":[]}', object_pairs_hook=expiry.unique_object)
++
++
++@pytest.mark.parametrize("text", ["查询IC 12月份合约", "查询IC 12月的合约", "查询中证1000 3月份合约",
++                                  "查询510500 2026年12月的合约", "查询IM2612 12月份的合约"])
++def test_month_reference_variants_use_snapshot(text):
++    assert bot.classify_query(text, DAY).route == "snapshot"
++
++
++@pytest.mark.parametrize("text", ["查询IC 13月份合约", "查询IC 1.2月的合约",
++                                  "查询IC 12月份合约 2026-13", "查询IC 12月的合约 2026-02-30表现"])
++def test_month_variants_never_hide_real_date_errors(text):
++    with pytest.raises(ValueError): bot.classify_query(text, DAY)
++
++
++def test_separate_real_date_and_month_variant_keep_performance():
++    value = bot.classify_query("2026-01-05 IM2612 12月份合约", DAY)
++    assert (value.route, value.products, value.start, value.end) == (
++        "performance", ("IM",), date(2026, 1, 5), date(2026, 1, 5))
++
++
++@pytest.mark.parametrize("through_public_query", [False, True])
++def test_successful_secondary_listing_capture_preserves_primary_failure(
++        monkeypatch, tmp_path, through_public_query):
++    calls = []
++
++    def sse():
++        calls.append("SSE")
++        raise requests.Timeout("controlled primary timeout")
++
++    def sina():
++        calls.append("Sina")
++        return list(LISTED)
++
++    monkeypatch.setattr(bot, "fetch_sse_510500_expiries", sse)
++    monkeypatch.setattr(bot, "fetch_sina_510500_expiries", sina)
++    monkeypatch.setattr(bot, "_build_live_trade_signal", lambda *a: {
++        "months": bot.fetch_510500_expiries_with_failover()})
++
++    def consume():
++        if through_public_query:
++            return bot.build_live_trade_signal("IC", CLOCK, "close")["months"]
++        return bot.fetch_510500_expiries_with_failover()
++
++    outer_cache = bot._IC_LISTING_QUERY_CACHE.get()
++    with evidence.capture_session(tmp_path, DAY, CLOCK, {}) as session:
++        assert consume() == LISTED
++    assert session.context["complete"]
++    assert bot._IC_LISTING_QUERY_CACHE.get() is outer_cache
++    reader = evidence.load_session(tmp_path, DAY)
++    stored = reader.call("ic.months", {})
++    assert stored["status"] == "available" and stored["months"] == LISTED
++    assert stored["failures"] == [{"source": "SSE", "kind": "transport",
++        "error_type": "Timeout", "error": "controlled primary timeout"}]
++    with evidence.replay_session(reader):
++        assert consume() == LISTED
++    assert calls == ["SSE", "Sina"] and not reader.missing_inputs
++    assert bot._IC_LISTING_QUERY_CACHE.get() is outer_cache

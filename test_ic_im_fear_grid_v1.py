@@ -264,7 +264,7 @@ def test_fallback_requires_complete_evidence_at_state_and_publication_boundaries
     assert fear_grid.publication_view(signal)["grid_target"] is None
 
 
-@pytest.mark.parametrize("day", [date(2027, 1, 4), date(2026, 10, 18)])
+@pytest.mark.parametrize("day", [date(2028, 1, 4), date(2026, 10, 18)])
 def test_fallback_calendar_does_not_assume_uncovered_year_or_non_session(day):
     with pytest.raises(RuntimeError):
         fear_grid.previous_exchange_session(day)

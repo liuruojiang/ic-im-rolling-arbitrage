@@ -1,0 +1,82 @@
+{
+  "raw_execution_report": "../real_previous/verification.json",
+  "raw_execution_exit": 1,
+  "raw_assertion_issue": "execution wall clocks expected to update",
+  "new_market_computation": false,
+  "new_network_requests": 0,
+  "formal_ledger_write": false,
+  "allowed_execution_clock_fields": [
+    "signal_calculation_started_at",
+    "signal_generated_at"
+  ],
+  "clock_formula_AST_unchanged_sha256": "b1a3e8571dc2c2014ba6eeb9ff187485a06b072e9294c2b94de1922a4fddd388",
+  "comparisons": {
+    "IC": {
+      "all_fields": 210,
+      "business_fields_identical": 208,
+      "business_differences": [],
+      "execution_clock_differences": {
+        "signal_calculation_started_at": {
+          "v4": "2026-11-12T14:32:50+08:00",
+          "current": "2026-11-12T21:18:30+08:00"
+        },
+        "signal_generated_at": {
+          "v4": "2026-11-12T14:32:50+08:00",
+          "current": "2026-11-12T21:18:30+08:00"
+        }
+      },
+      "original_input_manifest_sha256": "fcbfda93c687bf31908b756065d7971ec25d32112e2cdf087860b27df41dbf26"
+    },
+    "IM": {
+      "all_fields": 225,
+      "business_fields_identical": 223,
+      "business_differences": [],
+      "execution_clock_differences": {
+        "signal_calculation_started_at": {
+          "v4": "2026-11-12T14:32:51+08:00",
+          "current": "2026-11-12T21:18:31+08:00"
+        },
+        "signal_generated_at": {
+          "v4": "2026-11-12T14:32:51+08:00",
+          "current": "2026-11-12T21:18:31+08:00"
+        }
+      },
+      "original_input_manifest_sha256": "fbd0247754eb1dcb80ad0a7f1cd3d068a9b10e8f9675af8ef656c160fd9ea417"
+    }
+  },
+  "raw_artifact_sha256": {
+    "quant_research_runs\\20261112_expert_round5_v5\\real_previous\\IC_after_signal.json": "bcc51c6fd21ebc6db770b556c37c95ab54e09830061141f2bd7493433b2b659d",
+    "quant_research_runs\\20261112_expert_round4_v4\\real_previous\\IC_after_signal.json": "54223f7b6c22dd21bbf560e86eb9406ac20d2db6db890dd820aa847b2622ac32",
+    "quant_research_runs\\20261112_expert_round5_v5\\real_previous\\IM_after_signal.json": "7e6c7040d1201ed19c272378255b4459ce156811d09f1e593324bc7f675e8272",
+    "quant_research_runs\\20261112_expert_round4_v4\\real_previous\\IM_after_signal.json": "b7f7bf77747c17a21f842ce97a037ab88cd2270f85f86f1647f9b1203b737bdd"
+  },
+  "performance_reused": {
+    "recent_window": {
+      "observations": 10,
+      "metrics": {
+        "final_nav": 1.0106642851102219,
+        "return": 0.010664285110221883,
+        "cagr": null,
+        "volatility": null,
+        "sharpe": null,
+        "max_drawdown": -0.005102686804694612,
+        "observations": 10.0
+      },
+      "benchmark_available": true
+    },
+    "single_session": {
+      "observations": 1,
+      "metrics": {
+        "final_nav": 0.9950973856532775,
+        "return": -0.004902614346722456,
+        "cagr": null,
+        "volatility": null,
+        "sharpe": null,
+        "max_drawdown": -0.004902614346722456,
+        "observations": 1.0
+      },
+      "benchmark_available": true
+    }
+  },
+  "status": "passed_explicit_business_comparison_with_execution_clock_changes_retained"
+}

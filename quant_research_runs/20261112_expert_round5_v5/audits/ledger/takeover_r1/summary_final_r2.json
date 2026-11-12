@@ -1,0 +1,86 @@
+{
+  "status": "passed_r2_provenance_finding_closed",
+  "pin_file_sha256": "05ae4d5a238ae619b90cef7755085a1ec55043da32bba8571ad95601944dc0b6",
+  "main_sha256": "5db134c87075e9241ac380fa59d07bfb83d275e040ddbba387b7fdc1dc05deef",
+  "adapter_sha256": "c98327b6bd0cf773a17a649dc517dbec43b8eaa751f3fc41381b9563eedbeaaf",
+  "fresh_independent_tests": 2,
+  "fresh_passed_nodes": [
+    "quant_research_runs/20261112_expert_round5_v5/audits/ledger/takeover_r1/test_provenance_closure.py::test_actual_successful_sina_capture_and_policy_replay_preserve_failed_source[entry]",
+    "quant_research_runs/20261112_expert_round5_v5/audits/ledger/takeover_r1/test_provenance_closure.py::test_actual_successful_sina_capture_and_policy_replay_preserve_failed_source[roll]"
+  ],
+  "old_pytest_nodes_rerun": 0,
+  "old_r1_artifact_verified_cases": 38,
+  "old_r1_bad_provenance_observation_superseded_not_reused_as_r2_pass": "test_successful_sina_failover_provenance_observation",
+  "reuse_old_contracts_excluding_bad_provenance_observation": 37,
+  "counts_not_additive_to_other_roles": true,
+  "source_and_fixture_binding_files": 217,
+  "source_matched_r2": true,
+  "source_before_equals_after": true,
+  "adapter_AST_outside_collector_unchanged": true,
+  "collector_original_exception_handlers_AST_unchanged": true,
+  "collector_original_fetch_call_AST_unchanged": true,
+  "query_cache_candidate_policy_and_load_ready_byte_or_AST_unchanged": true,
+  "findings": [
+    {
+      "id": "LEDGER-V5-PROVENANCE-1",
+      "severity": "P2",
+      "status": "closed",
+      "proof": "closure_r2/receipt.json",
+      "entry_and_roll_preserve_prior_SSE_failure": true,
+      "capture_replay_equal": true,
+      "zero_replay_requests": true
+    }
+  ],
+  "network_guard": {
+    "worker_exit_code": 0,
+    "external_connection_attempts": [],
+    "real_nonlocal_connections": 0
+  },
+  "watchdog_seconds": 60,
+  "retained_capture_integrity": {
+    "archives": 40,
+    "manifests": 40,
+    "complete_manifest_count": 33,
+    "incomplete_manifest_count": 7,
+    "valid_blob_paths": 220,
+    "intentional_missing_blob_paths": [
+      "quant_research_runs\\20261112_expert_round5_v5\\audits\\ledger\\r1\\retained_captures\\a1\\c26\\blobs\\a3912834f07d52cbe321f7c1099d6d4954290e9c7901013acb1f4dd75a96c3ba.json"
+    ],
+    "intentional_corrupt_blob_paths": [
+      "quant_research_runs\\20261112_expert_round5_v5\\audits\\ledger\\r1\\retained_captures\\a1\\c27\\blobs\\a3912834f07d52cbe321f7c1099d6d4954290e9c7901013acb1f4dd75a96c3ba.json"
+    ],
+    "all_manifest_file_and_body_hashes_match_retained_index": true
+  },
+  "protected_verification": {
+    "count": 2347,
+    "mismatches": []
+  },
+  "runtime_verification": {
+    "count": 38,
+    "mismatches": []
+  },
+  "formal_ledger_write": false,
+  "new_market_computation": false,
+  "synthetic_policy_controls": true,
+  "limitations": [
+    "November market dates, prices and wire responses are synthetic controls based on saved schema fixtures.",
+    "The real candidate/policy/capture/reader/readiness functions are exercised, but the outer market builder is replaced and eligibility forced for capture binding; this is not a full market build or StateStore append qualification.",
+    "Readiness scaffolding contains explicitly unconsumed placeholder roles; it does not certify those roles as market data.",
+    "The wrong-calendar shape acceptance case constructs a local trusted archive; actual providers reject that list and no remote reachability is established.",
+    "The SSE 14:50 close-finalization concern remains outside this revision; replacing that fixture with 19:00 versus 18:00 tests the existing nonfuture gate without claiming a new 15:00 finalization policy."
+  ],
+  "artifact_sha256": {
+    "quant_research_runs\\20261112_expert_round5_v5\\audits\\ledger\\takeover_r1\\report.md": "7c946b915edefdf79f7c2a3d3973b388b8cdb051b1dffe0c69ab449d86d5be54",
+    "quant_research_runs\\20261112_expert_round5_v5\\audits\\ledger\\takeover_r1\\report_final_r2.md": "7ce91ef351b28cc4e5b7ca5f16b0a4d42d0b3f17af7fb48d902bfcf3cf3f2965",
+    "quant_research_runs\\20261112_expert_round5_v5\\audits\\ledger\\takeover_r1\\summary.json": "5b93aa12d8f4212ad03c2b46964c0e6a69fe9f13d0846719457ca55914944318",
+    "quant_research_runs\\20261112_expert_round5_v5\\audits\\ledger\\takeover_r1\\verify_artifacts.py": "16b1822e54422ce6f2f3219ea70fb5fdab05e1e60dbf7f4030564507226a19ed",
+    "quant_research_runs\\20261112_expert_round5_v5\\audits\\ledger\\takeover_r1\\run_provenance_closure.py": "ab5cfae5b484dbfa797783a4ff6f5e4d3acea51c67acedc5ee69c4cb68a7d1ea",
+    "quant_research_runs\\20261112_expert_round5_v5\\audits\\ledger\\takeover_r1\\test_provenance_closure.py": "0effd61048707f0d236175f62b1c008bcbbaecaaae120fa5dcbea97407217012",
+    "quant_research_runs\\20261112_expert_round5_v5\\audits\\ledger\\takeover_r1\\closure_r2\\receipt.json": "6ae411d939c74050cb1eba0a80c59dcbd1aa0777fd744c55250b8f32db785483",
+    "quant_research_runs\\20261112_expert_round5_v5\\audits\\ledger\\takeover_r1\\closure_r2\\collection.json": "dbbac5b79a7a6b4a17ff3103ab3c36b17812ce08e925eac58f8fd3da8640511a",
+    "quant_research_runs\\20261112_expert_round5_v5\\audits\\ledger\\takeover_r1\\closure_r2\\regression.xml": "b7be5d1be4f10d08522d5f579dfb1dcf00fcfa61ab9d88d1cb667319f5aae842",
+    "quant_research_runs\\20261112_expert_round5_v5\\audits\\ledger\\takeover_r1\\closure_r2\\network_guard.json": "04db7e88b8224c4bf0a0e6dd1b28e164e23574cff1a1f4cc494f362e9dd1af08",
+    "quant_research_runs\\20261112_expert_round5_v5\\audits\\ledger\\takeover_r1\\closure_r2\\source_before.json": "ee60e3b1f42a819e90f7d44f56781fc502414ffe007d79e3eedc40499762da7c",
+    "quant_research_runs\\20261112_expert_round5_v5\\audits\\ledger\\takeover_r1\\closure_r2\\source_after.json": "ee60e3b1f42a819e90f7d44f56781fc502414ffe007d79e3eedc40499762da7c"
+  }
+}

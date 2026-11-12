@@ -1,0 +1,15 @@
+{
+  "collected": [
+    "test_icim_expert_round5_20261112.py::test_successful_secondary_listing_capture_preserves_primary_failure[False]",
+    "test_icim_expert_round5_20261112.py::test_successful_secondary_listing_capture_preserves_primary_failure[True]"
+  ],
+  "selected": [
+    "test_icim_expert_round5_20261112.py::test_successful_secondary_listing_capture_preserves_primary_failure[False]",
+    "test_icim_expert_round5_20261112.py::test_successful_secondary_listing_capture_preserves_primary_failure[True]"
+  ],
+  "deselected": [],
+  "executed": [
+    "test_icim_expert_round5_20261112.py::test_successful_secondary_listing_capture_preserves_primary_failure[False]",
+    "test_icim_expert_round5_20261112.py::test_successful_secondary_listing_capture_preserves_primary_failure[True]"
+  ]
+}

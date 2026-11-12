@@ -433,7 +433,7 @@ def validate_v14_new_signal(
     market_date = signal.get("market_date")
     if not market_date:
         raise RuntimeError(f"{product} v1.4信号缺少market_date")
-    strategy.require_signal_calendar(product, signal)
+    strategy.validate_calendar_authority(product, signal)
     expected_build_id, expected_rule_revision = v14_policy.identity_for_signal_day(market_date)
     if signal.get("v14_profit_pending"):
         trigger_day = _as_day(signal.get("v14_profit_trigger_day"), "三倍兑现触发日")

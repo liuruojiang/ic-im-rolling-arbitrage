@@ -1,0 +1,94 @@
+--- a/ic_im_evidence_adapter_v1.py
++++ b/ic_im_evidence_adapter_v1.py
+@@ -312,20 +312,33 @@
+                     raise evidence.EvidenceUnavailable("新日缺少有版本的原日挂牌探测结果")
+             else:
+                 def collect_listing_result():
++                    query_cache = getattr(strategy, "_IC_LISTING_QUERY_CACHE", None)
++                    cache_token = (query_cache.set({}) if query_cache is not None
++                                   and query_cache.get() is None else None)
+                     try:
+-                        months = original(*args, **kwargs)
+-                    except expiry_evidence.ExpiryEvidenceConflict as conflict:
+-                        def record_conflict():
+-                            raise conflict
+-                        capture.call("ic.months.conflict", key, record_conflict)
+-                        raise
+-                    except ListingProbeUnavailable as exc:
+-                        outcome = deepcopy(exc.outcome)
+-                    else:
+-                        outcome = {"revision": LISTING_OUTCOME_REVISION, "status": "available",
+-                                   "months": months, "failures": []}
+-                    outcome["signal_day"] = day.isoformat()
+-                    return validate_listing_outcome(outcome, day)
++                        try:
++                            months = original(*args, **kwargs)
++                        except expiry_evidence.ExpiryEvidenceConflict as conflict:
++                            def record_conflict():
++                                raise conflict
++                            capture.call("ic.months.conflict", key, record_conflict)
++                            raise
++                        except ListingProbeUnavailable as exc:
++                            outcome = deepcopy(exc.outcome)
++                        else:
++                            cache = query_cache.get() if query_cache is not None else None
++                            if cache is not None and "listing" in cache:
++                                outcome = validate_listing_outcome(cache["listing"])
++                                if outcome["status"] != "available" or outcome["months"] != months:
++                                    raise evidence.EvidenceUnavailable("挂牌探测公开值与来源结果不一致")
++                            else:
++                                outcome = {"revision": LISTING_OUTCOME_REVISION, "status": "available",
++                                           "months": months, "failures": []}
++                        outcome["signal_day"] = day.isoformat()
++                        return validate_listing_outcome(outcome, day)
++                    finally:
++                        if cache_token is not None:
++                            query_cache.reset(cache_token)
+                 stored = capture.call(role, key, collect_listing_result)
+                 capture.annotate("ic_listing_outcome_policy", {
+                     "revision": LISTING_OUTCOME_REVISION,
+--- a/test_icim_expert_round5_20261112.py
++++ b/test_icim_expert_round5_20261112.py
+@@ -294,3 +294,42 @@
+     value = bot.classify_query("2026-01-05 IM2612 12月份合约", DAY)
+     assert (value.route, value.products, value.start, value.end) == (
+         "performance", ("IM",), date(2026, 1, 5), date(2026, 1, 5))
++
++
++@pytest.mark.parametrize("through_public_query", [False, True])
++def test_successful_secondary_listing_capture_preserves_primary_failure(
++        monkeypatch, tmp_path, through_public_query):
++    calls = []
++
++    def sse():
++        calls.append("SSE")
++        raise requests.Timeout("controlled primary timeout")
++
++    def sina():
++        calls.append("Sina")
++        return list(LISTED)
++
++    monkeypatch.setattr(bot, "fetch_sse_510500_expiries", sse)
++    monkeypatch.setattr(bot, "fetch_sina_510500_expiries", sina)
++    monkeypatch.setattr(bot, "_build_live_trade_signal", lambda *a: {
++        "months": bot.fetch_510500_expiries_with_failover()})
++
++    def consume():
++        if through_public_query:
++            return bot.build_live_trade_signal("IC", CLOCK, "close")["months"]
++        return bot.fetch_510500_expiries_with_failover()
++
++    outer_cache = bot._IC_LISTING_QUERY_CACHE.get()
++    with evidence.capture_session(tmp_path, DAY, CLOCK, {}) as session:
++        assert consume() == LISTED
++    assert session.context["complete"]
++    assert bot._IC_LISTING_QUERY_CACHE.get() is outer_cache
++    reader = evidence.load_session(tmp_path, DAY)
++    stored = reader.call("ic.months", {})
++    assert stored["status"] == "available" and stored["months"] == LISTED
++    assert stored["failures"] == [{"source": "SSE", "kind": "transport",
++        "error_type": "Timeout", "error": "controlled primary timeout"}]
++    with evidence.replay_session(reader):
++        assert consume() == LISTED
++    assert calls == ["SSE", "Sina"] and not reader.missing_inputs
++    assert bot._IC_LISTING_QUERY_CACHE.get() is outer_cache
