@@ -1,0 +1,96 @@
+{
+  "schema": "icim_resume_release_independent_audit_v1",
+  "scope": "Read-only continuity and publication-byte audit; no tests rerun, no dispatch, no SMTP, no formal ledger writes",
+  "strategy_commit": "4ede39788f1007a24682606680ea2d7be5408637",
+  "automation_original_head": "e263477a0d72c46c60e1bf4c608c0c4d1ffd0d9c",
+  "automation_current_head": "1406471ae42ac8cf53afeb990e54ccb49054c614",
+  "local_formal_bound_files": {
+    "count": 203,
+    "mismatch": 0,
+    "receipt_artifacts_mismatch": 0,
+    "tests": 1666,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "remote_strategy": {
+    "checked": 205,
+    "matches": 205,
+    "mismatch": [],
+    "errors": [],
+    "remote_commit": "4ede39788f1007a24682606680ea2d7be5408637"
+  },
+  "automation_original_payload": {
+    "count": 11,
+    "mismatch": []
+  },
+  "protected": {
+    "frozen_and_historical": 312,
+    "runtime": 39,
+    "mismatch": 0
+  },
+  "resume_diff": [
+    {
+      "path": "docs/icim-readiness-requests/current.json",
+      "patch": "@@ -2,6 +2,6 @@\n   \"date\": \"2026-11-13\",\n   \"mode\": \"close\",\n   \"scope\": \"verified_research_handoff_no_send\",\n-  \"export_handoff\": true,\n+  \"export_handoff\": false,\n   \"request_id\": \"icim-held-close-v2-audited-2026-11-13T13:09:03.196Z\"\n }"
+    },
+    {
+      "path": "tests/test_ic_im_v1_4_workflow.py",
+      "patch": "@@ -69,7 +69,7 @@ def test_workflow_uses_r1_migration_persistence_and_gmail_gate(self) -> None:\n         self.assertIn(\"--source legacy-state\", text)\n         self.assertIn(\"--target state\", text)\n         self.assertIn(\"run_ic_im_v1_4_github_digest.py\", text)\n-        self.assertIn(\"ref: 9ec8b91c5256155101faae3c84dba9ff95632db5\", text)\n+        self.assertIn(\"ref: 4ede39788f1007a24682606680ea2d7be5408637\", text)\n         self.assertIn(\"delivery_contract.CALENDAR_YEARS == strategy._OFFICIAL_EXCHANGE_CALENDAR_YEARS\", text)\n         self.assertIn(\"delivery_contract.EXCHANGE_CLOSURES == strategy._EXCHANGE_CLOSURES\", text)\n         self.assertIn(\"--network-budget-per-product 180\", text)"
+    }
+  ],
+  "resume_local_tests": {
+    "resume/workflow_pin.xml": [
+      {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "0",
+        "tests": "87",
+        "time": "5.931",
+        "timestamp": "2026-11-13T21:18:35.613109+08:00",
+        "hostname": "DESKTOP-95I7VVU"
+      }
+    ],
+    "independent5.xml": [
+      {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "0",
+        "tests": "105",
+        "time": "5.918",
+        "timestamp": "2026-11-13T21:02:02.546361+08:00",
+        "hostname": "DESKTOP-95I7VVU"
+      }
+    ],
+    "audit_delivery/v2_incremental.xml": [
+      {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "0",
+        "tests": "22",
+        "time": "0.334",
+        "timestamp": "2026-11-13T21:05:47.372317+08:00",
+        "hostname": "DESKTOP-95I7VVU"
+      }
+    ]
+  },
+  "normal_controls": {
+    "remote_base_to_current_unchanged": true,
+    "comparison_note": "Three audited local control copies each have one extra trailing LF compared with the exact remote source; all preceding characters are identical. Remote baseline-to-head diff does not modify these files.",
+    "remote_blob_sha": {
+      "scripts/check_ic_im_v1_4_delivery.py": "40e6d08b172ddfc572f8cbc694ae5db0d02ebf31",
+      "scripts/prepare_ic_im_v1_4_marker.py": "101aa1d7aa633777448100071ddbe4e0b61ff0ab",
+      "scripts/resolve_ic_im_v1_4_attempt.py": "6d8d84867f8bf6dc69c49c821924c75c5fc7a97a"
+    }
+  },
+  "findings": {
+    "open": [],
+    "original_ci": "43431232719 automation-tests failed only on obsolete exact strategy pin; other four jobs succeeded",
+    "resume_repair": "one test pin replacement plus export_handoff=false for a pure no-send isolated-advance readiness request"
+  },
+  "remaining": "Current-head CI, formal no-send real-market readiness/sourceproof, then one normal delivery and independent intent/SMTP/marker/Gmail INBOX verification remain root-owned.",
+  "status": "PASS_read_only_byte_and_repair_scope_audit"
+}
