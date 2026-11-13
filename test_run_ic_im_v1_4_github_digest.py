@@ -307,3 +307,41 @@ def test_digest_budget_override_is_scoped_and_preserves_request_deadline():
         with strategy._network_budget(1.0):
             assert 0 < strategy._bounded_timeout(8.0) <= 1.0
     assert strategy._signal_product_network_budget(2) == 45.0
+
+
+def test_failure_binds_original_query_diagnostic_before_publishing_result(monkeypatch, tmp_path):
+    monkeypatch.setattr(strategy.fear_grid, "fetch_jiu_reference", lambda *_a, **_k: {})
+    monkeypatch.setattr(strategy.fear_grid, "fetch_score", lambda *_a, **_k: {})
+    clock = datetime(2026, 11, 13, 20, 3, tzinfo=strategy.BEIJING)
+    exc = RuntimeError("IC quote rejected")
+    exc.diagnostic_report = "### IC\n缺少有效报价\n### IM\n已计算的原生信息\n"
+    calls = []
+    real_write = digest._atomic_write_text
+    def record_write(path, text):
+        calls.append(path.name)
+        real_write(path, text)
+    monkeypatch.setattr(digest, "_atomic_write_text", record_write)
+    digest.write_failure(tmp_path, clock, exc, expected_market_date="2026-11-13")
+    payload = json.loads((tmp_path / "result.json").read_text(encoding="utf-8"))
+    raw = (tmp_path / "diagnostic_report.md").read_bytes()
+    assert payload["status"] == "failed" and "signals" not in payload
+    assert payload["diagnostic_report_contract"] == "icim_failure_diagnostic_v1"
+    assert payload["diagnostic_report_file"] == "diagnostic_report.md"
+    assert payload["diagnostic_report_sha256"] == hashlib.sha256(raw).hexdigest()
+    assert payload["diagnostic_report_market_date"] == "2026-11-13"
+    assert payload["diagnostic_report_generated_at"] == clock.isoformat()
+    assert payload["diagnostic_report_mode"] == "close"
+    assert exc.diagnostic_report in raw.decode("utf-8")
+    assert calls.index("diagnostic_report.md") < calls.index("result.json")
+    assert calls[-1] == "result.json"
+
+
+def test_failure_without_query_still_binds_explicit_missing_diagnostic(monkeypatch, tmp_path):
+    monkeypatch.setattr(strategy.fear_grid, "fetch_jiu_reference", lambda *_a, **_k: {})
+    monkeypatch.setattr(strategy.fear_grid, "fetch_score", lambda *_a, **_k: {})
+    digest.write_failure(tmp_path, datetime(2026, 11, 13, 14, 30, tzinfo=strategy.BEIJING),
+                         RuntimeError("transport"), mode="realtime", expected_market_date="2026-11-13")
+    payload = json.loads((tmp_path / "result.json").read_text(encoding="utf-8"))
+    text = (tmp_path / payload["diagnostic_report_file"]).read_text(encoding="utf-8")
+    assert payload["diagnostic_report_mode"] == "realtime"
+    assert "本次失败前未取得可保存的逐腿查询诊断" in text

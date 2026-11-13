@@ -60,6 +60,7 @@ import ic_im_quote_snapshot_guard as quote_snapshot_guard
 import ic_im_option_maintenance_notice as option_maintenance_notice
 import ic_im_signal_evidence_v1 as signal_evidence
 import ic_im_evidence_adapter_v1 as evidence_adapter
+import ic_im_held_put_close_v1 as held_put_close
 
 
 def _evidence_http_get(*args, **kwargs):
@@ -6357,6 +6358,8 @@ def build_iv_warning(product, signal, live, quotes, clock, *, collection_started
             if evidence is not None:
                 if not isinstance(evidence, dict):
                     raise ValueError("IC监测证据格式无效")
+                if evidence.get("quote_kind") == "daily_close":
+                    raise ValueError("日线收盘价没有逐笔报价时刻，IV监测保持N/A")
                 option_price = float(evidence["option_price"])
                 if (not math.isclose(float(evidence["strike"]), strike, abs_tol=1e-9)
                         or put_execution.as_day(evidence["expiry"]) != expiry
@@ -6634,6 +6637,78 @@ def _v14_monthly_option_calendar(product: str, market_date: date,
     return due, preview and not due
 
 
+def _held_ic_put_close_observation_clock():
+    # Acquisition provenance uses the wall clock, not runtime_clock's fixed
+    # decision time. Historical replay consumes archived proof instead.
+    return datetime.now(BEIJING)
+
+
+def _held_ic_put_close_eligible(day, anchor):
+    clock = _held_ic_put_close_observation_clock()
+    if (type(day) is not date or day < held_put_close.EFFECTIVE_SIGNAL_DATE
+            or clock.date() != day or (clock.hour, clock.minute) < (15, 30)
+            or _HISTORICAL_REPLAY_DAY.get() is not None):
+        return False
+    previous = _roll_backward_exchange_day(day - timedelta(days=1), require_official=True)
+    qty = anchor.get("v14_core_put_qty")
+    if (anchor.get("last_verified_day") != previous or anchor.get("v14_route_state") != "future"
+            or isinstance(qty, bool) or not isinstance(qty, (int, float))
+            or not math.isfinite(qty) or qty <= 0 or int(qty) != qty
+            or not re.fullmatch(r"510500P[0-9]{4}M[0-9]{5}", str(anchor.get("v14_core_put_contract") or ""))
+            or not re.fullmatch(r"[0-9]{8}", str(anchor.get("v14_core_put_security_id") or ""))):
+        return False
+    monthly_due, _ = _v14_monthly_option_calendar("IC", day, _third_friday(day.year, day.month), True)
+    return not monthly_due
+
+
+def _fetch_held_ic_put_daily_close_for_day(contract, security_id, day, anchor):
+    """Acquire a narrow held-leg close, with no fabricated intraday timestamp."""
+    clock = _held_ic_put_close_observation_clock()
+    previous = _roll_backward_exchange_day(day - timedelta(days=1), require_official=True)
+    match = re.fullmatch(r"510500P([0-9]{2})([0-9]{2})M([0-9]{5})", str(contract or ""))
+    if (not match or not isinstance(security_id, str) or not re.fullmatch(r"[0-9]{8}", security_id)
+            or not _held_ic_put_close_eligible(day, anchor)
+            or anchor.get("v14_core_put_contract") != contract
+            or anchor.get("v14_core_put_security_id") != security_id
+            or anchor.get("last_verified_day") != previous
+            or anchor.get("v14_route_state") != "future"):
+        raise held_put_close.HeldPutCloseUnavailable("已持Put收盘备用范围、身份或真实时点不合格")
+    expiry = _fourth_wednesday(2000 + int(match.group(1)), int(match.group(2)))
+    _require_model_expiry_calendar(expiry, "已持IC Put收盘备用到期")
+    specs = [
+        ("detail_raw", "https://hq.sinajs.cn/list=CON_OP_" + security_id, None),
+        ("identity_raw", "https://hq.sinajs.cn/list=CON_SO_" + security_id, None),
+        ("sina_daily_raw", "https://stock.finance.sina.com.cn/futures/api/jsonp_v2.php//StockOptionDaylineService.getSymbolInfo", {"symbol": security_id}),
+        ("eastmoney_daily_raw", "https://push2his.eastmoney.com/api/qt/stock/kline/get", {
+            "secid": "10." + security_id, "klt": "101", "fqt": "0", "lmt": "10000", "end": "20500101",
+            "fields1": "f1,f2,f3,f4,f5,f6", "fields2": "f51,f52,f53,f54,f55,f56,f57"}),
+    ]
+    def fetch(spec):
+        name, url, params = spec
+        response = _evidence_http_get(url, params=params, stream=True, timeout=_bounded_timeout(8),
+            headers={"User-Agent": "Mozilla/5.0 POE-IC-IM-Research/1.0",
+                     "Referer": "https://quote.eastmoney.com/" if "eastmoney" in url else "https://stock.finance.sina.com.cn/",
+                     "Cache-Control": "no-cache"})
+        try:
+            response.raise_for_status()
+            return name, _bounded_response_bytes(response, "已持Put收盘备用 " + name)
+        finally:
+            response.close()
+    raw = dict(_collect_quote_batches(fetch, specs))
+    observed = _held_ic_put_close_observation_clock()
+    proof = dict(revision=held_put_close.REVISION, anchor={key: deepcopy(anchor.get(key)) for key in (
+        "last_verified_day", "v14_route_state", "v14_core_put_contract", "v14_core_put_security_id", "v14_core_put_qty")},
+        signal_day=day, expected_previous_day=previous, current_ledger_day=anchor.get("last_verified_day"),
+        expected_expiry=expiry, observed_at=observed, monthly_reset=False, official_master=None, **raw)
+    checked = held_put_close.validate_held_put_close(**{key: value for key, value in proof.items() if key != "revision"})
+    frame = pd.DataFrame([checked["row"]])
+    frame.attrs["held_close_evidence"] = checked["evidence"]
+    frame.attrs["held_close_proof"] = proof
+    stamp = {"date": day.isoformat(), "time": None, "source": checked["evidence"]["source"],
+             "quote_kind": "daily_close", "observed_at": observed.isoformat()}
+    return frame, stamp, proof
+
+
 def _v14_ic_core_overlay(signal: dict[str, Any], anchor: dict[str, Any]) -> None:
     """Price the dedicated core independently of the legacy/shared Put field.
 
@@ -6648,15 +6723,58 @@ def _v14_ic_core_overlay(signal: dict[str, Any], anchor: dict[str, Any]) -> None
             raise RuntimeError("IC adjusted contract master and multiplier unavailable; preserve held A identity")
         day = signal["market_date"]
         replay = _HISTORICAL_REPLAY_DAY.get()
+        daily_close = False
+        primary_error = None
         if replay is not None:
             chain, stamp = fetch_sse_existing_put_historical_quote(str(contract), str(anchor["v14_core_put_security_id"]), replay)
+            daily_close = stamp.get("quote_kind") == "daily_close"
         else:
             match = re.search(r"P(\d{4})", str(contract))
             if not match:
                 raise RuntimeError("IC独立核心Put合约格式错误")
-            chain, stamp = _fetch_510500_chain_for_day(match.group(1), day)
-        _validate_chain_stamp_matches("IC独立核心Put", stamp, day, _now_beijing())
-        row = _quote_row(chain, str(contract), day, quote_source=stamp.get("source"))
+            try:
+                chain, stamp = _fetch_510500_chain_for_day(match.group(1), day)
+                _validate_chain_stamp_matches("IC独立核心Put", stamp, day, _now_beijing())
+                if day >= held_put_close.EFFECTIVE_SIGNAL_DATE:
+                    exact = chain[chain["contract"].eq(str(contract))]
+                    if len(exact) > 1:
+                        raise held_put_close.HeldPutCloseConflict("IC现持合约报价重复，不能以收盘备用掩盖冲突")
+                    if len(exact) == 1:
+                        try:
+                            _require_held_ic_put_identity(str(contract), anchor.get("v14_core_put_security_id"), exact.iloc[0], day)
+                        except RuntimeError as identity_error:
+                            raise held_put_close.HeldPutCloseConflict(str(identity_error)) from identity_error
+                        _require_selected_510500_quote_time(exact.iloc[0], _now_beijing(), day, source=stamp.get("source"))
+                held = _quote_row(chain, str(contract), day, quote_source=stamp.get("source"))
+                if held is None or not math.isfinite(float(held["last"])) or float(held["last"]) <= 0:
+                    raise RuntimeError("IC独立核心Put缺少有效当日报价")
+            except (expiry_evidence.ExpiryEvidenceConflict, signal_evidence.EvidenceUnavailable,
+                    held_put_close.HeldPutCloseConflict):
+                raise
+            except (RuntimeError, requests.RequestException) as exc:
+                if (day < held_put_close.EFFECTIVE_SIGNAL_DATE or signal.get("close_confirmed") is not True
+                        or signal.get("option_monthly_reset_due")):
+                    raise
+                primary_error = f"{type(exc).__name__}: {exc}"
+                chain, stamp, proof = _fetch_held_ic_put_daily_close_for_day(
+                    str(contract), str(anchor.get("v14_core_put_security_id") or ""), day, anchor)
+                daily_close = True
+        if daily_close:
+            rows = chain[chain["contract"].eq(str(contract))]
+            row = rows.iloc[0] if len(rows) == 1 else None
+            evidence = chain.attrs.get("held_close_evidence")
+            if not isinstance(evidence, dict) or evidence.get("quote_kind") != "daily_close":
+                raise RuntimeError("IC已持Put日收盘缺少独立复验的来源证明")
+            signal["v14_core_put_close_evidence"] = deepcopy(evidence)
+            if primary_error:
+                signal["v14_core_put_close_evidence"]["primary_failure"] = primary_error
+            signal.setdefault("data_notes", []).append(
+                f"IC现持核心Put收盘备用：{contract}，{day}日收盘价{float(evidence['close']):g}；"
+                "新浪与东方财富日线一致，现持证券身份独立核对。日级证据无逐笔时刻，IV监测N/A。"
+            )
+        else:
+            _validate_chain_stamp_matches("IC独立核心Put", stamp, day, _now_beijing())
+            row = _quote_row(chain, str(contract), day, quote_source=stamp.get("source"))
         if row is None or not math.isfinite(float(row["last"])) or float(row["last"]) <= 0:
             raise RuntimeError("IC独立核心Put缺少有效当日报价")
         _require_held_ic_put_identity(str(contract), anchor.get("v14_core_put_security_id"), row, day)
@@ -6673,6 +6791,9 @@ def _v14_ic_core_overlay(signal: dict[str, Any], anchor: dict[str, Any]) -> None
             contract_unit=10000, source=stamp.get("source"), sleeve="core",
             quote_date=observed.date() if isinstance(observed, datetime) else stamp.get("date"),
             quote_time=observed.strftime("%H%M%S") if isinstance(observed, datetime) else stamp.get("time"))
+        if daily_close:
+            signal["iv_monitor_evidence"].update(quote_kind="daily_close", quote_time=None,
+                iv_monitor_eligible=False, observed_at=stamp.get("observed_at"))
         signal["put_current_core_qty"] = int(anchor.get("v14_core_put_qty", 0))
         if not signal.get("option_monthly_reset_due"):
             target_delta = float(signal["core_put_target_delta"])

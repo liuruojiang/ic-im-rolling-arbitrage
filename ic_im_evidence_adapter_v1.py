@@ -15,11 +15,12 @@ import re
 from concurrent.futures import FIRST_COMPLETED, ThreadPoolExecutor, wait
 from contextlib import contextmanager
 from copy import deepcopy
-from datetime import date, datetime, time
+from datetime import date, datetime, time, timedelta
 from functools import wraps
 from pathlib import Path
 from typing import Any
 from zoneinfo import ZoneInfo
+from urllib.parse import parse_qs, urlsplit
 
 import numpy as np
 import pandas as pd
@@ -32,6 +33,151 @@ INPUT_REVISION = "ic_im_original_inputs_20261021_v1"
 _LOCATION = contextvars.ContextVar("icim_original_evidence_location", default=None)
 LISTING_EFFECTIVE_SIGNAL_DATE = date(2026, 11, 13)
 LISTING_OUTCOME_REVISION = "ic_listing_outcome_20261113_v1"
+
+
+def held_close_key(contract, security_id, day, anchor):
+    """Scope a narrow held-leg mark to its immutable preceding ledger anchor."""
+    return {"contract": contract, "security_id": security_id, "day": day,
+            "anchor_day": anchor.get("last_verified_day"),
+            "quantity": anchor.get("v14_core_put_qty")}
+
+
+def _held_close_request_matches(raw, kind, security_id):
+    try:
+        address = urlsplit(raw["url"])
+        params = evidence.decode(raw.get("params"))
+        query = parse_qs(address.query, keep_blank_values=True)
+        if isinstance(params, str):
+            additions = parse_qs(params, keep_blank_values=True)
+        elif isinstance(params, dict):
+            additions = {name: [str(value)] for name, value in params.items()}
+        elif params is None:
+            additions = {}
+        else:
+            return False
+        if set(query) & set(additions):
+            return False
+        query.update(additions)
+        if address.scheme != "https" or address.username or address.password or address.fragment:
+            return False
+        if kind in {"detail_raw", "identity_raw"}:
+            symbol = ("CON_OP_" if kind == "detail_raw" else "CON_SO_") + security_id
+            if address.netloc != "hq.sinajs.cn":
+                return False
+            return ((address.path == "/" and query == {"list": [symbol]})
+                    or (address.path == "/list=" + symbol and not query))
+        if kind == "sina_daily_raw":
+            return (address.netloc == "stock.finance.sina.com.cn"
+                    and address.path == "/futures/api/jsonp_v2.php//StockOptionDaylineService.getSymbolInfo"
+                    and query == {"symbol": [security_id]})
+        return (kind == "eastmoney_daily_raw" and address.netloc == "push2his.eastmoney.com"
+                and address.path == "/api/qt/stock/kline/get"
+                and query.get("secid") == ["10." + security_id]
+                and query.get("klt") == ["101"] and query.get("fqt") == ["0"]
+                and query.get("fields1") == ["f1,f2,f3,f4,f5,f6"]
+                and query.get("fields2") == ["f51,f52,f53,f54,f55,f56,f57"])
+    except (KeyError, TypeError, ValueError, AttributeError):
+        return False
+
+
+def validate_held_close(strategy, value, key, day, clock, *, reader=None):
+    """Rebuild a stored close from original bytes, not from saved display fields."""
+    import ic_im_held_put_close_v1 as held_close
+    if (day < held_close.EFFECTIVE_SIGNAL_DATE or not isinstance(value, tuple) or len(value) != 3
+            or not isinstance(key, dict) or set(key) != {"contract", "security_id", "day", "anchor_day", "quantity"}
+            or type(key.get("quantity")) not in {int, float}
+            or key.get("day") != day):
+        raise evidence.EvidenceUnavailable("原日已持Put收盘备用结构/采用日无效")
+    frame, stamp, proof = value
+    required = {"revision", "anchor", "signal_day", "expected_previous_day", "current_ledger_day",
+                "expected_expiry", "observed_at", "detail_raw", "identity_raw", "sina_daily_raw",
+                "eastmoney_daily_raw", "monthly_reset", "official_master"}
+    if not isinstance(proof, dict) or set(proof) != required or proof.get("revision") != held_close.REVISION:
+        raise evidence.EvidenceUnavailable("原日已持Put收盘备用缺少完整原始输入")
+    inputs = {name: value for name, value in proof.items() if name != "revision"}
+    anchor, observed = inputs["anchor"], inputs["observed_at"]
+    if (not isinstance(anchor, dict) or proof["signal_day"] != day
+            or held_close_key(anchor.get("v14_core_put_contract"), anchor.get("v14_core_put_security_id"),
+                              day, anchor) != key
+            or not isinstance(observed, datetime) or observed.tzinfo is None
+            or not isinstance(clock, datetime) or clock.tzinfo is None or observed > clock):
+        raise evidence.EvidenceUnavailable("原日已持Put收盘备用与日期/账本锚点/采集时间不一致")
+    if strategy is not None:
+        try:
+            if (strategy._roll_forward_exchange_day(anchor["last_verified_day"] + timedelta(days=1)) != day
+                    or strategy._fourth_wednesday(2000 + int(key["contract"][7:9]),
+                                                 int(key["contract"][9:11])) != proof["expected_expiry"]):
+                raise ValueError("calendar mismatch")
+        except (KeyError, TypeError, ValueError, RuntimeError) as exc:
+            raise evidence.EvidenceUnavailable("原日已持Put收盘备用未绑定正式日历后继/到期日") from exc
+    capture = evidence.current_session.get()
+    raw_rows = reader.context.get("raw", []) if reader is not None else capture.raw if capture is not None else None
+    if raw_rows is None:
+        raise evidence.EvidenceUnavailable("收盘备用缺少原始HTTP存证上下文")
+    for kind in ("detail_raw", "identity_raw", "sina_daily_raw", "eastmoney_daily_raw"):
+        body = inputs[kind]
+        if not isinstance(body, bytes):
+            raise evidence.EvidenceUnavailable("收盘备用原始响应必须保持bytes")
+        digest = hashlib.sha256(body).hexdigest()
+        matches = [raw for raw in raw_rows if isinstance(raw, dict) and raw.get("sha256") == digest
+                   and raw.get("bytes") == len(body) and raw.get("status_code") == 200
+                   and _held_close_request_matches(raw, kind, key["security_id"])]
+        accepted = False
+        for raw in matches:
+            try:
+                fetched = datetime.fromisoformat(raw["fetched_at"])
+                if (fetched.tzinfo is None or fetched.astimezone(held_close.BEIJING).date() != day
+                        or fetched.astimezone(held_close.BEIJING).time() < time(15, 30)
+                        or fetched > observed):
+                    continue
+                if reader is not None and evidence._verified_blob(reader.root, raw) != body:
+                    continue
+                accepted = True
+                break
+            except (KeyError, TypeError, ValueError, evidence.EvidenceUnavailable):
+                continue
+        if not accepted:
+            raise evidence.EvidenceUnavailable("收盘备用缺少精确证券/来源/采集时刻的原始HTTP：" + kind)
+    try:
+        checked = held_close.validate_held_put_close(**inputs)
+    except (held_close.HeldPutCloseUnavailable, held_close.HeldPutCloseConflict, TypeError, KeyError) as exc:
+        raise evidence.EvidenceUnavailable("原日已持Put收盘备用原文复验失败：" + str(exc)) from exc
+    if (not isinstance(frame, pd.DataFrame) or len(frame) != 1
+            or set(frame.columns) != set(checked["row"])):
+        raise evidence.EvidenceUnavailable("原日已持Put收盘备用不得伪装完整期权链")
+    for name, expected in checked["row"].items():
+        if type(frame.iloc[0][name]) is bool or frame.iloc[0][name] != expected:
+            raise evidence.EvidenceUnavailable("原日已持Put收盘备用保存字段与原文不一致：" + name)
+    if frame.attrs.get("held_close_evidence") != checked["evidence"]:
+        raise evidence.EvidenceUnavailable("原日已持Put收盘备用归属证据与原文不一致")
+    expected_stamp = {"date": day.isoformat(), "time": None, "source": checked["evidence"]["source"],
+                      "quote_kind": "daily_close", "observed_at": observed.isoformat()}
+    if stamp != expected_stamp:
+        raise evidence.EvidenceUnavailable("原日已持Put收盘备用不得伪造实时报价时刻")
+    result = frame.copy(deep=True)
+    result.attrs["held_close_proof"] = deepcopy(proof)
+    return result, deepcopy(stamp), deepcopy(proof)
+
+
+def _recorded_held_close(strategy, security_id, day, contract=None):
+    reader = evidence.current_reader.get()
+    if reader is None or day < date(2026, 11, 13):
+        return None
+    found = []
+    for entry in reader.manifest["entries"].values():
+        if entry.get("role") != "ic.held_close":
+            continue
+        key = evidence.decode(entry["key"])
+        if key.get("security_id") == security_id and (contract is None or key.get("contract") == contract):
+            anchor = strategy.LIVE_CONTINUATION_ANCHOR["IC"]
+            expected = held_close_key(key.get("contract"), security_id, day, anchor)
+            if key != expected:
+                raise evidence.EvidenceUnavailable("原日已持Put收盘备用与当前逐日账本锚点不一致")
+            found.append(validate_held_close(strategy, reader.call("ic.held_close", key), key,
+                                             day, reader.closed_at, reader=reader))
+    if len(found) > 1:
+        raise evidence.EvidenceUnavailable("原日已持Put收盘备用重复")
+    return found[0] if found else None
 
 
 class ListingProbeUnavailable(RuntimeError):
@@ -230,6 +376,9 @@ def _validate_value(strategy, role, key, value):
         clock = strategy._iv_observation_clock(clock)
     if role == "ic.chain":
         return validate_chain(strategy, value, key["month"], day, clock)
+    if role == "ic.held_close":
+        actual_clock = reader.closed_at if reader is not None else datetime.now(strategy.BEIJING)
+        return validate_held_close(strategy, value, key, day, actual_clock, reader=reader)
     if role == "ic.months":
         if isinstance(value, dict):
             if day < LISTING_EFFECTIVE_SIGNAL_DATE:
@@ -361,7 +510,7 @@ def _keyed(strategy, owner, name, role, keyfn):
             strategy, role, key, original(*args, **kwargs)))
         # capture.call coalesces a role/key before reaching the query cache.
         # Every chain consumption must still recheck its original timestamps.
-        return _validate_value(strategy, role, key, value) if role == "ic.chain" else value
+        return _validate_value(strategy, role, key, value) if role in {"ic.chain", "ic.held_close"} else value
 
     setattr(owner, name, adapted)
 
@@ -413,6 +562,9 @@ def _historical_fear_supplement(strategy, reader, key, original_value, original)
 
 def _chain_close(strategy, security_id, day):
     """A same-day chain binds security identity independently of the request."""
+    held = _recorded_held_close(strategy, str(security_id), day)
+    if held is not None:
+        return held[0].iloc[0], held[1]
     reader = evidence.current_reader.get()
     matches = []
     for entry in reader.manifest["entries"].values():
@@ -499,6 +651,9 @@ def install(strategy):
     _keyed(strategy, strategy, quote_name, "ic.etf", lambda reference_day=None: {})
     _keyed(strategy, strategy, "_fetch_510500_chain_for_day", "ic.chain",
            lambda expiry_ym, reference_day: {"month": canonical_ic_month(expiry_ym), "day": reference_day})
+    if hasattr(strategy, "_fetch_held_ic_put_daily_close_for_day"):
+        _keyed(strategy, strategy, "_fetch_held_ic_put_daily_close_for_day", "ic.held_close",
+               lambda contract, security_id, day, anchor: held_close_key(contract, security_id, day, anchor))
     if hasattr(strategy, "build_iv_warning"):
         _keyed(strategy, strategy, "build_iv_warning", "iv.monitor",
                lambda product, signal, live, quotes, clock, **kwargs:
@@ -536,6 +691,9 @@ def install(strategy):
             return historical(contract, security_id, day)
         if not re.fullmatch(r"510500P[0-9]{4}M[0-9]{5}", str(contract)):
             raise evidence.EvidenceUnavailable("adjusted/invalid held identity requires its full migration engine")
+        narrow = _recorded_held_close(strategy, security_id, day, contract)
+        if narrow is not None:
+            return narrow[0], narrow[1]
         row, stamp = _chain_close(strategy, security_id, day)
         if row["contract"] != contract:
             raise evidence.EvidenceUnavailable(f"{day} original held contract/security identity mismatch")
@@ -559,7 +717,7 @@ def _original_required_roles(product, day=None):
     return roles
 
 
-def _require_original_reader(reader, product, day, zone):
+def _require_original_reader(reader, product, day, zone, strategy=None):
     """Use the same replay-route scope for readiness and actual loading."""
     if (reader.metadata.get("product") != product
             or reader.metadata.get("input_revision") != INPUT_REVISION
@@ -593,6 +751,11 @@ def _require_original_reader(reader, product, day, zone):
             except (expiry_evidence.ExpiryEvidenceConflict, expiry_evidence.ExpiryMasterUnavailable,
                     KeyError, TypeError, ValueError, AttributeError) as exc:
                 raise evidence.EvidenceUnavailable(f"original expiry coverage rejected: {exc}") from exc
+    if product == "IC" and day >= date(2026, 11, 13):
+        for entry in reader.context["entries"].values():
+            if entry.get("role") == "ic.held_close":
+                key = evidence.decode(entry["key"])
+                validate_held_close(strategy, reader.call("ic.held_close", key), key, day, closed, reader=reader)
     return closed
 
 
@@ -617,7 +780,7 @@ def load_original(strategy, root, product, day):
             reader = evidence._load_one(root, path, day)
             # A later packet with an invalid original-session clock must not
             # hide an earlier valid one. Qualify before choosing the newest.
-            closed = _require_original_reader(reader, product, day, strategy.BEIJING)
+            closed = _require_original_reader(reader, product, day, strategy.BEIJING, strategy)
             choices.append((reader, closed))
         except (evidence.EvidenceUnavailable, ValueError, TypeError, KeyError, AttributeError) as exc:
             failures.append(f"{path.name}: {exc}")
@@ -658,6 +821,7 @@ def capture_daily(strategy, root, clock):
                     # same-role fetches, while independent providers may run.
                     with strategy._network_budget(strategy.SIGNAL_PRODUCT_NETWORK_BUDGET_SECONDS):
                         job_errors, pending, scheduled_months = [], {}, set()
+                        scheduled_held_close = False
                         fear_value = None
                         guard = getattr(strategy, "_bounded_timeout", None)
                         def run_job(fetcher):
@@ -729,6 +893,22 @@ def capture_daily(strategy, root, clock):
                                         for month in sorted(value or [], key=lambda item: (
                                                 str(item)[-4:] not in held_months, str(item))):
                                             submit_month(month)
+                                    elif label.startswith("ic.chain/") and not scheduled_held_close:
+                                        eligible = getattr(strategy, "_held_ic_put_close_eligible", None)
+                                        getter = getattr(strategy, "_fetch_held_ic_put_daily_close_for_day", None)
+                                        if product == "IC" and callable(eligible) and callable(getter):
+                                            held_anchor = strategy.LIVE_CONTINUATION_ANCHOR["IC"]
+                                            held_contract = str(held_anchor.get("v14_core_put_contract") or "")
+                                            if (eligible(day, held_anchor) and len(held_contract) > 11
+                                                    and held_contract[7:11] == label.split("/", 1)[1]):
+                                                frame, stamp = value
+                                                row = strategy._quote_row(frame, held_contract, day,
+                                                                          quote_source=stamp.get("source"))
+                                                if row is None or not math.isfinite(float(row["last"])) or float(row["last"]) <= 0:
+                                                    scheduled_held_close = True
+                                                    submit("ic.held_close", lambda getter=getter, contract=held_contract,
+                                                        security=str(held_anchor["v14_core_put_security_id"]),
+                                                        anchor=deepcopy(held_anchor): getter(contract, security, day, anchor))
                                     elif label == "fear.score":
                                         fear_value = value
                         if callable(guard):
