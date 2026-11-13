@@ -23,3 +23,17 @@
 本节初次登记时尚未正式发送。下一步须核远端实际源码与sourceproof、真实当日完整计算和账本、正常intent/SMTP/marker及Gmail INBOX。上述本地测试不冒称当日日报已生成或送达。
 
 原IM成功结果只在Markdown诊断中，缺可恢复机器检查点；现有正式入口不支持单腿续算，因此本次恢复需双品种重新计算一次，禁止从文本反填。用户已授权审计通过后沿原正常通道补发；不调用本地SMTP，不清去重、不改交易权限。
+
+## 正式发布、真实验收及补发完成（2026-11-13 21:36 北京时间）
+
+策略修复经PR #66发布为执行提交4ede39788f1007a24682606680ea2d7be5408637；自动化PR #214合并提交9fabee03f183ebc6d9be8fd9b1224ae779a5ffa4。最终release为20261113-held-put-close-v2，manifest SHA为95a019023b4f639d6d3a88448687bd16572d32cc68d9cee36437f0bf8be9cab8。云端五组回归通过；原CI中旧pin断言失败经仅替换预期pin修复，原失败保留。
+
+无发送真实行情验收run43433784049成功，恢复11/12 seq35后在隔离卷计算11/13 seq36；SMTP只认证和校验信封，未发送。实际IC主源SSE恢复可用，取得同日0.2703；不能把本次生产成功称为新双日线备用已在生产触发。备用的真实保存字节及身份/日期/冲突负控由既有正式门禁和独立审计覆盖。
+
+用户授权的正常补发run43434573202成功。使用原close_confirmed入口，ledger_only/correction/external_schedule均false；未删除去重、未使用更正旁路。原入口不支持将隔离预检账本直接提升或仅续算原IM文本结果，正式阶段按合同恢复正式seq35并重新双品种计算。
+
+IC与IM均signal_complete/persistence_eligible，正式账本单步到2026-11-13 seq36，digest为06d29951f5a53908f6ff1373ebdad4b6e02d5345a07f5df06fa11114c7eb386f。下载成功账本以StateStore.load_latest复核全37笔链、迁移证明及原所有journal字节保持；previous_digest为89fe5574f94e28f9636fdc505a71c37360199eb65e9f9c0d52f28bf1f9e3d9cb。
+
+正常send-intent、SMTP成功、delivered marker分别核验；intent与发送metadata完全相同。Gmail消息1a1d51f5f7410efe在21:36:04进入INBOX/SENT，主题为“[收盘确认][需调整] IC/IM 1.4-r1 日报 - 2026-11-13”。实际收件附件42992字节，SHA ea9775643f47c83aecc793f26963b86bfdc809f7be3d4c1e7574aaca135ef287，与正式report_sha256完全一致。IV仍按原新鲜度门槛展示N/A。
+
+交付证据见delivery/readiness_receipt.json及delivery/final_delivery_receipt.json，原始run工件ID与链摘要有登记。策略参数、实盘权限和本地正式runtime未修改；本节只补记已观察的云端发布交付结果，不改冻结规格、旧manifest或原失败记录。

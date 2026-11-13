@@ -1,0 +1,38 @@
+{
+  "status": "delivered_verified",
+  "run_id": 43434573202,
+  "source_release": "20261113-held-put-close-v2",
+  "strategy_sha": "4ede39788f1007a24682606680ea2d7be5408637",
+  "automation_sha": "9fabee03f183ebc6d9be8fd9b1224ae779a5ffa4",
+  "market_date": "2026-11-13",
+  "sequence": 36,
+  "digest": "06d29951f5a53908f6ff1373ebdad4b6e02d5345a07f5df06fa11114c7eb386f",
+  "previous_digest": "89fe5574f94e28f9636fdc505a71c37360199eb65e9f9c0d52f28bf1f9e3d9cb",
+  "checks": {
+    "full_chain_verified": true,
+    "migration_verified": true,
+    "all_old_journals_unchanged": true,
+    "both_products_complete": true,
+    "source_provenance_verified": true,
+    "intent_equals_sent_metadata": true,
+    "smtp_step_success": true,
+    "delivered_marker_matches_result": true,
+    "gmail_inbox_verified": true,
+    "gmail_attachment_sha256_matches_report": true
+  },
+  "report_sha256": "ea9775643f47c83aecc793f26963b86bfdc809f7be3d4c1e7574aaca135ef287",
+  "gmail_message_id": "1a1d51f5f7410efe",
+  "gmail_labels": [
+    "UNREAD",
+    "SENT",
+    "INBOX"
+  ],
+  "mail_date": "2026-11-13T13:36:04+00:00",
+  "mail_subject": "[收盘确认][需调整] IC/IM 1.4-r1 日报 - 2026-11-13",
+  "artifact_ids": {
+    "audit": 14042961343,
+    "ledger": 14043746116,
+    "delivered": 14043766211,
+    "send_intent": 14042881354
+  }
+}

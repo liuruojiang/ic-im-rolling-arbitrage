@@ -1,0 +1,25 @@
+{
+  "readiness_run": 43433784049,
+  "artifact_id": 14042241593,
+  "artifact_zip_sha256": "d716fdf410b717e50d39d1e5db1beb34662d0bc04ebbef74212876e1a1eb17f1",
+  "strategy_sha": "4ede39788f1007a24682606680ea2d7be5408637",
+  "automation_sha": "9fabee03f183ebc6d9be8fd9b1224ae779a5ffa4",
+  "status": "success",
+  "market_date": "2026-11-13",
+  "sequence": 36,
+  "digest": "8caab08c3b9c58f4522538ca647b49240a3ceb1f40710d39b3ba07887eaadbb3",
+  "formal_ledger_advanced": false,
+  "message_sent": false,
+  "checks": {
+    "both_products_complete": true,
+    "source_inventory_verified": true,
+    "report_hash_verified": true,
+    "smtp_envelope_only": true
+  },
+  "file_sha256": {
+    "result.json": "cb4ebfef480cc54e82aa4317044c081eca29efc0e09c4a333daad111ad8c2b09",
+    "program-source.json": "f98ffeb3e6900408053dc1c6caf941c6640170a6fe43c345ed0e5ab82bb9ae6b",
+    "preflight.json": "1df0a61c4ae91584b9a149f346e39b8a6c54d316839a032a89e23d16b8b4bb34",
+    "mail-transport.json": "c358b40ffb62e3851877cf679cf33b3f550755db2a50543121ba6ec061b7c738"
+  }
+}
