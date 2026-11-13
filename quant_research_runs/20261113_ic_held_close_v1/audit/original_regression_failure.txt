@@ -1,0 +1,118 @@
+........................................................................ [  4%]
+........................................................................ [  8%]
+..........................................F............................. [ 12%]
+........................................................................ [ 17%]
+........................................................................ [ 21%]
+........................................................................ [ 25%]
+........................................................................ [ 30%]
+........................................................................ [ 34%]
+........................................................................ [ 38%]
+........................................................................ [ 43%]
+........................................................................ [ 47%]
+........................................................................ [ 51%]
+........................................................................ [ 56%]
+........................................................................ [ 60%]
+........................................................................ [ 64%]
+........................................................................ [ 69%]
+........................................................................ [ 73%]
+........................................................................ [ 77%]
+........................................................................ [ 82%]
+........................................................................ [ 86%]
+........................................................................ [ 90%]
+........................................................................ [ 95%]
+........................................................................ [ 99%]
+..........                                                               [100%]
+================================== FAILURES ===================================
+__ test_ic_core_overlay_rejects_yesterday_row_in_otherwise_today_sina_chain ___
+
+    def test_ic_core_overlay_rejects_yesterday_row_in_otherwise_today_sina_chain():
+        clock = datetime(2026, 9, 30, 15, 10, tzinfo=bot.BEIJING)
+        held = '510500P2612M07500'
+        chain = pd.DataFrame([
+            {'contract': held, 'last': 0.75,
+             'source_stamp': datetime(2026, 9, 29, 15, 0, tzinfo=bot.BEIJING)},
+            {'contract': '510500P2612M07250', 'last': 0.25,
+             'source_stamp': datetime(2026, 9, 30, 15, 0, tzinfo=bot.BEIJING)},
+        ])
+        stamp = {'date': '20260930', 'time': '150000'}
+        anchor = {'v14_core_put_contract': held, 'v14_core_put_security_id': 'held-id',
+                  'v14_core_put_qty': 1}
+        signal = {'market_date': clock.date(), 'option_monthly_reset_due': True,
+                  'close_confirmed': False}
+        original = bot.LIVE_CONTINUATION_ANCHOR['IC']
+        with (bot.runtime_clock(clock),
+              patch.object(bot, 'fetch_510500_chain_with_failover', return_value=(chain, stamp))):
+            with pytest.raises(RuntimeError, match='缺少有效当日报价'):
+>               bot._v14_ic_core_overlay(signal, anchor)
+
+test_ic_im_v1_4_integration_guards.py:680: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+poe_ic_im_mainline_v1_4_bot.py:6746: in _v14_ic_core_overlay
+    _require_selected_510500_quote_time(exact.iloc[0], _now_beijing(), day, source=stamp.get("source"))
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+row = contract                510500P2612M07500
+last                                 0.75
+source_stamp    2026-09-29 15:00:00+08:00
+Name: 0, dtype: object
+clock = datetime.datetime(2026, 9, 30, 15, 10, tzinfo=zoneinfo.ZoneInfo(key='Asia/Shanghai'))
+market_date = datetime.date(2026, 9, 30)
+
+    def _require_selected_510500_quote_time(
+        row: pd.Series, clock: datetime, market_date: date | None, *, source: str | None = None
+    ) -> None:
+        if "source_stamp" not in row.index:
+            if str(source or "").startswith("新浪"):
+                raise RuntimeError("新浪510500期权合约缺少有效逐行时间戳")
+            return
+        if market_date is None:
+            raise RuntimeError("新浪510500期权逐行报价缺少信号日，禁止校验自身日期")
+        stamp = row["source_stamp"]
+        if pd.isna(stamp) or not isinstance(stamp, (datetime, pd.Timestamp)) or stamp.tzinfo is None:
+            raise RuntimeError("新浪510500期权合约缺少有效逐行时间戳")
+        if stamp.date() != market_date:
+>           raise RuntimeError("新浪510500期权选中合约报价日期与信号日不一致")
+E           RuntimeError: 新浪510500期权选中合约报价日期与信号日不一致
+
+poe_ic_im_mainline_v1_4_bot.py:5252: RuntimeError
+
+During handling of the above exception, another exception occurred:
+
+    def test_ic_core_overlay_rejects_yesterday_row_in_otherwise_today_sina_chain():
+        clock = datetime(2026, 9, 30, 15, 10, tzinfo=bot.BEIJING)
+        held = '510500P2612M07500'
+        chain = pd.DataFrame([
+            {'contract': held, 'last': 0.75,
+             'source_stamp': datetime(2026, 9, 29, 15, 0, tzinfo=bot.BEIJING)},
+            {'contract': '510500P2612M07250', 'last': 0.25,
+             'source_stamp': datetime(2026, 9, 30, 15, 0, tzinfo=bot.BEIJING)},
+        ])
+        stamp = {'date': '20260930', 'time': '150000'}
+        anchor = {'v14_core_put_contract': held, 'v14_core_put_security_id': 'held-id',
+                  'v14_core_put_qty': 1}
+        signal = {'market_date': clock.date(), 'option_monthly_reset_due': True,
+                  'close_confirmed': False}
+        original = bot.LIVE_CONTINUATION_ANCHOR['IC']
+        with (bot.runtime_clock(clock),
+              patch.object(bot, 'fetch_510500_chain_with_failover', return_value=(chain, stamp))):
+>           with pytest.raises(RuntimeError, match='缺少有效当日报价'):
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           AssertionError: Regex pattern did not match.
+E             Expected regex: '缺少有效当日报价'
+E             Actual message: '新浪510500期权选中合约报价日期与信号日不一致'
+
+test_ic_im_v1_4_integration_guards.py:679: AssertionError
+============================== warnings summary ===============================
+C:\Python314\Lib\site-packages\fastapi_poe\types.py:171
+  C:\Python314\Lib\site-packages\fastapi_poe\types.py:171: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    class RequestContext(BaseModel):
+
+test_icim_external_review_20261111.py::test_sina_invalid_contract_date_is_never_dropped_by_row_order[True]
+  D:\动量策略\IC和IM滚动套利\poe_ic_im_mainline_v1_4_bot.py:3829: UserWarning: Could not infer format, so each element will be parsed individually, falling back to `dateutil`. To ensure parsing is consistent and as-expected, please specify a format.
+    parsed_days = pd.to_datetime(frame["source_date"], errors="coerce")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED test_ic_im_v1_4_integration_guards.py::test_ic_core_overlay_rejects_yesterday_row_in_otherwise_today_sina_chain
+1 failed, 1665 passed, 5 deselected, 2 warnings in 47.98s
+

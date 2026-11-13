@@ -9,12 +9,14 @@ import subprocess
 import sys
 
 ROOT = Path(__file__).resolve().parent
+HELD_CLOSE_V2_MANIFEST = ROOT / 'docs/ic_im_held_put_close_20261113_v2_manifest.json'
+HELD_CLOSE_MANIFEST = ROOT / 'docs/ic_im_held_put_close_20261113_v1_manifest.json'
 COMPAT_MANIFEST = ROOT / 'docs/ic_im_expert_release_20261112_v2_manifest.json'
 EXPERT_MANIFEST = ROOT / 'docs/ic_im_expert_release_20261112_manifest.json'
 ROUND2_MANIFEST = ROOT / 'docs/ic_im_fear_source_round2_20261109_manifest.json'
 AUDIT_MANIFEST = ROOT / 'docs/ic_im_fear_source_adversarial_20261109_manifest.json'
 SPLIT_MANIFEST = ROOT / 'docs/ic_im_fear_source_split_20261109_manifest.json'
-MANIFEST = COMPAT_MANIFEST if COMPAT_MANIFEST.exists() else EXPERT_MANIFEST if EXPERT_MANIFEST.exists() else ROUND2_MANIFEST if ROUND2_MANIFEST.exists() else AUDIT_MANIFEST if AUDIT_MANIFEST.exists() else SPLIT_MANIFEST if SPLIT_MANIFEST.exists() else ROOT / 'docs/ic_im_daily_release_20261023_repairs_v3_r3_manifest.json'
+MANIFEST = HELD_CLOSE_V2_MANIFEST if HELD_CLOSE_V2_MANIFEST.exists() else HELD_CLOSE_MANIFEST if HELD_CLOSE_MANIFEST.exists() else COMPAT_MANIFEST if COMPAT_MANIFEST.exists() else EXPERT_MANIFEST if EXPERT_MANIFEST.exists() else ROUND2_MANIFEST if ROUND2_MANIFEST.exists() else AUDIT_MANIFEST if AUDIT_MANIFEST.exists() else SPLIT_MANIFEST if SPLIT_MANIFEST.exists() else ROOT / 'docs/ic_im_daily_release_20261023_repairs_v3_r3_manifest.json'
 
 
 def sha(path):
@@ -51,7 +53,7 @@ def main():
     assert sha(ROOT / 'docs/icim_historical_deselections_20261023.json') == manifest['historical_exclusion_registry_sha256']
     assert registered == json.loads((ROOT / 'docs/icim_historical_deselections_20261023.json').read_text(encoding='utf-8'))
     tests = manifest['required_local_tests']
-    expected_count = {'20261112-expert-review-v5-r3':56, '20261112-expert-review-v5-r2':56, '20261109-fear-source-round2-v3':49, '20261109-fear-source-adversarial-v2':49, '20261109-fear-source-split-v1':48, '20261023-redteam-repairs-v3-r3':47}[manifest['release']]
+    expected_count = {'20261113-held-put-close-v2':59, '20261113-held-put-close-v1':59, '20261112-expert-review-v5-r3':56, '20261112-expert-review-v5-r2':56, '20261109-fear-source-round2-v3':49, '20261109-fear-source-adversarial-v2':49, '20261109-fear-source-split-v1':48, '20261023-redteam-repairs-v3-r3':47}[manifest['release']]
     assert len(tests) == len(set(tests)) == expected_count
     allowed = [node for node in registered if node.split('::', 1)[0] in tests]
     assert manifest['daily_gate_deselections'] == allowed

@@ -1,0 +1,65 @@
+{
+  "scope": "independent delivery/diagnostic adversaries; no SMTP or ledger writes",
+  "source_before": {
+    "producer": "a95ff29826b0da42cec4feed05ed32bd2fc4c27819894e4ff92543b798fffbe7",
+    "renderer": "3f925201b8ddc63a7faa298048555d50756a7ba195aa4963e7ce01dfbbc7632a",
+    "independent_tests": "5cf39c3aa61c258ce0ebdef32d210284c61aa49e078d4a4c5105d8c15bc9e220",
+    "marker": "be0b51a56357a542d430e1629b8bf731526bea199e80b7dba60fd60296a606a4",
+    "delivery_gate": "c64e124991868901da65f88257952078e3446d8e10bd173371738c8c0c9b678e",
+    "attempt": "f5dda37f99e5cf1effffcf000ffbd0b64302a5a27a58581616173121b8555886"
+  },
+  "source_after": {
+    "producer": "a95ff29826b0da42cec4feed05ed32bd2fc4c27819894e4ff92543b798fffbe7",
+    "renderer": "3f925201b8ddc63a7faa298048555d50756a7ba195aa4963e7ce01dfbbc7632a",
+    "independent_tests": "5cf39c3aa61c258ce0ebdef32d210284c61aa49e078d4a4c5105d8c15bc9e220",
+    "marker": "be0b51a56357a542d430e1629b8bf731526bea199e80b7dba60fd60296a606a4",
+    "delivery_gate": "c64e124991868901da65f88257952078e3446d8e10bd173371738c8c0c9b678e",
+    "attempt": "f5dda37f99e5cf1effffcf000ffbd0b64302a5a27a58581616173121b8555886"
+  },
+  "command": [
+    "C:\\Python314\\python.exe",
+    "-B",
+    "-X",
+    "utf8",
+    "-m",
+    "pytest",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "D:\\workspace\\icim_failure_20261113\\audit_delivery\\test_independent_delivery_adversaries.py",
+    "--basetemp=D:\\workspace\\icim_failure_20261113\\audit_delivery\\final_temp",
+    "--junitxml=D:\\workspace\\icim_failure_20261113\\audit_delivery\\final.xml",
+    "--tb=short"
+  ],
+  "exit_code": 0,
+  "junit": {
+    "name": "pytest",
+    "errors": "0",
+    "failures": "0",
+    "skipped": "0",
+    "tests": "32",
+    "time": "3.389",
+    "timestamp": "2026-11-13T20:59:00.558369+08:00",
+    "hostname": "DESKTOP-95I7VVU"
+  },
+  "original_product_findings": [
+    {
+      "severity": "P2",
+      "issue": "future diagnostic generation time accepted",
+      "state": "fixed and original counterexample revalidated"
+    },
+    {
+      "severity": "P2",
+      "issue": "source-local date accepted while Beijing date predates signal day",
+      "state": "fixed and original counterexample revalidated"
+    }
+  ],
+  "native_symlink_test": "OS denied native symlink creation in earlier run; final test exercises exact path.is_symlink guard with a scoped mock, not a native reparse-point proof",
+  "earlier_runs": {
+    "independent_r1.xml": "28 setup errors from denied system TEMP, not product results",
+    "independent_r2.xml": "25 pass, 2 product counterexample failures, 1 native symlink unavailable",
+    "timestamp_final.xml": "3 pass; 1 audit-only CRLF expectation mismatch, implementation accepted valid historical report",
+    "historical_final.xml": "audit newline correction passed"
+  },
+  "remaining_scope": "full source inventory, market evidence, remote CI and actual email delivery remain root-owned"
+}

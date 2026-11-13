@@ -600,10 +600,6 @@ def write_failure(
         "error": str(exc),
         **fear_observation,
     }
-    _atomic_write_text(
-        out_dir / "result.json", json.dumps(payload, ensure_ascii=False, indent=2) + "\n"
-    )
-    _atomic_write_text(out_dir / "failure.txt", f"{type(exc).__name__}: {exc}\n")
     diagnostic = (
         "# 本次 IC/IM 失败诊断\n\n"
         f"生成时间：{clock.isoformat()}\n"
@@ -617,7 +613,22 @@ def write_failure(
         diagnostic += str(query_diagnostic)
     else:
         diagnostic += "本次失败前未取得可保存的逐腿查询诊断。\n"
-    _atomic_write_text(out_dir / "diagnostic_report.md", diagnostic)
+    diagnostic_path = out_dir / "diagnostic_report.md"
+    _atomic_write_text(diagnostic_path, diagnostic)
+    # Publish the result last: the consumer must bind the exact native failure
+    # evidence instead of parsing its text into an apparently complete signal.
+    payload.update(
+        diagnostic_report_contract="icim_failure_diagnostic_v1",
+        diagnostic_report_file=diagnostic_path.name,
+        diagnostic_report_sha256=hashlib.sha256(diagnostic_path.read_bytes()).hexdigest(),
+        diagnostic_report_market_date=signal_day.isoformat(),
+        diagnostic_report_generated_at=clock.isoformat(),
+        diagnostic_report_mode=mode,
+    )
+    _atomic_write_text(out_dir / "failure.txt", f"{type(exc).__name__}: {exc}\n")
+    _atomic_write_text(
+        out_dir / "result.json", json.dumps(payload, ensure_ascii=False, indent=2) + "\n"
+    )
 
 
 def main() -> int:

@@ -1,0 +1,20 @@
+{
+  "status": "PASS",
+  "formal": {
+    "name": "pytest",
+    "errors": "0",
+    "failures": "0",
+    "skipped": "0",
+    "tests": "1666",
+    "time": "45.009",
+    "timestamp": "2026-11-13T21:04:43.899904+08:00",
+    "hostname": "DESKTOP-95I7VVU"
+  },
+  "bound_files": 203,
+  "source_before_equals_after": true,
+  "protected_files": 351,
+  "protected_unchanged": true,
+  "independent5": 105,
+  "formal_ledger_modified": false,
+  "message_sent": false
+}
