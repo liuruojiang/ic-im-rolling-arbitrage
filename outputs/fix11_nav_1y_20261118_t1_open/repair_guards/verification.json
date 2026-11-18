@@ -1,0 +1,88 @@
+{
+  "status": "PASS_REPAIRED_RESEARCH_GUARDS",
+  "market": {
+    "correct_market_cutoffs": [
+      "2026-11-17",
+      "2026-11-18"
+    ],
+    "official_terminal_rows": {
+      "IC": 4,
+      "IM": 4,
+      "MO_put": 159
+    },
+    "original_price": 6194.0,
+    "altered_price": 6204.0,
+    "original_guard_accepted_coordinated_price_and_manifest_mutation": true,
+    "original_guard_accepted_nested_zip_mutation": true,
+    "repaired_quote_only": "research input hashes differ from the frozen manifest",
+    "repaired_coordinated_manifest_and_quote": "research input manifest does not match its independent frozen pin",
+    "independent_terminal_xml": "terminal futures values differ from independent XML: IC2612",
+    "repaired_nested_zip": "research input tree differs from its independently pinned contents"
+  },
+  "resume": {
+    "actual_eight_member_receipt_passed": true,
+    "independent_receipt_pin_rejects_rewrite": "resume receipt does not match its independent frozen pin",
+    "failure_status_rejected_even_after_independent_pin": "resume receipt did not pass",
+    "missing_stage_key_rejected_even_after_independent_pin": "resume receipt must name exactly the eight required stage files",
+    "duplicate_stage_key_rejected_even_after_independent_pin": "duplicate JSON key: native_fix4_seller_candidates_v1.csv.gz",
+    "modified_candidate_rejected": "saved research stage changed: native_fix4_seller_candidates_v1.csv.gz"
+  },
+  "account_and_chart": {
+    "actual_finite_prefix_passed": {
+      "status": "PASS",
+      "through": "2026-11-17",
+      "products": {
+        "IC": {
+          "rows": 1007,
+          "max_abs_errors": {
+            "nav": 0.0,
+            "return_net": 0.0,
+            "equity_close": 0.0,
+            "cash_close": 0.0,
+            "margin_reserved": 0.0,
+            "option_value": 0.0,
+            "etf_value": 0.0,
+            "fees_cumulative": 0.0
+          }
+        },
+        "IM": {
+          "rows": 1047,
+          "max_abs_errors": {
+            "nav": 0.0,
+            "return_net": 0.0,
+            "equity_close": 0.0,
+            "cash_close": 0.0,
+            "margin_reserved": 0.0,
+            "option_value": 0.0,
+            "etf_value": 0.0,
+            "fees_cumulative": 0.0
+          }
+        }
+      }
+    },
+    "original_compare_accepted_na": true,
+    "nan_rejected": "missing or non-finite financial field: candidate IC",
+    "inf_rejected": "missing or non-finite financial field: candidate IC",
+    "finite_one_cent_change_rejected": "previous published economic close-prefix changed: IC: {'nav': 0.0, 'return_net': 0.0, 'equity_close': 0.0, 'cash_close': 0.009999997913837433, 'margin_reserved': 0.0, 'option_value': 0.0, 'etf_value': 0.0, 'fees_cumulative': 0.0}",
+    "actual_chart_calendar_passed": {
+      "status": "PASS",
+      "first": "2025-11-17",
+      "last": "2026-11-18",
+      "rows": {
+        "IC": 244,
+        "IM": 244
+      }
+    },
+    "failed_parent_receipt_rejected": "chart parent account receipt did not pass",
+    "common_missing_actual_trading_day_rejected": "chart IC disagrees with official calendar. Missing ['2026-10-30'], extra []"
+  },
+  "sha256": {
+    "outputs\\fix11_nav_1y_20261118_t1_open\\repair_guards\\test_replay_guards.py": "bb79473bb72337948f94edfd1a015a35a365933851fd38aa6d542c0e59c7998a",
+    "outputs\\fix11_nav_1y_20261118_t1_open\\repair_guards\\replay_guards.py": "63445edeafb0edcc943759e8560a89f813baabaeea5e5f670055b18a16d726c8",
+    "outputs\\fix11_nav_1y_20261118_close\\full_account_daily.csv.gz": "9edb370d8f6df979c2c6a85c660f5c068443443f302bff3e960faa8bcde9506d",
+    "outputs\\fix11_nav_1y_20261118_close\\complete_signal_close_account_daily.csv.gz": "b7fad5a0490bfdd68a1baae24976db2210ae4eea35eb30e44fa1acf0fea85456",
+    "outputs\\fix11_nav_1y_20261118_close\\full_account_verification.json": "544836669f984fa3827da9ed5f2e1b46cdd77a7519f78217d8fa973d3a0bd068",
+    "outputs\\fix11_nav_1y_20261118_close\\fresh_sources\\refresh_manifest.json": "555f382d8a035a971d0ef870faf9cb138ac4859b2c4fa637f13470e964de8d61",
+    "outputs\\fix11_nav_1y_20261118_close\\second_attempt\\verified_input_stages.json": "b8056a1a493f3cc0677816f4ded8465d277ec8eed20b57fa0812d53800b7682c"
+  }
+}

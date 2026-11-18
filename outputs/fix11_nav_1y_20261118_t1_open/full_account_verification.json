@@ -1,0 +1,4327 @@
+{
+  "status": "PASS",
+  "latest_completed_close": "2026-11-18",
+  "latest_mark_date": "2026-11-18",
+  "risk_last_completed_signal": "2026-11-17",
+  "anchor": "2025-11-17",
+  "start": "2025-11-18",
+  "classification": "same_start_research_counterfactual_monthly_put_open",
+  "source_manifest_sha256": "555f382d8a035a971d0ef870faf9cb138ac4859b2c4fa637f13470e964de8d61",
+  "baseline_against_published": {
+    "status": "PASS",
+    "through": "2026-11-18",
+    "products": {
+      "IC": {
+        "rows": 1008,
+        "max_abs_errors": {
+          "nav": 4.884981308350689e-15,
+          "return_net": 9.90960785651751e-17,
+          "equity_close": 5.21540641784668e-08,
+          "cash_close": 5.21540641784668e-08,
+          "margin_reserved": 5.029141902923584e-08,
+          "option_value": 5.122274160385132e-09,
+          "etf_value": 4.470348358154297e-08,
+          "fees_cumulative": 4.889443516731262e-09
+        }
+      },
+      "IM": {
+        "rows": 1048,
+        "max_abs_errors": {
+          "nav": 4.884981308350689e-15,
+          "return_net": 9.93129189996722e-17,
+          "equity_close": 5.21540641784668e-08,
+          "cash_close": 5.21540641784668e-08,
+          "margin_reserved": 5.029141902923584e-08,
+          "option_value": 5.587935447692871e-09,
+          "etf_value": 0.0,
+          "fees_cumulative": 4.6566128730773926e-09
+        }
+      }
+    }
+  },
+  "baseline_event_rows_matched": 13486,
+  "same_initial_account": {
+    "status": "PASS",
+    "through": "2025-11-17",
+    "products": {
+      "IC": {
+        "rows": 765,
+        "max_abs_errors": {
+          "nav": 0.0,
+          "return_net": 0.0,
+          "equity_close": 0.0,
+          "cash_close": 0.0,
+          "margin_reserved": 0.0,
+          "option_value": 0.0,
+          "etf_value": 0.0,
+          "fees_cumulative": 0.0
+        }
+      },
+      "IM": {
+        "rows": 805,
+        "max_abs_errors": {
+          "nav": 0.0,
+          "return_net": 0.0,
+          "equity_close": 0.0,
+          "cash_close": 0.0,
+          "margin_reserved": 0.0,
+          "option_value": 0.0,
+          "etf_value": 0.0,
+          "fees_cumulative": 0.0
+        }
+      }
+    }
+  },
+  "same_initial_event_rows": 10181,
+  "terminal_quote_repair": {
+    "status": "PASS",
+    "security_id": "10012149",
+    "day": "2026-11-18",
+    "repair_receipt_sha256": "ec731741b3caf387b0e40f76d0f4b82b994076754b8e0fb2bbdaf901364cfeea",
+    "admitted_quote_sha256": "c8af21433efffd9bbc520e600c664eb8d3af68b8941122fb3cb481a36382646f",
+    "original_raw_price_and_volume_preserved": true
+  },
+  "delayed_trade_sides": {
+    "IC": 10,
+    "IM": 14
+  },
+  "monthly_open_plans": {
+    "IC": [
+      {
+        "signal_date": "2025-11-21",
+        "execution_date": "2025-11-24",
+        "sizing_equity": 49838198.53651616,
+        "future_close": 6770.0,
+        "sleeves": [
+          {
+            "sleeve": "core_put",
+            "contract": null,
+            "normalized_quantity": 0.0,
+            "frozen_quantity": 0.0,
+            "executed_target_quantity": 0.0,
+            "route_permits_target": true,
+            "held_before": {},
+            "opening_prices": {}
+          },
+          {
+            "sleeve": "momentum_put",
+            "contract": null,
+            "normalized_quantity": 0.0,
+            "frozen_quantity": 0.0,
+            "executed_target_quantity": 0.0,
+            "route_permits_target": true,
+            "held_before": {},
+            "opening_prices": {}
+          }
+        ]
+      },
+      {
+        "signal_date": "2025-12-19",
+        "execution_date": "2025-12-22",
+        "sizing_equity": 52139671.976937406,
+        "future_close": 7055.4,
+        "sleeves": [
+          {
+            "sleeve": "core_put",
+            "contract": null,
+            "normalized_quantity": 0.0,
+            "frozen_quantity": 0.0,
+            "executed_target_quantity": 0.0,
+            "route_permits_target": true,
+            "held_before": {},
+            "opening_prices": {}
+          },
+          {
+            "sleeve": "momentum_put",
+            "contract": null,
+            "normalized_quantity": 0.0,
+            "frozen_quantity": 0.0,
+            "executed_target_quantity": 0.0,
+            "route_permits_target": true,
+            "held_before": {},
+            "opening_prices": {}
+          }
+        ]
+      },
+      {
+        "signal_date": "2026-01-16",
+        "execution_date": "2026-01-19",
+        "sizing_equity": 59563564.35375743,
+        "future_close": 8210.4,
+        "sleeves": [
+          {
+            "sleeve": "core_put",
+            "contract": null,
+            "normalized_quantity": 0.0,
+            "frozen_quantity": 0.0,
+            "executed_target_quantity": 0.0,
+            "route_permits_target": true,
+            "held_before": {},
+            "opening_prices": {}
+          },
+          {
+            "sleeve": "momentum_put",
+            "contract": null,
+            "normalized_quantity": 0.0,
+            "frozen_quantity": 0.0,
+            "executed_target_quantity": 0.0,
+            "route_permits_target": true,
+            "held_before": {},
+            "opening_prices": {}
+          }
+        ]
+      },
+      {
+        "signal_date": "2026-02-24",
+        "execution_date": "2026-02-25",
+        "sizing_equity": 62706200.373527534,
+        "future_close": 8371.6,
+        "sleeves": [
+          {
+            "sleeve": "momentum_put",
+            "contract": null,
+            "normalized_quantity": 0.0,
+            "frozen_quantity": 0.0,
+            "executed_target_quantity": 0.0,
+            "route_permits_target": true,
+            "held_before": {},
+            "opening_prices": {}
+          }
+        ]
+      },
+      {
+        "signal_date": "2026-03-20",
+        "execution_date": "2026-03-23",
+        "sizing_equity": 62297639.43591521,
+        "future_close": 7559.4,
+        "sleeves": [
+          {
+            "sleeve": "momentum_put",
+            "contract": null,
+            "normalized_quantity": 0.0,
+            "frozen_quantity": 0.0,
+            "executed_target_quantity": 0.0,
+            "route_permits_target": true,
+            "held_before": {},
+            "opening_prices": {}
+          }
+        ]
+      },
+      {
+        "signal_date": "2026-04-17",
+        "execution_date": "2026-04-20",
+        "sizing_equity": 66041103.1710215,
+        "future_close": 8098.8,
+        "sleeves": [
+          {
+            "sleeve": "momentum_put",
+            "contract": "510500P2606M08000",
+            "normalized_quantity": 4.0,
+            "frozen_quantity": 163.08861355020866,
+            "executed_target_quantity": 163.08861355020866,
+            "route_permits_target": true,
+            "held_before": {},
+            "opening_prices": {
+              "option|momentum_put|510500P2606M08000": 0.2378
+            }
+          }
+        ]
+      },
+      {
+        "signal_date": "2026-05-15",
+        "execution_date": "2026-05-18",
+        "sizing_equity": 69204218.96293233,
+        "future_close": 8448.8,
+        "sleeves": [
+          {
+            "sleeve": "core_put",
+            "contract": "510500P2609M08250",
+            "normalized_quantity": 14.0,
+            "frozen_quantity": 573.3708132995531,
+            "executed_target_quantity": 573.3708132995531,
+            "route_permits_target": true,
+            "held_before": {
+              "option|core_put|510500P2606M08250": 1595.9839366455597
+            },
+            "opening_prices": {
+              "option|core_put|510500P2606M08250": 0.1576,
+              "option|core_put|510500P2609M08250": 0.4337
+            }
+          },
+          {
+            "sleeve": "momentum_put",
+            "contract": "510500P2609M08250",
+            "normalized_quantity": 14.0,
+            "frozen_quantity": 573.3708132995531,
+            "executed_target_quantity": 573.3708132995531,
+            "route_permits_target": true,
+            "held_before": {
+              "option|momentum_put|510500P2606M08250": 1556.0843382294206
+            },
+            "opening_prices": {
+              "option|momentum_put|510500P2606M08250": 0.1576,
+              "option|momentum_put|510500P2609M08250": 0.4337
+            }
+          }
+        ]
+      },
+      {
+        "signal_date": "2026-06-22",
+        "execution_date": "2026-06-23",
+        "sizing_equity": 69806326.2706566,
+        "future_close": 8650.0,
+        "sleeves": [
+          {
+            "sleeve": "core_put",
+            "contract": "510500P2609M08500",
+            "normalized_quantity": 29.0,
+            "frozen_quantity": 1170.1638507797927,
+            "executed_target_quantity": 1170.1638507797927,
+            "route_permits_target": true,
+            "held_before": {
+              "option|core_put|510500P2609M08000": 1324.2566453471643
+            },
+            "opening_prices": {
+              "option|core_put|510500P2609M08000": 0.1691,
+              "option|core_put|510500P2609M08500": 0.3217
+            }
+          },
+          {
+            "sleeve": "momentum_put",
+            "contract": null,
+            "normalized_quantity": 0.0,
+            "frozen_quantity": 0.0,
+            "executed_target_quantity": 0.0,
+            "route_permits_target": true,
+            "held_before": {},
+            "opening_prices": {}
+          }
+        ]
+      },
+      {
+        "signal_date": "2026-07-17",
+        "execution_date": "2026-07-20",
+        "sizing_equity": 68223647.95085058,
+        "future_close": 7389.0,
+        "sleeves": [
+          {
+            "sleeve": "core_put",
+            "contract": "510500P2609M07250",
+            "normalized_quantity": 13.0,
+            "frozen_quantity": 600.1538931932992,
+            "executed_target_quantity": 600.1538931932992,
+            "route_permits_target": true,
+            "held_before": {
+              "option|core_put|510500P2609M08500": 611.6365353349279
+            },
+            "opening_prices": {
+              "option|core_put|510500P2609M07250": 0.3126,
+              "option|core_put|510500P2609M08500": 1.1133
+            }
+          },
+          {
+            "sleeve": "momentum_put",
+            "contract": null,
+            "normalized_quantity": 0.0,
+            "frozen_quantity": 0.0,
+            "executed_target_quantity": 0.0,
+            "route_permits_target": true,
+            "held_before": {},
+            "opening_prices": {}
+          }
+        ]
+      },
+      {
+        "signal_date": "2026-08-21",
+        "execution_date": "2026-08-24",
+        "sizing_equity": 71957419.5867979,
+        "future_close": 7762.0,
+        "sleeves": [
+          {
+            "sleeve": "core_put",
+            "contract": "510500P2612M07500",
+            "normalized_quantity": 14.0,
+            "frozen_quantity": 648.9331835964767,
+            "executed_target_quantity": 648.9331835964767,
+            "route_permits_target": true,
+            "held_before": {
+              "option|core_put|510500P2612M07500": 609.7934890233228
+            },
+            "opening_prices": {
+              "option|core_put|510500P2612M07500": 0.3903
+            }
+          },
+          {
+            "sleeve": "momentum_put",
+            "contract": null,
+            "normalized_quantity": 0.0,
+            "frozen_quantity": 0.0,
+            "executed_target_quantity": 0.0,
+            "route_permits_target": true,
+            "held_before": {},
+            "opening_prices": {}
+          }
+        ]
+      },
+      {
+        "signal_date": "2026-09-18",
+        "execution_date": "2026-09-21",
+        "sizing_equity": 72478377.25701733,
+        "future_close": 7641.0,
+        "sleeves": [
+          {
+            "sleeve": "momentum_put",
+            "contract": null,
+            "normalized_quantity": 0.0,
+            "frozen_quantity": 0.0,
+            "executed_target_quantity": 0.0,
+            "route_permits_target": true,
+            "held_before": {},
+            "opening_prices": {}
+          }
+        ]
+      },
+      {
+        "signal_date": "2026-10-16",
+        "execution_date": "2026-10-19",
+        "sizing_equity": 69233818.56137766,
+        "future_close": 6667.8,
+        "sleeves": [
+          {
+            "sleeve": "momentum_put",
+            "contract": null,
+            "normalized_quantity": 0.0,
+            "frozen_quantity": 0.0,
+            "executed_target_quantity": 0.0,
+            "route_permits_target": true,
+            "held_before": {},
+            "opening_prices": {}
+          }
+        ]
+      }
+    ],
+    "IM": [
+      {
+        "signal_date": "2025-11-21",
+        "execution_date": "2025-11-24",
+        "sizing_equity": 59244322.97385862,
+        "future_close": 7018.2,
+        "sleeves": [
+          {
+            "sleeve": "core_put",
+            "contract": null,
+            "normalized_quantity": 0.0,
+            "frozen_quantity": 0.0,
+            "executed_target_quantity": 0.0,
+            "route_permits_target": true,
+            "held_before": {},
+            "opening_prices": {}
+          },
+          {
+            "sleeve": "momentum_put",
+            "contract": null,
+            "normalized_quantity": 0.0,
+            "frozen_quantity": 0.0,
+            "executed_target_quantity": 0.0,
+            "route_permits_target": true,
+            "held_before": {},
+            "opening_prices": {}
+          }
+        ]
+      },
+      {
+        "signal_date": "2025-12-19",
+        "execution_date": "2025-12-22",
+        "sizing_equity": 61511691.1910394,
+        "future_close": 7141.8,
+        "sleeves": [
+          {
+            "sleeve": "core_put",
+            "contract": null,
+            "normalized_quantity": 0.0,
+            "frozen_quantity": 0.0,
+            "executed_target_quantity": 0.0,
+            "route_permits_target": true,
+            "held_before": {},
+            "opening_prices": {}
+          },
+          {
+            "sleeve": "momentum_put",
+            "contract": null,
+            "normalized_quantity": 0.0,
+            "frozen_quantity": 0.0,
+            "executed_target_quantity": 0.0,
+            "route_permits_target": true,
+            "held_before": {},
+            "opening_prices": {}
+          }
+        ]
+      },
+      {
+        "signal_date": "2026-01-16",
+        "execution_date": "2026-01-19",
+        "sizing_equity": 69249486.29291065,
+        "future_close": 8179.2,
+        "sleeves": [
+          {
+            "sleeve": "core_put",
+            "contract": "MO2603-P-8300",
+            "normalized_quantity": 0.5,
+            "frozen_quantity": 21.16633848448218,
+            "executed_target_quantity": 21.16633848448218,
+            "route_permits_target": true,
+            "held_before": {
+              "option|core_put|MO2603-P-7500": 21.42612322941626
+            },
+            "opening_prices": {
+              "option|core_put|MO2603-P-7500": 81.0,
+              "option|core_put|MO2603-P-8300": 409.6
+            }
+          },
+          {
+            "sleeve": "momentum_put",
+            "contract": null,
+            "normalized_quantity": 0.0,
+            "frozen_quantity": 0.0,
+            "executed_target_quantity": 0.0,
+            "route_permits_target": true,
+            "held_before": {},
+            "opening_prices": {}
+          }
+        ]
+      },
+      {
+        "signal_date": "2026-02-24",
+        "execution_date": "2026-02-25",
+        "sizing_equity": 70879049.97153121,
+        "future_close": 8271.0,
+        "sleeves": [
+          {
+            "sleeve": "momentum_put",
+            "contract": null,
+            "normalized_quantity": 0.0,
+            "frozen_quantity": 0.0,
+            "executed_target_quantity": 0.0,
+            "route_permits_target": true,
+            "held_before": {},
+            "opening_prices": {}
+          }
+        ]
+      },
+      {
+        "signal_date": "2026-03-20",
+        "execution_date": "2026-03-23",
+        "sizing_equity": 71205002.56949157,
+        "future_close": 7560.0,
+        "sleeves": [
+          {
+            "sleeve": "momentum_put",
+            "contract": null,
+            "normalized_quantity": 0.0,
+            "frozen_quantity": 0.0,
+            "executed_target_quantity": 0.0,
+            "route_permits_target": true,
+            "held_before": {},
+            "opening_prices": {}
+          }
+        ]
+      },
+      {
+        "signal_date": "2026-04-17",
+        "execution_date": "2026-04-20",
+        "sizing_equity": 75385818.2997149,
+        "future_close": 8132.0,
+        "sleeves": [
+          {
+            "sleeve": "momentum_put",
+            "contract": null,
+            "normalized_quantity": 0.0,
+            "frozen_quantity": 0.0,
+            "executed_target_quantity": 0.0,
+            "route_permits_target": true,
+            "held_before": {},
+            "opening_prices": {}
+          }
+        ]
+      },
+      {
+        "signal_date": "2026-05-15",
+        "execution_date": "2026-05-18",
+        "sizing_equity": 78327570.15047376,
+        "future_close": 8582.6,
+        "sleeves": [
+          {
+            "sleeve": "core_put",
+            "contract": "MO2607-P-8800",
+            "normalized_quantity": 1.5,
+            "frozen_quantity": 68.44741408530669,
+            "executed_target_quantity": 68.44741408530669,
+            "route_permits_target": true,
+            "held_before": {
+              "option|core_put|MO2606-P-8300": 68.64658891775764
+            },
+            "opening_prices": {
+              "option|core_put|MO2606-P-8300": 149.8,
+              "option|core_put|MO2607-P-8800": 511.8
+            }
+          },
+          {
+            "sleeve": "momentum_put",
+            "contract": null,
+            "normalized_quantity": 0.0,
+            "frozen_quantity": 0.0,
+            "executed_target_quantity": 0.0,
+            "route_permits_target": true,
+            "held_before": {},
+            "opening_prices": {}
+          }
+        ]
+      },
+      {
+        "signal_date": "2026-06-22",
+        "execution_date": "2026-06-23",
+        "sizing_equity": 78463726.80799726,
+        "future_close": 8524.2,
+        "sleeves": [
+          {
+            "sleeve": "core_put",
+            "contract": "MO2609-P-8600",
+            "normalized_quantity": 2.0,
+            "frozen_quantity": 92.04820019239018,
+            "executed_target_quantity": 92.04820019239018,
+            "route_permits_target": true,
+            "held_before": {
+              "option|core_put|MO2607-P-8800": 91.79852126731612
+            },
+            "opening_prices": {
+              "option|core_put|MO2607-P-8800": 310.0,
+              "option|core_put|MO2609-P-8600": 518.6
+            }
+          },
+          {
+            "sleeve": "momentum_put",
+            "contract": null,
+            "normalized_quantity": 0.0,
+            "frozen_quantity": 0.0,
+            "executed_target_quantity": 0.0,
+            "route_permits_target": true,
+            "held_before": {},
+            "opening_prices": {}
+          }
+        ]
+      },
+      {
+        "signal_date": "2026-07-17",
+        "execution_date": "2026-07-20",
+        "sizing_equity": 73847506.85672715,
+        "future_close": 7065.2,
+        "sleeves": [
+          {
+            "sleeve": "core_put",
+            "contract": "MO2609-P-7200",
+            "normalized_quantity": 1.5,
+            "frozen_quantity": 78.39216178246244,
+            "executed_target_quantity": 78.39216178246244,
+            "route_permits_target": true,
+            "held_before": {
+              "option|core_put|MO2609-P-8600": 74.0161872172091
+            },
+            "opening_prices": {
+              "option|core_put|MO2609-P-7200": 400.0,
+              "option|core_put|MO2609-P-8600": 1430.0
+            }
+          },
+          {
+            "sleeve": "momentum_put",
+            "contract": null,
+            "normalized_quantity": 0.0,
+            "frozen_quantity": 0.0,
+            "executed_target_quantity": 0.0,
+            "route_permits_target": true,
+            "held_before": {},
+            "opening_prices": {}
+          }
+        ]
+      },
+      {
+        "signal_date": "2026-08-21",
+        "execution_date": "2026-08-24",
+        "sizing_equity": 75359016.4018965,
+        "future_close": 7527.0,
+        "sleeves": [
+          {
+            "sleeve": "core_put",
+            "contract": "MO2612-P-7600",
+            "normalized_quantity": 1.5,
+            "frozen_quantity": 75.08869709236399,
+            "executed_target_quantity": 75.08869709236399,
+            "route_permits_target": true,
+            "held_before": {
+              "option|core_put|MO2609-P-7200": 78.39216178246244
+            },
+            "opening_prices": {
+              "option|core_put|MO2609-P-7200": 102.0,
+              "option|core_put|MO2612-P-7600": 570.4
+            }
+          },
+          {
+            "sleeve": "momentum_put",
+            "contract": null,
+            "normalized_quantity": 0.0,
+            "frozen_quantity": 0.0,
+            "executed_target_quantity": 0.0,
+            "route_permits_target": true,
+            "held_before": {
+              "option|momentum_put|MO2612-P-7600": 76.1244249810507
+            },
+            "opening_prices": {
+              "option|momentum_put|MO2612-P-7600": 570.4
+            }
+          }
+        ]
+      },
+      {
+        "signal_date": "2026-09-18",
+        "execution_date": "2026-09-21",
+        "sizing_equity": 74912433.81465921,
+        "future_close": 7505.8,
+        "sleeves": [
+          {
+            "sleeve": "core_put",
+            "contract": "MO2612-P-7600",
+            "normalized_quantity": 1.5,
+            "frozen_quantity": 74.85454629885476,
+            "executed_target_quantity": 74.85454629885476,
+            "route_permits_target": true,
+            "held_before": {
+              "option|core_put|MO2612-P-7600": 75.08869709236399
+            },
+            "opening_prices": {
+              "option|core_put|MO2612-P-7600": 374.4
+            }
+          },
+          {
+            "sleeve": "momentum_put",
+            "contract": null,
+            "normalized_quantity": 0.0,
+            "frozen_quantity": 0.0,
+            "executed_target_quantity": 0.0,
+            "route_permits_target": true,
+            "held_before": {},
+            "opening_prices": {}
+          }
+        ]
+      },
+      {
+        "signal_date": "2026-10-16",
+        "execution_date": "2026-10-19",
+        "sizing_equity": 75432806.02095939,
+        "future_close": 6583.6,
+        "sleeves": [
+          {
+            "sleeve": "core_put",
+            "contract": "MO2612-P-6700",
+            "normalized_quantity": 1.5,
+            "frozen_quantity": 85.93262730986017,
+            "executed_target_quantity": 85.93262730986017,
+            "route_permits_target": true,
+            "held_before": {
+              "option|core_put|MO2612-P-7600": 74.85454629885476
+            },
+            "opening_prices": {
+              "option|core_put|MO2612-P-6700": 339.0,
+              "option|core_put|MO2612-P-7600": 1016.6
+            }
+          },
+          {
+            "sleeve": "momentum_put",
+            "contract": null,
+            "normalized_quantity": 0.0,
+            "frozen_quantity": 0.0,
+            "executed_target_quantity": 0.0,
+            "route_permits_target": true,
+            "held_before": {},
+            "opening_prices": {}
+          }
+        ]
+      }
+    ]
+  },
+  "details": {
+    "IC_baseline": {
+      "product": "IC",
+      "arm": "repeat_roll",
+      "days": 1008,
+      "initial_capital": 23240800.0,
+      "final_nav": 2.7758186300150616,
+      "cagr": 0.29109395814098993,
+      "max_drawdown": -0.10741464198253936,
+      "orders": 294,
+      "fills": 294,
+      "profit3x_resets": 4,
+      "extra_core_profit3x_resets": 0,
+      "maintenance_events": [
+        {
+          "date": "2022-10-21",
+          "sleeve": "core_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 1
+        },
+        {
+          "date": "2022-10-21",
+          "sleeve": "momentum_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2022-11-18",
+          "sleeve": "core_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2022-11-18",
+          "sleeve": "momentum_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2022-12-16",
+          "sleeve": "core_put",
+          "contract": "510500P2303M05750",
+          "normalized_qty": 22.0,
+          "trade_sides": 1
+        },
+        {
+          "date": "2022-12-16",
+          "sleeve": "momentum_put",
+          "contract": "510500P2303M05750",
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2023-01-20",
+          "sleeve": "core_put",
+          "contract": "510500P2303M06000",
+          "normalized_qty": 21.0,
+          "trade_sides": 2
+        },
+        {
+          "date": "2023-01-20",
+          "sleeve": "momentum_put",
+          "contract": "510500P2303M06000",
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2023-02-17",
+          "sleeve": "core_put",
+          "contract": "510500P2306M06000",
+          "normalized_qty": 16.0,
+          "trade_sides": 2
+        },
+        {
+          "date": "2023-02-17",
+          "sleeve": "momentum_put",
+          "contract": "510500P2306M06000",
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2023-03-17",
+          "sleeve": "core_put",
+          "contract": "510500P2306M06000",
+          "normalized_qty": 15.0,
+          "trade_sides": 1
+        },
+        {
+          "date": "2023-03-17",
+          "sleeve": "momentum_put",
+          "contract": "510500P2306M06000",
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2023-04-21",
+          "sleeve": "core_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2023-04-21",
+          "sleeve": "momentum_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2023-05-19",
+          "sleeve": "core_put",
+          "contract": "510500P2309M05750",
+          "normalized_qty": 25.0,
+          "trade_sides": 2
+        },
+        {
+          "date": "2023-05-19",
+          "sleeve": "momentum_put",
+          "contract": "510500P2309M05750",
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2023-06-16",
+          "sleeve": "core_put",
+          "contract": "510500P2309M06000",
+          "normalized_qty": 18.0,
+          "trade_sides": 2
+        },
+        {
+          "date": "2023-06-16",
+          "sleeve": "momentum_put",
+          "contract": "510500P2309M06000",
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2023-07-21",
+          "sleeve": "core_put",
+          "contract": "510500P2309M05750",
+          "normalized_qty": 24.0,
+          "trade_sides": 1
+        },
+        {
+          "date": "2023-07-21",
+          "sleeve": "momentum_put",
+          "contract": "510500P2309M05750",
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2023-08-18",
+          "sleeve": "core_put",
+          "contract": "510500P2312M05500",
+          "normalized_qty": 24.0,
+          "trade_sides": 2
+        },
+        {
+          "date": "2023-08-18",
+          "sleeve": "momentum_put",
+          "contract": "510500P2312M05500",
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2023-09-15",
+          "sleeve": "core_put",
+          "contract": "510500P2312M05500",
+          "normalized_qty": 21.0,
+          "trade_sides": 1
+        },
+        {
+          "date": "2023-09-15",
+          "sleeve": "momentum_put",
+          "contract": "510500P2312M05500",
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2023-10-20",
+          "sleeve": "core_put",
+          "contract": "510500P2312M05250",
+          "normalized_qty": 22.0,
+          "trade_sides": 2
+        },
+        {
+          "date": "2023-10-20",
+          "sleeve": "momentum_put",
+          "contract": "510500P2312M05250",
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2023-11-17",
+          "sleeve": "core_put",
+          "contract": "510500P2403M05500",
+          "normalized_qty": 17.0,
+          "trade_sides": 2
+        },
+        {
+          "date": "2023-11-17",
+          "sleeve": "momentum_put",
+          "contract": "510500P2403M05500",
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2023-12-15",
+          "sleeve": "core_put",
+          "contract": "510500P2403M05250",
+          "normalized_qty": 19.0,
+          "trade_sides": 2
+        },
+        {
+          "date": "2023-12-15",
+          "sleeve": "momentum_put",
+          "contract": "510500P2403M05250",
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2024-01-19",
+          "sleeve": "core_put",
+          "contract": "510500P2403M04900",
+          "normalized_qty": 15.0,
+          "trade_sides": 1
+        },
+        {
+          "date": "2024-01-19",
+          "sleeve": "momentum_put",
+          "contract": "510500P2403M04900",
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2024-02-19",
+          "sleeve": "core_put",
+          "contract": "510500P2406M05000",
+          "normalized_qty": 13.0,
+          "trade_sides": 2
+        },
+        {
+          "date": "2024-02-19",
+          "sleeve": "momentum_put",
+          "contract": "510500P2406M05000",
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2024-03-15",
+          "sleeve": "core_put",
+          "contract": "510500P2406M05250",
+          "normalized_qty": 16.0,
+          "trade_sides": 2
+        },
+        {
+          "date": "2024-03-15",
+          "sleeve": "momentum_put",
+          "contract": "510500P2406M05250",
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2024-04-19",
+          "sleeve": "core_put",
+          "contract": "510500P2406M05000",
+          "normalized_qty": 23.0,
+          "trade_sides": 2
+        },
+        {
+          "date": "2024-04-19",
+          "sleeve": "momentum_put",
+          "contract": "510500P2406M05000",
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2024-05-17",
+          "sleeve": "core_put",
+          "contract": "510500P2409M05250",
+          "normalized_qty": 16.0,
+          "trade_sides": 2
+        },
+        {
+          "date": "2024-05-17",
+          "sleeve": "momentum_put",
+          "contract": "510500P2409M05250",
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2024-06-21",
+          "sleeve": "core_put",
+          "contract": "510500P2409M04900",
+          "normalized_qty": 19.0,
+          "trade_sides": 2
+        },
+        {
+          "date": "2024-06-21",
+          "sleeve": "momentum_put",
+          "contract": "510500P2409M04900",
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2024-07-19",
+          "sleeve": "core_put",
+          "contract": "510500P2409M04700",
+          "normalized_qty": 19.0,
+          "trade_sides": 2
+        },
+        {
+          "date": "2024-07-19",
+          "sleeve": "momentum_put",
+          "contract": "510500P2409M04700",
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2024-08-16",
+          "sleeve": "core_put",
+          "contract": "510500P2412M04500",
+          "normalized_qty": 16.0,
+          "trade_sides": 2
+        },
+        {
+          "date": "2024-08-16",
+          "sleeve": "momentum_put",
+          "contract": "510500P2412M04500",
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2024-09-20",
+          "sleeve": "core_put",
+          "contract": "510500P2412M04300",
+          "normalized_qty": 18.0,
+          "trade_sides": 2
+        },
+        {
+          "date": "2024-09-20",
+          "sleeve": "momentum_put",
+          "contract": "510500P2412M04300",
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2024-10-18",
+          "sleeve": "core_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2024-10-18",
+          "sleeve": "momentum_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2024-11-15",
+          "sleeve": "core_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2024-11-15",
+          "sleeve": "momentum_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2024-12-20",
+          "sleeve": "core_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2024-12-20",
+          "sleeve": "momentum_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2025-01-17",
+          "sleeve": "core_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2025-01-17",
+          "sleeve": "momentum_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2025-02-21",
+          "sleeve": "core_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2025-02-21",
+          "sleeve": "momentum_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2025-03-21",
+          "sleeve": "core_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2025-03-21",
+          "sleeve": "momentum_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2025-04-18",
+          "sleeve": "core_put",
+          "contract": "510500P2506M05250",
+          "normalized_qty": 17.0,
+          "trade_sides": 1
+        },
+        {
+          "date": "2025-04-18",
+          "sleeve": "momentum_put",
+          "contract": "510500P2506M05250",
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2025-05-16",
+          "sleeve": "core_put",
+          "contract": "510500P2509M05500",
+          "normalized_qty": 14.0,
+          "trade_sides": 2
+        },
+        {
+          "date": "2025-05-16",
+          "sleeve": "momentum_put",
+          "contract": "510500P2509M05500",
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2025-06-20",
+          "sleeve": "core_put",
+          "contract": "510500P2509M05500",
+          "normalized_qty": 13.0,
+          "trade_sides": 1
+        },
+        {
+          "date": "2025-06-20",
+          "sleeve": "momentum_put",
+          "contract": "510500P2509M05500",
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2025-07-18",
+          "sleeve": "core_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2025-07-18",
+          "sleeve": "momentum_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2025-08-15",
+          "sleeve": "core_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2025-08-15",
+          "sleeve": "momentum_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2025-09-19",
+          "sleeve": "core_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2025-09-19",
+          "sleeve": "momentum_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2025-10-17",
+          "sleeve": "core_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2025-10-17",
+          "sleeve": "momentum_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2025-11-21",
+          "sleeve": "core_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2025-11-21",
+          "sleeve": "momentum_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2025-12-19",
+          "sleeve": "core_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2025-12-19",
+          "sleeve": "momentum_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2026-01-16",
+          "sleeve": "core_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2026-01-16",
+          "sleeve": "momentum_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2026-02-24",
+          "sleeve": "core_put",
+          "contract": "510500P2606M08000",
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2026-02-24",
+          "sleeve": "momentum_put",
+          "contract": "510500P2606M08000",
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2026-03-20",
+          "sleeve": "core_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2026-03-20",
+          "sleeve": "momentum_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2026-04-17",
+          "sleeve": "core_put",
+          "contract": "510500P2606M08000",
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2026-04-17",
+          "sleeve": "momentum_put",
+          "contract": "510500P2606M08000",
+          "normalized_qty": 4.0,
+          "trade_sides": 1
+        },
+        {
+          "date": "2026-05-15",
+          "sleeve": "core_put",
+          "contract": "510500P2609M08250",
+          "normalized_qty": 14.0,
+          "trade_sides": 2
+        },
+        {
+          "date": "2026-05-15",
+          "sleeve": "momentum_put",
+          "contract": "510500P2609M08250",
+          "normalized_qty": 14.0,
+          "trade_sides": 2
+        },
+        {
+          "date": "2026-06-22",
+          "sleeve": "core_put",
+          "contract": "510500P2609M08500",
+          "normalized_qty": 29.0,
+          "trade_sides": 2
+        },
+        {
+          "date": "2026-06-22",
+          "sleeve": "momentum_put",
+          "contract": "510500P2609M08500",
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2026-07-17",
+          "sleeve": "core_put",
+          "contract": "510500P2609M07250",
+          "normalized_qty": 13.0,
+          "trade_sides": 2
+        },
+        {
+          "date": "2026-07-17",
+          "sleeve": "momentum_put",
+          "contract": "510500P2609M07250",
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2026-08-21",
+          "sleeve": "core_put",
+          "contract": "510500P2612M07500",
+          "normalized_qty": 14.0,
+          "trade_sides": 1
+        },
+        {
+          "date": "2026-08-21",
+          "sleeve": "momentum_put",
+          "contract": "510500P2612M07500",
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2026-09-18",
+          "sleeve": "core_put",
+          "contract": "510500P2612M07500",
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2026-09-18",
+          "sleeve": "momentum_put",
+          "contract": "510500P2612M07500",
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2026-10-16",
+          "sleeve": "core_put",
+          "contract": "510500P2612M06500",
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2026-10-16",
+          "sleeve": "momentum_put",
+          "contract": "510500P2612M06500",
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        }
+      ],
+      "monthly_t1_open_plans": [],
+      "buyer_open_proxies": [],
+      "lag_missing_contract_suppressed": 0,
+      "lag_fresh_put_selections": 0,
+      "fees_paid": 2646449.3978541987,
+      "min_cash_after_reserve": 11640149.383765524,
+      "model_execution": "T close target; T+1 dated open futures/seller and synchronized core/Call exit; T+1 dated close ordinary option fills; no volume cap",
+      "costs": "1bp futures turnover, 5bp Put and 1bp Call underlying turnover, 3% cash interest, 30% futures buffer, 15% NAV seller buffer, modeled short-Call buffer",
+      "classification": "native_fix4_model_account_pending_independent_audit"
+    },
+    "IC_t1_open": {
+      "product": "IC",
+      "arm": "repeat_roll",
+      "days": 1008,
+      "initial_capital": 23240800.0,
+      "final_nav": 2.79177953375966,
+      "cagr": 0.2929477514078427,
+      "max_drawdown": -0.10741439127152108,
+      "orders": 294,
+      "fills": 294,
+      "profit3x_resets": 4,
+      "extra_core_profit3x_resets": 0,
+      "maintenance_events": [
+        {
+          "date": "2022-10-21",
+          "sleeve": "core_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 1
+        },
+        {
+          "date": "2022-10-21",
+          "sleeve": "momentum_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2022-11-18",
+          "sleeve": "core_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2022-11-18",
+          "sleeve": "momentum_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2022-12-16",
+          "sleeve": "core_put",
+          "contract": "510500P2303M05750",
+          "normalized_qty": 22.0,
+          "trade_sides": 1
+        },
+        {
+          "date": "2022-12-16",
+          "sleeve": "momentum_put",
+          "contract": "510500P2303M05750",
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2023-01-20",
+          "sleeve": "core_put",
+          "contract": "510500P2303M06000",
+          "normalized_qty": 21.0,
+          "trade_sides": 2
+        },
+        {
+          "date": "2023-01-20",
+          "sleeve": "momentum_put",
+          "contract": "510500P2303M06000",
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2023-02-17",
+          "sleeve": "core_put",
+          "contract": "510500P2306M06000",
+          "normalized_qty": 16.0,
+          "trade_sides": 2
+        },
+        {
+          "date": "2023-02-17",
+          "sleeve": "momentum_put",
+          "contract": "510500P2306M06000",
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2023-03-17",
+          "sleeve": "core_put",
+          "contract": "510500P2306M06000",
+          "normalized_qty": 15.0,
+          "trade_sides": 1
+        },
+        {
+          "date": "2023-03-17",
+          "sleeve": "momentum_put",
+          "contract": "510500P2306M06000",
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2023-04-21",
+          "sleeve": "core_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2023-04-21",
+          "sleeve": "momentum_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2023-05-19",
+          "sleeve": "core_put",
+          "contract": "510500P2309M05750",
+          "normalized_qty": 25.0,
+          "trade_sides": 2
+        },
+        {
+          "date": "2023-05-19",
+          "sleeve": "momentum_put",
+          "contract": "510500P2309M05750",
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2023-06-16",
+          "sleeve": "core_put",
+          "contract": "510500P2309M06000",
+          "normalized_qty": 18.0,
+          "trade_sides": 2
+        },
+        {
+          "date": "2023-06-16",
+          "sleeve": "momentum_put",
+          "contract": "510500P2309M06000",
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2023-07-21",
+          "sleeve": "core_put",
+          "contract": "510500P2309M05750",
+          "normalized_qty": 24.0,
+          "trade_sides": 1
+        },
+        {
+          "date": "2023-07-21",
+          "sleeve": "momentum_put",
+          "contract": "510500P2309M05750",
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2023-08-18",
+          "sleeve": "core_put",
+          "contract": "510500P2312M05500",
+          "normalized_qty": 24.0,
+          "trade_sides": 2
+        },
+        {
+          "date": "2023-08-18",
+          "sleeve": "momentum_put",
+          "contract": "510500P2312M05500",
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2023-09-15",
+          "sleeve": "core_put",
+          "contract": "510500P2312M05500",
+          "normalized_qty": 21.0,
+          "trade_sides": 1
+        },
+        {
+          "date": "2023-09-15",
+          "sleeve": "momentum_put",
+          "contract": "510500P2312M05500",
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2023-10-20",
+          "sleeve": "core_put",
+          "contract": "510500P2312M05250",
+          "normalized_qty": 22.0,
+          "trade_sides": 2
+        },
+        {
+          "date": "2023-10-20",
+          "sleeve": "momentum_put",
+          "contract": "510500P2312M05250",
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2023-11-17",
+          "sleeve": "core_put",
+          "contract": "510500P2403M05500",
+          "normalized_qty": 17.0,
+          "trade_sides": 2
+        },
+        {
+          "date": "2023-11-17",
+          "sleeve": "momentum_put",
+          "contract": "510500P2403M05500",
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2023-12-15",
+          "sleeve": "core_put",
+          "contract": "510500P2403M05250",
+          "normalized_qty": 19.0,
+          "trade_sides": 2
+        },
+        {
+          "date": "2023-12-15",
+          "sleeve": "momentum_put",
+          "contract": "510500P2403M05250",
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2024-01-19",
+          "sleeve": "core_put",
+          "contract": "510500P2403M04900",
+          "normalized_qty": 15.0,
+          "trade_sides": 1
+        },
+        {
+          "date": "2024-01-19",
+          "sleeve": "momentum_put",
+          "contract": "510500P2403M04900",
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2024-02-19",
+          "sleeve": "core_put",
+          "contract": "510500P2406M05000",
+          "normalized_qty": 13.0,
+          "trade_sides": 2
+        },
+        {
+          "date": "2024-02-19",
+          "sleeve": "momentum_put",
+          "contract": "510500P2406M05000",
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2024-03-15",
+          "sleeve": "core_put",
+          "contract": "510500P2406M05250",
+          "normalized_qty": 16.0,
+          "trade_sides": 2
+        },
+        {
+          "date": "2024-03-15",
+          "sleeve": "momentum_put",
+          "contract": "510500P2406M05250",
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2024-04-19",
+          "sleeve": "core_put",
+          "contract": "510500P2406M05000",
+          "normalized_qty": 23.0,
+          "trade_sides": 2
+        },
+        {
+          "date": "2024-04-19",
+          "sleeve": "momentum_put",
+          "contract": "510500P2406M05000",
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2024-05-17",
+          "sleeve": "core_put",
+          "contract": "510500P2409M05250",
+          "normalized_qty": 16.0,
+          "trade_sides": 2
+        },
+        {
+          "date": "2024-05-17",
+          "sleeve": "momentum_put",
+          "contract": "510500P2409M05250",
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2024-06-21",
+          "sleeve": "core_put",
+          "contract": "510500P2409M04900",
+          "normalized_qty": 19.0,
+          "trade_sides": 2
+        },
+        {
+          "date": "2024-06-21",
+          "sleeve": "momentum_put",
+          "contract": "510500P2409M04900",
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2024-07-19",
+          "sleeve": "core_put",
+          "contract": "510500P2409M04700",
+          "normalized_qty": 19.0,
+          "trade_sides": 2
+        },
+        {
+          "date": "2024-07-19",
+          "sleeve": "momentum_put",
+          "contract": "510500P2409M04700",
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2024-08-16",
+          "sleeve": "core_put",
+          "contract": "510500P2412M04500",
+          "normalized_qty": 16.0,
+          "trade_sides": 2
+        },
+        {
+          "date": "2024-08-16",
+          "sleeve": "momentum_put",
+          "contract": "510500P2412M04500",
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2024-09-20",
+          "sleeve": "core_put",
+          "contract": "510500P2412M04300",
+          "normalized_qty": 18.0,
+          "trade_sides": 2
+        },
+        {
+          "date": "2024-09-20",
+          "sleeve": "momentum_put",
+          "contract": "510500P2412M04300",
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2024-10-18",
+          "sleeve": "core_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2024-10-18",
+          "sleeve": "momentum_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2024-11-15",
+          "sleeve": "core_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2024-11-15",
+          "sleeve": "momentum_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2024-12-20",
+          "sleeve": "core_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2024-12-20",
+          "sleeve": "momentum_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2025-01-17",
+          "sleeve": "core_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2025-01-17",
+          "sleeve": "momentum_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2025-02-21",
+          "sleeve": "core_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2025-02-21",
+          "sleeve": "momentum_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2025-03-21",
+          "sleeve": "core_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2025-03-21",
+          "sleeve": "momentum_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2025-04-18",
+          "sleeve": "core_put",
+          "contract": "510500P2506M05250",
+          "normalized_qty": 17.0,
+          "trade_sides": 1
+        },
+        {
+          "date": "2025-04-18",
+          "sleeve": "momentum_put",
+          "contract": "510500P2506M05250",
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2025-05-16",
+          "sleeve": "core_put",
+          "contract": "510500P2509M05500",
+          "normalized_qty": 14.0,
+          "trade_sides": 2
+        },
+        {
+          "date": "2025-05-16",
+          "sleeve": "momentum_put",
+          "contract": "510500P2509M05500",
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2025-06-20",
+          "sleeve": "core_put",
+          "contract": "510500P2509M05500",
+          "normalized_qty": 13.0,
+          "trade_sides": 1
+        },
+        {
+          "date": "2025-06-20",
+          "sleeve": "momentum_put",
+          "contract": "510500P2509M05500",
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2025-07-18",
+          "sleeve": "core_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2025-07-18",
+          "sleeve": "momentum_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2025-08-15",
+          "sleeve": "core_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2025-08-15",
+          "sleeve": "momentum_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2025-09-19",
+          "sleeve": "core_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2025-09-19",
+          "sleeve": "momentum_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2025-10-17",
+          "sleeve": "core_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2025-10-17",
+          "sleeve": "momentum_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        }
+      ],
+      "monthly_t1_open_plans": [
+        {
+          "signal_date": "2025-11-21",
+          "execution_date": "2025-11-24",
+          "sizing_equity": 49838198.53651616,
+          "future_close": 6770.0,
+          "sleeves": [
+            {
+              "sleeve": "core_put",
+              "contract": null,
+              "normalized_quantity": 0.0,
+              "frozen_quantity": 0.0,
+              "executed_target_quantity": 0.0,
+              "route_permits_target": true,
+              "held_before": {},
+              "opening_prices": {}
+            },
+            {
+              "sleeve": "momentum_put",
+              "contract": null,
+              "normalized_quantity": 0.0,
+              "frozen_quantity": 0.0,
+              "executed_target_quantity": 0.0,
+              "route_permits_target": true,
+              "held_before": {},
+              "opening_prices": {}
+            }
+          ]
+        },
+        {
+          "signal_date": "2025-12-19",
+          "execution_date": "2025-12-22",
+          "sizing_equity": 52139671.976937406,
+          "future_close": 7055.4,
+          "sleeves": [
+            {
+              "sleeve": "core_put",
+              "contract": null,
+              "normalized_quantity": 0.0,
+              "frozen_quantity": 0.0,
+              "executed_target_quantity": 0.0,
+              "route_permits_target": true,
+              "held_before": {},
+              "opening_prices": {}
+            },
+            {
+              "sleeve": "momentum_put",
+              "contract": null,
+              "normalized_quantity": 0.0,
+              "frozen_quantity": 0.0,
+              "executed_target_quantity": 0.0,
+              "route_permits_target": true,
+              "held_before": {},
+              "opening_prices": {}
+            }
+          ]
+        },
+        {
+          "signal_date": "2026-01-16",
+          "execution_date": "2026-01-19",
+          "sizing_equity": 59563564.35375743,
+          "future_close": 8210.4,
+          "sleeves": [
+            {
+              "sleeve": "core_put",
+              "contract": null,
+              "normalized_quantity": 0.0,
+              "frozen_quantity": 0.0,
+              "executed_target_quantity": 0.0,
+              "route_permits_target": true,
+              "held_before": {},
+              "opening_prices": {}
+            },
+            {
+              "sleeve": "momentum_put",
+              "contract": null,
+              "normalized_quantity": 0.0,
+              "frozen_quantity": 0.0,
+              "executed_target_quantity": 0.0,
+              "route_permits_target": true,
+              "held_before": {},
+              "opening_prices": {}
+            }
+          ]
+        },
+        {
+          "signal_date": "2026-02-24",
+          "execution_date": "2026-02-25",
+          "sizing_equity": 62706200.373527534,
+          "future_close": 8371.6,
+          "sleeves": [
+            {
+              "sleeve": "momentum_put",
+              "contract": null,
+              "normalized_quantity": 0.0,
+              "frozen_quantity": 0.0,
+              "executed_target_quantity": 0.0,
+              "route_permits_target": true,
+              "held_before": {},
+              "opening_prices": {}
+            }
+          ]
+        },
+        {
+          "signal_date": "2026-03-20",
+          "execution_date": "2026-03-23",
+          "sizing_equity": 62297639.43591521,
+          "future_close": 7559.4,
+          "sleeves": [
+            {
+              "sleeve": "momentum_put",
+              "contract": null,
+              "normalized_quantity": 0.0,
+              "frozen_quantity": 0.0,
+              "executed_target_quantity": 0.0,
+              "route_permits_target": true,
+              "held_before": {},
+              "opening_prices": {}
+            }
+          ]
+        },
+        {
+          "signal_date": "2026-04-17",
+          "execution_date": "2026-04-20",
+          "sizing_equity": 66041103.1710215,
+          "future_close": 8098.8,
+          "sleeves": [
+            {
+              "sleeve": "momentum_put",
+              "contract": "510500P2606M08000",
+              "normalized_quantity": 4.0,
+              "frozen_quantity": 163.08861355020866,
+              "executed_target_quantity": 163.08861355020866,
+              "route_permits_target": true,
+              "held_before": {},
+              "opening_prices": {
+                "option|momentum_put|510500P2606M08000": 0.2378
+              }
+            }
+          ]
+        },
+        {
+          "signal_date": "2026-05-15",
+          "execution_date": "2026-05-18",
+          "sizing_equity": 69204218.96293233,
+          "future_close": 8448.8,
+          "sleeves": [
+            {
+              "sleeve": "core_put",
+              "contract": "510500P2609M08250",
+              "normalized_quantity": 14.0,
+              "frozen_quantity": 573.3708132995531,
+              "executed_target_quantity": 573.3708132995531,
+              "route_permits_target": true,
+              "held_before": {
+                "option|core_put|510500P2606M08250": 1595.9839366455597
+              },
+              "opening_prices": {
+                "option|core_put|510500P2606M08250": 0.1576,
+                "option|core_put|510500P2609M08250": 0.4337
+              }
+            },
+            {
+              "sleeve": "momentum_put",
+              "contract": "510500P2609M08250",
+              "normalized_quantity": 14.0,
+              "frozen_quantity": 573.3708132995531,
+              "executed_target_quantity": 573.3708132995531,
+              "route_permits_target": true,
+              "held_before": {
+                "option|momentum_put|510500P2606M08250": 1556.0843382294206
+              },
+              "opening_prices": {
+                "option|momentum_put|510500P2606M08250": 0.1576,
+                "option|momentum_put|510500P2609M08250": 0.4337
+              }
+            }
+          ]
+        },
+        {
+          "signal_date": "2026-06-22",
+          "execution_date": "2026-06-23",
+          "sizing_equity": 69806326.2706566,
+          "future_close": 8650.0,
+          "sleeves": [
+            {
+              "sleeve": "core_put",
+              "contract": "510500P2609M08500",
+              "normalized_quantity": 29.0,
+              "frozen_quantity": 1170.1638507797927,
+              "executed_target_quantity": 1170.1638507797927,
+              "route_permits_target": true,
+              "held_before": {
+                "option|core_put|510500P2609M08000": 1324.2566453471643
+              },
+              "opening_prices": {
+                "option|core_put|510500P2609M08000": 0.1691,
+                "option|core_put|510500P2609M08500": 0.3217
+              }
+            },
+            {
+              "sleeve": "momentum_put",
+              "contract": null,
+              "normalized_quantity": 0.0,
+              "frozen_quantity": 0.0,
+              "executed_target_quantity": 0.0,
+              "route_permits_target": true,
+              "held_before": {},
+              "opening_prices": {}
+            }
+          ]
+        },
+        {
+          "signal_date": "2026-07-17",
+          "execution_date": "2026-07-20",
+          "sizing_equity": 68223647.95085058,
+          "future_close": 7389.0,
+          "sleeves": [
+            {
+              "sleeve": "core_put",
+              "contract": "510500P2609M07250",
+              "normalized_quantity": 13.0,
+              "frozen_quantity": 600.1538931932992,
+              "executed_target_quantity": 600.1538931932992,
+              "route_permits_target": true,
+              "held_before": {
+                "option|core_put|510500P2609M08500": 611.6365353349279
+              },
+              "opening_prices": {
+                "option|core_put|510500P2609M07250": 0.3126,
+                "option|core_put|510500P2609M08500": 1.1133
+              }
+            },
+            {
+              "sleeve": "momentum_put",
+              "contract": null,
+              "normalized_quantity": 0.0,
+              "frozen_quantity": 0.0,
+              "executed_target_quantity": 0.0,
+              "route_permits_target": true,
+              "held_before": {},
+              "opening_prices": {}
+            }
+          ]
+        },
+        {
+          "signal_date": "2026-08-21",
+          "execution_date": "2026-08-24",
+          "sizing_equity": 71957419.5867979,
+          "future_close": 7762.0,
+          "sleeves": [
+            {
+              "sleeve": "core_put",
+              "contract": "510500P2612M07500",
+              "normalized_quantity": 14.0,
+              "frozen_quantity": 648.9331835964767,
+              "executed_target_quantity": 648.9331835964767,
+              "route_permits_target": true,
+              "held_before": {
+                "option|core_put|510500P2612M07500": 609.7934890233228
+              },
+              "opening_prices": {
+                "option|core_put|510500P2612M07500": 0.3903
+              }
+            },
+            {
+              "sleeve": "momentum_put",
+              "contract": null,
+              "normalized_quantity": 0.0,
+              "frozen_quantity": 0.0,
+              "executed_target_quantity": 0.0,
+              "route_permits_target": true,
+              "held_before": {},
+              "opening_prices": {}
+            }
+          ]
+        },
+        {
+          "signal_date": "2026-09-18",
+          "execution_date": "2026-09-21",
+          "sizing_equity": 72478377.25701733,
+          "future_close": 7641.0,
+          "sleeves": [
+            {
+              "sleeve": "momentum_put",
+              "contract": null,
+              "normalized_quantity": 0.0,
+              "frozen_quantity": 0.0,
+              "executed_target_quantity": 0.0,
+              "route_permits_target": true,
+              "held_before": {},
+              "opening_prices": {}
+            }
+          ]
+        },
+        {
+          "signal_date": "2026-10-16",
+          "execution_date": "2026-10-19",
+          "sizing_equity": 69233818.56137766,
+          "future_close": 6667.8,
+          "sleeves": [
+            {
+              "sleeve": "momentum_put",
+              "contract": null,
+              "normalized_quantity": 0.0,
+              "frozen_quantity": 0.0,
+              "executed_target_quantity": 0.0,
+              "route_permits_target": true,
+              "held_before": {},
+              "opening_prices": {}
+            }
+          ]
+        }
+      ],
+      "buyer_open_proxies": [],
+      "lag_missing_contract_suppressed": 0,
+      "lag_fresh_put_selections": 0,
+      "fees_paid": 2647859.0209638886,
+      "min_cash_after_reserve": 11640149.383765524,
+      "model_execution": "T close target; T+1 dated open futures/seller and synchronized core/Call exit; T+1 dated close ordinary option fills; no volume cap",
+      "costs": "1bp futures turnover, 5bp Put and 1bp Call underlying turnover, 3% cash interest, 30% futures buffer, 15% NAV seller buffer, modeled short-Call buffer",
+      "classification": "native_fix4_model_account_pending_independent_audit"
+    },
+    "IM_baseline": {
+      "product": "IM",
+      "arm": "repeat_roll",
+      "days": 1048,
+      "initial_capital": 27604800.0,
+      "final_nav": 2.6655892311520044,
+      "cagr": 0.2661442386158386,
+      "max_drawdown": -0.1291821432559872,
+      "orders": 372,
+      "fills": 372,
+      "profit3x_resets": 2,
+      "extra_core_profit3x_resets": 0,
+      "maintenance_events": [
+        {
+          "date": "2022-08-19",
+          "sleeve": "core_put",
+          "contract": "MO2212-P-7400",
+          "normalized_qty": 1.5,
+          "trade_sides": 2
+        },
+        {
+          "date": "2022-08-19",
+          "sleeve": "momentum_put",
+          "contract": "MO2212-P-7400",
+          "normalized_qty": 1.5,
+          "trade_sides": 1
+        },
+        {
+          "date": "2022-09-16",
+          "sleeve": "core_put",
+          "contract": "MO2212-P-6400",
+          "normalized_qty": 1.5,
+          "trade_sides": 2
+        },
+        {
+          "date": "2022-09-16",
+          "sleeve": "momentum_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2022-10-21",
+          "sleeve": "core_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2022-10-21",
+          "sleeve": "momentum_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2022-11-18",
+          "sleeve": "core_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2022-11-18",
+          "sleeve": "momentum_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2022-12-16",
+          "sleeve": "core_put",
+          "contract": "MO2303-P-6600",
+          "normalized_qty": 1.5,
+          "trade_sides": 2
+        },
+        {
+          "date": "2022-12-16",
+          "sleeve": "momentum_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2023-01-20",
+          "sleeve": "core_put",
+          "contract": "MO2303-P-6900",
+          "normalized_qty": 1.5,
+          "trade_sides": 2
+        },
+        {
+          "date": "2023-01-20",
+          "sleeve": "momentum_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2023-02-17",
+          "sleeve": "core_put",
+          "contract": "MO2304-P-7000",
+          "normalized_qty": 1.5,
+          "trade_sides": 2
+        },
+        {
+          "date": "2023-02-17",
+          "sleeve": "momentum_put",
+          "contract": "MO2304-P-7000",
+          "normalized_qty": 1.5,
+          "trade_sides": 1
+        },
+        {
+          "date": "2023-03-17",
+          "sleeve": "core_put",
+          "contract": "MO2306-P-6800",
+          "normalized_qty": 1.5,
+          "trade_sides": 2
+        },
+        {
+          "date": "2023-03-17",
+          "sleeve": "momentum_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2023-04-21",
+          "sleeve": "core_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2023-04-21",
+          "sleeve": "momentum_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2023-05-19",
+          "sleeve": "core_put",
+          "contract": "MO2309-P-6800",
+          "normalized_qty": 1.5,
+          "trade_sides": 2
+        },
+        {
+          "date": "2023-05-19",
+          "sleeve": "momentum_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2023-06-16",
+          "sleeve": "core_put",
+          "contract": "MO2309-P-6800",
+          "normalized_qty": 1.5,
+          "trade_sides": 1
+        },
+        {
+          "date": "2023-06-16",
+          "sleeve": "momentum_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2023-07-21",
+          "sleeve": "core_put",
+          "contract": "MO2309-P-6500",
+          "normalized_qty": 1.5,
+          "trade_sides": 2
+        },
+        {
+          "date": "2023-07-21",
+          "sleeve": "momentum_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2023-08-18",
+          "sleeve": "core_put",
+          "contract": "MO2312-P-6200",
+          "normalized_qty": 1.5,
+          "trade_sides": 2
+        },
+        {
+          "date": "2023-08-18",
+          "sleeve": "momentum_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2023-09-15",
+          "sleeve": "core_put",
+          "contract": "MO2312-P-6200",
+          "normalized_qty": 1.5,
+          "trade_sides": 1
+        },
+        {
+          "date": "2023-09-15",
+          "sleeve": "momentum_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2023-10-20",
+          "sleeve": "core_put",
+          "contract": "MO2312-P-5900",
+          "normalized_qty": 1.5,
+          "trade_sides": 2
+        },
+        {
+          "date": "2023-10-20",
+          "sleeve": "momentum_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 1
+        },
+        {
+          "date": "2023-11-17",
+          "sleeve": "core_put",
+          "contract": "MO2403-P-6200",
+          "normalized_qty": 1.5,
+          "trade_sides": 2
+        },
+        {
+          "date": "2023-11-17",
+          "sleeve": "momentum_put",
+          "contract": "MO2403-P-6200",
+          "normalized_qty": 1.5,
+          "trade_sides": 2
+        },
+        {
+          "date": "2023-12-15",
+          "sleeve": "core_put",
+          "contract": "MO2403-P-6000",
+          "normalized_qty": 1.5,
+          "trade_sides": 2
+        },
+        {
+          "date": "2023-12-15",
+          "sleeve": "momentum_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2024-01-19",
+          "sleeve": "core_put",
+          "contract": "MO2403-P-5300",
+          "normalized_qty": 1.5,
+          "trade_sides": 2
+        },
+        {
+          "date": "2024-01-19",
+          "sleeve": "momentum_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2024-02-19",
+          "sleeve": "core_put",
+          "contract": "MO2404-P-5100",
+          "normalized_qty": 1.5,
+          "trade_sides": 2
+        },
+        {
+          "date": "2024-02-19",
+          "sleeve": "momentum_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2024-03-15",
+          "sleeve": "core_put",
+          "contract": "MO2406-P-5600",
+          "normalized_qty": 1.5,
+          "trade_sides": 2
+        },
+        {
+          "date": "2024-03-15",
+          "sleeve": "momentum_put",
+          "contract": "MO2406-P-5600",
+          "normalized_qty": 1.5,
+          "trade_sides": 2
+        },
+        {
+          "date": "2024-04-19",
+          "sleeve": "core_put",
+          "contract": "MO2406-P-5200",
+          "normalized_qty": 1.5,
+          "trade_sides": 2
+        },
+        {
+          "date": "2024-04-19",
+          "sleeve": "momentum_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2024-05-17",
+          "sleeve": "core_put",
+          "contract": "MO2407-P-5600",
+          "normalized_qty": 1.5,
+          "trade_sides": 2
+        },
+        {
+          "date": "2024-05-17",
+          "sleeve": "momentum_put",
+          "contract": "MO2407-P-5600",
+          "normalized_qty": 1.5,
+          "trade_sides": 1
+        },
+        {
+          "date": "2024-06-21",
+          "sleeve": "core_put",
+          "contract": "MO2409-P-5000",
+          "normalized_qty": 1.5,
+          "trade_sides": 2
+        },
+        {
+          "date": "2024-06-21",
+          "sleeve": "momentum_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2024-07-19",
+          "sleeve": "core_put",
+          "contract": "MO2409-P-4800",
+          "normalized_qty": 1.5,
+          "trade_sides": 2
+        },
+        {
+          "date": "2024-07-19",
+          "sleeve": "momentum_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2024-08-16",
+          "sleeve": "core_put",
+          "contract": "MO2410-P-4700",
+          "normalized_qty": 1.5,
+          "trade_sides": 1
+        },
+        {
+          "date": "2024-08-16",
+          "sleeve": "momentum_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2024-09-20",
+          "sleeve": "core_put",
+          "contract": "MO2412-P-4400",
+          "normalized_qty": 1.5,
+          "trade_sides": 2
+        },
+        {
+          "date": "2024-09-20",
+          "sleeve": "momentum_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2024-10-18",
+          "sleeve": "core_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2024-10-18",
+          "sleeve": "momentum_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2024-11-15",
+          "sleeve": "core_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2024-11-15",
+          "sleeve": "momentum_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2024-12-20",
+          "sleeve": "core_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2024-12-20",
+          "sleeve": "momentum_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2025-01-17",
+          "sleeve": "core_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2025-01-17",
+          "sleeve": "momentum_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2025-02-21",
+          "sleeve": "core_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2025-02-21",
+          "sleeve": "momentum_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2025-03-21",
+          "sleeve": "core_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2025-03-21",
+          "sleeve": "momentum_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2025-04-18",
+          "sleeve": "core_put",
+          "contract": "MO2506-P-5800",
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2025-04-18",
+          "sleeve": "momentum_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2025-05-16",
+          "sleeve": "core_put",
+          "contract": "MO2507-P-6100",
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2025-05-16",
+          "sleeve": "momentum_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2025-06-20",
+          "sleeve": "core_put",
+          "contract": "MO2509-P-6000",
+          "normalized_qty": 1.5,
+          "trade_sides": 2
+        },
+        {
+          "date": "2025-06-20",
+          "sleeve": "momentum_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2025-07-18",
+          "sleeve": "core_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2025-07-18",
+          "sleeve": "momentum_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2025-08-15",
+          "sleeve": "core_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2025-08-15",
+          "sleeve": "momentum_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2025-09-19",
+          "sleeve": "core_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2025-09-19",
+          "sleeve": "momentum_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2025-10-17",
+          "sleeve": "core_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2025-10-17",
+          "sleeve": "momentum_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2025-11-21",
+          "sleeve": "core_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2025-11-21",
+          "sleeve": "momentum_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2025-12-19",
+          "sleeve": "core_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2025-12-19",
+          "sleeve": "momentum_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2026-01-16",
+          "sleeve": "core_put",
+          "contract": "MO2603-P-8300",
+          "normalized_qty": 0.5,
+          "trade_sides": 2
+        },
+        {
+          "date": "2026-01-16",
+          "sleeve": "momentum_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2026-02-24",
+          "sleeve": "core_put",
+          "contract": "MO2606-P-8400",
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2026-02-24",
+          "sleeve": "momentum_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2026-03-20",
+          "sleeve": "core_put",
+          "contract": "MO2606-P-7800",
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2026-03-20",
+          "sleeve": "momentum_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2026-04-17",
+          "sleeve": "core_put",
+          "contract": "MO2606-P-8300",
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2026-04-17",
+          "sleeve": "momentum_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2026-05-15",
+          "sleeve": "core_put",
+          "contract": "MO2607-P-8800",
+          "normalized_qty": 1.5,
+          "trade_sides": 2
+        },
+        {
+          "date": "2026-05-15",
+          "sleeve": "momentum_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2026-06-22",
+          "sleeve": "core_put",
+          "contract": "MO2609-P-8600",
+          "normalized_qty": 2.0,
+          "trade_sides": 2
+        },
+        {
+          "date": "2026-06-22",
+          "sleeve": "momentum_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2026-07-17",
+          "sleeve": "core_put",
+          "contract": "MO2609-P-7200",
+          "normalized_qty": 1.5,
+          "trade_sides": 2
+        },
+        {
+          "date": "2026-07-17",
+          "sleeve": "momentum_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2026-08-21",
+          "sleeve": "core_put",
+          "contract": "MO2612-P-7600",
+          "normalized_qty": 1.5,
+          "trade_sides": 2
+        },
+        {
+          "date": "2026-08-21",
+          "sleeve": "momentum_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 1
+        },
+        {
+          "date": "2026-09-18",
+          "sleeve": "core_put",
+          "contract": "MO2612-P-7600",
+          "normalized_qty": 1.5,
+          "trade_sides": 1
+        },
+        {
+          "date": "2026-09-18",
+          "sleeve": "momentum_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2026-10-16",
+          "sleeve": "core_put",
+          "contract": "MO2612-P-6700",
+          "normalized_qty": 1.5,
+          "trade_sides": 2
+        },
+        {
+          "date": "2026-10-16",
+          "sleeve": "momentum_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        }
+      ],
+      "monthly_t1_open_plans": [],
+      "buyer_open_proxies": [
+        {
+          "date": "2022-08-25",
+          "signal_date": "2022-08-24",
+          "contract": "MO2212-P-7400",
+          "signal_close": 631.6,
+          "signal_spot": 7039.41,
+          "execution_spot_open": 7065.336,
+          "sticky_iv": 0.2947206353266876,
+          "unshocked_proxy": 615.4157504634127,
+          "proxy_multiplier": 1.0,
+          "fill": 615.4157504634127
+        },
+        {
+          "date": "2022-08-26",
+          "signal_date": "2022-08-25",
+          "contract": "MO2212-P-7400",
+          "signal_close": 737.8,
+          "signal_spot": 7016.306,
+          "execution_spot_open": 7032.655,
+          "sticky_iv": 0.3562248596241764,
+          "unshocked_proxy": 726.7893765222288,
+          "proxy_multiplier": 1.0,
+          "fill": 726.7893765222288
+        },
+        {
+          "date": "2022-09-08",
+          "signal_date": "2022-09-07",
+          "contract": "MO2212-P-7400",
+          "signal_close": 734.0,
+          "signal_spot": 6963.52,
+          "execution_spot_open": 6965.562,
+          "sticky_iv": 0.3519796732568864,
+          "unshocked_proxy": 730.6943809077143,
+          "proxy_multiplier": 1.0,
+          "fill": 730.6943809077143
+        },
+        {
+          "date": "2022-12-06",
+          "signal_date": "2022-12-05",
+          "contract": "MO2302-P-6700",
+          "signal_close": 263.8,
+          "signal_spot": 6714.367,
+          "execution_spot_open": 6690.92,
+          "sticky_iv": 0.24194371274651388,
+          "unshocked_proxy": 272.77423603446323,
+          "proxy_multiplier": 1.0,
+          "fill": 272.77423603446323
+        }
+      ],
+      "lag_missing_contract_suppressed": 0,
+      "lag_fresh_put_selections": 0,
+      "fees_paid": 2629496.2361820326,
+      "min_cash_after_reserve": 14285746.776028745,
+      "model_execution": "T close target; T+1 dated open futures/seller and synchronized core/Call exit; T+1 dated close ordinary option fills; no volume cap",
+      "costs": "1bp futures turnover, 5bp Put and 1bp Call underlying turnover, 3% cash interest, 30% futures buffer, 15% NAV seller buffer, modeled short-Call buffer",
+      "classification": "native_fix4_model_account_pending_independent_audit"
+    },
+    "IM_t1_open": {
+      "product": "IM",
+      "arm": "repeat_roll",
+      "days": 1048,
+      "initial_capital": 27604800.0,
+      "final_nav": 2.612886417512757,
+      "cagr": 0.2600731934760925,
+      "max_drawdown": -0.1291821432559872,
+      "orders": 372,
+      "fills": 372,
+      "profit3x_resets": 2,
+      "extra_core_profit3x_resets": 0,
+      "maintenance_events": [
+        {
+          "date": "2022-08-19",
+          "sleeve": "core_put",
+          "contract": "MO2212-P-7400",
+          "normalized_qty": 1.5,
+          "trade_sides": 2
+        },
+        {
+          "date": "2022-08-19",
+          "sleeve": "momentum_put",
+          "contract": "MO2212-P-7400",
+          "normalized_qty": 1.5,
+          "trade_sides": 1
+        },
+        {
+          "date": "2022-09-16",
+          "sleeve": "core_put",
+          "contract": "MO2212-P-6400",
+          "normalized_qty": 1.5,
+          "trade_sides": 2
+        },
+        {
+          "date": "2022-09-16",
+          "sleeve": "momentum_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2022-10-21",
+          "sleeve": "core_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2022-10-21",
+          "sleeve": "momentum_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2022-11-18",
+          "sleeve": "core_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2022-11-18",
+          "sleeve": "momentum_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2022-12-16",
+          "sleeve": "core_put",
+          "contract": "MO2303-P-6600",
+          "normalized_qty": 1.5,
+          "trade_sides": 2
+        },
+        {
+          "date": "2022-12-16",
+          "sleeve": "momentum_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2023-01-20",
+          "sleeve": "core_put",
+          "contract": "MO2303-P-6900",
+          "normalized_qty": 1.5,
+          "trade_sides": 2
+        },
+        {
+          "date": "2023-01-20",
+          "sleeve": "momentum_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2023-02-17",
+          "sleeve": "core_put",
+          "contract": "MO2304-P-7000",
+          "normalized_qty": 1.5,
+          "trade_sides": 2
+        },
+        {
+          "date": "2023-02-17",
+          "sleeve": "momentum_put",
+          "contract": "MO2304-P-7000",
+          "normalized_qty": 1.5,
+          "trade_sides": 1
+        },
+        {
+          "date": "2023-03-17",
+          "sleeve": "core_put",
+          "contract": "MO2306-P-6800",
+          "normalized_qty": 1.5,
+          "trade_sides": 2
+        },
+        {
+          "date": "2023-03-17",
+          "sleeve": "momentum_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2023-04-21",
+          "sleeve": "core_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2023-04-21",
+          "sleeve": "momentum_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2023-05-19",
+          "sleeve": "core_put",
+          "contract": "MO2309-P-6800",
+          "normalized_qty": 1.5,
+          "trade_sides": 2
+        },
+        {
+          "date": "2023-05-19",
+          "sleeve": "momentum_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2023-06-16",
+          "sleeve": "core_put",
+          "contract": "MO2309-P-6800",
+          "normalized_qty": 1.5,
+          "trade_sides": 1
+        },
+        {
+          "date": "2023-06-16",
+          "sleeve": "momentum_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2023-07-21",
+          "sleeve": "core_put",
+          "contract": "MO2309-P-6500",
+          "normalized_qty": 1.5,
+          "trade_sides": 2
+        },
+        {
+          "date": "2023-07-21",
+          "sleeve": "momentum_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2023-08-18",
+          "sleeve": "core_put",
+          "contract": "MO2312-P-6200",
+          "normalized_qty": 1.5,
+          "trade_sides": 2
+        },
+        {
+          "date": "2023-08-18",
+          "sleeve": "momentum_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2023-09-15",
+          "sleeve": "core_put",
+          "contract": "MO2312-P-6200",
+          "normalized_qty": 1.5,
+          "trade_sides": 1
+        },
+        {
+          "date": "2023-09-15",
+          "sleeve": "momentum_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2023-10-20",
+          "sleeve": "core_put",
+          "contract": "MO2312-P-5900",
+          "normalized_qty": 1.5,
+          "trade_sides": 2
+        },
+        {
+          "date": "2023-10-20",
+          "sleeve": "momentum_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 1
+        },
+        {
+          "date": "2023-11-17",
+          "sleeve": "core_put",
+          "contract": "MO2403-P-6200",
+          "normalized_qty": 1.5,
+          "trade_sides": 2
+        },
+        {
+          "date": "2023-11-17",
+          "sleeve": "momentum_put",
+          "contract": "MO2403-P-6200",
+          "normalized_qty": 1.5,
+          "trade_sides": 2
+        },
+        {
+          "date": "2023-12-15",
+          "sleeve": "core_put",
+          "contract": "MO2403-P-6000",
+          "normalized_qty": 1.5,
+          "trade_sides": 2
+        },
+        {
+          "date": "2023-12-15",
+          "sleeve": "momentum_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2024-01-19",
+          "sleeve": "core_put",
+          "contract": "MO2403-P-5300",
+          "normalized_qty": 1.5,
+          "trade_sides": 2
+        },
+        {
+          "date": "2024-01-19",
+          "sleeve": "momentum_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2024-02-19",
+          "sleeve": "core_put",
+          "contract": "MO2404-P-5100",
+          "normalized_qty": 1.5,
+          "trade_sides": 2
+        },
+        {
+          "date": "2024-02-19",
+          "sleeve": "momentum_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2024-03-15",
+          "sleeve": "core_put",
+          "contract": "MO2406-P-5600",
+          "normalized_qty": 1.5,
+          "trade_sides": 2
+        },
+        {
+          "date": "2024-03-15",
+          "sleeve": "momentum_put",
+          "contract": "MO2406-P-5600",
+          "normalized_qty": 1.5,
+          "trade_sides": 2
+        },
+        {
+          "date": "2024-04-19",
+          "sleeve": "core_put",
+          "contract": "MO2406-P-5200",
+          "normalized_qty": 1.5,
+          "trade_sides": 2
+        },
+        {
+          "date": "2024-04-19",
+          "sleeve": "momentum_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2024-05-17",
+          "sleeve": "core_put",
+          "contract": "MO2407-P-5600",
+          "normalized_qty": 1.5,
+          "trade_sides": 2
+        },
+        {
+          "date": "2024-05-17",
+          "sleeve": "momentum_put",
+          "contract": "MO2407-P-5600",
+          "normalized_qty": 1.5,
+          "trade_sides": 1
+        },
+        {
+          "date": "2024-06-21",
+          "sleeve": "core_put",
+          "contract": "MO2409-P-5000",
+          "normalized_qty": 1.5,
+          "trade_sides": 2
+        },
+        {
+          "date": "2024-06-21",
+          "sleeve": "momentum_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2024-07-19",
+          "sleeve": "core_put",
+          "contract": "MO2409-P-4800",
+          "normalized_qty": 1.5,
+          "trade_sides": 2
+        },
+        {
+          "date": "2024-07-19",
+          "sleeve": "momentum_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2024-08-16",
+          "sleeve": "core_put",
+          "contract": "MO2410-P-4700",
+          "normalized_qty": 1.5,
+          "trade_sides": 1
+        },
+        {
+          "date": "2024-08-16",
+          "sleeve": "momentum_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2024-09-20",
+          "sleeve": "core_put",
+          "contract": "MO2412-P-4400",
+          "normalized_qty": 1.5,
+          "trade_sides": 2
+        },
+        {
+          "date": "2024-09-20",
+          "sleeve": "momentum_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2024-10-18",
+          "sleeve": "core_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2024-10-18",
+          "sleeve": "momentum_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2024-11-15",
+          "sleeve": "core_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2024-11-15",
+          "sleeve": "momentum_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2024-12-20",
+          "sleeve": "core_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2024-12-20",
+          "sleeve": "momentum_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2025-01-17",
+          "sleeve": "core_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2025-01-17",
+          "sleeve": "momentum_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2025-02-21",
+          "sleeve": "core_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2025-02-21",
+          "sleeve": "momentum_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2025-03-21",
+          "sleeve": "core_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2025-03-21",
+          "sleeve": "momentum_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2025-04-18",
+          "sleeve": "core_put",
+          "contract": "MO2506-P-5800",
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2025-04-18",
+          "sleeve": "momentum_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2025-05-16",
+          "sleeve": "core_put",
+          "contract": "MO2507-P-6100",
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2025-05-16",
+          "sleeve": "momentum_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2025-06-20",
+          "sleeve": "core_put",
+          "contract": "MO2509-P-6000",
+          "normalized_qty": 1.5,
+          "trade_sides": 2
+        },
+        {
+          "date": "2025-06-20",
+          "sleeve": "momentum_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2025-07-18",
+          "sleeve": "core_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2025-07-18",
+          "sleeve": "momentum_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2025-08-15",
+          "sleeve": "core_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2025-08-15",
+          "sleeve": "momentum_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2025-09-19",
+          "sleeve": "core_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2025-09-19",
+          "sleeve": "momentum_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2025-10-17",
+          "sleeve": "core_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        },
+        {
+          "date": "2025-10-17",
+          "sleeve": "momentum_put",
+          "contract": null,
+          "normalized_qty": 0.0,
+          "trade_sides": 0
+        }
+      ],
+      "monthly_t1_open_plans": [
+        {
+          "signal_date": "2025-11-21",
+          "execution_date": "2025-11-24",
+          "sizing_equity": 59244322.97385862,
+          "future_close": 7018.2,
+          "sleeves": [
+            {
+              "sleeve": "core_put",
+              "contract": null,
+              "normalized_quantity": 0.0,
+              "frozen_quantity": 0.0,
+              "executed_target_quantity": 0.0,
+              "route_permits_target": true,
+              "held_before": {},
+              "opening_prices": {}
+            },
+            {
+              "sleeve": "momentum_put",
+              "contract": null,
+              "normalized_quantity": 0.0,
+              "frozen_quantity": 0.0,
+              "executed_target_quantity": 0.0,
+              "route_permits_target": true,
+              "held_before": {},
+              "opening_prices": {}
+            }
+          ]
+        },
+        {
+          "signal_date": "2025-12-19",
+          "execution_date": "2025-12-22",
+          "sizing_equity": 61511691.1910394,
+          "future_close": 7141.8,
+          "sleeves": [
+            {
+              "sleeve": "core_put",
+              "contract": null,
+              "normalized_quantity": 0.0,
+              "frozen_quantity": 0.0,
+              "executed_target_quantity": 0.0,
+              "route_permits_target": true,
+              "held_before": {},
+              "opening_prices": {}
+            },
+            {
+              "sleeve": "momentum_put",
+              "contract": null,
+              "normalized_quantity": 0.0,
+              "frozen_quantity": 0.0,
+              "executed_target_quantity": 0.0,
+              "route_permits_target": true,
+              "held_before": {},
+              "opening_prices": {}
+            }
+          ]
+        },
+        {
+          "signal_date": "2026-01-16",
+          "execution_date": "2026-01-19",
+          "sizing_equity": 69249486.29291065,
+          "future_close": 8179.2,
+          "sleeves": [
+            {
+              "sleeve": "core_put",
+              "contract": "MO2603-P-8300",
+              "normalized_quantity": 0.5,
+              "frozen_quantity": 21.16633848448218,
+              "executed_target_quantity": 21.16633848448218,
+              "route_permits_target": true,
+              "held_before": {
+                "option|core_put|MO2603-P-7500": 21.42612322941626
+              },
+              "opening_prices": {
+                "option|core_put|MO2603-P-7500": 81.0,
+                "option|core_put|MO2603-P-8300": 409.6
+              }
+            },
+            {
+              "sleeve": "momentum_put",
+              "contract": null,
+              "normalized_quantity": 0.0,
+              "frozen_quantity": 0.0,
+              "executed_target_quantity": 0.0,
+              "route_permits_target": true,
+              "held_before": {},
+              "opening_prices": {}
+            }
+          ]
+        },
+        {
+          "signal_date": "2026-02-24",
+          "execution_date": "2026-02-25",
+          "sizing_equity": 70879049.97153121,
+          "future_close": 8271.0,
+          "sleeves": [
+            {
+              "sleeve": "momentum_put",
+              "contract": null,
+              "normalized_quantity": 0.0,
+              "frozen_quantity": 0.0,
+              "executed_target_quantity": 0.0,
+              "route_permits_target": true,
+              "held_before": {},
+              "opening_prices": {}
+            }
+          ]
+        },
+        {
+          "signal_date": "2026-03-20",
+          "execution_date": "2026-03-23",
+          "sizing_equity": 71205002.56949157,
+          "future_close": 7560.0,
+          "sleeves": [
+            {
+              "sleeve": "momentum_put",
+              "contract": null,
+              "normalized_quantity": 0.0,
+              "frozen_quantity": 0.0,
+              "executed_target_quantity": 0.0,
+              "route_permits_target": true,
+              "held_before": {},
+              "opening_prices": {}
+            }
+          ]
+        },
+        {
+          "signal_date": "2026-04-17",
+          "execution_date": "2026-04-20",
+          "sizing_equity": 75385818.2997149,
+          "future_close": 8132.0,
+          "sleeves": [
+            {
+              "sleeve": "momentum_put",
+              "contract": null,
+              "normalized_quantity": 0.0,
+              "frozen_quantity": 0.0,
+              "executed_target_quantity": 0.0,
+              "route_permits_target": true,
+              "held_before": {},
+              "opening_prices": {}
+            }
+          ]
+        },
+        {
+          "signal_date": "2026-05-15",
+          "execution_date": "2026-05-18",
+          "sizing_equity": 78327570.15047376,
+          "future_close": 8582.6,
+          "sleeves": [
+            {
+              "sleeve": "core_put",
+              "contract": "MO2607-P-8800",
+              "normalized_quantity": 1.5,
+              "frozen_quantity": 68.44741408530669,
+              "executed_target_quantity": 68.44741408530669,
+              "route_permits_target": true,
+              "held_before": {
+                "option|core_put|MO2606-P-8300": 68.64658891775764
+              },
+              "opening_prices": {
+                "option|core_put|MO2606-P-8300": 149.8,
+                "option|core_put|MO2607-P-8800": 511.8
+              }
+            },
+            {
+              "sleeve": "momentum_put",
+              "contract": null,
+              "normalized_quantity": 0.0,
+              "frozen_quantity": 0.0,
+              "executed_target_quantity": 0.0,
+              "route_permits_target": true,
+              "held_before": {},
+              "opening_prices": {}
+            }
+          ]
+        },
+        {
+          "signal_date": "2026-06-22",
+          "execution_date": "2026-06-23",
+          "sizing_equity": 78463726.80799726,
+          "future_close": 8524.2,
+          "sleeves": [
+            {
+              "sleeve": "core_put",
+              "contract": "MO2609-P-8600",
+              "normalized_quantity": 2.0,
+              "frozen_quantity": 92.04820019239018,
+              "executed_target_quantity": 92.04820019239018,
+              "route_permits_target": true,
+              "held_before": {
+                "option|core_put|MO2607-P-8800": 91.79852126731612
+              },
+              "opening_prices": {
+                "option|core_put|MO2607-P-8800": 310.0,
+                "option|core_put|MO2609-P-8600": 518.6
+              }
+            },
+            {
+              "sleeve": "momentum_put",
+              "contract": null,
+              "normalized_quantity": 0.0,
+              "frozen_quantity": 0.0,
+              "executed_target_quantity": 0.0,
+              "route_permits_target": true,
+              "held_before": {},
+              "opening_prices": {}
+            }
+          ]
+        },
+        {
+          "signal_date": "2026-07-17",
+          "execution_date": "2026-07-20",
+          "sizing_equity": 73847506.85672715,
+          "future_close": 7065.2,
+          "sleeves": [
+            {
+              "sleeve": "core_put",
+              "contract": "MO2609-P-7200",
+              "normalized_quantity": 1.5,
+              "frozen_quantity": 78.39216178246244,
+              "executed_target_quantity": 78.39216178246244,
+              "route_permits_target": true,
+              "held_before": {
+                "option|core_put|MO2609-P-8600": 74.0161872172091
+              },
+              "opening_prices": {
+                "option|core_put|MO2609-P-7200": 400.0,
+                "option|core_put|MO2609-P-8600": 1430.0
+              }
+            },
+            {
+              "sleeve": "momentum_put",
+              "contract": null,
+              "normalized_quantity": 0.0,
+              "frozen_quantity": 0.0,
+              "executed_target_quantity": 0.0,
+              "route_permits_target": true,
+              "held_before": {},
+              "opening_prices": {}
+            }
+          ]
+        },
+        {
+          "signal_date": "2026-08-21",
+          "execution_date": "2026-08-24",
+          "sizing_equity": 75359016.4018965,
+          "future_close": 7527.0,
+          "sleeves": [
+            {
+              "sleeve": "core_put",
+              "contract": "MO2612-P-7600",
+              "normalized_quantity": 1.5,
+              "frozen_quantity": 75.08869709236399,
+              "executed_target_quantity": 75.08869709236399,
+              "route_permits_target": true,
+              "held_before": {
+                "option|core_put|MO2609-P-7200": 78.39216178246244
+              },
+              "opening_prices": {
+                "option|core_put|MO2609-P-7200": 102.0,
+                "option|core_put|MO2612-P-7600": 570.4
+              }
+            },
+            {
+              "sleeve": "momentum_put",
+              "contract": null,
+              "normalized_quantity": 0.0,
+              "frozen_quantity": 0.0,
+              "executed_target_quantity": 0.0,
+              "route_permits_target": true,
+              "held_before": {
+                "option|momentum_put|MO2612-P-7600": 76.1244249810507
+              },
+              "opening_prices": {
+                "option|momentum_put|MO2612-P-7600": 570.4
+              }
+            }
+          ]
+        },
+        {
+          "signal_date": "2026-09-18",
+          "execution_date": "2026-09-21",
+          "sizing_equity": 74912433.81465921,
+          "future_close": 7505.8,
+          "sleeves": [
+            {
+              "sleeve": "core_put",
+              "contract": "MO2612-P-7600",
+              "normalized_quantity": 1.5,
+              "frozen_quantity": 74.85454629885476,
+              "executed_target_quantity": 74.85454629885476,
+              "route_permits_target": true,
+              "held_before": {
+                "option|core_put|MO2612-P-7600": 75.08869709236399
+              },
+              "opening_prices": {
+                "option|core_put|MO2612-P-7600": 374.4
+              }
+            },
+            {
+              "sleeve": "momentum_put",
+              "contract": null,
+              "normalized_quantity": 0.0,
+              "frozen_quantity": 0.0,
+              "executed_target_quantity": 0.0,
+              "route_permits_target": true,
+              "held_before": {},
+              "opening_prices": {}
+            }
+          ]
+        },
+        {
+          "signal_date": "2026-10-16",
+          "execution_date": "2026-10-19",
+          "sizing_equity": 75432806.02095939,
+          "future_close": 6583.6,
+          "sleeves": [
+            {
+              "sleeve": "core_put",
+              "contract": "MO2612-P-6700",
+              "normalized_quantity": 1.5,
+              "frozen_quantity": 85.93262730986017,
+              "executed_target_quantity": 85.93262730986017,
+              "route_permits_target": true,
+              "held_before": {
+                "option|core_put|MO2612-P-7600": 74.85454629885476
+              },
+              "opening_prices": {
+                "option|core_put|MO2612-P-6700": 339.0,
+                "option|core_put|MO2612-P-7600": 1016.6
+              }
+            },
+            {
+              "sleeve": "momentum_put",
+              "contract": null,
+              "normalized_quantity": 0.0,
+              "frozen_quantity": 0.0,
+              "executed_target_quantity": 0.0,
+              "route_permits_target": true,
+              "held_before": {},
+              "opening_prices": {}
+            }
+          ]
+        }
+      ],
+      "buyer_open_proxies": [
+        {
+          "date": "2022-08-25",
+          "signal_date": "2022-08-24",
+          "contract": "MO2212-P-7400",
+          "signal_close": 631.6,
+          "signal_spot": 7039.41,
+          "execution_spot_open": 7065.336,
+          "sticky_iv": 0.2947206353266876,
+          "unshocked_proxy": 615.4157504634127,
+          "proxy_multiplier": 1.0,
+          "fill": 615.4157504634127
+        },
+        {
+          "date": "2022-08-26",
+          "signal_date": "2022-08-25",
+          "contract": "MO2212-P-7400",
+          "signal_close": 737.8,
+          "signal_spot": 7016.306,
+          "execution_spot_open": 7032.655,
+          "sticky_iv": 0.3562248596241764,
+          "unshocked_proxy": 726.7893765222288,
+          "proxy_multiplier": 1.0,
+          "fill": 726.7893765222288
+        },
+        {
+          "date": "2022-09-08",
+          "signal_date": "2022-09-07",
+          "contract": "MO2212-P-7400",
+          "signal_close": 734.0,
+          "signal_spot": 6963.52,
+          "execution_spot_open": 6965.562,
+          "sticky_iv": 0.3519796732568864,
+          "unshocked_proxy": 730.6943809077143,
+          "proxy_multiplier": 1.0,
+          "fill": 730.6943809077143
+        },
+        {
+          "date": "2022-12-06",
+          "signal_date": "2022-12-05",
+          "contract": "MO2302-P-6700",
+          "signal_close": 263.8,
+          "signal_spot": 6714.367,
+          "execution_spot_open": 6690.92,
+          "sticky_iv": 0.24194371274651388,
+          "unshocked_proxy": 272.77423603446323,
+          "proxy_multiplier": 1.0,
+          "fill": 272.77423603446323
+        }
+      ],
+      "lag_missing_contract_suppressed": 0,
+      "lag_fresh_put_selections": 0,
+      "fees_paid": 2624607.19539471,
+      "min_cash_after_reserve": 14285746.776028745,
+      "model_execution": "T close target; T+1 dated open futures/seller and synchronized core/Call exit; T+1 dated close ordinary option fills; no volume cap",
+      "costs": "1bp futures turnover, 5bp Put and 1bp Call underlying turnover, 3% cash interest, 30% futures buffer, 15% NAV seller buffer, modeled short-Call buffer",
+      "classification": "native_fix4_model_account_pending_independent_audit"
+    }
+  },
+  "outputs_sha256": {
+    "baseline_daily.csv.gz": "f496fab8e7759fb152ad0d0971d24dd728522e276a06c5a7af03f9095655cb4d",
+    "baseline_events.csv.gz": "cf24d3d546a076e8fadcbca5079fde3b529187c1c008d486755ad0115c1ab950",
+    "t1_open_daily.csv.gz": "385ecdb45ad22cf22e55f4579adea3a702ca7010af9eee1e00538f9545eeb925",
+    "t1_open_events.csv.gz": "fde6e7ee868f7535ffe63cdc68c4f55056ee0c0bf44a874d6e2060afc0dd7f5f"
+  },
+  "source_sha256": {
+    "run_comparison.py": "135ad3f63ed6f6ab9b97ee90dba4344c39a70e33a0ffe273ff4255adbdbf7dbb",
+    "native_account_fix11_t1_open.py": "73aa7d70b64d51ad94ff07048eae68728d76d2ba2e9b3119fbe930ee749c81b0",
+    "current_history_adapter.py": "0fe1846907d376d51ffae5b8dd425d9877d3f155175917db302a181b61025ec1",
+    "replay_guards.py": "63445edeafb0edcc943759e8560a89f813baabaeea5e5f670055b18a16d726c8"
+  },
+  "comparison_calendar": [
+    "2025-11-17",
+    "2025-11-18",
+    "2025-11-19",
+    "2025-11-20",
+    "2025-11-21",
+    "2025-11-24",
+    "2025-11-25",
+    "2025-11-26",
+    "2025-11-27",
+    "2025-11-28",
+    "2025-12-01",
+    "2025-12-02",
+    "2025-12-03",
+    "2025-12-04",
+    "2025-12-05",
+    "2025-12-08",
+    "2025-12-09",
+    "2025-12-10",
+    "2025-12-11",
+    "2025-12-12",
+    "2025-12-15",
+    "2025-12-16",
+    "2025-12-17",
+    "2025-12-18",
+    "2025-12-19",
+    "2025-12-22",
+    "2025-12-23",
+    "2025-12-24",
+    "2025-12-25",
+    "2025-12-26",
+    "2025-12-29",
+    "2025-12-30",
+    "2025-12-31",
+    "2026-01-05",
+    "2026-01-06",
+    "2026-01-07",
+    "2026-01-08",
+    "2026-01-09",
+    "2026-01-12",
+    "2026-01-13",
+    "2026-01-14",
+    "2026-01-15",
+    "2026-01-16",
+    "2026-01-19",
+    "2026-01-20",
+    "2026-01-21",
+    "2026-01-22",
+    "2026-01-23",
+    "2026-01-26",
+    "2026-01-27",
+    "2026-01-28",
+    "2026-01-29",
+    "2026-01-30",
+    "2026-02-02",
+    "2026-02-03",
+    "2026-02-04",
+    "2026-02-05",
+    "2026-02-06",
+    "2026-02-09",
+    "2026-02-10",
+    "2026-02-11",
+    "2026-02-12",
+    "2026-02-13",
+    "2026-02-24",
+    "2026-02-25",
+    "2026-02-26",
+    "2026-02-27",
+    "2026-03-02",
+    "2026-03-03",
+    "2026-03-04",
+    "2026-03-05",
+    "2026-03-06",
+    "2026-03-09",
+    "2026-03-10",
+    "2026-03-11",
+    "2026-03-12",
+    "2026-03-13",
+    "2026-03-16",
+    "2026-03-17",
+    "2026-03-18",
+    "2026-03-19",
+    "2026-03-20",
+    "2026-03-23",
+    "2026-03-24",
+    "2026-03-25",
+    "2026-03-26",
+    "2026-03-27",
+    "2026-03-30",
+    "2026-03-31",
+    "2026-04-01",
+    "2026-04-02",
+    "2026-04-03",
+    "2026-04-07",
+    "2026-04-08",
+    "2026-04-09",
+    "2026-04-10",
+    "2026-04-13",
+    "2026-04-14",
+    "2026-04-15",
+    "2026-04-16",
+    "2026-04-17",
+    "2026-04-20",
+    "2026-04-21",
+    "2026-04-22",
+    "2026-04-23",
+    "2026-04-24",
+    "2026-04-27",
+    "2026-04-28",
+    "2026-04-29",
+    "2026-04-30",
+    "2026-05-06",
+    "2026-05-07",
+    "2026-05-08",
+    "2026-05-11",
+    "2026-05-12",
+    "2026-05-13",
+    "2026-05-14",
+    "2026-05-15",
+    "2026-05-18",
+    "2026-05-19",
+    "2026-05-20",
+    "2026-05-21",
+    "2026-05-22",
+    "2026-05-25",
+    "2026-05-26",
+    "2026-05-27",
+    "2026-05-28",
+    "2026-05-29",
+    "2026-06-01",
+    "2026-06-02",
+    "2026-06-03",
+    "2026-06-04",
+    "2026-06-05",
+    "2026-06-08",
+    "2026-06-09",
+    "2026-06-10",
+    "2026-06-11",
+    "2026-06-12",
+    "2026-06-15",
+    "2026-06-16",
+    "2026-06-17",
+    "2026-06-18",
+    "2026-06-22",
+    "2026-06-23",
+    "2026-06-24",
+    "2026-06-25",
+    "2026-06-26",
+    "2026-06-29",
+    "2026-06-30",
+    "2026-07-01",
+    "2026-07-02",
+    "2026-07-03",
+    "2026-07-06",
+    "2026-07-07",
+    "2026-07-08",
+    "2026-07-09",
+    "2026-07-10",
+    "2026-07-13",
+    "2026-07-14",
+    "2026-07-15",
+    "2026-07-16",
+    "2026-07-17",
+    "2026-07-20",
+    "2026-07-21",
+    "2026-07-22",
+    "2026-07-23",
+    "2026-07-24",
+    "2026-07-27",
+    "2026-07-28",
+    "2026-07-29",
+    "2026-07-30",
+    "2026-07-31",
+    "2026-08-03",
+    "2026-08-04",
+    "2026-08-05",
+    "2026-08-06",
+    "2026-08-07",
+    "2026-08-10",
+    "2026-08-11",
+    "2026-08-12",
+    "2026-08-13",
+    "2026-08-14",
+    "2026-08-17",
+    "2026-08-18",
+    "2026-08-19",
+    "2026-08-20",
+    "2026-08-21",
+    "2026-08-24",
+    "2026-08-25",
+    "2026-08-26",
+    "2026-08-27",
+    "2026-08-28",
+    "2026-08-31",
+    "2026-09-01",
+    "2026-09-02",
+    "2026-09-03",
+    "2026-09-04",
+    "2026-09-07",
+    "2026-09-08",
+    "2026-09-09",
+    "2026-09-10",
+    "2026-09-11",
+    "2026-09-14",
+    "2026-09-15",
+    "2026-09-16",
+    "2026-09-17",
+    "2026-09-18",
+    "2026-09-21",
+    "2026-09-22",
+    "2026-09-23",
+    "2026-09-24",
+    "2026-09-28",
+    "2026-09-29",
+    "2026-09-30",
+    "2026-10-08",
+    "2026-10-09",
+    "2026-10-12",
+    "2026-10-13",
+    "2026-10-14",
+    "2026-10-15",
+    "2026-10-16",
+    "2026-10-19",
+    "2026-10-20",
+    "2026-10-21",
+    "2026-10-22",
+    "2026-10-23",
+    "2026-10-26",
+    "2026-10-27",
+    "2026-10-28",
+    "2026-10-29",
+    "2026-10-30",
+    "2026-11-02",
+    "2026-11-03",
+    "2026-11-04",
+    "2026-11-05",
+    "2026-11-06",
+    "2026-11-09",
+    "2026-11-10",
+    "2026-11-11",
+    "2026-11-12",
+    "2026-11-13",
+    "2026-11-16",
+    "2026-11-17",
+    "2026-11-18"
+  ],
+  "network_attempts": []
+}

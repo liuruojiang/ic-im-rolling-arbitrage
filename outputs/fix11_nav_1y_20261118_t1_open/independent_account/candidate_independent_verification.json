@@ -1,0 +1,261 @@
+{
+  "status": "PASS",
+  "products": {
+    "IC": {
+      "plans": 12,
+      "delayed_trade_sides": 10,
+      "source_rows": [
+        {
+          "day": "2026-04-20",
+          "symbol": "option|momentum_put|510500P2606M08000",
+          "fee": 6752.684044046391,
+          "price": 0.2378,
+          "volume": 27350716.0,
+          "security_id": "10010861"
+        },
+        {
+          "day": "2026-05-18",
+          "symbol": "option|core_put|510500P2606M08250",
+          "fee": 68300.13256874672,
+          "price": 0.1576,
+          "volume": 244062804.0,
+          "security_id": "10010862"
+        },
+        {
+          "day": "2026-05-18",
+          "symbol": "option|core_put|510500P2609M08250",
+          "fee": 24537.403955154376,
+          "price": 0.4337,
+          "volume": 6208077.0,
+          "security_id": "10011018"
+        },
+        {
+          "day": "2026-05-18",
+          "symbol": "option|momentum_put|510500P2606M08250",
+          "fee": 66592.62925452804,
+          "price": 0.1576,
+          "volume": 244062804.0,
+          "security_id": "10010862"
+        },
+        {
+          "day": "2026-05-18",
+          "symbol": "option|momentum_put|510500P2609M08250",
+          "fee": 24537.403955154376,
+          "price": 0.4337,
+          "volume": 6208077.0,
+          "security_id": "10011018"
+        },
+        {
+          "day": "2026-06-23",
+          "symbol": "option|core_put|510500P2609M08000",
+          "fee": 59459.12337608768,
+          "price": 0.1691,
+          "volume": 60965667.0,
+          "security_id": "10011017"
+        },
+        {
+          "day": "2026-06-23",
+          "symbol": "option|core_put|510500P2609M08500",
+          "fee": 52540.356900012695,
+          "price": 0.3217,
+          "volume": 22633505.0,
+          "security_id": "10011019"
+        },
+        {
+          "day": "2026-07-20",
+          "symbol": "option|core_put|510500P2609M08500",
+          "fee": 23285.002900200703,
+          "price": 1.1133,
+          "volume": 659096.0,
+          "security_id": "10012085"
+        },
+        {
+          "day": "2026-07-20",
+          "symbol": "option|core_put|510500P2609M07250",
+          "fee": 22847.858713868896,
+          "price": 0.3126,
+          "volume": 82891782.0,
+          "security_id": "10012080"
+        },
+        {
+          "day": "2026-08-24",
+          "symbol": "option|core_put|510500P2612M07500",
+          "fee": 1537.9942982520854,
+          "price": 0.3903,
+          "volume": 8772413.0,
+          "security_id": "10012099"
+        }
+      ],
+      "maximum_frozen_quantity_discrepancy": 1.1368683772161603e-13,
+      "maximum_cash_equity_event_discrepancy": 5.960464477539063e-08,
+      "baseline_metrics": {
+        "ret": 0.2637829690694877,
+        "max_dd": -0.10741464198253925,
+        "current_dd": -0.10701714090960812,
+        "dates": 243
+      },
+      "candidate_metrics": {
+        "ret": 0.2710496968395477,
+        "max_dd": -0.10741439127152119,
+        "current_dd": -0.10701689008413828,
+        "dates": 243
+      },
+      "non_buyer_trade_sides": 46,
+      "monthly_expiry_recovery_normal_open_preserved": false
+    },
+    "IM": {
+      "plans": 12,
+      "delayed_trade_sides": 14,
+      "source_rows": [
+        {
+          "day": "2026-01-19",
+          "symbol": "option|core_put|MO2603-P-7500",
+          "fee": 8789.667457669791,
+          "price": 81.0,
+          "volume": 972.0,
+          "security_id": null
+        },
+        {
+          "day": "2026-01-19",
+          "symbol": "option|core_put|MO2603-P-8300",
+          "fee": 8683.09561104608,
+          "price": 409.6,
+          "volume": 388.0,
+          "security_id": null
+        },
+        {
+          "day": "2026-05-18",
+          "symbol": "option|core_put|MO2606-P-8300",
+          "fee": 29675.106927067955,
+          "price": 149.8,
+          "volume": 6085.0,
+          "security_id": null
+        },
+        {
+          "day": "2026-05-18",
+          "symbol": "option|core_put|MO2607-P-8800",
+          "fee": 29589.006007221175,
+          "price": 511.8,
+          "volume": 236.0,
+          "security_id": null
+        },
+        {
+          "day": "2026-06-23",
+          "symbol": "option|core_put|MO2607-P-8800",
+          "fee": 40569.26866161334,
+          "price": 310.0,
+          "volume": 8254.0,
+          "security_id": null
+        },
+        {
+          "day": "2026-06-23",
+          "symbol": "option|core_put|MO2609-P-8600",
+          "fee": 40679.611303854566,
+          "price": 518.6,
+          "volume": 777.0,
+          "security_id": null
+        },
+        {
+          "day": "2026-07-20",
+          "symbol": "option|core_put|MO2609-P-8600",
+          "fee": 26854.060838502806,
+          "price": 1430.0,
+          "volume": 211.0,
+          "security_id": null
+        },
+        {
+          "day": "2026-07-20",
+          "symbol": "option|core_put|MO2609-P-7200",
+          "fee": 28441.722830037164,
+          "price": 400.0,
+          "volume": 2171.0,
+          "security_id": null
+        },
+        {
+          "day": "2026-08-24",
+          "symbol": "option|core_put|MO2609-P-7200",
+          "fee": 29847.38052217468,
+          "price": 102.0,
+          "volume": 11787.0,
+          "security_id": null
+        },
+        {
+          "day": "2026-08-24",
+          "symbol": "option|core_put|MO2612-P-7600",
+          "fee": 28589.604675648723,
+          "price": 570.4,
+          "volume": 241.0,
+          "security_id": null
+        },
+        {
+          "day": "2026-08-24",
+          "symbol": "option|momentum_put|MO2612-P-7600",
+          "fee": 28983.952320976412,
+          "price": 570.4,
+          "volume": 241.0,
+          "security_id": null
+        },
+        {
+          "day": "2026-09-21",
+          "symbol": "option|core_put|MO2612-P-7600",
+          "fee": 90.42531345564764,
+          "price": 374.4,
+          "volume": 289.0,
+          "security_id": null
+        },
+        {
+          "day": "2026-10-19",
+          "symbol": "option|core_put|MO2612-P-7600",
+          "fee": 24851.477322126255,
+          "price": 1016.6,
+          "volume": 224.0,
+          "security_id": null
+        },
+        {
+          "day": "2026-10-19",
+          "symbol": "option|core_put|MO2612-P-6700",
+          "fee": 28529.365875728912,
+          "price": 339.0,
+          "volume": 1297.0,
+          "security_id": null
+        }
+      ],
+      "maximum_frozen_quantity_discrepancy": 1.4210854715202004e-14,
+      "maximum_cash_equity_event_discrepancy": 5.960464477539063e-08,
+      "baseline_metrics": {
+        "ret": 0.2098989735073864,
+        "max_dd": -0.10149360718472178,
+        "current_dd": -0.08834224665957624,
+        "dates": 243
+      },
+      "candidate_metrics": {
+        "ret": 0.18597740323021394,
+        "max_dd": -0.11199620152201206,
+        "current_dd": -0.1062978496697845,
+        "dates": 243
+      },
+      "non_buyer_trade_sides": 57,
+      "monthly_expiry_recovery_normal_open_preserved": true
+    }
+  },
+  "input_hashes": {
+    "D:\\动量策略\\IC和IM滚动套利\\outputs\\fix11_nav_1y_20261118_close\\fresh_sources\\extended_inputs\\cffex_ic_contracts.csv": "99b8f54229faf77b893af90336411edab15d39b435b09daa73e2b383f6e99311",
+    "D:\\动量策略\\IC和IM滚动套利\\outputs\\fix11_nav_1y_20261118_close\\fresh_sources\\extended_inputs\\cffex_im_contracts.csv": "3c53710b5a429dc82e6024fa831a1d352f768cc75c70c2911cc71f1c9e490c3a",
+    "D:\\动量策略\\IC和IM滚动套利\\outputs\\fix11_nav_1y_20261118_close\\fresh_sources\\extended_inputs\\cffex_raw\\202601.zip": "2ae568fe1052125e9e0ec4fddc6bd1b7be398b5b50dbe2b7c4ea9c2b2abc21a2",
+    "D:\\动量策略\\IC和IM滚动套利\\outputs\\fix11_nav_1y_20261118_close\\fresh_sources\\extended_inputs\\cffex_raw\\202605.zip": "66b7425b6cb0e1fe120d1f437e7c6e6c9a77af763f45a3989db91ae8aa488e90",
+    "D:\\动量策略\\IC和IM滚动套利\\outputs\\fix11_nav_1y_20261118_close\\fresh_sources\\extended_inputs\\cffex_raw\\202606.zip": "de56df1e96fe12f837985ffbd793b8996ab0ae10d28773b2df3f1ef428bd9fdb",
+    "D:\\动量策略\\IC和IM滚动套利\\outputs\\fix11_nav_1y_20261118_close\\fresh_sources\\extended_inputs\\cffex_raw\\202607.zip": "abeff1a696ab0f717bead36a736b77bb1346b4a0ee8abbd11b433b4c5ffe98f7",
+    "D:\\动量策略\\IC和IM滚动套利\\outputs\\fix11_nav_1y_20261118_close\\fresh_sources\\extended_inputs\\cffex_raw\\202608.zip": "887147411a5c56c74aa548400cddbb74566da7f5d69f1aa39cafd6e617cb90d7",
+    "D:\\动量策略\\IC和IM滚动套利\\outputs\\fix11_nav_1y_20261118_close\\fresh_sources\\extended_inputs\\cffex_raw\\202609.zip": "618c6f4744a6c708f87510729d251c5aded846d02236e576ce7c9856a6a0b8e2",
+    "D:\\动量策略\\IC和IM滚动套利\\outputs\\fix11_nav_1y_20261118_close\\fresh_sources\\extended_inputs\\cffex_raw\\202610.zip": "118494d3b1b847c0267c232900bbab9e4867bfbfd4b4e8a77d859b6350c260b1",
+    "D:\\动量策略\\IC和IM滚动套利\\outputs\\fix11_nav_1y_20261118_close\\fresh_sources\\extended_inputs\\im_ohlcv_frozen_plus_fresh.csv.gz": "9631a821548d324d17bd7bdba44a75b2675302a983441562c3c8f7169607053f",
+    "D:\\动量策略\\IC和IM滚动套利\\outputs\\fix11_nav_1y_20261118_close\\fresh_sources\\extended_inputs\\sina_510500_etf.csv": "6a1d6b5e8ef31ca8190889f940b003d55e4298583647dfdcb69dc5472cecfb75",
+    "D:\\动量策略\\IC和IM滚动套利\\outputs\\fix11_nav_1y_20261118_close\\fresh_sources\\extended_inputs\\sina_510500_put_histories.csv.gz": "2ec4226a878b167c7e917ff34cfb324e754704b3c7f6dd60684883e74a4e3499",
+    "D:\\动量策略\\IC和IM滚动套利\\outputs\\fix11_nav_1y_20261118_close\\fresh_sources\\extended_inputs\\sse_510500_standard_put_snapshots.csv.gz": "4ae0a56339b75389f7cffdad3ef50156587623eefb33c48d1fbcb5c359cd1cf0",
+    "D:\\动量策略\\IC和IM滚动套利\\outputs\\fix11_nav_1y_20261118_t1_open\\baseline_daily.csv.gz": "f496fab8e7759fb152ad0d0971d24dd728522e276a06c5a7af03f9095655cb4d",
+    "D:\\动量策略\\IC和IM滚动套利\\outputs\\fix11_nav_1y_20261118_t1_open\\baseline_events.csv.gz": "cf24d3d546a076e8fadcbca5079fde3b529187c1c008d486755ad0115c1ab950",
+    "D:\\动量策略\\IC和IM滚动套利\\outputs\\fix11_nav_1y_20261118_t1_open\\full_account_verification.json": "34d475ea130dd53d220c0d96c7e51290f6b7b66efb63d3e5a060c2a86c9d3405",
+    "D:\\动量策略\\IC和IM滚动套利\\outputs\\fix11_nav_1y_20261118_t1_open\\t1_open_daily.csv.gz": "385ecdb45ad22cf22e55f4579adea3a702ca7010af9eee1e00538f9545eeb925",
+    "D:\\动量策略\\IC和IM滚动套利\\outputs\\fix11_nav_1y_20261118_t1_open\\t1_open_events.csv.gz": "fde6e7ee868f7535ffe63cdc68c4f55056ee0c0bf44a874d6e2060afc0dd7f5f"
+  }
+}

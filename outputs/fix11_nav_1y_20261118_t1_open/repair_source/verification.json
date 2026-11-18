@@ -1,0 +1,71 @@
+{
+  "status": "PASS",
+  "original_capture_sha256": "3ab7481194dece92b2f5b547a37369d06b38fa36be4503d0b8ebc13b20277ee1",
+  "candidate_capture_sha256": "a884a1035caa48b78de5bff737e235a3988ab14c82d59ae785322062decdff62",
+  "frozen_raw_sha256": {
+    "sina_510500_details_000.txt": "4007c2b5ef9c7f2d876425dd90a8b858dd769e0e8dcf5097e76e0113b2521969",
+    "sina_510500_details_025.txt": "e2fa41a92d8455433fcff4854472d94a0a154d7bba94546e0bbf367c95ed1909",
+    "sina_510500_details_050.txt": "d53460cacad6a6dce73cd2640631b4c085a1ddb34f76060ba42780ef76da0fb6",
+    "sina_510500_listing_2611.txt": "0cd4628b474718bb1c409e628ce4035865a4a7331bb4400a0562f434b153a67e",
+    "sina_510500_listing_2612.txt": "2c528d759eb0ba0a3106b013183df21123d7a3155a9bcbbbe8e3d56a8b3797b6",
+    "sina_510500_listing_2703.txt": "8e37df88be2ef72984734f0bbc32d0c48c892a804374f4ddf5a6e4f453e067ac",
+    "sina_510500_listing_2706.txt": "6e339d5e4acf4c5947e58cea0a881d823858e159f900f345580186478a69afde"
+  },
+  "old_stats": {
+    "rows": 60,
+    "fresh_rows": 54,
+    "greek_available_rows": 54,
+    "missing_ids": [],
+    "policy": "CON_OP[2] last print; same-day positive volume and timestamp <=15:15; matching CON_SO identity/last/volume only"
+  },
+  "fixed_stats": {
+    "rows": 60,
+    "fresh_rows": 53,
+    "greek_available_rows": 53,
+    "missing_ids": [],
+    "policy": "CON_OP[2] last print; same-day positive volume and timestamp in 09:15:00–15:15:00 inclusive; matching CON_SO identity/last/volume only"
+  },
+  "only_changed_security_id": "10012149",
+  "contract": "510500P2612M06500",
+  "rejected_tick_timestamp": "2026-11-18 00:00:00",
+  "preserved_unqualified_raw_close": 0.3927,
+  "candidate_outputs_sha256": {
+    "sina_510500_puts_20261118_close.csv.gz": "c8af21433efffd9bbc520e600c664eb8d3af68b8941122fb3cb481a36382646f",
+    "sina_510500_puts_20261118_close_master.csv.gz": "2b81ddc10d3f472b35977939ea0f8899191f6906aa7f54f427dbd92a4f7daf3d",
+    "sina_510500_puts_20261118_close_greeks.csv": "a227b3af14a11a9a9ff23b598610a74a20a806edec7527458940143ece3acfd3"
+  },
+  "boundaries": [
+    {
+      "timestamp": "2026-11-18 09:14:59",
+      "quote_and_greeks_admitted": false
+    },
+    {
+      "timestamp": "2026-11-18 09:15:00",
+      "quote_and_greeks_admitted": true
+    },
+    {
+      "timestamp": "2026-11-18 15:15:00",
+      "quote_and_greeks_admitted": true
+    },
+    {
+      "timestamp": "2026-11-18 15:15:01",
+      "quote_and_greeks_admitted": false
+    },
+    {
+      "timestamp": "2026-11-17 15:00:00",
+      "quote_and_greeks_admitted": false
+    }
+  ],
+  "independent_daily_close_confirmation": {
+    "sina_raw_sha256": "8fe36241288cf00d56c17c8ea04213f94aedd0f0848b1d8546a0fa0152730149",
+    "eastmoney_raw_sha256": "612117ea98c52a27f32130452101cd5e28c942b5ea1064c7c730eafce44fda54",
+    "date": "2026-11-18",
+    "ohlc_in_open_close_high_low_order": [
+      0.385,
+      0.3927,
+      0.4553,
+      0.3413
+    ],
+    "classified_as_valid_session_tick": false
+  }
+}
