@@ -52,11 +52,12 @@ def test_expiry_session_included_then_front_month_advances():
 
 
 def test_quarter_month_overlap_and_december_crossyear():
-    f = pd.DataFrame({"instrument": ["IC2612", "IC2701", "IC2703", "IC2706"],
+    # Archived policy: this date must precede the 2026-11-20 report cutover.
+    f = pd.DataFrame({"instrument": ["IC2512", "IC2601", "IC2603", "IC2606"],
                       "lastprice": [6100., 6125., 6000., 5900.]})
-    f.attrs.update(source_date="2026-12-10")
-    values = q.monthly_spreads("IC", f, date(2026, 12, 10), expiry)
-    assert values["month_next_spread"]["far_contract"] == "IC2701"
+    f.attrs.update(source_date="2025-12-10")
+    values = q.monthly_spreads("IC", f, date(2025, 12, 10), expiry)
+    assert values["month_next_spread"]["far_contract"] == "IC2601"
     assert values["month_next_spread"]["points"] == -25
     same = values["month_quarter_spread"]
     assert same["points"] == 0 and same["same_contract"] and same["annualized"] is None
