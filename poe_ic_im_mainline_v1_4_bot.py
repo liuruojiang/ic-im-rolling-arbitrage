@@ -7778,9 +7778,12 @@ def _build_live_trade_signal(
         future_plan = dict(core_eod_contract=target_core, roll_confirmed=option_roll_due,
                            roll_policy={"tenor": "legacy_monthly_pre_effective"})
     active_future = _require_listed_future_quote(product, future_quotes, target_core)
-    spread = quarter_roll.quarter_spread(
+    # Retain the archived field but do not compute the superseded pairing on
+    # new report days. The three front-anchored diagnostics follow below.
+    spread = (quarter_roll.quarter_spread(
         product, future_quotes, market_date, lambda c: _third_friday(*_contract_month(c))
-    )
+    ) if market_date < quarter_roll.TENOR_SPREAD_EFFECTIVE else
+        {"status": "unavailable", "reason": "superseded by three front-month tenor spreads"})
     grid_units, grid_action = _grid_target(product, live)
     close_confirmed = market_date < today or (
         market_date == today and phase in {"收盘后", "非交易日"}
