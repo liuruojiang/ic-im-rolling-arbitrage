@@ -127,7 +127,7 @@ def adjustment_terms(payload: dict, *, effective_date: Any) -> dict[str, tuple[T
     return result
 
 
-def master_terms(payload: dict, *, as_of: Any) -> dict[str, Terms]:
+def master_terms(payload: dict, *, as_of: Any, announced_next_session: date | None = None) -> dict[str, Terms]:
     """A current master proves only its actual TIMESAVE, not requested queryDate."""
     reference = day(as_of)
     if (not isinstance(payload, dict) or payload.get("sqlId") != MASTER_SQL
@@ -151,12 +151,19 @@ def master_terms(payload: dict, *, as_of: Any) -> dict[str, Terms]:
             expiry = day(row["EXPIRE_DATE"])
             if day(row["EXERCISE_DATE"]) != expiry or day(row["END_DATE"]) != expiry:
                 raise RuntimeError("official master expiry mismatch")
+            start = day(row["START_DATE"])
+            future_listing = start > reference
+            if future_listing and (start != announced_next_session or match.group(3) != "M"):
+                raise RuntimeError("official master duplicate/listing date invalid")
+            # A next-session announcement establishes identity only. It must
+            # never claim current availability, even for a fully valid code.
+            terms_day = start if future_listing else reference
             value = Terms(security, contract, number(row["EXERCISE_PRICE"], positive=True),
                           int(number(row["CONTRACT_UNIT"], positive=True, integer=True)),
                           # For A, START_DATE is its original security listing,
                           # not the effective date of the adjusted terms.
-                          reference, reference, digest, expiry, reference)
-            if day(row["START_DATE"]) > reference or security in result or contract in contracts:
+                          terms_day, terms_day, digest, expiry, None if future_listing else reference)
+            if security in result or contract in contracts:
                 raise RuntimeError("official master duplicate/listing date invalid")
             contracts.add(contract)
             result[security] = value

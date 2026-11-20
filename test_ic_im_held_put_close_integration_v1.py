@@ -7,7 +7,7 @@ import pandas as pd
 import pytest
 
 import poe_ic_im_mainline_v1_4_bot as bot
-from test_ic_im_held_put_close_v1 import valid_inputs
+from test_ic_im_held_put_close_v1 import valid_inputs, monthly_actual_inputs
 
 
 def setup_case(monkeypatch, *, day=date(2026, 11, 13), closed=True, monthly=False):
@@ -91,3 +91,32 @@ def test_daily_close_is_explicitly_ineligible_for_iv_monitor(monkeypatch):
     signal.update(etf_price=6.4)
     result = bot.build_iv_warning('IC', signal, {}, None, valid_inputs()['observed_at'])
     assert '日线收盘价' in str(result)
+
+
+def test_confirmed_monthly_old_mark_never_replaces_new_candidate(monkeypatch):
+    inputs = monthly_actual_inputs()
+    day, clock, anchor = inputs["signal_day"], inputs["observed_at"], inputs["anchor"]
+    anchor = {**anchor, "verified_core_put_delta": .25}
+    monkeypatch.setattr(bot, "_now_beijing", lambda: clock)
+    raw = pd.DataFrame([dict(contract=anchor["v14_core_put_contract"],
+                            security_id=anchor["v14_core_put_security_id"], strike=6.5,
+                            last=.6286, source_stamp=clock.replace(hour=0, minute=0, second=0))])
+    stamp = dict(source="新浪财经期权详报价（上交所回退）", date="20261120", time="150000")
+    monkeypatch.setattr(bot, "_fetch_510500_chain_for_day", lambda *_: (raw, stamp))
+    checked = bot.held_put_close.validate_held_put_close(**inputs)
+    frame = pd.DataFrame([checked["row"]])
+    frame.attrs["held_close_evidence"] = checked["evidence"]
+    fallback = Mock(return_value=(frame, dict(date="2026-11-20", time=None,
+                 source=checked["evidence"]["source"], quote_kind="daily_close",
+                 observed_at=clock.isoformat()), inputs))
+    monkeypatch.setattr(bot, "_fetch_held_ic_put_daily_close_for_day", fallback)
+    signal = dict(market_date=day, close_confirmed=True, option_monthly_reset_due=True,
+                  core_put_target_delta=.25, put_target_core_qty=11,
+                  put_target_contract="510500P2703M06000", put_target_security_id="10012700")
+    bot._v14_ic_core_overlay(signal, anchor)
+    fallback.assert_called_once()
+    assert signal["v14_core_put_contract"] == "510500P2703M06000"
+    assert signal["v14_core_put_security_id"] == "10012700"
+    assert signal["v14_core_put_qty"] == 11
+    assert signal["iv_monitor_evidence"]["iv_monitor_eligible"] is False
+    assert signal["v14_core_put_close_evidence"]["monthly_reset_old_leg_only"] is True

@@ -1,0 +1,17 @@
+{
+  "revision": "held_ic_put_daily_close_20261113_v1",
+  "anchor": {
+    "last_verified_day": "2026-11-19",
+    "v14_route_state": "future",
+    "v14_core_put_contract": "510500P2612M06500",
+    "v14_core_put_security_id": "10012149",
+    "v14_core_put_qty": 15
+  },
+  "signal_day": "2026-11-20",
+  "expected_previous_day": "2026-11-19",
+  "current_ledger_day": "2026-11-19",
+  "expected_expiry": "2026-12-23",
+  "observed_at": "2026-11-20 22:06:23.877867+08:00",
+  "monthly_reset": true,
+  "official_master": null
+}

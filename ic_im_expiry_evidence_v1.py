@@ -1,7 +1,7 @@
 """Independent expiry checks. Rule checks are never monthly notice evidence."""
 from __future__ import annotations
 
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, time, timedelta
 import re
 from zoneinfo import ZoneInfo
 
@@ -9,6 +9,7 @@ import ic_im_adjusted_put_migration_v1 as terms_parser
 
 REVISION = "expiry_source_completion_20261112_v3"
 EFFECTIVE_SIGNAL_DATE = date(2026, 11, 12)
+NEXT_SESSION_LISTING_EFFECTIVE_DATE = date(2026, 11, 20)
 CFFEX_RULE_SOURCES = (
     "https://www.cffex.com.cn/u/cms/www/oldsys/W020150327602765131821.pdf",
     "https://www.cffex.com.cn/u/cms/www/202207/182020307zry.pdf",
@@ -33,7 +34,8 @@ def unique_object(pairs):
     return result
 
 
-def verify_sse_chain(frame, payload, *, as_of, month, model_expiry, observation_clock=None):
+def verify_sse_chain(frame, payload, *, as_of, month, model_expiry, observation_clock=None,
+                     next_exchange_session=None):
     """Bind every quote identity to a same-day real SSE master row."""
     if type(as_of) is not date or type(model_expiry) is not date:
         raise ExpiryEvidenceConflict("SSE到期核验缺少明确市场日或模型日期")
@@ -61,7 +63,14 @@ def verify_sse_chain(frame, payload, *, as_of, month, model_expiry, observation_
             raise ExpiryEvidenceConflict("SSE主表实际TIMESAVE晚于实际观察日")
         # Validate this current table's own identities and actual expiry first.
         # A different reference date must not hide contradictory expiry fields.
-        terms = terms_parser.master_terms(payload, as_of=snapshot_day)
+        next_listing = None
+        if (as_of >= NEXT_SESSION_LISTING_EFFECTIVE_DATE and snapshot_day == as_of
+                and observed_day == as_of and observation_clock is not None
+                and observation_clock.astimezone(ZoneInfo("Asia/Shanghai")).time() >= time(15, 30)
+                and type(next_exchange_session) is date and next_exchange_session > as_of):
+            next_listing = next_exchange_session
+        terms = terms_parser.master_terms(payload, as_of=snapshot_day,
+                                          announced_next_session=next_listing)
     except ExpiryMasterUnavailable:
         raise
     except (RuntimeError, KeyError, TypeError, ValueError, AttributeError) as exc:
@@ -71,6 +80,12 @@ def verify_sse_chain(frame, payload, *, as_of, month, model_expiry, observation_
             raise ExpiryEvidenceConflict("SSE主表返回了请求月份以外的合约")
         if term.expiry != model_expiry:
             raise ExpiryEvidenceConflict("SSE主表真实到期日与模型日期冲突")
+    # The after-close master may announce standard contracts for the next
+    # approved session. Retain and validate all rows, but today's quote set
+    # must match only the currently listed rows, with no future security.
+    announced = sorted(security for security, term in terms.items() if term.availability_day is None)
+    if announced:
+        terms = {security: term for security, term in terms.items() if security not in announced}
     if snapshot_day != as_of:
         raise ExpiryMasterUnavailable("SSE当前主表TIMESAVE不能证明所需历史参考时点，禁止重标来源日期")
     needed = {"contract", "security_id", "strike"}
@@ -102,11 +117,16 @@ def verify_sse_chain(frame, payload, *, as_of, month, model_expiry, observation_
         "master_sha256": terms_parser.payload_hash(payload),
         "delivery_date_used_as_expiry": False,
     }
+    if announced:
+        result.attrs["expiry_evidence"].update(
+            announced_next_session=next_listing.isoformat(),
+            excluded_not_yet_listed_security_ids=announced,
+        )
     return result
 
 
 def verify_recorded_chain(frame, stamp, proof, *, as_of, month, observation_clock,
-                          model_expiry=None):
+                          model_expiry=None, next_exchange_session=None):
     """Recheck raw provider evidence on every post-adoption archive consumption."""
     if (not isinstance(proof, dict) or proof.get("revision") != REVISION
             or proof.get("day") != as_of.isoformat() or proof.get("month") != month
@@ -123,7 +143,8 @@ def verify_recorded_chain(frame, stamp, proof, *, as_of, month, observation_cloc
         expected = model_expiry or actual
         result = verify_sse_chain(frame, proof["payload"], as_of=as_of,
                                   month=month, model_expiry=expected,
-                                  observation_clock=observation_clock)
+                                  observation_clock=observation_clock,
+                                  next_exchange_session=next_exchange_session)
     elif provider == "Sina":
         if not str(stamp.get("source", "")).startswith("新浪财经期权详报价"):
             raise ExpiryEvidenceConflict("原日期权链与Sina到期来源不一致")

@@ -108,6 +108,11 @@ def validate_held_close(strategy, value, key, day, clock, *, reader=None):
                     or strategy._fourth_wednesday(2000 + int(key["contract"][7:9]),
                                                  int(key["contract"][9:11])) != proof["expected_expiry"]):
                 raise ValueError("calendar mismatch")
+            if proof["monthly_reset"] is True:
+                if not strategy._v14_monthly_option_calendar(
+                    "IC", day, strategy._third_friday(day.year, day.month), True
+                )[0]:
+                    raise ValueError("monthly old-leg proof on non-maintenance day")
         except (KeyError, TypeError, ValueError, RuntimeError) as exc:
             raise evidence.EvidenceUnavailable("原日已持Put收盘备用未绑定正式日历后继/到期日") from exc
     capture = evidence.current_session.get()
@@ -357,7 +362,9 @@ def validate_chain(strategy, value, month, day, clock):
             frame = expiry_evidence.verify_recorded_chain(
                 frame, stamp, proof, as_of=day, month="20" + canonical,
                 observation_clock=clock,
-                model_expiry=strategy._fourth_wednesday(2000+int(canonical[:2]), int(canonical[2:])))
+                model_expiry=strategy._fourth_wednesday(2000+int(canonical[:2]), int(canonical[2:])),
+                next_exchange_session=(strategy._roll_forward_exchange_day(day + timedelta(days=1), require_official=True)
+                                       if day >= expiry_evidence.NEXT_SESSION_LISTING_EFFECTIVE_DATE else None))
         except (expiry_evidence.ExpiryEvidenceConflict, expiry_evidence.ExpiryMasterUnavailable,
                 KeyError, TypeError, ValueError, AttributeError) as exc:
             raise evidence.EvidenceUnavailable(f"{day} original expiry proof rejected: {exc}") from exc
@@ -747,7 +754,10 @@ def _require_original_reader(reader, product, day, zone, strategy=None):
                 frame, stamp = reader.call("ic.chain", key)
                 proof = reader.call("ic.expiry", _expiry_key(month, day))
                 expiry_evidence.verify_recorded_chain(
-                    frame, stamp, proof, as_of=day, month="20"+month, observation_clock=closed)
+                    frame, stamp, proof, as_of=day, month="20"+month, observation_clock=closed,
+                    next_exchange_session=(strategy._roll_forward_exchange_day(day + timedelta(days=1), require_official=True)
+                                           if strategy is not None and day >= expiry_evidence.NEXT_SESSION_LISTING_EFFECTIVE_DATE
+                                           else None))
             except (expiry_evidence.ExpiryEvidenceConflict, expiry_evidence.ExpiryMasterUnavailable,
                     KeyError, TypeError, ValueError, AttributeError) as exc:
                 raise evidence.EvidenceUnavailable(f"original expiry coverage rejected: {exc}") from exc

@@ -180,6 +180,39 @@ def test_cannot_use_for_monthly_new_selection_or_earlier_policy():
         close.validate_held_put_close(**inputs)
 
 
+def monthly_actual_inputs():
+    fixtures = Path(__file__).resolve().parent / "quant_research_runs/20261120_monthly_old_leg_repair/fixtures"
+    proof = json.loads((fixtures / "proof.json").read_text(encoding="utf-8"))
+    proof.pop("revision")
+    for key in ("signal_day", "expected_previous_day", "current_ledger_day", "expected_expiry"):
+        proof[key] = date.fromisoformat(proof[key])
+    proof["anchor"]["last_verified_day"] = date.fromisoformat(proof["anchor"]["last_verified_day"])
+    proof["observed_at"] = datetime.fromisoformat(proof["observed_at"])
+    for key in ("detail_raw", "identity_raw", "sina_daily_raw", "eastmoney_daily_raw"):
+        proof[key] = (fixtures / (key + ".bin")).read_bytes()
+    return proof
+
+
+def test_actual_20261120_monthly_old_leg_dual_close_only():
+    checked = close.validate_held_put_close(**monthly_actual_inputs())
+    assert checked["row"]["last"] == 0.6286
+    evidence = checked["evidence"]
+    assert evidence["monthly_reset_old_leg_only"] is True
+    assert evidence["identity_source_stamp"] == "2026-11-20T00:00:00+08:00"
+    assert evidence["detail_volume"] == 14224 and evidence["detail_position"] == 46856
+    assert evidence["quote_time"] is None and not evidence["iv_monitor_eligible"]
+    assert not evidence["new_listing_or_candidate_certified"]
+
+
+@pytest.mark.parametrize("field,value", [(2, "0.6287"), (1, "0.7"), (3, "0"),
+                                            (5, "0"), (41, "0"), (32, "2026-11-19 00:00:00")])
+def test_monthly_old_leg_refuses_contradictory_or_nontradable_detail(field, value):
+    inputs = monthly_actual_inputs()
+    inputs["detail_raw"] = replace_packet(inputs["detail_raw"], field, value)
+    with pytest.raises((close.HeldPutCloseUnavailable, close.HeldPutCloseConflict)):
+        close.validate_held_put_close(**inputs)
+
+
 def test_old_master_is_optional_conflict_evidence_not_current_listing_proof():
     inputs = valid_inputs()
     inputs["official_master"] = None
