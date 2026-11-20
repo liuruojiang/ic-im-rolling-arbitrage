@@ -4533,7 +4533,9 @@ def fetch_sse_510500_chain(expiry_ym: str) -> tuple[pd.DataFrame, dict[str, str]
         frame = expiry_evidence.verify_sse_chain(
             frame, master, as_of=reference_day, month="20" + yy + month,
             model_expiry=_fourth_wednesday(2000 + int(yy), int(month)),
-            observation_clock=_iv_observation_clock(_now_beijing()))
+            observation_clock=_iv_observation_clock(_now_beijing()),
+            next_exchange_session=(_roll_forward_exchange_day(reference_day + timedelta(days=1), require_official=True)
+                                   if reference_day >= expiry_evidence.NEXT_SESSION_LISTING_EFFECTIVE_DATE else None))
         evidence_adapter.record_expiry_proof(yy + month, reference_day, {
             "revision": expiry_evidence.REVISION, "provider": "SSE",
             "day": reference_day.isoformat(), "month": "20" + yy + month,
@@ -5049,6 +5051,12 @@ def make_diagnostic_signal(
         ) if key in source},
         "data_notes": list(source.get("data_notes", [])),
     }
+    # These are separately validated quote observations, not target fields.
+    if (str(result["market_date"])[:10] >= quarter_roll.TENOR_SPREAD_EFFECTIVE.isoformat()
+            and future.get("quote_status") == "signal_date_matched"):
+        result["diagnostic_tenor_spreads"] = {
+            key: deepcopy(source[key]) for key in quarter_roll.TENOR_SPREAD_LABELS if key in source
+        }
     # These are model observations, not independent confirmed futures targets:
     # the fixed-core route and quarter schedule can still depend on a Put leg
     # or the missing calendar. Copy only already-computed scalar values.
@@ -6658,7 +6666,7 @@ def _held_ic_put_close_eligible(day, anchor):
             or not re.fullmatch(r"[0-9]{8}", str(anchor.get("v14_core_put_security_id") or ""))):
         return False
     monthly_due, _ = _v14_monthly_option_calendar("IC", day, _third_friday(day.year, day.month), True)
-    return not monthly_due
+    return not monthly_due or day >= held_put_close.MONTHLY_OLD_LEG_EFFECTIVE_DATE
 
 
 def _fetch_held_ic_put_daily_close_for_day(contract, security_id, day, anchor):
@@ -6696,10 +6704,11 @@ def _fetch_held_ic_put_daily_close_for_day(contract, security_id, day, anchor):
             response.close()
     raw = dict(_collect_quote_batches(fetch, specs))
     observed = _held_ic_put_close_observation_clock()
+    monthly_due, _ = _v14_monthly_option_calendar("IC", day, _third_friday(day.year, day.month), True)
     proof = dict(revision=held_put_close.REVISION, anchor={key: deepcopy(anchor.get(key)) for key in (
         "last_verified_day", "v14_route_state", "v14_core_put_contract", "v14_core_put_security_id", "v14_core_put_qty")},
         signal_day=day, expected_previous_day=previous, current_ledger_day=anchor.get("last_verified_day"),
-        expected_expiry=expiry, observed_at=observed, monthly_reset=False, official_master=None, **raw)
+        expected_expiry=expiry, observed_at=observed, monthly_reset=monthly_due, official_master=None, **raw)
     checked = held_put_close.validate_held_put_close(**{key: value for key, value in proof.items() if key != "revision"})
     frame = pd.DataFrame([checked["row"]])
     frame.attrs["held_close_evidence"] = checked["evidence"]
@@ -6753,7 +6762,8 @@ def _v14_ic_core_overlay(signal: dict[str, Any], anchor: dict[str, Any]) -> None
                 raise
             except (RuntimeError, requests.RequestException) as exc:
                 if (day < held_put_close.EFFECTIVE_SIGNAL_DATE or signal.get("close_confirmed") is not True
-                        or signal.get("option_monthly_reset_due")):
+                        or (signal.get("option_monthly_reset_due")
+                            and day < held_put_close.MONTHLY_OLD_LEG_EFFECTIVE_DATE)):
                     raise
                 primary_error = f"{type(exc).__name__}: {exc}"
                 chain, stamp, proof = _fetch_held_ic_put_daily_close_for_day(
@@ -6765,6 +6775,8 @@ def _v14_ic_core_overlay(signal: dict[str, Any], anchor: dict[str, Any]) -> None
             evidence = chain.attrs.get("held_close_evidence")
             if not isinstance(evidence, dict) or evidence.get("quote_kind") != "daily_close":
                 raise RuntimeError("IC已持Put日收盘缺少独立复验的来源证明")
+            if signal.get("option_monthly_reset_due") and evidence.get("monthly_reset_old_leg_only") is not True:
+                raise RuntimeError("IC月度旧腿收盘备用缺少专用身份与价格证明")
             signal["v14_core_put_close_evidence"] = deepcopy(evidence)
             if primary_error:
                 signal["v14_core_put_close_evidence"]["primary_failure"] = primary_error
@@ -7567,6 +7579,8 @@ def build_live_trade_signal(
             except TargetPutQuoteUnavailable as exc:
                 result = make_diagnostic_signal(product, clock, str(exc), status="put_fail_closed")
                 result["diagnostic_option"] = deepcopy(exc.details)
+            except (held_put_close.HeldPutCloseUnavailable, held_put_close.HeldPutCloseConflict) as exc:
+                result = make_diagnostic_signal(product, clock, str(exc), status="put_fail_closed")
             if not result.get("diagnostic_only") and (
                 context["expiries"] or context["failures"]
                 or result.get("v14_action") == "HOLD_FAIL_CLOSED"
@@ -7983,6 +7997,40 @@ def _build_live_trade_signal(
                 f"上交所ETF与期权链日期不一致：{etf_day} != {chain_day}"
             )
         put_quote = _quote_row(chain, put_contract, market_date, quote_source=sse_stamp.get("source"))
+        # On a confirmed monthly maintenance day a stale vendor clock may
+        # invalidate the chain's OLD held row even when its dated close is
+        # independently available. Only the exact preceding CORE identity may
+        # use that mark; the complete new-month selection stays unchanged.
+        held_anchor = LIVE_CONTINUATION_ANCHOR["IC"]
+        monthly_old_leg = (market_date >= held_put_close.MONTHLY_OLD_LEG_EFFECTIVE_DATE
+                           and close_confirmed and option_roll_due
+                           and put_contract == held_anchor.get("v14_core_put_contract")
+                           and held_anchor.get("post_put_security_id") == held_anchor.get("v14_core_put_security_id")
+                           and held_anchor.get("post_put_qty") == held_anchor.get("v14_core_put_qty"))
+        if monthly_old_leg and put_quote is None:
+            exact = chain[chain["contract"].eq(put_contract)]
+            if len(exact) > 1:
+                raise held_put_close.HeldPutCloseConflict("IC月度旧腿报价重复")
+            if len(exact) == 1:
+                try:
+                    _require_held_ic_put_identity(put_contract, held_anchor.get("post_put_security_id"),
+                                                  exact.iloc[0], market_date)
+                except RuntimeError as exc:
+                    raise held_put_close.HeldPutCloseConflict(str(exc)) from exc
+            if replay_day is not None:
+                old_chain, old_stamp = chain, sse_stamp
+            else:
+                old_chain, old_stamp, _ = _fetch_held_ic_put_daily_close_for_day(
+                    put_contract, str(held_anchor.get("post_put_security_id") or ""), market_date, held_anchor)
+            proof = old_chain.attrs.get("held_close_evidence")
+            if (old_stamp.get("quote_kind") != "daily_close" or not isinstance(proof, dict)
+                    or proof.get("monthly_reset_old_leg_only") is not True or len(old_chain) != 1):
+                raise held_put_close.HeldPutCloseUnavailable("IC月度旧腿未取得独立核验的日收盘证明")
+            put_quote = old_chain.iloc[0]
+            _require_held_ic_put_identity(put_contract, held_anchor.get("post_put_security_id"), put_quote, market_date)
+            signal["v14_core_put_close_evidence"] = deepcopy(proof)
+            data_notes.append(f"IC月度旧腿 {put_contract} 双源日收盘 {float(put_quote['last']):g}；"
+                              "仅用于已持旧腿估值，不是实时成交报价；新Put仍独立按原门槛选约。")
         if put_quote is not None and float(LIVE_CONTINUATION_ANCHOR["IC"].get("post_put_qty", 0)) > 0:
             _require_held_ic_put_identity(
                 put_contract, LIVE_CONTINUATION_ANCHOR["IC"].get("post_put_security_id"), put_quote, market_date
@@ -8867,6 +8915,13 @@ def _write_diagnostic_signal(msg: Any, product: str, signal: dict[str, Any]) -> 
         msg.write("已核验期货报价（仅行情观察）：\n\n")
         for row in future["quotes"]:
             msg.write(f"- `{row.get('contract', row.get('instrument'))}`：{row.get('lastprice', row.get('price'))}。\n")
+        msg.write("\n")
+    tenor = signal.get("diagnostic_tenor_spreads")
+    if tenor:
+        for line in quarter_roll.format_tenor_spreads(
+            {**tenor, "product": product, "market_date": signal["market_date"]}, product=product
+        ):
+            msg.write(f"- {line}（仅行情观察）\n")
         msg.write("\n")
     references = signal.get("diagnostic_model", {}).get("unconfirmed_references", {})
     if references:

@@ -16,6 +16,7 @@ from zoneinfo import ZoneInfo
 
 REVISION = "held_ic_put_daily_close_20261113_v1"
 EFFECTIVE_SIGNAL_DATE = date(2026, 11, 13)
+MONTHLY_OLD_LEG_EFFECTIVE_DATE = date(2026, 11, 20)
 BEIJING = ZoneInfo("Asia/Shanghai")
 
 
@@ -206,8 +207,9 @@ def validate_held_put_close(*, anchor, signal_day, expected_previous_day, curren
     observed = observed_at.astimezone(BEIJING)
     if observed.date() != signal_day or observed.time().replace(tzinfo=None) < time(15, 30):
         raise HeldPutCloseUnavailable("收盘备用仅限同一信号日15:30后的真实采集")
-    if not isinstance(anchor, dict) or monthly_reset is not False:
-        raise HeldPutCloseUnavailable("月度重置或新选约不能使用已持仓收盘备用")
+    if (not isinstance(anchor, dict) or type(monthly_reset) is not bool
+            or (monthly_reset and signal_day < MONTHLY_OLD_LEG_EFFECTIVE_DATE)):
+        raise HeldPutCloseUnavailable("月度旧腿收盘备用尚未采用或身份无效")
     if (anchor.get("v14_route_state") != "future"
             or _day(anchor.get("last_verified_day")) != expected_previous_day
             or current_ledger_day != expected_previous_day or expected_previous_day >= signal_day):
@@ -247,6 +249,24 @@ def validate_held_put_close(*, anchor, signal_day, expected_previous_day, curren
     eastmoney_close = _eastmoney_close(eastmoney_daily_raw, security_id, signal_day)
     if abs(sina_close - eastmoney_close) > Decimal("0.000000000001"):
         raise HeldPutCloseConflict("新浪与东方财富当日期权收盘价冲突")
+    monthly_old_leg_evidence = {}
+    if monthly_reset:
+        # The close is a dated model mark of the PREVIOUSLY HELD leg, not
+        # an executable intraday book or evidence that a new candidate exists.
+        # Require contemporary identity/detail and both dated closes to agree.
+        if _positive(detail[2]) != sina_close or _positive(identity[14]) != sina_close:
+            raise HeldPutCloseConflict("月度旧腿逐证券价格与双源日收盘冲突")
+        bid, ask = _positive(detail[1]), _positive(detail[3])
+        if bid > ask:
+            raise HeldPutCloseConflict("月度旧腿供应商双边报价倒挂")
+        position, volume = _positive(detail[5]), _positive(detail[41])
+        if position != position.to_integral_value() or volume != volume.to_integral_value():
+            raise HeldPutCloseUnavailable("月度旧腿持仓或成交量非法")
+        monthly_old_leg_evidence = {
+            "monthly_reset_old_leg_only": True,
+            "detail_position": int(position), "detail_volume": int(volume),
+            "detail_bid_ask_checked_not_realtime": True,
+        }
     raw_hashes = {name: hashlib.sha256(raw).hexdigest() for name, raw in (
         ("detail", detail_raw), ("identity", identity_raw),
         ("sina_daily", sina_daily_raw), ("eastmoney_daily", eastmoney_daily_raw))}
@@ -269,5 +289,6 @@ def validate_held_put_close(*, anchor, signal_day, expected_previous_day, curren
             "official_master_snapshot_day": master_day,
             "official_master_conflict_check_only": official_master is not None,
             "new_listing_or_candidate_certified": False, "raw_sha256": raw_hashes,
+            **monthly_old_leg_evidence,
         },
     }
