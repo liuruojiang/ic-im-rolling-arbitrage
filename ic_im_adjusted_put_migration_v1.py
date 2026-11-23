@@ -154,7 +154,9 @@ def master_terms(payload: dict, *, as_of: Any, announced_next_session: date | No
             start = day(row["START_DATE"])
             future_listing = start > reference
             if future_listing and (start != announced_next_session or match.group(3) != "M"):
-                raise RuntimeError("official master duplicate/listing date invalid")
+                raise RuntimeError(f"official master future listing invalid: contract={contract!r} "
+                                   f"security={str(security)[:16]!r} TIMESAVE={reference} START_DATE={start} "
+                                   f"permitted_next_session={announced_next_session}")
             # A next-session announcement establishes identity only. It must
             # never claim current availability, even for a fully valid code.
             terms_day = start if future_listing else reference
@@ -164,7 +166,9 @@ def master_terms(payload: dict, *, as_of: Any, announced_next_session: date | No
                           # not the effective date of the adjusted terms.
                           terms_day, terms_day, digest, expiry, None if future_listing else reference)
             if security in result or contract in contracts:
-                raise RuntimeError("official master duplicate/listing date invalid")
+                field = "SECURITY_ID" if security in result else "CONTRACT_ID"
+                raise RuntimeError(f"official master duplicate {field}: contract={contract!r} "
+                                   f"security={security!r} TIMESAVE={reference} START_DATE={start}")
             contracts.add(contract)
             result[security] = value
         except (KeyError, TypeError) as exc:

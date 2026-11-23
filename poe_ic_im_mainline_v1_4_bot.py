@@ -4534,6 +4534,7 @@ def fetch_sse_510500_chain(expiry_ym: str) -> tuple[pd.DataFrame, dict[str, str]
             frame, master, as_of=reference_day, month="20" + yy + month,
             model_expiry=_fourth_wednesday(2000 + int(yy), int(month)),
             observation_clock=_iv_observation_clock(_now_beijing()),
+            exchange_session_on_or_after=lambda day: _roll_forward_exchange_day(day, require_official=True),
             next_exchange_session=(_roll_forward_exchange_day(reference_day + timedelta(days=1), require_official=True)
                                    if reference_day >= expiry_evidence.NEXT_SESSION_LISTING_EFFECTIVE_DATE else None))
         evidence_adapter.record_expiry_proof(yy + month, reference_day, {

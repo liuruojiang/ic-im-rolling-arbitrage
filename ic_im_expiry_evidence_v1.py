@@ -35,7 +35,7 @@ def unique_object(pairs):
 
 
 def verify_sse_chain(frame, payload, *, as_of, month, model_expiry, observation_clock=None,
-                     next_exchange_session=None):
+                     next_exchange_session=None, exchange_session_on_or_after=None):
     """Bind every quote identity to a same-day real SSE master row."""
     if type(as_of) is not date or type(model_expiry) is not date:
         raise ExpiryEvidenceConflict("SSE到期核验缺少明确市场日或模型日期")
@@ -69,6 +69,21 @@ def verify_sse_chain(frame, payload, *, as_of, month, model_expiry, observation_
                 and observation_clock.astimezone(ZoneInfo("Asia/Shanghai")).time() >= time(15, 30)
                 and type(next_exchange_session) is date and next_exchange_session > as_of):
             next_listing = next_exchange_session
+        elif (observation_clock is not None and observed_day == as_of
+              and NEXT_SESSION_LISTING_EFFECTIVE_DATE <= snapshot_day < as_of
+              and exchange_session_on_or_after is not None
+              and exchange_session_on_or_after(snapshot_day) == snapshot_day
+              and exchange_session_on_or_after(snapshot_day + timedelta(days=1)) == as_of):
+            # A previous session's validated announcement can still be in the
+            # live master. Parse it on its real date before rejecting this
+            # snapshot as unavailable; it cannot prove any current quote.
+            for row in rows:
+                if (row.get("UNDERLYING_TYPE") != "EBS" or
+                        re.fullmatch(r"[^()]+\(510500\)", str(row.get("SECURITYNAMEBYID"))) is None):
+                    raise ExpiryEvidenceConflict(
+                        f"SSE前一交易日主表标的冲突: SECURITY_ID={str(row.get('SECURITY_ID'))[:16]!r} "
+                        f"TIMESAVE={snapshot_day}")
+            next_listing = as_of
         terms = terms_parser.master_terms(payload, as_of=snapshot_day,
                                           announced_next_session=next_listing)
     except ExpiryMasterUnavailable:
@@ -87,7 +102,7 @@ def verify_sse_chain(frame, payload, *, as_of, month, model_expiry, observation_
     if announced:
         terms = {security: term for security, term in terms.items() if security not in announced}
     if snapshot_day != as_of:
-        raise ExpiryMasterUnavailable("SSE当前主表TIMESAVE不能证明所需历史参考时点，禁止重标来源日期")
+        raise ExpiryMasterUnavailable(f"SSE当前主表TIMESAVE={snapshot_day}不能证明参考日{as_of}，禁止重标来源日期")
     needed = {"contract", "security_id", "strike"}
     if not needed.issubset(frame.columns) or frame.empty:
         raise ExpiryEvidenceConflict("SSE行情链缺少可核验证券身份")
