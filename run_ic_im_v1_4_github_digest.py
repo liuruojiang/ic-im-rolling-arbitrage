@@ -381,6 +381,10 @@ def render_stored_close_report(latest: dict[str, Any]) -> str:
                 "",
                 "<details><summary>完整逐腿JSON</summary>",
                 "",
+                *(["**贴水字段口径：** `close_report_curve` 是新版收盘贴水的展示证据；"
+                   "`quarter_spread` 及三项 `near_*_spread` 仅为原始兼容记录，交割日可能仍以当日交割合约为基准。"
+                   "请勿将兼容字段当作新版收盘贴水口径。原始JSON不改写。", ""]
+                  if strategy.quarter_roll.uses_close_curve(signal) else []),
                 "```json",
                 json.dumps(_jsonable(signal), ensure_ascii=False, indent=2),
                 "```",
