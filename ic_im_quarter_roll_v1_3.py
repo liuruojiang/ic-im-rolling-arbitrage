@@ -129,6 +129,10 @@ TENOR_SPREAD_LABELS = {
 INDEX_BASIS_EFFECTIVE = date(2026, 11, 25)
 INDEX_BASIS_LABELS = ("近月－指数", "远月－指数", "近季度－指数", "远季度－指数")
 INDEX_NAMES = {"IC": "中证500", "IM": "中证1000"}
+CLOSE_CURVE_EFFECTIVE = date(2026, 11, 25)
+CLOSE_CURVE_ROLES = ("near", "far", "quarter_near", "quarter_far")
+CLOSE_CURVE_LABELS = ("近月相对指数", "远月相对指数", "近季度相对指数", "远季度相对指数")
+CLOSE_CURVE_NOTE = "贴水口径：正值为贴水，负值为升水。指数为当日收盘；期货为同日最后报价（个别可能早于15:00），不是结算价。"
 
 
 def _tenor_months(front):
@@ -374,9 +378,11 @@ def format_month_spread(value, label, *, product=None, day=None):
 
 
 def format_spreads(signal, *, product=None):
+    if uses_close_curve(signal):
+        return format_close_curve(signal, product=product)
     if any(key in signal for key in TENOR_SPREAD_LABELS) or str(signal.get("market_date", ""))[:10] >= TENOR_SPREAD_EFFECTIVE.isoformat():
         lines = format_tenor_spreads(signal, product=product)
-        if (signal.get("close_confirmed") is True
+        if (signal.get("mode") != "intraday" and signal.get("close_confirmed") is True
                 and str(signal.get("market_date", "")) >= INDEX_BASIS_EFFECTIVE.isoformat()):
             lines.extend(format_index_basis(signal, product=product))
         return lines
@@ -386,6 +392,175 @@ def format_spreads(signal, *, product=None):
         lines.extend(format_month_spread(signal.get(key), label, product=product or signal.get("product"),
                                         day=signal.get("market_date")) for key, label in MONTH_SPREAD_LABELS.items())
     return lines
+
+
+def uses_close_curve(signal):
+    return (signal.get("mode") == "close" and signal.get("close_confirmed") is True
+            and str(signal.get("market_date", "")) >= CLOSE_CURVE_EFFECTIVE.isoformat())
+
+
+def _report_price(value, label):
+    number = _spread_number(value, label)
+    if number <= 0 or len(f"{number:.2f}") > 24 or f"{number:.2f}" == "0.00":
+        raise ValueError(f"{label} 报价异常或无法可靠显示")
+    return number
+
+
+def build_close_curve(product, quotes, day, expiry, *, spot, spot_date, spot_source):
+    """Report-only independent quote evidence; on delivery day exclude the expiring month."""
+    source = quotes.attrs.get("source")
+    source_date = str(quotes.attrs.get("source_date", ""))
+    curve = dict(schema="close_curve_v2", product=product, market_date=day.isoformat(),
+                 source=source, source_date=source_date, price_type="same_snapshot_lastprice",
+                 listed_contracts=[], legs={}, index={"status": "unavailable"})
+    try:
+        if (str(spot_date) != day.isoformat() or not isinstance(spot_source, str)
+                or not spot_source.strip()):
+            raise ValueError("指数收盘日期或来源未核验")
+        curve["index"] = dict(status="ok", price=_report_price(spot, "指数"),
+                              source_date=str(spot_date), source=spot_source)
+    except (ValueError, TypeError, OverflowError) as exc:
+        curve["index"]["reason"] = str(exc)
+    try:
+        if product not in INDEX_NAMES or source_date != day.isoformat() or not isinstance(source, str) or not source.strip():
+            raise ValueError("期货品种、日期或来源未核验")
+        current = day.year * 12 + day.month - 1
+        current_expiry = expiry(_contract_at(product, current))
+        curve["current_month_expiry"] = current_expiry.isoformat()
+        front = current + (day >= current_expiry)
+        listed = list(quotes.attrs.get("listed_instruments", quotes.instrument.tolist()))
+        if not all(isinstance(c, str) for c in listed) or len(listed) != len(set(listed)):
+            raise ValueError("挂牌清单异常")
+        curve["listed_contracts"] = sorted(listed)
+    except (ValueError, TypeError, KeyError, AttributeError, RuntimeError, OverflowError) as exc:
+        curve["reason"] = str(exc)
+        return curve
+    for role, ordinal in zip(CLOSE_CURVE_ROLES, _tenor_months(front)):
+        contract = _contract_at(product, ordinal)
+        leg = curve["legs"][role] = dict(status="unavailable", contract=contract)
+        try:
+            if contract not in listed:
+                raise ValueError("目标合约尚未实际挂牌")
+            rows = quotes.loc[quotes.instrument.eq(contract)]
+            if len(rows) != 1:
+                raise ValueError("缺失或重复同日报价")
+            price = _report_price(rows.iloc[0].lastprice, contract)
+            expiration = expiry(contract)
+            if expiration <= day:
+                raise ValueError("合约未严格晚于收盘日")
+            leg.update(status="ok", price=price, expiry=expiration.isoformat())
+        except (ValueError, TypeError, KeyError, AttributeError, RuntimeError, OverflowError) as exc:
+            leg["reason"] = str(exc)
+    return curve
+
+
+def _report_calendar_expiry(product, day, contract):
+    from poe_ic_im_mainline_v1_4_bot import _accepted_calendar_covers, _CALENDAR_POLICY_DAY, _SIGNAL_CALENDAR_DIAGNOSTICS, _is_exchange_trading_day, _third_friday
+    token = _CALENDAR_POLICY_DAY.set(day)
+    diagnostic_token = _SIGNAL_CALENDAR_DIAGNOSTICS.set(None)
+    try:
+        if not _accepted_calendar_covers(day) or not _is_exchange_trading_day(day):
+            raise ValueError("行情日未获交易日历授权")
+        expiration = _third_friday(2000 + int(contract[2:4]), int(contract[-2:]))
+        if not _accepted_calendar_covers(expiration):
+            raise ValueError("到期日历未获授权")
+        return expiration
+    finally:
+        _SIGNAL_CALENDAR_DIAGNOSTICS.reset(diagnostic_token)
+        _CALENDAR_POLICY_DAY.reset(token)
+
+
+def _curve_arithmetic(anchor, future, days):
+    points = anchor - future
+    ratio = points / anchor
+    annual = ratio * 365 / days
+    if (days <= 0 or not all(math.isfinite(x) for x in (points, ratio * 100, annual * 100))
+            or any(len(x) > 24 for x in (f"{points:+.2f}", f"{ratio:+.2%}", f"{annual:+.2%}"))):
+        raise ValueError("贴水数值或期间异常，无法可靠显示")
+    return points, ratio, annual
+
+
+def format_close_curve(signal, *, product=None):
+    """Independently revalidate each leg; a missing index or leg cannot hide other available legs."""
+    product = product or signal.get("product")
+    labels = tuple(TENOR_SPREAD_LABELS.values()) + CLOSE_CURVE_LABELS
+    def na(index, reason):
+        prefix = "期限贴水" if index < 3 else "期现贴水"
+        return f"{prefix}（{labels[index]}）：N/A（{reason}）"
+    curve = signal.get("close_report_curve")
+    try:
+        if not uses_close_curve(signal) or not isinstance(curve, dict) or curve.get("schema") != "close_curve_v2":
+            raise ValueError("未提供已核验收盘期限结构")
+        day = date.fromisoformat(str(signal.get("market_date")))
+        if (product not in INDEX_NAMES or product != signal.get("product") or product != curve.get("product")
+                or curve.get("market_date") != day.isoformat() or curve.get("source_date") != day.isoformat()
+                or str(signal.get("future_quote_date")) != day.isoformat() or curve.get("source") != signal.get("future_quote_source")
+                or not isinstance(curve.get("source"), str) or not curve["source"].strip()
+                or curve.get("price_type") != "same_snapshot_lastprice"):
+            raise ValueError("收盘期限结构的日期、品种或来源不一致")
+        current = day.year * 12 + day.month - 1
+        current_expiry = _report_calendar_expiry(product, day, _contract_at(product, current))
+        if curve.get("current_month_expiry") != current_expiry.isoformat():
+            raise ValueError("当月实际交割日不一致")
+        contracts = [_contract_at(product, m) for m in _tenor_months(current + (day >= current_expiry))]
+        listed = curve.get("listed_contracts")
+        if not isinstance(listed, list) or not all(isinstance(c, str) for c in listed) or len(listed) != len(set(listed)):
+            raise ValueError("挂牌清单异常")
+    except (ValueError, TypeError, KeyError, AttributeError, RuntimeError, OverflowError) as exc:
+        return [na(i, exc) for i in range(7)] + [CLOSE_CURVE_NOTE]
+    legs, errors = {}, {}
+    for i, (role, contract) in enumerate(zip(CLOSE_CURVE_ROLES, contracts)):
+        try:
+            value = curve.get("legs", {}).get(role)
+            if not isinstance(value, dict) or value.get("contract") != contract:
+                raise ValueError("目标合约身份缺失或不一致")
+            if contract not in listed:
+                raise ValueError("目标合约尚未实际挂牌")
+            if value.get("status") != "ok":
+                raise ValueError(str(value.get("reason", "无可验证报价")))
+            expiration = _report_calendar_expiry(product, day, contract)
+            if value.get("expiry") != expiration.isoformat() or expiration <= day:
+                raise ValueError("到期日历不一致或合约已交割")
+            legs[i] = (_report_price(value.get("price"), contract), expiration)
+        except (ValueError, TypeError, KeyError, AttributeError, RuntimeError, OverflowError) as exc:
+            errors[i] = f"{contract}：{exc}"
+    try:
+        value = curve.get("index")
+        if not isinstance(value, dict) or value.get("status") != "ok" or value.get("source_date") != day.isoformat() or not isinstance(value.get("source"), str) or not value["source"].strip():
+            raise ValueError("指数收盘日期、来源或价格未核验")
+        spot = _report_price(value.get("price"), "指数")
+        if spot != _report_price(signal.get("index_price"), "指数"):
+            raise ValueError("指数收盘价格与信号不一致")
+        index_error = None
+    except (ValueError, TypeError, KeyError, AttributeError, OverflowError) as exc:
+        index_error = str(exc)
+    lines = []
+    for i in range(7):
+        leg = i + 1 if i < 3 else i - 3
+        try:
+            if leg not in legs:
+                raise ValueError(errors[leg])
+            future, expiration = legs[leg]
+            if i < 3:
+                if 0 not in legs:
+                    raise ValueError(errors[0])
+                anchor, anchor_expiry = legs[0]
+                name = contracts[0]
+                days = (expiration - anchor_expiry).days
+                prefix = "期限贴水"
+            else:
+                if index_error:
+                    raise ValueError(index_error)
+                anchor, name, days = spot, INDEX_NAMES[product], (expiration - day).days
+                prefix = "期现贴水"
+            points, ratio, annual = _curve_arithmetic(anchor, future, days)
+            duration = "到期间隔" if i < 3 else "距到期"
+            lines.append(f"{prefix}（{labels[i]}）：{name} {anchor:.2f} − {contracts[leg]} {future:.2f} = {points:+.2f}点"
+                         f"（{ratio:+.2%}；{duration} {days}天；年化 {annual:+.2%}/年，非保证收益）；"
+                         f"行情 {day}，期货报价 {curve['source']}")
+        except (ValueError, TypeError, KeyError, AttributeError, OverflowError, ZeroDivisionError) as exc:
+            lines.append(na(i, exc))
+    return lines + [CLOSE_CURVE_NOTE]
 
 
 def format_tenor_spreads(signal, *, product=None):
