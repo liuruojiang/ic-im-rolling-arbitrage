@@ -126,6 +126,10 @@ TENOR_SPREAD_LABELS = {
     "near_far_quarter_spread": "近月－远季",
 }
 
+INDEX_BASIS_EFFECTIVE = date(2026, 11, 25)
+INDEX_BASIS_LABELS = ("近月－指数", "远月－指数", "近季度－指数", "远季度－指数")
+INDEX_NAMES = {"IC": "中证500", "IM": "中证1000"}
+
 
 def _tenor_months(front):
     """Four distinct roles: front, next, and two quarters strictly after next."""
@@ -371,7 +375,11 @@ def format_month_spread(value, label, *, product=None, day=None):
 
 def format_spreads(signal, *, product=None):
     if any(key in signal for key in TENOR_SPREAD_LABELS) or str(signal.get("market_date", ""))[:10] >= TENOR_SPREAD_EFFECTIVE.isoformat():
-        return format_tenor_spreads(signal, product=product)
+        lines = format_tenor_spreads(signal, product=product)
+        if (signal.get("close_confirmed") is True
+                and str(signal.get("market_date", "")) >= INDEX_BASIS_EFFECTIVE.isoformat()):
+            lines.extend(format_index_basis(signal, product=product))
+        return lines
     lines = [format_spread(signal.get("quarter_spread"))]
     # Archived signals without these diagnostics retain their exact old render.
     if any(key in signal for key in MONTH_SPREAD_LABELS) or str(signal.get("market_date", ""))[:10] >= "2026-10-18":
@@ -392,3 +400,59 @@ def format_tenor_spreads(signal, *, product=None):
         return [f"期限贴水（{label}）：N/A（近月基准或行情来源不一致）" for label in TENOR_SPREAD_LABELS.values()]
     return [format_month_spread(signal.get(key), label, product=product or signal.get("product"), day=signal.get("market_date"))
             for key, label in TENOR_SPREAD_LABELS.items()]
+
+
+def format_index_basis(signal, *, product=None):
+    """Close-only display derived from existing, validated same-day signal evidence.
+
+    Do not mutate the signal or infer missing quotations from other contracts.
+    """
+    def unavailable(label, reason):
+        return f"期现贴水（{label}）：N/A（{reason}）"
+
+    product = product or signal.get("product")
+    try:
+        if product not in INDEX_NAMES or signal.get("product") != product or signal.get("close_confirmed") is not True:
+            raise ValueError("缺少对应品种的收盘确认")
+        day = date.fromisoformat(str(signal.get("market_date")))
+        if str(signal.get("future_quote_date")) != day.isoformat():
+            raise ValueError("期货行情日与指数收盘日不一致")
+        spot = _spread_number(signal.get("index_price"), "index_price")
+        if spot <= 0:
+            raise ValueError("指数价格必须为正")
+    except (ValueError, TypeError, OverflowError) as exc:
+        return [unavailable(label, exc) for label in INDEX_BASIS_LABELS]
+
+    checks = {}
+    for index, (key, label) in enumerate(TENOR_SPREAD_LABELS.items(), 1):
+        try:
+            checks[index] = _validated_month_spread(signal.get(key), label, product, day)
+        except (ValueError, TypeError, KeyError, AttributeError, RuntimeError, OverflowError, ZeroDivisionError):
+            continue
+    anchors = {tuple(v[k] for k in ("near_contract", "near_price", "near_expiry", "current_month_expiry", "source", "source_date"))
+               for v in checks.values()}
+    if len(anchors) > 1 or any(v["source"] != signal.get("future_quote_source") for v in checks.values()):
+        return [unavailable(label, "近月基准或行情来源不一致") for label in INDEX_BASIS_LABELS]
+
+    lines = []
+    for index, label in enumerate(INDEX_BASIS_LABELS):
+        value = next(iter(checks.values()), None) if index == 0 else checks.get(index)
+        if value is None:
+            lines.append(unavailable(label, "未提供可核验的同日合约报价"))
+            continue
+        leg = "near" if index == 0 else "far"
+        contract = value[f"{leg}_contract"]
+        future = value[f"{leg}_price"]
+        days = (date.fromisoformat(value[f"{leg}_expiry"]) - day).days
+        points = spot - future
+        ratio = points / spot
+        annualized = ratio * 365 / days if days else None
+        if (days < 0 or not all(math.isfinite(x) for x in (points, ratio, ratio * 100))
+                or (annualized is not None and not math.isfinite(annualized * 100))):
+            lines.append(unavailable(label, "贴水或到期日无效"))
+            continue
+        annual = "年化 N/A（交割当日）" if annualized is None else f"年化 {annualized:+.2%}/年"
+        lines.append(f"期现贴水（{label}）：{INDEX_NAMES[product]} {spot:.2f} − {contract} {future:.2f}"
+                     f" = {points:+.2f}点（{ratio:+.2%}；距到期 {days}天；{annual}，非保证收益）；"
+                     f"行情 {day}，期货报价 {value['source']}")
+    return lines
