@@ -9,6 +9,7 @@ import subprocess
 import sys
 
 ROOT = Path(__file__).resolve().parent
+CLOSE_OBSERVATION_MANIFEST = ROOT / 'docs/ic_im_report_close_observation_20261124_v3_manifest.json'
 CLOSE_CURVE_MANIFEST = ROOT / 'docs/ic_im_report_close_curve_20261124_v2_manifest.json'
 INDEX_BASIS_MANIFEST = ROOT / 'docs/ic_im_report_index_basis_20261124_v1_manifest.json'
 PRIOR_MASTER_MANIFEST = ROOT / 'docs/ic_im_previous_session_master_20261123_v1_manifest.json'
@@ -21,7 +22,7 @@ EXPERT_MANIFEST = ROOT / 'docs/ic_im_expert_release_20261112_manifest.json'
 ROUND2_MANIFEST = ROOT / 'docs/ic_im_fear_source_round2_20261109_manifest.json'
 AUDIT_MANIFEST = ROOT / 'docs/ic_im_fear_source_adversarial_20261109_manifest.json'
 SPLIT_MANIFEST = ROOT / 'docs/ic_im_fear_source_split_20261109_manifest.json'
-MANIFEST = CLOSE_CURVE_MANIFEST if CLOSE_CURVE_MANIFEST.exists() else INDEX_BASIS_MANIFEST if INDEX_BASIS_MANIFEST.exists() else PRIOR_MASTER_MANIFEST if PRIOR_MASTER_MANIFEST.exists() else MONTHLY_OLD_LEG_MANIFEST if MONTHLY_OLD_LEG_MANIFEST.exists() else TENOR_MANIFEST if TENOR_MANIFEST.exists() else HELD_CLOSE_V2_MANIFEST if HELD_CLOSE_V2_MANIFEST.exists() else HELD_CLOSE_MANIFEST if HELD_CLOSE_MANIFEST.exists() else COMPAT_MANIFEST if COMPAT_MANIFEST.exists() else EXPERT_MANIFEST if EXPERT_MANIFEST.exists() else ROUND2_MANIFEST if ROUND2_MANIFEST.exists() else AUDIT_MANIFEST if AUDIT_MANIFEST.exists() else SPLIT_MANIFEST if SPLIT_MANIFEST.exists() else ROOT / 'docs/ic_im_daily_release_20261023_repairs_v3_r3_manifest.json'
+MANIFEST = CLOSE_OBSERVATION_MANIFEST if CLOSE_OBSERVATION_MANIFEST.exists() else CLOSE_CURVE_MANIFEST if CLOSE_CURVE_MANIFEST.exists() else INDEX_BASIS_MANIFEST if INDEX_BASIS_MANIFEST.exists() else PRIOR_MASTER_MANIFEST if PRIOR_MASTER_MANIFEST.exists() else MONTHLY_OLD_LEG_MANIFEST if MONTHLY_OLD_LEG_MANIFEST.exists() else TENOR_MANIFEST if TENOR_MANIFEST.exists() else HELD_CLOSE_V2_MANIFEST if HELD_CLOSE_V2_MANIFEST.exists() else HELD_CLOSE_MANIFEST if HELD_CLOSE_MANIFEST.exists() else COMPAT_MANIFEST if COMPAT_MANIFEST.exists() else EXPERT_MANIFEST if EXPERT_MANIFEST.exists() else ROUND2_MANIFEST if ROUND2_MANIFEST.exists() else AUDIT_MANIFEST if AUDIT_MANIFEST.exists() else SPLIT_MANIFEST if SPLIT_MANIFEST.exists() else ROOT / 'docs/ic_im_daily_release_20261023_repairs_v3_r3_manifest.json'
 
 
 def sha(path):
@@ -58,7 +59,7 @@ def main():
     assert sha(ROOT / 'docs/icim_historical_deselections_20261023.json') == manifest['historical_exclusion_registry_sha256']
     assert registered == json.loads((ROOT / 'docs/icim_historical_deselections_20261023.json').read_text(encoding='utf-8'))
     tests = manifest['required_local_tests']
-    expected_count = {'20261124-report-close-curve-v2':65, '20261124-report-index-basis-v1':64, '20261123-previous-session-master-v1':63, '20261120-monthly-old-leg-digest-v1':62, '20261120-report-tenor-spreads-v1':61, '20261113-held-put-close-v2':59, '20261113-held-put-close-v1':59, '20261112-expert-review-v5-r3':56, '20261112-expert-review-v5-r2':56, '20261109-fear-source-round2-v3':49, '20261109-fear-source-adversarial-v2':49, '20261109-fear-source-split-v1':48, '20261023-redteam-repairs-v3-r3':47}[manifest['release']]
+    expected_count = {'20261124-report-close-observation-v3':66, '20261124-report-close-curve-v2':65, '20261124-report-index-basis-v1':64, '20261123-previous-session-master-v1':63, '20261120-monthly-old-leg-digest-v1':62, '20261120-report-tenor-spreads-v1':61, '20261113-held-put-close-v2':59, '20261113-held-put-close-v1':59, '20261112-expert-review-v5-r3':56, '20261112-expert-review-v5-r2':56, '20261109-fear-source-round2-v3':49, '20261109-fear-source-adversarial-v2':49, '20261109-fear-source-split-v1':48, '20261023-redteam-repairs-v3-r3':47}[manifest['release']]
     assert len(tests) == len(set(tests)) == expected_count
     allowed = [node for node in registered if node.split('::', 1)[0] in tests]
     assert manifest['daily_gate_deselections'] == allowed
