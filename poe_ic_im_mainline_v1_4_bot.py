@@ -5058,6 +5058,8 @@ def make_diagnostic_signal(
         result["diagnostic_tenor_spreads"] = {
             key: deepcopy(source[key]) for key in quarter_roll.TENOR_SPREAD_LABELS if key in source
         }
+        if quarter_roll.uses_close_curve(result) and source.get("close_report_curve"):
+            result["diagnostic_close_report_curve"] = deepcopy(source["close_report_curve"])
     # These are model observations, not independent confirmed futures targets:
     # the fixed-core route and quarter schedule can still depend on a Put leg
     # or the missing calendar. Copy only already-computed scalar values.
@@ -7737,6 +7739,20 @@ def _build_live_trade_signal(
             "quote_status": "signal_date_matched" if observed_day == market_date else "unverified_date",
             "quotes": quote_rows,
         }
+    # Report observations are captured independently before option/roll decisions.
+    # An unavailable display leg must never contribute a strategy-calendar failure.
+    report_curve = None
+    report_close = market_date < today or (market_date == today and _market_phase(clock) in {"收盘后", "非交易日"})
+    if quarter_roll.uses_close_curve({"mode": mode, "close_confirmed": report_close, "market_date": market_date}):
+        report_curve = quarter_roll.build_close_curve(
+            product, future_quotes, market_date,
+            lambda c: quarter_roll._report_calendar_expiry(product, market_date, c),
+            spot=live.get("price"), spot_date=live.get("live_price_source_date"),
+            spot_source=live.get("live_price_source"),
+        )
+        if calendar_context is not None:
+            calendar_context["signal"].update(mode=mode, close_confirmed=report_close,
+                                               close_report_curve=report_curve)
     # Option maintenance keeps the original monthly reference, independent of futures.
     monthly_future = select_active_future(product, future_quotes, market_date, purpose="maintenance_reference")
     monthly_expiry = _third_friday(*_contract_month(str(monthly_future["instrument"])))
@@ -7942,6 +7958,8 @@ def _build_live_trade_signal(
         "grid_policy": grid_rule(product, market_date),
         "data_notes": data_notes,
     }
+    if report_curve is not None:
+        signal["close_report_curve"] = report_curve
     if calendar_context is not None:
         calendar_context["signal"] = signal
     if fear_evidence is not None:
@@ -8918,7 +8936,16 @@ def _write_diagnostic_signal(msg: Any, product: str, signal: dict[str, Any]) -> 
             msg.write(f"- `{row.get('contract', row.get('instrument'))}`：{row.get('lastprice', row.get('price'))}。\n")
         msg.write("\n")
     tenor = signal.get("diagnostic_tenor_spreads")
-    if tenor:
+    curve = signal.get("diagnostic_close_report_curve")
+    if (curve or tenor) and quarter_roll.uses_close_curve(signal):
+        curve_signal = {"product": product, "mode": signal["mode"], "market_date": signal["market_date"],
+                        "close_confirmed": signal["close_confirmed"],
+                        "close_report_curve": curve, "index_price": signal.get("diagnostic_model", {}).get("index_price"),
+                        "future_quote_date": future.get("quote_date"), "future_quote_source": future.get("quote_source")}
+        for line in quarter_roll.format_close_curve(curve_signal, product=product):
+            msg.write(f"- {line}（仅行情观察）\n")
+        msg.write("\n")
+    elif tenor:
         for line in quarter_roll.format_tenor_spreads(
             {**tenor, "product": product, "market_date": signal["market_date"]}, product=product
         ):
