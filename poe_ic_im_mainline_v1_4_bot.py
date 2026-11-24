@@ -7509,6 +7509,49 @@ def _original_evidence_replay() -> bool:
     return signal_evidence.current_reader.get() is not None
 
 
+def _close_failure_observation(exc, product, mode):
+    """An exception may carry a report-only, same-session observation, never a signal."""
+    observation = getattr(exc, "icim_close_failure_observation", None)
+    if not isinstance(observation, dict) or mode != "close":
+        return None
+    if (observation.get("product") != product or not quarter_roll.uses_close_curve(observation)
+            or observation.get("diagnostic_only") is not True
+            or observation.get("signal_complete") is not False
+            or observation.get("persistence_eligible") is not False):
+        return None
+    curve = observation.get("diagnostic_close_report_curve")
+    future = observation.get("diagnostic_future")
+    day = str(observation.get("market_date"))
+    if (not isinstance(curve, dict) or curve.get("schema") != "close_curve_v2"
+            or not isinstance(future, dict) or future.get("quote_status") != "signal_date_matched"
+            or curve.get("product") != product or curve.get("market_date") != day
+            or curve.get("source_date") != day or future.get("quote_date") != day
+            or curve.get("source") != future.get("quote_source")):
+        return None
+    legs = curve.get("legs")
+    if not isinstance(legs, dict) or not any(isinstance(v, dict) and v.get("status") == "ok" for v in legs.values()):
+        return None
+    return observation
+
+
+def _remember_close_failure_observation(exc, product, clock, mode):
+    """Retain only acquired observations; never change the original exception path."""
+    try:
+        context = _SIGNAL_CALENDAR_DIAGNOSTICS.get()
+        source = context.get("signal", {}) if context else {}
+        if (mode != "close" or not quarter_roll.uses_close_curve(source)
+                or not source.get("close_report_curve")):
+            return
+        observation = make_diagnostic_signal(product, clock, str(exc), status="close_observation_after_failure")
+        exc.icim_close_failure_observation = observation
+        if _close_failure_observation(exc, product, mode) is None:
+            del exc.icim_close_failure_observation
+    except Exception:
+        # An optional display diagnostic must not mask the original failure,
+        # alter retry semantics, or turn an error into a successful query.
+        return
+
+
 def build_live_trade_signal(
     product: str, now: datetime | None = None, mode: str = "intraday",
 ) -> dict[str, Any]:
@@ -7602,6 +7645,9 @@ def build_live_trade_signal(
             if session is not None:
                 session.bind_signal(result)
             return result
+        except Exception as exc:
+            _remember_close_failure_observation(exc, product, clock, mode)
+            raise
         finally:
             # Opening confirmation is an in-memory projection for this query.
             # Only the state store may persist a fully validated close signal.
@@ -8914,9 +8960,10 @@ def _isolated_product_report(msg: Any, product: str):
         staged.close()
 
 
-def _write_diagnostic_signal(msg: Any, product: str, signal: dict[str, Any]) -> None:
+def _write_diagnostic_signal(msg: Any, product: str, signal: dict[str, Any], *, include_heading: bool = True) -> None:
     """Keep incomplete observations visible without using the normal target table."""
-    msg.write(f"### {PRODUCT_NAMES[product]}\n\n")
+    if include_heading:
+        msg.write(f"### {PRODUCT_NAMES[product]}\n\n")
     msg.write("**部分数据可用；Put及完整组合目标尚未确认。**\n\n")
     msg.write(f"{signal.get('diagnostic_reason', '数据待核验')}\n\n")
     msg.write(f"信号日：`{signal.get('market_date')}`；状态：`{signal.get('diagnostic_status')}`。\n\n")
@@ -8944,6 +8991,8 @@ def _write_diagnostic_signal(msg: Any, product: str, signal: dict[str, Any]) -> 
                         "future_quote_date": future.get("quote_date"), "future_quote_source": future.get("quote_source")}
         for line in quarter_roll.format_close_curve(curve_signal, product=product):
             msg.write(f"- {line}（仅行情观察）\n")
+        msg.write("- 贴水口径：诊断JSON中的 diagnostic_close_report_curve 为本次独立行情观察；"
+                  "diagnostic_tenor_spreads 仅为兼容记录，不作为新版贴水口径。\n")
         msg.write("\n")
     elif tenor:
         for line in quarter_roll.format_tenor_spreads(
@@ -9057,18 +9106,44 @@ poe.update_settings(_BOT_SETTINGS)
 def build_live_signal_with_transport_retry(product: str, mode: str, budget: float) -> dict[str, Any]:
     """Retry one transient transport failure for this product only."""
     with _network_budget(budget):
-        for attempt in range(2):
+        first_observation = None
+        first_request_day = None
+        if mode == "close":
             try:
-                signal = build_live_trade_signal(product, mode=mode)
-                if attempt:
-                    signal.setdefault("data_notes", []).append(
-                        "本品种首次连接中断/超时后在剩余预算内重试一次成功；未重复其他品种"
-                    )
-                return signal
-            except (requests.ConnectionError, requests.Timeout):
-                if attempt:
-                    raise
-                _bounded_timeout(1.0)
+                first_request_day = _now_beijing().date()
+            except Exception:
+                pass
+        try:
+            for attempt in range(2):
+                try:
+                    signal = build_live_trade_signal(product, mode=mode)
+                    if attempt:
+                        signal.setdefault("data_notes", []).append(
+                            "本品种首次连接中断/超时后在剩余预算内重试一次成功；未重复其他品种"
+                        )
+                    return signal
+                except (requests.ConnectionError, requests.Timeout) as exc:
+                    if attempt:
+                        raise
+                    try:
+                        first_observation = _close_failure_observation(exc, product, mode)
+                    except Exception:
+                        first_observation = None
+                    _bounded_timeout(1.0)
+        except Exception as exc:
+            # Retain one entire earlier observation only if the final failure
+            # has no independently observed data. Never splice legs or dates.
+            try:
+                if (first_observation is not None and first_request_day is not None
+                        and first_request_day == _now_beijing().date()
+                        and _close_failure_observation(exc, product, mode) is None):
+                    observed = deepcopy(first_observation)
+                    observed["diagnostic_reason"] = ("本轮首次尝试的已核验行情；后续重试未取得新的合格观察，"
+                                                     "未与重试行情拼接。首次异常：" + str(observed.get("diagnostic_reason", "")))
+                    exc.icim_close_failure_observation = observed
+            except Exception:
+                pass  # Original terminal error remains authoritative.
+            raise
     raise AssertionError("unreachable")
 
 
@@ -9170,6 +9245,12 @@ class ICIMMainlinesBot:
                         + "该品种的新目标尚未确认；不会用NaN、陈旧行情或未重放账本"
                         "推导替代目标。\n\n"
                     )
+                    observation = _close_failure_observation(exc, product, mode)
+                    if observation is not None:
+                        try:
+                            _write_diagnostic_signal(msg, product, observation, include_heading=False)
+                        except Exception as diagnostic_exc:  # The original failure must remain visible.
+                            msg.write(f"⚠️ 已有行情观察无法完整渲染：{type(diagnostic_exc).__name__}: {diagnostic_exc}。\n\n")
                     try:
                         _write_last_verified_snapshot(msg, product)
                     except Exception as snapshot_exc:  # noqa: BLE001 - reporting fallback only.
